@@ -1,0 +1,4 @@
+{
+    "foo": "this is a \"legal\" JSON value",
+    "keys \"can\" have quotes too": 123
+}

@@ -1,0 +1,17 @@
+{
+    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "license": "The Universal Permissive License (UPL), Version 1.0",
+    "name": "RestrictedJRF",
+    "description": "Restricted JRF type domain definitions",
+    "versions": {
+        "12.2.1": "RJRF_12CR2"
+    },
+    "definitions": {
+        "RJRF_12CR2": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [ "Oracle Enterprise Manager-Restricted JRF" ],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR" ],
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS"]
+        }
+    }
+}

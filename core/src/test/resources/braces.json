@@ -1,0 +1,11 @@
+{
+    "topology": {
+        "Machine": {
+            "machine1": {
+                "NMType": "SSL",
+                "ListenAddress": "${my.address}",
+                "${listen.port}": 5556
+            }
+        }
+    }
+}

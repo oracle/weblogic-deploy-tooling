@@ -1,0 +1,84 @@
+<!--
+    Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+    The Universal Permissive License (UPL), Version 1.0
+-->
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+    <id>zip</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <fileSets>
+        <fileSet>
+            <directory>src/main/etc</directory>
+            <outputDirectory>etc</outputDirectory>
+            <includes>
+                <include>logging.properties</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>../core/src/main/python</directory>
+            <outputDirectory>lib/python</outputDirectory>
+            <includes>
+                <include>**/*.py</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>../core/src/main/typedefs</directory>
+            <outputDirectory>lib/typedefs</outputDirectory>
+            <includes>
+                <include>**/*.json</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/main/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>*.cmd</include>
+            </includes>
+            <lineEnding>dos</lineEnding>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/main/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+            <fileMode>0750</fileMode>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
+
+        <fileSet>
+            <directory>..</directory>
+            <outputDirectory>.</outputDirectory>
+            <includes>
+                <include>LICENSE.txt</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+            <useProjectArtifact>false</useProjectArtifact>
+            <includes>
+                <include>oracle.weblogic.lifecycle:wls-deploy-core</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
+            <useProjectArtifact>false</useProjectArtifact>
+            <includes>
+                <include>org.antlr:antlr4-runtime</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+</assembly>

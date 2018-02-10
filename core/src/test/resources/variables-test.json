@@ -1,0 +1,26 @@
+{
+    "topology": {
+        "Name": "${my-abc}${my_arf}",
+        "Cluster": {
+            "${my.cluster}": {
+                "ClientCertProxyEnabled": true
+            }
+        },
+        "Server": {
+            "AdminServer": {
+                "ListenAddress": "127.0.0.1",
+                "ListenPort": 7001
+            },
+            "s1": {
+                "ListenAddress": "127.0.0.1",
+                "ListenPort": "${my.port}",
+                "Cluster": "${my.cluster}"
+            },
+            "s2": {
+                "ListenAddress": "127.0.0.1",
+                "ListenPort": 8101,
+                "Cluster": "${my.cluster}"
+            }
+        }
+    }
+}

@@ -1,0 +1,110 @@
+{
+    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "license": "The Universal Permissive License (UPL), Version 1.0",
+    "wlst_type": "JMSServer${:s}",
+    "child_folders_type": "multiple",
+    "folders": {
+        "JmsSessionPool": {
+            "wlst_type": "${Jms:JMS}SessionPool${:s}",
+            "child_folders_type": "multiple",
+            "folders": {
+                "JmsConnectionConsumer": {
+                    "wlst_type": "${Jms:JMS}ConnectionConsumer${:s}",
+                    "child_folders_type": "multiple",
+                    "folders": {},
+                    "attributes": {
+                        "Destination":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Destination",     "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
+                        "MessagesMaximum":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesMaximum", "wlst_path": "WP001", "value": {"default": 10    }, "wlst_type": "integer"} ],
+                        "Notes":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",           "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
+                        "Selector":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Selector",        "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/JMSServer${:s}/%JMSSERVER%/${Jms:JMS}SessionPool${:s}/%JMSSESSIONPOOL%/${Jms:JMS}ConnectionConsumer${:s}/%JMSCONNECTIONCONSUMER%"
+                    }
+                }
+            },
+            "attributes": {
+                "AcknowledgeMode":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AcknowledgeMode",   "wlst_path": "WP001", "value": {"default": "Auto" }, "wlst_type": "string" } ],
+                "ConnectionFactory":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConnectionFactory", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "ListenerClass":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ListenerClass",     "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "Notes":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",             "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "SessionsMaximum":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SessionsMaximum",   "wlst_path": "WP001", "value": {"default": -1     }, "wlst_type": "integer"} ],
+                "Transacted":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Transacted",        "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/JMSServer${:s}/%JMSSERVER%/${Jms:JMS}SessionPool${:s}/%JMSSESSIONPOOL%"
+            }
+        },
+        "JmsMessageLogFile": {
+            "wlst_type": "${Jms:JMS}MessageLogFile",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%JMSSERVER%}",
+            "folders": {},
+            "attributes": {
+                "BufferSizeKb":                    [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "BufferSizeKb",          "wlst_path": "WP001", "value": {"default": 8                        }, "wlst_type": "integer", "get_method": "LSA"} ],
+                "DateFormatPattern":               [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "DateFormatPattern",     "wlst_path": "WP001", "value": {"default": "MMM d, yyyy h:mm:ss a z"}, "wlst_type": "string"   } ],
+                "FileCount":                       [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "FileCount",             "wlst_path": "WP001", "value": {"default": 7                        }, "wlst_type": "integer"  } ],
+                "FileMinSize":                     [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "FileMinSize",           "wlst_path": "WP001", "value": {"default": 500                      }, "wlst_type": "integer"  } ],
+                "FileName":                        [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "FileName",              "wlst_path": "WP001", "value": {"default": "None"                   }, "wlst_type": "string"   } ],
+                "FileTimeSpan":                    [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "FileTimeSpan",          "wlst_path": "WP001", "value": {"default": 24                       }, "wlst_type": "integer"  } ],
+                "FileTimeSpanFactor":              [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "FileTimeSpanFactor",    "wlst_path": "WP001", "value": {"default": 3600000                  }, "wlst_type": "long"     } ],
+                "LogFileRotationDir":              [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "LogFileRotationDir",    "wlst_path": "WP001", "value": {"default": "None"                   }, "wlst_type": "string"   } ],
+                "Notes":                           [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "Notes",                 "wlst_path": "WP001", "value": {"default": "None"                   }, "wlst_type": "string"   } ],
+                "NumberOfFilesLimited":            [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "NumberOfFilesLimited",  "wlst_path": "WP001", "value": {"default": "true"                   }, "wlst_type": "boolean"  } ],
+                "RotateLogOnStartup":              [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "RotateLogOnStartup",    "wlst_path": "WP001", "value": {"default": "true"                   }, "wlst_type": "boolean"  } ],
+                "RotationTime":                    [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "RotationTime",          "wlst_path": "WP001", "value": {"default": "00:00"                  }, "wlst_type": "string"   } ],
+                "RotationType":                    [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "RotationType",          "wlst_path": "WP001", "value": {"default": "bySize"                 }, "wlst_type": "string"   } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/JMSServer${:s}/%JMSSERVER%/${Jms:JMS}MessageLogFile/%JMSMESSAGELOGFILE%"
+            }
+        }
+    },
+    "attributes": {
+        "AllowsPersistentDowngrade":         [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "AllowsPersistentDowngrade",          "wlst_path": "WP001", "value": {"default": "false"                   },   "wlst_type": "boolean"          } ],
+        "BlockingSendPolicy":                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "BlockingSendPolicy",                 "wlst_path": "WP001", "value": {"default": "FIFO"                    },   "wlst_type": "string"           } ],
+        "BytesMaximum":                      [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "BytesMaximum",                       "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "long"             } ],
+        "BytesPagingEnabled":                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "BytesPagingEnabled",                 "wlst_path": "WP001", "value": {"default": "false"                   },   "wlst_type": "boolean"          } ],
+        "BytesThresholdHigh":                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "BytesThresholdHigh",                 "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "long"             } ],
+        "BytesThresholdLow":                 [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "BytesThresholdLow",                  "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "long"             } ],
+        "ConsumptionPausedAtStartup":        [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ConsumptionPausedAtStartup",         "wlst_path": "WP001", "value": {"default": "default"                 },   "wlst_type": "string"           } ],
+        "DeploymentOrder":                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DeploymentOrder",                    "wlst_path": "WP001", "value": {"default": 1000                      },   "wlst_type": "integer"          } ],
+        "ExpirationScanInterval":            [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ExpirationScanInterval",             "wlst_path": "WP001", "value": {"default": 30                        },   "wlst_type": "integer"          } ],
+        "HostingTemporaryDestinations":      [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "HostingTemporaryDestinations",       "wlst_path": "WP001", "value": {"default": "true"                    },   "wlst_type": "boolean"          } ],
+        "InsertionPausedAtStartup":          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "InsertionPausedAtStartup",           "wlst_path": "WP001", "value": {"default": "default"                 },   "wlst_type": "string"           } ],
+        "JDBCStoreUpgradeEnabled":           [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "JDBCStoreUpgradeEnabled",            "wlst_path": "WP001", "value": {"default": "true"                    },   "wlst_type": "boolean"          } ],
+        "MaximumMessageSize":                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MaximumMessageSize",                 "wlst_path": "WP001", "value": {"default": 2147483647                },   "wlst_type": "integer"          } ],
+        "MessageBufferSize":                 [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MessageBufferSize",                  "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "long"             } ],
+        "MessageCompressionOptions":         [ {"version": "[12.1.2,)", "wlst_mode": "both",    "wlst_name": "MessageCompressionOptions",          "wlst_path": "WP001", "value": {"default": "GZIP_DEFAULT_COMPRESSION"},   "wlst_type": "string"           } ],
+        "MessageCompressionOptionsOverride": [ {"version": "[12.1.2,)", "wlst_mode": "both",    "wlst_name": "MessageCompressionOptionsOverride",  "wlst_path": "WP001", "value": {"default": "None"                    },   "wlst_type": "string"           } ],
+        "MessagesMaximum":                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MessagesMaximum",                    "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "long"             } ],
+        "MessagesPagingEnabled":             [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MessagesPagingEnabled",              "wlst_path": "WP001", "value": {"default": "false"                   },   "wlst_type": "boolean"          } ],
+        "MessagesThresholdHigh":             [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MessagesThresholdHigh",              "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "long"             } ],
+        "MessagesThresholdLow":              [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MessagesThresholdLow",               "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "long"             } ],
+        "Notes":                             [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "value": {"default": "None"                    },   "wlst_type": "string"           } ],
+        "PagingBlockSize":                   [ {"version": "[10.3.4,)", "wlst_mode": "both",    "wlst_name": "PagingBlockSize",                    "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "integer"          } ],
+        "PagingDirectory":                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "PagingDirectory",                    "wlst_path": "WP001", "value": {"default": "None"                    },   "wlst_type": "string"           } ],
+        "PagingFileLockingEnabled":          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "PagingFileLockingEnabled",           "wlst_path": "WP001", "value": {"default": "true"                    },   "wlst_type": "boolean"          } ],
+        "PagingIoBufferSize":                [ {"version": "[10.3.4,)", "wlst_mode": "both",    "wlst_name": "PagingIoBufferSize",                 "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "integer"          } ],
+        "PagingMaxFileSize":                 [ {"version": "[10.3.4,)", "wlst_mode": "both",    "wlst_name": "PagingMaxFileSize",                  "wlst_path": "WP001", "value": {"default": 1342177280                },   "wlst_type": "long"             } ],
+        "PagingMaxWindowBufferSize":         [ {"version": "[10.3.4,)", "wlst_mode": "both",    "wlst_name": "PagingMaxWindowBufferSize",          "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "integer"          } ],
+        "PagingMessageCompressionEnabled":   [ {"version": "[12.1.2,)", "wlst_mode": "both",    "wlst_name": "PagingMessageCompressionEnabled",    "wlst_path": "WP001", "value": {"default": "false"                   },   "wlst_type": "boolean"          } ],
+        "PagingMinWindowBufferSize":         [ {"version": "[10.3.4,)", "wlst_mode": "both",    "wlst_name": "PagingMinWindowBufferSize",          "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "integer"          } ],
+        "PersistentStore":                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "PersistentStore",                    "wlst_path": "WP001", "value": {"default": "None"                    },   "wlst_type": "string",          "get_method": "LSA",  "set_method": "MBEAN.set_persistent_store_mbean",  "set_mbean_type": "weblogic.management.configuration.PersistentStoreMBean" } ],
+        "ProductionPausedAtStartup":         [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ProductionPausedAtStartup",          "wlst_path": "WP001", "value": {"default": "default"                 },   "wlst_type": "string"           } ],
+        "StoreEnabled":                      [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "StoreEnabled",                       "wlst_path": "WP001", "value": {"default": "true"                    },   "wlst_type": "boolean"          } ],
+        "StoreMessageCompressionEnabled":    [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "StoreMessageCompressionEnabled",     "wlst_path": "WP001", "value": {"default": "false"                   },   "wlst_type": "boolean"          } ],
+        "Target":                            [ {"version": "[10,)",     "wlst_mode": "offline", "wlst_name": "Target",                             "wlst_path": "WP001", "value": {"default": "None"                    },   "wlst_type": "delimited_string" },
+                                               {"version": "[10,)",     "wlst_mode": "online",  "wlst_name": "Targets",                            "wlst_path": "WP002", "value": {"default": "None"                    },   "wlst_type": "jarray",          "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+        "TemporaryTemplateName":             [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "TemporaryTemplateName",              "wlst_path": "WP001", "value": {"default": "None"                    },   "wlst_type": "string"           } ],
+        "TemporaryTemplateResource":         [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "TemporaryTemplateResource",          "wlst_path": "WP001", "value": {"default": "None"                    },   "wlst_type": "string"           } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/JMSServer${:s}/%JMSSERVER%",
+        "WP002": "/JMSServer${:s}/%JMSSERVER%/Targets"
+    }
+}

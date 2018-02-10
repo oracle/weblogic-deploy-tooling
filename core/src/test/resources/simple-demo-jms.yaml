@@ -1,0 +1,107 @@
+resources:
+    JDBCSystemResource:
+        Generic1:
+            Target: mycluster
+            JdbcResource:
+                JDBCDataSourceParams:
+                    JNDIName: [ jdbc/generic1, jdbc/special1 ]
+                    GlobalTransactionsProtocol: TwoPhaseCommit
+                JDBCDriverParams:
+                    DriverName: oracle.jdbc.xa.client.OracleXADataSource
+                    URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=slc05til.us.oracle.com)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
+                    PasswordEncrypted: welcome1
+                    Properties:
+                        user:
+                            Value: jshum
+                        oracle.net.CONNECT_TIMEOUT:
+                            Value: 5000
+                        oracle.jdbc.ReadTimeout:
+                            Value: 30000
+                JDBCConnectionPoolParams:
+                    InitialCapacity: 3
+                    MaxCapacity: 15
+                    TestTableName: SQL ISVALID
+                    TestConnectionsOnReserve: true
+        Generic2:
+            Target: mycluster
+            JdbcResource:
+                JDBCDataSourceParams:
+                    JNDIName: [
+                        jdbc/generic2,
+                        jdbc/special2
+                    ]
+                    GlobalTransactionsProtocol: TwoPhaseCommit
+                JDBCDriverParams:
+                    DriverName: oracle.jdbc.xa.client.OracleXADataSource
+                    URL : 'jdbc:oracle:thin:@//den00chv.us.oracle.com:1521/PDBORCL'
+                    PasswordEncrypted: welcome1
+                    Properties:
+                        user:
+                            Value: jshum
+                        oracle.net.CONNECT_TIMEOUT:
+                            Value: 5000
+                        oracle.jdbc.ReadTimeout:
+                            Value: 30000
+                JDBCConnectionPoolParams:
+                    InitialCapacity: 3
+                    MaxCapacity: 15
+                    TestTableName: SQL ISVALID
+                    TestConnectionsOnReserve: true
+    JMSServer:
+        JMSServer1:
+            Target: m1
+        JMSServer2:
+            Target: m2
+    JMSSystemResource:
+        MyJmsModule:
+            Target: mycluster
+            SubDeployment:
+                JMSServer1Subdeployment:
+                    Target: JMSServer1
+                JMSServer2Subdeployment:
+                    Target: JMSServer2
+            JmsResource:
+                ConnectionFactory:
+                    WebAppConnectionFactory:
+                        DefaultTargetingEnabled: true
+                        JNDIName: jms/WebCF
+                        ClientParams:
+                            AllowCloseInOnMessage: true
+                            MessagesMaximum: 1
+                        DefaultDeliveryParams:
+                            DefaultTimeToDeliver: 3
+                            DefaultTimeToLive: 3600
+                        FlowControlParams:
+                            FlowControlEnabled: false
+                        LoadBalancingParams:
+                            LoadBalancingEnabled: false
+                        SecurityParams:
+                            AttachJMSXUserId: true
+                        TransactionParams:
+                            XAConnectionFactoryEnabled: true
+                    MDBConnectionFactory:
+                        DefaultTargetingEnabled: true
+                        JNDIName: jms/mdbCF
+                        TransactionParams:
+                            XAConnectionFactoryEnabled: true
+                UniformDistributedQueue:
+                    MyUniformDistributedQueue:
+                        DefaultTargetingEnabled: true
+                        JNDIName: jms/myUDQ
+                        ResetDeliveryCountOnForward: true
+# This is a comment
+appDeployments:
+    Application:
+        # Quote needed because of hyphen in string
+        'get-listen-address-app':
+            SourcePath: 'wlsdeploy/apps/get-listen-address-app.war'
+            Target: mycluster
+            ModuleType: war
+            StagingMode: nostage
+            PlanStagingMode: nostage
+        simpleear :
+            SourcePath: wlsdeploy/apps/simpleear.ear
+            Target: mycluster
+            ModuleType: ear
+            StagingMode: nostage
+            PlanStagingMode : nostage

@@ -1,0 +1,42 @@
+{
+    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "license": "The Universal Permissive License (UPL), Version 1.0",
+    "wlst_type": "ForeignJNDIProvider${:s}",
+    "child_folders_type": "multiple",
+    "folders": {
+        "ForeignJNDILink": {
+            "wlst_type": "ForeignJNDILink",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "LinkDynamicallyCreated":                  [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "LinkDynamicallyCreated",               "wlst_path": "WP001", "value": {"default": "false" },    "wlst_type": "boolean"} ],
+                "LocalJNDIName":                           [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "LocalJNDIName",                        "wlst_path": "WP001", "value": {"default": "None"  },    "wlst_type": "string" } ],
+                "RemoteJNDIName":                          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "RemoteJNDIName",                       "wlst_path": "WP001", "value": {"default": "None"  },    "wlst_type": "string" } ],
+                "LinkName":                                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "LinkName",                             "wlst_path": "WP001", "value": {"default": "false" },    "wlst_type": "boolean"} ],
+                "Notes":                                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Notes",                                "wlst_path": "WP001", "value": {"default": "None " },    "wlst_type": "string" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/ForeignJNDIProvider${:s}/%FOREIGNJNDIPROVIDER%/ForeignJNDILink${:s}/%FOREIGNJNDILINK%"
+            }
+        }
+    },
+    "attributes": {
+        "DeploymentOrder":                         [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DeploymentOrder",        "wlst_path": "WP001", "value": {"default": 100    }, "wlst_type": "integer"          } ],
+        "DynamicallyCreated":                      [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DynamicallyCreated",     "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"          } ],
+        "InitialContextFactory":                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "InitialContextFactory",  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"           } ],
+        "Notes":                                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Notes",                  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"           } ],
+        "PasswordEncrypted":                       [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Password${Encrypted:}",  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "password",        "get_method": "GET" } ],
+        "Properties":                              [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Properties",             "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "properties",      "preferred_model_type": "dict", "get_method": "GET" } ],
+        "ProviderUrl":                             [ {"version": "[10,)",     "wlst_mode": "offline", "wlst_name": "ProviderUrl",            "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"           },
+                                                     {"version": "[10,)",     "wlst_mode": "online",  "wlst_name": "ProviderURL",            "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"           } ],
+        "User":                                    [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "User",                   "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "credential"       } ],
+        "Target":                                  [ {"version": "[10,)",     "wlst_mode": "offline", "wlst_name": "Target",                 "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "delimited_string" },
+                                                     {"version": "[10,)",     "wlst_mode": "online",  "wlst_name": "Targets",                "wlst_path": "WP002", "value": {"default": "None" }, "wlst_type": "jarray",          "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/ForeignJNDIProvider${:s}/%FOREIGNJNDIPROVIDER%",
+        "WP002": "/ForeignJNDIProvider${:s}/%FOREIGNJNDIPROVIDER%/Targets"
+    }
+}

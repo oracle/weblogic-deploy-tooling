@@ -1,0 +1,33 @@
+{
+    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "license": "The Universal Permissive License (UPL), Version 1.0",
+    "name": "WLS",
+    "description": "WLS type domain definitions",
+    "versions": {
+        "10.3.6": "WLS_11G",
+        "12.1.1": "WLS_11G",
+        "12.1.2": "WLS_12CR1",
+        "12.1.3": "WLS_12CR1",
+        "12.2.1": "WLS_12CR2"
+    },
+    "definitions": {
+        "WLS_11G": {
+            "baseTemplate": "@@WL_HOME@@/common/templates/domains/wls.jar",
+            "extensionTemplates": [ ],
+            "serverGroupsToTarget": [ ],
+            "rcuSchemas": [ ]
+        },
+        "WLS_12CR1": {
+            "baseTemplate": "@@WL_HOME@@/common/templates/wls/wls.jar",
+            "extensionTemplates": [ ],
+            "serverGroupsToTarget": [ ],
+            "rcuSchemas": [ ]
+        },
+        "WLS_12CR2": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [ ],
+            "serverGroupsToTarget": [ ],
+            "rcuSchemas": [ ]
+        }
+    }
+}

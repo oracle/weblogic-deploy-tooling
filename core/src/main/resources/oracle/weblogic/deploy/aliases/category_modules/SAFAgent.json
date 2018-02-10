@@ -1,0 +1,69 @@
+{
+    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "license": "The Universal Permissive License (UPL), Version 1.0",
+    "wlst_type": "SAFAgent${:s}",
+    "child_folders_type": "multiple",
+    "folders": {
+        "JmssafMessageLogFile": {
+            "folders": {},
+            "attributes": {
+                "BufferSizeKb":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BufferSize${Kb:KB}",   "wlst_path": "WP001", "value": {"default": 8       }, "wlst_type": "integer" } ],
+                "DateFormatPattern":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DateFormatPattern",    "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"  } ],
+                "FileCount":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "FileCount",            "wlst_path": "WP001", "value": {"default": 7       }, "wlst_type": "integer" } ],
+                "FileMinSize":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "FileMinSize",          "wlst_path": "WP001", "value": {"default": 500     }, "wlst_type": "integer" } ],
+                "FileName":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "FileName",             "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"  } ],
+                "FileTimeSpan":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "FileTimeSpan",         "wlst_path": "WP001", "value": {"default": 24      }, "wlst_type": "integer" } ],
+                "FileTimeSpanFactor":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "FileTimeSpanFactor",   "wlst_path": "WP001", "value": {"default": 3600000 }, "wlst_type": "long"    } ],
+                "LogFileRotationDir":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LogFileRotationDir",   "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"  } ],
+                "Notes":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"  } ],
+                "NumberOfFilesLimited": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "value": {"default": "true"  }, "wlst_type": "boolean" } ],
+                "RotateLogOnStartup":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RotateLogOnStartup",   "wlst_path": "WP001", "value": {"default": "true"  }, "wlst_type": "boolean" } ],
+                "RotationTime":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RotationTime",         "wlst_path": "WP001", "value": {"default": "00:00" }, "wlst_type": "string"  } ],
+                "RotationType":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RotationType",         "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"  } ]
+            },
+            "wlst_type": "${Jmssaf:JMSSAF}MessageLogFile",
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/SAFAgent${:s}/%SAFAGENT%/${Jmssaf:JMSSAF}MessageLogFile/${NO_NAME_0:%SAFAGENT%}"
+            }
+        }
+    },
+    "attributes": {
+        "AcknowledgeInterval":               [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "AcknowledgeInterval",               "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "long"             } ],
+        "BytesMaximum":                      [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "BytesMaximum",                      "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "long"             } ],
+        "BytesThresholdHigh":                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "BytesThresholdHigh",                "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "long"             } ],
+        "BytesThresholdLow":                 [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "BytesThresholdLow",                 "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "long"             } ],
+        "ConversationIdleTimeMaximum":       [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ConversationIdleTimeMaximum",       "wlst_path": "WP001", "value": {"default": 0                         }, "wlst_type": "long"             } ],
+        "DefaultRetryDelayBase":             [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DefaultRetryDelayBase",             "wlst_path": "WP001", "value": {"default": 20000                     }, "wlst_type": "long"             } ],
+        "DefaultRetryDelayMaximum":          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DefaultRetryDelayMaximum",          "wlst_path": "WP001", "value": {"default": 180000                    }, "wlst_type": "long"             } ],
+        "DefaultRetryDelayMultiplier":       [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DefaultRetryDelayMultiplier",       "wlst_path": "WP001", "value": {"default": 1.0                       }, "wlst_type": "double"           } ],
+        "DefaultTimeToLive":                 [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DefaultTimeToLive",                 "wlst_path": "WP001", "value": {"default": 0                         }, "wlst_type": "long"             } ],
+        "DeploymentOrder":                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DeploymentOrder",                   "wlst_path": "WP001", "value": {"default": 1000                      }, "wlst_type": "integer"          } ],
+        "ForwardingPausedAtStartup":         [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ForwardingPausedAtStartup",         "wlst_path": "WP001", "value": {"default": "false"                   }, "wlst_type": "boolean"          } ],
+        "IncomingPausedAtStartup":           [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "IncomingPausedAtStartup",           "wlst_path": "WP001", "value": {"default": "false"                   }, "wlst_type": "boolean"          } ],
+        "LoggingEnabled":                    [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "LoggingEnabled",                    "wlst_path": "WP001", "value": {"default": "true"                    }, "wlst_type": "boolean"          } ],
+        "MaximumMessageSize":                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MaximumMessageSize",                "wlst_path": "WP001", "value": {"default": 2147483647                }, "wlst_type": "integer"          } ],
+        "MessageBufferSize":                 [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MessageBufferSize",                 "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "long"             } ],
+        "MessageCompressionOptions":         [ {"version": "[12.1.2,)", "wlst_mode": "both",    "wlst_name": "MessageCompressionOptions",         "wlst_path": "WP001", "value": {"default": "GZIP_DEFAULT_COMPRESSION"}, "wlst_type": "string"           } ],
+        "MessageCompressionOptionsOverride": [ {"version": "[12.1.2,)", "wlst_mode": "both",    "wlst_name": "MessageCompressionOptionsOverride", "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"           } ],
+        "MessagesMaximum":                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MessagesMaximum",                   "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "long"             } ],
+        "MessagesThresholdHigh":             [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MessagesThresholdHigh",             "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "long"             } ],
+        "MessagesThresholdLow":              [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MessagesThresholdLow",              "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "long"             } ],
+        "Notes":                             [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Notes",                             "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"           } ],
+        "PagingDirectory":                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "PagingDirectory",                   "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"           } ],
+        "PagingMessageCompressionEnabled":   [ {"version": "[12.1.2,)", "wlst_mode": "both",    "wlst_name": "PagingMessageCompressionEnabled",   "wlst_path": "WP001", "value": {"default": "false"                   }, "wlst_type": "boolean"          } ],
+        "ReceivingPausedAtStartup":          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ReceivingPausedAtStartup",          "wlst_path": "WP001", "value": {"default": "false"                   }, "wlst_type": "boolean"          } ],
+        "ServiceType":                       [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ServiceType",                       "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"           } ],
+        "Store":                             [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Store",                             "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string",          "get_method": "LSA", "set_method": "MBEAN.set_persistent_store_mbean", "set_mbean_type": "weblogic.management.configuration.PersistentStoreMBean" } ],
+        "StoreMessageCompressionEnabled":    [ {"version": "[12.1.2,)", "wlst_mode": "both",    "wlst_name": "StoreMessageCompressionEnabled",    "wlst_path": "WP001", "value": {"default": "false"                   }, "wlst_type": "boolean"          } ],
+        "Target":                            [ {"version": "[10,)",     "wlst_mode": "offline", "wlst_name": "Target",                            "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "delimited_string" },
+                                               {"version": "[10,)",     "wlst_mode": "online",  "wlst_name": "Targets",                           "wlst_path": "WP002", "value": {"default": "None"                    }, "wlst_type": "jarray",          "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+        "WindowInterval":                    [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "WindowInterval",                    "wlst_path": "WP001", "value": {"default": 0                         }, "wlst_type": "long"             } ],
+        "WindowSize":                        [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "WindowSize",                        "wlst_path": "WP001", "value": {"default": 10                        }, "wlst_type": "long"             } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/SAFAgent${:s}/%SAFAGENT%",
+        "WP002": "/SAFAgent${:s}/%SAFAGENT%/Targets"
+    }
+}

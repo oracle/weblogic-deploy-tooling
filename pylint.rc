@@ -1,0 +1,20 @@
+# Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+# The Universal Permissive License (UPL), Version 1.0
+#
+[MESSAGES CONTROL]
+
+# see http://pylint-messages.wikidot.com/all-codes
+
+# Enable the message, report, category or checker with the given id(s). You can
+# either give multiple identifier separated by comma (,) or put this option
+# multiple time.
+#enable=
+
+# Disable the message, report, category or checker with the given id(s). You
+# can either give multiple identifier separated by comma (,) or put this option
+# multiple time (only on the command line, not in the configuration file where
+# it should appear only once).
+
+# Disable the message(s) with the given id(s).
+#disable pylint message IDs that are unknown to Sonar
+#disable=C0103, C0111, C0112, C0122, C0123, C0200, C0301, C0302, C0303, C0304, C0305, C0411, C0412, C0413, C1801, E0401, R0201, R0912, R0913, R1702, R1703, R1705, W0107, W0122, W0403, W1401

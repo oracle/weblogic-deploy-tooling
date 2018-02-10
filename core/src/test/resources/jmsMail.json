@@ -1,0 +1,719 @@
+{
+    "domainInfo": {
+        "ServerStartMode": "prod",
+        "AdminUserName": "weblogic",
+        "AdminPassword": "welcome1"
+    },
+    "topology": {
+        "Name": "JmsMailDomain",
+        "AdminServerName": "AdminServer",
+        "Cluster": {
+            "mycluster": {
+                "DataSourceForAutomaticMigration": "MyPersistentStoreDS",
+                "MigrationBasis": "database"
+            }
+        },
+        "Server": {
+            "AdminServer": {
+                "Machine": "machine1",
+                "ListenAddress": "127.0.0.1",
+                "ListenPort": 8001
+            },
+            "Server1": {
+                "Machine": "machine1",
+                "ListenAddress": "127.0.0.1",
+                "ListenPort": 8101,
+                "Cluster": "mycluster"
+            },
+            "Server2": {
+                "Machine": "machine1",
+                "ListenAddress": "127.0.0.1",
+                "ListenPort": 8201,
+                "Cluster": "mycluster"
+            }
+        },
+        "Machine": {
+            "machine1": {
+                "NodeManager": {
+                    "NMType": "SSL",
+                    "ListenAddress": "127.0.0.1",
+                    "ListenPort": 5556
+                }
+            }
+        },
+        "SecurityConfiguration": {
+            "NodeManagerUsername": "weblogic",
+            "NodeManagerPasswordEncrypted": "welcome1"
+        }
+    },
+    "resources": {
+        "JDBCSystemResource": {
+            "MyDataSource": {
+                "Target": "mycluster",
+                "JdbcResource": {
+                    "JDBCDataSourceParams": {
+                        "JNDIName": "jdbc/MyDataSource",
+                        "GlobalTransactionsProtocol": "TwoPhaseCommit"
+                    },
+                    "JDBCDriverParams": {
+                        "DriverName": "oracle.jdbc.xa.client.OracleXADataSource",
+                        "URL": "jdbc:oracle:thin:@slc05til.us.oracle.com:1521:orcl",
+                        "PasswordEncrypted": "Welcome#123",
+                        "Properties": {
+                            "user": {
+                                "Value" : "sys as sysdba"
+                            },
+                            "oracle.net.CONNECT_TIMEOUT": {
+                                "Value" : "5000"
+                            },
+                            "oracle.jdbc.ReadTimeout": {
+                                "Value" : "30000"
+                            }
+                        }
+                    },
+                    "JDBCConnectionPoolParams": {
+                        "InitialCapacity": 0,
+                        "MaxCapacity": 15
+                    }
+                }
+            },
+            "MyPersistentStoreDS": {
+                "Target": "mycluster",
+                "JdbcResource": {
+                    "JDBCDataSourceParams": {
+                        "JNDIName": "jdbc/MyPersistentStoreDS",
+                        "GlobalTransactionsProtocol": "None"
+                    },
+                    "JDBCDriverParams": {
+                        "DriverName": "oracle.jdbc.OracleDriver",
+                        "URL": "jdbc:oracle:thin:@slc05til.us.oracle.com:1521:orcl",
+                        "PasswordEncrypted": "Welcome#123",
+                        "Properties" : {
+                            "user": {
+                                "Value" : "sys as sysdba"
+                            }
+                        }
+                    },
+                    "JDBCConnectionPoolParams": {
+                        "InitialCapacity": 0,
+                        "MaxCapacity": 15
+                    }
+                }
+            }
+        },
+        "FileStore": {
+            "FileStore1": {
+                "SynchronousWritePolicy": "Direct-Write",
+                "Target": "Server1 (migratable)",
+                "Directory" : "filestore1"
+            },
+            "FileStore2": {
+                "SynchronousWritePolicy": "Direct-Write",
+                "Target": "Server2 (migratable)",
+                "Directory" : "filestore2"
+            }
+        },
+        "JDBCStore": {
+            "JDBCStore1": {
+                "DataSource": "MyPersistentStoreDS",
+                "PrefixName": "JDBCStore1",
+                "Target": "Server1 (migratable)"
+            },
+            "JDBCStore2": {
+                "DataSource": "MyPersistentStoreDS",
+                "PrefixName": "JDBCStore2",
+                "Target": "Server2 (migratable)"
+            },
+            "PathServiceStore": {
+                "DataSource": "MyPersistentStoreDS",
+                "PrefixName": "PathSvc",
+                "Target": "Server1 (migratable)",
+                "DistributionPolicy": "Singleton",
+                "MigrationPolicy": "Always"
+            }
+        },
+        "JMSServer": {
+            "JMSServer1": {
+                "PersistentStore": "FileStore1",
+                "Target": "Server1 (migratable)"
+            },
+            "JMSServer2": {
+                "PersistentStore": "FileStore2",
+                "Target": "Server2 (migratable)"
+            }
+        },
+        "PathService": {
+            "MyPathService": {
+                "PersistentStore": "PathServiceStore",
+                "Target": "Server1 (migratable)"
+            }
+        },
+        "JMSSystemResource": {
+            "MyJmsModule": {
+                "Target": "mycluster",
+                "SubDeployment": {
+                    "JMSServer1Subdeployment": {
+                        "Target": "JMSServer1"
+                    },
+                    "JMSServer2Subdeployment": {
+                        "Target": "JMSServer2"
+                    }
+                },
+                "JmsResource": {
+                    "ConnectionFactory": {
+                        "WebAppConnectionFactory": {
+                            "DefaultTargetingEnabled": true,
+                            "JNDIName": "jms/WebCF",
+                            "ClientParams": {
+                                "AllowCloseInOnMessage": true,
+                                "MessagesMaximum": 1
+                            },
+                            "DefaultDeliveryParams": {
+                                "DefaultTimeToDeliver": "3",
+                                "DefaultTimeToLive": 3600
+                            },
+                            "FlowControlParams": {
+                                "FlowControlEnabled": false
+                            },
+                            "LoadBalancingParams": {
+                                "LoadBalancingEnabled": false
+                            },
+                            "SecurityParams": {
+                                "AttachJMSXUserId": true
+                            },
+                            "TransactionParams": {
+                                "XAConnectionFactoryEnabled": true
+                            }
+                        },
+                        "MDBConnectionFactory": {
+                            "DefaultTargetingEnabled": true,
+                            "JNDIName": "jms/mdbCF",
+                            "ClientParams": { },
+                            "DefaultDeliveryParams": { },
+                            "FlowControlParams": { },
+                            "LoadBalancingParams": { },
+                            "SecurityParams": { },
+                            "TransactionParams": {
+                                "XAConnectionFactoryEnabled": true
+                            }
+                        }
+                    },
+                    "DestinationKey": {
+                        "PurchaseAmountKey": {
+                            "KeyType": "Double",
+                            "Property": "PurchaseAmount",
+                            "SortOrder": "Descending"
+                        }
+                    },
+                    "DistributedQueue": {
+                        "MyDistributedQueue": {
+                            "ForwardDelay": 88,
+                            "JNDIName": "jms/MyDistributedQueue",
+                            "ResetDeliveryCountOnForward": false,
+                            "SafExportPolicy": "All",
+                            "DistributedQueueMember": {
+                                "Queue1": {
+                                    "Weight": 50
+                                },
+                                "Queue2": {
+                                    "Weight": 50
+                                }
+                            }
+                        }
+                    },
+                    "DistributedTopic": {
+                        "MyDistributedTopic": {
+                            "JNDIName": "jms/MyDistributedTopic",
+                            "SafExportPolicy": "None",
+                            "DistributedTopicMember": {
+                                "Topic1": {
+                                    "Weight": 50
+                                },
+                                "Topic2": {
+                                    "Weight": 50
+                                }
+                            }
+                        }
+                    },
+                    "ForeignServer": {
+                        "MyForeignServer": {
+                            "ConnectionURL": "t3://my.other.cluster:7001",
+                            "DefaultTargetingEnabled": true,
+                            "InitialContextFactory": "weblogic.jndi.WLInitialContextFactory",
+                            "JNDIPropertiesCredentialEncrypted" : "welcome1",
+                            "JNDIProperty": {
+                                "Property1": {
+                                    "Key": "java.naming.security.principal",
+                                    "Value": "weblogic"
+                                },
+                                "Property2": {
+                                    "Key": "bar",
+                                    "Value": "true"
+                                }
+                            },
+                            "ForeignConnectionFactory": {
+                                "MyRemoteCF": {
+                                    "LocalJNDIName": "jms/remoteCF",
+                                    "RemoteJndiName": "jms/myCF"
+                                }
+                            },
+                            "ForeignDestination": {
+                                "MyRemoteQ": {
+                                    "LocalJNDIName": "jms/remoteQ",
+                                    "RemoteJndiName": "jms/myQ"
+                                }
+                            }
+                        }
+                    },
+                    "Queue": {
+                        "Queue1": {
+                            "JmsCreateDestinationIdentifier": "CDI1",
+                            "JNDIName": "jms/Q1",
+                            "SafExportPolicy": "All",
+                            "SubDeploymentName": "JMSServer1Subdeployment",
+                            "DeliveryFailureParams": {
+                                "ExpirationPolicy": "Log"
+                            },
+                            "DeliveryParamsOverrides": {
+                                "Priority": 5,
+                                "TimeToLive" : 3600
+                            },
+                            "MessageLoggingParams": {
+                                "MessageLoggingEnabled": true
+                            },
+                            "Thresholds": {
+                                "MessagesHigh": 1000000,
+                                "MessagesLow" : 800000
+                            }
+                        },
+                        "Queue2": {
+                            "JNDIName": "jms/Q2",
+                            "SafExportPolicy": "None",
+                            "SubDeploymentName": "JMSServer2Subdeployment",
+                            "DeliveryFailureParams": {
+                                "ExpirationPolicy": "Log"
+                            },
+                            "DeliveryParamsOverrides": {
+                                "Priority": 5,
+                                "TimeToLive" : 3600
+                            },
+                            "MessageLoggingParams": {
+                                "MessageLoggingEnabled": true
+                            },
+                            "Thresholds": {
+                                "MessagesHigh": 1000000,
+                                "MessagesLow" : 800000
+                            }
+                        }
+                    },
+                    "Template": {
+                        "MyMemberTopicTemplate": {
+                            "MaximumMessageSize": 32000,
+                            "SafExportPolicy": "All",
+                            "DeliveryFailureParams": {
+                                "RedeliveryLimit": 3
+                            },
+                            "DeliveryParamsOverrides": {
+                                "DeliveryMode": "Persistent"
+                            },
+                            "MessageLoggingParams": {
+                                "MessageLoggingEnabled": true,
+                                "MessageLoggingFormat": "%header%,%properties%"
+                            },
+                            "Thresholds": {
+                                "MessagesHigh": 10000,
+                                "MessagesLow": 100
+                            },
+                            "GroupParams": {
+                                "Group1": {
+                                    "SubDeploymentName": "JMSServer1Subdeployment",
+                                    "ErrorDestination": "Queue1"
+                                },
+                                "Group2": {
+                                    "SubDeploymentName": "JMSServer2Subdeployment",
+                                    "ErrorDestination": "Queue2"
+                                }
+                            }
+                        }
+                    },
+                    "Topic": {
+                        "Topic1": {
+                            "JmsCreateDestinationIdentifier": "CDI2",
+                            "JNDIName": "jms/myT1",
+                            "SafExportPolicy": "All",
+                            "SubDeploymentName": "JMSServer1Subdeployment",
+                            "Template": "MyMemberTopicTemplate"
+                        },
+                        "Topic2": {
+                            "JNDIName": "jms/myT2",
+                            "SafExportPolicy": "None",
+                            "SubDeploymentName": "JMSServer2Subdeployment",
+                            "Template": "MyMemberTopicTemplate"
+                        }
+                    },
+                    "UniformDistributedQueue": {
+                        "MyUniformDistributedQueue": {
+                            "DefaultTargetingEnabled": true,
+                            "JmsCreateDestinationIdentifier": "CDI3",
+                            "JNDIName": "jms/myUDQ",
+                            "ResetDeliveryCountOnForward": true,
+                            "SafExportPolicy": "All",
+                            "DeliveryFailureParams": {
+                            },
+                            "DeliveryParamsOverrides": { },
+                            "MessageLoggingParams": { },
+                            "Thresholds": { }
+                        }
+                    },
+                    "UniformDistributedTopic": {
+                        "MyUniformDistributedTopic": {
+                            "DefaultTargetingEnabled": true,
+                            "JmsCreateDestinationIdentifier": "CDI4",
+                            "JNDIName": "jms/myUDT",
+                            "SafExportPolicy": "None",
+                            "DeliveryFailureParams": { },
+                            "DeliveryParamsOverrides": {
+                            },
+                            "MessageLoggingParams": {
+                            },
+                            "Multicast": {
+                            },
+                            "Thresholds": {
+                            }
+                        }
+                    },
+                    "SAFRemoteContext": {
+                        "MyRemoteSAFcontext": {
+                            "SAFLoginContext": {
+                                "LoginURL": "t3://127.0.0.1:8101",
+                                "Username": "weblogic",
+                                "PasswordEncrypted": "welcome1"
+                            }
+                        }
+                    },
+                    "SAFImportedDestination": {
+                        "MyRemoteSAFdestinations": {
+                            "SAFRemoteContext": "MyRemoteSAFcontext",
+                            "SAFQueue": {
+                                "MyRemoteSAFqueue": {
+                                    "RemoteJndiName": "jms/myUDQ"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "JMSBridgeDestination": {
+            "JMS Bridge Local Destination": {
+                "AdapterJNDIName": "eis.jms.WLSConnectionFactoryJNDIXA",
+                "ConnectionFactoryJndiName": "jms/WebCF",
+                "ConnectionURL": "t3://localhost:8001",
+                "DestinationJNDIName": "jms/webUDQ"
+            },
+            "JMS Bridge Remote Destination": {
+                "AdapterJNDIName": "eis.jms.WLSConnectionFactoryJNDIXA",
+                "ConnectionFactoryJndiName": "jms/mdbCF",
+                "ConnectionURL": "t3://localhost:8101",
+                "UserName": "weblogic",
+                "UserPasswordEncrypted": "welcome1",
+                "DestinationJNDIName": "jms/myUDQ"
+            }
+        },
+        "MessagingBridge": {
+            "MyMessagingBridge": {
+                "SourceDestination": "JMS Bridge Local Destination",
+                "TargetDestination": "JMS Bridge Remote Destination",
+                "Started": false,
+                "Target": "Server1 (migratable)"
+            }
+        },
+        "SAFAgent": {
+            "MySAFagent": {
+                "Store": "FileStore1",
+                "WindowSize": 2,
+                "Target": "Server1 (migratable)"
+            }
+        },
+        "MailSession": {
+            "MailSession-0": {
+                "Target": "mycluster",
+                "JNDIName": "javamail/oracle",
+                "SessionUsername": "weblogic",
+                "SessionPasswordEncrypted": "Welcome1",
+                "Properties": {
+                    "mail.store.protocol": "imap",
+                    "mail.imap.host": "stbeehive.oracle.com",
+                    "mail.imap.port": 996,
+                    "mail.smtp.host": "stbeehive.oracle.com",
+                    "mail.smtp.port": 465
+                }
+            },
+            "MyMailSession": {
+                "JNDIName": "mail/MyMailSession",
+                "Target": "mycluster",
+                "SessionUsername": "john.smith@oracle.com",
+                "SessionPasswordEncrypted": "welcome1",
+                "Properties": {
+                    "mail.store.protocol": "imap",
+                    "mail.imap.port": "993",
+                    "mail.imap.ssl.enable": "true",
+                    "mail.imap.starttls.enable": "true",
+                    "mail.imap.host": "stbeehive.oracle.com",
+                    "mail.imap.auth": "true",
+                    "mail.transport.protocol": "smtp",
+                    "mail.smtp.starttls.enable": "true",
+                    "mail.smtp.port": "465",
+                    "mail.smtp.ssl.enable": "true",
+                    "mail.smtp.auth": "true",
+                    "mail.smtp.host": "stbeehive.oracle.com"
+                }
+            }
+        },
+        "WLDFSystemResource": {
+            "MyWldfModule": {
+                "Target": "mycluster",
+                "Description": "JCS A2C system test WDLF module",
+                "Harvester": {
+                    "Enabled" : true,
+                    "SamplePeriod": 6000000,
+                    "HarvestedType": {
+                        "weblogic.management.runtime.ServerRuntimeMBean": {
+                            "Enabled": true,
+                            "HarvestedAttribute": [
+                                "CurrentDirectory",
+                                "MiddlewareHome",
+                                "OracleHome",
+                                "ServerClasspath",
+                                "ServerStartupTime"
+                            ],
+                            "HarvestedInstance": [
+                                "com.bea:Location=Server1,Name=_WLS_Server1,ServerRuntime=Server1,Type=PersistentStoreRuntime",
+                                "com.bea:Location=Server2,Name=_WLS_Server2,ServerRuntime=Server2,Type=PersistentStoreRuntime"
+                            ],
+                            "KnownType": false,
+                            "Namespace": "ServerRuntime"
+                        },
+                        "weblogic.management.runtime.PersistentStoreRuntimeMBean": {
+                            "Enabled": false,
+                            "HarvestedAttribute": "AllocatedIoBufferBytes",
+                            "Namespace": "DomainRuntime"
+                        }
+                    }
+                },
+                "Instrumentation": {
+                    "WLDFInstrumentationMonitor": {
+                        "DyeInjection": {
+                            "DyeFilteringEnabled": false,
+                            "Enabled": true,
+                            "Properties": "a2c=true;timer=123"
+                        },
+                        "JDBC_Before_Rollback_Internal": {
+                            "DyeFilteringEnabled": false,
+                            "Enabled": false
+                        },
+                        "Connector_Before_Tx": {
+                            "Description": "Connector before Tx",
+                            "DyeFilteringEnabled": false,
+                            "Action": [
+                                "TraceAction",
+                                "StackDumpAction"
+                            ],
+                            "DyeMask": "ADDR1,ADDR2,ADDR3,ADDR4",
+                            "Enabled": true
+                        },
+                        "Connector_Before_Outbound": {
+                            "Description": "Connector before outbound",
+                            "Action": [
+                                "DisplayArgumentsAction"
+                            ],
+                            "DyeFilteringEnabled": false,
+                            "Enabled": false
+                        },
+                        "Connector_Around_Outbound": {
+                            "Description": "Connector around outbound",
+                            "Action": [
+                                "MemoryAllocationStatisticsAction",
+                                "MethodInvocationStatisticsAction",
+                                "TraceElapsedTimeAction",
+                                "TraceMemoryAllocationAction"
+                            ],
+                            "DyeMask": "USER1,USER2,USER3,USER4",
+                            "DyeFilteringEnabled": false,
+                            "Enabled": false
+                        }
+                    }
+                },
+                "WatchNotification": {
+                    "Enabled": true,
+                    "LogWatchSeverity": "Error",
+                    "Severity": "Critical",
+                    "HeapDumpAction": {
+                        "MyHeapDumpAction": {
+                            "Enabled": true,
+                            "LiveSetOnly": true,
+                            "Timeout": 0
+                        }
+                    },
+                    "ImageNotification": {
+                        "MyImageAction": {
+                            "Enabled": true,
+                            "ImageDirectory": "logs/diagnostic_images",
+                            "Timeout": 0
+                        }
+                    },
+                    "JMSNotification": {
+                        "MyJmsAction": {
+                            "ConnectionFactoryJndiName": "weblogic.jms.ConnectionFactory",
+                            "DestinationJndiName": "jms/myUDQ",
+                            "Enabled": true,
+                            "Timeout": 120
+                        }
+                    },
+                    "JMXNotification": {
+                        "MyJmxAction": {
+                            "Enabled": true,
+                            "NotificationType": "weblogic.diagnostics.watch.defaultNotificationType",
+                            "Timeout": 0
+                        }
+                    },
+                    "LogAction": {
+                         "MyLogAction": {
+                             "Enabled": true,
+                             "Message": "My dog has fleas",
+                             "Severity": "Warning",
+                             "SubsystemName": "JoesGarage",
+                             "Timeout": 0
+                         }
+                    },
+                    "RestNotification": {
+                        "MyRestAction": {
+                            "AcceptedResponseType": "application/json",
+                            "CustomNotificationProperties": "foo=bar;mail.default=mail/MyMailSession",
+                            "Enabled": true,
+                            "EndpointUrl": "http://dummy.org/foobar",
+                            "HttpAuthenticationMode": "Basic",
+                            "HttpAuthenticationUserName": "fred.jones@oracle.com",
+                            "HttpAuthenticationPasswordEncrypted": "welcome1",
+                            "RestInvocationMethodType": "PUT",
+                            "Timeout": 0
+                        }
+                    },
+                    "SMTPNotification": {
+                        "MyEmailAction": {
+                            "Body": "This is an interesting WLDF event",
+                            "Enabled": true,
+                            "MailSessionJndiName": "mail/MyMailSession",
+                            "Recipient": "fred.jones@oracle.com",
+                            "Subject": "Hello from WLDF",
+                            "Timeout": 0
+                        }
+                    },
+                    "SNMPNotification": {
+                        "MySNMPAction": {
+                            "Enabled": false,
+                            "Timeout": 0
+                        }
+                    },
+                    "ScriptAction": {
+                        "MyScriptAction": {
+                            "Enabled": "false",
+                            "Environment": "A2C_HOME=c:/tmp/oracle_jcs_app2cloud",
+                            "Parameter": "-oh,c:/wls12212,-domainDir,c:/tmp/wls12212/wldf_domain,-archiveFile,c:/tmp/output/wldf_domain.zip",
+                            "PathToScript": "@@PWD@@/target/oracle_jcs_app2cloud/bin/a2c-export.cmd",
+                            "WorkingDirectory": "@@TMP@@",
+                            "Timeout": 0
+                        }
+                    },
+                    "ThreadDumpAction": {
+                        "MyThreadDumpAction": {
+                            "ThreadDumpCount": 5,
+                            "ThreadDumpDelaySeconds": 15,
+                            "Timeout": 0
+                        }
+                    },
+                    "Watch": {
+                        "MySmartRulePolicy": {
+                            "AlarmResetPeriod": 300000,
+                            "AlarmType": "AutomaticReset",
+                            "Enabled": true,
+                            "ExpressionLanguage": "EL",
+                            "Notification": "MyThreadDumpAction,MyHeapDumpAction",
+                            "RuleExpression": "wls:ServerHighStuckThreads(\"30 seconds\",\"10 minutes\",2)",
+                            "RuleType": "Harvester",
+                            "Severity": "Emergency",
+                            "Schedule": {
+                                "Second": "*/30"
+                            }
+                        },
+                        "MyCalendarPolicy": {
+                            "AlarmResetPeriod": 60000,
+                            "AlarmType": "ManualReset",
+                            "Enabled": true,
+                            "ExpressionLanguage": "EL",
+                            "Notification": "MyHeapDumpAction",
+                            "RuleType": "Harvester",
+                            "Schedule": {
+                                "Minute": "*/5"
+                            }
+                        },
+                        "MyEventDataPolicy": {
+                            "AlarmType": "None",
+                            "Enabled": false,
+                            "Notification": "MyThreadDumpAction",
+                            "RuleExpression": "(SERVER = 'Server1')",
+                            "RuleType": "EventData"
+                        },
+                        "MyCollectedMetricsPolicy": {
+                            "AlarmType": "AutomaticReset",
+                            "Enabled": false,
+                            "Notification": "MyEmailAction,MyThreadDumpAction",
+                            "RuleExpression": "SEVERITY IN ('Error','Emergency','Critical')",
+                            "RuleType": "Log",
+                            "Schedule": {
+                                "Hour": "*/1"
+                            }
+                        },
+                        "MyDomainLogPolicy": {
+                            "AlarmType": "ManualReset",
+                            "Enabled": false,
+                            "ExpressionLanguage": "EL",
+                            "Notification": "MyJmsAction",
+                            "RuleExpression": "(USERID = 'weblogic')",
+                            "RuleType": "DomainLog"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "appDeployments": {
+        "Application": {
+            "JMSWebApp": {
+                "SourcePath": "@@PWD@@/target/applications/jmswebapp-11g.war",
+                "Target": "mycluster",
+                "ModuleType": "war"
+            },
+            "JMSMessageDrivenBean": {
+                "SourcePath": "@@PWD@@/target/applications/jmsmdb.jar",
+                "Target": "mycluster",
+                "ModuleType": "jar"
+            },
+            "jms-xa-adp": {
+                "SourcePath": "@@WL_HOME@@/server/lib/jms-xa-adp.rar",
+                "Target": "mycluster",
+                "ModuleType": "rar"
+            },
+            "jms-local-adp": {
+                "SourcePath": "@@WL_HOME@@/server/lib/jms-local-adp.rar",
+                "Target": "mycluster",
+                "ModuleType": "rar"
+            },
+            "jms-notran-adp": {
+                "SourcePath": "@@WL_HOME@@/server/lib/jms-notran-adp.rar",
+                "Target": "mycluster",
+                "ModuleType": "rar"
+            }
+        }
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "license": "The Universal Permissive License (UPL), Version 1.0",
+    "wlst_type": "PathService${:s}",
+    "child_folders_type": "multiple",
+    "folders": {},
+    "attributes": {
+        "DeploymentOrder": [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "DeploymentOrder", "wlst_path": "WP001", "value": {"default": 1000   }, "wlst_type": "integer"          } ],
+        "Notes":           [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "Notes",           "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"           } ],
+        "PersistentStore": [ {"version": "[10,12.2.1)",       "wlst_mode": "both",    "wlst_name": "PersistentStore", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string",          "get_method": "LSA",  "set_method": "MBEAN.set_persistent_store_mbean", "set_mbean_type": "weblogic.management.configuration.PersistentStoreMBean" },
+                             {"version": "[12.2.1,12.2.1.1)", "wlst_mode": "both",    "wlst_name": "PersistentStore", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string",          "get_method": "LSA",  "set_method": "MBEAN.set_persistent_store_mbean", "set_mbean_type": "weblogic.management.configuration.PersistentStoreMBean" },
+                             {"version": "[12.2.1.1,]",       "wlst_mode": "both",    "wlst_name": "PersistentStore", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string",          "get_method": "LSA",  "set_method": "MBEAN.set_persistent_store_mbean", "set_mbean_type": "weblogic.management.configuration.PersistentStoreMBean" } ],
+        "Target":          [ {"version": "[10,)",             "wlst_mode": "offline", "wlst_name": "Target",          "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "delimited_string" },
+                             {"version": "[10,)",             "wlst_mode": "online",  "wlst_name": "Targets",         "wlst_path": "WP002", "value": {"default": "None" }, "wlst_type": "jarray",          "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/PathService${:s}/%PATHSERVICE%",
+        "WP002": "/PathService${:s}/%PATHSERVICE%/Targets"
+    }
+}

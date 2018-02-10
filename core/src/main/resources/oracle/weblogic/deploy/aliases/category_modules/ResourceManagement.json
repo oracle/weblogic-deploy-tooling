@@ -1,0 +1,18 @@
+{
+    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "license": "The Universal Permissive License (UPL), Version 1.0",
+    "wlst_type": "ResourceManagement",
+    "version": "[12.2.1,)",
+    "child_folders_type": "single",
+    "folders": { },
+    "attributes": {
+        "Notes":    [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"} ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/ResourceManagement/%RESOURCEMANAGEMENT%"
+    },
+    "contains": [
+        "ResourceManager"
+    ]
+}

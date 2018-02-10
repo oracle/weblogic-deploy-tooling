@@ -1,0 +1,56 @@
+{
+    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "license": "The Universal Permissive License (UPL), Version 1.0",
+    "name": "JRF",
+    "description": "JRF type domain definitions",
+    "versions": {
+        "12.1.2": "JRF_1212",
+        "12.1.3": "JRF_1213",
+        "12.2.1": "JRF_12CR2",
+        "12.2.1.3": "JRF_12213"
+    },
+    "definitions": {
+        "JRF_1212" : {
+            "baseTemplate": "@@WL_HOME@@/common/templates/wls/wls.jar",
+            "extensionTemplates": [
+                "@@ORACLE_HOME@@/oracle_common/common/templates/wls/oracle.jrf_template_12.1.2.jar",
+                "@@ORACLE_HOME@@/oracle_common/common/templates/wls/oracle.jrf.ws.async_template_12.1.2.jar",
+                "@@ORACLE_HOME@@/oracle_common/common/templates/wls/oracle.wsmpm_template_12.1.2.jar",
+                "@@ORACLE_HOME@@/em/common/templates/wls/oracle.em_wls_template_12.1.2.jar"
+            ],
+            "serverGroupsToTarget" : [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
+        },
+        "JRF_1213" : {
+            "baseTemplate": "@@WL_HOME@@/common/templates/wls/wls.jar",
+            "extensionTemplates": [
+                "@@ORACLE_HOME@@/oracle_common/common/templates/wls/oracle.jrf_template_12.1.3.jar",
+                "@@ORACLE_HOME@@/oracle_common/common/templates/wls/oracle.jrf.ws.async_template_12.1.3.jar",
+                "@@ORACLE_HOME@@/oracle_common/common/templates/wls/oracle.wsmpm_template_12.1.3.jar",
+                "@@ORACLE_HOME@@/em/common/templates/wls/oracle.em_wls_template_12.1.3.jar"
+            ],
+            "serverGroupsToTarget" : [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
+        },
+        "JRF_12CR2": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [
+                "Oracle JRF WebServices Asynchronous services",
+                "Oracle WSM Policy Manager",
+                "Oracle Enterprise Manager"
+            ],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
+        },
+        "JRF_12213": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [
+                "Oracle JRF WebServices Asynchronous services",
+                "Oracle WSM Policy Manager",
+                "Oracle Enterprise Manager"
+            ],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
+            "rcuSchemas": [ "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
+        }
+    }
+}

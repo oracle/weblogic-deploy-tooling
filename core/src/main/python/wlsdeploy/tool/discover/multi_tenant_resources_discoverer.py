@@ -1,0 +1,56 @@
+"""
+Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+The Universal Permissive License (UPL), Version 1.0
+"""
+
+import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+
+import wlsdeploy.tool.discover.discoverer as discoverer
+from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.aliases.location_context import LocationContext
+import wlsdeploy.aliases.model_constants as model_constants
+from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.discover.discoverer import Discoverer
+
+_class_name = 'MultiTenantResourcesDiscoverer'
+_logger = PlatformLogger(discoverer.get_discover_logger_name())
+
+
+class MultiTenantResourcesDiscoverer(Discoverer):
+    """
+    Discover the weblogic multi-tenant resources from the domain.
+    """
+
+    def __init__(self, model_context, resources_dictionary, wlst_mode=WlstModes.OFFLINE,
+                 base_location=LocationContext()):
+        Discoverer.__init__(self, model_context, wlst_mode, base_location)
+        self._dictionary = resources_dictionary
+
+    def discover(self):
+        _method_name = 'discover'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        _logger.info('WLSDPLY-06707', class_name=_class_name, method_name=_method_name)
+        model_top_folder_name, result = self.get_resource_management()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, result)
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+        return self._dictionary
+
+    def get_resource_management(self):
+        """
+        Discover the global resource management and the domain resource managers.
+        :return: model name for resource management:dictionary containing discovered resource management
+        """
+        _method_name = 'get_resource_management'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        result = OrderedDict()
+        model_top_folder_name = model_constants.RESOURCE_MANAGEMENT
+        location = LocationContext()
+        location.append_location(model_top_folder_name)
+        resource = self._find_singleton_name_in_folder(location)
+        if resource is not None:
+            _logger.info('WLSDPLY-06708', class_name=_class_name, method_name=_method_name)
+            location.add_name_token(self._alias_helper.get_name_token(location), resource)
+            self._populate_model_parameters(result, location)
+            self._discover_subfolders(result, location)
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+        return model_top_folder_name, result
