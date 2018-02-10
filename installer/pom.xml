@@ -11,7 +11,7 @@
 
     <parent>
         <artifactId>weblogic-deploy</artifactId>
-        <groupId>oracle.weblogic.lifecycle</groupId>
+        <groupId>com.oracle.weblogic.lifecycle</groupId>
         <version>0.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -57,7 +57,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>${wls-deploy-installer-name}</finalName>
+                            <finalName>${weblogic-deploy-installer-name}</finalName>
                             <descriptors>
                                 <descriptor>src/assembly/zip.xml</descriptor>
                             </descriptors>

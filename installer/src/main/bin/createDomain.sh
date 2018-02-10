@@ -254,22 +254,22 @@ else
     if [ "${USE_JRF_WLST}" = "TRUE" ]; then
         if [ -x ${ORACLE_HOME}/oracle_common/common/bin/wlst.sh ]; then
             WLST=${ORACLE_HOME}/oracle_common/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/wls-deploy-core.jar; export CLASSPATH
-            WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/wls-deploy-core.jar; export WLST_EXT_CLASSPATH
+            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+            WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
         fi
     else
         if [ -x ${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh ]; then
             WLST=${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/wls-deploy-core.jar; export CLASSPATH
+            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
         elif [ -x ${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh ]; then
             WLST=${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/wls-deploy-core.jar; export CLASSPATH
+            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
         elif [ -x ${ORACLE_HOME}/wlserver/common/bin/wlst.sh -a -f ${ORACLE_HOME}/wlserver/.product.properties ]; then
             WLST=${ORACLE_HOME}/wlserver/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/wls-deploy-core.jar; export CLASSPATH
+            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
         else
             WLST=${ORACLE_HOME}/oracle_common/common/bin/wlst.sh
-            WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/wls-deploy-core.jar; export WLST_EXT_CLASSPATH
+            WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
         fi
     fi
 

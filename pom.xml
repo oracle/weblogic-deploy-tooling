@@ -6,7 +6,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>oracle.weblogic.lifecycle</groupId>
+    <groupId>com.oracle.weblogic.lifecycle</groupId>
     <artifactId>weblogic-deploy</artifactId>
     <version>0.6-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -39,7 +39,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <wls-deploy-installer-name>weblogic-deploy</wls-deploy-installer-name>
+        <weblogic-deploy-installer-name>weblogic-deploy</weblogic-deploy-installer-name>
         <skipTests>false</skipTests>
         <antlr.version>4.7.1</antlr.version>
 
