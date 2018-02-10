@@ -175,7 +175,7 @@ topology:
 
 To validate the standalone model file, run the tool as shown below:
 
-    wls-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml
+    weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml
 
 The output of the tool will look something like this:
 
@@ -188,7 +188,7 @@ The output of the tool will look something like this:
 
 To get the valid list of valid list of attributes and folders at this model location, run the tool like this:
 
-    wls-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -print_usage topology:/Server
+    weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -print_usage topology:/Server
 
 This will print out the list of attributes and valid subfolders (full output omitted here for brevity) that will include the following attribute in the list:
 
@@ -201,7 +201,7 @@ This will print out the list of attributes and valid subfolders (full output omi
 
 If the model contains variable definitions and the variable file is specified, the Validate Model tool will validate that all variable references in the model are defined in the variable file.  For example, invoking the tool as shown here:
 
-    wls-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -variable_file InvalidDemoDomain.properties
+    weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -variable_file InvalidDemoDomain.properties
 
 will result in output that looks like that shown below if the db.password variable is not defined in the variable file.
 
@@ -215,7 +215,7 @@ will result in output that looks like that shown below if the db.password variab
 
 If the model references binaries that should be present in the archive, the validate Model tool will validate that all binary references in the model that point to archive file locations are present in the archive file.  For example, invoking the tool as shown here:
 
-    wls-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -archive_file InvalidDemoDomain.zip
+    weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -archive_file InvalidDemoDomain.zip
 
 will result in output that looks like that shown below if the simpleear.ear file is not in the model-specified location inside the archive file.
 
@@ -303,7 +303,7 @@ topology:
 
 To run the encryption tool on the model, run the following command:
 
-    wls-deploy\bin\encryptModel.cmd -oracle_home c:\wls12213 -model_file UnencryptedDemoDomain.yaml
+    weblogic-deploy\bin\encryptModel.cmd -oracle_home c:\wls12213 -model_file UnencryptedDemoDomain.yaml
 
 The tool will prompt for the encryption passphrase twice and then encrypt any passwords it finds in the model, skipping any password fields that have variable values, to produce a result that looks like the following model.
 
@@ -424,7 +424,7 @@ resources:
 
 Run the encryption tool and pass both the model and variable files, like this:
 
-    wls-deploy\bin\encryptModel.cmd -oracle_home c:\wls12213 -model_file UnencryptedDemoDomain.yaml -variable_file UnencryptedDemoDomain.properties
+    weblogic-deploy\bin\encryptModel.cmd -oracle_home c:\wls12213 -model_file UnencryptedDemoDomain.yaml -variable_file UnencryptedDemoDomain.properties
 
 and the variable file will now look something like the following.
 
@@ -446,13 +446,13 @@ domainInfo:
 
 Using the model above, simply run the `createDomain` tool, specifying the type of domain to create and where to create it.
 
-    wls-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml
+    weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml
 
 Clearly, creating an empty domain with only the template-defined server(s) is not very interesting but this example just reinforces how sparse the model can be.  When running the Create Domain tool, the model must be provided either inside the archive file or as a standalone file.  If both the archive and model files are provided, the model file outside the archive will take precedence over any that might be inside the archive.  If the archive file is not provided, Create Domain will only create the `topology` section (using the `domainInfo` section) of the model in the domain.  This is because the `resources` and `appDeployments` sections of the model can reference files from the archive so to create the domain with the model-defined resources and applications, an archive file must be provided--even if the model does not reference anything in the archive.  At some point in the future, this restriction may be relaxed to only require the archive if it is actually needed.
 
 Create Domain understands three domain types: `WLS`, `RestrictedJRF`, and `JRF`.  When specifying the domain type, the Oracle Home must match the requirements for the domain type.  Both `RestrictedJRF` and `JRF` require an Oracle Home with the FMW Infrastucture (aka., JRF) installed.  When creating a JRF domain, the RCU database information must be provided as arguments to the `createDomain` script.  Note that the tool will prompt for any passwords required.  Optionally, they can be piped to standard input (i.e., stdin) of the script to make the script run without user input.  For example, the command to create a JRF domain looks like the one below.  Note that this requires the user to have run RCU prior to running the command.
 
-    wls-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO
+    weblogic-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO
  
 To have the Create Domain tool run RCU, simply add the `-run_rcu` argument to the previous command-line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!
 
@@ -541,7 +541,7 @@ This file tells the Create Domain tool what templates to use to create the domai
 
 Once the new domain typedef file exists, simply specify the new domain type name to the `createDomain` script, being sure reference an Oracle Home with the required components installed.  For pre-12.2.1 versions, the `-wlst_path` argument must be used to point to the product home where the appropriate WLST shell script exists; for example, for SOA 12.1.3, add `-wlst_path <ORACLE_HOME>/soa` so that the tool uses the WLST shell script with the proper environment for SOA somains.  In 12.2.1 and later, this is no longer necessary since the WLST shell script in the standard `<ORACLE_HOME>oracle_common/common/bin` directory will automatically load all components in the Oracle Home.  Using the new domain type, simply run the following command to run RCU and create the SOA domain with all of its resources and applications deployed.
 
-    wls-deploy\bin\createDomain.cmd -oracle_home d:\SOA12213 -domain_type SOA -domain_parent d:\demo\domains -model_file DemoDomain.yaml -archive_file DemoDomain.zip -variable_file DemoDomain.properties -run_rcu -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO
+    weblogic-deploy\bin\createDomain.cmd -oracle_home d:\SOA12213 -domain_type SOA -domain_parent d:\demo\domains -model_file DemoDomain.yaml -archive_file DemoDomain.zip -variable_file DemoDomain.properties -run_rcu -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO
 
 One last note is that if the model or variables file contains encrypted passwords, add the `-use_encryption` flag to the command-line to tell the Create Domain tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (i.e., stdin) to allow the tool to run without any user input.
 
@@ -560,11 +560,11 @@ The goal is to make the tool both able to support iterative deployment and able 
 
 Running the Deploy Applications Tool in WLST offline mode is very similar to running the Create Domain Tool, simply provide the domain location and archive file, and separate model and variable files, if needed.  For example:
 
-    wls-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties
+    weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties
 
 In WLST online mode, simply replace the `-domain_home` argument with the information on how to connect to the WebLogic Server Administration Server; for example:
 
-    wls-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties -admin_url t3://127.0.0.1:7001 -admin_user weblogic
+    weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties -admin_url t3://127.0.0.1:7001 -admin_user weblogic
 
 As usual, the tool will prompt for the password (it can also be supplied by piping it to standard input of the tool).
 
@@ -580,7 +580,7 @@ The Discover Domain Tool provides a bootstrapping mechanism to creating a model 
 
 To run the Discover Domain tool, simply provide the domain location and the name of the archive file, a separate model file can also be provided to make editing the generated model easier.  For example:
 
-    wls-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.yaml
+    weblogic-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.yaml
 
 When creating the archive, the tool will try to gather all binaries, scripts, and required directories referenced by the domain configuration with the following caveats.
 

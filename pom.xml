@@ -7,15 +7,39 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>oracle.weblogic.lifecycle</groupId>
-    <artifactId>wls-deploy</artifactId>
+    <artifactId>weblogic-deploy</artifactId>
     <version>0.6-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <name>Oracle WebLogic Server Deploy Tooling</name>
+    <description>A framework and set of tools to perform domain creation/changes.</description>
+    <url>https://github.com/oracle/weblogic-deploy-tooling</url>
+    <inceptionYear>2017</inceptionYear>
+    <licenses>
+        <license>
+            <name>The Universal Permissive License (UPL), Version 1.0</name>
+            <url>https://oss.oracle.com/licenses/upl/</url>
+            <distribution>repo</distribution>
+        </license>
+        <license>
+            <name>The 3-Clause BSD License</name>
+            <url>https://opensource.org/licenses/BSD-3-Clause</url>
+            <distribution>repo</distribution>
+            <comments>The Antlr Project license</comments>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/oracle/weblogic-deploy-tooling</url>
+        <connection>scm:git:git@github.com:oracle/weblogic-deploy-tooling.git</connection>
+        <developerConnection>scm:git:git@github.com:oracle/weblogic-deploy-tooling.git</developerConnection>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <wls-deploy-installer-name>wls-deploy</wls-deploy-installer-name>
+        <wls-deploy-installer-name>weblogic-deploy</wls-deploy-installer-name>
         <skipTests>false</skipTests>
         <antlr.version>4.7.1</antlr.version>
 
