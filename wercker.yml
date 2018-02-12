@@ -11,11 +11,6 @@ build:
         code: |
           yum -y install tar gzip
       - java/maven:
-        goals: clean install
-        version: 3.5.2
-        cache_repo: true
-      - java/maven: 
-        profiles: build-sonar 
         maven_opts: -Dunit-test-wlst-dir=/u01/oracle/oracle_common/common/bin -Dsonar.login=${SONAR_LOGIN} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.host.url=${SONAR_HOST} 
         goals: clean install sonar:sonar javadoc:javadoc
         cache_repo: true
