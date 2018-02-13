@@ -12,6 +12,6 @@ build:
           yum -y install tar gzip procps
       - java/maven:
         maven_opts: -Dunit-test-wlst-dir=/u01/oracle/oracle_common/common/bin -Dsonar.login=${SONAR_LOGIN} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.host.url=${SONAR_HOST} 
-        goals: clean install sonar:sonar javadoc:javadoc
+        goals: clean install sonar:sonar
         cache_repo: true
         version: 3.5.2
