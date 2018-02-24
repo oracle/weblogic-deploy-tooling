@@ -9,6 +9,14 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 __logger = PlatformLogger('wlsdeploy.util')
 _class_name = 'string_utils'
 
+def is_empty(text):
+    """
+    Determine if a string value is either None or an empty string.
+    :param text: the string to test
+    :return: True, if the string has no content, False otherwise
+    """
+    return text is None or len(text) == 0
+
 def rsplit(text, token=' ', maxsplit=-1):
     """
     Returns a list of the words in the provided string, separated by the delimiter string (starting from right).
@@ -50,6 +58,6 @@ def to_boolean(input_value):
     elif input_value in ['False', 'false', 0]:
         result = False
     else:
-        __logger.fine('WLSDPLY-03190', input_value, class_name=_class_name, method_name=_method_name)
+        __logger.fine('WLSDPLY-01720', input_value, class_name=_class_name, method_name=_method_name)
         result = False
     return result

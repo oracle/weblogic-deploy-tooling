@@ -4,6 +4,7 @@ The Universal Permissive License (UPL), Version 1.0
 """
 from oracle.weblogic.deploy.exception import ExceptionHelper
 
+
 class Enum(object):
     """
     A class that can be extended to implement Enums in Jython 2.2.1
@@ -50,6 +51,6 @@ class Enum(object):
         :raises: ValueError: If the value is not a valid value for the Enum
         """
         if value not in range(0, len(self.enum_list)):
-            message = ExceptionHelper.getMessage('WLSDPLY-03204', value, self.__class__.__name__)
+            message = ExceptionHelper.getMessage('WLSDPLY-01700', value, self.__class__.__name__)
             raise ValueError(message)
         return self.enum_list[value]

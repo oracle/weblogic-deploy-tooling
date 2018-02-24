@@ -2,17 +2,18 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-import os
+import javaos as os
 
-import java.lang.IllegalArgumentException as IllegalArgumentException
+from java.lang import IllegalArgumentException
 
-import oracle.weblogic.deploy.json.JsonException as JsonException
+from oracle.weblogic.deploy.json import JsonException
 
-import wlsdeploy.exception.exception_helper as exception_helper
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+
 
 class DomainTypedef(object):
     """

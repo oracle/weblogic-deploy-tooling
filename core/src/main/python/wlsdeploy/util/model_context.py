@@ -2,14 +2,13 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-
-import os
+import javaos as os
 import tempfile
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-import wlsdeploy.util.path_utils as path_utils
+from wlsdeploy.util import path_utils
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -473,17 +472,18 @@ class ModelContext(object):
         :param string_value: the value on which to perform token replacement
         :return: the detokenized value, or the original value if there were no tokens
         """
-        if string_value.startswith(self.__ORACLE_HOME_TOKEN):
-            result = string_value.replace(self.__ORACLE_HOME_TOKEN, self.get_oracle_home())
+        if string_value is None:
+            result = None
+        elif string_value.startswith(self.__ORACLE_HOME_TOKEN):
+            result = _replace(string_value, self.__ORACLE_HOME_TOKEN, self.get_oracle_home())
         elif string_value.startswith(self.__WL_HOME_TOKEN):
-            result = string_value.replace(self.__WL_HOME_TOKEN, self.get_wl_home())
+            result = _replace(string_value, self.__WL_HOME_TOKEN, self.get_wl_home())
         elif string_value.startswith(self.__DOMAIN_HOME_TOKEN):
-            result = string_value.replace(self.__DOMAIN_HOME_TOKEN, self.get_domain_home())
+            result = _replace(string_value, self.__DOMAIN_HOME_TOKEN, self.get_domain_home())
         elif string_value.startswith(self.__CURRENT_DIRECTORY_TOKEN):
-            result = string_value.replace(self.__CURRENT_DIRECTORY_TOKEN, path_utils.fixup_path(os.getcwd()))
+            result = _replace(string_value, self.__CURRENT_DIRECTORY_TOKEN, path_utils.fixup_path(os.getcwd()))
         elif string_value.startswith(self.__TEMP_DIRECTORY_TOKEN):
-            result = string_value.replace(self.__TEMP_DIRECTORY_TOKEN,
-                                          path_utils.fixup_path(tempfile.gettempdir()))
+            result = _replace(string_value, self.__TEMP_DIRECTORY_TOKEN, path_utils.fixup_path(tempfile.gettempdir()))
         else:
             result = string_value
 
@@ -504,10 +504,10 @@ class ModelContext(object):
         # decide later what is required to be in context home for appropriate exception prevention
         if my_path.startswith(self.get_wl_home()):
             result = my_path.replace(self.get_wl_home(), self.__WL_HOME_TOKEN)
-        elif my_path.startswith(self.get_oracle_home()):
-            result = my_path.replace(self.get_oracle_home(), self.__ORACLE_HOME_TOKEN)
         elif my_path.startswith(self.get_domain_home()):
             result = my_path.replace(self.get_domain_home(), self.__DOMAIN_HOME_TOKEN)
+        elif my_path.startswith(self.get_oracle_home()):
+            result = my_path.replace(self.get_oracle_home(), self.__ORACLE_HOME_TOKEN)
         elif my_path.startswith(cwd):
             result = my_path.replace(cwd, self.__CURRENT_DIRECTORY_TOKEN)
         elif my_path.startswith(tmp_dir):
@@ -529,3 +529,21 @@ class ModelContext(object):
             cp_elements[index] = self.tokenize_path(value)
 
         return separator.join(cp_elements)
+
+    # private methods
+
+
+def _replace(string_value, token, replace_token_string):
+    """
+    Replace the token in the string value with the replace token string. This replace method
+    replaces the python replace because if the string only contains the token, python throws an exception
+    :param token: in the string to replace
+    :param string_value: string value to fix up
+    :param replace_token_string: value with which the token is replaced
+    :return: updated string value
+    """
+    if string_value == token:
+        result = replace_token_string
+    else:
+        result = string_value.replace(token, replace_token_string)
+    return result

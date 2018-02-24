@@ -2,16 +2,15 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
 
 import wlstModule as wlst
 
-import wlsdeploy.exception.exception_helper as exception_helper
-import wlsdeploy.logging.platform_logger as platform_logger
+from wlsdeploy.exception import exception_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
 from oracle.weblogic.deploy.util import PyWLSTException
 
-_logger = platform_logger.PlatformLogger('wlsdeploy.wlst')
+_logger = PlatformLogger('wlsdeploy.wlst')
 _class_name = 'wlst_helper'
 
 def cd(path):
@@ -64,7 +63,7 @@ def set(attribute, value):
     :raises: PyWLSTException: if a WLST error occurs
     """
     _method_name = 'set'
-    _logger.finest('WLSDPLY-00010', attribute, value, class_name=_class_name, method_name=_method_name)
+    _logger.finest('WLSDPLY-00007', attribute, value, class_name=_class_name, method_name=_method_name)
     try:
         wlst.set(attribute, value)
     except (wlst.WLSTException, offlineWLSTException), e:
@@ -74,36 +73,95 @@ def set(attribute, value):
         raise pwe
     _logger.finest('WLSDPLY-00009', class_name=_class_name, method_name=_method_name)
 
-def create(name, folder, directory=None):
+def set_with_cmo(wlst_name, wlst_value, masked=False):
+    """
+    Set the specified attribute using the corresponding cmo set method (e.g., cmo.setListenPort()).
+    :param wlst_name: the WLST attribute name
+    :param wlst_value: the WLST value
+    :param masked: whether or not to mask the wlst_value from the log files.
+    :raises: PyWLSTException: if a WLST error occurs
+    """
+    _method_name = 'set_with_cmo'
+    value = wlst_value
+    if masked:
+        value = '<masked>'
+
+    _logger.finest('WLSDPLY-00010', wlst_name, value, class_name=_class_name, method_name=_method_name)
+
+    set_method_name = 'set' + wlst_name
+    _logger.finest('WLSDPLY-00011', set_method_name, class_name=_class_name, method_name=_method_name)
+
+    current_cmo = get_cmo()
+    if current_cmo is None:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00012', set_method_name, value, _get_wlst_mode())
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+
+    try:
+        set_method = getattr(current_cmo, set_method_name)
+        set_method(wlst_value)
+    except AttributeError, e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00013', set_method_name, _get_exception_mode(e),
+                                                       _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    except (wlst.WLSTException, offlineWLSTException), e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00014', set_method_name, value, _get_exception_mode(e),
+                                                       _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    _logger.finest('WLSDPLY-00015', wlst_name, value, class_name=_class_name, method_name=_method_name)
+    return
+
+def create(name, folder, base_provider_type=None):
     """
     Create the mbean folder with the provided name at the current location.
 
     :param name: to create under the folder
-    :param folder:  name of the mbean folder
-    :param directory: parent directory of the folder to which to change location
+    :param folder: name of the mbean folder
+    :param base_provider_type: the name of the security provider base type
     :return: the MBean object returned by the underlying WLST create() method
     :raises: PyWLSTException: if a WLST error occurs
     """
     _method_name = 'create'
-    _logger.finest('WLSDPLY-00010', name, folder, directory, class_name=_class_name, method_name=_method_name)
-
-    if directory is not None:
-        original_directory = get_pwd()
-        cd(directory)
-    else:
-        original_directory = None
+    _logger.finest('WLSDPLY-00016', name, folder, base_provider_type, class_name=_class_name, method_name=_method_name)
 
     try:
-        result = wlst.create(name, folder)
+        if base_provider_type is None:
+            result = wlst.create(name, folder)
+        else:
+            if not wlst.WLS_ON.isConnected():
+                result = wlst.WLS.create(name, folder, base_provider_type)
+            else:
+                result = wlst.create(name, folder, base_provider_type)
     except (wlst.WLSTException, offlineWLSTException), e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00011', folder, name, _get_exception_mode(e),
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00017', name, folder, base_provider_type,
+                                                       _get_exception_mode(e), _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    _logger.finest('WLSDPLY-00018', name, folder, base_provider_type, result,
+                   class_name=_class_name, method_name=_method_name)
+    return result
+
+def delete(name, folder):
+    """
+    Delete an MBean of the specified name and type at the current location.
+    :param name: the MBean name
+    :param folder: the MBean type
+    :raises: PyWLSTException: if a WLST error occurs
+    """
+    _method_name = 'delete'
+    _logger.finest('WLSDPLY-00019', name, folder, class_name=_class_name, method_name=_method_name)
+
+    try:
+        wlst.delete(name, folder)
+    except (wlst.WLSTException, offlineWLSTException), e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00020', name, folder, _get_exception_mode(e),
                                                        _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
-        _cd_back(original_directory)
         raise pwe
-    _cd_back(original_directory)
-    _logger.finest('WLSDPLY-00012', name, folder, directory, result, class_name=_class_name, method_name=_method_name)
-    return result
+    _logger.finest('WLSDPLY-00021', name, folder, class_name=_class_name, method_name=_method_name)
+    return
 
 def get_database_defaults():
     """
@@ -115,7 +173,7 @@ def get_database_defaults():
     try:
         wlst.getDatabaseDefaults()
     except offlineWLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00013', e.getLocalizedMessage(), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00022', e.getLocalizedMessage(), error=e)
         _logger.throwing(pwe, class_name=_class_name, method_name=_method_name)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -133,7 +191,7 @@ def set_server_groups(server, server_groups):
     try:
         wlst.setServerGroups(server, server_groups)
     except (wlst.WLSTException, offlineWLSTException), e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00014', server_groups, server,
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00023', server_groups, server,
                                                        _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
@@ -152,7 +210,7 @@ def set_option(option, value):
     try:
         wlst.setOption(option, value)
     except (wlst.WLSTException, offlineWLSTException), e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00015', option, _get_exception_mode(e),
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00024', option, _get_exception_mode(e),
                                                        _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
@@ -161,13 +219,25 @@ def set_option(option, value):
 def lsa(path=None, log_throwing=True):
     """
     Return a map of weblogic attributes found at the wlst path or the current path.
+
+    In online mode, clean up the return values to strip off trailing spaces and
+    convert the string 'null' into None.
     :param path: for which to return a map of attributes. If None, the current path is searched
     :param log_throwing: whether or not to log the throwing message if the path location is not found
     :return: map of weblogic attributes
     :raises: PyWLSTException: if a WLST error occurs
     """
     _method_name = 'lsa'
-    return _ls(_method_name, 'a', path, log_throwing)
+    result = _ls(_method_name, 'a', path, log_throwing)
+    if wlst.WLS_ON.isConnected() and result is not None and type(result) is dict:
+        for key, value in result.iteritems():
+            if value is not None and type(value) is str:
+                new_value = value.rstrip()
+                if new_value == 'null':
+                    result[key] = None
+                else:
+                    result[key] = new_value
+    return result
 
 def lsc(path=None, log_throwing=True):
     """
@@ -189,15 +259,15 @@ def path_exists(path):
     :raises: PyWLSTException: if a WLST error occurs
     """
     _method_name = 'path_exists'
-    _logger.finest('WLSDPLY-00016', path, class_name=_class_name, method_name=_method_name)
+    _logger.finest('WLSDPLY-00025', path, class_name=_class_name, method_name=_method_name)
 
     exists = True
     try:
         wlst.ls(path)
     except (wlst.WLSTException, offlineWLSTException), e:
-        _logger.finest('WLSDPLY-00017', path, e.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
+        _logger.finest('WLSDPLY-00026', path, e.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
         exists = False
-    _logger.finest('WLSDPLY-00018', path, exists, class_name=_class_name, method_name=_method_name)
+    _logger.finest('WLSDPLY-00027', path, exists, class_name=_class_name, method_name=_method_name)
     return exists
 
 def _ls(method_name, ls_type, path=None, log_throwing=True):
@@ -211,7 +281,7 @@ def _ls(method_name, ls_type, path=None, log_throwing=True):
     :raises: PyWLSTException: if a WLST error occurs
     """
     _method_name = method_name
-    _logger.finest('WLSDPLY-00019', method_name, ls_type, path, class_name=_class_name, method_name=_method_name)
+    _logger.finest('WLSDPLY-00028', method_name, ls_type, path, class_name=_class_name, method_name=_method_name)
 
     if path is not None:
         # ls(path, returnMap='true') is busted in earlier versions of WLST so go ahead and
@@ -221,7 +291,7 @@ def _ls(method_name, ls_type, path=None, log_throwing=True):
         try:
             result = wlst.ls(ls_type, returnMap='true', returnType=ls_type)
         except (wlst.WLSTException, offlineWLSTException), e:
-            pwe = exception_helper.create_pywlst_exception('WLSDPLY-00020', path, ls_type, _get_exception_mode(e),
+            pwe = exception_helper.create_pywlst_exception('WLSDPLY-00029', path, ls_type, _get_exception_mode(e),
                                                            _format_exception(e), error=e)
             if log_throwing:
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
@@ -233,11 +303,11 @@ def _ls(method_name, ls_type, path=None, log_throwing=True):
         try:
             result = wlst.ls(ls_type, returnMap='true', returnType=ls_type)
         except (wlst.WLSTException, offlineWLSTException), e:
-            pwe = exception_helper.create_pywlst_exception('WLSDPLY-00020', current_path, ls_type,
+            pwe = exception_helper.create_pywlst_exception('WLSDPLY-00029', current_path, ls_type,
                                                            _get_exception_mode(e), _format_exception(e), error=e)
             _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
             raise pwe
-    _logger.finest('WLSDPLY-00021', method_name, ls_type, current_path, result,
+    _logger.finest('WLSDPLY-00030', method_name, ls_type, current_path, result,
                    class_name=_class_name, method_name=_method_name)
     return result
 
@@ -264,11 +334,11 @@ def get_singleton_name(path=None):
         if name_list is not None:
             nbr_names = len(name_list)
         if not nbr_names == 1:
-            pwe = exception_helper.create_pywlst_exception('WLSDPLY-00022', print_path, nbr_names, name_list)
+            pwe = exception_helper.create_pywlst_exception('WLSDPLY-00031', print_path, nbr_names, name_list)
             _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
             raise pwe
         mbean_name = name_list[0]
-        _logger.finest('WLSDPLY-00023', print_path, mbean_name, class_name=_class_name, method_name=_method_name)
+        _logger.finest('WLSDPLY-00032', print_path, mbean_name, class_name=_class_name, method_name=_method_name)
 
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=mbean_name)
     return mbean_name
@@ -280,11 +350,11 @@ def get_pwd():
     :raises: PyWLSTException: if a WLST error occurs
     """
     _method_name = 'get_pwd'
-    _logger.finest('WLSDPLY-00024', class_name=_class_name, method_name=_method_name)
+    _logger.finest('WLSDPLY-00033', class_name=_class_name, method_name=_method_name)
     try:
         path = wlst.pwd()[1:]
     except (wlst.WLSTException, offlineWLSTException), e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00025', _get_exception_mode(e),
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00034', _get_exception_mode(e),
                                                        _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
@@ -294,7 +364,7 @@ def get_pwd():
         path = path[second_slash:]
     else:
         path = '/'
-    _logger.finest('WLSDPLY-00026', path, class_name=_class_name, method_name=_method_name)
+    _logger.finest('WLSDPLY-00035', path, class_name=_class_name, method_name=_method_name)
     return path
 
 def get_cmo():
@@ -309,7 +379,7 @@ def get_cmo():
     try:
         wlst.updateCmo()
     except (wlst.WLSTException, offlineWLSTException), e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00027', get_pwd(), _get_exception_mode(e),
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00036', get_pwd(), _get_exception_mode(e),
                                                        _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name='get_cmo', error=pwe)
         raise pwe
@@ -344,7 +414,7 @@ def read_template(template):
     try:
         wlst.readTemplate(template)
     except offlineWLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00028', template, e.getLocalizedMessage(), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00037', template, e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -361,7 +431,7 @@ def add_template(template):
     try:
         wlst.addTemplate(template)
     except offlineWLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00029', template, e.getLocalizedMessage(), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00038', template, e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -377,7 +447,7 @@ def close_template():
     try:
         wlst.closeTemplate()
     except offlineWLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00030', e.getLocalizedMessage(), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00039', e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -395,7 +465,7 @@ def select_template(template):
     try:
         wlst.selectTemplate(template)
     except offlineWLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00031', template, e.getLocalizedMessage(), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00040', template, e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -411,7 +481,7 @@ def load_templates():
     try:
         wlst.loadTemplates()
     except offlineWLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00032', e.getLocalizedMessage(), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00041', e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -428,7 +498,7 @@ def read_domain(domain_home):
     try:
         wlst.readDomain(domain_home)
     except offlineWLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00033', domain_home, e.getLocalizedMessage(), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00042', domain_home, e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -446,14 +516,14 @@ def write_domain(domain_home):
     try:
         wlst.setOption('OverwriteDomain', 'true')
     except offlineWLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00034', domain_home, e.getLocalizedMessage(), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00043', domain_home, e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
 
     try:
         wlst.writeDomain(domain_home)
     except offlineWLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00035', domain_home, e.getLocalizedMessage(), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00044', domain_home, e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -469,7 +539,7 @@ def update_domain():
     try:
         wlst.updateDomain()
     except offlineWLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00036', e.getLocalizedMessage(), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00045', e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -485,7 +555,7 @@ def close_domain():
     try:
         wlst.closeDomain()
     except offlineWLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00037', e.getLocalizedMessage(), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00046', e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -515,7 +585,7 @@ def connect(username, password, url):
     try:
         wlst.connect(username=username, password=password, url=url)
     except (wlst.WLSTException, offlineWLSTException), e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00038', username, url, _get_exception_mode(e),
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00047', username, url, _get_exception_mode(e),
                                                        _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
@@ -532,7 +602,7 @@ def disconnect():
     try:
         wlst.disconnect()
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00039', str(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00048', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -548,7 +618,7 @@ def edit():
     try:
         wlst.edit()
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00040', str(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00049', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -564,7 +634,7 @@ def start_edit():
     try:
         wlst.startEdit()
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00041', str(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00050', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -580,7 +650,7 @@ def stop_edit():
     try:
         wlst.stopEdit('y')
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00042', str(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00051', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -596,7 +666,7 @@ def save():
     try:
         wlst.save()
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00043', str(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00052', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -612,7 +682,7 @@ def activate():
     try:
         wlst.activate()
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00044', str(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00053', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -635,7 +705,7 @@ def get_existing_object_list(wlst_objects_path):
     :return: the list of directory objects
     """
     _method_name = 'get_existing_object_list'
-    _logger.finest('WLSDPLY-00045', wlst_objects_path, class_name=_class_name, method_name=_method_name)
+    _logger.finest('WLSDPLY-00054', wlst_objects_path, class_name=_class_name, method_name=_method_name)
     current_dir = get_pwd()
 
     try:
@@ -644,13 +714,15 @@ def get_existing_object_list(wlst_objects_path):
         # if the ls() failed, directory does not exist
         result = []
     cd(current_dir)
-    _logger.finest('WLSDPLY-00046', wlst_objects_path, result, class_name=_class_name, method_name=_method_name)
+    _logger.finest('WLSDPLY-00055', wlst_objects_path, result, class_name=_class_name, method_name=_method_name)
     return result
 
 def start_application(application_name, *args, **kwargs):
     """
     Start the application in the connected domain.
-    :param application_name: application name
+    :param application_name: the application name
+    :param args: the positional arguments to the WLST function
+    :param kwargs: the keywork arguments to the WLST function
     :return: progress object (depends on whether it is blocked)
     :raises: PyWLSTException: if a WLST error occurs
     """
@@ -660,7 +732,8 @@ def start_application(application_name, *args, **kwargs):
     try:
         result = wlst.startApplication(application_name, *args, **kwargs)
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00048', application_name, args, kwargs, str(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00056', application_name, args, kwargs,
+                                                       _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -669,7 +742,9 @@ def start_application(application_name, *args, **kwargs):
 def stop_application(application_name, *args, **kwargs):
     """
     Stop the application in the connected domain.
-    :param application_name: application name
+    :param application_name: the application name
+    :param args: the positional arguments to the WLST function
+    :param kwargs: the keywork arguments to the WLST function
     :return: progress object (depends on whether it is blocked)
     :raises: PyWLSTException: if a WLST error occurs
     """
@@ -679,7 +754,8 @@ def stop_application(application_name, *args, **kwargs):
     try:
         result = wlst.stopApplication(application_name, *args, **kwargs)
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00049', application_name, args, kwargs, str(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00057', application_name, args, kwargs,
+                                                       _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -687,8 +763,10 @@ def stop_application(application_name, *args, **kwargs):
 
 def deploy_application(application_name, *args, **kwargs):
     """
-    Stop the application in the connected domain.
-    :param application_name: application name
+    Deploy the application in the connected domain.
+    :param application_name: the application name
+    :param args: the positional arguments to the WLST function
+    :param kwargs: the keywork arguments to the WLST function
     :return: progress object (depends on whether it is blocked)
     :raises: PyWLSTException: if a WLST error occurs
     """
@@ -698,7 +776,8 @@ def deploy_application(application_name, *args, **kwargs):
     try:
         result = wlst.deploy(application_name, *args, **kwargs)
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00050', application_name, args, kwargs, str(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00068', application_name, args, kwargs,
+                                                       _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -706,8 +785,10 @@ def deploy_application(application_name, *args, **kwargs):
 
 def undeploy_application(application_name, *args, **kwargs):
     """
-    Stop the application in the connected domain.
-    :param application_name: application name
+    Undeploy the application in the connected domain.
+    :param application_name: the application name
+    :param args: the positional arguments to the WLST function
+    :param kwargs: the keywork arguments to the WLST function
     :return: progress object (depends on whether it is blocked)
     :raises: PyWLSTException: if a WLST error occurs
     """
@@ -717,7 +798,8 @@ def undeploy_application(application_name, *args, **kwargs):
     try:
         result = wlst.undeploy(application_name, *args, **kwargs)
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00051', application_name, args, kwargs, str(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00059', application_name, args, kwargs,
+                                                       _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -725,8 +807,10 @@ def undeploy_application(application_name, *args, **kwargs):
 
 def redeploy_application(application_name, *args, **kwargs):
     """
-    Stop the application in the connected domain.
-    :param application_name: application name
+    Redeploy the application in the connected domain.
+    :param application_name: the application name
+    :param args: the positional arguments to the WLST function
+    :param kwargs: the keywork arguments to the WLST function
     :return: progress object (depends on whether it is blocked)
     :raises: PyWLSTException: if a WLST error occurs
     """
@@ -736,10 +820,12 @@ def redeploy_application(application_name, *args, **kwargs):
     try:
         result = wlst.redeploy(application_name, *args, **kwargs)
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00052', application_name, args, kwargs, str(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00060', application_name, args, kwargs,
+                                                       _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+    return result
 
 def get_config_manager():
     """
@@ -753,7 +839,7 @@ def get_config_manager():
     try:
         result = wlst.getConfigManager()
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00053', _format_exception(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00061', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -772,7 +858,7 @@ def get_active_activation_tasks(cmgr):
     try:
         result = cmgr.getActiveActivationTasks()
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00054', _format_exception(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00062', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -791,7 +877,7 @@ def get_current_editor(cmgr):
     try:
         result = cmgr.getCurrentEditor()
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00055', _format_exception(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00063', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -810,11 +896,56 @@ def have_unactivated_changes(cmgr):
     try:
         result = cmgr.haveUnactivatedChanges()
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00056', _format_exception(e), error=e)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00064', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
+
+def server_config():
+    """
+    Change to the serverConfig MBean tree.
+    :raises: PyWLSTException: if a WLST error occurs
+    """
+    _method_name = 'server_config'
+    try:
+        wlst.serverConfig()
+    except wlst.WLSTException, e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00065', _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+    return
+
+def domain_runtime():
+    """
+    Change to the domainRuntime MBean tree.
+    :raises: PyWLSTException: if a WLST error occurs
+    """
+    _method_name = 'domain_runtime'
+    try:
+        wlst.domainRuntime()
+    except wlst.WLSTException, e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00066', _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+    return
+
+def custom():
+    """
+    Change to the custom MBean tree.
+    :raises: PyWLSTException: if a WLST error occurs
+    """
+    _method_name = 'custom'
+    try:
+        wlst.custom()
+    except wlst.WLSTException, e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00067', _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+    return
 
 def _get_exception_mode(e):
     """
@@ -858,4 +989,15 @@ def _cd_back(return_directory):
         try:
             wlst.cd(return_directory)
         except (wlst.WLSTException, offlineWLSTException), ex:
-            _logger.warning('WLSDPLY-00057', return_directory, ex.getLocalizedMessage(), error=ex)
+            _logger.warning('WLSDPLY-00068', return_directory, ex.getLocalizedMessage(), error=ex)
+
+def _get_wlst_mode():
+    """
+    Get the text to describe the current WLST mode.
+    :return: online, if connected, offline if not
+    """
+    if wlst.WLS_ON.isConnected():
+        result = 'online'
+    else:
+        result = 'offline'
+    return result

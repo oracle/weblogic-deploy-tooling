@@ -8,13 +8,17 @@ import java.io.File as JFile
 import java.lang.IllegalArgumentException as JIllegalArgumentException
 import java.net.URI as JURI
 import java.net.URISyntaxException as JURISyntaxException
+
+import oracle.weblogic.deploy.aliases.VersionUtils as JVersionUtils
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils
-import oracle.weblogic.deploy.util.VersionUtils as JVersionUtils
 
-import wlsdeploy.exception.exception_helper as exception_helper
-
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+
+from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
+from wlsdeploy.tool.validate.usage_printer import MODEL_PATH_PATTERN
+
 
 class CommandLineArgUtil(object):
     """
@@ -113,7 +117,7 @@ class CommandLineArgUtil(object):
         idx = 1
         while idx < args_len:
             key = args[idx]
-            self._logger.fine('WLSDPLY-03106', key, class_name=self._class_name, method_name=method_name)
+            self._logger.fine('WLSDPLY-01600', key, class_name=self._class_name, method_name=method_name)
             if self.is_help_key(key):
                 ex = exception_helper.create_cla_exception('Dummy Key')
                 ex.setExitCode(self.HELP_EXIT_CODE)
@@ -329,7 +333,7 @@ class CommandLineArgUtil(object):
             elif self.is_recursive_switch(key):
                 self._add_arg(key, True)
             else:
-                ex = exception_helper.create_cla_exception('WLSDPLY-03107', self._program_name, key)
+                ex = exception_helper.create_cla_exception('WLSDPLY-01601', self._program_name, key)
                 ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
                 self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
                 raise ex
@@ -357,7 +361,7 @@ class CommandLineArgUtil(object):
         try:
             oh = JFileUtils.validateExistingDirectory(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03084', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01602', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -368,7 +372,7 @@ class CommandLineArgUtil(object):
         try:
             JFileUtils.validateExistingDirectory(wl_home_name)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03085', wl_home_name,
+            ex = exception_helper.create_cla_exception('WLSDPLY-01603', wl_home_name,
                                                        iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
@@ -376,7 +380,7 @@ class CommandLineArgUtil(object):
 
         wl_version = wl_helper.get_actual_weblogic_version()
         if not wl_helper.is_supported_weblogic_version():
-            ex = exception_helper.create_cla_exception('WLSDPLY-03086', oh_name, wl_version,
+            ex = exception_helper.create_cla_exception('WLSDPLY-01604', oh_name, wl_version,
                                                        wl_helper.MINIMUM_WEBLOGIC_VERSION)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
@@ -402,7 +406,7 @@ class CommandLineArgUtil(object):
         try:
             jh = JFileUtils.validateExistingDirectory(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03087', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01605', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -425,7 +429,7 @@ class CommandLineArgUtil(object):
         try:
             dh = JFileUtils.validateExistingDirectory(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03088', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01606', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -434,7 +438,7 @@ class CommandLineArgUtil(object):
         try:
             config_xml = JFileUtils.validateExistingFile(config_xml.getAbsolutePath())
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03089', dh.getAbsolutePath(),
+            ex = exception_helper.create_cla_exception('WLSDPLY-01607', dh.getAbsolutePath(),
                                                        config_xml.getAbsolutePath(),
                                                        iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
@@ -458,7 +462,7 @@ class CommandLineArgUtil(object):
         try:
             dp = JFileUtils.validateWritableDirectory(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03090', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01608', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -478,7 +482,7 @@ class CommandLineArgUtil(object):
         method_name = '_validate_domain_type_arg'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03091')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01609')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -496,7 +500,7 @@ class CommandLineArgUtil(object):
         try:
             wlst_path = JFileUtils.validateExistingDirectory(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03092', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01610', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -514,7 +518,7 @@ class CommandLineArgUtil(object):
         method_name = '_validate_admin_url_arg'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03093')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01611')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -525,7 +529,7 @@ class CommandLineArgUtil(object):
         #
         url_separator_index = value.find('://')
         if not url_separator_index > 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03114', value)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01612', value)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -533,7 +537,7 @@ class CommandLineArgUtil(object):
         try:
             JURI(value)
         except JURISyntaxException, use:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03094', value, use.getLocalizedMessage(), error=use)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01613', value, use.getLocalizedMessage(), error=use)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -550,7 +554,7 @@ class CommandLineArgUtil(object):
         method_name = '_validate_admin_user_arg'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03095')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01614')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -566,7 +570,7 @@ class CommandLineArgUtil(object):
         method_name = '_validate_admin_pass_arg'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03096')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01615')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -584,7 +588,7 @@ class CommandLineArgUtil(object):
         try:
             archive = JFileUtils.validateFileName(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03097', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01616', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -602,7 +606,7 @@ class CommandLineArgUtil(object):
         try:
             model = JFileUtils.validateFileName(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03098', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01617', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -620,7 +624,7 @@ class CommandLineArgUtil(object):
         try:
             model = JFileUtils.validateFileName(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03099', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01618', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -636,7 +640,20 @@ class CommandLineArgUtil(object):
         method_name = '_validate_print_usage_arg'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03228')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01619')
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        matcher = MODEL_PATH_PATTERN.match(value)
+        if not matcher:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01633', self.PRINT_USAGE_SWITCH, value)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        section_name = matcher.group(1)
+        if section_name not in KNOWN_TOPLEVEL_MODEL_SECTIONS:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01634', self.PRINT_USAGE_SWITCH, value,
+                                                       section_name, KNOWN_TOPLEVEL_MODEL_SECTIONS)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -654,7 +671,7 @@ class CommandLineArgUtil(object):
         try:
             variable_file = JFileUtils.validateExistingFile(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03100', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01620', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -670,7 +687,7 @@ class CommandLineArgUtil(object):
         method_name = '_validate_rcu_database_arg'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03101')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01621')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -686,7 +703,7 @@ class CommandLineArgUtil(object):
         method_name = '_validate_rcu_prefix_arg'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03102')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01622')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -702,7 +719,7 @@ class CommandLineArgUtil(object):
         method_name = '_validate_rcu_sys_pass_arg'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03103')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01623')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -718,7 +735,7 @@ class CommandLineArgUtil(object):
         method_name = '_validate_rcu_schema_pass_arg'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03104')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01624')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -734,7 +751,7 @@ class CommandLineArgUtil(object):
         method_name = '_validate_passphrase_switch'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03131')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01625')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -756,7 +773,7 @@ class CommandLineArgUtil(object):
         method_name = '_validate_one_pass_switch'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03132')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01626')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -789,19 +806,19 @@ class CommandLineArgUtil(object):
         # predict future version numbers...
         #
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03192')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01627')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         elif not JVersionUtils.isVersion(value):
-            ex = exception_helper.create_cla_exception('WLSDPLY-03193', value)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01628', value)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         else:
             wl_helper = WebLogicHelper(self._logger, value)
             if not wl_helper.is_supported_weblogic_version():
-                ex = exception_helper.create_cla_exception('WLSDPLY-03194', value)
+                ex = exception_helper.create_cla_exception('WLSDPLY-01629', value)
                 ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
                 self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
                 raise ex
@@ -835,12 +852,12 @@ class CommandLineArgUtil(object):
         method_name = '_validate_target_mode_arg'
 
         if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03195')
+            ex = exception_helper.create_cla_exception('WLSDPLY-01630')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         elif value.lower() != 'online' and value.lower() != 'offline':
-            ex = exception_helper.create_cla_exception('WLSDPLY-03196', value)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01631', value)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -862,13 +879,13 @@ class CommandLineArgUtil(object):
         elif key in self._optional_args:
             self._optional_result[key] = fixed_value
         else:
-            ex = exception_helper.create_cla_exception('WLSDPLY-03082', key, self._program_name)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01632', key, self._program_name)
             ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return
 
     def _get_out_of_args_exception(self, key):
-        ex = exception_helper.create_cla_exception('WLSDPLY-03083', key, self._program_name)
+        ex = exception_helper.create_cla_exception('WLSDPLY-01110', key, self._program_name)
         ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
         return ex

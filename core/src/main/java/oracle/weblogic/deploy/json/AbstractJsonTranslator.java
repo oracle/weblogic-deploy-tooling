@@ -313,7 +313,7 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
             }
             result = fileDict;
         }
-        getLogger().exiting(getClassName(), METHOD, result);
+        getLogger().exiting(getClassName(), METHOD);
         return result;
     }
 

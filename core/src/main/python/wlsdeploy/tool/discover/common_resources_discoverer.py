@@ -2,27 +2,26 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-
 from java.io import File
 from java.lang import IllegalArgumentException
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
-import oracle.weblogic.deploy.util.StringUtils as StringUtils
-import wlsdeploy.aliases.model_constants as model_constants
-import wlsdeploy.exception.exception_helper as exception_helper
-import wlsdeploy.logging.platform_logger as platform_logger
-import wlsdeploy.tool.discover.discoverer as discoverer
-import wlsdeploy.util.wlst_helper as wlst_helper
+from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.coherence_resources_discoverer import CoherenceResourcesDiscoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.tool.discover.jms_resources_discoverer import JmsResourcesDiscoverer
+from wlsdeploy.util import wlst_helper
 
 _class_name = 'CommonResourcesDiscoverer'
-_logger = platform_logger.PlatformLogger(discoverer.get_discover_logger_name())
+_logger = PlatformLogger(discoverer.get_discover_logger_name())
 
 
 class CommonResourcesDiscoverer(Discoverer):
@@ -323,19 +322,20 @@ class CommonResourcesDiscoverer(Discoverer):
         _logger.entering(model_name, class_name=_class_name, method_name=_method_name)
         new_script_name = model_value
         if model_value is not None:
-            _logger.info('WLSDPLY-06359', model_value, self.get_context(location), class_name=_class_name,
-                         method_name=_method_name)
+            _logger.info('WLSDPLY-06359', model_value, self._alias_helper.get_model_folder_path(location),
+                         class_name=_class_name, method_name=_method_name)
             archive_file = self._model_context.get_archive_file()
             # Set model_value to None if unable to add it to archive file
             modified_name = None
             try:
                 modified_name = archive_file.addScript(File(model_value))
             except IllegalArgumentException, iae:
-                _logger.warning('WLSDPLY-06360', self.get_context(location), model_value,
+                _logger.warning('WLSDPLY-06360', self._alias_helper.get_model_folder_path(location), model_value,
                                 iae.getLocalizedMessage(), class_name=_class_name,
                                 method_name=_method_name)
             except WLSDeployArchiveIOException, wioe:
-                de = exception_helper.create_discover_exception('WLSDPLY-06354', self.get_context(location),
+                de = exception_helper.create_discover_exception('WLSDPLY-06354',
+                                                                self._alias_helper.get_model_folder_path(location),
                                                                 model_value, wioe.getLocalizedMessage())
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                 raise de

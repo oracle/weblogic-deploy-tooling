@@ -77,16 +77,4 @@ public class YamlTranslator extends AbstractYamlTranslator {
     protected PlatformLogger getLogger() {
         return LOGGER;
     }
-
-    // For testing only...
-    public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
-            System.err.println("Must pass in the Yaml file name");
-            return;
-        }
-
-        YamlTranslator translator = new YamlTranslator(args[0], true);
-        PyDictionary result = translator.parse();
-        System.out.println("result = " + result);
-    }
 }

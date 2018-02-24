@@ -10,8 +10,8 @@
     <packaging>pom</packaging>
 
     <parent>
-        <artifactId>weblogic-deploy</artifactId>
         <groupId>com.oracle.weblogic.lifecycle</groupId>
+        <artifactId>weblogic-deploy</artifactId>
         <version>0.7-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>

@@ -4,13 +4,13 @@ The Universal Permissive License (UPL), Version 1.0
 """
 import copy
 
+from oracle.weblogic.deploy.aliases import VersionException
+from oracle.weblogic.deploy.aliases import VersionUtils
 from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.json import JsonStreamTranslator
 from oracle.weblogic.deploy.util import FileUtils
-from oracle.weblogic.deploy.util import VersionException
-from oracle.weblogic.deploy.util import VersionUtils
 
-from wlsdeploy.aliases import alias_utils
+import wlsdeploy.aliases.alias_utils as alias_utils
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.validation_codes import ValidationCodes
@@ -20,7 +20,6 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
-from wlsdeploy.aliases.alias_constants import AUTHENTICATION_PROVIDER_NAME_MAP
 from wlsdeploy.aliases.alias_constants import CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import CONTAINS
 from wlsdeploy.aliases.alias_constants import DEFAULT_NAME_VALUE
@@ -31,6 +30,7 @@ from wlsdeploy.aliases.alias_constants import GET_METHOD
 from wlsdeploy.aliases.alias_constants import MODEL_NAME
 from wlsdeploy.aliases.alias_constants import NAME_VALUE
 from wlsdeploy.aliases.alias_constants import NONE_CHILD_FOLDERS_TYPE
+from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_NAME_MAP
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import SINGLE
@@ -151,6 +151,13 @@ class AliasEntries(object):
         'Library'
     ]
 
+    __domain_info_attributes_and_types = {
+        'AdminUserName': 'string',
+        'AdminPassword': 'string',
+        'ServerStartMode': 'string',
+        'domainLibraries': 'list'
+    }
+
     __domain_name_token = 'DOMAIN'
 
     def __init__(self, wlst_mode=WlstModes.OFFLINE, wls_version=None):
@@ -175,7 +182,7 @@ class AliasEntries(object):
             self._requires_security_provider_rename = False
         return
 
-    def get_dictionary_for_location(self, location):
+    def get_dictionary_for_location(self, location, resolve=True):
         """
         Get the alias dictionary for the specified location with all the context applied to the data.  Note
         that any paths in subfolders are not resolved by this method.
@@ -188,7 +195,7 @@ class AliasEntries(object):
         _method_name = 'get_dictionary_for_location'
 
         _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
-        result = self.__get_dictionary_for_location(location, True)
+        result = self.__get_dictionary_for_location(location, resolve)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return result
 
@@ -217,14 +224,29 @@ class AliasEntries(object):
         Get the top-level model folder names underneath the topology section.
         :return: a list of the folder names
         """
-        return list(self.__topology_top_level_folders)
+        result = list(self.__topology_top_level_folders)
+        if not self._wls_helper.is_weblogic_version_or_above('12.2.1'):
+            result.remove('VirtualTarget')
+            if not self._wls_helper.is_weblogic_version_or_above('12.1.2'):
+                result.remove('RestfulManagementServices')
+                result.remove('ServerTemplate')
+        return result
 
     def get_model_resources_subfolder_names(self):
         """
         Get the top-level model folder names underneath the resources section.
         :return: a list of the folder names
         """
-        return list(self.__resources_top_level_folders)
+        result = list(self.__resources_top_level_folders)
+        if not self._wls_helper.is_weblogic_version_or_above('12.2.1'):
+            result.remove('Partition')
+            result.remove('PartitionWorkManager')
+            result.remove('ResourceGroup')
+            result.remove('ResourceGroupTemplate')
+            result.remove('ResourceManagement')
+            if not self._wls_helper.is_weblogic_version_or_above('12.1.2'):
+                result.remove('CoherenceClusterSystemResource')
+        return result
 
     def get_model_app_deployments_subfolder_names(self):
         """
@@ -232,6 +254,9 @@ class AliasEntries(object):
         :return: a list of the folder names
         """
         return list(self.__app_deployments_top_level_folders)
+
+    def get_domain_info_attribute_names_and_types(self):
+        return dict(self.__domain_info_attributes_and_types)
 
     def get_model_subfolder_names_for_location(self, location):
         """
@@ -281,23 +306,25 @@ class AliasEntries(object):
                     elif location_folder == 'domainInfo':
                         result += 'domainInfo:/'
                     else:
-                        ex = exception_helper.create_alias_exception('WLSDPLY-08095', location_folder)
+                        ex = exception_helper.create_alias_exception('WLSDPLY-08100', location_folder)
                         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                         raise ex
 
                 result += location_folder + '/'
                 my_loc.append_location(location_folder)
-                name_token = self.get_name_token_for_location(my_loc)
-                if name_token is not None:
-                    name = location.get_name_for_token(name_token)
-                    if name is not None:
-                        my_loc.add_name_token(name_token, name)
-                        result += name + '/'
-                    elif location_folder != location_folders[-1]:
-                        # Allow the location to be missing a name_token for the last folder only...
-                        ex = exception_helper.create_alias_exception('WLSDPLY-08096', str(location), name_token)
-                        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                        raise ex
+                # Have to check for security provider artificial folders that don't have a trailing name token
+                if location_folder not in SECURITY_PROVIDER_NAME_MAP:
+                    name_token = self.get_name_token_for_location(my_loc)
+                    if name_token is not None:
+                        name = location.get_name_for_token(name_token)
+                        if name is not None:
+                            my_loc.add_name_token(name_token, name)
+                            result += name + '/'
+                        elif location_folder != location_folders[-1]:
+                            # Allow the location to be missing a name_token for the last folder only...
+                            ex = exception_helper.create_alias_exception('WLSDPLY-08101', str(location), name_token)
+                            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                            raise ex
             # Strip the trailing slash only if the path is not still '<section-name>:/'
             section_end_index = result.find(':/')
             if section_end_index != -1 and len(result) > section_end_index + 2:
@@ -395,7 +422,7 @@ class AliasEntries(object):
             if requested_child_folders_type == actual_child_folders_type:
                 result = True
             elif actual_child_folders_type == NONE_CHILD_FOLDERS_TYPE:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08101', location.get_folder_path(),
+                ex = exception_helper.create_alias_exception('WLSDPLY-08102', location.get_folder_path(),
                                                              ChildFoldersTypes.from_value(child_folders_type))
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
@@ -505,21 +532,40 @@ class AliasEntries(object):
             result = self.__domain_name_token
         else:
             folder_dict = self.__get_dictionary_for_location(location, False)
-            if folder_dict is not None and WLST_ATTRIBUTES_PATH in folder_dict:
-                paths_index = folder_dict[WLST_ATTRIBUTES_PATH]
-                tokenized_path = \
-                    alias_utils.resolve_path_index(folder_dict, paths_index, WLST_ATTRIBUTES_PATH, location)
-                last_token = tokenized_path.split('/')[-1]
+            if folder_dict is not None:
+                if WLST_ATTRIBUTES_PATH in folder_dict:
+                    paths_index = folder_dict[WLST_ATTRIBUTES_PATH]
+                    tokenized_path = \
+                        alias_utils.resolve_path_index(folder_dict, paths_index, WLST_ATTRIBUTES_PATH, location)
+                    last_token = tokenized_path.split('/')[-1]
 
-                if last_token != 'NO_NAME_0' and last_token.startswith('%') and last_token.endswith('%'):
-                    token_occurrences = alias_utils.count_substring_occurrences(last_token, tokenized_path)
-                    if token_occurrences == 1:
-                        result = last_token[1:-1]
+                    if last_token != 'NO_NAME_0' and last_token.startswith('%') and last_token.endswith('%'):
+                        token_occurrences = alias_utils.count_substring_occurrences(last_token, tokenized_path)
+                        if token_occurrences == 1:
+                            result = last_token[1:-1]
+                else:
+                    ex = exception_helper.create_alias_exception('WLSDPLY-08103', location.get_folder_path(),
+                                                                 WLST_ATTRIBUTES_PATH)
+                    _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                    raise ex
             else:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08067', location.get_folder_path(),
-                                                             WLST_ATTRIBUTES_PATH)
+                path = location.get_folder_path()
+
+                err_location = LocationContext(location)
+                if  not err_location.is_empty():
+                    folder_name = err_location.pop_location()
+                    code, message = self.is_valid_model_folder_name_for_location(err_location, folder_name)
+                    if code == ValidationCodes.VERSION_INVALID:
+                        ex = exception_helper.create_alias_exception('WLSDPLY-08130', path,
+                                                                     self._wls_helper.get_actual_weblogic_version(),
+                                                                     message)
+                        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                        raise ex
+                ex = exception_helper.create_alias_exception('WLSDPLY-08131', path,
+                                                             self._wls_helper.get_actual_weblogic_version())
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
+
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
 
@@ -546,7 +592,7 @@ class AliasEntries(object):
                 mbean_name = tokenized_path.split('/')[-1]
 
         if mbean_name is None:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08067', location.get_folder_path(),
+            ex = exception_helper.create_alias_exception('WLSDPLY-08104', location.get_folder_path(),
                                                          DEFAULT_NAME_VALUE, WLST_ATTRIBUTES_PATH)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -557,7 +603,7 @@ class AliasEntries(object):
             if token_name in name_tokens:
                 mbean_name = name_tokens[token_name]
             else:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08039', location.get_folder_path(), token_name)
+                ex = exception_helper.create_alias_exception('WLSDPLY-08105', location.get_folder_path(), token_name)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=mbean_name)
@@ -579,10 +625,10 @@ class AliasEntries(object):
         elif WLST_TYPE in folder_dict:
             wlst_type = folder_dict[WLST_TYPE]
             if self._requires_security_provider_rename and alias_utils.is_security_provider_location(location) and \
-                    wlst_type in AUTHENTICATION_PROVIDER_NAME_MAP:
-                wlst_type = AUTHENTICATION_PROVIDER_NAME_MAP[wlst_type]
+                    wlst_type in SECURITY_PROVIDER_NAME_MAP:
+                wlst_type = SECURITY_PROVIDER_NAME_MAP[wlst_type]
         else:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08038', location.get_folder_path(), WLST_TYPE)
+            ex = exception_helper.create_alias_exception('WLSDPLY-08106', location.get_folder_path(), WLST_TYPE)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -609,14 +655,14 @@ class AliasEntries(object):
                 if WLST_PATH in attr:
                     del attr[WLST_PATH]
                 else:
-                    _logger.warning('WLSDPLY-08050', attr_name, location.get_folder_path(), WLST_PATH)
+                    _logger.warning('WLSDPLY-08107', attr_name, location.get_folder_path(), WLST_PATH)
                 model_attr_dict[attr_name] = attr
         else:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08053', location.get_folder_path(), ATTRIBUTES)
+            ex = exception_helper.create_alias_exception('WLSDPLY-08108', location.get_folder_path(), ATTRIBUTES)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_attr_dict)
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_attr_dict
 
     def get_alias_attribute_entry_by_model_name(self, location, model_attribute_name):
@@ -637,11 +683,11 @@ class AliasEntries(object):
                 if WLST_PATH in model_attr_dict:
                     del model_attr_dict[WLST_PATH]
                 else:
-                    _logger.warning('WLSDPLY-08050', model_attribute_name, location.get_folder_path(), WLST_PATH)
+                    _logger.warning('WLSDPLY-08107', model_attribute_name, location.get_folder_path(), WLST_PATH)
             else:
                 model_attr_dict = None
         else:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08051', model_attribute_name,
+            ex = exception_helper.create_alias_exception('WLSDPLY-08109', model_attribute_name,
                                                          location.get_folder_path(), ATTRIBUTES)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -667,17 +713,17 @@ class AliasEntries(object):
                 if WLST_PATH in result:
                     del result[WLST_PATH]
                 else:
-                    _logger.warning('WLSDPLY-08052', wlst_attribute_name, location.get_folder_path(), WLST_PATH)
+                    _logger.warning('WLSDPLY-08110', wlst_attribute_name, location.get_folder_path(), WLST_PATH)
             else:
                 if wlst_attribute_name not in ('Id', 'Tag', 'Name'):
-                    ex = exception_helper.create_alias_exception('WLSDPLY-08047', location.get_folder_path(),
+                    ex = exception_helper.create_alias_exception('WLSDPLY-08111', location.get_folder_path(),
                                                                  wlst_attribute_name)
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                     raise ex
                 else:
                     result = None
         else:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08048', location.get_folder_path(),
+            ex = exception_helper.create_alias_exception('WLSDPLY-08112', location.get_folder_path(),
                                                          wlst_attribute_name, WLST_NAMES_MAP)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -714,12 +760,12 @@ class AliasEntries(object):
             folder_dict = self.__get_dictionary_for_location(location, False)
 
             if folder_dict is None:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08069', model_folder_name,
+                ex = exception_helper.create_alias_exception('WLSDPLY-08113', model_folder_name,
                                                              location.get_folder_path())
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
             elif FOLDERS not in folder_dict:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08070', model_folder_name,
+                ex = exception_helper.create_alias_exception('WLSDPLY-08114', model_folder_name,
                                                              location.get_folder_path())
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
@@ -794,7 +840,7 @@ class AliasEntries(object):
 
         _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         if location is None:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08017')
+            ex = exception_helper.create_alias_exception('WLSDPLY-08115')
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -804,7 +850,7 @@ class AliasEntries(object):
         else:
             model_category_name = location_folders[0]
             if model_category_name not in self.__model_categories_map:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08062', model_category_name)
+                ex = exception_helper.create_alias_exception('WLSDPLY-08116', model_category_name)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
@@ -817,7 +863,7 @@ class AliasEntries(object):
                 if FOLDERS in child_dict and location_subfolder in child_dict[FOLDERS]:
                     child_dict = child_dict[FOLDERS][location_subfolder]
                 else:
-                    ex = exception_helper.create_alias_exception('WLSDPLY-08028', location_subfolder, path_name)
+                    ex = exception_helper.create_alias_exception('WLSDPLY-08117', location_subfolder, path_name)
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                     raise ex
                 if child_dict is None:
@@ -857,7 +903,7 @@ class AliasEntries(object):
         _logger.entering(model_category_name, class_name=_class_name, method_name=_method_name)
         model_category_file = self.__model_categories_map[model_category_name]
         raw_category_dict = self.__load_category_file(model_category_file)
-        _logger.fine('WLSDPLY-08030', model_category_name, class_name=_class_name, method_name=_method_name)
+        _logger.fine('WLSDPLY-08118', model_category_name, class_name=_class_name, method_name=_method_name)
 
         # At this point, we need to look for contains elements and replace them accordingly.
         self.__load_contains_categories(model_category_name, raw_category_dict)
@@ -882,11 +928,11 @@ class AliasEntries(object):
         category_file_name = '%s.json' % category_base_file_name
         category_file_path = '%s%s' % (self.__category_modules_dir_name, category_file_name)
 
-        _logger.fine('WLSDPLY-08018', category_base_file_name, category_file_path,
+        _logger.fine('WLSDPLY-08119', category_base_file_name, category_file_path,
                      class_name=_class_name, method_name=_method_name)
         category_input_stream = FileUtils.getResourceAsStream(category_file_path)
         if category_input_stream is None:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08009', category_file_path)
+            ex = exception_helper.create_alias_exception('WLSDPLY-08120', category_file_path)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -894,7 +940,7 @@ class AliasEntries(object):
             json_translator = JsonStreamTranslator(category_file_name, category_input_stream)
             result = json_translator.parse()
         except JsonException, jex:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08019', category_file_path,
+            ex = exception_helper.create_alias_exception('WLSDPLY-08121', category_file_path,
                                                          jex.getLocalizedMessage(), error=jex)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -917,7 +963,7 @@ class AliasEntries(object):
         if FOLDERS in raw_model_dict:
             raw_model_dict_folders = raw_model_dict[FOLDERS]
         else:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08065', FOLDERS, model_category_name)
+            ex = exception_helper.create_alias_exception('WLSDPLY-08006', FOLDERS, model_category_name)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -948,7 +994,7 @@ class AliasEntries(object):
                 if contained_folder in self.__model_categories_map:
                     folder_file = self.__model_categories_map[contained_folder]
                 else:
-                    ex = exception_helper.create_alias_exception('WLSDPLY-08066', contained_folder, model_category_name)
+                    ex = exception_helper.create_alias_exception('WLSDPLY-08122', contained_folder, model_category_name)
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                     raise ex
                 raw_folder_dict = self.__load_category_file(folder_file)
@@ -977,11 +1023,11 @@ class AliasEntries(object):
         if VERSION in alias_dict:
             dict_version_range = alias_dict[VERSION]
             try:
-                _logger.finer('WLSDPLY-08092', path_name, dict_version_range,
+                _logger.finer('WLSDPLY-08123', path_name, dict_version_range,
                               self._wls_helper.get_actual_weblogic_version(),
                               class_name=_class_name, method_name=_method_name)
                 if not self.__version_in_range(dict_version_range):
-                    _logger.finer('WLSDPLY-08093', path_name, dict_version_range,
+                    _logger.finer('WLSDPLY-08124', path_name, dict_version_range,
                                   self._wls_helper.get_actual_weblogic_version(),
                                   class_name=_class_name, method_name=_method_name)
                     if UNRESOLVED_FOLDERS_MAP not in parent_dict:
@@ -990,11 +1036,11 @@ class AliasEntries(object):
                     parent_dict[UNRESOLVED_FOLDERS_MAP][alias_dict_folder_name] = dict_version_range
                     return None
                 else:
-                    _logger.finer('WLSDPLY-08094', path_name, dict_version_range,
+                    _logger.finer('WLSDPLY-08125', path_name, dict_version_range,
                                   self._wls_helper.get_actual_weblogic_version(),
                                   class_name=_class_name, method_name=_method_name)
             except VersionException, ve:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08060', path_name, dict_version_range,
+                ex = exception_helper.create_alias_exception('WLSDPLY-08126', path_name, dict_version_range,
                                                              ve.getLocalizedMessage(), error=ve)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
@@ -1033,7 +1079,7 @@ class AliasEntries(object):
                 result_wlst_paths[key] = self._resolve_curly_braces(wlst_paths[key])
             result[WLST_PATHS] = result_wlst_paths
         else:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08024', path_name)
+            ex = exception_helper.create_alias_exception('WLSDPLY-08127', path_name)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -1072,7 +1118,7 @@ class AliasEntries(object):
                 if WLST_NAME in model_attr_dict:
                     wlst_name = model_attr_dict[WLST_NAME]
                 else:
-                    ex = exception_helper.create_alias_exception('WLSDPLY-08027', model_attr, path_name)
+                    ex = exception_helper.create_alias_exception('WLSDPLY-08128', model_attr, path_name)
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                     raise ex
 
@@ -1111,11 +1157,11 @@ class AliasEntries(object):
         version_range_dict = dict()
         for attr_dict in attr_array:
             if WLST_MODE not in attr_dict:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08020', attr_name, path_name, attr_dict)
+                ex = exception_helper.create_alias_exception('WLSDPLY-08129', attr_name, path_name, attr_dict)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
             elif VERSION_RANGE not in attr_dict:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08021', attr_name, path_name, attr_dict)
+                ex = exception_helper.create_alias_exception('WLSDPLY-08130', attr_name, path_name, attr_dict)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
@@ -1132,7 +1178,7 @@ class AliasEntries(object):
                 if self.__version_in_range(attr_dict_version_range):
                     matches.append(attr_dict)
             except VersionException, ve:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08057', attr_name, path_name,
+                ex = exception_helper.create_alias_exception('WLSDPLY-08217', attr_name, path_name,
                                                              attr_dict_version_range, ve.getLocalizedMessage(),
                                                              error=ve)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -1145,11 +1191,11 @@ class AliasEntries(object):
             matched_attr = self.__resolve_attribute(matched_attr)
         elif len(matches) == 0:
             unmatched_attr = self.__get_unmatched_attribute_version_range(version_range_dict)
-            _logger.finer('WLSDPLY-08023', attr_name, path_name, self._wls_version,
+            _logger.finer('WLSDPLY-08140', attr_name, path_name, self._wls_version,
                           WlstModes.from_value(self._wlst_mode), unmatched_attr,
                           class_name=_class_name, method_name=_method_name)
         else:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08022', attr_name, path_name, self._wls_version,
+            ex = exception_helper.create_alias_exception('WLSDPLY-08141', attr_name, path_name, self._wls_version,
                                                          WlstModes.from_value(self._wlst_mode))
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -1188,7 +1234,7 @@ class AliasEntries(object):
             else:
                 result[key] = self._resolve_curly_braces(attr)
 
-        for key in (GET_METHOD, SET_METHOD, GET_MBEAN_TYPE, SET_MBEAN_TYPE):
+        for key in [GET_METHOD, SET_METHOD, GET_MBEAN_TYPE, SET_MBEAN_TYPE]:
             if key in result and len(result[key]) == 0:
                 del result[key]
         return result
@@ -1254,12 +1300,12 @@ class AliasEntries(object):
                 version_range = parent_dict[UNRESOLVED_FOLDERS_MAP][folder]
                 break
             else:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08046', path_name)
+                ex = exception_helper.create_alias_exception('WLSDPLY-08142', path_name)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
         if version_range is None:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08061', location.get_folder_path(), self._wls_version)
+            ex = exception_helper.create_alias_exception('WLSDPLY-08143', location.get_folder_path(), self._wls_version)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=version_range)
@@ -1287,7 +1333,7 @@ class AliasEntries(object):
             num_dirs_to_strip = alias_utils.get_number_of_directories_to_strip(path_type, WLST_ATTRIBUTES_PATH)
             tokenized_path = alias_utils.strip_trailing_folders_in_path(tokenized_attr_path, num_dirs_to_strip)
         else:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08031', location.get_folder_path(),
+            ex = exception_helper.create_alias_exception('WLSDPLY-08144', location.get_folder_path(),
                                                          WLST_ATTRIBUTES_PATH)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex

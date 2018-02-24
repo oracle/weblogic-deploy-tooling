@@ -2,7 +2,7 @@
  * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
-package oracle.weblogic.deploy.util;
+package oracle.weblogic.deploy.aliases;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -14,9 +14,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import oracle.weblogic.deploy.aliases.AliasException;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
+import oracle.weblogic.deploy.util.PyOrderedDict;
+import oracle.weblogic.deploy.util.StringUtils;
 
 import org.python.core.Py;
 import org.python.core.PyDictionary;
@@ -111,6 +112,7 @@ public final class TypeUtils {
                 targetType = Double.class;
                 break;
             case "boolean":
+            case "java.lang.Boolean":
                 targetType = Boolean.class;
                 break;
             case "delimited_string":
@@ -133,7 +135,7 @@ public final class TypeUtils {
                 targetType = PyOrderedDict.class;
                 break;
             default:
-                AliasException ae = new AliasException("WLSDPLY-08090", targetTypeName);
+                AliasException ae = new AliasException("WLSDPLY-08500", targetTypeName);
                 LOGGER.throwing(CLASS, METHOD, ae);
                 throw ae;
         }
@@ -171,7 +173,7 @@ public final class TypeUtils {
         final String METHOD = "convertToType";
 
         if (targetType.isPrimitive()) {
-            AliasException ae = new AliasException("WLSDPLY-03075", targetType.getSimpleName());
+            AliasException ae = new AliasException("WLSDPLY-08501", targetType.getSimpleName());
             LOGGER.throwing(CLASS, METHOD, ae);
             throw ae;
         }
@@ -219,7 +221,7 @@ public final class TypeUtils {
         } else if (Map.class.isAssignableFrom(targetType)) {
             result = convertToMap(value, strValue, delimiter);
         } else {
-            AliasException ae = new AliasException("WLSDPLY-03076", strValue, targetType.getName());
+            AliasException ae = new AliasException("WLSDPLY-08502", strValue, targetType.getName());
             LOGGER.throwing(CLASS, METHOD, ae);
             throw ae;
         }
@@ -287,7 +289,7 @@ public final class TypeUtils {
             if (array.length > 0) {
                 result = new ArrayList<>(Arrays.asList(array));
             }
-        } else {
+        } else if (!StringUtils.isEmpty(strValue)) {
             result = convertStringToList(strValue, delimiter);
         }
         return result;
@@ -320,7 +322,7 @@ public final class TypeUtils {
                 properties.put( po.__finditem__(0).toString(), po.__finditem__(1).toString() );
             }
         } else {
-            AliasException ae = new AliasException("WLSDPLY-08091", value.getClass().getName());
+            AliasException ae = new AliasException("WLSDPLY-08503", value.getClass().getName());
             LOGGER.throwing(CLASS, METHOD, ae);
             throw ae;
         }
@@ -338,7 +340,7 @@ public final class TypeUtils {
         } else if (value instanceof String || Map.class.isAssignableFrom(value.getClass())){
             dictionary = convertPropertiesToDictionary(convertToProperties(value, delimiter), useOrderedDict);
         }  else {
-            AliasException ae = new AliasException("WLSDPLY-08097", value.getClass().getName());
+            AliasException ae = new AliasException("WLSDPLY-08504", value.getClass().getName());
             LOGGER.throwing(CLASS, METHOD, ae);
             throw ae;
         }
@@ -359,7 +361,7 @@ public final class TypeUtils {
         final String METHOD = "convertStringToList";
 
         if (StringUtils.isEmpty(delimiter)) {
-            AliasException ae = new AliasException("WLSDPLY-08089", strValue);
+            AliasException ae = new AliasException("WLSDPLY-08505", strValue);
             LOGGER.throwing(CLASS, METHOD, ae);
             throw ae;
         }
@@ -385,7 +387,7 @@ public final class TypeUtils {
     static Map<String, String> convertStringToMap(String strValue, String delimiter) throws AliasException {
         final String METHOD = "convertStringToMap";
         if (StringUtils.isEmpty(delimiter)) {
-            AliasException ae = new AliasException("WLSDPLY-08089", strValue);
+            AliasException ae = new AliasException("WLSDPLY-08505", strValue);
             LOGGER.throwing(CLASS, METHOD, ae);
             throw ae;
         }
@@ -427,7 +429,7 @@ public final class TypeUtils {
                 try {
                     dictionary.__setitem__(pyKey, pyValue);
                 } catch (PyException pe) {
-                    AliasException ae = new AliasException("WLSDPLY-08099", pe, key);
+                    AliasException ae = new AliasException("WLSDPLY-08506", pe, key);
                     LOGGER.throwing(CLASS, METHOD, ae);
                     throw ae;
                 }
@@ -442,11 +444,10 @@ public final class TypeUtils {
         try {
             object = Py.java2py(toConvert);
         } catch (PyException pe) {
-            AliasException ae = new AliasException("WLSDPLY-08098", pe, toConvert.getClass().getName());
+            AliasException ae = new AliasException("WLSDPLY-08507", pe, toConvert.getClass().getName());
             LOGGER.throwing(CLASS, METHOD, ae);
             throw ae;
         }
         return object;
     }
-
 }

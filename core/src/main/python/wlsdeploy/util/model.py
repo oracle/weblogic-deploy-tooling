@@ -75,14 +75,14 @@ class Model(object):
         :return: the model dictionary
         """
         model = OrderedDict()
+        if len(self._domain_info):
+            model['domainInfo'] = self._domain_info
         if len(self._topology) > 0:
             model['topology'] = self._topology
         if len(self._resources) > 0:
             model['resources'] = self._resources
         if len(self._deployments) > 0:
             model['appDeployments'] = self._deployments
-        if len(self._domain_info):
-            model['domainInfo'] = self._domain_info
         return model
 
     def log_model(self, level, message, method_name, class_name='Model'):

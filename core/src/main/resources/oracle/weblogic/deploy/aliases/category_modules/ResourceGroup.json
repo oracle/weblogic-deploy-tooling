@@ -13,7 +13,7 @@
         "ResourceGroupTemplate":   [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "ResourceGroupTemplate",   "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string",          "get_method": "LSA", "set_method": "MBEAN.set_resource_group_template_mbean", "set_mbean_type": "weblogic.management.configuration.ResourceGroupTemplateMBean" } ],
         "ResourceGroupTemplateId": [ {"version": "[12.2.1,)",   "wlst_mode": "offline", "wlst_name": "ResourceGroupTemplateId", "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string",          "access": "RO"          } ],
         "Target":                  [ {"version": "[12.2.1,)",   "wlst_mode": "offline", "wlst_name": "Target",                  "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "delimited_string" },
-                                     {"version": "[12.2.1,)",   "wlst_mode": "online",  "wlst_name": "Targets",                 "wlst_path": "WP002", "value": { "default": "None"  }, "wlst_type": "jarray",          "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"  } ],
+                                     {"version": "[12.2.1,)",   "wlst_mode": "online",  "wlst_name": "Targets",                 "wlst_path": "WP002", "value": { "default": "None"  }, "wlst_type": "jarray",          "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"  } ],
         "UploadDirectoryName":     [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "UploadDirectoryName",     "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string"           } ],
         "UseDefaultTarget":        [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "UseDefaultTarget",        "wlst_path": "WP001", "value": { "default": "false" }, "wlst_type": "boolean"          } ]
     },
@@ -35,6 +35,7 @@
         "Library",
         "MailSession",
         "MessagingBridge",
+        "PathService",
         "SAFAgent",
         "WLDFSystemResource"
     ]

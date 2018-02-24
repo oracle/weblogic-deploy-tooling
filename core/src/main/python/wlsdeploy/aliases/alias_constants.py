@@ -69,6 +69,7 @@ DICTIONARY = 'dict'
 DOUBLE = 'double'
 INTEGER = 'integer'
 JARRAY = 'jarray'
+JAVA_LANG_BOOLEAN = 'java.lang.Boolean'
 LIST = 'list'
 LONG = 'long'
 PASSWORD = 'password'
@@ -94,6 +95,7 @@ ALIAS_PRIMITIVE_DATA_TYPES = [
     CREDENTIAL,
     DOUBLE,
     INTEGER,
+    JAVA_LANG_BOOLEAN,
     LONG,
     PASSWORD,
     STRING
@@ -103,6 +105,27 @@ ALIAS_DATA_TYPES = list()
 ALIAS_DATA_TYPES.extend(ALIAS_PRIMITIVE_DATA_TYPES)
 ALIAS_DATA_TYPES.extend(ALIAS_LIST_TYPES)
 ALIAS_DATA_TYPES.extend(ALIAS_MAP_TYPES)
+
+def __build_security_provider_data_structures(name_map, base_path):
+    """
+    Populate the security provider data structures for the given provider type.
+    :param name_map: the provider name map
+    :param base_path: the provider base path
+    """
+    for key, value in name_map.iteritems():
+        SECURITY_PROVIDER_FOLDER_PATHS.append(base_path + '/' + key)
+        SECURITY_PROVIDER_NAME_MAP[key] = value
+        mbean_name = value + 'MBean'
+        SECURITY_PROVIDER_MBEAN_NAME_MAP[mbean_name] = key
+    return
+
+ADJUDICATION_PROVIDER_NAME_MAP = {
+    'DefaultAdjudicator': 'weblogic.security.providers.authorization.DefaultAdjudicator'
+}
+
+AUDIT_PROVIDER_NAME_MAP = {
+    'DefaultAuditor': 'weblogic.security.providers.audit.DefaultAuditor'
+}
 
 AUTHENTICATION_PROVIDER_NAME_MAP = {
     'SAML2IdentityAsserter': 'com.bea.security.saml2.providers.SAML2IdentityAsserter',
@@ -129,10 +152,52 @@ AUTHENTICATION_PROVIDER_NAME_MAP = {
     'SAMLIdentityAsserterV2': 'weblogic.security.providers.saml.SAMLIdentityAsserterV2'
 }
 
-AUTHENTICATION_PROVIDER_PARENT_FOLDER_PATH = '/SecurityConfiguration/Realm/AuthenticationProvider'
+AUTHORIZATION_PROVIDER_NAME_MAP = {
+    'DefaultAuthorizer': 'weblogic.security.providers.authorization.DefaultAuthorizer',
+    'XACMLAuthorizer': 'weblogic.security.providers.xacml.authorization.XACMLAuthorizer'
+}
+
+CERT_PATH_PROVIDER_NAME_MAP = {
+    'CertificateRegistry': 'weblogic.security.providers.pk.CertificateRegistry',
+    'WebLogicCertPathProvider': 'weblogic.security.providers.pk.WebLogicCertPathProvider'
+}
+
+CREDENTIAL_MAPPING_PROVIDER_NAME_MAP = {
+    'SAML2CredentialMapper': 'com.bea.security.saml2.providers.SAML2CredentialMapper',
+    'DefaultCredentialMapper': 'weblogic.security.providers.credentials.DefaultCredentialMapper',
+    'PKICredentialMapper': 'weblogic.security.providers.credentials.PKICredentialMapper',
+    'SAMLCredentialMapperV2': 'weblogic.security.providers.saml.SAMLCredentialMapperV2'
+}
+
+PASSWORD_VALIDATION_PROVIDER_NAME_MAP = {
+    'SystemPasswordValidator': 'com.bea.security.providers.authentication.passwordvalidator.SystemPasswordValidator'
+}
+
+ROLE_MAPPING_PROVIDER_NAME_MAP = {
+    'DefaultRoleMapper': 'weblogic.security.providers.authorization.DefaultRoleMapper',
+    'XACMLRoleMapper': 'weblogic.security.providers.xacml.authorization.XACMLRoleMapper'
+}
+
+REALM_FOLDER_PATH = '/SecurityConfiguration/Realm'
+ADJUDICATION_PROVIDER_PARENT_FOLDER_PATH = REALM_FOLDER_PATH + '/Adjudicator'
+AUDIT_PROVIDER_PARENT_FOLDER_PATH = REALM_FOLDER_PATH + '/Auditor'
+AUTHENTICATION_PROVIDER_PARENT_FOLDER_PATH = REALM_FOLDER_PATH + '/AuthenticationProvider'
+AUTHORIZATION_PROVIDER_PARENT_FOLDER_PATH = REALM_FOLDER_PATH + '/Authorizer'
+CERT_PATH_PROVIDER_PARENT_FOLDER_PATH = REALM_FOLDER_PATH + '/CertPathProvider'
+CREDENTIAL_MAPPING_PROVIDER_PARENT_FOLDER_PATH = REALM_FOLDER_PATH + '/CredentialMapper'
+PASSWORD_VALIDATION_PROVIDER_PARENT_FOLDER_PATH = REALM_FOLDER_PATH + '/PasswordValidator'
+ROLE_MAPPING_PROVIDER_PARENT_FOLDER_PATH = REALM_FOLDER_PATH + '/RoleMapper'
 
 SECURITY_PROVIDER_FOLDER_PATHS = list()
-for key in AUTHENTICATION_PROVIDER_NAME_MAP:
-    SECURITY_PROVIDER_FOLDER_PATHS.append(AUTHENTICATION_PROVIDER_PARENT_FOLDER_PATH + '/' + key)
-
-
+SECURITY_PROVIDER_NAME_MAP = dict()
+SECURITY_PROVIDER_MBEAN_NAME_MAP = dict()
+__build_security_provider_data_structures(ADJUDICATION_PROVIDER_NAME_MAP, ADJUDICATION_PROVIDER_PARENT_FOLDER_PATH)
+__build_security_provider_data_structures(AUDIT_PROVIDER_NAME_MAP, AUDIT_PROVIDER_PARENT_FOLDER_PATH)
+__build_security_provider_data_structures(AUTHENTICATION_PROVIDER_NAME_MAP, AUTHENTICATION_PROVIDER_PARENT_FOLDER_PATH)
+__build_security_provider_data_structures(AUTHORIZATION_PROVIDER_NAME_MAP, AUTHORIZATION_PROVIDER_PARENT_FOLDER_PATH)
+__build_security_provider_data_structures(CERT_PATH_PROVIDER_NAME_MAP, CERT_PATH_PROVIDER_PARENT_FOLDER_PATH)
+__build_security_provider_data_structures(CREDENTIAL_MAPPING_PROVIDER_NAME_MAP,
+                                          CREDENTIAL_MAPPING_PROVIDER_PARENT_FOLDER_PATH)
+__build_security_provider_data_structures(PASSWORD_VALIDATION_PROVIDER_NAME_MAP,
+                                          PASSWORD_VALIDATION_PROVIDER_PARENT_FOLDER_PATH)
+__build_security_provider_data_structures(ROLE_MAPPING_PROVIDER_NAME_MAP, ROLE_MAPPING_PROVIDER_PARENT_FOLDER_PATH)

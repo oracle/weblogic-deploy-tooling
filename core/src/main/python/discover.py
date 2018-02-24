@@ -4,39 +4,39 @@ The Universal Permissive License (UPL), Version 1.0
 
 The entry point for the discoverDomain tool.
 """
-import os
+import javaos as os
 import sys
 
 from java.io import File
-import java.io.IOException as IOException
+from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
-import java.lang.String as String
+from java.lang import String
 
-import oracle.weblogic.deploy.aliases.AliasException as AliasException
-import oracle.weblogic.deploy.util.CLAException as CLAException
-
-sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
-
+from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
+from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
+from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
-import wlsdeploy.exception.exception_helper as exception_helper
-import wlsdeploy.util.getcreds as getcreds
-import wlsdeploy.tool.discover.discoverer as discoverer
-import wlsdeploy.util.wlst_helper as wlst_helper
-import wlsdeploy.util.model_translator as model_translator
+sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
+
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import getcreds
+from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
 from wlsdeploy.tool.discover.domain_info_discoverer import DomainInfoDiscoverer
+from wlsdeploy.tool.discover.multi_tenant_discoverer import MultiTenantDiscoverer
 from wlsdeploy.tool.discover.resources_discoverer import ResourcesDiscoverer
 from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
-from wlsdeploy.tool.discover.multi_tenant_discoverer import MultiTenantDiscoverer
+from wlsdeploy.util import wlst_helper
+from wlsdeploy.util import model_translator
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
@@ -148,7 +148,7 @@ def __process_archive_filename_arg(required_arg_map):
     try:
         archive_file = WLSDeployArchive(archive_file_name)
     except (IllegalArgumentException, IllegalStateException), ie:
-        ex = exception_helper.create_cla_exception('WLSDPLY-03105', _program_name, archive_file_name,
+        ex = exception_helper.create_cla_exception('WLSDPLY-06013', _program_name, archive_file_name,
                                                    ie.getLocalizedMessage(), error=ie)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
@@ -384,7 +384,7 @@ def main():
     except CLAException, ex:
         exit_code = ex.getExitCode()
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
-            __logger.severe('WLSDPLY-09039', _program_name, ex.getLocalizedMessage(), error=ex,
+            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         __log_and_exit(exit_code, _class_name, _method_name)
 
@@ -417,4 +417,5 @@ def main():
     sys.exit(exit_code)
 
 if __name__ == 'main':
+    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     main()

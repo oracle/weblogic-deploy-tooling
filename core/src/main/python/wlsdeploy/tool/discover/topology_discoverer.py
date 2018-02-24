@@ -2,7 +2,6 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-
 from java.io import File
 from java.lang import IllegalArgumentException
 
@@ -11,15 +10,15 @@ from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
-import wlsdeploy.aliases.model_constants as model_constants
-import wlsdeploy.exception.exception_helper as exception_helper
-import wlsdeploy.tool.discover.discoverer as discoverer
-import wlsdeploy.util.path_utils as path_utils
-import wlsdeploy.util.wlst_helper as wlst_helper
+from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.util import path_utils
+from wlsdeploy.util import wlst_helper
 
 _class_name = 'TopologyDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -42,6 +41,8 @@ class TopologyDiscoverer(Discoverer):
         Discoverer.__init__(self, model_context, wlst_mode)
         self._dictionary = topology_dictionary
         self._add_att_handler(model_constants.CLASSPATH, self._add_classpath_libraries_to_archive)
+        self._add_att_handler(model_constants.CUSTOM_IDENTITY_KEYSTORE_FILE, self._add_keystore_file_to_archive)
+        self._add_att_handler(model_constants.CUSTOM_TRUST_KEYSTORE_FILE, self._add_keystore_file_to_archive)
 
     def discover(self):
         """
@@ -75,6 +76,9 @@ class TopologyDiscoverer(Discoverer):
         model_top_folder_name, machines = self.get_machines(unix_machines)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, machines)
 
+        model_top_folder_name, security_configuration = self.discover_security_configuration()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, security_configuration)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
 
@@ -87,7 +91,7 @@ class TopologyDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.CLUSTER
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         clusters = self._find_names_in_folder(location)
         if clusters is not None:
@@ -114,7 +118,7 @@ class TopologyDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.SERVER
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         servers = self._find_names_in_folder(location)
         if servers is not None:
@@ -139,7 +143,7 @@ class TopologyDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.SERVER_TEMPLATE
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         templates = self._find_names_in_folder(location)
         if templates is not None:
@@ -164,7 +168,7 @@ class TopologyDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         model_top_folder_name = model_constants.MIGRATABLE_TARGET
         result = OrderedDict()
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         targets = self._find_names_in_folder(location)
         if targets is not None:
@@ -190,7 +194,7 @@ class TopologyDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.UNIX_MACHINE
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         machines = self._find_names_in_folder(location)
         if machines is not None:
@@ -221,7 +225,7 @@ class TopologyDiscoverer(Discoverer):
             unix_machines = OrderedDict()
         result = OrderedDict()
         model_top_folder_name = model_constants.MACHINE
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         machines = self._find_names_in_folder(location)
         if machines is not None:
@@ -260,6 +264,25 @@ class TopologyDiscoverer(Discoverer):
         model_folder_name, folder_result = self._get_restful_management_services()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+    def discover_security_configuration(self):
+        """
+        Discover the security configuration for the domain.
+        :return: name for the model:dictionary continaing the discovered security configuration
+        """
+        _method_name = 'discover_security_configuration'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        result = OrderedDict()
+        model_top_folder_name = model_constants.SECURITY_CONFIGURATION
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        security_configuration = self._find_singleton_name_in_folder(location)
+        if security_configuration is not None:
+            _logger.info('WLSDPLY-06622', class_name=_class_name, method_name=_method_name)
+            self._populate_model_parameters(result, location)
+            self._discover_subfolders(result, location)
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+        return model_top_folder_name, result
 
     # Private methods
 
@@ -351,9 +374,7 @@ class TopologyDiscoverer(Discoverer):
         :return model
         """
         _method_name = 'add_classpath_libraries_to_archive'
-        temp = LocationContext()
-        temp.append_location(model_constants.SERVER)
-        server_name = location.get_name_for_token(self._alias_helper.get_name_token(temp))
+        server_name = self._get_server_name_from_location(location)
         _logger.entering(server_name, model_name, model_value, class_name=_class_name, method_name=_method_name)
         classpath_string = None
         if not StringUtils.isEmpty(model_value):
@@ -396,10 +417,10 @@ class TopologyDiscoverer(Discoverer):
             try:
                 new_source_name = archive_file.addClasspathLibrary(File(file_name_path))
             except IllegalArgumentException, iae:
-                _logger.info('WLSDPLY-06620', server_name, classpath_name, iae.getLocalizedMessage(),
-                             class_name=_class_name, method_name=_method_name)
+                _logger.warning('WLSDPLY-06620', server_name, file_name_path, iae.getLocalizedMessage(),
+                                class_name=_class_name, method_name=_method_name)
             except WLSDeployArchiveIOException, wioe:
-                de = exception_helper.create_discover_exception('WLSDPLY-06621', server_name, classpath_name,
+                de = exception_helper.create_discover_exception('WLSDPLY-06621', server_name, file_name_path,
                                                                 wioe.getLocalizedMessage())
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                 raise de
@@ -407,3 +428,40 @@ class TopologyDiscoverer(Discoverer):
                 return_name = new_source_name
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=return_name)
         return return_name
+
+    def _add_keystore_file_to_archive(self, model_name, model_value, location):
+        """
+        Add the Server custom trust or identity keystore file to the archive.
+        :param model_name: attribute name in the model
+        :param model_value: converted model value for the attribute
+        :param location: context containing the current location information
+        :return: modified location and name for the model keystore file
+        """
+        _method_name = '_add_keystore_file_to_archive'
+        _logger.entering(model_name, str(location), class_name=_class_name, method_name=_method_name)
+        server_name = self._get_server_name_from_location(location)
+        archive_file = self._model_context.get_archive_file()
+        _logger.finer('WLSDPLY-06223', model_value, server_name, class_name=_class_name, method_name=_method_name)
+        file_path = self._convert_path(model_value)
+        new_name = None
+        try:6
+        except IllegalArgumentException, iae:
+            _logger.warning('WLSDPLY-06624', server_name, file_path, iae.getLocalizedMessage(),
+                            class_name=_class_name, method_name=_method_name)
+        except WLSDeployArchiveIOException, wioe:
+            de = exception_helper.create_discover_exception('WLSDPLY-06625', server_name, file_path,
+                                                            wioe.getLocalizedMessage())
+            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+            raise de
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
+        return new_name
+
+    def _get_server_name_from_location(self, location):
+        """
+        Retrieve the server name from the location context file.
+        :param location: context containing the server information
+        :return: server name
+        """
+        temp = LocationContext()
+        temp.append_location(model_constants.SERVER)
+        return location.get_name_for_token(self._alias_helper.get_name_token(temp))

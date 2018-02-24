@@ -4,32 +4,33 @@ The Universal Permissive License (UPL), Version 1.0
 
 The WLS Deploy tooling entry point for the validateModel tool.
 """
-
-import os
+import javaos as os
 import sys
 
-import java.lang.IllegalArgumentException as IllegalArgumentException
-import java.lang.IllegalStateException as IllegalStateException
-import oracle.weblogic.deploy.util.WLSDeployArchive as WLSDeployArchive
-import oracle.weblogic.deploy.util.WLSDeployArchiveIOException as WLSDeployArchiveIOException
-import oracle.weblogic.deploy.util.CLAException as CLAException
-import oracle.weblogic.deploy.util.FileUtils as FileUtils
-import oracle.weblogic.deploy.util.TranslateException as TranslateException
-import oracle.weblogic.deploy.validation.ValidateException as ValidateException
+from java.lang import IllegalArgumentException
+from java.lang import IllegalStateException
+
+from oracle.weblogic.deploy.util import CLAException
+from oracle.weblogic.deploy.util import FileUtils
+from oracle.weblogic.deploy.util import TranslateException
+from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
+from oracle.weblogic.deploy.util import WLSDeployArchive
+from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
+from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
 # imports from local packages start here
 from wlsdeploy.aliases.wlst_modes import WlstModes
-import wlsdeploy.exception.exception_helper as exception_helper
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.validate.validator import Validator
+from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
-import wlsdeploy.util.wlst_helper as wlst_helper
 
-from wlsdeploy.validation.validator import Validator
 
 _program_name = 'validateModel'
 _class_name = 'validate'
@@ -85,7 +86,7 @@ def __verify_required_args_present(required_arg_map):
 
     for req_arg in __required_arguments:
         if req_arg not in required_arg_map:
-            ex = exception_helper.create_cla_exception('WLSDPLY-09040', _program_name, req_arg)
+            ex = exception_helper.create_cla_exception('WLSDPLY-20005', _program_name, req_arg)
             ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -114,7 +115,7 @@ def __process_model_args(optional_arg_map):
         try:
             FileUtils.validateExistingFile(archive_file_name)
         except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-09041', _program_name, archive_file_name,
+            ex = exception_helper.create_cla_exception('WLSDPLY-20014', _program_name, archive_file_name,
                                                        iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -128,7 +129,7 @@ def __process_model_args(optional_arg_map):
             # Reset the value in the arg map so that the value is always a java.io.File object...
             optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = FileUtils.validateExistingFile(model_file_name)
         except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-09042', _program_name, model_file_name,
+            ex = exception_helper.create_cla_exception('WLSDPLY-20006', _program_name, model_file_name,
                                                        iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -146,7 +147,7 @@ def __process_model_args(optional_arg_map):
                 model_file = archive_file.extractModel(__tmp_model_dir)
                 optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file
         except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
-            ex = exception_helper.create_cla_exception('WLSDPLY-09043', _program_name, archive_file_name,
+            ex = exception_helper.create_cla_exception('WLSDPLY-20010', _program_name, archive_file_name,
                                                        archex.getLocalizedMessage(), error=archex)
             ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -156,7 +157,7 @@ def __process_model_args(optional_arg_map):
         something_to_validate = True
 
     if not something_to_validate:
-        ex = exception_helper.create_cla_exception('WLSDPLY-03189', _program_name,
+        ex = exception_helper.create_cla_exception('WLSDPLY-05400', _program_name,
                                                    CommandLineArgUtil.PRINT_USAGE_SWITCH,
                                                    CommandLineArgUtil.MODEL_FILE_SWITCH,
                                                    CommandLineArgUtil.ARCHIVE_FILE_SWITCH)
@@ -174,13 +175,6 @@ def __process_print_usage_args(optional_arg_map):
 
     if CommandLineArgUtil.PRINT_USAGE_SWITCH in optional_arg_map:
         print_usage_path = optional_arg_map[CommandLineArgUtil.PRINT_USAGE_SWITCH]
-        #
-        # TODO(rpatrick) - once the format is changed to the <section-name>:/path/to/model/folder format,
-        #                  add validation code to make sure that the format matches what is expected.
-        #                  That code could go here but probably belongs in cla_utils.py's
-        #                  _validate_print_usage_arg() method instead since the validation logic is
-        #                  is not tool-specific (even though validate is the only tool currently using it.
-        #
         found_controller_arg = None
         if CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH in optional_arg_map:
             found_controller_arg = CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH
@@ -189,7 +183,7 @@ def __process_print_usage_args(optional_arg_map):
             if found_controller_arg is None:
                 found_controller_arg = CommandLineArgUtil.FOLDERS_ONLY_SWITCH
             else:
-                ex = exception_helper.create_cla_exception('WLSDPLY-03229', _program_name,
+                ex = exception_helper.create_cla_exception('WLSDPLY-05401', _program_name,
                                                            CommandLineArgUtil.PRINT_USAGE_SWITCH,
                                                            CommandLineArgUtil.FOLDERS_ONLY_SWITCH, found_controller_arg)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -199,13 +193,13 @@ def __process_print_usage_args(optional_arg_map):
             if found_controller_arg is None:
                 found_controller_arg = CommandLineArgUtil.RECURSIVE_SWITCH
             else:
-                ex = exception_helper.create_cla_exception('WLSDPLY-03229', _program_name,
+                ex = exception_helper.create_cla_exception('WLSDPLY-05401', _program_name,
                                                            CommandLineArgUtil.PRINT_USAGE_SWITCH,
                                                            CommandLineArgUtil.RECURSIVE_SWITCH, found_controller_arg)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
         if found_controller_arg is not None:
-            __logger.fine('WLSDPLY-03230', _program_name, CommandLineArgUtil.PRINT_USAGE_SWITCH, print_usage_path,
+            __logger.fine('WLSDPLY-05402', _program_name, CommandLineArgUtil.PRINT_USAGE_SWITCH, print_usage_path,
                           found_controller_arg, class_name=_class_name, method_name=_method_name)
     return
 
@@ -243,14 +237,14 @@ def __perform_model_file_validation(model_file_name, model_context):
                                                                          model_context.get_variable_file(),
                                                                          model_context.get_archive_file_name())
     except TranslateException, te:
-        __logger.severe('WLSDPLY-03162', _program_name, model_file_name.getAbsolutePath(), te.getLocalizedMessage(),
+        __logger.severe('WLSDPLY-20009', _program_name, model_file_name.getAbsolutePath(), te.getLocalizedMessage(),
                         error=te, class_name=_class_name, method_name=_method_name)
         ex = exception_helper.create_validate_exception(te.getLocalizedMessage(), error=te)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 
     if print_usage is None:
-        __logger.info('WLSDPLY-03177',
+        __logger.info('WLSDPLY-05403',
                       model_file_name,
                       validation_results.get_errors_count(),
                       validation_results.get_warnings_count(),
@@ -279,7 +273,7 @@ def main():
     except CLAException, ex:
         exit_code = ex.getExitCode()
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
-            __logger.severe('WLSDPLY-09039', _program_name, ex.getLocalizedMessage(), error=ex,
+            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
         sys.exit(exit_code)
@@ -291,7 +285,7 @@ def main():
             model_validator = Validator(model_context, logger=__logger)
             model_validator.print_usage(print_usage)
         except ValidateException, ve:
-            __logger.severe('WLSDPLY-03201', _program_name, ve.getLocalizedMessage(), error=ve,
+            __logger.severe('WLSDPLY-05404', _program_name, ve.getLocalizedMessage(), error=ve,
                             class_name=_class_name, method_name=_method_name)
             sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
     else:
@@ -311,4 +305,5 @@ def main():
     return
 
 if __name__ == "main":
+    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     main()

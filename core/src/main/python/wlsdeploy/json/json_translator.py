@@ -4,11 +4,11 @@ The Universal Permissive License (UPL), Version 1.0
 
 This model provider translation classes that convert between JSON and Python Dictionaries.
 """
-import java.lang.Boolean as JBoolean
 import java.io.FileNotFoundException as JFileNotFoundException
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.IOException as JIOException
 import java.io.PrintWriter as JPrintWriter
+import java.lang.Boolean as JBoolean
 import java.lang.IllegalArgumentException as JIllegalArgumentException
 
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils

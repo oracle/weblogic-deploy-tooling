@@ -8,8 +8,8 @@ import oracle.weblogic.deploy.json.JsonException as JJsonException
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 import oracle.weblogic.deploy.yaml.YamlException as JYamlException
 
-import wlsdeploy.logging.platform_logger as platform_logger
-import wlsdeploy.exception.exception_helper as exception_helper
+from wlsdeploy.logging import platform_logger
+from wlsdeploy.exception import exception_helper
 
 
 class FileToPython(object):
@@ -58,7 +58,7 @@ class FileToPython(object):
         try:
             return JJsonToPython(self.file_name, self.use_ordering).parse()
         except JJsonException, je:
-            translate_ex = exception_helper.create_translate_exception('WLSDPLY-03079', self.file_name,
+            translate_ex = exception_helper.create_translate_exception('WLSDPLY-01710', self.file_name,
                                                                        je.getLocalizedMessage(), error=je)
             self.logger.throwing(translate_ex, class_name=self._class_name, method_name=_method_name)
             raise translate_ex
@@ -71,12 +71,12 @@ class FileToPython(object):
         _method_name = '_parse_yaml'
 
         from wlsdeploy.yaml.yaml_translator import YamlToPython as JYamlToPython
-        self.logger.finer('WLSDPLY-03078', 'YAML', self.file_name,
+        self.logger.finer('WLSDPLY-01711', 'YAML', self.file_name,
                           class_name=self._class_name, method_name=_method_name)
         try:
             return JYamlToPython(self.file_name, self.use_ordering).parse()
         except JYamlException, ye:
-            translate_ex = exception_helper.create_translate_exception('WLSDPLY-3079', self.file_name,
+            translate_ex = exception_helper.create_translate_exception('WLSDPLY-01710', self.file_name,
                                                                        ye.getLocalizedMessage(), error=ye)
             self.logger.throwing(translate_ex, class_name=self._class_name, method_name=_method_name)
             raise translate_ex
@@ -122,11 +122,11 @@ class PythonToFile(object):
         _method_name = '_write_to_json_file'
 
         from wlsdeploy.json.json_translator import PythonToJson as JPythonToJson
-        self.logger.finer('WLSDPLY-03077', 'JSON', file_name, class_name=self._class_name, method_name=_method_name)
+        self.logger.finer('WLSDPLY-01712', 'JSON', file_name, class_name=self._class_name, method_name=_method_name)
         try:
             return JPythonToJson(self.dictionary).write_to_json_file(file_name)
         except JJsonException, je:
-            translate_ex = exception_helper.create_translate_exception('WLSDPLY-03080', file_name,
+            translate_ex = exception_helper.create_translate_exception('WLSDPLY-01713', file_name,
                                                                        je.getLocalizedMessage(), error=je)
             self.logger.throwing(translate_ex, class_name=self._class_name, method_name=_method_name)
             raise translate_ex
@@ -140,11 +140,11 @@ class PythonToFile(object):
         _method_name = '_write_to_yaml_file'
 
         from wlsdeploy.yaml.yaml_translator import PythonToYaml as JPythonToYaml
-        self.logger.finer('WLSDPLY-03077', 'YAML', file_name, class_name=self._class_name, method_name=_method_name)
+        self.logger.finer('WLSDPLY-01712', 'YAML', file_name, class_name=self._class_name, method_name=_method_name)
         try:
             return JPythonToYaml(self.dictionary).write_to_yaml_file(file_name)
         except JYamlException, ye:
-            translate_ex = exception_helper.create_translate_exception('WLSDPLY-03080', file_name,
+            translate_ex = exception_helper.create_translate_exception('WLSDPLY-01713', file_name,
                                                                        ye.getLocalizedMessage(), error=ye)
             self.logger.throwing(translate_ex, class_name=self._class_name, method_name=_method_name)
             raise translate_ex

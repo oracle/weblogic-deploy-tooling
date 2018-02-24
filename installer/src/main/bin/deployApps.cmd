@@ -190,12 +190,14 @@ IF DEFINED WLST_PATH_DIR (
     SET RETURN_CODE=98
     GOTO exit_script
   )
-  set "WLST=%WLST_PATH_DIR\common\bin\wlst.cmd"
+  set "WLST=%WLST_PATH_DIR%\common\bin\wlst.cmd"
   IF NOT EXIST "%WLST%" (
     ECHO WLST executable %WLST% not found under specified WLST_PATH_DIR %WLST_PATH_DIR% >&2
     SET RETURN_CODE=98
     GOTO exit_script
   )
+  SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+  SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
   GOTO found_wlst
 )
 
@@ -335,7 +337,7 @@ ECHO.
 ECHO Usage: %~nx0 [-help] [-use_encryption]
 ECHO              -oracle_home ^<oracle-home^>
 ECHO              -domain_home ^<domain-home^>
-ECHO              -archive_file ^<archive-file^>
+ECHO              [-archive_file ^<archive-file^>]
 ECHO              [-model_file ^<model-file^>]
 ECHO              [-prev_model_file ^<prev-model-file^>]
 ECHO              [-variable_file ^<variable-file^>]

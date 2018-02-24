@@ -202,6 +202,8 @@ if [ "${WLST_PATH_DIR}" != "" ]; then
         echo "WLST executable ${WLST} not found under specified WLST_PATH_DIR: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
+    CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+    WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
 else
     #
     # Find the location for wlst.sh

@@ -52,7 +52,7 @@ usage() {
   echo "Usage: $1 [-help] [-use_encryption]"
   echo "          -oracle_home <oracle-home>"
   echo "          -domain_home <domain-home>"
-  echo "          -archive_file <archive-file>"
+  echo "          [-archive_file <archive-file>]"
   echo "          [-model_file <model-file>]"
   echo "          [-prev_model_file <prev-model-file>]"
   echo "          [-variable_file <variable-file>]"
@@ -226,6 +226,8 @@ if [ "${WLST_PATH_DIR}" != "" ]; then
         echo "WLST executable ${WLST} not found under specified WLST_PATH_DIR: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
+    CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+    WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
 else
     #
     # Find the location for wlst.sh

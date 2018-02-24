@@ -1,4 +1,5 @@
 {
+    "foobar": {},
     "domainInfo": {
         "ServerStartMode": "prod",
         "AdminUserName": "weblogic",
@@ -54,7 +55,57 @@
         },
         "SecurityConfiguration": {
             "NodeManagerUsername": "weblogic",
-            "NodeManagerPasswordEncrypted": "welcome1"
+            "NodeManagerPasswordEncrypted": "welcome1",
+            "Realm": {
+                "Realm-0": {
+                    "AuthenticationProvider": {
+                        "SAML2IdentityAsserter-0": {
+                            "SAML2IdentityAsserter": {
+                                "LoginTokenAssociatonEnabled": "true",
+                                "ReplicatedCacheEnabled": "true"
+                            }
+                        },
+                        "SAML2IdentityAsserter-1": {
+                            "SAML2IdentityAsserter": {
+                                "ReplicatedCacheEnabled": "false"
+                            }
+                        },
+                        "NovellAuthenticator-0": {
+                            "NovellAuthenticator": {
+                                "CacheEnabled": "true",
+                                "Host": "localhost",
+                                "Port": "${novell.port}"
+                            }
+                        }
+                    },
+                    "CredentialMapper": {
+                        "MyPKICredentialMapper-0": {
+                            "PKICredentialMapper": {
+                                "KeyStoreFileName": "MyPKICredentialMapper.jks",
+                                "KeyStoreProvider": "JAAS"
+                            }
+                        }
+                    }
+                },
+                "Realm-1": {
+                    "Adjudicator": {
+                        "DefaultAdjudicator-0": {
+                            "DefaultAdjudicator": {
+                                "RequireUnanimousPermit": "false"
+                            }
+                        }
+                    },
+                    "Auditor": {
+                        "DefaultAuditor-0": {
+                            "DefaultAuditor": {
+                                "BeginMarker": "**** Audit Record Begin",
+                                "EndMarker": "Audit Record End ****",
+                                "RotationMinutes": 2880
+                            }
+                        }
+                    }
+                }
+            }
         },
         "JMX": {
             "InvocationTimeoutSeconds": 40,

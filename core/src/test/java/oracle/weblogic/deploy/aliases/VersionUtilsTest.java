@@ -2,7 +2,7 @@
  * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
-package oracle.weblogic.deploy.util;
+package oracle.weblogic.deploy.aliases;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class VersionUtilsTest {
         String clientVersion = "0.7.4";
         String serverVersion = "0.7.3";
         Assert.assertTrue("Expected client " + clientVersion + " to be newer than server " + serverVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) > 0);
+                          VersionUtils.compareVersions(clientVersion, serverVersion) > 0);
 
         clientVersion = "0.8";
         serverVersion = "0.7.4";

@@ -11,7 +11,7 @@ from java.lang import String, Long
 from java.util import Properties
 
 from oracle.weblogic.deploy.aliases import AliasException
-from oracle.weblogic.deploy.util import TypeUtils
+from oracle.weblogic.deploy.aliases import TypeUtils
 
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
@@ -324,18 +324,19 @@ class AliasesTestCase(unittest.TestCase):
         model_attribute_value = 'com.bea.datasource1, com.bea.datasource2'
         wlst_attribute_name, wlst_attribute_value = \
             self.aliases.get_wlst_attribute_name_and_value(location, model_attribute_name, model_attribute_value)
-        self.assertEqual(wlst_attribute_value, 'com.bea.datasource1,com.bea.datasource2')
+        offlineList = ['com.bea.datasource1', 'com.bea.datasource2']
+        self.assertEqual(wlst_attribute_value, offlineList)
 
-        mylist = jarray.zeros(2, String)
-        mylist[0] = 'com.bea.datasource1'
-        mylist[1] = 'com.bea.datasource2'
+        onlineList = jarray.zeros(2, String)
+        onlineList[0] = 'com.bea.datasource1'
+        onlineList[1] = 'com.bea.datasource2'
         wlst_attribute_name, wlst_attribute_value = \
             self.online_aliases.get_wlst_attribute_name_and_value(location, model_attribute_name, model_attribute_value)
-        self.assertEqual(wlst_attribute_value, mylist)
+        self.assertEqual(wlst_attribute_value, onlineList)
 
         wlst_attribute_name, wlst_attribute_value = \
-            self.aliases.get_wlst_attribute_name_and_value(location, model_attribute_name, mylist)
-        self.assertEqual(wlst_attribute_value, 'com.bea.datasource1,com.bea.datasource2')
+            self.aliases.get_wlst_attribute_name_and_value(location, model_attribute_name, onlineList)
+        self.assertEqual(wlst_attribute_value, offlineList)
         return
 
     def testModelAttributeValueConversion(self):
@@ -465,8 +466,8 @@ class AliasesTestCase(unittest.TestCase):
         location.append_location(FOLDERS.JDBC_RESOURCE)
         location.append_location(FOLDERS.JDBC_DRIVER_PARAMS)
         model_attribute_name = 'QosDegradationAllowed'
-        expected = exception_helper.get_message('WLSDPLY-08041', model_attribute_name,
-                                                location.get_folder_path(), wls_version)
+        path = self.aliases.get_model_folder_path(location)
+        expected = exception_helper.get_message('WLSDPLY-08408', model_attribute_name, path, wls_version)
         result, message = online_aliases.is_valid_model_attribute_name(location, model_attribute_name)
         self.assertEqual(result, ValidationCodes.INVALID)
         self.assertEqual(message, expected)
@@ -475,8 +476,8 @@ class AliasesTestCase(unittest.TestCase):
         location.pop_location()
         location.append_location(FOLDERS.JDBC_ORACLE_PARAMS)
         model_attribute_name = 'OnsWalletPasswordEncrypted'
-        expected = exception_helper.get_message('WLSDPLY-08040', model_attribute_name,
-                                                location.get_folder_path(), wls_version)
+        path = self.aliases.get_model_folder_path(location)
+        expected = exception_helper.get_message('WLSDPLY-08407', model_attribute_name, path, wls_version)
         result, message = offline_aliases.is_valid_model_attribute_name(location, model_attribute_name)
         self.assertEqual(result, ValidationCodes.VALID)
         self.assertEqual(message, expected)
@@ -485,7 +486,8 @@ class AliasesTestCase(unittest.TestCase):
         location.append_location(FOLDERS.JDBC_CONNECTION_POOL_PARAMS)
         model_attribute_name = 'ProfileConnectionLeakTimeoutSeconds'
         earliest_version = '12.2.1'
-        expected = exception_helper.get_message('WLSDPLY-08042', model_attribute_name, location.get_folder_path(),
+        path = self.aliases.get_model_folder_path(location)
+        expected = exception_helper.get_message('WLSDPLY-08207', model_attribute_name, path,
                                                 wls_version, earliest_version)
         result, message = online_aliases.is_valid_model_attribute_name(location, model_attribute_name)
         self.assertEqual(result, ValidationCodes.VERSION_INVALID)
@@ -799,6 +801,29 @@ class AliasesTestCase(unittest.TestCase):
         expected = 'resources:/JDBCSystemResource/my-datasource/JdbcResource/JDBCDriverParams/Properties/user'
         path = self.aliases.get_model_folder_path(location)
         self.assertEqual(path, expected)
+
+        expected = 'topology:/SecurityConfiguration/mydomain/Realm/myrealm/AuthenticationProvider/' \
+                   'MyLDAPAuthentication/LDAPAuthenticator'
+
+        # Test artificial folder for security providers
+        location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION)
+        token_name = self.aliases.get_name_token(location)
+        if token_name is not None:
+            location.add_name_token(token_name, 'mydomain')
+
+        location.append_location(FOLDERS.REALM)
+        token_name = self.aliases.get_name_token(location)
+        if token_name is not None:
+            location.add_name_token(token_name, 'myrealm')
+
+        location.append_location(FOLDERS.AUTHENTICATION_PROVIDER)
+        token_name = self.aliases.get_name_token(location)
+        if token_name is not None:
+            location.add_name_token(token_name, 'MyLDAPAuthentication')
+
+        location.append_location(FOLDERS.LDAP_AUTHENTICATOR)
+        result = self.aliases.get_model_folder_path(location)
+        self.assertEqual(result, expected)
         return
 
     def testIsValidModelFolderName(self):
@@ -847,7 +872,84 @@ class AliasesTestCase(unittest.TestCase):
             self.assertEqual(True, False, 'Excepted AliasException to be thrown')
         except AliasException, ae:
             pass
+        return
 
+    def testSecurityProviderGetAttributes(self):
+        location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'my-domain')
+
+        location.append_location(FOLDERS.REALM)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'myrealm')
+
+        location.append_location(FOLDERS.AUTHENTICATION_PROVIDER)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'MyDefaultAuthenticator')
+        # result = self.aliases.get_wlst_attributes_path(location)
+        # self.assertEqual(result,
+        #                  '/SecurityConfiguration/my-domain/Realm/myrealm/AuthenticationProvider/MyDefaultAuthenticator')
+        model_subfolder_name = self.aliases.get_model_subfolder_name(location,
+                                                 'weblogic.security.providers.authentication.DefaultAuthenticatorMBean')
+        self.assertEqual(model_subfolder_name, 'DefaultAuthenticator')
+        location.append_location(model_subfolder_name)
+        result = self.aliases.get_wlst_attributes_path(location)
+        self.assertEqual(result,
+                         '/SecurityConfiguration/my-domain/Realm/myrealm/AuthenticationProvider/MyDefaultAuthenticator')
+        model_name, model_value = self.aliases.get_model_attribute_name_and_value(location, 'CompatibilityObjectName',
+                                                                                  'MyObjectName')
+        self.assertEqual(model_name, 'CompatibilityObjectName')
+        self.assertEquals(model_value, 'MyObjectName')
+        return
+
+    def testSecurityProviderDiscovery(self):
+        location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'my-domain')
+
+        location.append_location(FOLDERS.REALM)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'myrealm')
+
+        location.append_location(FOLDERS.AUTHENTICATION_PROVIDER)
+        result = self.aliases.requires_artificial_type_subfolder_handling(location)
+        self.assertEqual(result, True)
+
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'myprovider')
+        result = self.aliases.get_model_subfolder_name(location,
+                                                       'weblogic.security.providers.saml.SAMLAuthenticatorMBean')
+        self.assertEqual(result, 'SAMLAuthenticator')
+        return
+
+    def testUsesPathTokenAttributeNames(self):
+        location = LocationContext().append_location(FOLDERS.APPLICATION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'my-app')
+
+        expected = ['PlanPath', 'SourcePath', 'AltDescriptorPath', 'AltWLSDescriptorPath',
+                    'InstallDir', 'PlanDir', 'AltDescriptorDir']
+        result = self.aliases.get_model_uses_path_tokens_attribute_names(location)
+        self.assertNotEqual(result, None, 'expected uses_path_tokens attribute names list to not be None')
+        self.assertEqual(len(result), len(expected))
+        for name in result:
+            if name not in expected:
+                self.assertEqual(True, False, "attribute name %s not in the list of expected names" % name)
+        return
+
+    def testDefaultValueStringCompares(self):
+        location=LocationContext().append_location(FOLDERS.SERVER)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'AdminServer')
+
+        model_name, model_value = self.aliases.get_model_attribute_name_and_value(location, 'Notes', '')
+        self.assertEqual(model_name, 'Notes')
+        self.assertEqual(model_value, None)
+
+        model_name, model_value = self.aliases.get_model_attribute_name_and_value(location, 'Notes', None)
+        self.assertEqual(model_name, 'Notes')
+        self.assertEqual(model_value, None)
+        return
 
     def _assertMapEqual(self, expected, testObject):
         self.assertEqual(expected.size(), testObject.size())

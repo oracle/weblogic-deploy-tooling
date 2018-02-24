@@ -69,7 +69,7 @@
             <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>com.oracle.weblogic.lifecycle:weblogic-deploy-core</include>
+                <include>oracle.weblogic.lifecycle:weblogic-deploy-core</include>
             </includes>
         </dependencySet>
         <dependencySet>

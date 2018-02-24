@@ -32,7 +32,7 @@ class WlstHelper(object):
         try:
             result = wlst_helper.cd(wlst_path)
         except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19000',
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19100',
                                                    wlst_path, pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -51,7 +51,7 @@ class WlstHelper(object):
         try:
             result = wlst_helper.get(attribute_name)
         except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19001', attribute_name,
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19101', attribute_name,
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -80,26 +80,69 @@ class WlstHelper(object):
             raise ex
         return
 
-    def create(self, wlst_name, wlst_type, create_path=None):
+    def set_with_cmo(self, attribute_name, attribute_value, masked=False):
         """
-        Create the mbean folder with the provided name at the specified location.  If the location is not
-        specified, the default is to create it in the current location.
+        Set the specified attribute using the corresponding cmo set method (e.g., cmo.setListenPort()).
+        :param attribute_name: the WLST attribute name
+        :param attribute_value: the WLST value
+        :param masked: whether or not to mask the attribute_value from the log files.
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'set_with_cmo'
+
+        try:
+            wlst_helper.set_with_cmo(attribute_name, attribute_value, masked=masked)
+        except PyWLSTException, pwe:
+            log_value = attribute_value
+            if masked:
+                log_value = '<masked>'
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19136', attribute_name, log_value,
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return
+
+    def create(self, wlst_name, wlst_type, base_provider_type=None):
+        """
+        Create the mbean folder with the provided name at the current location.
         :param wlst_name: the MBean name
         :param wlst_type: the MBean type
-        :param create_path: the location from which to call create
+        :param base_provider_type: the base security provider type, if required
         :return: the MBean object returned by the underlying WLST create() method
         :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'create'
 
         try:
-            mbean = wlst_helper.create(wlst_name, wlst_type, create_path)
+            mbean = wlst_helper.create(wlst_name, wlst_type, base_provider_type)
+        except PyWLSTException, pwe:
+            if base_provider_type is None:
+                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19103', wlst_type, wlst_name,
+                                                       pwe.getLocalizedMessage(), error=pwe)
+                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            else:
+                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19134', base_provider_type,
+                                                       wlst_type, wlst_name, pwe.getLocalizedMessage(), error=pwe)
+            raise ex
+        return mbean
+
+    def delete(self, wlst_name, wlst_type):
+        """
+        Delete an MBean of the specified name and type at the current location.
+        :param wlst_name: the MBean name
+        :param wlst_type: the MBean type
+        :raises: PyWLSTException: if a WLST error occurs
+        """
+        _method_name = 'delete'
+
+        try:
+            wlst_helper.delete(wlst_name, wlst_type)
         except PyWLSTException, pwe:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19103', wlst_type, wlst_name,
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
-        return mbean
+        return
 
     def create_and_cd(self, alias_helper, type_name, name, location, create_path=None):
         """
@@ -647,3 +690,151 @@ class WlstHelper(object):
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return have_changes
+
+    def start_application(self, application_name, *args, **kwargs):
+        """
+        Start the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keywork arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: BundleAwareException: if an error occurs
+        """
+        _method_name = 'start_application'
+
+        try:
+            result = wlst_helper.start_application(application_name, *args, **kwargs)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19139', application_name,
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def stop_application(self, application_name, *args, **kwargs):
+        """
+        Stop the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keywork arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: BundleAwareException: if an error occurs
+        """
+        _method_name = 'stop_application'
+
+        try:
+            result = wlst_helper.stop_application(application_name, *args, **kwargs)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19140', application_name,
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def deploy_application(self, application_name, *args, **kwargs):
+        """
+        Deploy the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keywork arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: BundleAwareException: if an error occurs
+        """
+        _method_name = 'deploy_application'
+
+        try:
+            result = wlst_helper.deploy_application(application_name, *args, **kwargs)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19137', application_name,
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def redeploy_application(self, application_name, *args, **kwargs):
+        """
+        Redeploy the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keywork arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: BundleAwareException: if an error occurs
+        """
+        _method_name = 'redeploy_application'
+
+        try:
+            result = wlst_helper.redeploy_application(application_name, args, kwargs)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19138', application_name,
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def undeploy_application(self, application_name, *args, **kwargs):
+        """
+        Undeploy the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keywork arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: BundleAwareException: if an error occurs
+        """
+        _method_name = 'undeploy_application'
+
+        try:
+            result = wlst_helper.redeploy_application(application_name, args, kwargs)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19141', application_name,
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def server_config(self):
+        """
+        Change to the serverConfig MBean tree.
+        :raises: BundleAwareException: if an error occurs
+        """
+        _method_name = 'server_config'
+
+        try:
+            wlst_helper.server_config()
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19137',
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return
+
+    def domain_runtime(self):
+        """
+        Change to the domainRuntime MBean tree.
+        :raises: BundleAwareException: if an error occurs
+        """
+        _method_name = 'domain_runtime'
+
+        try:
+            wlst_helper.domain_runtime()
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19137',
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return
+
+    def custom(self):
+        """
+        Change to the custom MBean tree.
+        :raises: BundleAwareException: if an error occurs
+        """
+        _method_name = 'domain_runtime'
+
+        try:
+            wlst_helper.custom()
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19137',
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return

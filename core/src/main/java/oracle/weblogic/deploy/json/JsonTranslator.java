@@ -78,16 +78,4 @@ public class JsonTranslator extends AbstractJsonTranslator {
     protected PlatformLogger getLogger() {
         return LOGGER;
     }
-
-    // For testing only...
-    public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
-            System.err.println("Must pass in the Json file name");
-            return;
-        }
-
-        JsonTranslator translator = new JsonTranslator(args[0]);
-        PyDictionary result = translator.parse();
-        System.out.println("result = " + result);
-    }
 }

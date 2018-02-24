@@ -106,4 +106,25 @@ public class PyOrderedDictTest {
         PyOrderedDict anotherOrderedDict = new PyOrderedDict(myOrderedDict);
         Assert.assertEquals("", myOrderedDict.keys(), anotherOrderedDict.keys());
     }
+
+    @Test
+    public void testUpdate() throws Exception {
+        PyOrderedDict myOrderedDict = new PyOrderedDict();
+        myOrderedDict.__setitem__("network_type", new PyString("ETHERNET"));
+
+        PyDictionary anotherDict = new PyDictionary();
+        anotherDict.__setitem__("modem_type", new PyString("Motorola MB8600"));
+
+        PyObject[] keys = new PyObject[2];
+        keys[0] = new PyString("network_type");
+        keys[1] = new PyString("modem_type");
+
+        PyList expected = new PyList(keys);
+
+        myOrderedDict.update(anotherDict);
+
+        PyList myOrderedDictKeys = myOrderedDict.keys();
+
+        Assert.assertEquals("", myOrderedDictKeys, expected);
+    }
 }

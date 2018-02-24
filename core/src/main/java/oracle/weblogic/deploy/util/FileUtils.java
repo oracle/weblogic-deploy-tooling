@@ -4,15 +4,21 @@
  */
 package oracle.weblogic.deploy.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+
+import javax.xml.bind.DatatypeConverter;
 
 import oracle.weblogic.deploy.exception.ExceptionHelper;
 import oracle.weblogic.deploy.logging.PlatformLogger;
@@ -29,6 +35,7 @@ public final class FileUtils {
     private static final int NUMBER_OF_FILENAME_COMPONENTS = 2;
     private static final int FILE_NAME_POS = 0;
     private static final int FILE_EXT_POS = 1;
+    private static final int READ_BUFFER_SIZE = 4096;
 
     private FileUtils() {
         // hide the constructor for this utility class
@@ -93,11 +100,56 @@ public final class FileUtils {
             try {
                 canonicalFile = f.getCanonicalFile();
             } catch (IOException ioe) {
-                LOGGER.warning("WLSDPLY-03000", ioe, f.getPath(), ioe.getLocalizedMessage());
+                LOGGER.warning("WLSDPLY-01100", ioe, f.getPath(), ioe.getLocalizedMessage());
                 canonicalFile = f.getAbsoluteFile();
             }
         }
         return canonicalFile;
+    }
+
+    /**
+     * A exception free version of getCanonicalFile() that falls back to the absolute file if getCanonicalFile fails.
+     *
+     * @param fileName the file name
+     * @return the canonical file
+     */
+    public static File getCanonicalFile(String fileName) {
+        File canonicalFile = null;
+        if (!StringUtils.isEmpty(fileName)) {
+            canonicalFile = getCanonicalFile(new File(fileName));
+        }
+        return canonicalFile;
+    }
+
+    /**
+     * A exception free version of getCanonicalPath() that falls back to the absolute file if getCanonicalPath fails.
+     *
+     * @param f the input file
+     * @return the canonical path
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static String getCanonicalPath(File f) {
+        String canonicalPath = null;
+        if (f != null) {
+            File cf = getCanonicalFile(f);
+            canonicalPath = cf.getAbsolutePath();
+        }
+        return canonicalPath;
+    }
+
+    /**
+     * A exception free version of getCanonicalPath() that falls back to the absolute file if getCanonicalPath fails.
+     *
+     * @param fileName the file name
+     * @return the canonical path
+     */
+    @SuppressWarnings("unused")
+    public static String getCanonicalPath(String fileName) {
+        String canonicalPath = null;
+        if (!StringUtils.isEmpty(fileName)) {
+            canonicalPath = getCanonicalPath(new File(fileName));
+        }
+        return canonicalPath;
     }
 
     /**
@@ -108,12 +160,29 @@ public final class FileUtils {
      * @throws IllegalArgumentException if the file name is not valid or does not exist
      */
     public static File validateExistingFile(String fileName) {
-        final String METHOD = "validateFileName";
+        final String METHOD = "validateExistingFile";
 
         LOGGER.entering(CLASS, METHOD, fileName);
         File file = FileUtils.validateFileName(fileName);
+        file = validateExistingFile(file);
+        LOGGER.exiting(CLASS, METHOD, file);
+        return file;
+    }
+
+    /**
+     * This method validates that the specified file name is an existing file that is not a directory.
+     *
+     * @param f the file to validate
+     * @return the canonical file representing the file name
+     * @throws IllegalArgumentException if the file name is not valid or does not exist
+     */
+    public static File validateExistingFile(File f) {
+        final String METHOD = "validateExistingFile";
+
+        LOGGER.entering(CLASS, METHOD, f);
+        File file = FileUtils.validateFileName(f.getAbsolutePath());
         if (!file.exists()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03002", file.getAbsolutePath());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01101", file.getAbsolutePath());
             IllegalArgumentException iae  = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -121,6 +190,7 @@ public final class FileUtils {
         LOGGER.exiting(CLASS, METHOD, file);
         return file;
     }
+
 
     /**
      * This method validates that the specified directory name is an existing directory.
@@ -134,9 +204,9 @@ public final class FileUtils {
         final String METHOD = "validateExistingDirectory";
 
         LOGGER.entering(CLASS, METHOD, directoryName);
-        File directory = FileUtils.validateDirectoryName(directoryName);
+        File directory = validateDirectoryName(directoryName);
         if (!directory.exists()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03069", directory.getAbsolutePath());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01102", directory.getAbsolutePath());
             IllegalArgumentException iae  = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -156,9 +226,9 @@ public final class FileUtils {
         final String METHOD = "validateWritableFile";
 
         LOGGER.entering(CLASS, METHOD, fileName);
-        File file = FileUtils.validateFileName(fileName);
+        File file = validateFileName(fileName);
         if (file.exists() && !file.canWrite()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03004", file.getAbsolutePath());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01103", file.getAbsolutePath());
             IllegalArgumentException iae  = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -179,8 +249,8 @@ public final class FileUtils {
 
         LOGGER.entering(CLASS, METHOD, directoryName);
         File directory = FileUtils.validateDirectoryName(directoryName);
-        if (directory.exists() && !directory.canWrite()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03004", directory.getAbsolutePath());
+        if (directory.isDirectory() && directory.exists() && !directory.canWrite()) {
+            String message = ExceptionHelper.getMessage("WLSDPLY-01103", directory.getAbsolutePath());
             IllegalArgumentException iae  = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -274,17 +344,6 @@ public final class FileUtils {
     }
 
     /**
-     * Whether or not the specified file has a ZIP extension.
-     *
-     * @param file the file
-     * @return true, if the file extension matches the known ZIP file extensions
-     */
-    public static boolean isZipFile(File file) {
-        String fileName = file.getName().toLowerCase(Locale.ENGLISH);
-        return fileName.endsWith(".zip");
-    }
-
-    /**
      * Get the model file from the specified, existing directory.
      *
      * @param modelDirectory the existing directory location to search for a model file.
@@ -297,22 +356,22 @@ public final class FileUtils {
 
         LOGGER.entering(CLASS, METHOD, modelDirectory);
         if (modelDirectory == null) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03005", METHOD, CLASS, "modelDirectory");
+            String message = ExceptionHelper.getMessage("WLSDPLY-01104", METHOD, CLASS, "modelDirectory");
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
         } else if (!modelDirectory.exists()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03069", modelDirectory.getAbsolutePath());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01102", modelDirectory.getAbsolutePath());
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
         } else if (!modelDirectory.isDirectory()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03070", modelDirectory.getAbsolutePath());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01105", modelDirectory.getAbsolutePath());
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
         } else if (!modelDirectory.canRead()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03071", modelDirectory.getAbsolutePath());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01106", modelDirectory.getAbsolutePath());
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -322,7 +381,7 @@ public final class FileUtils {
         try {
             dirEntries = modelDirectory.listFiles(new ModelFilenameFilter());
         } catch (SecurityException se) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03072", se,
+            String message = ExceptionHelper.getMessage("WLSDPLY-01107", se,
                 modelDirectory.getAbsolutePath(), se.getLocalizedMessage());
             IllegalArgumentException iae = new IllegalArgumentException(message, se);
             LOGGER.throwing(CLASS, METHOD, iae);
@@ -359,7 +418,7 @@ public final class FileUtils {
 
         LOGGER.entering(CLASS, METHOD, fileName);
         if (StringUtils.isEmpty(fileName)) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03001");
+            String message = ExceptionHelper.getMessage("WLSDPLY-01108");
             IllegalArgumentException iae  = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -367,7 +426,7 @@ public final class FileUtils {
 
         File file = FileUtils.getCanonicalFile(new File(fileName));
         if (file.isDirectory()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03003", file.getAbsolutePath());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01109", file.getAbsolutePath());
             IllegalArgumentException iae  = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -384,12 +443,13 @@ public final class FileUtils {
      * @return File handle for the file name
      * @throws IllegalArgumentException if the directory name is empty or is not a directory
      */
+    @SuppressWarnings("WeakerAccess")
     public static File validateDirectoryName(String directoryName) {
         final String METHOD = "validateDirectoryName";
 
         LOGGER.entering(CLASS, METHOD, directoryName);
         if (StringUtils.isEmpty(directoryName)) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03083");
+            String message = ExceptionHelper.getMessage("WLSDPLY-01110");
             IllegalArgumentException iae  = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -397,7 +457,7 @@ public final class FileUtils {
 
         File directory = FileUtils.getCanonicalFile(new File(directoryName));
         if (!directory.isDirectory()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03070", directory.getAbsolutePath());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01105", directory.getAbsolutePath());
             IllegalArgumentException iae  = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -414,29 +474,123 @@ public final class FileUtils {
     public static void deleteDirectory(File directory) {
         LOGGER.entering(directory);
         if (directory != null) {
-            LOGGER.finest("WLSDPLY-03108", directory.getAbsolutePath());
+            LOGGER.finest("WLSDPLY-01111", directory.getAbsolutePath());
             File[] listing = directory.listFiles();
             if (listing != null) {
-                LOGGER.finest("WLSDPLY-03109", directory.getAbsolutePath(), listing.length);
+                LOGGER.finest("WLSDPLY-01112", directory.getAbsolutePath(), listing.length);
                 for (File entry : listing) {
                     if (entry.isDirectory()) {
-                        LOGGER.finest("WLSDPLY-03110", directory.getAbsolutePath(), entry.getAbsolutePath());
+                        LOGGER.finest("WLSDPLY-01113", directory.getAbsolutePath(), entry.getAbsolutePath());
                         deleteDirectory(entry);
                     } else {
                         String dirPath = directory.getAbsolutePath();
                         String fileName = entry.getAbsolutePath();
-                        LOGGER.finest("WLSDPLY-03111", dirPath, fileName);
+                        LOGGER.finest("WLSDPLY-01114", dirPath, fileName);
                         if (!entry.delete()) {
-                            LOGGER.finer("WLSDPLY-03112", fileName, dirPath);
+                            LOGGER.finer("WLSDPLY-01115", fileName, dirPath);
                         }
                     }
                 }
             }
             if (!directory.delete()) {
-                LOGGER.finer("WLSDPLY-03113", directory);
+                LOGGER.finer("WLSDPLY-01116", directory);
             }
         }
         LOGGER.exiting(directory);
+    }
+
+    /**
+     * Compute the Base64-encoded hash for the specified file.
+     *
+     * @param fileName the file name
+     * @return the Base64-encoded hash
+     * @throws IOException if an error occurs reading the file
+     * @throws NoSuchAlgorithmException if an error occurs obtaining the hashing algorithm
+     * @throws IllegalArgumentException if the file is not a valid, existing file
+     */
+    public static String computeHash(String fileName) throws IOException, NoSuchAlgorithmException {
+        final String METHOD = "computeHash";
+
+        LOGGER.entering(CLASS, METHOD, fileName);
+        validateFileName(fileName);
+
+        String result = computeHash(getCanonicalFile(new File(fileName)));
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
+     * Compute the Base64-encoded hash for the specified file.
+     *
+     * @param file the file
+     * @return the Base64-encoded hash
+     * @throws IOException if an error occurs reading the file
+     * @throws NoSuchAlgorithmException if an error occurs obtaining the hashing algorithm
+     * @throws IllegalArgumentException if the file is not a valid, existing file
+     */
+    public static String computeHash(File file) throws IOException, NoSuchAlgorithmException {
+        final String METHOD = "computeHash";
+
+        LOGGER.entering(CLASS, METHOD, file);
+        validateExistingFile(file);
+
+        byte[] fileBytes = readFileToByteArray(file);
+        String result = computeHash(fileBytes);
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
+     * Compute the Base64-encoded hash for the specified bytes.
+     *
+     * @param bytes the bytes to use
+     * @return the Base64-encoded hash
+     * @throws NoSuchAlgorithmException if an error occurs obtaining the hashing algorithm
+     */
+    public static String computeHash(byte[] bytes) throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+        byte[] hash = messageDigest.digest(bytes);
+        return DatatypeConverter.printBase64Binary(hash);
+    }
+
+    /**
+     * Get the byte array of the file contents.
+     *
+     * @param file the file
+     * @return the bytes of the file contents
+     * @throws IOException if an error occurs reading the file
+     * @throws IllegalArgumentException if the file is not a valid, existing file
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static byte[] readFileToByteArray(File file) throws IOException {
+        validateExistingFile(getCanonicalPath(file));
+        byte[] result;
+        try (FileInputStream fis = new FileInputStream(file)) {
+            result = readInputStreamToByteArray(fis);
+        }
+        return result;
+    }
+
+    /**
+     * Get the bytes of the specified input stream contents.
+     *
+     * @param input the input stream to use
+     * @return the bytes of the input stream contents
+     * @throws IOException if an error occurs reading the input stream
+     */
+    public static byte[] readInputStreamToByteArray(InputStream input) throws IOException {
+        byte[] readBuffer = new byte[READ_BUFFER_SIZE];
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(READ_BUFFER_SIZE);
+
+        int bytesRead;
+        while (true) {
+            bytesRead = input.read(readBuffer);
+            if (bytesRead < 0) {
+                break;
+            }
+            outputStream.write(readBuffer, 0, bytesRead);
+        }
+        return outputStream.toByteArray();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -479,7 +633,7 @@ public final class FileUtils {
                     if (yamlFile == null) {
                         yamlFile = file;
                     } else {
-                        String message = ExceptionHelper.getMessage("WLSDPLY-03073", modelDirectory.getAbsolutePath(),
+                        String message = ExceptionHelper.getMessage("WLSDPLY-01117", modelDirectory.getAbsolutePath(),
                             "YAML", file.getName(), yamlFile.getName());
                         IllegalStateException ise = new IllegalStateException(message);
                         LOGGER.throwing(CLASS, METHOD, ise);
@@ -489,7 +643,7 @@ public final class FileUtils {
                     if (jsonFile == null) {
                         jsonFile = file;
                     } else {
-                        String message = ExceptionHelper.getMessage("WLSDPLY-03073", modelDirectory.getAbsolutePath(),
+                        String message = ExceptionHelper.getMessage("WLSDPLY-01117", modelDirectory.getAbsolutePath(),
                             "JSON", file.getName(), jsonFile.getName());
                         IllegalStateException ise = new IllegalStateException(message);
                         LOGGER.throwing(CLASS, METHOD, ise);
@@ -506,7 +660,14 @@ public final class FileUtils {
         return modelFile;
     }
 
+    /**
+     * FilenameFilter class for model files.
+     */
     private static class ModelFilenameFilter implements FilenameFilter {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
         public boolean accept(File dir, String name) {
             boolean result = false;
             if (!StringUtils.isEmpty(name)) {

@@ -90,7 +90,7 @@ public final class CLAUtils {
             result[idx] = charRead;
         }
         if (!eolFound) {
-            LOGGER.warning("WLSDPLY-03081", MAX_PASSWORD_LENGTH);
+            LOGGER.warning("WLSDPLY-01000", MAX_PASSWORD_LENGTH);
         } else {
             char[] tmp = new char[idx];
             System.arraycopy(result, 0, tmp, 0, idx);

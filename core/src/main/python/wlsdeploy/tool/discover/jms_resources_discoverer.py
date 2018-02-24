@@ -2,13 +2,13 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
-import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
-import wlsdeploy.aliases.model_constants as model_constants
-import wlsdeploy.tool.discover.discoverer as discoverer
+from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 
 _class_name = 'JmsResourcesDiscoverer'
@@ -221,8 +221,7 @@ class JmsResourcesDiscoverer(Discoverer):
         :return: model folder name: dictionary containing the discovered foreign servers for the JMS resource
         """
         _method_name = 'get_foreign_servers'
-        context = self.get_context(location)
-        _logger.entering(context, class_name=_class_name, method_name=_method_name)
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.FOREIGN_SERVER
         location.append_location(model_top_folder_name)
@@ -230,7 +229,8 @@ class JmsResourcesDiscoverer(Discoverer):
         if servers is not None:
             name_token = self._alias_helper.get_name_token(location)
             for server in servers:
-                _logger.finer('WLSDPLY-06480', server, context, class_name=_class_name, method_name=_method_name)
+                _logger.finer('WLSDPLY-06480', server, self._alias_helper.get_model_folder_path(location),
+                              class_name=_class_name, method_name=_method_name)
                 result[server] = OrderedDict()
                 location.add_name_token(name_token, server)
                 self._populate_model_parameters(result[server], location)
@@ -255,8 +255,7 @@ class JmsResourcesDiscoverer(Discoverer):
         :return: model folder name: dictionary containing the discovered JMS template
         """
         _method_name = 'get_jms_templates'
-        context = self.get_context(location)
-        _logger.entering(context, class_name=_class_name, method_name=_method_name)
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.TEMPLATE
         location.append_location(model_top_folder_name)
@@ -264,8 +263,8 @@ class JmsResourcesDiscoverer(Discoverer):
         if templates is not None:
             name_token = self._alias_helper.get_name_token(location)
             for template in templates:
-                _logger.finer('WLSDPLY-06481', template, context, class_name=_class_name,
-                              method_name=_method_name)
+                _logger.finer('WLSDPLY-06481', template, self._alias_helper.get_model_folder_path(location),
+                              class_name=_class_name, method_name=_method_name)
                 result[template] = OrderedDict()
                 location.add_name_token(name_token, template)
                 self._populate_model_parameters(result[template], location)
@@ -296,8 +295,7 @@ class JmsResourcesDiscoverer(Discoverer):
         :return: model folder name: dictionary containing the discovered group params
         """
         _method_name = 'get_group_params'
-        context = self.get_context(location)
-        _logger.entering(context, class_name=_class_name, method_name=_method_name)
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         model_subfolder_name = model_constants.GROUP_PARAMS
         subfolder_result = OrderedDict()
         location.append_location(model_subfolder_name)
@@ -310,10 +308,12 @@ class JmsResourcesDiscoverer(Discoverer):
                                                                                 model_constants.SUB_DEPLOYMENT_NAME)
                 attributes = self._get_attributes_for_current_location(location)
                 if wlst_subdeployment is None or wlst_subdeployment not in attributes:
-                    _logger.warning('WLSDPLY-06486', folder_name, context)
+                    _logger.warning('WLSDPLY-06486', folder_name, self._alias_helper.get_model_folder_path(location),
+                                    class_name=_class_name, method_name=_method_name)
                 else:
                     group_param_name = attributes[wlst_subdeployment]
-                    _logger.finer('WLSDPLY-06487', group_param_name, context)
+                    _logger.finer('WLSDPLY-06487', group_param_name, self._alias_helper.get_model_folder_path(location),
+                                  class_name=_class_name, method_name=_method_name)
                     subfolder_result[group_param_name] = OrderedDict()
                     self._populate_model_parameters(subfolder_result[group_param_name], location)
                 location.remove_name_token(name_token)
@@ -333,8 +333,7 @@ class JmsResourcesDiscoverer(Discoverer):
         :return: model name for the properties: dictionary containing the discovered foreign server properties
         """
         _method_name = 'get_foreign_server_properties'
-        context = self.get_context(location)
-        _logger.entering(context, class_name=_class_name, method_name=_method_name)
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         model_subfolder_name = model_constants.JNDI_PROPERTY
         subfolder_result = OrderedDict()
         location.append_location(model_subfolder_name)
@@ -346,12 +345,12 @@ class JmsResourcesDiscoverer(Discoverer):
                 wlst_key = self._alias_helper.get_wlst_attribute_name(location, model_constants.KEY)
                 attributes = self._get_attributes_for_current_location(location)
                 if wlst_key is None or wlst_key not in attributes:
-                    _logger.warning('WLSDPLY-06488', folder_name, context, class_name=_class_name,
-                                    method_name=_method_name)
+                    _logger.warning('WLSDPLY-06488', folder_name, self._alias_helper.get_model_folder_path(location),
+                                    class_name=_class_name, method_name=_method_name)
                 else:
                     property_name = attributes[wlst_key]
-                    _logger.finer('WLSDPLY-06489', property_name, context, class_name=_class_name,
-                                  method_name=_method_name)
+                    _logger.finer('WLSDPLY-06489', property_name, self._alias_helper.get_model_folder_path(location),
+                                  class_name=_class_name, method_name=_method_name)
                     subfolder_result[property_name] = OrderedDict()
                     self._populate_model_parameters(subfolder_result[property_name], location)
                 location.remove_name_token(name_token)

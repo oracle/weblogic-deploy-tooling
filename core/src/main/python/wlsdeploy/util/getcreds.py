@@ -4,6 +4,7 @@ The Universal Permissive License (UPL), Version 1.0
 """
 from oracle.weblogic.deploy.util import CLAUtils
 
+
 def getuser(message_key, *args):
     """
     Prompts the user to enter non-sensitive information such as their username.

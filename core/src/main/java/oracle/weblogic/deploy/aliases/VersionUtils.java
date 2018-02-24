@@ -2,7 +2,7 @@
  * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
-package oracle.weblogic.deploy.util;
+package oracle.weblogic.deploy.aliases;
 
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import oracle.weblogic.deploy.exception.ExceptionHelper;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
+import oracle.weblogic.deploy.util.StringUtils;
 
 /**
  * A utility class that provides helper methods for working with version numbers and ranges.
@@ -57,7 +58,7 @@ public final class VersionUtils {
 
         LOGGER.entering(CLASS, METHOD, thisVersion, otherVersion);
         if (StringUtils.isEmpty(thisVersion) || StringUtils.isEmpty(otherVersion)) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03181");
+            String message = ExceptionHelper.getMessage("WLSDPLY-08200");
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -158,14 +159,14 @@ public final class VersionUtils {
         LOGGER.entering(CLASS, METHOD, version, range);
 
         if (StringUtils.isEmpty(version)) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03181");
+            String message = ExceptionHelper.getMessage("WLSDPLY-08200");
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
         }
 
         String[] versions = getLowerAndUpperVersionStrings(range);
-        LOGGER.finest("WLSDPLY-03184", range, Arrays.asList(versions));
+        LOGGER.finest("WLSDPLY-08201", range, Arrays.asList(versions));
         boolean result = false;
         switch (versions.length) {
             case RANGE_SIZE:
@@ -175,16 +176,16 @@ public final class VersionUtils {
                 boolean inclusiveEnd = range.endsWith("]");
 
                 int lowerCompare = compareVersions(version, lowerVersion);
-                LOGGER.finest("WLSDPLY-03185", version, lowerVersion, lowerCompare);
+                LOGGER.finest("WLSDPLY-08202", version, lowerVersion, lowerCompare);
                 if (lowerCompare > 0 || (lowerCompare == 0 && inclusiveStart)) {
                     if (!StringUtils.isEmpty(upperVersion)) {
                         int upperCompare = compareVersions(version, upperVersion);
-                        LOGGER.finest("WLSDPLY-03186", version, upperVersion, upperCompare);
+                        LOGGER.finest("WLSDPLY-08203", version, upperVersion, upperCompare);
                         if (upperCompare < 0 || (upperCompare == 0 && inclusiveEnd)) {
                             result = true;
                         }
                     } else {
-                        LOGGER.finest("WLSDPLY-03187", range);
+                        LOGGER.finest("WLSDPLY-08204", range);
                         result = true;
                     }
                 }
@@ -193,11 +194,11 @@ public final class VersionUtils {
             case VERSION_SIZE:
                 String singleVersion = versions[VERSION_INDEX];
                 result = (compareVersions(version, singleVersion) == 0);
-                LOGGER.finest("WLSDPLY-03188", version, singleVersion, result);
+                LOGGER.finest("WLSDPLY-08205", version, singleVersion, result);
                 break;
 
             default:
-                VersionException ve = new VersionException("WLSDPLY-08055", range, Arrays.asList(versions));
+                VersionException ve = new VersionException("WLSDPLY-08206", range, Arrays.asList(versions));
                 LOGGER.throwing(CLASS, METHOD, ve);
                 throw ve;
         }
@@ -230,24 +231,24 @@ public final class VersionUtils {
                     String low = versions[RANGE_LOW_INDEX];
                     String high = versions[RANGE_HIGH_INDEX];
                     if (StringUtils.isEmpty(high)) {
-                        message = ExceptionHelper.getMessage("WLSDPLY-08042", name, path, version, low);
+                        message = ExceptionHelper.getMessage("WLSDPLY-08207", name, path, version, low);
                     } else {
-                        message = ExceptionHelper.getMessage("WLSDPLY-08043", name, path, version, low, high);
+                        message = ExceptionHelper.getMessage("WLSDPLY-08208", name, path, version, low, high);
                     }
                     break;
 
                 case VERSION_SIZE:
                     String onlyVersion = versions[VERSION_INDEX];
-                    message = ExceptionHelper.getMessage("WLSDPLY-08056", name, path, version, onlyVersion);
+                    message = ExceptionHelper.getMessage("WLSDPLY-08209", name, path, version, onlyVersion);
                     break;
 
                 default:
-                    VersionException ve = new VersionException("WLSDPLY-08055", versionRange, Arrays.asList(versions));
+                    VersionException ve = new VersionException("WLSDPLY-08206", versionRange, Arrays.asList(versions));
                     LOGGER.throwing(CLASS, METHOD, ve);
                     throw ve;
             }
         } else {
-            message = ExceptionHelper.getMessage("WLSDPLY-08044", name, path, version, wlstMode);
+            message = ExceptionHelper.getMessage("WLSDPLY-08210", name, path, version, wlstMode);
         }
         return message;
     }
@@ -277,24 +278,24 @@ public final class VersionUtils {
                     String low = versions[RANGE_LOW_INDEX];
                     String high = versions[RANGE_HIGH_INDEX];
                     if (StringUtils.isEmpty(high)) {
-                        message = ExceptionHelper.getMessage("WLSDPLY-08073", name, path, version, low);
+                        message = ExceptionHelper.getMessage("WLSDPLY-08211", name, path, version, low);
                     } else {
-                        message = ExceptionHelper.getMessage("WLSDPLY-08074", name, path, version, low, high);
+                        message = ExceptionHelper.getMessage("WLSDPLY-08212", name, path, version, low, high);
                     }
                     break;
 
                 case VERSION_SIZE:
                     String onlyVersion = versions[VERSION_INDEX];
-                    message = ExceptionHelper.getMessage("WLSDPLY-08076", name, path, version, onlyVersion);
+                    message = ExceptionHelper.getMessage("WLSDPLY-08213", name, path, version, onlyVersion);
                     break;
 
                 default:
-                    VersionException ve = new VersionException("WLSDPLY-08055", versionRange, Arrays.asList(versions));
+                    VersionException ve = new VersionException("WLSDPLY-08206", versionRange, Arrays.asList(versions));
                     LOGGER.throwing(CLASS, METHOD, ve);
                     throw ve;
             }
         } else {
-            message = ExceptionHelper.getMessage("WLSDPLY-08075", name, path, version, wlstMode);
+            message = ExceptionHelper.getMessage("WLSDPLY-08214", name, path, version, wlstMode);
         }
         return message;
     }
@@ -311,7 +312,7 @@ public final class VersionUtils {
         LOGGER.entering(CLASS, METHOD, range);
 
         if (StringUtils.isEmpty(range)) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03182");
+            String message = ExceptionHelper.getMessage("WLSDPLY-08215");
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -336,7 +337,7 @@ public final class VersionUtils {
             result = new String[VERSION_SIZE];
             result[VERSION_INDEX] = version;
         } else {
-            VersionException ve = new VersionException("WLSDPLY-08054", range);
+            VersionException ve = new VersionException("WLSDPLY-08216", range);
             LOGGER.throwing(CLASS, METHOD, ve);
             throw ve;
         }
@@ -381,7 +382,7 @@ public final class VersionUtils {
         try {
             result = Integer.parseInt(element);
         } catch (NumberFormatException nfe) {
-            VersionException ve = new VersionException("WLSDPLY-08057", nfe, element, version);
+            VersionException ve = new VersionException("WLSDPLY-08217", nfe, element, version);
             LOGGER.throwing(CLASS, METHOD, ve);
             throw ve;
         }

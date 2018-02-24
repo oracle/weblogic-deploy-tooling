@@ -141,6 +141,8 @@ if [[ $# = 0 ]]; then
   exit 0
 fi
 
+SCRIPT_ARGS="$*"
+
 #
 # Find the args required to determine the WLST script to run
 #
@@ -186,7 +188,7 @@ fi
 #
 # If the WLST_PATH_DIR is specified, validate that it contains the wlst.cmd script
 #
-if [ "$(WLST_PATH_DIR)" != "" ]; then
+if [ "${WLST_PATH_DIR}" != "" ]; then
     if [ ! -d ${WLST_PATH_DIR} ]; then
         echo "WLST_PATH_DIR specified does not exist: ${WLST_PATH_DIR}" >&2
         exit 98
@@ -196,6 +198,8 @@ if [ "$(WLST_PATH_DIR)" != "" ]; then
         echo "WLST executable ${WLST} not found under specified WLST_PATH_DIR: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
+    CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+    WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
 else
     #
     # Find the location for wlst.sh
@@ -209,7 +213,7 @@ else
     elif [ "${DOMAIN_TYPE}" = "JRF" ]; then
         USE_JRF_WLST=TRUE
     else
-        echo "Domain type %DOMAIN_TYPE% not recognized by shell script...assuming JRF is required"
+        echo "Domain type ${DOMAIN_TYPE} not recognized by shell script...assuming JRF is required"
     fi
 
     if [ "${USE_JRF_WLST}" = "TRUE" ]; then
@@ -259,9 +263,9 @@ echo "CLASSPATH = ${CLASSPATH}"
 echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
 
 PY_SCRIPTS_PATH=${WLSDEPLOY_HOME}/lib/python
-echo "${WLST} ${PY_SCRIPTS_PATH}/discover.py $*"
+echo "${WLST} ${PY_SCRIPTS_PATH}/discover.py ${SCRIPT_ARGS}"
 
-"${WLST}" "${PY_SCRIPTS_PATH}/discover.py" $*
+"${WLST}" "${PY_SCRIPTS_PATH}/discover.py" ${SCRIPT_ARGS}
 
 RETURN_CODE=$?
 if [ ${RETURN_CODE} -eq 100 ]; then

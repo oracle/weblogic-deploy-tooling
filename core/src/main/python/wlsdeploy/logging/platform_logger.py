@@ -2,16 +2,16 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-
 import java.lang.System as JSystem
 import java.lang.Thread as JThread
+import java.lang.Throwable as Throwable
 import java.util.ArrayList as JArrayList
 import java.util.logging.Level as JLevel
 import java.util.logging.Logger as JLogger
 import java.util.logging.LogRecord as JLogRecord
+
 import wlsdeploy.exception.exception_helper as exception_helper
 
-import java.lang.Throwable as Throwable
 
 class PlatformLogger(object):
     """

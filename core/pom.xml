@@ -17,6 +17,11 @@
 
     <properties>
         <unit-test-wlst-dir>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</unit-test-wlst-dir>
+        <!--
+            Hack to get around Maven bug so that we can inject the build timestamp into the version class
+         -->
+        <weblogic.deploy.build.timestamp>${maven.build.timestamp}</weblogic.deploy.build.timestamp>
+        <maven.build.timestamp.format>MMM dd, yyyy HH:mm z</maven.build.timestamp.format>
     </properties>
 
     <dependencies>
@@ -38,6 +43,34 @@
     </dependencies>
 
     <build>
+        <resources>
+            <!--
+                This is filling in the version and build info in the Java class.
+                The build-helper plugin will pull get the Java class into the
+                project for compilation and Javadoc generation.
+             -->
+            <resource>
+                <directory>src/main/resources/templates</directory>
+                <includes>
+                    <include>*.java</include>
+                </includes>
+                <filtering>true</filtering>
+                <targetPath>${project.build.directory}/generated-sources/weblogic-deploy</targetPath>
+            </resource>
+            <!--
+                We need to explicitly list things in src/main/resources that go into the JAR
+                since we are specifying this resources section, which causes the default
+                behavior to be disabled.
+             -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>oracle/**/*.json</include>
+                    <include>oracle/**/*.properties</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -88,16 +121,33 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>ru.concerteza.buildnumber</groupId>
+                <artifactId>maven-jgit-buildnumber-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-weblogic-deploy-version-dir</id>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/weblogic-deploy</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>ru.concerteza.buildnumber</groupId>
-                <artifactId>maven-jgit-buildnumber-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

@@ -2,14 +2,13 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
-import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
-
-import wlsdeploy.aliases.model_constants as model_constants
-import wlsdeploy.tool.discover.discoverer as discoverer
+from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.common_resources_discoverer import CommonResourcesDiscoverer
 from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
@@ -94,8 +93,8 @@ class MultiTenantDiscoverer(Discoverer):
             _logger.info('WLSDPLY-06703', len(resource_groups), class_name=_class_name, method_name=_method_name)
             name_token = self._alias_helper.get_name_token(location)
             for resource_group in resource_groups:
-                _logger.info('WLSDPLY-06704', resource_group, self.get_context(location), class_name=_class_name,
-                             method_name=_method_name)
+                _logger.info('WLSDPLY-06704', resource_group, self._alias_helper.get_model_folder_path(location),
+                             class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, resource_group)
                 result[resource_group] = self._discover_single_folder(location)
                 CommonResourcesDiscoverer(self._model_context, result[resource_group],

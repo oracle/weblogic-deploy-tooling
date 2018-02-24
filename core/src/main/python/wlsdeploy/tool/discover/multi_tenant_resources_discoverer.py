@@ -2,14 +2,13 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
-import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
-
-import wlsdeploy.tool.discover.discoverer as discoverer
-from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
-import wlsdeploy.aliases.model_constants as model_constants
+from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 
 _class_name = 'MultiTenantResourcesDiscoverer'

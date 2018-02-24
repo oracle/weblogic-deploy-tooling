@@ -20,6 +20,25 @@ class AliasHelper(object):
         self.__exception_type = exception_type
         return
 
+    def get_model_attribute_name_and_value(self, location, wlst_name, wlst_value):
+        """
+        Convert the wlst attribute name and attribute value into the appropriate format for the model.
+        :param location: context containing current location information
+        :param wlst_name: attribute name in wlst
+        :param wlst_value: value retrieved for the attribute from wlst
+        :return: converted model name and value
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'get_model_attribute_name_and_value'
+        try:
+            model_name, model_value = self.__aliases.get_model_attribute_name_and_value(location, wlst_name, wlst_value)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19028', str(location),
+                                                   ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return model_name, model_value
+
     def get_model_subfolder_names(self, location):
         """
         Get the model subfolder names for the specified location.
@@ -165,6 +184,25 @@ class AliasHelper(object):
             raise ex
         return result
 
+    def requires_unpredictable_single_name_handling(self, location):
+        """
+        Does the location folder specified require unpredictable single name handling?
+        :param location: the location
+        :return: True, if the location requires unpredictable single name handling, False otherwise
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'requires_unpredictable_single_name_handling'
+
+        try:
+            result = self.__aliases.requires_unpredictable_single_name_handling(location)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19021',
+                                                   location.get_current_model_folder(), location.get_folder_path(),
+                                                   ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
     def supports_multiple_mbean_instances(self, location):
         """
         Does the location folder specified support multiple MBean instances of the parent node type?
@@ -178,6 +216,60 @@ class AliasHelper(object):
             result = self.__aliases.supports_multiple_mbean_instances(location)
         except AliasException, ae:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19008', str(location),
+                                                   ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def requires_artificial_type_subfolder_handling(self, location):
+        """
+        Does the location folder specified require artificial subfolder type handling?
+        :param location: the location
+        :return: True, if the location requires artificial subfolder type handling, False otherwise
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'requires_artificial_type_subfolder_handling'
+
+        try:
+            result = self.__aliases.requires_artificial_type_subfolder_handling(location)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19024', str(location),
+                                                   ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def supports_single_mbean_instance(self, location):
+        """
+        Does the location folder specified support only a single MBean instance of the parent node type?
+        :param location: the location
+        :return: True, if the location support only a single MBean instance of the parent node type, False otherwise
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'supports_single_mbean_instance'
+
+        try:
+            result = self.__aliases.supports_single_mbean_instance(location)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19025', str(location),
+                                                   ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def is_artificial_type_folder(self, location):
+        """
+        Is the location folder specified an artificial type folder?
+        :param location: the location
+        :return: True, if the location is an artificial type folder, False otherwise
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'is_artificial_type_folder'
+
+        try:
+            result = self.__aliases.is_artificial_type_folder(location)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19026', str(location),
                                                    ae.getLocalizedMessage(), error=ae)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -273,12 +365,14 @@ class AliasHelper(object):
             raise ex
         return result
 
-    def get_wlst_attribute_name_and_value(self, location, model_name, model_value, masked=False):
+    def get_wlst_attribute_name_and_value(self, location, model_name, model_value, existing_wlst_value=None,
+                                          masked=False):
         """
         Get the WLST attribute name and value to use to call set.
         :param location: the location
         :param model_name: the model name
         :param model_value: the model value
+        :param existing_wlst_value: the WLST value to be merged
         :param masked: whether or not to mask the value in the logs, default is False
         :return: the WLST name and value returned from the alias method
         :raises: BundleAwareException of the specified type: if an error occurs
@@ -286,7 +380,8 @@ class AliasHelper(object):
         _method_name = 'get_wlst_attribute_name_and_value'
 
         try:
-            wlst_name = self.__aliases.get_wlst_attribute_name_and_value(location, model_name, model_value)
+            wlst_name, wlst_value = self.__aliases.get_wlst_attribute_name_and_value(location, model_name, model_value,
+                                                                                     existing_wlst_value)
         except AliasException, ae:
             value = model_value
             if masked:
@@ -295,7 +390,7 @@ class AliasHelper(object):
                                                    value, str(location), ae.getLocalizedMessage(), error=ae)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
-        return wlst_name
+        return wlst_name, wlst_value
 
     def get_wlst_attribute_name(self, location, model_name):
         """
@@ -373,6 +468,27 @@ class AliasHelper(object):
             raise ex
         return result, message
 
+    def is_valid_model_attribute_name(self, location, model_attribute_name):
+        """
+        Return whether or not location's model folders list has an attribute
+        with the name assigned to the model_attribute_name parameter.
+
+        :param location: the location
+        :param model_attribute_name: the model attribute name
+        :return: ValidationCode, message
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'is_valid_model_attribute_name'
+
+        try:
+            result, message = self.__aliases.is_valid_model_attribute_name(location, model_attribute_name)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19031', model_attribute_name,
+                                                   location.get_folder_path(), ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result, message
+
     def get_model_topology_top_level_folder_names(self):
         """
         Get the model topology top-level folder names.
@@ -380,11 +496,30 @@ class AliasHelper(object):
         """
         return self.__aliases.get_model_topology_top_level_folder_names()
 
+    def get_model_attribute_names(self, location):
+        """
+        Get the model attribute names.
+        :param location: the location
+        :return: list of model attribute names
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'get_model_attribute_names'
+
+        try:
+            result = self.__aliases.get_model_attribute_names(location)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19029',
+                                                   location.get_folder_path(), ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
     def get_model_attribute_names_and_types(self, location):
         """
         Get the model attribute names and their types.
         :param location: the location
         :return: dictionary of model attribute names and their types
+        :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'get_model_attribute_names_and_types'
 
@@ -397,36 +532,38 @@ class AliasHelper(object):
             raise ex
         return result
 
-    def get_wlst_get_required_attribute_names(self, location):
+    def get_model_uses_path_tokens_attribute_names(self, location):
         """
         Get the list of attribute names that have their get_method specified as GET.
         :param location: the location
         :return: list[string]: the list of attribute names
+        :raises: BundleAwareException of the specified type: if an error occurs
         """
-        _method_name = 'get_model_attribute_names_and_types'
+        _method_name = 'get_model_uses_path_tokens_attribute_names'
 
         try:
-            result = self.__aliases.get_wlst_get_required_attribute_names(location)
+            result = self.__aliases.get_model_uses_path_tokens_attribute_names(location)
         except AliasException, ae:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19020',
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19030',
                                                    location.get_current_model_folder(), location.get_folder_path(),
                                                    ae.getLocalizedMessage(), error=ae)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return result
 
-    def requires_unpredictable_single_name_handling(self, location):
+    def get_wlst_get_required_attribute_names(self, location):
         """
-        Does the location folder specified require unpredictable single name handling?
+        Get the list of attribute names that have their get_method specified as GET.
         :param location: the location
-        :return: True, if the location requires unpredictable single name handling, False otherwise
+        :return: list[string]: the list of attribute names
+        :raises: BundleAwareException of the specified type: if an error occurs
         """
-        _method_name = 'requires_unpredictable_single_name_handling'
+        _method_name = 'get_wlst_get_required_attribute_names'
 
         try:
-            result = self.__aliases.requires_unpredictable_single_name_handling(location)
+            result = self.__aliases.get_wlst_get_required_attribute_names(location)
         except AliasException, ae:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19021',
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19020',
                                                    location.get_current_model_folder(), location.get_folder_path(),
                                                    ae.getLocalizedMessage(), error=ae)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
@@ -439,6 +576,7 @@ class AliasHelper(object):
         :param location: the location
         :param wlst_name: the WLST mbean name for the subfolder
         :return: the model folder name, or None if the folder is not needed for the model.
+        :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'get_model_subfolder_name'
         try:
@@ -455,6 +593,7 @@ class AliasHelper(object):
         Get the names of attributes at the specified location that require a restart if changed.
         :param location: the location
         :return: a list of attribute names
+        :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'get_model_restart_required_attribute_names'
         try:
@@ -462,6 +601,49 @@ class AliasHelper(object):
         except AliasException, ae:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19023', location.get_folder_path(),
                                                    ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def get_model_merge_required_attribute_names(self, location):
+        """
+        Get the names of attributes at the specified location that require merge with existing WLST values.
+        :param location: the location
+        :return: a list of attribute names
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'get_model_merge_required_attribute_names'
+        try:
+            result = self.__aliases.get_model_merge_required_attribute_names(location)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19027', location.get_folder_path(),
+                                                   ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def get_model_domain_info_attribute_names_and_types(self):
+        """
+        Get the attribute names and types for the domainInfo section of the model.
+        :return: a dictionary keyed on model attribute names with the type as the value
+        """
+        return self.__aliases.get_model_domain_info_attribute_names_and_types()
+
+    def get_model_attribute_default_value(self, location, model_attribute_name):
+        """
+        Get the default value for the specified attribute.
+        :param location: the location
+        :param model_attribute_name: the model attribute name
+        :return: the default value converted to the type
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'get_model_attribute_default_value'
+
+        try:
+            result = self.__aliases.get_model_attribute_default_value(location, model_attribute_name)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19032', model_attribute_name,
+                                                   location.get_folder_path(), ae.getLocalizedMessage(), error=ae)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return result

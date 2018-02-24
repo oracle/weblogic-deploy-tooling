@@ -4,32 +4,33 @@ The Universal Permissive License (UPL), Version 1.0
 
 The main module for the WLSDeploy tool to encrypt passwords.
 """
-import os
+import javaos as os
 import sys
 
-import java.io.IOException as IOException
-import java.lang.IllegalArgumentException as IllegalArgumentException
-import java.lang.String as String
+from java.io import IOException
+from java.lang import IllegalArgumentException
+from java.lang import String
 
-import oracle.weblogic.deploy.encrypt.EncryptionException as EncryptionException
-import oracle.weblogic.deploy.util.CLAException as CLAException
-import oracle.weblogic.deploy.util.FileUtils as FileUtils
-import oracle.weblogic.deploy.util.TranslateException as TranslateException
-import oracle.weblogic.deploy.util.VariableException as VariableException
+from oracle.weblogic.deploy.encrypt import EncryptionException
+from oracle.weblogic.deploy.util import CLAException
+from oracle.weblogic.deploy.util import FileUtils
+from oracle.weblogic.deploy.util import TranslateException
+from oracle.weblogic.deploy.util import VariableException
+from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
 # imports from local packages start here
-import wlsdeploy.exception.exception_helper as exception_helper
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.encrypt import encryption_utils
+from wlsdeploy.util import getcreds
+from wlsdeploy.util import variables as variable_helper
+from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-import wlsdeploy.util.getcreds as getcreds
-import wlsdeploy.tool.encrypt.encryption_utils as encryption_utils
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.model_translator import PythonToFile
-import wlsdeploy.util.variables as variable_helper
-import wlsdeploy.util.wlst_helper as wlst_helper
 
 
 _program_name = 'encryptModel'
@@ -48,6 +49,7 @@ __optional_arguments = [
     CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH,
     CommandLineArgUtil.ONE_PASS_SWITCH
 ]
+
 
 def __process_args(args):
     """
@@ -70,9 +72,9 @@ def __process_args(args):
     if CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH in optional_arg_map and \
                     CommandLineArgUtil.ONE_PASS_SWITCH not in optional_arg_map:
         try:
-            pwd = getcreds.getpass('WLSDPLY-03138')
+            pwd = getcreds.getpass('WLSDPLY-04200')
         except IOException, ioe:
-            ex = exception_helper.create_encryption_exception('WLSDPLY-03139', ioe.getLocalizedMessage(), error=ioe)
+            ex = exception_helper.create_encryption_exception('WLSDPLY-04201', ioe.getLocalizedMessage(), error=ioe)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         optional_arg_map[CommandLineArgUtil.ONE_PASS_SWITCH] = String(pwd)
@@ -93,7 +95,7 @@ def __verify_required_args_present(required_arg_map):
 
     for req_arg in __required_arguments:
         if req_arg not in required_arg_map:
-            ex = exception_helper.create_cla_exception('WLSDPLY-09040', _program_name, req_arg)
+            ex = exception_helper.create_cla_exception('WLSDPLY-20005', _program_name, req_arg)
             ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -112,13 +114,13 @@ def __validate_mode_args(optional_arg_map):
         try:
             FileUtils.validateExistingFile(model_file_name)
         except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-09042', _program_name, model_file_name,
+            ex = exception_helper.create_cla_exception('WLSDPLY-20006', _program_name, model_file_name,
                                                        iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     elif CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH not in optional_arg_map:
-        ex = exception_helper.create_cla_exception('WLSDPLY-03133', _program_name, CommandLineArgUtil.MODEL_FILE_SWITCH,
+        ex = exception_helper.create_cla_exception('WLSDPLY-04202', _program_name, CommandLineArgUtil.MODEL_FILE_SWITCH,
                                                    CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH)
         ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -138,10 +140,10 @@ def __process_passphrase_arg(optional_arg_map):
         got_matching_passphrases = False
         while not got_matching_passphrases:
             try:
-                passphrase = getcreds.getpass('WLSDPLY-03135')
-                passphrase2 = getcreds.getpass('WLSDPLY-03136')
+                passphrase = getcreds.getpass('WLSDPLY-04203')
+                passphrase2 = getcreds.getpass('WLSDPLY-04204')
             except IOException, ioe:
-                ex = exception_helper.create_encryption_exception('WLSDPLY-03137', ioe.getLocalizedMessage(), error=ioe)
+                ex = exception_helper.create_encryption_exception('WLSDPLY-04205', ioe.getLocalizedMessage(), error=ioe)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
@@ -163,7 +165,7 @@ def __encrypt_model_and_variables(model_context):
     try:
         model = FileToPython(model_file, True).parse()
     except TranslateException, te:
-        __logger.severe('WLSDPLY-03141', _program_name, model_file, te.getLocalizedMessage(), error=te,
+        __logger.severe('WLSDPLY-04206', _program_name, model_file, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
         return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
 
@@ -173,7 +175,7 @@ def __encrypt_model_and_variables(model_context):
         try:
             variables = variable_helper.load_variables(variable_file)
         except VariableException, ve:
-            __logger.severe('WLSDPLY-03142', _program_name, variable_file, ve.getLocalizedMessage(), error=ve,
+            __logger.severe('WLSDPLY-04207', _program_name, variable_file, ve.getLocalizedMessage(), error=ve,
                             class_name=_class_name, method_name=_method_name)
             return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
 
@@ -182,17 +184,17 @@ def __encrypt_model_and_variables(model_context):
         model_change_count, variable_change_count = \
             encryption_utils.encrypt_model_dictionary(passphrase, model, variables)
     except EncryptionException, ee:
-        __logger.severe('WLSDPLY-03143', _program_name, ee.getLocalizedMessage(), error=ee,
+        __logger.severe('WLSDPLY-04208', _program_name, ee.getLocalizedMessage(), error=ee,
                         class_name=_class_name, method_name=_method_name)
         return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
 
     if variable_change_count > 0:
         try:
             variable_helper.write_variables(variables, variable_file)
-            __logger.info('WLSDPLY-03147', _program_name, variable_change_count, variable_file,
+            __logger.info('WLSDPLY-04209', _program_name, variable_change_count, variable_file,
                           class_name=_class_name, method_name=_method_name)
         except VariableException, ve:
-            __logger.severe('WLSDPLY-03145', _program_name, variable_file, ve.getLocalizedMessage(), error=ve,
+            __logger.severe('WLSDPLY-20007', _program_name, variable_file, ve.getLocalizedMessage(), error=ve,
                             class_name=_class_name, method_name=_method_name)
             return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
 
@@ -200,10 +202,10 @@ def __encrypt_model_and_variables(model_context):
         try:
             model_writer = PythonToFile(model)
             model_writer.write_to_file(model_file)
-            __logger.info('WLSDPLY-03148', _program_name, model_change_count, model_file,
+            __logger.info('WLSDPLY-04210', _program_name, model_change_count, model_file,
                           class_name=_class_name, method_name=_method_name)
         except TranslateException, te:
-            __logger.severe('WLSDPLY-03146', _program_name, model_file, te.getLocalizedMessage(), error=te,
+            __logger.severe('WLSDPLY-04211', _program_name, model_file, te.getLocalizedMessage(), error=te,
                             class_name=_class_name, method_name=_method_name)
             return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
 
@@ -226,7 +228,7 @@ def _process_request(args):
     except CLAException, ex:
         exit_code = ex.getExitCode()
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
-            __logger.severe('WLSDPLY-09039', _program_name, ex.getLocalizedMessage(), error=ex,
+            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         return exit_code
 
@@ -239,7 +241,7 @@ def _process_request(args):
             exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
         except EncryptionException, ee:
             exit_code = CommandLineArgUtil.PROG_ERROR_EXIT_CODE
-            __logger.severe('WLSDPLY-03140', _program_name, ee.getLocalizedMessage(), error=ee,
+            __logger.severe('WLSDPLY-04212', _program_name, ee.getLocalizedMessage(), error=ee,
                             class_name=_class_name, method_name=_method_name)
     else:
         exit_code = __encrypt_model_and_variables(model_context)
@@ -264,4 +266,5 @@ def main():
     sys.exit(exit_code)
 
 if __name__ == "main":
+    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     main()

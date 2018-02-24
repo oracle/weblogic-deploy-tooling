@@ -12,6 +12,7 @@ from wlsdeploy.util.model_translator import FileToPython
 class VariablesTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes'
     _variables_file = _resources_dir + '/variables.properties'
+    _use_ordering = True
 
     def setUp(self):
         self.name = 'VariablesTestCase'
@@ -21,7 +22,7 @@ class VariablesTestCase(unittest.TestCase):
         self.assertEqual(variable_map['my-abc'], 'xyz')
 
     def testSubstituteYaml(self):
-        model = FileToPython(self._resources_dir + '/variables-test.yaml').parse()
+        model = FileToPython(self._resources_dir + '/variables-test.yaml', self._use_ordering).parse()
         variable_map = variables.load_variables(self._variables_file)
         variables.substitute(model, variable_map)
         self.assertEqual(model['topology']['Name'], 'xyz123')
@@ -29,7 +30,7 @@ class VariablesTestCase(unittest.TestCase):
         self.assertEqual(True, 'myCluster' in model['topology']['Cluster'])
 
     def testSubstituteJson(self):
-        model = FileToPython(self._resources_dir + '/variables-test.json').parse()
+        model = FileToPython(self._resources_dir + '/variables-test.json', self._use_ordering).parse()
         variable_map = variables.load_variables(self._variables_file)
         variables.substitute(model, variable_map)
         self.assertEqual(model['topology']['Name'], 'xyz123')
@@ -38,7 +39,7 @@ class VariablesTestCase(unittest.TestCase):
 
     def testVariableNotFound(self):
         try:
-            model = FileToPython(self._resources_dir + '/variables-test.json').parse()
+            model = FileToPython(self._resources_dir + '/variables-test.json', self._use_ordering).parse()
             model['topology']['Name'] = '${bad.variable}'
             variable_map = variables.load_variables(self._variables_file)
             variables.substitute(model, variable_map)

@@ -9,7 +9,7 @@ from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.json import JsonStreamTranslator
 from oracle.weblogic.deploy.util import FileUtils
 
-import wlsdeploy.exception.exception_helper as exception_helper
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import model
 from wlsdeploy.util import variables as variable_helper
@@ -83,7 +83,7 @@ def _initialize_password_field_names():
     if _password_field_names is None:
         password_field_names_stream = FileUtils.getResourceAsStream(_password_field_names_file)
         if password_field_names_stream is None:
-            ex = exception_helper.create_encryption_exception('WLSDPLY-03124', _password_field_names_file)
+            ex = exception_helper.create_encryption_exception('WLSDPLY-04100', _password_field_names_file)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -91,7 +91,7 @@ def _initialize_password_field_names():
             password_field_names_dict = \
                 JsonStreamTranslator(_password_field_names_file, password_field_names_stream).parse()
         except JsonException, je:
-            ex = exception_helper.create_encryption_exception('WLSDPLY-03125', _password_field_names_file,
+            ex = exception_helper.create_encryption_exception('WLSDPLY-04101', _password_field_names_file,
                                                               je.getLocalizedMessage(), error=je)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -99,7 +99,7 @@ def _initialize_password_field_names():
         if password_field_names_dict is not None and 'passwordFieldNames' in password_field_names_dict:
             _password_field_names = password_field_names_dict['passwordFieldNames']
         else:
-            ex = exception_helper.create_encryption_exception('WLSDPLY-03126', _password_field_names_file)
+            ex = exception_helper.create_encryption_exception('WLSDPLY-04102', _password_field_names_file)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     return
@@ -132,15 +132,15 @@ def _search_and_replace_passwords(passphrase, dict_name, model_dict, variables):
                 if not EncryptionUtils.isEncryptedString(value):
                     encrypted_value = EncryptionUtils.encryptString(value, String(passphrase).toCharArray())
                     model_dict[key] = encrypted_value
-                    _logger.fine('WLSDPLY-03129', dict_name, key, class_name=_class_name, method_name=_method_name)
+                    _logger.fine('WLSDPLY-04103', dict_name, key, class_name=_class_name, method_name=_method_name)
                     model_changes += 1
                 else:
-                    _logger.fine('WLSDPLY-03134', dict_name, key, class_name=_class_name, method_name=_method_name)
+                    _logger.fine('WLSDPLY-04104', dict_name, key, class_name=_class_name, method_name=_method_name)
             elif len(variable_names) == 1:
                 _variable_changes = _encrypt_variable_value(passphrase, dict_name, key, variable_names[0], variables)
                 variable_changes += _variable_changes
             else:
-                _logger.warning('WLSDPLY-03130', dict_name, key, len(variable_names), variable_names,
+                _logger.warning('WLSDPLY-04105', dict_name, key, len(variable_names), variable_names,
                                 class_name=_class_name, method_name=_method_name)
     return model_changes, variable_changes
 
@@ -166,11 +166,11 @@ def _encrypt_variable_value(passphrase, dict_name, field_name, var_name, variabl
         if len(var_value) > 0:
             encrypted_value = EncryptionUtils.encryptString(var_value, String(passphrase).toCharArray())
             variables[var_name] = encrypted_value
-            _logger.fine('WLSDPLY-03128', dict_name, field_name, var_name,
+            _logger.fine('WLSDPLY-04106', dict_name, field_name, var_name,
                          class_name=_class_name, method_name=_method_name)
             variable_changes = 1
     else:
-        ex = exception_helper.create_encryption_exception('WLSDPLY-03127', var_name, field_name, dict_name)
+        ex = exception_helper.create_encryption_exception('WLSDPLY-04107', var_name, field_name, dict_name)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 

@@ -21,9 +21,9 @@ class LoggerTestCase(unittest.TestCase):
         try:
             print map['bad key']
         except KeyError, key_error:
-            self.logger.fine('WLSDPLY-09015', str(key_error), error=key_error, class_name=self.name,
+            self.logger.fine('WLSDPLY-01760', str(key_error), error=key_error, class_name=self.name,
                                 method_name='testPythonException')
-            raise exception_helper.create_deploy_exception('WLSDPLY-09015', str(key_error), error=key_error)
+            raise exception_helper.create_deploy_exception('WLSDPLY-01760', str(key_error), error=key_error)
 
     def testPythonException(self):
         try:

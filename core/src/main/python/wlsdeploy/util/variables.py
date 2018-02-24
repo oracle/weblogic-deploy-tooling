@@ -36,7 +36,7 @@ def load_variables(file_path):
         props.load(input_stream)
         input_stream.close()
     except IOException, ioe:
-        ex = exception_helper.create_variable_exception('WLSDPLY-03123', file_path,
+        ex = exception_helper.create_variable_exception('WLSDPLY-01730', file_path,
                                                         ioe.getLocalizedMessage(), error=ioe)
         _logger.throwing(ex, class_name=_class_name, method_name=method_name)
         if input_stream is not None:
@@ -63,14 +63,14 @@ def write_variables(variable_map, file_path):
         value = variable_map[key]
         props.setProperty(key, value)
 
-    comment = exception_helper.get_message('WLSDPLY-03144')
+    comment = exception_helper.get_message('WLSDPLY-01731')
     output_stream = None
     try:
         output_stream = FileOutputStream(file_path)
         props.store(output_stream, comment)
         output_stream.close()
     except IOException, ioe:
-        ex = exception_helper.create_variable_exception('WLSDPLY-03145', file_path,
+        ex = exception_helper.create_variable_exception('WLSDPLY-20007', file_path,
                                                         ioe.getLocalizedMessage(), error=ioe)
         _logger.throwing(ex, class_name=_class_name, method_name=method_name)
         if output_stream is not None:
@@ -123,7 +123,7 @@ def _process_node(nodes, variables):
             nodes.pop(key)
             nodes[new_key] = value
 
-        if type(value) is dict:
+        if isinstance(value, dict):
             _process_node(value, variables)
         elif type(value) is str:
             nodes[key] = _substitute(value, variables)
@@ -144,7 +144,7 @@ def _substitute(text, variables):
             for token in tokens:
                 key = token[2:-1]
                 if key not in variables:
-                    ex = exception_helper.create_variable_exception('WLSDPLY-03122', key)
+                    ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
                     _logger.throwing(ex, class_name=_class_name, method_name=method_name)
                     raise ex
                 value = variables[key]

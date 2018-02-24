@@ -17,7 +17,7 @@ from wlsdeploy.tool.deploy.wldf_resources_deployer import WldfResourcesDeployer
 
 class ResourcesDeployer(Deployer):
     """
-    class docstring
+    Deploy relevant resources at the domain level using WLST.  Entry point, deploy()
     """
     _class_name = "ResourcesDeployer"
 
@@ -26,6 +26,10 @@ class ResourcesDeployer(Deployer):
         self._resources = self.model.get_model_resources()
 
     def deploy(self, location):
+        """
+        Deploy resource model elements at the domain level, including multi-tenant elements.
+        :param location: the location to deploy elements (includes basic tokens)
+        """
         domain_token = deployer_utils.get_domain_token(self.alias_helper)
         location.add_name_token(domain_token, self.model_context.get_domain_name())
 
@@ -33,9 +37,13 @@ class ResourcesDeployer(Deployer):
 
         multi_tenant_deployer = \
             MultiTenantResourcesDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
-        multi_tenant_deployer.add_multi_tenant_objects()
+        multi_tenant_deployer.add_multi_tenant_objects(location)
 
     def _add_resources(self, location):
+        """
+        Deploy resource model elements at the domain level, not including multi-tenant elements.
+        :param location: the location to deploy elements
+        """
         data_source_deployer = DatasourceDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
         data_source_deployer.add_data_sources(self._resources, location)
 
@@ -66,11 +74,19 @@ class ResourcesDeployer(Deployer):
         return
 
     def _add_startup_classes(self, location):
+        """
+        Add startup class elements at the specified location.
+        :param location: the location to deploy elements
+        """
         startup_nodes = dictionary_utils.get_dictionary_element(self._resources, STARTUP_CLASS)
         self._add_named_elements(STARTUP_CLASS, startup_nodes, location)
         return
 
     def _add_shutdown_classes(self, location):
+        """
+        Add shutdown class elements at the specified location.
+        :param location: the location to deploy elements
+        """
         shutdown_nodes = dictionary_utils.get_dictionary_element(self._resources, SHUTDOWN_CLASS)
         self._add_named_elements(SHUTDOWN_CLASS, shutdown_nodes, location)
         return

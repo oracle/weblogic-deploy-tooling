@@ -2,25 +2,24 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-
 from java.io import File
 from java.lang import IllegalArgumentException
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
-import oracle.weblogic.deploy.util.StringUtils as StringUtils
-import wlsdeploy.aliases.model_constants as model_constants
-import wlsdeploy.exception.exception_helper as exception_helper
-import wlsdeploy.logging.platform_logger as platform_logger
-import wlsdeploy.tool.discover.discoverer as discoverer
-import wlsdeploy.util.path_utils as path_utils
+from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.util import path_utils
 
 _class_name = 'DeploymentsDiscoverer'
-_logger = platform_logger.PlatformLogger(discoverer.get_discover_logger_name())
+_logger = PlatformLogger(discoverer.get_discover_logger_name())
 
 
 class DeploymentsDiscoverer(Discoverer):

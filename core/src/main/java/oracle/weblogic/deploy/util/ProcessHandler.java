@@ -149,7 +149,7 @@ public class ProcessHandler {
             process.exitValue();
             return false;
         } catch (IllegalThreadStateException ignore) {
-            LOGGER.finest("WLSDPLY-03170", ignore, this.toString(), ignore.getLocalizedMessage());
+            LOGGER.finest("WLSDPLY-01200", ignore, this.toString(), ignore.getLocalizedMessage());
             return true;
         }
     }
@@ -193,7 +193,7 @@ public class ProcessHandler {
 
         if (waitHandler == null) {
             ScriptRunnerException sre =
-                new ScriptRunnerException("WLSDPLY-03164", this.toString());
+                new ScriptRunnerException("WLSDPLY-01201", this.toString());
             LOGGER.throwing(CLASS, METHOD, sre);
             throw sre;
         }
@@ -201,12 +201,12 @@ public class ProcessHandler {
         Thread drainerThread = new Thread(new DrainerThread(procBuilder.command()));
         drainerThread.setDaemon(true);
         long beginTime = System.currentTimeMillis();
-        LOGGER.info("WLSDPLY-03165", this.toString());
+        LOGGER.info("WLSDPLY-01202", this.toString());
         try {
             process = procBuilder.start();
         } catch (IOException ioe) {
             ScriptRunnerException sre =
-                new ScriptRunnerException("WLSDPLY-03166", ioe, this.toString(), ioe.getLocalizedMessage());
+                new ScriptRunnerException("WLSDPLY-01203", ioe, this.toString(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, sre);
             throw sre;
         }
@@ -220,7 +220,7 @@ public class ProcessHandler {
                 }
             } catch (IOException ioe) {
                 ScriptRunnerException sre =
-                    new ScriptRunnerException("WLSDPLY-03167", ioe, this.toString(), ioe.getLocalizedMessage());
+                    new ScriptRunnerException("WLSDPLY-01204", ioe, this.toString(), ioe.getLocalizedMessage());
                 LOGGER.throwing(CLASS, METHOD, sre);
                 throw sre;
             }
@@ -243,13 +243,13 @@ public class ProcessHandler {
                         process.destroy();
                     }
                     ScriptRunnerException sre =
-                        new ScriptRunnerException("WLSDPLY-03168", this.toString(), elapsed, timeout);
+                        new ScriptRunnerException("WLSDPLY-01205", this.toString(), elapsed, timeout);
                     LOGGER.throwing(CLASS, METHOD, sre);
                     throw sre;
                 }
             }
         } catch (InterruptedException e) {
-            LOGGER.fine("WLSDPLY-03169", e, this.toString(), e.getLocalizedMessage());
+            LOGGER.fine("WLSDPLY-01206", e, this.toString(), e.getLocalizedMessage());
         }
     }
 
@@ -311,11 +311,11 @@ public class ProcessHandler {
                         stdoutBuffer.add(msg);
                     }
                     if (logToLog) {
-                        LOGGER.fine("WLSDPLY-03171", this.toString(), msg);
+                        LOGGER.fine("WLSDPLY-01207", this.toString(), msg);
                     }
                 }
             } catch (IOException ioe) {
-                LOGGER.severe("WLSDPLY-03172", ioe, this.toString(), ioe.getLocalizedMessage());
+                LOGGER.severe("WLSDPLY-01208", ioe, this.toString(), ioe.getLocalizedMessage());
             } finally {
                 if (logWriter != null) {
                     logWriter.close();

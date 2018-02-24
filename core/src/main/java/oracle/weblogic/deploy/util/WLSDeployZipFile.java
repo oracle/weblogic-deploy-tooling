@@ -68,7 +68,7 @@ public class WLSDeployZipFile {
 
         LOGGER.entering(CLASS, METHOD, file != null ? file.getAbsolutePath() : "null");
         if (file == null) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03005", METHOD, CLASS, "file");
+            String message = ExceptionHelper.getMessage("WLSDPLY-01104", METHOD, CLASS, "file");
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -108,17 +108,18 @@ public class WLSDeployZipFile {
         boolean leaveOpen = false;
         try {
             if (map.containsKey(key)) {
-                LOGGER.finer("WLSDPLY-03006", getFileName(), key);
+                LOGGER.finer("WLSDPLY-01500", getFileName(), key);
                 openZipFile = new ZipFile(getFile(), ZIP_FILE_OPEN_MODE);
-                ZipEntry ze = sanitizeZipEntry(new ZipEntry(key));
+                ZipEntry ze = new ZipEntry(key);
+                sanitizeZipEntry(ze);
                 stream = openZipFile.getInputStream(ze);
                 leaveOpen = true;
-                LOGGER.finer("WLSDPLY-03007", getFileName(), ze.getName(), stream.toString());
+                LOGGER.finer("WLSDPLY-01501", getFileName(), ze.getName(), stream.toString());
             } else {
-                LOGGER.finer("WLSDPLY-03008", getFileName(), key);
+                LOGGER.finer("WLSDPLY-01502", getFileName(), key);
             }
         } catch (IOException ioe) {
-            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-03009", ioe,
+            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01503", ioe,
                 getFileName(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, wdaioe);
             throw wdaioe;
@@ -129,6 +130,24 @@ public class WLSDeployZipFile {
         }
         LOGGER.exiting(CLASS, METHOD, stream);
         return stream;
+    }
+
+    /**
+     * Get the list of entries in the zip file.
+     *
+     * @return the list of zip file entries
+     * @throws WLSDeployArchiveIOException if an error occurs while reading the zip file
+     */
+    public List<String> listZipEntries() throws WLSDeployArchiveIOException {
+        final String METHOD = "listZipEntries";
+
+        LOGGER.entering(CLASS, METHOD);
+        closeOpenZipFile();
+
+        Map<String, ZipEntry> zipEntries = getZipFileEntries(file);
+        List<String> result = new ArrayList<>(zipEntries.keySet());
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     /**
@@ -173,7 +192,7 @@ public class WLSDeployZipFile {
         boolean leaveOpen = false;
         try {
             if (!map.isEmpty()) {
-                LOGGER.finer("WLSDPLY-03010", getFileName(), map.size());
+                LOGGER.finer("WLSDPLY-01504", getFileName(), map.size());
                 openZipFile = new ZipFile(getFile(), ZIP_FILE_OPEN_MODE);
                 for (String key : map.keySet()) {
                     addEntryToMap(map, zipEntries, key);
@@ -181,7 +200,7 @@ public class WLSDeployZipFile {
                 leaveOpen = true;
             }
         } catch (IOException ioe) {
-            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-03009", ioe,
+            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01503", ioe,
                 getFileName(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, wdaioe);
             throw wdaioe;
@@ -214,7 +233,7 @@ public class WLSDeployZipFile {
         boolean leaveOpen = false;
         try {
             if (!map.isEmpty()) {
-                LOGGER.finer("WLSDPLY-03010", getFileName(), map.size());
+                LOGGER.finer("WLSDPLY-01504", getFileName(), map.size());
                 openZipFile = new ZipFile(getFile(), ZIP_FILE_OPEN_MODE);
                 Iterator<String> savedKeys = map.keySet().iterator();
                 while (savedKeys.hasNext()) {
@@ -226,7 +245,7 @@ public class WLSDeployZipFile {
                 leaveOpen = true;
             }
         } catch (IOException ioe) {
-            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-03009", ioe,
+            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01503", ioe,
                 getFileName(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, wdaioe);
             throw wdaioe;
@@ -255,12 +274,12 @@ public class WLSDeployZipFile {
         boolean removedEntry = false;
         LinkedHashMap<String, ZipEntry> map = getZipFileEntries(getFile());
         if (map.containsKey(key)) {
-            LOGGER.finer("WLSDPLY-03006", getFileName(), key);
+            LOGGER.finer("WLSDPLY-01500", getFileName(), key);
             map.remove(key);
             saveChangesToZip(map, null);
             removedEntry = true;
         } else {
-            LOGGER.finer("WLSDPLY-03008", getFileName(), key);
+            LOGGER.finer("WLSDPLY-01502", getFileName(), key);
         }
 
         LOGGER.exiting(CLASS, METHOD, removedEntry);
@@ -286,7 +305,7 @@ public class WLSDeployZipFile {
         if (!entriesMap.isEmpty()) {
             ArrayList<String> matchingKeys = getMatchingKeysFromMap(entriesMap, key);
             if (!matchingKeys.isEmpty()) {
-                LOGGER.finer("WLSDPLY-03011", getFileName(), key, matchingKeys.size());
+                LOGGER.finer("WLSDPLY-01505", getFileName(), key, matchingKeys.size());
 
                 for (String matchingKey : matchingKeys) {
                     entriesMap.remove(matchingKey);
@@ -294,7 +313,7 @@ public class WLSDeployZipFile {
                 saveChangesToZip(entriesMap, null);
                 removedEntry = true;
             } else {
-                LOGGER.finer("WLSDPLY-03012", getFileName(), key);
+                LOGGER.finer("WLSDPLY-01506", getFileName(), key);
             }
         }
         LOGGER.exiting(CLASS, METHOD, removedEntry);
@@ -319,9 +338,9 @@ public class WLSDeployZipFile {
 
         String newEntryName = entryName;
         if (rename && isRenameNecessary(newEntryName)) {
-            LOGGER.finer("WLSDPLY-03013", entryName);
+            LOGGER.finer("WLSDPLY-01507", entryName);
             newEntryName = getNextUniqueEntryName(entryName);
-            LOGGER.finer("WLSDPLY-03014", entryName, newEntryName);
+            LOGGER.finer("WLSDPLY-01508", entryName, newEntryName);
         }
 
         boolean success = addZipEntry(newEntryName, inputStream);
@@ -349,16 +368,16 @@ public class WLSDeployZipFile {
         boolean addedEntry = true;
         LinkedHashMap<String, ZipEntry> zipEntriesMap = getZipFileEntries(getFile());
         if (zipEntriesMap.containsKey(key)) {
-            LOGGER.finer("WLSDPLY-03015", getFileName(), key);
+            LOGGER.finer("WLSDPLY-01509", getFileName(), key);
             addedEntry = false;
         }
         // still true so ok to proceed
         if (addedEntry) {
-            LOGGER.finer("WLSDPLY-03016", getFileName(), key);
+            LOGGER.finer("WLSDPLY-01510", getFileName(), key);
             LinkedHashMap<String, InputStream> newEntries = new LinkedHashMap<>();
             newEntries.put(key, inputStream);
             saveChangesToZip(zipEntriesMap, newEntries);
-            LOGGER.finer("WLSDPLY-03019", getFileName(), key);
+            LOGGER.finer("WLSDPLY-01511", getFileName(), key);
         }
         LOGGER.exiting(CLASS, METHOD, addedEntry);
         return addedEntry;
@@ -384,9 +403,9 @@ public class WLSDeployZipFile {
         }
 
         if (rename && isRenameNecessary(newEntryName)) {
-            LOGGER.finer("WLSDPLY-03013", entryName);
+            LOGGER.finer("WLSDPLY-01507", entryName);
             newEntryName = getNextUniqueEntryName(entryName);
-            LOGGER.finer("WLSDPLY-03014", entryName, newEntryName);
+            LOGGER.finer("WLSDPLY-01508", entryName, newEntryName);
         }
 
         boolean success = addZipDirectoryEntry(newEntryName);
@@ -413,16 +432,16 @@ public class WLSDeployZipFile {
         boolean addedEntry = true;
         LinkedHashMap<String, ZipEntry> zipEntriesMap = getZipFileEntries(getFile());
         if (zipEntriesMap.containsKey(key)) {
-            LOGGER.finer("WLSDPLY-03015", getFileName(), key);
+            LOGGER.finer("WLSDPLY-01509", getFileName(), key);
             addedEntry = false;
         }
         // still true so ok to proceed
         if (addedEntry) {
-            LOGGER.finer("WLSDPLY-03016", getFileName(), key);
+            LOGGER.finer("WLSDPLY-01510", getFileName(), key);
             LinkedHashMap<String, InputStream> newEntries = new LinkedHashMap<>();
             newEntries.put(key, null);
             saveChangesToZip(zipEntriesMap, newEntries);
-            LOGGER.finer("WLSDPLY-03019", getFileName(), key);
+            LOGGER.finer("WLSDPLY-01511", getFileName(), key);
         }
         LOGGER.exiting(CLASS, METHOD, addedEntry);
         return addedEntry;
@@ -445,12 +464,12 @@ public class WLSDeployZipFile {
         closeOpenZipFile();
 
         if (!directory.exists()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03017", directory.getAbsolutePath());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01423", directory.getAbsolutePath());
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
         } else if (!directory.isDirectory()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03018", directory.getAbsolutePath());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01424", directory.getAbsolutePath());
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
@@ -461,9 +480,9 @@ public class WLSDeployZipFile {
             newEntryName += ZIP_SEP;
         }
         if (isRenameNecessary(newEntryName)) {
-            LOGGER.finer("WLSDPLY-03013", entryName);
+            LOGGER.finer("WLSDPLY-01507", entryName);
             newEntryName = getNextUniqueEntryName(newEntryName);
-            LOGGER.finer("WLSDPLY-03014", entryName, newEntryName);
+            LOGGER.finer("WLSDPLY-01508", entryName, newEntryName);
         }
 
         // Now, we need to add the top-level entry and recurse to add entries.  Don't need to worry about renaming
@@ -506,9 +525,9 @@ public class WLSDeployZipFile {
         LinkedHashMap<String, InputStream> entryToPut = new LinkedHashMap<>();
         entryToPut.put(key, inputStream);
         try {
-            LOGGER.finer("WLSDPLY-03016", getFileName(), key);
+            LOGGER.finer("WLSDPLY-01510", getFileName(), key);
             saveChangesToZip(zipEntriesMap, entryToPut);
-            LOGGER.finer("WLSDPLY-03019", getFileName(), key);
+            LOGGER.finer("WLSDPLY-01511", getFileName(), key);
         } finally {
             cleanupUnsavedEntries(entryToPut);
         }
@@ -558,9 +577,8 @@ public class WLSDeployZipFile {
     // Private Helper Methods                                                //
     ///////////////////////////////////////////////////////////////////////////
 
-    private static ZipEntry sanitizeZipEntry(ZipEntry ze) {
+    private static void sanitizeZipEntry(ZipEntry ze) {
         ze.setCompressedSize(-1);
-        return ze;
     }
 
     private void logZipEntries(Map<String, ?> entries, String sizeKey) {
@@ -568,7 +586,7 @@ public class WLSDeployZipFile {
             LOGGER.finer(sizeKey, getFileName(), entries.size());
             if (LOGGER.isFinestEnabled()) {
                 for (String key : entries.keySet()) {
-                    LOGGER.finest("WLSDPLY-03020", getFileName(), key);
+                    LOGGER.finest("WLSDPLY-01512", getFileName(), key);
                 }
             }
         }
@@ -579,12 +597,12 @@ public class WLSDeployZipFile {
 
         LOGGER.entering(CLASS, METHOD);
         if (getOpenZipFile() != null) {
-            LOGGER.finer("WLSDPLY-03021", getFileName());
+            LOGGER.finer("WLSDPLY-01513", getFileName());
             ZipFile zf = getOpenZipFile();
             try {
                 zf.close();
             } catch (IOException ioe) {
-                LOGGER.warning("WLSDPLY-03022", ioe, getFileName(), ioe.getLocalizedMessage());
+                LOGGER.warning("WLSDPLY-01514", ioe, getFileName(), ioe.getLocalizedMessage());
                 // continue since this is best effort only
             } finally {
                 setOpenZipFile(null);
@@ -600,7 +618,7 @@ public class WLSDeployZipFile {
         boolean value = false;
 
         if (!isNewFile()) {
-            LOGGER.finer("WLSDPLY-03023", getFileName());
+            LOGGER.finer("WLSDPLY-01515", getFileName());
             long len = getFile().length();
             if (len > 0) {
                 value = true;
@@ -624,7 +642,7 @@ public class WLSDeployZipFile {
                     savedZipEntries.put(key, entry);
                 }
             } catch (IOException ioe) {
-                WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-03009",
+                WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01503",
                     ioe, getFileName(), ioe.getLocalizedMessage());
                 LOGGER.throwing(CLASS, METHOD, wdaioe);
                 throw wdaioe;
@@ -643,8 +661,8 @@ public class WLSDeployZipFile {
         if ((updatedZipEntries != null && !updatedZipEntries.isEmpty()) ||
             (newEntries != null && !newEntries.isEmpty())) {
 
-            logZipEntries(updatedZipEntries, "WLSDPLY-03010");
-            logZipEntries(newEntries, "WLSDPLY-03024");
+            logZipEntries(updatedZipEntries, "WLSDPLY-01504");
+            logZipEntries(newEntries, "WLSDPLY-01516");
 
             // If both saved and unsaved changes exist, remove the keys in unsaved changes
             // from the saved changes list so that the updated value is written below.
@@ -659,9 +677,9 @@ public class WLSDeployZipFile {
                     //
                     ZipEntry removedSavedEntry = updatedZipEntries.remove(unsavedKey);
                     if (removedSavedEntry != null) {
-                        LOGGER.finest("WLSDPLY-03025", getFileName(), removedSavedEntry.getName());
+                        LOGGER.finest("WLSDPLY-01517", getFileName(), removedSavedEntry.getName());
                     } else {
-                        LOGGER.finest("WLSDPLY-03026", getFileName(), unsavedKey);
+                        LOGGER.finest("WLSDPLY-01518", getFileName(), unsavedKey);
                     }
                 }
             }
@@ -673,7 +691,8 @@ public class WLSDeployZipFile {
 
                     ZipEntry ze;
                     for (Map.Entry<String, ZipEntry> updatedEntry : updatedZipEntries.entrySet()) {
-                        ze = sanitizeZipEntry(updatedEntry.getValue());
+                        ze = updatedEntry.getValue();
+                        sanitizeZipEntry(ze);
                         String updatedKey = updatedEntry.getKey();
                         if (updatedKey.endsWith("/")) {
                             zos.putNextEntry(ze);
@@ -686,7 +705,7 @@ public class WLSDeployZipFile {
                             zos.closeEntry();
                             inputStream = closeZipInputStream(inputStream, getFileName(), ze);
                         }
-                        LOGGER.finer("WLSDPLY-03027", updatedKey, getFileName(), newOutputFile.getAbsolutePath());
+                        LOGGER.finer("WLSDPLY-01519", updatedKey, getFileName(), newOutputFile.getAbsolutePath());
                     }
                     closeOpenZipFile();
                 }
@@ -695,7 +714,8 @@ public class WLSDeployZipFile {
                     for (Map.Entry<String, InputStream> entry : newEntries.entrySet()) {
                         String newKey = entry.getKey();
                         inputStream = entry.getValue();
-                        ZipEntry ze = sanitizeZipEntry(new ZipEntry(newKey));
+                        ZipEntry ze = new ZipEntry(newKey);
+                        sanitizeZipEntry(ze);
 
                         if (newKey.endsWith("/")) {
                             zos.putNextEntry(ze);
@@ -706,13 +726,13 @@ public class WLSDeployZipFile {
                             zos.closeEntry();
                             inputStream = closeFileInputStream(inputStream, newKey);
                         }
-                        LOGGER.finer("WLSDPLY-03028", newKey, getFileName(), newOutputFile.getAbsolutePath());
+                        LOGGER.finer("WLSDPLY-01520", newKey, getFileName(), newOutputFile.getAbsolutePath());
                     }
-                    LOGGER.fine("WLSDPLY-03029", newOutputFile.getAbsolutePath(), getFileName());
+                    LOGGER.fine("WLSDPLY-01521", newOutputFile.getAbsolutePath(), getFileName());
                 }
                 zos.finish();
             } catch (IOException ioe) {
-                WLSDeployArchiveIOException wdaioee = new WLSDeployArchiveIOException("WLSDPLY-03030",
+                WLSDeployArchiveIOException wdaioee = new WLSDeployArchiveIOException("WLSDPLY-01522",
                     ioe, getFileName(), ioe.getLocalizedMessage());
                 LOGGER.throwing(CLASS, METHOD, wdaioee);
                 throw wdaioee;
@@ -731,7 +751,7 @@ public class WLSDeployZipFile {
                 zos.finish();
             } catch (IOException ioe) {
                 WLSDeployArchiveIOException wdaioee =
-                    new WLSDeployArchiveIOException("WLSDPLY-03030", ioe, getFileName(), ioe.getLocalizedMessage());
+                    new WLSDeployArchiveIOException("WLSDPLY-01522", ioe, getFileName(), ioe.getLocalizedMessage());
                 LOGGER.throwing(CLASS, METHOD, wdaioee);
                 throw wdaioee;
             } finally {
@@ -759,14 +779,14 @@ public class WLSDeployZipFile {
         try {
             if (isNewFile()) {
                 newOutputFile = getFile();
-                LOGGER.finest("WLSDPLY-03032", newOutputFile.getAbsolutePath());
+                LOGGER.finest("WLSDPLY-01523", newOutputFile.getAbsolutePath());
             } else {
                 newOutputFile = File.createTempFile(nameComponents[0], DOT + nameComponents[1], directory);
-                LOGGER.finest("WLSDPLY-03033", newOutputFile.getAbsolutePath());
+                LOGGER.finest("WLSDPLY-01524", newOutputFile.getAbsolutePath());
             }
-            LOGGER.finer("WLSDPLY-03034", getFileName(), newOutputFile.getAbsolutePath());
+            LOGGER.finer("WLSDPLY-01525", getFileName(), newOutputFile.getAbsolutePath());
         } catch (IOException ioe) {
-            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-03035", ioe,
+            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01526", ioe,
                 getFileName(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, wdaioe);
             throw wdaioe;
@@ -791,7 +811,7 @@ public class WLSDeployZipFile {
                 }
             } catch (IOException ioe) {
                 WLSDeployArchiveIOException wdaioe =  new WLSDeployArchiveIOException(
-                    "WLSDPLY-03036", ioe, inputKeyName, ioe.getLocalizedMessage());
+                    "WLSDPLY-01527", ioe, inputKeyName, ioe.getLocalizedMessage());
                 LOGGER.throwing(wdaioe);
                 throw wdaioe;
             }
@@ -811,11 +831,11 @@ public class WLSDeployZipFile {
 
         try {
             Files.deleteIfExists(originalPath);
-            LOGGER.finer("WLSDPLY-03037", newFileName, originalFileName);
+            LOGGER.finer("WLSDPLY-01528", newFileName, originalFileName);
             Files.move(newPath, originalPath);
-            LOGGER.finer("WLSDPLY-03038", newFileName, originalFileName);
+            LOGGER.finer("WLSDPLY-01529", newFileName, originalFileName);
         } catch (IOException ioe) {
-            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-03039", ioe,
+            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01530", ioe,
                 newFileName, originalFileName, ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, wdaioe);
             throw wdaioe;
@@ -831,12 +851,12 @@ public class WLSDeployZipFile {
         Iterator<String> keys = map.keySet().iterator();
         while (keys.hasNext()) {
             String key = keys.next();
-            LOGGER.finest("WLSDPLY-03040", key);
+            LOGGER.finest("WLSDPLY-01531", key);
             if (key.startsWith(keyToMatch)) {
-                LOGGER.finest("WLSDPLY-03041", key, keyToMatch);
+                LOGGER.finest("WLSDPLY-01532", key, keyToMatch);
                 matchingKeys.add(key);
             } else {
-                LOGGER.finest("WLSDPLY-03042", key, keyToMatch);
+                LOGGER.finest("WLSDPLY-01533", key, keyToMatch);
             }
         }
         return matchingKeys;
@@ -848,7 +868,7 @@ public class WLSDeployZipFile {
         boolean renameNeeded = false;
         Map<String, ZipEntry> zipEntryMap = getZipFileEntries(getFile());
         if (zipEntryMap.containsKey(entryName)) {
-            LOGGER.finest("WLSDPLY-03043", entryName);
+            LOGGER.finest("WLSDPLY-01534", entryName);
             renameNeeded = true;
         }
         LOGGER.exiting(renameNeeded);
@@ -871,14 +891,14 @@ public class WLSDeployZipFile {
             entryNameBase = entryNameExtension;
             entryNameExtension = null;
         }
-        LOGGER.finer("WLSDPLY-03053", entryName, entryNameBase, entryNameExtension);
+        LOGGER.finer("WLSDPLY-01535", entryName, entryNameBase, entryNameExtension);
         ArrayList<String> matchingSavedEntries = new ArrayList<>();
         Map<String, ZipEntry> zipEntriesMap = getZipFileEntries(getFile());
 
         for (String zipEntryKey : zipEntriesMap.keySet()) {
             if (zipEntryKey.startsWith(entryNameBase) && entryReallyMatches(zipEntryKey, entryNameBase,
                 entryNameExtension)) {
-                LOGGER.finer("WLSDPLY-03044", entryName, zipEntryKey);
+                LOGGER.finer("WLSDPLY-01536", entryName, zipEntryKey);
                 matchingSavedEntries.add(zipEntryKey);
             }
         }
@@ -936,10 +956,10 @@ public class WLSDeployZipFile {
 
         for (String entry : matchingSavedEntries) {
             String strippedEntry = stripPath(entry, true);
-            LOGGER.finest("WLSDPLY-03045", entry, strippedEntry);
+            LOGGER.finest("WLSDPLY-01537", entry, strippedEntry);
             if (ARCHIVE_RENAME_PATTERN.matcher(strippedEntry).matches()) {
                 int key = getKey(strippedEntry);
-                LOGGER.finest("WLSDPLY-03046", strippedEntry, key);
+                LOGGER.finest("WLSDPLY-01538", strippedEntry, key);
                 if (key > newKey) {
                     newKey = key;
                 }
@@ -1004,7 +1024,7 @@ public class WLSDeployZipFile {
                         inputStream = new FileInputStream(dirEntry);
                     } catch (IOException ioe) {
                         WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException(
-                            "WLSDPLY-03047", ioe, getFileName(), dirEntry.getAbsolutePath(), newEntryName,
+                            "WLSDPLY-01425", ioe, getFileName(), dirEntry.getAbsolutePath(), newEntryName,
                             ioe.getLocalizedMessage());
                         LOGGER.throwing(CLASS, METHOD, wdaioe);
                         throw wdaioe;
@@ -1026,7 +1046,7 @@ public class WLSDeployZipFile {
                     try {
                         is.close();
                     } catch (IOException ignore) {
-                        LOGGER.finest("WLSDPLY-03048", ignore, entry.getKey(), ignore.getLocalizedMessage());
+                        LOGGER.finest("WLSDPLY-01539", ignore, entry.getKey(), ignore.getLocalizedMessage());
                     }
                 }
             }
@@ -1036,10 +1056,11 @@ public class WLSDeployZipFile {
     private void addEntryToMap(LinkedHashMap<String, ZipEntry> zipMap, LinkedHashMap<String, InputStream> map,
         String key) throws IOException {
 
-        LOGGER.finer("WLSDPLY-03006", getFileName(), key);
-        ZipEntry entry = sanitizeZipEntry(zipMap.get(key));
+        LOGGER.finer("WLSDPLY-01500", getFileName(), key);
+        ZipEntry entry = zipMap.get(key);
+        sanitizeZipEntry(entry);
         InputStream stream = openZipFile.getInputStream(entry);
-        LOGGER.finer("WLSDPLY-03007", getFileName(), key, stream);
+        LOGGER.finer("WLSDPLY-01501", getFileName(), key, stream);
         map.put(key, stream);
     }
 
@@ -1047,7 +1068,7 @@ public class WLSDeployZipFile {
         try {
             inputStream.close();
         } catch (IOException ioe) {
-            LOGGER.warning("WLSDPLY-03051", ioe, fileName, ze.getName(), ioe.getLocalizedMessage());
+            LOGGER.warning("WLSDPLY-01540", ioe, fileName, ze.getName(), ioe.getLocalizedMessage());
             // continue, best effort only...
         }
         return null;
@@ -1057,7 +1078,7 @@ public class WLSDeployZipFile {
         try {
             inputStream.close();
         } catch (IOException ioe) {
-            LOGGER.warning("WLSDPLY-03052", ioe, fileName, ioe.getLocalizedMessage());
+            LOGGER.warning("WLSDPLY-01541", ioe, fileName, ioe.getLocalizedMessage());
             // continue...best effort only
         }
         return null;

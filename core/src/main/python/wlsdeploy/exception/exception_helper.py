@@ -25,7 +25,7 @@ import oracle.weblogic.deploy.util.PyWLSTException as PyWLSTException
 import oracle.weblogic.deploy.util.TranslateException as JTranslateException
 import oracle.weblogic.deploy.util.VariableException as JVariableException
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException as JWLSDeployArchiveIOException
-import oracle.weblogic.deploy.validation.ValidateException as ValidateException
+import oracle.weblogic.deploy.validate.ValidateException as ValidateException
 import oracle.weblogic.deploy.yaml.YamlException as JYamlException
 
 from wlsdeploy.exception.expection_types import ExceptionType

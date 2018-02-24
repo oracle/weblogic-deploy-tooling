@@ -122,9 +122,135 @@ Users can create further directory structures underneath the above locations to 
 
 One final note is that the framework is written in such a way to allow the model to be extended for use by other tools.  Adding other top-level sections to the model is supported and the existing tooling and framework will simply ignore them, if present.  For example, it would be possible to add a `soaComposites` section to the model where SOA composite applications are described and a location within the archive file where those binaries can be stored so that a tool that understands SOA composites and how to deploy them could be run against the same model and archive files.
 
-## The Validate Model Tool
+### Model Semantics
 
-**NOTE: Work on the Validate Model tool to bring it in line with the text below is still in progress.**
+When modeling configuration attributes that can have multiple values, the WebLogic Deploy Tooling tries to make this as painless as possible.  For example, the `Target` attribute on resources can have zero or more clusters and/or servers specified.  When specifying the value of such list attributes, the user has freedom to specify them as a list or as a comma-delimited string (comma is the only recognized delimiter for lists).  For attributes where the values can legally contain commas, the items must be specified as a list.  Examples of each are shown below.
+
+```$yaml
+resources:
+    JDBCSystemResource:
+        MyStringDataSource:
+            Target: 'AdminServer,mycluster'
+            JdbcResource:        
+                JDBCDataSourceParams:
+                    JNDIName: 'jdbc/generic1, jdbc/special1'
+                ...
+        MyListDataSource:
+            Target: [ AdminServer, mycluster ]
+            JdbcResource:        
+                JDBCDataSourceParams:
+                    JNDIName: [ jdbc/generic2, jdbc/special2 ]
+                ...
+    WLDFSystemResource:
+        MyWldfModule:
+            Target: mycluster
+            WLDFResource:
+                Harvester:
+                    HarvestedType:
+                        weblogic.management.runtime.ServerRuntimeMBean:
+                            Enabled: true
+                            HarvestedInstance: [
+                                'com.bea:Name=AdminServer,Type=ServerRuntime',
+                                'com.bea:Name=m1,Type=ServerRuntime'
+                            ]
+                ...
+```
+
+In the example above, the `Target` attribute is specified 3 different ways, as a comma-separated string, as a list, and as a single string in the case of whether there is only a single target.  The `JNDIName` attribute is specified as a comma-separated string and as a list (and the single string also works). On the other hand, the `HarvestedInstances` attribute had to be specified as a list since each element contains commas.
+
+One of the primary goals of the WebLogic Deploy Tooling is to support a sparse model where the user can specify just the configuration needed for a particular situation.  What this implies varies somewhat between the tools but in general, this implies that the tools are using an additive model.  That is, the tools add to what is already there in the existing domain or domain templates (when creating a new domain) rather than making the domain conform exactly to the specified model.  Where it makes sense, a similar, additive approach is taken when setting the value of multi-valued attributes.  For example, if the model specified the cluster `mycluster` as the target for an artifact, the tooling will add `mycluster` to any existing list of targets for the artifact.  While the development team has tried to mark attributes that do not make sense to merge accordingly in our knowledge base, this behavior can be disabled on an attribute-by-attribute basis by adding an additional annotation in the knowledge base data files.  The development team is already thinking about how to handle situations that require a non-additive, converge-to-the-model approach and how that might be supported but this still remains a wish list item.  Users with these requirements should raise an issue for this support.
+
+One place where the semantics are different is for WebLogic security providers.  Because provider ordering is important and to make sure the ordering is correctly set in the newly created domain, the Create Domain tool will look for security providers of each base type (e.g., Authentication Providers, Credential Mappers, etc.) to see if any are included in the model.  If so, the tool will make sure that only the providers listed for a type are present in the resulting domain so that the providers are created in the necessary order.  For example, if the model specified an `LDAPAuthenticator` and an `LDAPX509IdentityAsserter` similar to what is shown below, the `DefaultAuthenticator` and `DefaultIdentityAsserters` will be deleted.  If no providers for a base type are listened in the model, then the default provider(s) will be left untouched.
+
+```$yaml
+topology:
+    SecurityConfiguration:
+        Realm:
+            myrealm:
+                AuthenticationProvider:
+                    My LDAP authenticator:
+                        LDAPAuthenticator:
+                            ControlFlag: SUFFICIENT
+                            PropagateCauseForLoginException: true
+                            EnableGroupMembershipLookupHierarchyCaching: true
+                            Host: myldap.example.com
+                            Port: 389
+                            UserObjectClass: person
+                            GroupHierarchyCacheTTL: 600
+                            SSLEnabled: true
+                            UserNameAttribute: cn
+                            Principal: 'cn=foo,ou=users,dc=example,dc=com'
+                            UserBaseDn: 'OU=Users,DC=example,DC=com'
+                            UserSearchScope: subtree
+                            UserFromNameFilter: '(&(cn=%u)(objectclass=person))'
+                            AllUsersFilter: '(memberOf=CN=foo,OU=mygroups,DC=example,DC=com)'
+                            GroupBaseDN: 'OU=mygroups,DC=example,DC=com'
+                            AllGroupsFilter: '(&(foo)(objectclass=group))'
+                            StaticGroupObjectClass: group
+                            StaticMemberDNAttribute: cn
+                            StaticGroupDNsfromMemberDNFilter: '(&(member=%M)(objectclass=group))'
+                            DynamicGroupObjectClass: group
+                            DynamicGroupNameAttribute: cn
+                            UseRetrievedUserNameAsPrincipal: true
+                            KeepAliveEnabled: true
+                            GuidAttribute: uuid
+                    My LDAP IdentityAsserter:
+                        LDAPX509IdentityAsserter:
+                            ActiveType: AuthenticatedUser
+                            Host: myldap.example.com
+                            Port: 389
+                            SSLEnabled: true
+```    
+
+To keep the `DefaultAuthenticator` and `DefaultIdentityAsserter`, simply add the default name and types in the correct position in the model's `AuthenticationProvider` list.  Settings on the default providers can be changed, if desired, as shown below.
+
+```$yaml
+topology:
+    SecurityConfiguration:
+        Realm:
+            myrealm:
+                AuthenticationProvider:
+                    My LDAP authenticator:
+                        LDAPAuthenticator:
+                            ControlFlag: SUFFICIENT
+                            PropagateCauseForLoginException: true
+                            EnableGroupMembershipLookupHierarchyCaching: true
+                            Host: myldap.example.com
+                            Port: 389
+                            UserObjectClass: person
+                            GroupHierarchyCacheTTL: 600
+                            SSLEnabled: true
+                            UserNameAttribute: cn
+                            Principal: 'cn=foo,ou=users,dc=example,dc=com'
+                            UserBaseDn: 'OU=Users,DC=example,DC=com'
+                            UserSearchScope: subtree
+                            UserFromNameFilter: '(&(cn=%u)(objectclass=person))'
+                            AllUsersFilter: '(memberOf=CN=foo,OU=mygroups,DC=example,DC=com)'
+                            GroupBaseDN: 'OU=mygroups,DC=example,DC=com'
+                            AllGroupsFilter: '(&(foo)(objectclass=group))'
+                            StaticGroupObjectClass: group
+                            StaticMemberDNAttribute: cn
+                            StaticGroupDNsfromMemberDNFilter: '(&(member=%M)(objectclass=group))'
+                            DynamicGroupObjectClass: group
+                            DynamicGroupNameAttribute: cn
+                            UseRetrievedUserNameAsPrincipal: true
+                            KeepAliveEnabled: true
+                            GuidAttribute: uuid
+                    My LDAP IdentityAsserter:
+                        LDAPX509IdentityAsserter:
+                            ActiveType: AuthenticatedUser
+                            Host: myldap.example.com
+                            Port: 389
+                            SSLEnabled: true
+                    DefaultAuthenticator:
+                        DefaultAuthenticator:
+                            ControlFlag: SUFFICIENT
+                    DefaultIdentityAsserter:
+                        DefaultIdentityAsserter:
+
+```
+
+## The Validate Model Tool
 
 When working with a metadata model that drives tooling, it is critical to make it easy both to validate that the model and its related artifacts are well-formed and to provide help on the valid attributes and subfolders for a particular model location.  The validate model tool provides both validation and help for model authors as a standalone tool.  In addition, the tool is integrated with the `createDomain` and `deployApps` tools to catch validation errors early before any actions are performed on the domain.
 
@@ -349,7 +475,7 @@ topology:
     Security:
         Group:
             FriscoGroup:
-                Description: The WLS Deploy development group
+                Description: The WebLogic Deploy development group
         User:
             Robert:
                 Password: '{AES}VFIzVmdwcWNLeHBPaWhyRy82VER6WFV6aHRPbGcwMjQ6bS90OGVSTnJxWTIvZjkrRjpjSzBQUHlOWWpWTT0='
@@ -586,3 +712,7 @@ When creating the archive, the tool will try to gather all binaries, scripts, an
 
 1. Any binaries referenced from the ORACLE_HOME will not be gathered, as they are assumed to exist in any target domain to which model-driven operations will be applied.  Doing this is key to allowing the model to be WebLogic Server version independent.
 2. In its current form, the Discover Domain Tool will only gather binaries and scripts that are accessible from the local machine.  Warnings will be generated for any binaries or scripts that cannot be found but the configuration for those binaries will still be collected, where possible.  It is the user's responsibility to add those missing files to the archive in the appropriate locations and edit the the model, as needed, to point to those files inside the archive using the relative path inside the archive (e.g., wlsdeploy/applications/myapp.ear).
+
+## Downloading and Installing the Software
+
+The Oracle WebLogic Server Deploy Tooling project repository is located at [https://github.com/oracle/weblogic-deploy-tooling](https://github.com/oracle/weblogic-deploy-tooling).  Binary distributions of the `weblogic-deploy.zip` installer can be downloaded from the [GitHub Releases page](https://github.com/oracle/weblogic-deploy-tooling/releases).  To install the software, simply unzip the `weblogic-deploy.zip` installer on a machine that has the desired version(s) of WebLogic Server installed.  Once unzipped, the software is ready to use, just set the `JAVA_HOME` environment variable to point to a Java 7 or higher JDK  and the shell scripts are ready to run.

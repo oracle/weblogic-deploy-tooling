@@ -171,8 +171,8 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         if (PyDictionary.class.isAssignableFrom(memo.getClass())) {
             memoDict = PyDictionary.class.cast(memo);
         } else {
-            String message = ExceptionHelper.getMessage("WLSDPLY-03232", memo.getClass().getName(),
-                                                        PyDictionary.class.getName());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01250", memo.getClass().getName(),
+                    PyDictionary.class.getName());
             throw Py.TypeError(message);
         }
         PyOrderedDict newPyOrderedDict = new PyOrderedDict();
@@ -438,8 +438,8 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      */
     @Override
     public void update(PyObject od) {
-        if (od instanceof PyOrderedDict) {
-            doUpdate((PyOrderedDict)od);
+        if (od instanceof PyDictionary) {
+            doUpdate((PyDictionary)od);
         } else {
             doUpdate(od, od.invoke("keys"));
         }
@@ -470,12 +470,12 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         return d;
     }
 
-    private void doUpdate(PyOrderedDict od) {
+    private void doUpdate(PyDictionary od) {
         PyList pylist = od.items();
 
         for (int i = 0; i < pylist.size(); i++) {
-            PyTuple tuple = (PyTuple)pylist.get(i);
-            this.linkedHashMap.put(Py.java2py(tuple.get(0)), Py.java2py(tuple.get(1)));
+            PyTuple tuple = (PyTuple) pylist.get(i);
+            this.__setitem__(Py.java2py(tuple.get(0)), Py.java2py(tuple.get(1)));
         }
     }
 
@@ -514,7 +514,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
                 break;
 
             default:
-                LOGGER.severe("WLSDPLY-03231", typeName);
+                LOGGER.severe("WLSDPLY-01251", typeName);
                 result = orig;
         }
         return Py.java2py(result);

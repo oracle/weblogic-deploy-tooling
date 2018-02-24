@@ -45,6 +45,10 @@ public class FileUtilsTest {
     private static final String FILE8_EXPECTED_NAME = "somefile";
     private static final String FILE8_EXPECTED_EXT = "";
 
+    private static final String ARCHIVE_FILE_NAME = "src/test/resources/DemoDomain.zip";
+    private static final String APP_PATH = "wlsdeploy/applications/simpleear.ear";
+    private static final String APP_FILE_NAME = "src/test/resources/simpleear.ear";
+
     @Test
     public void testNormalFile_parseFileName() throws Exception {
         File f = new File(FILE1);
@@ -87,6 +91,19 @@ public class FileUtilsTest {
         assertMatch("filename", nameComponents[0], FILE8_EXPECTED_NAME);
         assertMatch("file extension", nameComponents[1], FILE8_EXPECTED_EXT);
     }
+
+    @Test
+    public void testHashing() throws Exception {
+        File archiveFile = FileUtils.getCanonicalFile(new File(ARCHIVE_FILE_NAME));
+        WLSDeployArchive archive = new WLSDeployArchive(archiveFile.getAbsolutePath());
+        String archiveHash = archive.getFileHash(APP_PATH);
+
+        File appFile = FileUtils.getCanonicalFile(new File(APP_FILE_NAME));
+        String appHash = FileUtils.computeHash(appFile.getAbsolutePath());
+
+        Assert.assertEquals(appHash, archiveHash);
+    }
+
 
     private void assertMatch(String name, String got, String expected) {
         Assert.assertTrue(MessageFormat.format(FILE_ERR_FORMAT, name, got, expected),

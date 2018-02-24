@@ -91,6 +91,19 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.0.2</version>
+                    <configuration>
+                        <archive>
+                            <manifestEntries>
+                                <Implementation-Title>${project.groupId}:${project.artifactId}</Implementation-Title>
+                                <Implementation-Version>${project.version}</Implementation-Version>
+                                <Implementation-Build>${git.branch}.${git.shortRevision}</Implementation-Build>
+                                <Implementation-Build-Date>${maven.build.timestamp}</Implementation-Build-Date>
+                                <Implementation-Vendor-Id>Oracle</Implementation-Vendor-Id>
+                                <Specification-Title>${project.artifactId}.${project.packaging}</Specification-Title>
+                                <Built-By>Oracle</Built-By>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -110,6 +123,11 @@
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${antlr.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -153,6 +171,18 @@
                     <groupId>ru.concerteza.buildnumber</groupId>
                     <artifactId>maven-jgit-buildnumber-plugin</artifactId>
                     <version>1.2.10</version>
+                    <configuration>
+                        <runOnlyAtExecutionRoot>false</runOnlyAtExecutionRoot>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>git-buildnumber</id>
+                            <phase>initialize</phase>
+                            <goals>
+                                <goal>extract-buildnumber</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>

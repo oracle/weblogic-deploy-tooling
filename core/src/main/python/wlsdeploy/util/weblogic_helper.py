@@ -2,7 +2,6 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-
 import java.lang.Exception as JException
 import java.lang.String as JString
 
@@ -11,7 +10,7 @@ import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrE
 import weblogic.version as version_helper
 
 from wlsdeploy.exception import exception_helper
-import wlsdeploy.util.string_utils as string_utils
+from wlsdeploy.util import string_utils
 
 class WebLogicHelper(object):
     """
@@ -284,13 +283,13 @@ class WebLogicHelper(object):
 
         system_ini = SerializedSystemIni.getEncryptionService(domain_home)
         if system_ini is None:
-            ex = exception_helper.create_encryption_exception('WLSDPLY-03202')
+            ex = exception_helper.create_encryption_exception('WLSDPLY-01740')
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
         encryption_service = ClearOrEncryptedService(system_ini)
         if encryption_service is None:
-            ex = exception_helper.create_encryption_exception('WLSDPLY-03203')
+            ex = exception_helper.create_encryption_exception('WLSDPLY-01741')
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
         return encryption_service

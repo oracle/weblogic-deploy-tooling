@@ -2,7 +2,7 @@
  * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
-package oracle.weblogic.deploy.util;
+package oracle.weblogic.deploy.aliases;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import oracle.weblogic.deploy.aliases.AliasException;
 
 import org.junit.Test;
 import org.python.core.PyDictionary;
@@ -24,7 +22,7 @@ import static org.junit.Assert.*;
 public class TypeUtilsTest {
     @Test
     public void convertToType() throws Exception {
-        assertEquals("Integer conversion failed", 123, TypeUtils.convertToType( "integer", "123"));
+        assertEquals("Integer conversion failed", 123, TypeUtils.convertToType("integer", "123"));
         assertEquals("Long conversion failed", 123L, TypeUtils.convertToType( "long", "123"));
         assertEquals("Double conversion failed", 123.45D, TypeUtils.convertToType( "double", "123.45"));
         assertEquals("Boolean conversion failed", "true", TypeUtils.convertToType( "boolean", "true"));

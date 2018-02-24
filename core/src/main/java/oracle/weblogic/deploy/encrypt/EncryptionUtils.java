@@ -84,7 +84,7 @@ public final class EncryptionUtils {
         final String METHOD = "decryptString";
 
         if (userPassphrase == null || userPassphrase.length == 0) {
-            EncryptionException ee = new EncryptionException("WLSDPLY-03116");
+            EncryptionException ee = new EncryptionException("WLSDPLY-04000");
             LOGGER.throwing(CLASS, METHOD, ee);
             throw ee;
         }
@@ -105,7 +105,7 @@ public final class EncryptionUtils {
                 } catch (InvalidAlgorithmParameterException | InvalidKeyException |
                     IllegalBlockSizeException | BadPaddingException ex) {
 
-                    EncryptionException ee = new EncryptionException("WLSDPLY-03119", ex, ex.getLocalizedMessage());
+                    EncryptionException ee = new EncryptionException("WLSDPLY-04001", ex, ex.getLocalizedMessage());
                     LOGGER.throwing(CLASS, METHOD, ee);
                     throw ee;
                 }
@@ -126,7 +126,7 @@ public final class EncryptionUtils {
         final String METHOD = "encryptString";
 
         if (userPassphrase == null || userPassphrase.length == 0) {
-            EncryptionException ee = new EncryptionException("WLSDPLY-03116");
+            EncryptionException ee = new EncryptionException("WLSDPLY-04000");
             LOGGER.throwing(CLASS, METHOD, ee);
             throw ee;
         }
@@ -147,7 +147,7 @@ public final class EncryptionUtils {
             } catch (InvalidKeyException | InvalidAlgorithmParameterException |
                      IllegalBlockSizeException | BadPaddingException ex) {
 
-                EncryptionException ee = new EncryptionException("WLSDPLY-03118", ex, ex.getLocalizedMessage());
+                EncryptionException ee = new EncryptionException("WLSDPLY-04002", ex, ex.getLocalizedMessage());
                 LOGGER.throwing(CLASS, METHOD, ee);
                 throw ee;
             }
@@ -162,7 +162,7 @@ public final class EncryptionUtils {
         try {
             factory = SecretKeyFactory.getInstance(SECRET_KEY_FACTORY_ALGORITHM);
         } catch (NoSuchAlgorithmException nsae) {
-            EncryptionException ee = new EncryptionException("WLSDPLY-03120", nsae, nsae.getLocalizedMessage());
+            EncryptionException ee = new EncryptionException("WLSDPLY-04003", nsae, nsae.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ee);
             throw ee;
         }
@@ -173,7 +173,7 @@ public final class EncryptionUtils {
             SecretKey tmp = factory.generateSecret(spec);
             result = new SecretKeySpec(tmp.getEncoded(), SECRET_KEY_SPEC_ALGORITHM);
         } catch (InvalidKeySpecException ikse) {
-            EncryptionException ee = new EncryptionException("WLSDPLY-03121", ikse, ikse.getLocalizedMessage());
+            EncryptionException ee = new EncryptionException("WLSDPLY-04004", ikse, ikse.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ee);
             throw ee;
         }
@@ -187,7 +187,7 @@ public final class EncryptionUtils {
         try {
             cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         } catch (NoSuchPaddingException | NoSuchAlgorithmException ex) {
-            EncryptionException ee = new EncryptionException("WLSDPLY-03117", ex, ex.getLocalizedMessage());
+            EncryptionException ee = new EncryptionException("WLSDPLY-04005", ex, ex.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ee);
             throw ee;
         }
@@ -212,7 +212,7 @@ public final class EncryptionUtils {
             String allDecoded = new String(DatatypeConverter.parseBase64Binary(all), US_ASCII);
             String[] parts = allDecoded.split(SEP);
             if (parts.length != CIPHER_SECTIONS) {
-                EncryptionException ee = new EncryptionException("WLSDPLY-03163", parts.length);
+                EncryptionException ee = new EncryptionException("WLSDPLY-04006", parts.length);
                 LOGGER.throwing(CLASS, METHOD, ee);
                 throw ee;
             }

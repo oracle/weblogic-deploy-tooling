@@ -2,28 +2,53 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-import os
+import javaos as os
 
 from oracle.weblogic.deploy.create import RCURunner
 
-from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.deploy import model_deployer
-from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model as model_helper
 from wlsdeploy.util.model import Model
 
+from wlsdeploy.aliases.model_constants import ACTIVE_TYPE
+from wlsdeploy.aliases.model_constants import ADJUDICATOR
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import APP_DIR
+from wlsdeploy.aliases.model_constants import AUDITOR
 from wlsdeploy.aliases.model_constants import AUTHENTICATION_PROVIDER
+from wlsdeploy.aliases.model_constants import AUTHORIZER
+from wlsdeploy.aliases.model_constants import CERT_PATH_PROVIDER
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import CREDENTIAL_MAPPER
+from wlsdeploy.aliases.model_constants import DEFAULT_ADJUDICATOR_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_ADJUDICATOR_TYPE
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_AUDITOR_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_AUDITOR_TYPE
+from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR_TYPE
+from wlsdeploy.aliases.model_constants import DEFAULT_IDENTITY_ASSERTER_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_IDENTITY_ASSERTER_TYPE
+from wlsdeploy.aliases.model_constants import DEFAULT_AUTHORIZER_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_AUTHORIZER_TYPE
+from wlsdeploy.aliases.model_constants import DEFAULT_CERT_PATH_PROVIDER_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_CERT_PATH_PROVIDER_TYPE
+from wlsdeploy.aliases.model_constants import DEFAULT_CREDENTIAL_MAPPER_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_CREDENTIAL_MAPPER_TYPE
+from wlsdeploy.aliases.model_constants import DEFAULT_PASSWORD_VALIDATOR_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_PASSWORD_VALIDATOR_TYPE
+from wlsdeploy.aliases.model_constants import DEFAULT_ROLE_MAPPER_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_ROLE_MAPPER_TYPE
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import DOMAIN_LIBRARIES
 from wlsdeploy.aliases.model_constants import DRIVER_NAME
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
@@ -38,9 +63,11 @@ from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
+from wlsdeploy.aliases.model_constants import PASSWORD_VALIDATOR
 from wlsdeploy.aliases.model_constants import REALM
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
+from wlsdeploy.aliases.model_constants import ROLE_MAPPER
 from wlsdeploy.aliases.model_constants import SECURITY
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SERVER
@@ -63,14 +90,14 @@ class DomainCreator(Creator):
     __program_name = 'createDomain'
     __class_name = 'DomainCreator'
 
-    def __init__(self, model_dictionary, model_context):
+    def __init__(self, model_dictionary, model_context, aliases):
         _method_name = '__init__'
-        Creator.__init__(self, model_dictionary, model_context, Aliases(model_context))
+        Creator.__init__(self, model_dictionary, model_context, aliases)
 
         # domainInfo section is required to get the admin password, everything else
         # is optional and will use the template defaults
         if model_helper.get_model_domain_info_key() not in model_dictionary:
-            ex = exception_helper.create_create_exception('WLSDPLY-12200', self.__class_name,
+            ex = exception_helper.create_create_exception('WLSDPLY-12200', self.__program_name,
                                                           model_helper.get_model_domain_info_key(),
                                                           self.model_context.get_model_file())
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
@@ -96,6 +123,10 @@ class DomainCreator(Creator):
         self.__default_admin_server_name = None
         self.__default_security_realm_name = None
 
+        archive_file_name = self.model_context.get_archive_file_name()
+        if archive_file_name is not None:
+            self.archive_helper = ArchiveHelper(archive_file_name, self._domain_home, self.logger,
+                                                exception_helper.ExceptionType.CREATE)
         #
         # Creating domains with the wls.jar template is busted for pre-12.1.2 domains with regards to the
         # names of the default authentication providers (both the DefaultAuthenticator and the
@@ -123,14 +154,7 @@ class DomainCreator(Creator):
         self.__run_rcu()
         self.__fail_mt_1221_domain_creation()
         self.__create_domain()
-        # FIXME(rpatrick) - this is a hack until we relax the archive handling to only require
-        # it when it is referenced by the model.
-        if self.model_context.get_archive_file_name() is not None:
-            self.__deploy_resources_and_apps()
-        else:
-            self.logger.info('WLSDPLY-12202', self.__program_name, CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
-                             class_name=self.__class_name, method_name=_method_name)
-
+        self.__deploy_resources_and_apps()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -146,7 +170,7 @@ class DomainCreator(Creator):
             self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
             return
         elif not self.wls_helper.is_weblogic_version_or_above('12.1.2'):
-            ex = exception_helper.create_create_exception('WLSDPLY-12203', self.__program_name,
+            ex = exception_helper.create_create_exception('WLSDPLY-12201', self.__program_name,
                                                           self.wls_helper.get_actual_weblogic_version())
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -186,7 +210,7 @@ class DomainCreator(Creator):
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, RESOURCE_GROUP)) or \
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, PARTITION)):
 
-            ex = exception_helper.create_create_exception('WLSDPLY-12204', self.wls_helper.wl_version)
+            ex = exception_helper.create_create_exception('WLSDPLY-12202', self.wls_helper.wl_version)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return
@@ -200,7 +224,8 @@ class DomainCreator(Creator):
 
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         domain_type = self.model_context.get_domain_type()
-        self.logger.info('WLSDPLY-12205', domain_type, class_name=self.__class_name, method_name=_method_name)
+        self.logger.info('WLSDPLY-12203', domain_type, class_name=self.__class_name, method_name=_method_name)
+        self.model_context.set_domain_home(self._domain_home)
 
         if self.wls_helper.is_select_template_supported():
             self.__create_domain_with_select_template(self._domain_home)
@@ -208,6 +233,12 @@ class DomainCreator(Creator):
             self.__create_base_domain(self._domain_home)
             self.__extend_domain(self._domain_home)
 
+        if len(self.files_to_extract_from_archive) > 0:
+            for file_to_extract in self.files_to_extract_from_archive:
+                self.archive_helper.extract_file(file_to_extract)
+
+        self.__install_domain_libraries(self._domain_home)
+        self.__extract_classpath_libraries(self._domain_home)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -238,19 +269,15 @@ class DomainCreator(Creator):
 
         self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
         base_template = self._domain_typedef.get_base_template()
-        self.logger.info('WLSDPLY-12206', base_template, class_name=self.__class_name, method_name=_method_name)
+        self.logger.info('WLSDPLY-12204', base_template, class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.read_template(base_template)
+        self.__apply_base_domain_config(self.__topology_folder_list)
 
-        if self.__fix_default_authentication_provider_names:
-            self.__apply_base_domain_config(self.__topology_folder_list, phase_one=True)
-        else:
-            self.__apply_base_domain_config(self.__topology_folder_list)
-
-        self.logger.info('WLSDPLY-12207', self._domain_name, domain_home,
+        self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.write_domain(domain_home)
 
-        self.logger.info('WLSDPLY-12208', self._domain_name, class_name=self.__class_name, method_name=_method_name)
+        self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.close_template()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -266,27 +293,16 @@ class DomainCreator(Creator):
 
         self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
         extension_templates = self._domain_typedef.get_extension_templates()
-        if len(extension_templates) == 0 and not self.__fix_default_authentication_provider_names:
+        if len(extension_templates) == 0:
             return
 
-        self.logger.info('WLSDPLY-12209', self._domain_name, domain_home,
+        self.logger.info('WLSDPLY-12207', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.read_domain(domain_home)
-
-        if self.__fix_default_authentication_provider_names:
-            #
-            # Since the domain has already been written, change the default domain name so that the
-            # SecurityConfiguration code is using the real domain name.
-            #
-            self.__default_domain_name = self._domain_name
-            self.__apply_base_domain_config(self.__topology_folder_list, phase_two=True)
-            self.wlst_helper.cd('/')
-            self.wlst_helper.update_domain()
-
         self.__set_app_dir()
 
         for extension_template in extension_templates:
-            self.logger.info('WLSDPLY-12210', extension_template,
+            self.logger.info('WLSDPLY-12208', extension_template,
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.add_template(extension_template)
 
@@ -295,10 +311,10 @@ class DomainCreator(Creator):
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
         self.__target_server_groups_to_managed_servers(server_groups_to_target)
 
-        self.logger.info('WLSDPLY-12211', self._domain_name,
+        self.logger.info('WLSDPLY-12209', self._domain_name,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.update_domain()
-        self.wlst_helper.close_template()
+        self.wlst_helper.close_domain()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -313,18 +329,18 @@ class DomainCreator(Creator):
 
         self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
         base_template = self._domain_typedef.get_base_template()
-        self.logger.info('WLSDPLY-12212', base_template,
+        self.logger.info('WLSDPLY-12210', base_template,
                          class_name=self.__class_name, method_name=_method_name)
 
         self.wlst_helper.select_template(base_template)
 
         extension_templates = self._domain_typedef.get_extension_templates()
         for extension_template in extension_templates:
-            self.logger.info('WLSDPLY-12213', extension_template,
+            self.logger.info('WLSDPLY-12211', extension_template,
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.select_template(extension_template)
 
-        self.logger.info('WLSDPLY-12214', class_name=self.__class_name, method_name=_method_name)
+        self.logger.info('WLSDPLY-12212', class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.load_templates()
 
         topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
@@ -336,14 +352,63 @@ class DomainCreator(Creator):
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
             self.__target_server_groups_to_managed_servers(server_groups_to_target)
 
-        self.logger.info('WLSDPLY-12207', self._domain_name, domain_home,
+        self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.write_domain(domain_home)
         self.wlst_helper.close_template()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __apply_base_domain_config(self, topology_folder_list, phase_one=False, phase_two=False):
+    def __install_domain_libraries(self, domain_home):
+        """
+        Extract the domain libraries listed in the model, if any, to the <DOMAIN_HOME>/lib directory.
+        :param domain_home: the domain home directory
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '__install_domain_libraries'
+
+        self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
+        domain_info_dict = dictionary_utils.get_dictionary_element(self.model, DOMAIN_INFO)
+        if DOMAIN_LIBRARIES not in domain_info_dict or len(domain_info_dict[DOMAIN_LIBRARIES]) == 0:
+            self.logger.info('WLSDPLY-12213', class_name=self.__class_name, method_name=_method_name)
+        else:
+            domain_libs = dictionary_utils.get_dictionary_element(domain_info_dict, DOMAIN_LIBRARIES)
+            if self.archive_helper is None:
+                ex = exception_helper.create_create_exception('WLSDPLY-12214', domain_libs)
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+            for domain_lib in domain_libs:
+                self.logger.info('WLSDPLY-12215', domain_lib, domain_home,
+                                 class_name=self.__class_name, method_name=_method_name)
+                self.archive_helper.extract_domain_library(domain_lib)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __extract_classpath_libraries(self, domain_home):
+        """
+        Extract any classpath libraries in the archive to the domain home.
+        :param domain_home: the domain home directory
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '__extract_classpath_libraries'
+
+        self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
+        if self.archive_helper is None:
+            self.logger.info('WLSDPLY-12216', class_name=self.__class_name, method_name=_method_name)
+        else:
+            num_cp_libs = self.archive_helper.extract_classpath_libraries()
+            if num_cp_libs > 0:
+                self.logger.info('WLSDPLY-12217', num_cp_libs, domain_home,
+                                 class_name=self.__class_name, method_name=_method_name)
+            else:
+                self.logger.info('WLSDPLY-12218', self.model_context.get_archive_file_name(),
+                                 class_name=self.__class_name, method_name=_method_name)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __apply_base_domain_config(self, topology_folder_list):
         """
         Apply the base domain configuration from the model topology section.
         :param topology_folder_list: the model topology folder list to process
@@ -351,48 +416,37 @@ class DomainCreator(Creator):
         """
         _method_name = '__apply_base_domain_config'
 
-        self.logger.entering(topology_folder_list, phase_one, phase_two,
-                             class_name=self.__class_name, method_name=_method_name)
-        if not phase_one and not phase_two:
-            self.logger.fine('WLSDPLY-12215', class_name=self.__class_name, method_name=_method_name)
-        elif phase_one:
-            self.logger.fine('WLSDPLY-12225', class_name=self.__class_name, method_name=_method_name)
-        elif phase_two:
-            self.logger.fine('WLSDPLY-12226', class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(topology_folder_list, class_name=self.__class_name, method_name=_method_name)
+        self.logger.fine('WLSDPLY-12219', class_name=self.__class_name, method_name=_method_name)
 
         location = LocationContext()
         domain_name_token = self.alias_helper.get_name_token(location)
         location.add_name_token(domain_name_token, self._domain_name)
 
-        if not phase_two:
-            self.__set_core_domain_params()
-            self.__create_security_folder(location)
-            topology_folder_list.remove(SECURITY)
-            self.__create_machines(location)
-            topology_folder_list.remove(MACHINE)
-            topology_folder_list.remove(UNIX_MACHINE)
+        self.__set_core_domain_params()
+        self.__create_security_folder(location)
+        topology_folder_list.remove(SECURITY)
 
-            if self.__fix_default_authentication_provider_names:
-                self.__fix_default_authenticator_name()
+        # SecurityConfiguration is special since the subfolder name does not change when you change the domain name.
+        # It only changes once the domain is written and re-read...
+        security_config_location = LocationContext().add_name_token(domain_name_token, self.__default_domain_name)
+        self.__create_security_configuration(security_config_location)
+        topology_folder_list.remove(SECURITY_CONFIGURATION)
 
-        if not phase_one:
-            if self.__fix_default_authentication_provider_names:
-                self.__fix_default_identity_asserter_name()
+        self.__create_machines(location)
+        topology_folder_list.remove(MACHINE)
+        topology_folder_list.remove(UNIX_MACHINE)
 
-            # SecurityConfiguration is special since the subfolder name does not change when you change the domain name.
-            # It only changes once the domain is written and re-read...
-            security_config_location = LocationContext().add_name_token(domain_name_token, self.__default_domain_name)
-            self.__create_security_configuration(security_config_location)
-
-            topology_folder_list.remove(SECURITY_CONFIGURATION)
-            self.__create_clusters_and_servers(location)
-            topology_folder_list.remove(CLUSTER)
+        self.__create_clusters_and_servers(location)
+        topology_folder_list.remove(CLUSTER)
+        if SERVER_TEMPLATE in topology_folder_list:
             topology_folder_list.remove(SERVER_TEMPLATE)
-            topology_folder_list.remove(SERVER)
-            self.__create_migratable_targets(location)
-            topology_folder_list.remove(MIGRATABLE_TARGET)
-            self.__create_other_domain_artifacts(location, topology_folder_list)
+        topology_folder_list.remove(SERVER)
 
+        self.__create_migratable_targets(location)
+        topology_folder_list.remove(MIGRATABLE_TARGET)
+
+        self.__create_other_domain_artifacts(location, topology_folder_list)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -454,48 +508,6 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __fix_default_authenticator_name(self):
-        """
-        This method is a hack to fix the broken domain creation in earlier versions of WebLogic Server.
-        :raises: CreateException: if an error occurs
-        """
-        _method_name = '__fix_default_authenticator_name'
-
-        location = self.__get_default_realm_location()
-        location.append_location(AUTHENTICATION_PROVIDER)
-        wlst_list_path = self.alias_helper.get_wlst_list_path(location)
-        self.wlst_helper.cd(wlst_list_path)
-        existing_folder_names = self.wlst_helper.lsc()
-        if len(existing_folder_names) == 2 and existing_folder_names[0] == existing_folder_names[1]:
-            self.wlst_helper.cd(existing_folder_names[0])
-            self.wlst_helper.set('Name', 'DefaultAuthenticator')
-        else:
-            ex = exception_helper.create_create_exception('WLSDPLY-12227', str(existing_folder_names))
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
-
-    def __fix_default_identity_asserter_name(self):
-        """
-        This method is a hack to fix the broken domain creation in earlier versions of WebLogic Server.
-        :raises: CreateException: if an error occurs
-        """
-        _method_name = '__fix_default_identity_asserter_name'
-
-        location = self.__get_default_realm_location()
-        location.append_location(AUTHENTICATION_PROVIDER)
-        wlst_list_path = self.alias_helper.get_wlst_list_path(location)
-        self.wlst_helper.cd(wlst_list_path)
-        existing_folder_names = self.wlst_helper.lsc()
-        if len(existing_folder_names) == 2 and 'DefaultAuthenticator' in existing_folder_names:
-            existing_folder_names.remove('DefaultAuthenticator')
-            self.wlst_helper.cd(existing_folder_names[0])
-            self.wlst_helper.set('Name', 'DefaultIdentityAsserter')
-        else:
-            ex = exception_helper.create_create_exception('WLSDPLY-12227', str(existing_folder_names))
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
     def __create_security_configuration(self, location):
         """
         Create the /SecurityConfiguration folder objects, if any.
@@ -507,8 +519,54 @@ class DomainCreator(Creator):
         self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
         security_configuration_nodes = dictionary_utils.get_dictionary_element(self._topology, SECURITY_CONFIGURATION)
 
+        self.__handle_default_security_providers(location, security_configuration_nodes)
         if len(security_configuration_nodes) > 0:
             self._create_mbean(SECURITY_CONFIGURATION, security_configuration_nodes, location, log_created=True)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __handle_default_security_providers(self, base_location, security_configuration_dict):
+        _method_name = '__handle_default_security_providers'
+
+        self.logger.entering(str(base_location), class_name=self.__class_name, method_name=_method_name)
+        location = self.__get_default_realm_location()
+        if security_configuration_dict is None or len(security_configuration_dict) == 0:
+            if self.__fix_default_authentication_provider_names:
+                self.__handle_default_authentication_providers(location)
+            self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+            return
+
+        if REALM in security_configuration_dict and 'myrealm' in security_configuration_dict[REALM]:
+            myrealm = security_configuration_dict[REALM]['myrealm']
+            if ADJUDICATOR in myrealm:
+                adj_providers = myrealm[ADJUDICATOR]
+                self.__handle_default_adjudicators(location, adj_providers)
+            if AUDITOR in myrealm:
+                audit_providers = myrealm[AUDITOR]
+                self.__handle_default_auditors(location, audit_providers)
+            if AUTHENTICATION_PROVIDER in myrealm:
+                atn_providers = myrealm[AUTHENTICATION_PROVIDER]
+                self.__handle_default_authentication_providers(location, atn_providers)
+            elif self.__fix_default_authentication_provider_names:
+                self.__handle_default_authentication_providers(location)
+            if AUTHORIZER in myrealm:
+                atz_providers = myrealm[AUTHORIZER]
+                self.__handle_default_authorizers(location, atz_providers)
+            if CERT_PATH_PROVIDER in myrealm:
+                cert_path_providers = myrealm[CERT_PATH_PROVIDER]
+                self.__handle_default_cert_path_providers(location, cert_path_providers)
+            if CREDENTIAL_MAPPER in myrealm:
+                credential_mapping_providers = myrealm[CREDENTIAL_MAPPER]
+                self.__handle_default_credential_mappers(location, credential_mapping_providers)
+            if PASSWORD_VALIDATOR in myrealm:
+                password_validation_providers = myrealm[PASSWORD_VALIDATOR]
+                self.__handle_default_password_validators(location, password_validation_providers)
+            if ROLE_MAPPER in myrealm:
+                role_mapping_providers = myrealm[ROLE_MAPPER]
+                self.__handle_default_role_mappers(location, role_mapping_providers)
+        elif self.__fix_default_authentication_provider_names:
+            self.__handle_default_authentication_providers(location)
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -528,7 +586,7 @@ class DomainCreator(Creator):
         # then we can fully populate the ServerTemplates.
         #
         server_template_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER_TEMPLATE)
-        if self._is_type_valid(location, SERVER_TEMPLATE) and len(server_template_nodes) > 0:
+        if len(server_template_nodes) > 0 and self._is_type_valid(location, SERVER_TEMPLATE):
             st_location = LocationContext(location).append_location(SERVER_TEMPLATE)
             st_mbean_type = self.alias_helper.get_wlst_mbean_type(st_location)
             st_create_path = self.alias_helper.get_wlst_create_path(st_location)
@@ -541,7 +599,7 @@ class DomainCreator(Creator):
                     st_location.add_name_token(st_token_name, st_name)
 
                 st_mbean_name = self.alias_helper.get_wlst_mbean_name(st_location)
-                self.logger.info('WLSDPLY-12030', SERVER_TEMPLATE, st_mbean_name)
+                self.logger.info('WLSDPLY-12220', SERVER_TEMPLATE, st_mbean_name)
                 self.wlst_helper.create(st_mbean_name, st_mbean_type)
 
         cluster_nodes = dictionary_utils.get_dictionary_element(self._topology, CLUSTER)
@@ -620,7 +678,7 @@ class DomainCreator(Creator):
         rcu_schema_pwd = self.model_context.get_rcu_schema_pass()
 
         fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
-        self.logger.fine('WLSDPLY-12219', fmw_database, class_name=self.__class_name, method_name=_method_name)
+        self.logger.fine('WLSDPLY-12221', fmw_database, class_name=self.__class_name, method_name=_method_name)
 
         location = LocationContext()
         location.append_location(JDBC_SYSTEM_RESOURCE)
@@ -654,7 +712,7 @@ class DomainCreator(Creator):
             location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
 
         stb_user = self.wls_helper.get_stb_user_name(rcu_prefix)
-        self.logger.fine('WLSDPLY-12220', stb_user, class_name=self.__class_name, method_name=_method_name)
+        self.logger.fine('WLSDPLY-12222', stb_user, class_name=self.__class_name, method_name=_method_name)
 
         wlst_path = self.alias_helper.get_wlst_attributes_path(location)
         self.wlst_helper.cd(wlst_path)
@@ -663,7 +721,7 @@ class DomainCreator(Creator):
         self.wlst_helper.set_if_needed(wlst_name, wlst_value,
                                        JDBC_DRIVER_PARAMS_PROPERTIES, DRIVER_PARAMS_USER_PROPERTY)
 
-        self.logger.info('WLSDPLY-12221', class_name=self.__class_name, method_name=_method_name)
+        self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.get_database_defaults()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -681,7 +739,7 @@ class DomainCreator(Creator):
         if len(server_groups_to_target) == 0:
             return
 
-        self.logger.info('WLSDPLY-12222', server_groups_to_target,
+        self.logger.info('WLSDPLY-12224', server_groups_to_target,
                          class_name=self.__class_name, method_name=_method_name)
 
         location = LocationContext()
@@ -727,11 +785,11 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         if APP_DIR in self._domain_info:
             app_dir = self._domain_info[APP_DIR]
-            self.logger.fine('WLSDPLY-12223', model_helper.get_model_domain_info_key(), APP_DIR, app_dir,
+            self.logger.fine('WLSDPLY-12225', model_helper.get_model_domain_info_key(), APP_DIR, app_dir,
                              class_name=self.__class_name, method_name=_method_name)
         else:
             app_dir = os.path.join(self.model_context.get_domain_parent_dir(), 'applications')
-            self.logger.fine('WLSDPLY-12224', model_helper.get_model_domain_info_key(), APP_DIR, app_dir,
+            self.logger.fine('WLSDPLY-12226', model_helper.get_model_domain_info_key(), APP_DIR, app_dir,
                              class_name=self.__class_name, method_name=_method_name)
 
         self.wlst_helper.set_option_if_needed(SET_OPTION_APP_DIR, app_dir)
@@ -754,7 +812,7 @@ class DomainCreator(Creator):
             # filter out any name fields.
             #
             self.wlst_helper.set_if_needed(DOMAIN_NAME, self._domain_name, DOMAIN_NAME, self._domain_name)
-            self.logger.info('WLSDPLY-12216', self.__default_domain_name, self._domain_name,
+            self.logger.info('WLSDPLY-12227', self.__default_domain_name, self._domain_name,
                              class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -791,7 +849,7 @@ class DomainCreator(Creator):
             self.wlst_helper.set_if_needed(wlst_name, wlst_value, PASSWORD, '<masked>', masked=True)
 
         else:
-            ex = exception_helper.create_create_exception('WLSDPLY-12217', 'AdminPassword',
+            ex = exception_helper.create_create_exception('WLSDPLY-12228', 'AdminPassword',
                                                           model_helper.get_model_domain_info_key())
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -820,7 +878,7 @@ class DomainCreator(Creator):
             # filter out any name fields.
             #
             self.wlst_helper.set_if_needed(NAME, self._admin_server_name, SERVER, self.__default_admin_server_name)
-            self.logger.info('WLSDPLY-12218', self.__default_admin_server_name, self._admin_server_name,
+            self.logger.info('WLSDPLY-12229', self.__default_admin_server_name, self._admin_server_name,
                              class_name=self.__class_name, method_name=_method_name)
         else:
             self._admin_server_name = self.__default_admin_server_name
@@ -855,8 +913,6 @@ class DomainCreator(Creator):
         token_name = self.alias_helper.get_name_token(location)
 
         if wlst_type not in existing_folder_names:
-            print existing_folder_names
-            print wlst_attribute_path
             self.__default_security_realm_name = self.wls_helper.get_default_security_realm_name()
             if token_name is not None:
                 location.add_name_token(token_name, self.__default_security_realm_name)
@@ -872,3 +928,213 @@ class DomainCreator(Creator):
             wlst_attribute_path = self.alias_helper.get_wlst_attributes_path(location)
             self.wlst_helper.cd(wlst_attribute_path)
         return location
+
+    def __handle_default_adjudicators(self, base_location, adj_providers):
+        if adj_providers is None or len(adj_providers) == 0 or DEFAULT_ADJUDICATOR_NAME is None:
+            return
+
+        if self.__need_to_delete_default_provider(adj_providers, DEFAULT_ADJUDICATOR_NAME, DEFAULT_ADJUDICATOR_TYPE):
+            self.__delete_provider(base_location, DEFAULT_ADJUDICATOR_NAME, ADJUDICATOR)
+        return
+
+    def __handle_default_auditors(self, base_location, audit_providers):
+        if audit_providers is None or len(audit_providers) == 0 or DEFAULT_AUDITOR_NAME is None:
+            return
+
+        if self.__need_to_delete_default_provider(audit_providers, DEFAULT_AUDITOR_NAME, DEFAULT_AUDITOR_TYPE):
+            self.__delete_provider(base_location, DEFAULT_AUDITOR_NAME, AUDITOR)
+        return
+
+    def __handle_default_authentication_providers(self, base_location, atn_providers=None):
+        _method_name = '__handle_default_authentication_providers'
+
+        self.logger.entering(str(base_location), class_name=self.__class_name, method_name=_method_name)
+        if atn_providers is None or len(atn_providers) == 0 or \
+                (DEFAULT_AUTHENTICATOR_NAME is None and DEFAULT_IDENTITY_ASSERTER_NAME is None):
+            if self.__fix_default_authentication_provider_names:
+                # delete and recreate the default authenticator and default identity asserter with the correct names.
+                self.__delete_and_recreate_provider(base_location, 'Provider', DEFAULT_AUTHENTICATOR_NAME,
+                                                    AUTHENTICATION_PROVIDER, DEFAULT_AUTHENTICATOR_TYPE)
+                self.__delete_and_recreate_provider(base_location, 'Provider', DEFAULT_IDENTITY_ASSERTER_NAME,
+                                                    AUTHENTICATION_PROVIDER, DEFAULT_IDENTITY_ASSERTER_TYPE)
+                self.__set_default_identity_aserter_attributes(base_location, DEFAULT_IDENTITY_ASSERTER_NAME,
+                                                               AUTHENTICATION_PROVIDER, DEFAULT_IDENTITY_ASSERTER_TYPE)
+            self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+            return
+
+        atn_names = atn_providers.keys()
+        if atn_names[0] == DEFAULT_AUTHENTICATOR_NAME:
+            default_authenticator = atn_providers[DEFAULT_AUTHENTICATOR_NAME]
+            type_keys = default_authenticator.keys()
+            if len(type_keys) == 0 or (len(type_keys) == 1 and type_keys[0] == DEFAULT_AUTHENTICATOR_TYPE):
+                delete_default_authenticator = False
+            else:
+                delete_default_authenticator = True
+        else:
+            delete_default_authenticator = True
+
+        if len(atn_names) > 1 and atn_names[1] == DEFAULT_IDENTITY_ASSERTER_NAME:
+            default_identity_asserter = atn_providers
+            type_keys = default_identity_asserter.keys()
+            if len(type_keys) == 0 or (len(type_keys) == 1 and type_keys[0] == DEFAULT_IDENTITY_ASSERTER_TYPE):
+                delete_default_identity_asserter = False
+            else:
+                delete_default_identity_asserter = True
+        else:
+            delete_default_identity_asserter = True
+
+        if delete_default_authenticator:
+            if self.__fix_default_authentication_provider_names:
+                name = 'Provider'
+            else:
+                name = DEFAULT_AUTHENTICATOR_NAME
+            self.__delete_provider(base_location, name, AUTHENTICATION_PROVIDER)
+        elif self.__fix_default_authentication_provider_names:
+            # delete and recreate the default authenticator with the correct name now.
+            self.__delete_and_recreate_provider(base_location, 'Provider', DEFAULT_AUTHENTICATOR_NAME,
+                                                AUTHENTICATION_PROVIDER, DEFAULT_AUTHENTICATOR_TYPE)
+
+        if delete_default_identity_asserter:
+            if self.__fix_default_authentication_provider_names:
+                name = 'Provider'
+            else:
+                name = DEFAULT_IDENTITY_ASSERTER_NAME
+            self.__delete_provider(base_location, name, AUTHENTICATION_PROVIDER)
+            self.__fix_up_model_default_identity_asserter(base_location, DEFAULT_IDENTITY_ASSERTER_NAME,
+                                                          AUTHENTICATION_PROVIDER, DEFAULT_IDENTITY_ASSERTER_TYPE,
+                                                          atn_providers)
+        elif self.__fix_default_authentication_provider_names:
+            # delete and recreate the default identity asserter with the correct name now.
+            self.__delete_and_recreate_provider(base_location, 'Provider', DEFAULT_IDENTITY_ASSERTER_NAME,
+                                                AUTHENTICATION_PROVIDER, DEFAULT_IDENTITY_ASSERTER_TYPE)
+            self.__set_default_identity_aserter_attributes(base_location, DEFAULT_IDENTITY_ASSERTER_NAME,
+                                                           AUTHENTICATION_PROVIDER, DEFAULT_IDENTITY_ASSERTER_TYPE)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __handle_default_authorizers(self, base_location, authorization_providers):
+        if authorization_providers is None or len(authorization_providers) == 0 or DEFAULT_AUTHORIZER_NAME is None:
+            return
+
+        if self.__need_to_delete_default_provider(authorization_providers, DEFAULT_AUTHORIZER_NAME,
+                                                  DEFAULT_AUTHORIZER_TYPE):
+            self.__delete_provider(base_location, DEFAULT_AUTHORIZER_NAME, AUTHORIZER)
+        return
+
+    def __handle_default_cert_path_providers(self, base_location, cert_path_providers):
+        if cert_path_providers is None or len(cert_path_providers) == 0 or DEFAULT_CERT_PATH_PROVIDER_NAME is None:
+            return
+
+        if self.__need_to_delete_default_provider(cert_path_providers, DEFAULT_CERT_PATH_PROVIDER_NAME,
+                                                  DEFAULT_CERT_PATH_PROVIDER_TYPE):
+            self.__delete_provider(base_location, DEFAULT_CERT_PATH_PROVIDER_NAME, CERT_PATH_PROVIDER)
+        return
+
+    def __handle_default_credential_mappers(self, base_location, credential_mapping_providers):
+        if credential_mapping_providers is None or len(credential_mapping_providers) == 0 or \
+                DEFAULT_CREDENTIAL_MAPPER_NAME is None:
+            return
+
+        if self.__need_to_delete_default_provider(credential_mapping_providers, DEFAULT_CREDENTIAL_MAPPER_NAME,
+                                                  DEFAULT_CREDENTIAL_MAPPER_TYPE):
+            self.__delete_provider(base_location, DEFAULT_CREDENTIAL_MAPPER_NAME, CREDENTIAL_MAPPER)
+        return
+
+    def __handle_default_password_validators(self, base_location, password_validation_providers):
+        if password_validation_providers is None or len(password_validation_providers) == 0 or \
+                DEFAULT_PASSWORD_VALIDATOR_NAME is None:
+            return
+
+        if self.__need_to_delete_default_provider(password_validation_providers, DEFAULT_PASSWORD_VALIDATOR_NAME,
+                                                  DEFAULT_PASSWORD_VALIDATOR_TYPE):
+            self.__delete_provider(base_location, DEFAULT_PASSWORD_VALIDATOR_NAME, PASSWORD_VALIDATOR)
+        return
+
+    def __handle_default_role_mappers(self, base_location, role_mapping_providers):
+        if role_mapping_providers is None or len(role_mapping_providers) == 0 or DEFAULT_ROLE_MAPPER_NAME is None:
+            return
+
+        if self.__need_to_delete_default_provider(role_mapping_providers, DEFAULT_ROLE_MAPPER_NAME,
+                                                  DEFAULT_ROLE_MAPPER_TYPE):
+            self.__delete_provider(base_location, DEFAULT_ROLE_MAPPER_NAME, ROLE_MAPPER)
+        return
+
+    def __need_to_delete_default_provider(self, providers_dict, default_name, default_type):
+        provider_names = providers_dict.keys()
+        if provider_names[0] == default_name:
+            default_provider = providers_dict[default_name]
+            type_keys = default_provider.keys()
+            if len(type_keys) == 0 or (len(type_keys) == 1 and type_keys[0] == default_type):
+                delete_default_provider = False
+            else:
+                delete_default_provider = True
+        else:
+            delete_default_provider = True
+        return delete_default_provider
+
+    def __delete_provider(self, base_location, model_name, model_base_type):
+        location = LocationContext(base_location).append_location(model_base_type)
+        token_name = self.alias_helper.get_name_token(location)
+        if token_name is not None:
+            location.add_name_token(token_name, model_name)
+
+        wlst_create_path = self.alias_helper.get_wlst_create_path(location)
+        wlst_type, wlst_name = self.alias_helper.get_wlst_mbean_type_and_name(location)
+        self.wlst_helper.cd(wlst_create_path)
+        self.wlst_helper.delete(wlst_name, wlst_type)
+        return
+
+    def __delete_and_recreate_provider(self, base_location, old_wlst_name, model_name, model_base_type, model_subtype):
+        self.__delete_provider(base_location, old_wlst_name, model_base_type)
+
+        location = LocationContext(base_location).append_location(model_base_type)
+        token_name = self.alias_helper.get_name_token(location)
+        if token_name is not None:
+            location.add_name_token(token_name, model_name)
+
+        wlst_create_path = self.alias_helper.get_wlst_create_path(location)
+        wlst_base_type, wlst_name = self.alias_helper.get_wlst_mbean_type_and_name(location)
+        location.append_location(model_subtype)
+        wlst_type = self.alias_helper.get_wlst_mbean_type(location)
+        self.wlst_helper.cd(wlst_create_path)
+        self.wlst_helper.create(wlst_name, wlst_type, wlst_base_type)
+        return
+
+    def __set_default_identity_aserter_attributes(self, base_location, model_name, model_base_type, model_subtype):
+        location = LocationContext(base_location).append_location(model_base_type)
+        token_name = self.alias_helper.get_name_token(location)
+        if token_name is not None:
+            location.add_name_token(token_name, model_name)
+        location.append_location(model_subtype)
+
+        wlst_attribute_path = self.alias_helper.get_wlst_attributes_path(location)
+        default_value = self.alias_helper.get_wlst_attribute_default_value(location, ACTIVE_TYPE)
+        wlst_name = self.alias_helper.get_wlst_attribute_name(location, ACTIVE_TYPE)
+        self.wlst_helper.cd(wlst_attribute_path)
+        self.wlst_helper.set(wlst_name, default_value)
+        return
+
+    #
+    # Since we are allowing the provider to be recreated, if needed, from the model,
+    # we need to add the ActiveType attribute to the model if and only if no
+    # attributes are specified in the model.
+    #
+    def __fix_up_model_default_identity_asserter(self, base_location, model_name, model_base_type,
+                                                 model_subtype, atn_providers):
+        if atn_providers is not None and DEFAULT_IDENTITY_ASSERTER_NAME in atn_providers:
+            default_identity_asserter = \
+                dictionary_utils.get_dictionary_element(atn_providers, DEFAULT_IDENTITY_ASSERTER_NAME)
+            if DEFAULT_IDENTITY_ASSERTER_TYPE in default_identity_asserter:
+                subtype_dict = dictionary_utils.get_dictionary_element(default_identity_asserter,
+                                                                       DEFAULT_IDENTITY_ASSERTER_TYPE)
+                if len(subtype_dict) == 0:
+                    location = LocationContext(base_location).append_location(model_base_type)
+                    token_name = self.alias_helper.get_name_token(location)
+                    if token_name is not None:
+                        location.add_name_token(token_name, model_name)
+                    location.append_location(model_subtype)
+
+                    default_value = self.alias_helper.get_model_attribute_default_value(location, ACTIVE_TYPE)
+                    subtype_dict[ACTIVE_TYPE] = default_value
+        return

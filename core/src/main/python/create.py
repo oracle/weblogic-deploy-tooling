@@ -4,34 +4,38 @@ The Universal Permissive License (UPL), Version 1.0
 
 The main module for the WLSDeploy tool to create empty domains.
 """
-import os
+import javaos as os
 import sys
 
-import java.io.IOException as IOException
-import java.lang.IllegalArgumentException as IllegalArgumentException
-import java.lang.IllegalStateException as IllegalStateException
-import java.lang.String as String
+from java.io import IOException
+from java.lang import IllegalArgumentException
+from java.lang import IllegalStateException
+from java.lang import String
 
-import oracle.weblogic.deploy.create.CreateException as CreateException
-import oracle.weblogic.deploy.deploy.DeployException as DeployException
-import oracle.weblogic.deploy.util.CLAException as CLAException
-import oracle.weblogic.deploy.util.FileUtils as FileUtils
-import oracle.weblogic.deploy.util.TranslateException as TranslateException
-import oracle.weblogic.deploy.util.VariableException as VariableException
-import oracle.weblogic.deploy.util.WLSDeployArchive as WLSDeployArchive
-import oracle.weblogic.deploy.util.WLSDeployArchiveIOException as WLSDeployArchiveIOException
+from oracle.weblogic.deploy.create import CreateException
+from oracle.weblogic.deploy.deploy import DeployException
+from oracle.weblogic.deploy.util import CLAException
+from oracle.weblogic.deploy.util import FileUtils
+from oracle.weblogic.deploy.util import TranslateException
+from oracle.weblogic.deploy.util import VariableException
+from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
+from oracle.weblogic.deploy.util import WLSDeployArchive
+from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
+from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
 # imports from local packages start here
-import wlsdeploy.exception.exception_helper as exception_helper
-import wlsdeploy.util.getcreds as getcreds
-import wlsdeploy.util.variables as variables
-import wlsdeploy.util.wlst_helper as wlst_helper
+from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.domain_creator import DomainCreator
 from wlsdeploy.tool.create.domain_typedef import DomainTypedef
+from wlsdeploy.tool.validate.validator import Validator
+from wlsdeploy.util import getcreds
+from wlsdeploy.util import variables
+from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
@@ -101,7 +105,7 @@ def __verify_required_args_present(required_arg_map):
 
     for req_arg in __required_arguments:
         if req_arg not in required_arg_map:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12400', _program_name, req_arg)
+            ex = exception_helper.create_cla_exception('WLSDPLY-20005', _program_name, req_arg)
             ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -120,7 +124,7 @@ def __process_java_home_arg(optional_arg_map):
         try:
             java_home = FileUtils.validateExistingDirectory(java_home_name)
         except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12401', _program_name, java_home_name,
+            ex = exception_helper.create_cla_exception('WLSDPLY-12400', _program_name, java_home_name,
                                                        iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -144,7 +148,7 @@ def __process_model_args(optional_arg_map):
         try:
             FileUtils.validateExistingFile(model_file_name)
         except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12402', _program_name, model_file_name,
+            ex = exception_helper.create_cla_exception('WLSDPLY-20006', _program_name, model_file_name,
                                                        iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -155,16 +159,17 @@ def __process_model_args(optional_arg_map):
         try:
             archive_file = WLSDeployArchive(archive_file_name)
             __tmp_model_dir = FileUtils.createTempDirectory(_program_name)
-            tmp_model_file = archive_file.extractModel(__tmp_model_dir)
+            tmp_model_file = \
+                FileUtils.fixupFileSeparatorsForJython(archive_file.extractModel(__tmp_model_dir).getAbsolutePath())
         except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12403', _program_name, archive_file_name,
+            ex = exception_helper.create_cla_exception('WLSDPLY-20010', _program_name, archive_file_name,
                                                        archex.getLocalizedMessage(), error=archex)
             ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-        optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = tmp_model_file
+        optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = FileUtils.fixupFileSeparatorsForJython(tmp_model_file)
     else:
-        ex = exception_helper.create_cla_exception('WLSDPLY-12404', _program_name, CommandLineArgUtil.MODEL_FILE_SWITCH,
+        ex = exception_helper.create_cla_exception('WLSDPLY-20015', _program_name, CommandLineArgUtil.MODEL_FILE_SWITCH,
                                                    CommandLineArgUtil.ARCHIVE_FILE_SWITCH)
         ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -186,9 +191,8 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
     if CommandLineArgUtil.RUN_RCU_SWITCH in optional_arg_map:
         run_rcu = optional_arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
         if rcu_schema_count == 0:
-            __logger.info('WLSDPLY-12405', _program_name, CommandLineArgUtil.RUN_RCU_SWITCH, domain_type)
+            __logger.info('WLSDPLY-12402', _program_name, CommandLineArgUtil.RUN_RCU_SWITCH, domain_type)
             del optional_arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
-            run_rcu = False
             return
 
     if rcu_schema_count > 0:
@@ -196,9 +200,9 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
             if CommandLineArgUtil.RCU_PREFIX_SWITCH in optional_arg_map:
                 if run_rcu and CommandLineArgUtil.RCU_SYS_PASS_SWITCH not in optional_arg_map:
                     try:
-                        password = getcreds.getpass('WLSDPLY-12406')
+                        password = getcreds.getpass('WLSDPLY-12403')
                     except IOException, ioe:
-                        ex = exception_helper.create_cla_exception('WLSDPLY-12407', ioe.getLocalizedMessage(),
+                        ex = exception_helper.create_cla_exception('WLSDPLY-12404', ioe.getLocalizedMessage(),
                                                                    error=ioe)
                         ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
                         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -206,23 +210,23 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                     optional_arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH] = String(password)
                 if CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH not in optional_arg_map:
                     try:
-                        password = getcreds.getpass('WLSDPLY-12408')
+                        password = getcreds.getpass('WLSDPLY-12405')
                     except IOException, ioe:
-                        ex = exception_helper.create_cla_exception('WLSDPLY-12409', ioe.getLocalizedMessage(),
+                        ex = exception_helper.create_cla_exception('WLSDPLY-12406', ioe.getLocalizedMessage(),
                                                                    error=ioe)
                         ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
                         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                         raise ex
                     optional_arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = String(password)
             else:
-                ex = exception_helper.create_cla_exception('WLSDPLY-12410', _program_name,
+                ex = exception_helper.create_cla_exception('WLSDPLY-12407', _program_name,
                                                            CommandLineArgUtil.RCU_DB_SWITCH,
                                                            CommandLineArgUtil.RCU_PREFIX_SWITCH)
                 ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
         else:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12411', domain_type, rcu_schema_count,
+            ex = exception_helper.create_cla_exception('WLSDPLY-12408', domain_type, rcu_schema_count,
                                                        CommandLineArgUtil.RCU_DB_SWITCH,
                                                        CommandLineArgUtil.RCU_PREFIX_SWITCH)
             ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
@@ -241,9 +245,9 @@ def __process_encryption_args(optional_arg_map):
     if CommandLineArgUtil.USE_ENCRYPTION_SWITCH in optional_arg_map and \
             CommandLineArgUtil.PASSPHRASE_SWITCH not in optional_arg_map:
         try:
-            passphrase = getcreds.getpass('WLSDPLY-12412')
+            passphrase = getcreds.getpass('WLSDPLY-20002')
         except IOException, ioe:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12413', ioe.getLocalizedMessage(),
+            ex = exception_helper.create_cla_exception('WLSDPLY-20003', ioe.getLocalizedMessage(),
                                                        error=ioe)
             ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -278,7 +282,7 @@ def main():
     except CLAException, ex:
         exit_code = ex.getExitCode()
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
-            __logger.severe('WLSDPLY-12414', _program_name, ex.getLocalizedMessage(), error=ex,
+            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
         sys.exit(exit_code)
@@ -287,7 +291,7 @@ def main():
     try:
         model = FileToPython(model_file, True).parse()
     except TranslateException, te:
-        __logger.severe('WLSDPLY-03162', _program_name, model_file, te.getLocalizedMessage(), error=te,
+        __logger.severe('WLSDPLY-20009', _program_name, model_file, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
         sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
@@ -297,21 +301,42 @@ def main():
             variable_map = variables.load_variables(model_context.get_variable_file())
             variables.substitute(model, variable_map)
         except VariableException, ex:
-            __logger.severe('WLSDPLY-12416', _program_name, ex.getLocalizedMessage(), error=ex,
+            __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
             __clean_up_temp_files()
             sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     try:
-        creator = DomainCreator(model, model_context)
+        aliases = Aliases(model_context, wlst_mode=__wlst_mode)
+        validator = Validator(model_context, aliases, wlst_mode=__wlst_mode)
+
+        # Since the have already performed all variable substitution,
+        # no need to pass the variable file for processing.
+        #
+        return_code = validator.validate_in_tool_mode(model,
+                                                      variables_file_name=None,
+                                                      archive_file_name=model_context.get_archive_file_name())
+    except ValidateException, ex:
+        __logger.severe('WLSDPLY-20000', _program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+        __clean_up_temp_files()
+        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    if return_code == Validator.ReturnCode.STOP:
+        __logger.severe('WLSDPLY-20001', _program_name, class_name=_class_name, method_name=_method_name)
+        __clean_up_temp_files()
+        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    try:
+        creator = DomainCreator(model, model_context, aliases)
         creator.create()
     except CreateException, ex:
-        __logger.severe('WLSDPLY-12417', _program_name, ex.getLocalizedMessage(), error=ex,
+        __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
         sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
     except DeployException, ex:
-        __logger.severe('WLSDPLY-12418', _program_name, ex.getLocalizedMessage(), error=ex,
+        __logger.severe('WLSDPLY-12410', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
         sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
@@ -320,4 +345,5 @@ def main():
     return
 
 if __name__ == "main":
+    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     main()

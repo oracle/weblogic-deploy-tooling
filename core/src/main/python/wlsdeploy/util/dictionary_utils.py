@@ -6,6 +6,7 @@ import java.util.Properties as JProperties
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 
+
 def get_dictionary_element(dictionary, element_name):
     """
     Retrieve the value for the provided element name from the dictionary.

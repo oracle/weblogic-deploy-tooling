@@ -87,6 +87,8 @@ class AttributesTestCase(unittest.TestCase):
             result = True
         elif location.get_folder_path() == '/Partition/ResourceGroup/Application':
             result = True
+        elif location.get_folder_path() == '/SecurityConfiguration/Realm/Auditor/DefaultAuditor':
+            result = True
 
         return result
 

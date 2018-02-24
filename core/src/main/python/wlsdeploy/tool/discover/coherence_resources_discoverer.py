@@ -2,7 +2,6 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-
 from java.io import File
 from java.io import IOException
 from java.lang import IllegalArgumentException
@@ -15,15 +14,15 @@ from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
-import wlsdeploy.aliases.model_constants as model_constants
-import wlsdeploy.logging.platform_logger as platform_logger
-import wlsdeploy.tool.discover.discoverer as discoverer
-from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 
 _class_name = 'CoherenceResourcesDiscoverer'
-_logger = platform_logger.PlatformLogger(discoverer.get_discover_logger_name())
+_logger = PlatformLogger(discoverer.get_discover_logger_name())
 
 
 class CoherenceResourcesDiscoverer(Discoverer):
@@ -101,8 +100,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         :return: model name for the coherence cache config: resource dictionary containing the discovered cache config
         """
         _method_name = '_get_coherence_cache_config'
-        context = self.get_context(location)
-        _logger.entering(context, class_name=_class_name, method_name=_method_name)
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.COHERENCE_CACHE_CONFIG
         location.append_location(model_top_folder_name)
@@ -110,8 +108,8 @@ class CoherenceResourcesDiscoverer(Discoverer):
         if cache_configs is not None:
             name_token = self._alias_helper.get_name_token(location)
             for cache_config in cache_configs:
-                _logger.fine('WLSDPLY-06313', cache_config, context, class_name=_class_name,
-                             method_name=_method_name)
+                _logger.fine('WLSDPLY-06313', cache_config, self._alias_helper.get_model_folder_path(location),
+                             class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, cache_config)
                 result[cache_config] = OrderedDict()
                 self._populate_model_parameters(result[cache_config], location)
@@ -129,8 +127,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         :return: model name for coherence resource: dictionary containing coherence resources.
         """
         _method_name = '_get_coherence_resource'
-        context = self.get_context(location)
-        _logger.entering(context, class_name=_class_name, method_name=_method_name)
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.COHERENCE_RESOURCE
         location.append_location(model_top_folder_name)

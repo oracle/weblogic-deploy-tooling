@@ -261,7 +261,7 @@ class JVMArguments(object):
                 elif self.__sys_props_regex.match(argument):
                     self.__process_sys_prop_arg(argument)
                 else:
-                    self._logger.finer('WLSDPLY-08084', argument, class_name=self._class_name, method_name=_method_name)
+                    self._logger.finer('WLSDPLY-08300', argument, class_name=self._class_name, method_name=_method_name)
                     self.__unsorted_args.append(argument)
         return
 
@@ -277,7 +277,7 @@ class JVMArguments(object):
         xvalue = match.group(3)
         if 'size' not in self.__x_args:
             self.__x_args['size'] = OrderedDict()
-        self._logger.finer('WLSDPLY-08078', argument, xarg, xvalue,
+        self._logger.finer('WLSDPLY-08301', argument, xarg, xvalue,
                            class_name=self._class_name, method_name=_method_name)
         self.__x_args['size'][xarg] = xvalue
         return
@@ -295,7 +295,7 @@ class JVMArguments(object):
         xvalue = match.group(3)
         if 'value' not in self.__x_args:
             self.__x_args['value'] = OrderedDict()
-        self._logger.finer('WLSDPLY-08079', argument, xarg, xvalue,
+        self._logger.finer('WLSDPLY-08302', argument, xarg, xvalue,
                            class_name=self._class_name, method_name=_method_name)
         self.__x_args['value'][xarg] = xvalue
         return
@@ -316,7 +316,7 @@ class JVMArguments(object):
         xvalue = match.group(3)
         if 'other' not in self.__x_args:
             self.__x_args['other'] = OrderedDict()
-        self._logger.finer('WLSDPLY-08080', argument, xarg, xvalue,
+        self._logger.finer('WLSDPLY-08303', argument, xarg, xvalue,
                            class_name=self._class_name, method_name=_method_name)
         self.__x_args['other'][xarg] = xvalue
         return
@@ -339,7 +339,7 @@ class JVMArguments(object):
 
         if 'switch' not in self.__xx_args:
             self.__xx_args['switch'] = OrderedDict()
-        self._logger.finer('WLSDPLY-08081', argument, xarg, on_or_off_text,
+        self._logger.finer('WLSDPLY-08304', argument, xarg, on_or_off_text,
                            class_name=self._class_name, method_name=_method_name)
         self.__xx_args['switch'][xarg] = on_or_off
         return
@@ -357,7 +357,7 @@ class JVMArguments(object):
 
         if 'value' not in self.__xx_args:
             self.__xx_args['value'] = OrderedDict()
-        self._logger.finer('WLSDPLY-08082', argument, xarg, xvalue,
+        self._logger.finer('WLSDPLY-08305', argument, xarg, xvalue,
                            class_name=self._class_name, method_name=_method_name)
         self.__xx_args['value'][xarg] = xvalue
         return
@@ -376,7 +376,7 @@ class JVMArguments(object):
         # match.group(3) will always be None if the argument is of the form -Dfoo instead of -Dfoo=bar
         #
         prop_value = match.group(3)
-        self._logger.finer('WLSDPLY-08083', argument, prop_name, prop_value,
+        self._logger.finer('WLSDPLY-08306', argument, prop_name, prop_value,
                            class_name=self._class_name, method_name=_method_name)
         self.__sys_props[prop_name] = prop_value
         return
@@ -488,7 +488,7 @@ class JVMArguments(object):
                     max_size = self.__get_size_as_number('-Xmx', my_max_heap_size)
 
                     if min_size > max_size:
-                        self._logger.warning('WLSDPLY-08086', my_min_heap_size, my_max_heap_size,
+                        self._logger.warning('WLSDPLY-08307', my_min_heap_size, my_max_heap_size,
                                              class_name=self._class_name, method_name=_method_name)
                         other_size_args['-Xmx'] = my_min_heap_size
 
@@ -569,7 +569,7 @@ class JVMArguments(object):
 
         match = self.__size_regex.match(size_string)
         if not match:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08085', size_arg, size_string)
+            ex = exception_helper.create_alias_exception('WLSDPLY-08308', size_arg, size_string)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
         number = int(match.group(1))

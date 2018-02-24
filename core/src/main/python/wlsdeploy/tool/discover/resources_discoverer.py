@@ -2,13 +2,11 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-
-import wlsdeploy.logging.platform_logger as platform_logger
-import wlsdeploy.tool.discover.discoverer as discoverer
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.logging import platform_logger
+from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.common_resources_discoverer import CommonResourcesDiscoverer
 from wlsdeploy.tool.discover.global_resources_discoverer import GlobalResourcesDiscoverer
-from wlsdeploy.tool.discover.multi_tenant_resources_discoverer import MultiTenantResourcesDiscoverer
 
 _class_name = 'ResourcesDiscoverer'
 _logger = platform_logger.PlatformLogger(discoverer.get_discover_logger_name())

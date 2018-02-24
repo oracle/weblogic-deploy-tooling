@@ -4,14 +4,23 @@ The Universal Permissive License (UPL), Version 1.0
 """
 from sets import Set
 
+from java.io import IOException
+from java.security import NoSuchAlgorithmException
+
+from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyWLSTException
+from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
+from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+
+from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
+from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
+from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 
 _class_name = "deployer_utils"
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy.utils')
@@ -36,23 +45,14 @@ def set_attribute(location, model_key, model_value, alias_helper, use_raw_value=
         wlst_param, wlst_value = alias_helper.get_wlst_attribute_name_and_value(location, model_key, model_value)
 
     if wlst_param is None:
-        _logger.info('WLSDPLY-09001', model_key, class_name=_class_name, method_name=method_name)
+        _logger.info('WLSDPLY-20011', model_key, class_name=_class_name, method_name=method_name)
         return
 
     if wlst_value is None:
-        _logger.info('WLSDPLY-09002', model_key, str(model_value), class_name=_class_name, method_name=method_name)
+        _logger.info('WLSDPLY-20012', model_key, str(model_value), class_name=_class_name, method_name=method_name)
         return
 
     _wlst_helper.set(wlst_param, wlst_value)
-
-
-def tokenize_attribute(attribute_key, nodes, model_context):
-    if attribute_key in nodes:
-        model_context.replace_tokens_in_path(attribute_key, nodes)
-
-
-def append_model_path(path, subpath):
-    return path + "/" + subpath
 
 
 def get_existing_object_list(location, alias_helper):
@@ -64,7 +64,7 @@ def get_existing_object_list(location, alias_helper):
     method_name = 'get_existing_object_list'
     list_path = alias_helper.get_wlst_list_path(location)
     existing_names = _wlst_helper.get_existing_object_list(list_path)
-    _logger.finer("WLSDPLY-09032", existing_names, class_name=_class_name, method_name=method_name)
+    _logger.finer("WLSDPLY-09100", existing_names, class_name=_class_name, method_name=method_name)
     return existing_names
 
 
@@ -106,18 +106,24 @@ def create_if_not_exist(object_name, object_type, existing_names):
 
     result = None
     if object_name not in existing_names:
-        _logger.finer('WLSDPLY-00047', object_name, object_type, class_name=_class_name, method_name=_method_name)
+        _logger.finer('WLSDPLY-09101', object_name, object_type, class_name=_class_name, method_name=_method_name)
         result = _wlst_helper.create(object_name, object_type)
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
 
 def get_mbean_name(location, existing_names, alias_helper):
+    """
+    Return the mbean name for the specified location.
+    For unpredictable single folders:
+      1. if an existing folder name is present, use that name as the mbean name.
+      2. set the location's token to the mbean name.
+    :param location: the location to examine
+    :param existing_names: a list of existing names at the location
+    :param alias_helper: the alias helper to use for name and path resolution
+    """
     mbean_name = alias_helper.get_wlst_mbean_name(location)
 
-    # for unpredictable single folders:
-    #   if an existing folder name is present, use that name as the mbean name.
-    #   set the location's token to the mbean name
     if alias_helper.requires_unpredictable_single_name_handling(location):
         if len(existing_names) > 0:
             mbean_name = existing_names[0]
@@ -154,6 +160,16 @@ def get_domain_token(alias_helper):
     # determine the domain token by checking security configuration
     security_location = LocationContext().append_location(SECURITY_CONFIGURATION)
     return alias_helper.get_name_token(security_location)
+
+
+def is_in_resource_group_or_template(location):
+    """
+    Determine if the specified location is in a resource group of template.
+    :return: True if the location is in a resource group of template, otherwise false
+    """
+    folders = location.get_model_folders()
+    is_in = (RESOURCE_GROUP in folders) or (RESOURCE_GROUP_TEMPLATE in folders)
+    return is_in
 
 
 def merge_lists(existing_list, model_list, separator=',', return_as_string=True):
@@ -208,17 +224,17 @@ def ensure_no_uncommitted_changes_or_edit_sessions():
         unactivated_changes = _wlst_helper.have_unactivated_changes(cmgr)
 
         if len(tasks) > 0:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09029', len(tasks))
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09102', len(tasks))
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
         if unactivated_changes:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09030')
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09103')
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
         if current_editor is not None:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09031', str(current_editor))
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09104', str(current_editor))
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     except PyWLSTException, e:
@@ -227,3 +243,79 @@ def ensure_no_uncommitted_changes_or_edit_sessions():
         raise ex
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
+
+
+def is_path_into_archive(path):
+    """
+    Is the path specified a path into the archive file?
+    :param path: the path to test
+    :return: True if the path is into the archive file, False otherwise
+    """
+    _method_name = 'is_path_into_archive'
+
+    _logger.entering(path, class_name=_class_name, method_name=_method_name)
+    result = WLSDeployArchive.isPathIntoArchive(path)
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+    return result
+
+
+def get_library_name_components(name, wlst_mode=WlstModes.OFFLINE):
+    """
+    Helper method for application deployer to decompose a shared library name into its components.
+    :param name: the name
+    :param wlst_mode: the WLST mode
+    :return: a tuple of the name components
+    """
+    _method_name = '__get_library_name_components'
+
+    _logger.entering(name, class_name=_class_name, method_name=_method_name)
+    items = name.split('#')
+    name_tuple = [items[0]]
+    if len(items) == 2:
+        ver_items = items[1].split('@')
+        name_tuple.append(ver_items[0])
+        if len(ver_items) == 2:
+            name_tuple.append(ver_items[1])
+        elif len(ver_items) == 1:
+            # no implementation version specified...
+            pass
+        else:
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09106', name, len(ver_items) - 1)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+    elif len(items) == 1:
+        #
+        # In WLST online mode, WLST will go figure out the right name for us so we can just use the existing name.
+        #
+        if wlst_mode == WlstModes.ONLINE:
+            _logger.exiting(class_name=_class_name, method_name=_method_name, result=name)
+            return name
+        else:
+            # Otherwise, no spec version specified so nothing to add to name_tuple
+            pass
+    else:
+        ex = exception_helper.create_deploy_exception('WLSDPLY-09107', name, len(items) - 1)
+        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=name_tuple)
+    return name_tuple
+
+
+def get_file_hash(file_name):
+    """
+    Compute the Base64-encoded hash value for the specified file.
+    :param file_name: the file name
+    :return: the Base64-encoded hash value
+    :raise: DeployException: if an error occurs
+    """
+    _method_name = 'get_file_hash'
+
+    _logger.entering(file_name, class_name=_class_name, method_name=_method_name)
+    try:
+        result = FileUtils.computeHash(file_name)
+    except (IOException, NoSuchAlgorithmException), e:
+        ex = exception_helper.create_deploy_exception('WLSDPLY-09108', file_name, e.getLocalizedMessage(), error=e)
+        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+    return result

@@ -67,7 +67,7 @@ def deploy_model_offline(model, model_context, aliases, wlst_mode=WlstModes.OFFL
         deploy_resources(model, model_context, aliases, wlst_mode=wlst_mode)
         deploy_applications(model, model_context, aliases, wlst_mode=wlst_mode)
     except PyWLSTException, pwe:
-        ex = exception_helper.create_deploy_exception('WLSDPLY-09111', pwe.getLocalizedMessage(), error=pwe)
+        ex = exception_helper.create_deploy_exception('WLSDPLY-09650', pwe.getLocalizedMessage(), error=pwe)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     return

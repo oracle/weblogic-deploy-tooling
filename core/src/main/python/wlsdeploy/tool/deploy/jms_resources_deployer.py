@@ -136,6 +136,12 @@ class JmsResourcesDeployer(Deployer):
             return
 
         parent_type, parent_name = self.get_location_type_and_name(location)
+        is_online = self.wlst_mode == WlstModes.ONLINE
+        if is_online and deployer_utils.is_in_resource_group_or_template(location):
+            self.logger.info('WLSDPLY-09501', JNDI_PROPERTY, parent_type, parent_name, class_name=self._class_name,
+                             method_name=_method_name)
+            return
+
         foreign_server_path = self.alias_helper.get_wlst_subfolders_path(location)
         properties_location = LocationContext(location).append_location(JNDI_PROPERTY)
         properties_token = self.alias_helper.get_name_token(properties_location)
@@ -274,7 +280,7 @@ class JmsResourcesDeployer(Deployer):
         existing_names = deployer_utils.get_existing_object_list(template_location, self.alias_helper)
 
         if template_name not in existing_names:
-            self.logger.info('WLSDPLY-09065', template_name, class_name=self._class_name, method_name=_method_name)
+            self.logger.info('WLSDPLY-09500', template_name, class_name=self._class_name, method_name=_method_name)
 
         template_token = self.alias_helper.get_name_token(template_location)
         template_location.add_name_token(template_token, template_name)

@@ -40,11 +40,13 @@ class DatasourceDeployer(Deployer):
         """
         type_name = self.get_location_type(location)
         if type_name == JDBC_RESOURCE and self.wlst_mode == WlstModes.ONLINE:
-            parent_location = LocationContext(location)
-            parent_location.pop_location()
-            data_source_token = self.alias_helper.get_name_token(parent_location)
-            data_source_name = location.get_name_for_token(data_source_token)
-            self.wlst_helper.set('Name', data_source_name)
+            existing_name = self.wlst_helper.get('Name')
+            if existing_name is None:
+                parent_location = LocationContext(location)
+                parent_location.pop_location()
+                data_source_token = self.alias_helper.get_name_token(parent_location)
+                data_source_name = location.get_name_for_token(data_source_token)
+                self.wlst_helper.set('Name', data_source_name)
             # continue
 
         Deployer.set_attributes(self, location, model_nodes, excludes)

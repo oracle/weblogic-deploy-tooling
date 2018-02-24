@@ -3,10 +3,11 @@ Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from java.lang import String
+
+from oracle.weblogic.deploy.aliases import TypeUtils
+from oracle.weblogic.deploy.aliases import VersionUtils
 from oracle.weblogic.deploy.encrypt import EncryptionException
 from oracle.weblogic.deploy.encrypt import EncryptionUtils
-from oracle.weblogic.deploy.util import TypeUtils
-from oracle.weblogic.deploy.util import VersionUtils
 
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.alias_entries import AliasEntries
@@ -43,7 +44,7 @@ from wlsdeploy.aliases.alias_constants import USES_PATH_TOKENS
 from wlsdeploy.aliases.alias_constants import VALUE
 from wlsdeploy.aliases.alias_constants import WLST_NAME
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
-
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 
 class Aliases(object):
     """
@@ -325,12 +326,12 @@ class Aliases(object):
 
         module_folder = self._alias_entries.get_dictionary_for_location(location)
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
         if model_attribute_name not in module_folder[ATTRIBUTES]:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08004', model_attribute_name,
+            ex = exception_helper.create_alias_exception('WLSDPLY-08401', model_attribute_name,
                                                          location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
@@ -347,7 +348,7 @@ class Aliases(object):
                 try:
                     wlst_attribute_value = self.__decrypt_password(model_attribute_value)
                 except EncryptionException, ee:
-                    ex = exception_helper.create_alias_exception('WLSDPLY-08011', model_attribute_name,
+                    ex = exception_helper.create_alias_exception('WLSDPLY-08402', model_attribute_name,
                                                                  location.get_folder_path(),
                                                                  ee.getLocalizedMessage(), error=ee)
                     self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
@@ -365,9 +366,14 @@ class Aliases(object):
                     elif merge and alias_utils.is_attribute_server_start_arguments(location, model_attribute_name):
                         merged_value = \
                             alias_utils.merge_server_start_argument_values(model_attribute_value, existing_wlst_value)
-                    elif merge:
-                        model_val = TypeUtils.convertToType(LIST, model_attribute_value)
-                        existing_val = TypeUtils.convertToType(LIST, existing_wlst_value)
+                    elif merge and existing_wlst_value is not None and len(existing_wlst_value) > 0:
+                        model_val = alias_utils.convert_to_type(LIST, model_attribute_value,
+                                                                delimiter=MODEL_LIST_DELIMITER)
+
+                        _read_type, read_delimiter = \
+                            alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(attribute_info,
+                                                                                                 existing_wlst_value)
+                        existing_val = alias_utils.convert_to_type(LIST, existing_wlst_value, delimiter=read_delimiter)
                         merged_value = alias_utils.merge_model_and_existing_lists(model_val, existing_val)
                     else:
                         merged_value = model_attribute_value
@@ -376,11 +382,14 @@ class Aliases(object):
                         subtype = 'java.lang.String'
                         if SET_MBEAN_TYPE in attribute_info:
                             subtype = attribute_info[SET_MBEAN_TYPE]
-                        wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value, subtype=subtype)
+                        wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value, subtype=subtype,
+                                                                           delimiter=MODEL_LIST_DELIMITER)
                     else:
-                        wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value)
+                        wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value,
+                                                                           delimiter=MODEL_LIST_DELIMITER)
                 else:
-                    wlst_attribute_value = alias_utils.convert_to_type(data_type, model_attribute_value)
+                    wlst_attribute_value = alias_utils.convert_to_type(data_type, model_attribute_value,
+                                                                       delimiter=MODEL_LIST_DELIMITER)
 
         return wlst_attribute_name, wlst_attribute_value
 
@@ -397,14 +406,15 @@ class Aliases(object):
         """
         _method_name = 'get_wlst_attribute_name'
 
-        self._logger.entering(location, model_attribute_name, class_name=self._class_name, method_name=_method_name)
+        self._logger.entering(str(location), model_attribute_name,
+                              class_name=self._class_name, method_name=_method_name)
         wlst_attribute_name = None
         alias_attr_dict = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
         if alias_attr_dict is not None and not self.__is_model_attribute_read_only(location, alias_attr_dict):
             if WLST_NAME in alias_attr_dict:
                 wlst_attribute_name = alias_attr_dict[WLST_NAME]
             else:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08053', model_attribute_name, location, WLST_NAME)
+                ex = exception_helper.create_alias_exception('WLSDPLY-07108', model_attribute_name, location, WLST_NAME)
                 self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
@@ -424,7 +434,7 @@ class Aliases(object):
         module_folder = self._alias_entries.get_dictionary_for_location(location)
 
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -448,7 +458,7 @@ class Aliases(object):
         module_folder = self._alias_entries.get_dictionary_for_location(location)
 
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -472,7 +482,7 @@ class Aliases(object):
         module_folder = self._alias_entries.get_dictionary_for_location(location)
 
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -500,7 +510,7 @@ class Aliases(object):
         model_subfolder_name = None
 
         module_folder = self._alias_entries.get_dictionary_for_location(location)
-
+        is_base_security_provider_type_location = alias_utils.is_base_security_provider_type_location(location)
         for key, value in module_folder[FOLDERS].iteritems():
             # value will be None if the folder is not the correct version
             if value is not None:
@@ -509,6 +519,9 @@ class Aliases(object):
                         (FLATTENED_FOLDER_DATA in value and WLST_TYPE in value[FLATTENED_FOLDER_DATA] and
                          wlst_subfolder_name == value[FLATTENED_FOLDER_DATA][WLST_TYPE]):
                     model_subfolder_name = key
+                    break
+                elif is_base_security_provider_type_location:
+                    model_subfolder_name = alias_utils.get_security_provider_model_folder_name(wlst_subfolder_name)
                     break
 
         return model_subfolder_name
@@ -531,10 +544,10 @@ class Aliases(object):
             self._alias_entries.is_valid_model_folder_name_for_location(location, model_folder_name)
 
         if result == ValidationCodes.VALID:
-            message = exception_helper.get_message('WLSDPLY-08071', model_folder_name,
+            message = exception_helper.get_message('WLSDPLY-08403', model_folder_name,
                                                    location.get_folder_path(), self._wls_version)
         elif result == ValidationCodes.INVALID:
-            message = exception_helper.get_message('WLSDPLY-08072', model_folder_name,
+            message = exception_helper.get_message('WLSDPLY-08404', model_folder_name,
                                                    location.get_folder_path(), self._wls_version)
         elif result == ValidationCodes.VERSION_INVALID:
             message = \
@@ -542,7 +555,7 @@ class Aliases(object):
                                                                self._wls_version, valid_version_range,
                                                                WlstModes.from_value(self._wlst_mode))
         else:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08045', model_folder_name,
+            ex = exception_helper.create_alias_exception('WLSDPLY-08405', model_folder_name,
                                                          location.get_folder_path(), self._wls_version,
                                                          ValidationCodes.from_value(result))
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
@@ -565,9 +578,9 @@ class Aliases(object):
         _method_name = 'get_model_password_type_attribute_names'
 
         password_attribute_names = []
-        module_folder = self._alias_entries.get_dictionary_for_location(location)
+        module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -575,7 +588,6 @@ class Aliases(object):
             if WLST_TYPE in value and value[WLST_TYPE] == 'password':
                 password_attribute_names.append(key)
         return password_attribute_names
-
 
     def get_model_restart_required_attribute_names(self, location):
         """
@@ -587,10 +599,10 @@ class Aliases(object):
 
         restart_attribute_names = []
 
-        module_folder = self._alias_entries.get_dictionary_for_location(location)
+        module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
 
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -613,9 +625,9 @@ class Aliases(object):
 
         wlst_attribute_names = []
 
-        module_folder = self._alias_entries.get_dictionary_for_location(location)
+        module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -636,9 +648,9 @@ class Aliases(object):
 
         lsa_required_attribute_names = []
 
-        module_folder = self._alias_entries.get_dictionary_for_location(location)
+        module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -659,9 +671,9 @@ class Aliases(object):
 
         model_attribute_names = dict()
 
-        module_folder = self._alias_entries.get_dictionary_for_location(location)
+        module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -684,9 +696,9 @@ class Aliases(object):
 
         model_attributes_dict = dict()
 
-        module_folder = self._alias_entries.get_dictionary_for_location(location)
+        module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -713,16 +725,16 @@ class Aliases(object):
         """
         Get the list of attribute names where merging the new and old values is required.
         :param location: the location
-        :return: dictionary: a list of the model attribute names
+        :return: a list of the model attribute names
         :raises: AliasException: if an error occurs
         """
         _method_name = 'get_model_merge_required_attribute_names'
 
         model_attribute_names = list()
 
-        module_folder = self._alias_entries.get_dictionary_for_location(location)
+        module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -733,6 +745,29 @@ class Aliases(object):
                     merge = alias_utils.convert_boolean(value[MERGE])
                 if merge:
                     model_attribute_names.append(key)
+
+        return model_attribute_names
+
+    def get_model_uses_path_tokens_attribute_names(self, location):
+        """
+        Get the list of attribute names that "use path tokens" (i.e., ones whose values are file system paths).
+        :param location: the location
+        :return: a list of the model attribute names
+        :raises: AliasException: if an error occurs
+        """
+        _method_name = 'get_model_uses_path_tokens_attribute_names'
+
+        model_attribute_names = list()
+        module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
+
+        if ATTRIBUTES not in module_folder:
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        for key, value in module_folder[ATTRIBUTES].iteritems():
+            if USES_PATH_TOKENS in value and alias_utils.convert_boolean(value[USES_PATH_TOKENS]):
+                model_attribute_names.append(key)
 
         return model_attribute_names
 
@@ -765,8 +800,16 @@ class Aliases(object):
             converted_value = alias_utils.convert_to_type(data_type, wlst_attribute_value, delimiter=delimiter)
             model_attribute_name = attribute_info[MODEL_NAME]
             default_value = attribute_info[VALUE][DEFAULT]
+            #
+            # The logic below to compare the str() representation of the converted value and the default value
+            # only works for lists/maps if both the converted value and the default value are the same data type...
+            #
+            if (data_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES) and not \
+                (default_value == '[]' or default_value == 'None'):
+                default_value = alias_utils.convert_to_type(data_type, default_value, delimiter=delimiter)
+
             if data_type == 'password':
-                if wlst_attribute_value is None or converted_value == default_value:
+                if string_utils.is_empty(wlst_attribute_value) or converted_value == default_value:
                     model_attribute_value = None
                 else:
                     model_attribute_value = "--FIX ME--"
@@ -782,12 +825,15 @@ class Aliases(object):
                 if default_value == '[]' or default_value == 'None':
                     model_attribute_value = None
             elif str(converted_value) != str(default_value):
-                model_attribute_value = converted_value
-                if USES_PATH_TOKENS in attribute_info:
-                    model_attribute_value = self._model_context.tokenize_path(model_attribute_value)
+                if _strings_are_empty(converted_value, default_value):
+                    model_attribute_value = None
+                else:
+                    model_attribute_value = converted_value
+                    if USES_PATH_TOKENS in attribute_info:
+                        model_attribute_value = self._model_context.tokenize_path(model_attribute_value)
 
         if wlst_attribute_name not in ('Id', 'Tag', 'Name') and model_attribute_name is None:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08007', wlst_attribute_name,
+            ex = exception_helper.create_alias_exception('WLSDPLY-08406', wlst_attribute_name,
                                                          location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
@@ -795,10 +841,25 @@ class Aliases(object):
                              result={model_attribute_name: model_attribute_value})
         return model_attribute_name, model_attribute_value
 
+    def get_model_attribute_names(self, location):
+        """
+        Returns the model attribute names for the specified location.
+        :param location: the location
+        :return: the list of model attribute names
+        :raises: AliasException: if an error occurs
+        """
+        _method_name = 'get_model_attribute_names'
+
+        self._logger.entering(str(location), class_name=self._class_name, method_name=_method_name)
+        attributes_dict = self._alias_entries.get_alias_attribute_entries_by_location(location)
+        result = list(attributes_dict.keys())
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
     def get_model_attribute_names_and_types(self, location):
         """
-        Returns the model attribute name and type for the specified WLST attribute name and value.
-        :param location:
+        Returns the model attribute name and type for the specified location.
+        :param location: the location
         :return: a dictionary keyed on model attribute names with the type as the value
         :raises: AliasException: if an error occurs
         """
@@ -817,6 +878,13 @@ class Aliases(object):
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
+
+    def get_model_domain_info_attribute_names_and_types(self):
+        """
+        Get the attribute names and types for the domainInfo section of the model
+        :return: a dictionary keyed on model attribute names with the type as the value
+        """
+        return self._alias_entries.get_domain_info_attribute_names_and_types()
 
     def attribute_values_are_equal(self, location, model_attribute_name, model_attribute_value, wlst_attribute_value):
         """
@@ -838,7 +906,7 @@ class Aliases(object):
         module_folder = self._alias_entries.get_dictionary_for_location(location)
 
         if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08002', location.get_folder_path())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -874,26 +942,50 @@ class Aliases(object):
         result, valid_version_range = \
             self._alias_entries.is_valid_model_attribute_name_for_location(location, model_attribute_name)
 
+        path = self.get_model_folder_path(location)
         if result == ValidationCodes.VALID:
-            message = exception_helper.get_message('WLSDPLY-08040', model_attribute_name,
-                                                   location.get_folder_path(), self._wls_version)
+            message = exception_helper.get_message('WLSDPLY-08407', model_attribute_name, path, self._wls_version)
         elif result == ValidationCodes.INVALID:
-            message = exception_helper.get_message('WLSDPLY-08041', model_attribute_name,
-                                                   location.get_folder_path(), self._wls_version)
+            message = exception_helper.get_message('WLSDPLY-08408', model_attribute_name, path, self._wls_version)
         elif result == ValidationCodes.VERSION_INVALID:
             message = \
-                VersionUtils.getValidAttributeVersionRangeMessage(model_attribute_name, location.get_folder_path(),
+                VersionUtils.getValidAttributeVersionRangeMessage(model_attribute_name, path,
                                                                   self._wls_version, valid_version_range,
                                                                   WlstModes.from_value(self._wlst_mode))
         else:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08045', model_attribute_name,
-                                                         location.get_folder_path(), self._wls_version,
+            ex = exception_helper.create_alias_exception('WLSDPLY-08405', model_attribute_name, path, self._wls_version,
                                                          ValidationCodes.from_value(result))
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result, message
+
+    def get_model_attribute_default_value(self, location, model_attribute_name):
+        """
+        Get the default value for the specified attribute
+        :param location: the location
+        :param model_attribute_name: the model attribute name
+        :return: the default value converted to the type
+        :raises: AliasException: if an error occurred
+        """
+        _method_name = 'get_model_attribute_default_value'
+
+        self._logger.entering(str(location), model_attribute_name,
+                              class_name=self._class_name, method_name=_method_name)
+        default_value = None
+        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
+        if attribute_info is not None:
+            default_value = attribute_info[VALUE][DEFAULT]
+            if default_value == 'None':
+                default_value = None
+            else:
+                data_type, delimiter = \
+                    alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(attribute_info, default_value)
+
+                default_value = alias_utils.convert_to_type(data_type, default_value, delimiter=delimiter)
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=default_value)
+        return default_value
 
     ####################################################################################
     #
@@ -929,9 +1021,32 @@ class Aliases(object):
         _method_name = '__is_model_attribute_read_only'
         rtnval = False
         if ACCESS in attribute_info and attribute_info[ACCESS] in ('RO', 'VO'):
-            self._logger.finer('WLSDPLY-08049', attribute_info[MODEL_NAME], location.get_folder_path(),
+            self._logger.finer('WLSDPLY-08409', attribute_info[MODEL_NAME], location.get_folder_path(),
                                WlstModes.from_value(self._wlst_mode),
                                class_name=self._class_name, method_name=_method_name)
             rtnval = True
 
         return rtnval
+
+
+def _strings_are_empty(converted_value, default_value):
+    """
+    Test converted and default values to see if they are both either None or an empty string
+    :param converted_value: the converted value
+    :param default_value: the default value
+    :return:
+    """
+    if type(converted_value) is str:
+        str_converted_value = converted_value
+    else:
+        str_converted_value = str(converted_value)
+
+    if type(default_value) is str:
+        str_default_value = default_value
+    else:
+        str_default_value = str(default_value)
+
+    if str_default_value == 'None':
+        str_default_value = None
+
+    return string_utils.is_empty(str_converted_value) and string_utils.is_empty(str_default_value)

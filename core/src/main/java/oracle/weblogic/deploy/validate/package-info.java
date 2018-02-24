@@ -5,4 +5,4 @@
 /**
  * Validation system-related classes.
  */
-package oracle.weblogic.deploy.validation;
+package oracle.weblogic.deploy.validate;

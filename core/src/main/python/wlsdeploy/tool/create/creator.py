@@ -2,13 +2,15 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+from oracle.weblogic.deploy.util import WLSDeployArchive
+
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.tool.util.alias_helper import AliasHelper
+from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -29,6 +31,10 @@ class Creator(object):
         self.model_context = model_context
         self.wls_helper = WebLogicHelper(self.logger)
         self.attribute_setter = AttributeSetter(self.aliases, self.logger, ExceptionType.CREATE)
+        # Must be initialized by the subclass since only it has
+        # the knowledge required to compute the domain name.
+        self.archive_helper = None
+        self.files_to_extract_from_archive = list()
         return
 
     def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False):
@@ -85,7 +91,8 @@ class Creator(object):
                                self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
             self._set_attributes(location, child_nodes)
             self._create_subfolders(location, child_nodes)
-            self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
     def _create_mbean(self, type_name, model_nodes, base_location, log_created=False):
@@ -124,7 +131,7 @@ class Creator(object):
             self.wlst_helper.create_and_cd(self.alias_helper, mbean_type, mbean_name, location, create_path)
         else:
             if log_created:
-                self.logger.info('WLSDPLY-12103', type_name, class_name=self.__class_name, method_name=_method_name)
+                self.logger.info('WLSDPLY-20013', type_name, class_name=self.__class_name, method_name=_method_name)
             else:
                 self.logger.fine('WLSDPLY-12102', type_name, class_name=self.__class_name, method_name=_method_name)
 
@@ -135,6 +142,81 @@ class Creator(object):
                            self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
         self._set_attributes(location, model_nodes)
         self._create_subfolders(location, model_nodes)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def _create_security_provider_mbeans(self, type_name, model_nodes, base_location, log_created=False):
+        """
+        Create the specified security provider MBean types that support multiple instances but use an
+        artificial type subfolder in the specified location.
+        :param type_name: the model folder type
+        :param model_nodes: the model dictionary of the specified model folder type
+        :param base_location: the base location object to use to create the MBeans
+        :param log_created: whether or not to log created at INFO level, by default it is logged at the FINE level
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '_create_security_provider_mbeans'
+
+        self.logger.entering(type_name, str(base_location), log_created,
+                             class_name=self.__class_name, method_name=_method_name)
+        if model_nodes is None or len(model_nodes) == 0 or not self._is_type_valid(base_location, type_name):
+            return
+
+        location = LocationContext(base_location).append_location(type_name)
+        self._process_flattened_folder(location)
+
+        token_name = self.alias_helper.get_name_token(location)
+        create_path = self.alias_helper.get_wlst_create_path(location)
+        list_path = self.alias_helper.get_wlst_list_path(location)
+        existing_folder_names = self._get_existing_folders(list_path)
+        for model_name in model_nodes:
+            prov_location = LocationContext(location)
+            name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
+            if token_name is not None:
+                prov_location.add_name_token(token_name, name)
+
+            wlst_base_provider_type, wlst_name = self.alias_helper.get_wlst_mbean_type_and_name(prov_location)
+            model_node = model_nodes[model_name]
+            if model_node is not None:
+                if len(model_node) == 1:
+                    model_type_subfolder_name = list(model_node.keys())[0]
+                    prov_location.append_location(model_type_subfolder_name)
+                    wlst_type = self.alias_helper.get_wlst_mbean_type(prov_location)
+                else:
+                    ex = exception_helper.create_create_exception('WLSDPLY-12117', type_name,
+                                                                  model_name, len(model_node))
+                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                    raise ex
+            else:
+                # The node is empty so nothing to do...move to the next named node.
+                continue
+
+            if wlst_name not in existing_folder_names:
+                if log_created:
+                    self.logger.info('WLSDPLY-12118', type_name, model_type_subfolder_name, name,
+                                     class_name=self.__class_name, method_name=_method_name)
+                else:
+                    self.logger.fine('WLSDPLY-12118', type_name, model_type_subfolder_name, name,
+                                     class_name=self.__class_name, method_name=_method_name)
+                self.wlst_helper.cd(create_path)
+                self.wlst_helper.create(wlst_name, wlst_type, wlst_base_provider_type)
+            else:
+                if log_created:
+                    self.logger.info('WLSDPLY-12119', type_name, model_type_subfolder_name, name,
+                                     class_name=self.__class_name, method_name=_method_name)
+                else:
+                    self.logger.fine('WLSDPLY-12119', type_name, model_type_subfolder_name, name,
+                                     class_name=self.__class_name, method_name=_method_name)
+
+            attribute_path = self.alias_helper.get_wlst_attributes_path(prov_location)
+            self.wlst_helper.cd(attribute_path)
+
+            child_nodes = dictionary_utils.get_dictionary_element(model_node, model_type_subfolder_name)
+            self.logger.finest('WLSDPLY-12111', self.alias_helper.get_model_folder_path(prov_location),
+                               self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
+            self._set_attributes(prov_location, child_nodes)
+            self._create_subfolders(prov_location, child_nodes)
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -150,6 +232,7 @@ class Creator(object):
         model_attribute_names = self.alias_helper.get_model_attribute_names_and_types(location)
         password_attribute_names = self.alias_helper.get_model_password_type_attribute_names(location)
         set_method_map = self.alias_helper.get_model_mbean_set_method_attribute_names_and_types(location)
+        uses_path_tokens_attribute_names = self.alias_helper.get_model_uses_path_tokens_attribute_names(location)
         model_folder_path = self.alias_helper.get_model_folder_path(location)
         pwd = self.wlst_helper.get_pwd()
 
@@ -162,11 +245,11 @@ class Creator(object):
                 elif key in password_attribute_names:
                     self.logger.finest('WLSDPLY-12113', key, pwd, model_folder_path,
                                        class_name=self.__class_name, method_name=_method_name)
-                    self._set_attribute(location, key, value, masked=True)
+                    self._set_attribute(location, key, value, uses_path_tokens_attribute_names, masked=True)
                 else:
                     self.logger.finest('WLSDPLY-12113', key, pwd, model_folder_path,
                                        class_name=self.__class_name, method_name=_method_name)
-                    self._set_attribute(location, key, value)
+                    self._set_attribute(location, key, value, uses_path_tokens_attribute_names)
         return
 
     def _set_mbean_attribute(self, location, model_key, model_value, set_method_map):
@@ -189,7 +272,7 @@ class Creator(object):
                 self.logger.finest('WLSDPLY-12114', model_key, model_value, set_method_name,
                                    class_name=self.__class_name, method_name=_method_name)
                 set_method = getattr(self.attribute_setter, set_method_name)
-                set_method(location, model_key, model_value)
+                set_method(location, model_key, model_value, None)
             except AttributeError, ae:
                 ex = exception_helper.create_create_exception('WLSDPLY-12104', set_method_name, model_key,
                                                               self.alias_helper.get_model_folder_path(location),
@@ -203,16 +286,40 @@ class Creator(object):
             raise ex
         return
 
-    def _set_attribute(self, location, model_name, model_value, masked=False):
+    def _set_attribute(self, location, model_name, model_value, uses_path_tokens_names, masked=False):
         """
         Set the specified attribute at the specified location to the specified value.
         :param location: the location
         :param model_name: the model attribute name
         :param model_value: the model attribute value
-        :param masked: whetyher or not to mask the attribute value in the log
+        :param: uses_path_token_names: the list of model attribute names that use file system path tokens
+        :param masked: whether or not to mask the attribute value in the log
         :raises: CreateException: if an error occurs
         """
         _method_name = '_set_attribute'
+
+        if model_name in uses_path_tokens_names and WLSDeployArchive.isPathIntoArchive(model_value):
+            if self.archive_helper is not None:
+                if self.archive_helper.contains_file(model_value):
+                    #
+                    # We cannot extract the files until the domain directory exists
+                    # so add them to the list so that they can be extracted after
+                    # domain creation completes.
+                    #
+                    self.files_to_extract_from_archive.append(model_value)
+                else:
+                    path = self.alias_helper.get_model_folder_path(location)
+                    archive_file_name = self.model_context.get_archive_file_name
+                    ex = exception_helper.create_create_exception('WLSDPLY-12121', model_name, path,
+                                                                  model_value, archive_file_name)
+                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                    raise ex
+            else:
+                path = self.alias_helper.get_model_folder_path(location)
+                ex = exception_helper.create_create_exception('WLSDPLY-12122', model_name, path, model_value)
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
         wlst_name, wlst_value = self.alias_helper.get_wlst_attribute_name_and_value(location, model_name, model_value)
 
         if wlst_name is None:
@@ -255,6 +362,15 @@ class Creator(object):
                         self.logger.finest('WLSDPLY-12109', key, str(sub_location), subfolder_nodes,
                                            class_name=self.__class_name, method_name=_method_name)
                         self._create_named_mbeans(key, subfolder_nodes, location)
+                    elif self.alias_helper.requires_artificial_type_subfolder_handling(sub_location):
+                        self.logger.finest('WLSDPLY-12116', key, str(sub_location), subfolder_nodes,
+                                           class_name=self.__class_name, method_name=_method_name)
+                        self._create_security_provider_mbeans(key, subfolder_nodes, location)
+                    elif self.alias_helper.is_artificial_type_folder(sub_location):
+                        ex = exception_helper.create_create_exception('WLSDPLY-12120', str(sub_location),
+                                                                      key, str(location))
+                        self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                        raise ex
                     else:
                         self.logger.finest('WLSDPLY-12110', key, str(sub_location), subfolder_nodes,
                                            class_name=self.__class_name, method_name=_method_name)

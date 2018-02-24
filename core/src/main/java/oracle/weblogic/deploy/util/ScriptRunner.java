@@ -83,8 +83,8 @@ public class ScriptRunner {
             }
         });
 
-        LOGGER.info("WLSDPLY-03173", scriptToRun.getName(), processHandler);
-        LOGGER.info("WLSDPLY-03174", scriptToRun.getName(), stdoutFile.getAbsolutePath());
+        LOGGER.info("WLSDPLY-01300", scriptToRun.getName(), processHandler);
+        LOGGER.info("WLSDPLY-01301", scriptToRun.getName(), stdoutFile.getAbsolutePath());
         processHandler.exec(linesToPipeToStdout);
         int exitCode = processHandler.getExitCode();
         stdoutBuffer = processHandler.getStdoutBuffer();

@@ -10,8 +10,8 @@ from wlsdeploy.exception.expection_types import ExceptionType
 class ExceptionHelperTestCase(unittest.TestCase):
 
     def testCreateException(self):
-        ex = exception_helper.create_exception(ExceptionType.CREATE, 'WLSDPLY-12000',
-                                               '/foo/bar', '/foo/bar does not exist')
+        ex = exception_helper.create_exception(ExceptionType.CREATE, 'WLSDPLY-12400',
+                                               'createDomain', '-oracle_home')
         self.assertNotEquals(ex, None)
         return
 
