@@ -155,7 +155,12 @@ class AliasEntries(object):
         'AdminUserName': 'string',
         'AdminPassword': 'string',
         'ServerStartMode': 'string',
-        'domainLibraries': 'list'
+        'domainLibraries': 'list',
+        # A map of Server Group names to the list of servers/clusters to which they should
+        # be targeted.  The ServerGroup must appear in the domain typedef definition.  If
+        # the ServerGroup is not listed in this map, it will be targeted to all managed
+        # servers in the domain.
+        'ServerGroupTargetingLimits': 'dict'
     }
 
     __domain_name_token = 'DOMAIN'

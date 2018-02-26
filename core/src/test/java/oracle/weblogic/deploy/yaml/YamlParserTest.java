@@ -448,7 +448,7 @@ public class YamlParserTest extends YamlBaseListener {
                 Object arrayElement = getScalarValue(madeUpName, arrayElementValueContext);
                 pyObjList.add(arrayElement);
             }
-            value =pyObjList;
+            value = pyObjList;
         } else {
             value = getScalarValue(name, valueCtx);
         }
