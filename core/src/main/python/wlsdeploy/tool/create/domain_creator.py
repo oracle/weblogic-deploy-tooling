@@ -71,6 +71,7 @@ from wlsdeploy.aliases.model_constants import ROLE_MAPPER
 from wlsdeploy.aliases.model_constants import SECURITY
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SERVER
+from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
 from wlsdeploy.aliases.model_constants import SERVER_START_MODE
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import SET_OPTION_APP_DIR
@@ -103,10 +104,9 @@ class DomainCreator(Creator):
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-        self._model = Model(model_dictionary)
         self._domain_typedef = self.model_context.get_domain_typedef()
-        self._topology = self._model.get_model_topology()
-        self._domain_info = self._model.get_model_domain_info()
+        self._topology = self.model.get_model_topology()
+        self._domain_info = self.model.get_model_domain_info()
 
         if DOMAIN_NAME in self._topology:
             self._domain_name = self._topology[DOMAIN_NAME]
@@ -204,7 +204,7 @@ class DomainCreator(Creator):
         if self.wls_helper.is_mt_offline_provisioning_supported():
             return
 
-        resources_dict = self._model.get_model_resources()
+        resources_dict = self.model.get_model_resources()
         if (not dictionary_utils.is_empty_dictionary_element(self._topology, VIRTUAL_TARGET)) or \
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, RESOURCE_GROUP_TEMPLATE)) or \
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, RESOURCE_GROUP)) or \
@@ -253,7 +253,7 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         self.model_context.set_domain_home(self._domain_home)
         self.wlst_helper.read_domain(self._domain_home)
-        model_deployer.deploy_resources_and_apps_for_create(self._model, self.model_context, self.aliases)
+        model_deployer.deploy_resources_and_apps_for_create(self.model, self.model_context, self.aliases)
         self.wlst_helper.update_domain()
         self.wlst_helper.close_domain()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -309,7 +309,7 @@ class DomainCreator(Creator):
         self.__configure_fmw_infra_database()
 
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-        self.__target_server_groups_to_managed_servers(server_groups_to_target)
+        self.__target_server_groups_to_servers(server_groups_to_target)
 
         self.logger.info('WLSDPLY-12209', self._domain_name,
                          class_name=self.__class_name, method_name=_method_name)
@@ -345,12 +345,13 @@ class DomainCreator(Creator):
 
         topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
         self.__apply_base_domain_config(topology_folder_list)
+
         if len(extension_templates) > 0:
             self.__set_app_dir()
             self.__configure_fmw_infra_database()
 
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-            self.__target_server_groups_to_managed_servers(server_groups_to_target)
+            self.__target_server_groups_to_servers(server_groups_to_target)
 
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
@@ -368,7 +369,7 @@ class DomainCreator(Creator):
         _method_name = '__install_domain_libraries'
 
         self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
-        domain_info_dict = dictionary_utils.get_dictionary_element(self.model, DOMAIN_INFO)
+        domain_info_dict = self.model.get_model_domain_info()
         if DOMAIN_LIBRARIES not in domain_info_dict or len(domain_info_dict[DOMAIN_LIBRARIES]) == 0:
             self.logger.info('WLSDPLY-12213', class_name=self.__class_name, method_name=_method_name)
         else:
@@ -727,50 +728,63 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __target_server_groups_to_managed_servers(self, server_groups_to_target):
+    def __target_server_groups_to_servers(self, server_groups_to_target):
         """
-        Target the server groups to the managed servers.
+        Target the server groups to the servers.
         :param server_groups_to_target: the list of server groups to target
         :raises: CreateException: if an error occurs
         """
-        _method_name = '__target_server_groups_to_managed_servers'
+        _method_name = '__target_server_groups_to_servers'
 
         self.logger.entering(server_groups_to_target, class_name=self.__class_name, method_name=_method_name)
         if len(server_groups_to_target) == 0:
             return
 
-        self.logger.info('WLSDPLY-12224', server_groups_to_target,
-                         class_name=self.__class_name, method_name=_method_name)
-
         location = LocationContext()
         root_path = self.alias_helper.get_wlst_attributes_path(location)
         self.wlst_helper.cd(root_path)
 
-        # If no Server section exists, only the template-defined servers exist so there
-        # shouldn't be any managed servers that require targeting but make sure by reading
-        # the servers from WLST.
-        if SERVER in self._topology:
-            servers = self._topology[SERVER]
-        else:
-            server_location = LocationContext().append_location(SERVER)
-            server_list_path = self.alias_helper.get_wlst_list_path(server_location)
-            servers = self.wlst_helper.get_existing_object_list(server_list_path)
+        # We need to get the effective list of servers for the domain.  Since any servers
+        # referenced in the model have already been created but the templates may have
+        # defined new servers not listed in the model, get the list from WLST.
+        server_names = self._get_existing_server_names()
 
-        if len(servers) > 1:
-            for server in servers:
-                if not server == self._admin_server_name:
+        # Get the clusters and and their members
+        cluster_map = self._get_clusters_and_members_map()
+
+        # Get any limits that may have been defined in the model
+        domain_info = self.model.get_model_domain_info()
+        server_group_targeting_limits = \
+            dictionary_utils.get_dictionary_element(domain_info, SERVER_GROUP_TARGETING_LIMITS)
+        if len(server_group_targeting_limits) > 0:
+            server_group_targeting_limits = \
+                self._get_server_group_targeting_limits(server_group_targeting_limits, cluster_map)
+
+        # Get the map of server names to server groups to target
+        server_to_server_groups_map = self._get_server_to_server_groups_map(self._admin_server_name,
+                                                                            server_names,
+                                                                            server_groups_to_target,
+                                                                            server_group_targeting_limits)
+        if len(server_names) > 1:
+            for server, server_groups in server_to_server_groups_map.iteritems():
+                if len(server_groups) > 0:
                     server_name = self.wlst_helper.get_quoted_name_for_wlst(server)
-                    self.wlst_helper.set_server_groups(server_name, server_groups_to_target)
-        else:
+                    self.logger.info('WLSDPLY-12224', str(server_groups), server_name,
+                                     class_name=self.__class_name, method_name=_method_name)
+                    self.wlst_helper.set_server_groups(server_name, server_groups)
+
+        elif len(server_group_targeting_limits) == 0:
             #
-            # Domain has no managed servers so make sure that the server groups are targeted to the admin server.
+            # Domain has no managed servers and there were not targeting limits specified to target
+            # server groups to the admin server so make sure that the server groups are targeted to
+            # the admin server.
+            #
             # This is really a best effort attempt.  It works for JRF domains but it is certainly possible
             # that it may cause problems with other custom domain types.  Of course, creating a domain with
             # no managed servers is not a primary use case of this tool so do it and hope for the best...
             #
-            server_name = self.wlst_helper.get_quoted_name_for_wlst(servers[0])
+            server_name = self.wlst_helper.get_quoted_name_for_wlst(server_names[0])
             self.wlst_helper.set_server_groups(server_name, server_groups_to_target)
-
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

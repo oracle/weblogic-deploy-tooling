@@ -659,7 +659,7 @@ This file tells the Create Domain tool what templates to use to create the domai
                 "Oracle SOA Suite"
             ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR",  "SOA-MGD-SVRS" ],
-            "rcuSchemas": [ "STB", "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "UCSUMS", "ESS", "SOAINFRA" ]
+            "rcuSchemas": [ "STB", "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "UCSUMS", "SOAINFRA" ]
         }
     }
 }
@@ -668,6 +668,105 @@ This file tells the Create Domain tool what templates to use to create the domai
 Once the new domain typedef file exists, simply specify the new domain type name to the `createDomain` script, being sure reference an Oracle Home with the required components installed.  For pre-12.2.1 versions, the `-wlst_path` argument must be used to point to the product home where the appropriate WLST shell script exists; for example, for SOA 12.1.3, add `-wlst_path <ORACLE_HOME>/soa` so that the tool uses the WLST shell script with the proper environment for SOA somains.  In 12.2.1 and later, this is no longer necessary since the WLST shell script in the standard `<ORACLE_HOME>oracle_common/common/bin` directory will automatically load all components in the Oracle Home.  Using the new domain type, simply run the following command to run RCU and create the SOA domain with all of its resources and applications deployed.
 
     weblogic-deploy\bin\createDomain.cmd -oracle_home d:\SOA12213 -domain_type SOA -domain_parent d:\demo\domains -model_file DemoDomain.yaml -archive_file DemoDomain.zip -variable_file DemoDomain.properties -run_rcu -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO
+
+To create more complex domains with clusters of different types, it is necessary to control the targeting of server groups to managed servers.  By default, all server groups in the domain type definition are targeted to all managed servers.  To create a SOA domain with a SOA and OSB clusters, simply add the OSB template and server group to the SOA domain definition, as shown below.
+
+```json
+{
+    "name": "SOA",
+    "description": "SOA type domain definitions",
+    "versions": {
+        "12.2.1.3": "SOA_12213"
+    },
+    "definitions": {
+        "SOA_12213": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [
+                "Oracle SOA Suite",
+                "Oracle Service Bus"
+            ],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR",  "SOA-MGD-SVRS",  "OSB-MGD-SVRS-COMBINED" ],
+            "rcuSchemas": [ "STB", "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "UCSUMS", "SOAINFRA" ]
+        }
+    }
+}
+```
+
+Then, use the `ServerGroupTargetingLimits` map in the `domainInfo` section to limit the targeting of the Web Services Manager, SOA, and OSB server groups to the `soa_cluster` or `osb_cluster`, as appropriate.  In the example below, notice that the `JRF-MAN-SVR` server group is not listed; therefore, it will use the default targeting and be targeted to all managed servers.  The value of each element in this section is a logically list of server and/or cluster names.  As shown in the example, the value for each server group can be specified as a list, a comma-separated string, or a single-valued string.  There is no semantic difference between listing a cluster's member server names versus using the cluster name; the example uses these simply to show what is possible.
+
+```$yaml
+domainInfo:
+    AdminUserName: weblogic
+    AdminPassword: welcome1
+    ServerStartMode: prod
+    ServerGroupTargetingLimits:
+        'WSMPM-MAN-SVR': soa_cluster
+        'SOA-MGD-SVRS': 'soa_server1,soa_server2'
+        'OSB-MGD-SVRS-COMBINED': [ osb_server1, osb_server2 ]
+
+topology:
+    Name: soa_domain
+    AdminServerName: AdminServer
+    Cluster:
+        soa_cluster:
+        osb_cluster:
+    Server:
+        AdminServer:
+            ListenAddress: myadmin.example.com
+            ListenPort: 7001
+            Machine: machine1
+            SSL:
+                Enabled: true
+                ListenPort: 7002
+        soa_server1:
+            ListenAddress: managed1.example.com
+            ListenPort: 8001
+            Cluster: soa_cluster
+            Machine: machine2
+            SSL:
+                Enabled: true
+                ListenPort: 8002
+        soa_server2:
+            ListenAddress: managed2.example.com
+            ListenPort: 8001
+            Cluster: soa_cluster
+            Machine: machine3
+            SSL:
+                Enabled: true
+                ListenPort: 8002
+        osb_server1:
+            ListenAddress: managed1.example.com
+            ListenPort: 9001
+            Cluster: osb_cluster
+            Machine: machine2
+            SSL:
+                Enabled: true
+                ListenPort: 9002
+        osb_server2:
+            ListenAddress: managed2.example.com
+            ListenPort: 9001
+            Cluster: osb_cluster
+            Machine: machine3
+            SSL:
+                Enabled: true
+                ListenPort: 9002
+    UnixMachine:
+        machine1:
+            NodeManager:
+                ListenAddress: myadmin.example.com
+                ListenPort: 5556
+        machine2:
+            NodeManager:
+                ListenAddress: managed1.example.com
+                ListenPort: 5556
+        machine3:
+            NodeManager:
+                ListenAddress: managed2.example.com
+                ListenPort: 5556
+    SecurityConfiguration:
+        NodeManagerUsername: weblogic
+        NodeManagerPasswordEncrypted: welcome1
+```
 
 One last note is that if the model or variables file contains encrypted passwords, add the `-use_encryption` flag to the command-line to tell the Create Domain tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (i.e., stdin) to allow the tool to run without any user input.
 

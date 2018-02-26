@@ -26,7 +26,9 @@ from wlsdeploy.util.enum import Enum
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 from wlsdeploy.aliases.model_constants import DOMAIN_LIBRARIES
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import NAME
+from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 
 _class_name = 'Validator'
@@ -361,6 +363,13 @@ class Validator(object):
                                                                               section_dict_value,
                                                                               model_folder_path,
                                                                               validation_result)
+                elif section_dict_key == SERVER_GROUP_TARGETING_LIMITS:
+                    validation_result = self.__validate_server_group_targeting_limits(section_dict_key,
+                                                                                      section_dict_value,
+                                                                                      valid_attr_infos,
+                                                                                      model_folder_path,
+                                                                                      validation_location,
+                                                                                      validation_result)
                 else:
                     validation_result = self.__validate_attribute(section_dict_key,
                                                                   section_dict_value,
@@ -890,7 +899,7 @@ class Validator(object):
                 attr_values.append(attribute_value)
 
             for item_path in attr_values:
-                validation_result = self.__validate_single_path_in_archive(item_path, attribute_name,
+                validation_result = self.__validate_single_path_in_archive(item_path.strip(), attribute_name,
                                                                            model_folder_path, validation_result)
 
         return validation_result
@@ -943,6 +952,64 @@ class Validator(object):
                                                           substituted_path)
                 validation_result.add_info(message)
 
+        return validation_result
+
+    def __validate_server_group_targeting_limits(self, attribute_name, attribute_value, valid_attr_infos,
+                                                 model_folder_path, validation_location, validation_result):
+        __method_name = '__validate_server_group_targeting_limits'
+
+        self._logger.entering(attribute_name, attribute_value, valid_attr_infos, model_folder_path,
+                              str(validation_location), class_name=_class_name, method_name=__method_name)
+
+        if attribute_value is not None:
+            if not isinstance(attribute_value, dict):
+                message = validation_utils.format_message('WLSDPLY-05032', attribute_name, model_folder_path,
+                                                          str(type(attribute_value)))
+                validation_result.add_error(message)
+            else:
+                model_folder_path += '/' + attribute_name
+                for key, value in attribute_value.iteritems():
+                    if type(key) is not str:
+                        # Force the key to a string for any value validation issues reported below
+                        key = str(key)
+                        message = validation_utils.format_message('WLSDPLY-05033', key, model_folder_path,
+                                                          str(type(key)))
+                        validation_result.add_error(message)
+                    else:
+                        if '${' in key:
+                            key, validation_result = \
+                                _report_unsupported_variable_usage(key, model_folder_path, validation_result)
+
+                    if type(value) is str and MODEL_LIST_DELIMITER in value:
+                        value = value.split(MODEL_LIST_DELIMITER)
+
+                    if type(value) is list:
+                        for element in value:
+                            validation_result = \
+                                self.__validate_single_server_group_target_limits_value(key, element.strip(),
+                                                                                        model_folder_path,
+                                                                                        validation_result)
+                    elif type(value) is str:
+                        validation_result = \
+                            self.__validate_single_server_group_target_limits_value(key, value,
+                                                                                    model_folder_path,
+                                                                                    validation_result)
+                    else:
+                        message = validation_utils.format_message('WLSDPLY-05034', key, model_folder_path,
+                                                                  str(type(value)))
+                        validation_result.add_error(message)
+
+        self._logger.exiting(class_name=_class_name, method_name=__method_name)
+        return validation_result
+
+    def __validate_single_server_group_target_limits_value(self, key, value, model_folder_path, validation_result):
+        if type(value) is str:
+            if '${' in str(value):
+                value, validation_result = \
+                    _report_unsupported_variable_usage(str(value), model_folder_path, validation_result)
+        else:
+            message = validation_utils.format_message('WLSDPLY-05035', key, str(value), model_folder_path, str(type(value)))
+            validation_result.add_error(message)
         return validation_result
 
 
