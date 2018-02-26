@@ -297,6 +297,8 @@ def main():
                                                 model_context)
 
         except ValidateException, ve:
+            __logger.severe('WLSDPLY-20000', _program_name, ve.getLocalizedMessage(), error=ve,
+                            class_name=_class_name, method_name=_method_name)
             __clean_up_temp_files()
             sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
