@@ -122,6 +122,39 @@ Users can create further directory structures underneath the above locations to 
 
 One final note is that the framework is written in such a way to allow the model to be extended for use by other tools.  Adding other top-level sections to the model is supported and the existing tooling and framework will simply ignore them, if present.  For example, it would be possible to add a `soaComposites` section to the model where SOA composite applications are described and a location within the archive file where those binaries can be stored so that a tool that understands SOA composites and how to deploy them could be run against the same model and archive files.
 
+### Model Names
+
+The WebLogic Deploy Tooling handles names of WebLogic Server configuration artifacts in a very prescribed way.  To understand how names are handled, users first need a basic understanding of WLST offline naming.  In WLST offline, there are two general categories of configuration artifacts:
+
+- Artifacts that can hold zero or more references to another configuration artifact type.
+- Artifacts that can hold zero or one reference to another configuration artifact.
+
+For example, a domain can contain zero or more `JDBCSystemResource` or `AppDeployment` instances but can only contain a single `SecurityConfiguration` artifact.  When working with configuration artifacts like `JDBCSystemResource`, the name is always modeled as a sub-element of the `JDBCSystemResource` element, as shown below.
+
+```yaml
+resources:
+    JDBCSystemResource:
+        MyDataSource:
+            Target: mycluster
+            ...
+        YourDataSource:
+            Target: yourcluster
+            ...
+```
+
+In the example above, the model has two instances of `JDBCSystemResource`: one named `MyDataSource` and one named `YourDataSource`.  For anyone familiar with WLST, this should seem somewhat natural since the WLST offline path to the `MyDataSource` configuration will always start with `/JDBCSystemResource/MyDataSource`.  What might not seem natural is that in this WLST folder, there is a `Name` attribute that is also set to MyDataSource.  The WebLogic Deploy Tooling requires that modelers set the `JDBCSystemRTesource` name using the folder semantics as shown in the example.  It is not possible to set the Name using the `Name` attribute inside the folder and any attempts to do will not work--the `Name` attribute is really redundant in this case since the name was already specified as the folder name.
+
+When working with with artifacts like `SecurityConfiguration` or `JMX`, there is never more than one instance of these artifacts in a domain since they are really just configuration containers and their name generally has no semantic meaning.  As such, the WebLogic Deploy Tooling does not expose these names in the model, as shown below:
+
+```yaml
+topology:
+    SecurityConfiguration:
+        NodeManagerUsername: weblogic
+        NodeManagerPasswordEncrypted: welcome1
+``` 
+
+As the example above shows, the `SecurityConfiguration` element has no named sub-element as there is with `JDBCSystemResource` even though the WLST path to the `SecurityConfiguration` attributes is `/SecurityConfiguration/<domain-name>`.  The WebLogic Deploy Tooling has built in rules and a knowledge-base that controls how these names are handled so that it can complete configuration of these artifacts.  As with the previous class of configuration artifact, the folder almost always contains a ` Name` attribute that, in WLST, could be used to change the name.  As with the previous class of artifact, the WebLogic Deploy Tooling does not support the use of the `Name` attribute in these folders and any attempt to set the `Name` attribute will not be honored.  In general, the only model location that uses the `Name` attribute is the top-level topology section, since this maps to where WLST stores the domain name. 
+
 ### Model Semantics
 
 When modeling configuration attributes that can have multiple values, the WebLogic Deploy Tooling tries to make this as painless as possible.  For example, the `Target` attribute on resources can have zero or more clusters and/or servers specified.  When specifying the value of such list attributes, the user has freedom to specify them as a list or as a comma-delimited string (comma is the only recognized delimiter for lists).  For attributes where the values can legally contain commas, the items must be specified as a list.  Examples of each are shown below.
