@@ -13,6 +13,7 @@ from java.lang import Boolean
 from java.lang import Class
 from java.lang import Exception as JException
 from java.lang import Long
+from java.lang import NumberFormatException
 from java.lang import RuntimeException
 from java.lang import String
 from java.util import Properties
@@ -632,6 +633,7 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
     :param value: the value
     :return: the value converted to the specified type
     """
+    _method_name = 'convert_to_type'
     #
     # TypeUtils.convertToType doesn't work for passwords...
     #
@@ -642,7 +644,13 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
         # String back to a Python string...ugly but effective.
         new_value = str(String(value))
     else:
-        new_value = TypeUtils.convertToType(data_type, value, delimiter)
+        try:
+            new_value = TypeUtils.convertToType(data_type, value, delimiter)
+        except NumberFormatException, nfe:
+            ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter,
+                                                         nfe.getLocalizedMessage(), error=nfe)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
         if new_value is not None:
             if data_type == LONG:
