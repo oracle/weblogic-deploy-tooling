@@ -406,6 +406,9 @@ public class WLSDeployZipFile {
             LOGGER.finer("WLSDPLY-01507", entryName);
             newEntryName = getNextUniqueEntryName(entryName);
             LOGGER.finer("WLSDPLY-01508", entryName, newEntryName);
+            if (!newEntryName.endsWith("/")) {
+                newEntryName += "/";
+            }
         }
 
         boolean success = addZipDirectoryEntry(newEntryName);
