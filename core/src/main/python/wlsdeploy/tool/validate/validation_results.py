@@ -3,7 +3,13 @@ Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 
+import java.lang.System as JSystem
+import java.lang.Thread as JThread
 import java.util.logging.Level as JLevel
+import java.util.logging.Logger as JLogger
+import java.util.logging.LogRecord as JLogRecord
+
+from oracle.weblogic.deploy.exception import ExceptionHelper
 
 from wlsdeploy.util import model
 from wlsdeploy.tool.validate import validation_utils
@@ -60,33 +66,34 @@ class ValidationResults(object):
         :return:
         """
 
-        for validation_result in self._validation_result_dict.values():
-            if validation_result.get_errors_count() > 0 \
-                    or validation_result.get_warnings_count() > 0 \
-                    or validation_result.get_infos_count():
+        results_summary = self.__get_summary()
 
-                indent_level = 0
-                validation_area = validation_utils.format_message('WLSDPLY-05200',
-                                                                  validation_result.get_validation_area())
-                validation_utils.print_blank_lines()
-                validation_utils.print_indent(validation_utils.divider_string, indent_level)
-                validation_utils.print_indent(validation_area, indent_level)
-                validation_utils.print_indent(validation_utils.divider_string, indent_level)
+        message_count = results_summary['infos_count']
+        if message_count > 0:
+            indent_level = 0
+            validation_utils.print_blank_lines()
+            validation_utils.print_indent('%s: %d' % (validation_utils.format_message('WLSDPLY-05201'),
+                                                      message_count), indent_level + 1)
+            for validation_result in self._validation_result_dict.values():
+                _print_results_category_details(validation_result.get_infos_messages(), indent_level)
 
-                if validation_result.get_infos_count() > 0:
-                    _print_results_category_details(validation_utils.format_message('WLSDPLY-05201'),
-                                                    validation_result.get_infos_count(),
-                                                    validation_result.get_infos_messages(), indent_level)
+        message_count = results_summary['warnings_count']
+        if message_count > 0:
+            indent_level = 0
+            validation_utils.print_blank_lines()
+            validation_utils.print_indent('%s: %d' % (validation_utils.format_message('WLSDPLY-05202'),
+                                                      message_count), indent_level + 1)
+            for validation_result in self._validation_result_dict.values():
+                _print_results_category_details(validation_result.get_warnings_messages(), indent_level)
 
-                if validation_result.get_warnings_count() > 0:
-                    _print_results_category_details(validation_utils.format_message('WLSDPLY-05202'),
-                                                    validation_result.get_warnings_count(),
-                                                    validation_result.get_warnings_messages(), indent_level)
-
-                if validation_result.get_errors_count() > 0:
-                    _print_results_category_details(validation_utils.format_message('WLSDPLY-05203'),
-                                                    validation_result.get_errors_count(),
-                                                    validation_result.get_errors_messages(), indent_level)
+        message_count = results_summary['errors_count']
+        if message_count > 0:
+            indent_level = 0
+            validation_utils.print_blank_lines()
+            validation_utils.print_indent('%s: %d' % (validation_utils.format_message('WLSDPLY-05203'),
+                                                      message_count), indent_level + 1)
+            for validation_result in self._validation_result_dict.values():
+                _print_results_category_details(validation_result.get_errors_messages(), indent_level)
 
     def log_results(self, logger):
         """
@@ -97,72 +104,73 @@ class ValidationResults(object):
 
         if logger is not None:
             # Get counts for all the ValidationResult objects
-            # in this ValidationResult object
+            # in this ValidationResults object
             results_summary = self.__get_summary()
 
-            logger.set_level(JLevel.INFO)
+            jlogger = JLogger.getLogger(logger.get_name(), logger.resource_bundle_name)
+
+            jlogger.setLevel(JLevel.INFO)
 
             # Determine what the severity level is going to be for the
             # summary log message. Needs to be set in accordance with
             # what the severest validation message was.
             if results_summary['infos_count'] > 0:
-                logger.set_level(JLevel.INFO)
+                jlogger.setLevel(JLevel.INFO)
             if results_summary['warnings_count'] > 0:
-                logger.set_level(JLevel.WARNING)
+                jlogger.setLevel(JLevel.WARNING)
             if results_summary['errors_count'] > 0:
-                logger.set_level(JLevel.SEVERE)
+                jlogger.setLevel(JLevel.SEVERE)
 
             total_messages_count = \
                 int(results_summary['errors_count']) + int(results_summary['warnings_count']) + \
                 int(results_summary['infos_count'])
 
-            logger.log(logger.get_level(),
+            logger.log(jlogger.getLevel(),
                        'WLSDPLY-05204',
                        results_summary['errors_count'],
                        results_summary['warnings_count'],
                        results_summary['infos_count'],
-                       total_messages_count,
                        class_name=self._class_name, method_name=_method_name)
+
+            if total_messages_count > 0:
+                logger.log(jlogger.getLevel(), 'WLSDPLY-05207', total_messages_count,
+                           class_name=self._class_name, method_name=_method_name)
 
             for validation_result in self._validation_result_dict.values():
                 if validation_result.get_infos_count() > 0:
-                    logger.set_level(JLevel.INFO)
+                    jlogger.setLevel(JLevel.INFO)
                     self.__log_results_category_details(validation_result.get_infos_messages(),
-                                                        _method_name, logger)
+                                                        _method_name, jlogger)
 
             for validation_result in self._validation_result_dict.values():
                 if validation_result.get_warnings_count() > 0:
-                    logger.set_level(JLevel.WARNING)
+                    jlogger.setLevel(JLevel.WARNING)
                     self.__log_results_category_details(validation_result.get_warnings_messages(),
-                                                        _method_name, logger)
+                                                        _method_name, jlogger)
 
             for validation_result in self._validation_result_dict.values():
                 if validation_result.get_errors_count() > 0:
-                    logger.set_level(JLevel.SEVERE)
+                    jlogger.setLevel(JLevel.SEVERE)
                     self.__log_results_category_details(validation_result.get_errors_messages(),
-                                                        _method_name, logger)
+                                                        _method_name, jlogger)
 
-            logger.set_level(JLevel.INFO)
+            jlogger.setLevel(JLevel.INFO)
 
         return
 
-    def __log_results_category_details(self, category_messages, method_name, logger):
+    def __log_results_category_details(self, category_messages, method_name, jlogger):
         """
 
         :param category_messages:
         :param method_name:
-        :param logger:
+        :param jlogger:
         :return:
         """
 
         for i in range(len(category_messages)):
             messages = category_messages[i]
-            if 'message' in messages:
-                logger.log(logger.get_level(), message=messages['message'],
-                           class_name=self._class_name, method_name=method_name)
-            elif 'valid_items' in messages:
-                logger.log(logger.get_level(), message=messages['valid_items'],
-                           class_name=self._class_name, method_name=method_name)
+            _log_category_message(jlogger, messages['resource_id'], messages['args'],
+                                  class_name=self._class_name, method_name=method_name)
 
     def __get_summary(self):
         """
@@ -206,30 +214,37 @@ class ValidationResults(object):
         return '[%s]' % tmp
 
 
-def _print_results_category_details(result_category, category_count, category_messages, indent_level):
+def _print_results_category_details(category_messages, indent_level):
     """
 
-    :param result_category:
-    :param category_count:
     :param category_messages:
     :param indent_level:
     :return:
     """
-    validation_utils.print_blank_lines()
-    validation_utils.print_indent('%s: %d' % (result_category, category_count), indent_level + 1)
-
     for i in range(len(category_messages)):
         messages = category_messages[i]
-        if 'message' in messages:
-            validation_utils.print_indent(
-                validation_utils.format_message('WLSDPLY-05205', messages['message']), indent_level + 2
-            )
-        elif 'valid_items' in messages:
-            validation_utils.print_indent(
-                validation_utils.format_message('WLSDPLY-05206', messages['valid_items']), indent_level + 2
-            )
-            # if i == len(messages):
-            #     validation_utils.print_blank_lines()
+        validation_utils.print_indent(
+            ExceptionHelper.getMessage(messages['resource_id'], list(messages['args'])), indent_level + 2
+        )
+
+    return
+
+
+def _log_category_message(jlogger, message, *args, **kwargs):
+    method = kwargs.get('method_name', None)
+    clazz = kwargs.get('class_name', None)
+    record = JLogRecord(jlogger.getLevel(), message)
+    record.setLoggerName(jlogger.getName())
+    record.setMillis(JSystem.currentTimeMillis())
+    record.setParameters(list(*args))
+    record.setResourceBundle(jlogger.getResourceBundle())
+    if clazz is not None:
+        record.setSourceClassName(clazz)
+    if method is not None:
+        record.setSourceMethodName(method)
+    record.setThreadID(int(JThread.currentThread().getId()))
+    jlogger.log(record)
+    return
 
 
 class ValidationResult(object):
@@ -268,41 +283,41 @@ class ValidationResult(object):
 
         return "{%s}" % tmp
 
-    def add_error(self, error_item_message, valid_items_message=None):
+    def add_error(self, resource_id, *args):
         """
 
-        :param error_item_message:
-        :param valid_items_message:
+        :param resource_id:
+        :param args:
         :return:
         """
         self._result['errors']['count'] += 1
-        message = {'message': error_item_message}
-        if valid_items_message is not None:
-            message['valid_items'] = valid_items_message
+        message = {'resource_id': resource_id, 'args': args}
         self._result['errors']['messages'].append(message)
+        return
 
-    def add_warning(self, warning_item_message, valid_items_message=None):
+    def add_warning(self, resource_id, *args):
         """
 
-        :param warning_item_message:
-        :param valid_items_message:
+        :param resource_id:
+        :param args:
         :return:
         """
         self._result['warnings']['count'] += 1
-        message = {'message': warning_item_message}
-        if valid_items_message is not None:
-            message['valid_items'] = valid_items_message
+        message = {'resource_id': resource_id, 'args': args}
         self._result['warnings']['messages'].append(message)
+        return
 
-    def add_info(self, info_item_message):
+    def add_info(self, resource_id, *args):
         """
 
-        :param info_item_message:
+        :param resource_id:
+        :param args:
         :return:
         """
         self._result['infos']['count'] += 1
-        message = {'message': info_item_message}
+        message = {'resource_id': resource_id, 'args': args}
         self._result['infos']['messages'].append(message)
+        return
 
     def get_validation_area(self):
         """
@@ -353,20 +368,14 @@ class ValidationResult(object):
         """
         return self._result['infos']['messages']
 
-    def print_details(self):
-        pass
-
     def __to_string(self, category_name):
         tmp = ' "%s": {' % category_name
         tmp += '"count": %d, ' % self._result[category_name]['count']
         tmp += '"messages": ['
         for message in self._result[category_name]['messages']:
             tmp += "{"
-            message_list = message.keys()
-            message_list.sort()
-            for name in message_list:
-                value = message[name]
-                tmp += '"%s": "%s",' % (name, value)
+            tmp += '"%s": "%s",' % ('message', ExceptionHelper.getMessage(message['resource_id'],
+                                                                          list(message['args'])))
             if tmp[-1:] == ',':
                 # Strip off trailing ','
                 tmp = tmp[:-1]
