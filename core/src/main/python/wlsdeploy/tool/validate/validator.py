@@ -79,7 +79,9 @@ class Validator(object):
             self._aliases = aliases
         self._alias_helper = AliasHelper(self._aliases, self._logger, ExceptionType.VALIDATE)
 
-        self._domain_name = domain_name
+        self._name_tokens_location = LocationContext()
+        self._name_tokens_location.add_name_token('DOMAIN', 'base_domain')
+
         self._archive_helper = None
         self._archive_file_name = None
         self._archive_entries = None
@@ -255,17 +257,18 @@ class Validator(object):
         return
 
     def __initialize_helpers(self, model_dict, archive_file_name):
-        if self._domain_name is None:
-            topology_dict = dictionary_utils.get_dictionary_element(model_dict, TOPOLOGY)
-            domain_name = dictionary_utils.get_element(topology_dict, NAME)
-            if domain_name is None:
-                self._domain_name = WebLogicHelper(self._logger).get_default_wls_domain_name()
-            else:
-                self._domain_name = domain_name
+        topology_dict = dictionary_utils.get_dictionary_element(model_dict, TOPOLOGY)
+        domain_name = dictionary_utils.get_element(topology_dict, NAME)
+
+        if domain_name is None:
+            domain_name = WebLogicHelper(self._logger).get_default_wls_domain_name()
+
+        if domain_name is not None:
+            self._name_tokens_location.add_name_token('DOMAIN', domain_name)
 
         if archive_file_name is not None:
             self._archive_file_name = archive_file_name
-            self._archive_helper = ArchiveHelper(self._archive_file_name, self._domain_name,
+            self._archive_helper = ArchiveHelper(self._archive_file_name, domain_name,
                                                  self._logger, ExceptionType.VALIDATE)
         return
 
@@ -278,15 +281,14 @@ class Validator(object):
                               class_name=_class_name, method_name=_method_name)
 
         if not model_root_level_keys:
-            results_message = validation_utils.format_message('WLSDPLY-05006', self._model_file_name)
             if self._validation_mode == _ValidationModes.STANDALONE:
                 # The model_dict didn't have any top level keys, so record it
                 # as a INFO message in the validate results and bail.
-                validation_result.add_info(results_message)
+                validation_result.add_info('WLSDPLY-05006', self._model_file_name)
             else:
                 # The model_dict didn't have any top level keys, so record it
                 # as a ERROR message in the validate results and bail.
-                validation_result.add_error(results_message)
+                validation_result.add_error('WLSDPLY-05006', self._model_file_name)
 
             return validation_result
 
@@ -382,10 +384,8 @@ class Validator(object):
                 # section_dict_key is not an attribute allowed under the model
                 # section, so record this as a validate ERROR in the validate
                 # results.
-                error_message, valid_items = _create_invalid_attribute_message(section_dict_key,
-                                                                               valid_attr_infos.keys(),
-                                                                               model_folder_path)
-                validation_result.add_error(error_message, valid_items)
+                validation_result.add_error('WLSDPLY-05029', section_dict_key, model_folder_path,
+                                            valid_attr_infos.keys())
 
         return validation_result
 
@@ -459,27 +459,23 @@ class Validator(object):
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID folder
                         if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning(message)
+                            validation_result.add_warning('WLSDPLY-05027', message)
                         else:
-                            validation_result.add_error(message)
+                            validation_result.add_error('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
-                        error_message, valid_items = _create_invalid_folder_message(section_dict_key,
-                                                                                    valid_section_folders,
-                                                                                    model_folder_path)
-                        validation_result.add_error(error_message, valid_items)
+                        validation_result.add_error('WLSDPLY-05026', section_dict_key, 'folder',
+                                                    model_folder_path, '%s' % ', '.join(valid_section_folders))
                 else:
                     result, message = self._alias_helper.is_valid_model_attribute_name(validation_location,
                                                                                        section_dict_key)
                     if result == ValidationCodes.VERSION_INVALID:
                         if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning(message)
+                            validation_result.add_warning('WLSDPLY-05027', message)
                         else:
-                            validation_result.add_error(message)
+                            validation_result.add_error('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
-                        error_message, valid_items = _create_invalid_attribute_message(section_dict_key,
-                                                                                       valid_attr_infos,
-                                                                                       model_folder_path)
-                        validation_result.add_error(error_message, valid_items)
+                        validation_result.add_error('WLSDPLY-05029', section_dict_key,
+                                                    model_folder_path, '%s' % ', '.join(valid_attr_infos))
 
         return validation_result
 
@@ -545,9 +541,9 @@ class Validator(object):
                 self._logger.finest('3 validation_location={0}', validation_location,
                                     class_name=_class_name, method_name=_method_name)
 
-                if name_token == 'DOMAIN':
-                    name = self._domain_name
-                else:
+                name = self._name_tokens_location.get_name_for_token('DOMAIN')
+
+                if name is None:
                     name = '%s-0' % name_token
 
                 self._logger.finest('3 name={0}', name,
@@ -630,14 +626,13 @@ class Validator(object):
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID folder
                         if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning(message)
+                            validation_result.add_warning('WLSDPLY-05027', message)
                         else:
-                            validation_result.add_error(message)
+                            validation_result.add_error('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID folder
-                        error_message, valid_items = _create_invalid_folder_message(key, valid_folder_keys,
-                                                                                    model_folder_path)
-                        validation_result.add_error(error_message, valid_items)
+                        validation_result.add_error('WLSDPLY-05026', key, 'folder',
+                                                    model_folder_path, '%s' % ', '.join(valid_folder_keys))
                 else:
                     # value is not a dict, so key must be the name of an attribute. key cannot be a
                     # folder instance name, because the _alias_helper.supports_multiple_mbean_instances()
@@ -648,14 +643,13 @@ class Validator(object):
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID attribute
                         if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning(message)
+                            validation_result.add_warning('WLSDPLY-05027', message)
                         else:
-                            validation_result.add_error(message)
+                            validation_result.add_error('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID attribute
-                        error_message, valid_items = _create_invalid_attribute_message(key, valid_attr_infos,
-                                                                                       model_folder_path)
-                        validation_result.add_error(error_message, valid_items)
+                        validation_result.add_error('WLSDPLY-05029', key,
+                                                    model_folder_path, '%s' % ', '.join(valid_attr_infos))
 
         return validation_result
 
@@ -760,11 +754,8 @@ class Validator(object):
             self._logger.finer('WLSDPLY-05016', attribute_name, expected_data_type, actual_data_type,
                                class_name=_class_name, method_name=_method_name)
             if validation_utils.is_compatible_data_type(expected_data_type, actual_data_type) is False:
-                warning_item_message = validation_utils.format_message('WLSDPLY-05017',
-                                                                       attribute_name,
-                                                                       model_folder_path,
-                                                                       expected_data_type, actual_data_type)
-                validation_result.add_warning(warning_item_message)
+                validation_result.add_warning('WLSDPLY-05017', attribute_name, model_folder_path,
+                                              expected_data_type, actual_data_type)
 
             if attribute_name in path_tokens_attr_keys:
                 validation_result = self.__validate_path_tokens_attribute(attribute_name,
@@ -775,11 +766,11 @@ class Validator(object):
             result, message = self._alias_helper.is_valid_model_attribute_name(validation_location, attribute_name)
             if result == ValidationCodes.VERSION_INVALID:
                 if self._validation_mode == _ValidationModes.STANDALONE:
-                    validation_result.add_warning(message)
+                    validation_result.add_warning('WLSDPLY-05027', message)
                 else:
-                    validation_result.add_error(message)
+                    validation_result.add_error('WLSDPLY-05027', message)
             elif result == ValidationCodes.INVALID:
-                validation_result.add_error(message)
+                validation_result.add_error('WLSDPLY-05027', message)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
         return validation_result
@@ -825,16 +816,10 @@ class Validator(object):
             self._logger.finer('WLSDPLY-05018', property_name, expected_data_type, actual_data_type,
                                class_name=_class_name, method_name=_method_name)
             if validation_utils.is_compatible_data_type(expected_data_type, actual_data_type) is False:
-                warning_item_message = validation_utils.format_message('WLSDPLY-05019',
-                                                                       property_name,
-                                                                       model_folder_path,
-                                                                       expected_data_type, actual_data_type)
-                validation_result.add_warning(warning_item_message)
+                validation_result.add_warning('WLSDPLY-05019', property_name, model_folder_path,
+                                              expected_data_type, actual_data_type)
         else:
-            error_message = validation_utils.format_message('WLSDPLY-05020',
-                                                            property_name,
-                                                            model_folder_path)
-            validation_result.add_error(error_message)
+            validation_result.add_error('WLSDPLY-05020', property_name, model_folder_path)
 
         return validation_result
 
@@ -856,17 +841,19 @@ class Validator(object):
             else:
                 # FIXME(mwooten) - the cla_utils should be fixing all windows paths to use forward slashes already...
                 # assuming that the value is not None
-                variables_file_name = str(self._model_context.get_variable_file()).replace('\\', '/')
-                if variables_file_name == 'None':
-                    message = validation_utils.format_message('WLSDPLY-05021', model_folder_path, property_name)
-                else:
-                    message = validation_utils.format_message('WLSDPLY-05022', model_folder_path,
-                                                              property_name, variables_file_name)
-
+                variables_file_name = self._model_context.get_variable_file()
                 if self._validation_mode == _ValidationModes.STANDALONE:
-                    validation_result.add_info(message)
+                    if variables_file_name is None:
+                        validation_result.add_info('WLSDPLY-05021', model_folder_path, property_name)
+                    else:
+                        validation_result.add_info('WLSDPLY-05022', model_folder_path, property_name,
+                                                   variables_file_name)
                 elif self._validation_mode == _ValidationModes.TOOL:
-                    validation_result.add_error(message)
+                    if variables_file_name is None:
+                        validation_result.add_error('WLSDPLY-05021', model_folder_path, property_name)
+                    else:
+                        validation_result.add_error('WLSDPLY-05022', model_folder_path, property_name,
+                                                    variables_file_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name, result=untokenized_value)
         return untokenized_value, validation_result
@@ -884,11 +871,7 @@ class Validator(object):
 
         valid_valus_data_types = ['list', 'string']
         if value_data_type not in valid_valus_data_types:
-            message = validation_utils.format_message('WLSDPLY-05023',
-                                                      attribute_name,
-                                                      model_folder_path,
-                                                      value_data_type)
-            validation_result.add_error(message)
+            validation_result.add_error('WLSDPLY-05023', attribute_name, model_folder_path, value_data_type)
         else:
             attr_values = []
 
@@ -921,24 +904,16 @@ class Validator(object):
             if self._archive_helper is not None:
                 archive_has_file = self._archive_helper.contains_file(path)
                 if not archive_has_file:
-                    message = validation_utils.format_message('WLSDPLY-05024',
-                                                              attribute_name,
-                                                              model_folder_path,
-                                                              path,
-                                                              self._archive_file_name)
-                    validation_result.add_error(message)
+                    validation_result.add_error('WLSDPLY-05024', attribute_name, model_folder_path,
+                                                path, self._archive_file_name)
             else:
-                message = validation_utils.format_message('WLSDPLY-05025',
-                                                          attribute_name,
-                                                          model_folder_path,
-                                                          path)
                 # If running in standalone mode, and the archive was not supplied, simply
                 # alert the user to the references but don;t fail validation because of
                 # the dangling references.  In TOOL mode, this is an error.
                 if self._validation_mode == _ValidationModes.STANDALONE:
-                    validation_result.add_info(message)
+                    validation_result.add_info('WLSDPLY-05025', attribute_name, model_folder_path, path)
                 elif self._validation_mode == _ValidationModes.TOOL:
-                    validation_result.add_error(message)
+                    validation_result.add_error('WLSDPLY-05025', attribute_name, model_folder_path, path)
         else:
             tokens = validation_utils.extract_path_tokens(path)
             self._logger.finest('tokens={0}', str(tokens), class_name=_class_name, method_name=_method_name)
@@ -946,11 +921,7 @@ class Validator(object):
 
             substituted_path = self._model_context.replace_token_string(path)
             if not os.path.isabs(substituted_path):
-                message = validation_utils.format_message('WLSDPLY-05031',
-                                                          attribute_name,
-                                                          model_folder_path,
-                                                          substituted_path)
-                validation_result.add_info(message)
+                validation_result.add_info('WLSDPLY-05031', attribute_name, model_folder_path, substituted_path)
 
         return validation_result
 
@@ -963,18 +934,14 @@ class Validator(object):
 
         if attribute_value is not None:
             if not isinstance(attribute_value, dict):
-                message = validation_utils.format_message('WLSDPLY-05032', attribute_name, model_folder_path,
-                                                          str(type(attribute_value)))
-                validation_result.add_error(message)
+                validation_result.add_error('WLSDPLY-05032', attribute_name, model_folder_path, str(type(attribute_value)))
             else:
                 model_folder_path += '/' + attribute_name
                 for key, value in attribute_value.iteritems():
                     if type(key) is not str:
                         # Force the key to a string for any value validation issues reported below
                         key = str(key)
-                        message = validation_utils.format_message('WLSDPLY-05033', key, model_folder_path,
-                                                          str(type(key)))
-                        validation_result.add_error(message)
+                        validation_result.add_error('WLSDPLY-05033', key, model_folder_path, str(type(key)))
                     else:
                         if '${' in key:
                             key, validation_result = \
@@ -995,9 +962,7 @@ class Validator(object):
                                                                                     model_folder_path,
                                                                                     validation_result)
                     else:
-                        message = validation_utils.format_message('WLSDPLY-05034', key, model_folder_path,
-                                                                  str(type(value)))
-                        validation_result.add_error(message)
+                        validation_result.add_error('WLSDPLY-05034', key, model_folder_path, str(type(value)))
 
         self._logger.exiting(class_name=_class_name, method_name=__method_name)
         return validation_result
@@ -1008,29 +973,14 @@ class Validator(object):
                 value, validation_result = \
                     _report_unsupported_variable_usage(str(value), model_folder_path, validation_result)
         else:
-            message = validation_utils.format_message('WLSDPLY-05035', key, str(value), model_folder_path, str(type(value)))
-            validation_result.add_error(message)
+            validation_result.add_error('WLSDPLY-05035', key, str(value), model_folder_path, str(type(value)))
+
         return validation_result
-
-
-def _create_invalid_folder_message(folder_key, valid_folder_keys, model_folder_path):
-    return validation_utils.format_message('WLSDPLY-05026', folder_key, 'folder', model_folder_path), \
-           validation_utils.format_message('WLSDPLY-05027', '%s' % ', '.join(valid_folder_keys))
-
-
-def _create_invalid_folder_instance_message(folder_instance_key, model_folder_path):
-    return validation_utils.format_message('WLSDPLY-05028', folder_instance_key, model_folder_path)
-
-
-def _create_invalid_attribute_message(attribute_name, valid_attr_keys, model_folder_path):
-    return validation_utils.format_message('WLSDPLY-05029', attribute_name, model_folder_path), \
-           validation_utils.format_message('WLSDPLY-05027', '%s' % ', '.join(valid_attr_keys))
 
 
 def _report_unsupported_variable_usage(tokenized_value, model_folder_path, validation_result):
     tokens = validation_utils.extract_substitution_tokens(tokenized_value)
     for token in tokens:
-        error_message = validation_utils.format_message('WLSDPLY-05030', model_folder_path, token)
-        validation_result.add_error(error_message)
+        validation_result.add_error('WLSDPLY-05030', model_folder_path, token)
 
     return validation_result
