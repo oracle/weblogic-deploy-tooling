@@ -66,26 +66,34 @@ class ValidationResults(object):
         :return:
         """
 
-        for validation_result in self._validation_result_dict.values():
-            indent_level = 0
-            if validation_result.get_infos_count() > 0:
-                _print_results_category_details(validation_utils.format_message('WLSDPLY-05201'),
-                                                validation_result.get_infos_count(),
-                                                validation_result.get_infos_messages(), indent_level)
+        results_summary = self.__get_summary()
 
-        for validation_result in self._validation_result_dict.values():
+        message_count = results_summary['infos_count']
+        if message_count > 0:
             indent_level = 0
-            if validation_result.get_warnings_count() > 0:
-                _print_results_category_details(validation_utils.format_message('WLSDPLY-05202'),
-                                                validation_result.get_warnings_count(),
-                                                validation_result.get_warnings_messages(), indent_level)
+            validation_utils.print_blank_lines()
+            validation_utils.print_indent('%s: %d' % (validation_utils.format_message('WLSDPLY-05201'),
+                                                      message_count), indent_level + 1)
+            for validation_result in self._validation_result_dict.values():
+                _print_results_category_details(validation_result.get_infos_messages(), indent_level)
 
-        for validation_result in self._validation_result_dict.values():
+        message_count = results_summary['warnings_count']
+        if message_count > 0:
             indent_level = 0
-            if validation_result.get_errors_count() > 0:
-                _print_results_category_details(validation_utils.format_message('WLSDPLY-05203'),
-                                                validation_result.get_errors_count(),
-                                                validation_result.get_errors_messages(), indent_level)
+            validation_utils.print_blank_lines()
+            validation_utils.print_indent('%s: %d' % (validation_utils.format_message('WLSDPLY-05202'),
+                                                      message_count), indent_level + 1)
+            for validation_result in self._validation_result_dict.values():
+                _print_results_category_details(validation_result.get_warnings_messages(), indent_level)
+
+        message_count = results_summary['errors_count']
+        if message_count > 0:
+            indent_level = 0
+            validation_utils.print_blank_lines()
+            validation_utils.print_indent('%s: %d' % (validation_utils.format_message('WLSDPLY-05203'),
+                                                      message_count), indent_level + 1)
+            for validation_result in self._validation_result_dict.values():
+                _print_results_category_details(validation_result.get_errors_messages(), indent_level)
 
     def log_results(self, logger):
         """
@@ -206,18 +214,13 @@ class ValidationResults(object):
         return '[%s]' % tmp
 
 
-def _print_results_category_details(result_category, category_count, category_messages, indent_level):
+def _print_results_category_details(category_messages, indent_level):
     """
 
-    :param result_category:
-    :param category_count:
     :param category_messages:
     :param indent_level:
     :return:
     """
-    validation_utils.print_blank_lines()
-    validation_utils.print_indent('%s: %d' % (result_category, category_count), indent_level + 1)
-
     for i in range(len(category_messages)):
         messages = category_messages[i]
         validation_utils.print_indent(
