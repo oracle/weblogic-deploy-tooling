@@ -32,6 +32,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.domain_creator import DomainCreator
 from wlsdeploy.tool.create.domain_typedef import DomainTypedef
+from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import variables
@@ -66,6 +67,7 @@ __optional_arguments = [
     CommandLineArgUtil.PASSPHRASE_SWITCH
 ]
 
+
 def __process_args(args):
     """
     Process the command-line arguments and prompt the user for any missing information
@@ -95,6 +97,7 @@ def __process_args(args):
     domain_typedef.set_model_context(model_context)
     return model_context
 
+
 def __verify_required_args_present(required_arg_map):
     """
     Verify that the required args are present.
@@ -110,6 +113,7 @@ def __verify_required_args_present(required_arg_map):
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     return
+
 
 def __process_java_home_arg(optional_arg_map):
     """
@@ -131,6 +135,7 @@ def __process_java_home_arg(optional_arg_map):
             raise ex
         optional_arg_map[CommandLineArgUtil.JAVA_HOME_SWITCH] = java_home.getAbsolutePath()
     return
+
 
 def __process_model_args(optional_arg_map):
     """
@@ -175,6 +180,7 @@ def __process_model_args(optional_arg_map):
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     return
+
 
 def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
     """
@@ -234,6 +240,7 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
             raise ex
     return
 
+
 def __process_encryption_args(optional_arg_map):
     """
     Determine if the user is using our encryption and if so, get the passphrase.
@@ -255,6 +262,7 @@ def __process_encryption_args(optional_arg_map):
         optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
     return
 
+
 def __clean_up_temp_files():
     """
     If a temporary directory was created to extract the model from the archive, delete the directory and its contents.
@@ -264,6 +272,30 @@ def __clean_up_temp_files():
     if __tmp_model_dir is not None:
         FileUtils.deleteDirectory(__tmp_model_dir)
         __tmp_model_dir = None
+
+
+def validate_model(model_dictionary, model_context, aliases):
+    _method_name = 'validate_model'
+
+    try:
+        validator = Validator(model_context, aliases, wlst_mode=__wlst_mode)
+
+        # Since the have already performed all variable substitution,
+        # no need to pass the variable file for processing.
+        #
+        return_code = validator.validate_in_tool_mode(model_dictionary, variables_file_name=None,
+                                                      archive_file_name=model_context.get_archive_file_name())
+    except ValidateException, ex:
+        __logger.severe('WLSDPLY-20000', _program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+        __clean_up_temp_files()
+        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    if return_code == Validator.ReturnCode.STOP:
+        __logger.severe('WLSDPLY-20001', _program_name, class_name=_class_name, method_name=_method_name)
+        __clean_up_temp_files()
+        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
 
 def main():
     """
@@ -306,26 +338,12 @@ def main():
             __clean_up_temp_files()
             sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    try:
-        aliases = Aliases(model_context, wlst_mode=__wlst_mode)
-        validator = Validator(model_context, aliases, wlst_mode=__wlst_mode)
+    aliases = Aliases(model_context, wlst_mode=__wlst_mode)
+    validate_model(model, model_context, aliases)
 
-        # Since the have already performed all variable substitution,
-        # no need to pass the variable file for processing.
-        #
-        return_code = validator.validate_in_tool_mode(model,
-                                                      variables_file_name=None,
-                                                      archive_file_name=model_context.get_archive_file_name())
-    except ValidateException, ex:
-        __logger.severe('WLSDPLY-20000', _program_name, ex.getLocalizedMessage(), error=ex,
-                        class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-
-    if return_code == Validator.ReturnCode.STOP:
-        __logger.severe('WLSDPLY-20001', _program_name, class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+    if filter_helper.apply_filters(model, "create"):
+        # if any filters were applied, re-validate the model
+        validate_model(model, model_context, aliases)
 
     try:
         creator = DomainCreator(model, model_context, aliases)
