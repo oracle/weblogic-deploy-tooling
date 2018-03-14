@@ -35,6 +35,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.validate.validator import Validator
+from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import variables
@@ -392,6 +393,29 @@ def __clean_up_temp_files():
         __tmp_model_dir = None
 
 
+def validate_model(model_dictionary, model_context, aliases):
+    _method_name = 'validate_model'
+
+    try:
+        validator = Validator(model_context, aliases, wlst_mode=__wlst_mode)
+
+        # Since the have already performed all variable substitution,
+        # no need to pass the variable file for processing.
+        #
+        return_code = validator.validate_in_tool_mode(model_dictionary, variables_file_name=None,
+                                                      archive_file_name=model_context.get_archive_file_name())
+    except ValidateException, ex:
+        __logger.severe('WLSDPLY-20000', _program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+        __clean_up_temp_files()
+        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    if return_code == Validator.ReturnCode.STOP:
+        __logger.severe('WLSDPLY-20001', _program_name, class_name=_class_name, method_name=_method_name)
+        __clean_up_temp_files()
+        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+
 def main():
     """
     The python entry point for deployApps.
@@ -433,25 +457,12 @@ def main():
             __clean_up_temp_files()
             sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    try:
-        aliases = Aliases(model_context, wlst_mode=__wlst_mode)
-        validator = Validator(model_context, aliases, wlst_mode=__wlst_mode)
+    aliases = Aliases(model_context, wlst_mode=__wlst_mode)
+    validate_model(model_dictionary, model_context, aliases)
 
-        # Since the have already performed all variable substitution,
-        # no need to pass the variable file for processing.
-        #
-        return_code = validator.validate_in_tool_mode(model_dictionary, variables_file_name=None,
-                                                      archive_file_name=model_context.get_archive_file_name())
-    except ValidateException, ex:
-        __logger.severe('WLSDPLY-20000', _program_name, ex.getLocalizedMessage(), error=ex,
-                        class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-
-    if return_code == Validator.ReturnCode.STOP:
-        __logger.severe('WLSDPLY-20001', _program_name, class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+    if filter_helper.apply_filters(model_dictionary, "deploy"):
+        # if any filters were applied, re-validate the model
+        validate_model(model_dictionary, model_context, aliases)
 
     try:
         model = Model(model_dictionary)
