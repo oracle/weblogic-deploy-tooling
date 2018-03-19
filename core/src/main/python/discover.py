@@ -35,6 +35,7 @@ from wlsdeploy.tool.discover.domain_info_discoverer import DomainInfoDiscoverer
 from wlsdeploy.tool.discover.multi_tenant_discoverer import MultiTenantDiscoverer
 from wlsdeploy.tool.discover.resources_discoverer import ResourcesDiscoverer
 from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
+from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -353,6 +354,16 @@ def __persist_model(model, model_context):
     return
 
 
+def __check_and_customize_model(model):
+    _method_name = '__check_and_customize_model'
+    __logger.entering(class_name=_class_name, method_name=_method_name)
+
+    if filter_helper.apply_filters(model.get_model(), "discover"):
+        __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
+
+    __logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
 def __log_and_exit(exit_code, _class_name, _method_name):
     """
     Helper method to log the exiting message and call sys.exit()
@@ -403,6 +414,8 @@ def main():
                         model_context.get_domain_home(), ex.getLocalizedMessage(),
                         error=ex, class_name=_class_name, method_name=_method_name)
         __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
+
+    __check_and_customize_model(model)
 
     try:
         __persist_model(model, model_context)
