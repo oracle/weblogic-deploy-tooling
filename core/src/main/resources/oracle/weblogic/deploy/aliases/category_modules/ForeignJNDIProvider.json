@@ -5,7 +5,7 @@
     "child_folders_type": "multiple",
     "folders": {
         "ForeignJNDILink": {
-            "wlst_type": "ForeignJNDILink",
+            "wlst_type": "ForeignJNDILink${:s}",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
