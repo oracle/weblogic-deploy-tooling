@@ -399,9 +399,7 @@ def validate_model(model_dictionary, model_context, aliases):
     try:
         validator = Validator(model_context, aliases, wlst_mode=__wlst_mode)
 
-        # Since the have already performed all variable substitution,
-        # no need to pass the variable file for processing.
-        #
+        # no need to pass the variable file for processing, substitution has already been performed
         return_code = validator.validate_in_tool_mode(model_dictionary, variables_file_name=None,
                                                       archive_file_name=model_context.get_archive_file_name())
     except ValidateException, ex:
