@@ -1,7 +1,7 @@
 {
     "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
     "license": "The Universal Permissive License (UPL), Version 1.0",
-    "wlst_type": "JDBCSystemResource",
+    "wlst_type": "JDBCSystemResource${:s}",
     "child_folders_type": "multiple",
     "folders": {
         "JdbcResource" : {
