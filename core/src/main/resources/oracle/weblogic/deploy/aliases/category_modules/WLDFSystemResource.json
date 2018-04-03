@@ -77,7 +77,7 @@
                     "default_name_value": "${NO_NAME_0:%WLDFRESOURCE%}",
                     "folders": {
                         "HeapDumpAction": {
-                            "wlst_type": "HeapDumpAction",
+                            "wlst_type": "HeapDumpAction${:s}",
                             "version": "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
