@@ -7,6 +7,7 @@ package oracle.weblogic.deploy.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -591,6 +592,24 @@ public final class FileUtils {
             outputStream.write(readBuffer, 0, bytesRead);
         }
         return outputStream.toByteArray();
+    }
+
+    public static File writeInputStreamToFile(InputStream input, String fileName) throws IOException {
+        FileOutputStream fos = null;
+        File file = null;
+
+        try {
+            File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+            file = new File(tmpdir, fileName);
+            byte[] byteArray = FileUtils.readInputStreamToByteArray(input);
+            fos = new FileOutputStream(file);
+            fos.write(byteArray);
+        }
+        finally {
+            if (fos != null) { fos.close(); }
+        }
+
+        return file;
     }
 
     ///////////////////////////////////////////////////////////////////////////
