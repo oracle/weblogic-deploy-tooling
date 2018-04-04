@@ -957,5 +957,144 @@ class AliasesTestCase(unittest.TestCase):
             self.assertEqual(expected.get(key), testObject.get(str(key).strip()))
         return
 
+    def testIssue36Fix(self):
+        base_location = LocationContext().append_location(FOLDERS.RESOURCE_MANAGER)
+        token = self.aliases.get_name_token(base_location)
+        base_location.add_name_token(token, 'ResourceManager-0')
+
+        location = LocationContext(base_location).append_location(FOLDERS.CPU_UTILIZATION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'CpuUtilization-0')
+        location.append_location(FOLDERS.TRIGGER)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'Trigger-0')
+
+        expected = [FOLDERS.TRIGGER, '%ss' % FOLDERS.TRIGGER]
+
+        wlst_mbean_type = self.aliases.get_wlst_mbean_type(location)
+        self.assertEqual(wlst_mbean_type, expected[0])
+
+        wlst_mbean_type = self.online_aliases.get_wlst_mbean_type(location)
+        self.assertEqual(wlst_mbean_type, expected[1])
+
+        location = LocationContext(base_location).append_location(FOLDERS.FILE_OPEN)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'FileOpen-0')
+        location.append_location(FOLDERS.TRIGGER)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'Trigger-0')
+
+        wlst_mbean_type = self.aliases.get_wlst_mbean_type(location)
+        self.assertEqual(wlst_mbean_type, expected[0])
+
+        wlst_mbean_type = self.online_aliases.get_wlst_mbean_type(location)
+        self.assertEqual(wlst_mbean_type, expected[1])
+
+        location = LocationContext(base_location).append_location(FOLDERS.HEAP_RETAINED)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'HeapRetained-0')
+        location.append_location(FOLDERS.TRIGGER)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'Trigger-0')
+
+        wlst_mbean_type = self.aliases.get_wlst_mbean_type(location)
+        self.assertEqual(wlst_mbean_type, expected[0])
+
+        wlst_mbean_type = self.online_aliases.get_wlst_mbean_type(location)
+        self.assertEqual(wlst_mbean_type, expected[1])
+
+        return
+
+    def testIssue37Fix(self):
+        location = LocationContext().append_location(FOLDERS.WLDF_SYSTEM_RESOURCE)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'WLDFSystemResource-0')
+        location.append_location(FOLDERS.WLDF_RESOURCE)
+        location.append_location(FOLDERS.WATCH_NOTIFICATION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'WatchNotification-0')
+        location.append_location(FOLDERS.HEAP_DUMP_ACTION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'HeapDumpAction-0')
+
+        wlst_mbean_type = self.aliases.get_wlst_mbean_type(location)
+        expected = FOLDERS.HEAP_DUMP_ACTION
+        self.assertEqual(wlst_mbean_type, expected)
+
+        wlst_mbean_type = self.online_aliases.get_wlst_mbean_type(location)
+        expected = '%ss' % FOLDERS.HEAP_DUMP_ACTION
+        self.assertEqual(wlst_mbean_type, expected)
+
+        return
+
+    def testIssue38Fix(self):
+        location = LocationContext().append_location(FOLDERS.PARTITION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'Partition-0')
+
+        # Check offline value of wlst_mbean_type of FOLDERS.PARTITION
+        wlst_mbean_type = self.aliases.get_wlst_mbean_type(location)
+        expected = FOLDERS.PARTITION
+        self.assertEqual(wlst_mbean_type, expected)
+
+        # Check online value of wlst_mbean_type of FOLDERS.PARTITION.
+        # There should be an 's' on the end of FOLDERS.PARTITION
+        wlst_mbean_type = self.online_aliases.get_wlst_mbean_type(location)
+        expected = '%ss' % FOLDERS.PARTITION
+        self.assertEqual(wlst_mbean_type, expected)
+
+        # Add FOLDERS.PARTITION_WORK_MANAGER to the location
+        location.append_location(FOLDERS.PARTITION_WORK_MANAGER)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'PartitionWorkManager-0')
+
+        # Check offline value of wlst_mbean_type after adding
+        # FOLDERS.PARTITION_WORK_MANAGER to the location. There
+        # should not be an 's' on the end of FOLDERS.PARTITION_WORK_MANAGER
+        wlst_mbean_type = self.aliases.get_wlst_mbean_type(location)
+        expected = FOLDERS.PARTITION_WORK_MANAGER
+        self.assertEqual(wlst_mbean_type, expected)
+
+        # Check online value of wlst_mbean_type after adding
+        # FOLDERS.PARTITION_WORK_MANAGER to the location. It
+        # should be the same value as offline; no 's' on the
+        # end of FOLDERS.PARTITION_WORK_MANAGER
+        wlst_mbean_type = self.online_aliases.get_wlst_mbean_type(location)
+        self.assertEqual(wlst_mbean_type, expected)
+
+        # Check offline value of wlst_list_path after adding
+        # FOLDERS.PARTITION_WORK_MANAGER to the location. There
+        # should not be an 's' on the end of FOLDERS.PARTITION or
+        # FOLDERS.PARTITION_WORK_MANAGER
+        expected = [FOLDERS.PARTITION, 'Partition-0', FOLDERS.PARTITION_WORK_MANAGER]
+        wlst_list_path = self.aliases.get_wlst_list_path(location)
+        self.assertEqual(wlst_list_path, '/%s' % '/'.join(expected))
+
+        # Check online value of wlst_list_path after adding
+        # FOLDERS.PARTITION_WORK_MANAGER to the location. There
+        # should be an 's' on the end of FOLDERS.PARTITION, but
+        # not on the end of FOLDERS.PARTITION_WORK_MANAGER
+        expected = ['%ss' % FOLDERS.PARTITION, 'Partition-0', FOLDERS.PARTITION_WORK_MANAGER]
+        wlst_list_path = self.online_aliases.get_wlst_list_path(location)
+        self.assertEqual(wlst_list_path, '/%s' % '/'.join(expected))
+
+        # Check offline value of wlst_subfolders_path after adding
+        # FOLDERS.PARTITION_WORK_MANAGER to the location. There
+        # should be an 's' on the end of FOLDERS.PARTITION, but
+        # not on the end of FOLDERS.PARTITION_WORK_MANAGER
+        expected = [FOLDERS.PARTITION, 'Partition-0', FOLDERS.PARTITION_WORK_MANAGER, 'PartitionWorkManager-0']
+        wlst_subfolders_path = self.aliases.get_wlst_subfolders_path(location)
+        self.assertEqual(wlst_subfolders_path, '/%s' % '/'.join(expected))
+
+        # Check online value of wlst_subfolders_path after adding
+        # FOLDERS.PARTITION_WORK_MANAGER to the location. There
+        # should be an 's' on the end of FOLDERS.PARTITION, but
+        # not on the end of FOLDERS.PARTITION_WORK_MANAGER
+        expected = ['%ss' % FOLDERS.PARTITION, 'Partition-0', FOLDERS.PARTITION_WORK_MANAGER, 'PartitionWorkManager-0']
+        wlst_subfolders_path = self.online_aliases.get_wlst_subfolders_path(location)
+        self.assertEqual(wlst_subfolders_path, '/%s' % '/'.join(expected))
+
+        return
+
 if __name__ == '__main__':
     unittest.main()

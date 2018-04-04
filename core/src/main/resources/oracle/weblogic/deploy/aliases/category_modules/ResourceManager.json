@@ -27,7 +27,7 @@
                     }
                 },
                 "Trigger": {
-                    "wlst_type": "Trigger",
+                    "wlst_type": "Trigger${:s}",
                     "version": "[12.2.1,)",
                     "child_folders_type": "multiple",
                     "folders": { },
@@ -57,7 +57,7 @@
             "default_name_value": "${NO_NAME_0:FileOpenResource}",
             "folders": {
                 "Trigger": {
-                    "wlst_type": "Trigger",
+                    "wlst_type": "Trigger${:s}",
                     "version": "[12.2.1,)",
                     "child_folders_type": "multiple",
                     "folders": { },
@@ -102,7 +102,7 @@
                     }
                 },
                 "Trigger": {
-                    "wlst_type": "Trigger",
+                    "wlst_type": "Trigger${:s}",
                     "version": "[12.2.1,)",
                     "child_folders_type": "multiple",
                     "folders": { },
