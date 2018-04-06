@@ -17,17 +17,17 @@ The metadata model, described in detail in the next section, is WebLogic Server 
 
 Currently, the project provides five single-purpose tools, all exposed as shell scripts (both Windows and UNIX scripts are provided):
 
-- `createDomain`   - Understands how to create a domain and populate the domain with all resources and applications specified in the model.
-- `deployApps`     - Understands how to add resources and applications to an existing domain, either in offline or online mode.
-- `discoverDomain` - Introspects an existing domain and creates a model file describing the domain and an archive file of the binaries deployed to the domain.
-- `encryptModel`   - Encrypts the passwords in a model (or its variable file) using a user-provided passphrase.
-- `validateModel`  - Provides both standalone validation of a model as well as model usage information to help users write or edit their models.
+- The Create Domain Tool (`createDomain`) understands how to create a domain and populate the domain with all resources and applications specified in the model.
+- The Deploy Applications Tool (`deployApps`) understands how to add resources and applications to an existing domain, either in offline or online mode.
+- The Discover Domain Tool (`discoverDomain`) introspects an existing domain and creates a model file describing the domain and an archive file of the binaries deployed to the domain.
+- The Encrypt Model Tool (`encryptModel`) encrypts the passwords in a model (or its variable file) using a user-provided passphrase.
+- The Validate Model Tool (`validateModel`) provides both standalone validation of a model as well as model usage information to help users write or edit their models.
 
 As new use cases are discovered, new tools will likely be added to cover those operations but all will use the metadata model to describe what needs to be done.
 
 ## The Metadata Model
 
-As previously described, the metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration.  The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts.  For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.  If the datasource was previously created, the `deployApps` tool will not try to recreate it but may update part of that data source's configuration if the model description is different than the existing values.  If the application was previously deployed, the `deployApps tool` will compare the binaries to determine if the application needs to be redeployed or not.  In short, the `deployApps` tool supports an iterative deployment model so there is no need to change the model to remove pieces that were created in a previous deployment.
+As previously described, the metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration.  The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts.  For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.  If the datasource was previously created, the `deployApps` tool will not try to recreate it but may update part of that data source's configuration if the model description is different than the existing values.  If the application was previously deployed, the `deployApps` tool will compare the binaries to determine if the application needs to be redeployed or not.  In short, the `deployApps` tool supports an iterative deployment model so there is no need to change the model to remove pieces that were created in a previous deployment.
 
 The model structure, and its folder and attribute names, are based on the WLST 12.2.1.3 offline structure and names with redundant folders removed to keep the model simple.  For example, the WLST path to the URL for a JDBC data source is `/JDBCSystemResource/<data-source-name>/JdbcResource/<data-source-name>/JDBCDriverParams/NO_NAME_0/URL`.  In the model, it is `resources:/JDBCSystemResource/<data-source-name>/JdbcResource/JDBCDriverParams/URL` (where `resources` is the top-level model section where all WebLogic Server resources/services are described).
 
@@ -193,7 +193,7 @@ In the example above, the `Target` attribute is specified three different ways, 
 
 One of the primary goals of the WebLogic Deploy Tooling is to support a sparse model where the user can specify just the configuration needed for a particular situation.  What this implies varies somewhat between the tools but, in general, this implies that the tools are using an additive model.  That is, the tools add to what is already there in the existing domain or domain templates (when creating a new domain) rather than making the domain conform exactly to the specified model.  Where it makes sense, a similar, additive approach is taken when setting the value of multi-valued attributes.  For example, if the model specified the cluster `mycluster` as the target for an artifact, the tooling will add `mycluster` to any existing list of targets for the artifact.  While the development team has tried to mark attributes that do not make sense to merge accordingly in our knowledge base, this behavior can be disabled on an attribute-by-attribute basis, by adding an additional annotation in the knowledge base data files.  The development team is already thinking about how to handle situations that require a non-additive, converge-to-the-model approach, and how that might be supported, but this still remains a wish list item.  Users with these requirements should raise an issue for this support.
 
-One place where the semantics are different is for WebLogic security providers.  Because provider ordering is important, and to make sure that the ordering is correctly set in the newly created domain, the Create Domain tool will look for security providers of each base type (for example, Authentication Providers, Credential Mappers, and such) to see if any are included in the model.  If so, the tool will make sure that  the providers only listed for a type are present in the resulting domain so that the providers are created in the necessary order.  For example, if the model specified an `LDAPAuthenticator` and an `LDAPX509IdentityAsserter` similar to what is shown below, the `DefaultAuthenticator` and `DefaultIdentityAsserters` will be deleted.  If no providers for a base type are listed in the model, then the default providers will be left untouched.
+One place where the semantics are different is for WebLogic security providers.  Because provider ordering is important, and to make sure that the ordering is correctly set in the newly created domain, the Create Domain Tool will look for security providers of each base type (for example, Authentication Providers, Credential Mappers, and such) to see if any are included in the model.  If so, the tool will make sure that  the providers only listed for a type are present in the resulting domain so that the providers are created in the necessary order.  For example, if the model specified an `LDAPAuthenticator` and an `LDAPX509IdentityAsserter` similar to what is shown below, the `DefaultAuthenticator` and `DefaultIdentityAsserters` will be deleted.  If no providers for a base type are listed in the model, then the default providers will be left untouched.
 
 ```$yaml
 topology:
@@ -285,9 +285,9 @@ topology:
 
 ## The Validate Model Tool
 
-When working with a metadata model that drives tooling, it is critical to make it easy both to validate that the model and its related artifacts are well-formed and to provide help on the valid attributes and subfolders for a particular model location.  The validate model tool provides both validation and help for model authors as a standalone tool.  In addition, the tool is integrated with the `createDomain` and `deployApps` tools to catch validation errors early, before any actions are performed on the domain.
+When working with a metadata model that drives tooling, it is critical to make it easy both to validate that the model and its related artifacts are well-formed and to provide help on the valid attributes and subfolders for a particular model location.  The Validate Model Tool provides both validation and help for model authors as a standalone tool.  In addition, the tool is integrated with the `createDomain` and `deployApps` tools to catch validation errors early, before any actions are performed on the domain.
 
-To use the validate model tool, simply run the `validateModel` shell script with the correct arguments.  To see the list of valid arguments for any tool in the Oracle WebLogic Server Deploy Tooling installation, simply run the shell script with the `-help` option (or with no arguments) to see the shell script usage information.
+To use the Validate Model Tool, simply run the `validateModel` shell script with the correct arguments.  To see the list of valid arguments for any tool in the Oracle WebLogic Server Deploy Tooling installation, simply run the shell script with the `-help` option (or with no arguments) to see the shell script usage information.
 
 For example, starting with the following model shown below, where the `AdminServer` attribute `Machine` is misspelled as `Machines`:
 
@@ -358,7 +358,7 @@ This will print out the list of attributes and valid subfolders (the full output
         Machine                                             string
         ...
 
-If the model contains variable definitions and the variable file is specified, the Validate Model tool will validate that all variable references in the model are defined in the variable file.  For example, invoking the tool as shown here:
+If the model contains variable definitions and the variable file is specified, the Validate Model Tool will validate that all variable references in the model are defined in the variable file.  For example, invoking the tool as shown here:
 
     weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -variable_file InvalidDemoDomain.properties
 
@@ -372,7 +372,7 @@ Results in output similar to that shown below, if the `db.password` variable is 
         Message: Model location resource:/JDBCSystemResource/Generic1/JdbcResource/JDBCDriverParams/PasswordEncrypted references variable db.password that is not defined in D:/demo/InvalidDemoDomain.properties
         Message: Model location resource:/JDBCSystemResource/Generic2/JdbcResource/JDBCDriverParams/PasswordEncrypted references variable db.password that is not defined in D:/demo/InvalidDemoDomain.properties
 
-If the model references binaries that should be present in the archive, the validate Model tool will validate that all binary references in the model that point to archive file locations are present in the archive file.  For example, invoking the tool as shown here:
+If the model references binaries that should be present in the archive, the Validate Model Tool will validate that all binary references in the model that point to archive file locations are present in the archive file.  For example, invoking the tool as shown here:
 
     weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -archive_file InvalidDemoDomain.zip
 
@@ -389,7 +389,7 @@ Results in output similar to that shown below, if the `simpleear.ear` file is no
 
 **NOTE: The current encryption algorithms require JDK 8 to execute, in order to meet Oracle's security standards.  While it is possible to run WLST with a newer JDK than what was used to install WebLogic Server, WLST on older versions of WebLogic Server 10.3.x may not work properly with JDK 8, out of the box, due to JDK 6 JVM arguments that have been removed in JDK8.  It may be necessary to modify the WLST start scripts to remove JVM arguments that have been removed between JDK 6 and JDK 8.**
 
-Models contain WebLogic Server domain configuration.  Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection.  When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.  Clear-text passwords are not conducive to storing configurations as source, so the encrypt model tool gives the model author the ability to encrypt the passwords in the model and variable file using passphrase-based, reversible encryption.  When using a tool with a model containing encrypted passwords, the encryption passphrase must be provided, so that the tool can decrypt the password in memory to set the necessary WebLogic Server configuration (which supports its own encryption mechanism based on a domain-specific key).  While there is no requirement to use the Oracle WebLogic Server Deploy Tooling encryption mechanism, it is highly recommended because storing clear text passwords on disk is never a good idea.
+Models contain WebLogic Server domain configuration.  Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection.  When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.  Clear-text passwords are not conducive to storing configurations as source, so the Encrypt Model Tool gives the model author the ability to encrypt the passwords in the model and variable file using passphrase-based, reversible encryption.  When using a tool with a model containing encrypted passwords, the encryption passphrase must be provided, so that the tool can decrypt the password in memory to set the necessary WebLogic Server configuration (which supports its own encryption mechanism based on a domain-specific key).  While there is no requirement to use the Oracle WebLogic Server Deploy Tooling encryption mechanism, it is highly recommended because storing clear text passwords on disk is never a good idea.
 
 Start with the following example model:
 
@@ -596,7 +596,7 @@ The variable file will now look something like the following:
 
 ## The Create Domain Tool
 
-The create domain tool uses a model and WLST offline to create a domain.  To use the tool, at a minimum, the model must specify the domain's administrative password in the `domainInfo` section of the model, as shown below.
+The Create Domain Tool uses a model and WLST offline to create a domain.  To use the tool, at a minimum, the model must specify the domain's administrative password in the `domainInfo` section of the model, as shown below.
 
 ```yaml
 domainInfo:
@@ -607,15 +607,15 @@ Using the model above, simply run the `createDomain` tool, specifying the type o
 
     weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml
 
-Clearly, creating an empty domain with only the template-defined servers is not very interesting, but this example just reinforces how sparse the model can be.  When running the create domain tool, the model must be provided either inside the archive file or as a standalone file.  If both the archive and model files are provided, the model file outside the archive will take precedence over any that might be inside the archive.  If the archive file is not provided, the create domain tool will create the `topology` section only (using the `domainInfo` section) of the model in the domain.  This is because the `resources` and `appDeployments` sections of the model can reference files from the archive so to create the domain with the model-defined resources and applications, an archive file must be provided--even if the model does not reference anything in the archive.  At some point in the future, this restriction may be relaxed to require the archive only if it is actually needed.
+Clearly, creating an empty domain with only the template-defined servers is not very interesting, but this example just reinforces how sparse the model can be.  When running the Create Domain Tool, the model must be provided either inside the archive file or as a standalone file.  If both the archive and model files are provided, the model file outside the archive will take precedence over any that might be inside the archive.  If the archive file is not provided, the Create Domain Tool will create the `topology` section only (using the `domainInfo` section) of the model in the domain.  This is because the `resources` and `appDeployments` sections of the model can reference files from the archive so to create the domain with the model-defined resources and applications, an archive file must be provided--even if the model does not reference anything in the archive.  At some point in the future, this restriction may be relaxed to require the archive only if it is actually needed.
 
-The create domain tool understands three domain types: `WLS`, `RestrictedJRF`, and `JRF`.  When specifying the domain type, the Oracle Home must match the requirements for the domain type.  Both `RestrictedJRF` and `JRF` require an Oracle Home with the FMW Infrastucture (also known as JRF) installed.  When creating a JRF domain, the RCU database information must be provided as arguments to the `createDomain` script.  Note that the tool will prompt for any passwords required.  Optionally, they can be piped to standard input (for example, `stdin`) of the script, to make the script run without user input.  For example, the command to create a JRF domain looks like the one below.  Note that this requires the user to have run RCU prior to running the command.
+The Create Domain Tool understands three domain types: `WLS`, `RestrictedJRF`, and `JRF`.  When specifying the domain type, the Oracle Home must match the requirements for the domain type.  Both `RestrictedJRF` and `JRF` require an Oracle Home with the FMW Infrastucture (also known as JRF) installed.  When creating a JRF domain, the RCU database information must be provided as arguments to the `createDomain` script.  Note that the tool will prompt for any passwords required.  Optionally, they can be piped to standard input (for example, `stdin`) of the script, to make the script run without user input.  For example, the command to create a JRF domain looks like the one below.  Note that this requires the user to have run RCU prior to running the command.
 
     weblogic-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO
 
-To have the create domain tool run RCU, simply add the `-run_rcu` argument to the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!
+To have the Create Domain Tool run RCU, simply add the `-run_rcu` argument to the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!
 
-The create domain tool has an extensible domain type system.  The three built-in domain types (`WLS`, `RestrictedJRF`, and `JRF`) are defined in JSON files of the same name in the `WLSDEPLOY_HOME/lib/typedefs` directory.  For example, the `JRF` domain type is defined in the `WLSDEPLOY_HOME/lib/typedefs/JRF.json` file whose contents look like those shown below.
+The Create Domain Tool has an extensible domain type system.  The three built-in domain types (`WLS`, `RestrictedJRF`, and `JRF`) are defined in JSON files of the same name in the `WLSDEPLOY_HOME/lib/typedefs` directory.  For example, the `JRF` domain type is defined in the `WLSDEPLOY_HOME/lib/typedefs/JRF.json` file whose contents look like those shown below.
 
 ```json
 {
@@ -676,7 +676,7 @@ The create domain tool has an extensible domain type system.  The three built-in
 }
 ```
 
-This file tells the create domain tool which templates to use to create the domain, which server groups to target, and even which RCU schemas to create, all based on the version of WebLogic Server installed.  New domain types can be defined by creating a new JSON file with the same structure in the `WLSDEPLOY_HOME/lib/typedefs` directory.  For example, to define a `SOA` domain type for 12.2.1.3, add the `WLSDEPLOY_HOME/lib/typedefs/SOA.json` file with contents like those shown below.
+This file tells the Create Domain Tool which templates to use to create the domain, which server groups to target, and even which RCU schemas to create, all based on the version of WebLogic Server installed.  New domain types can be defined by creating a new JSON file with the same structure in the `WLSDEPLOY_HOME/lib/typedefs` directory.  For example, to define a `SOA` domain type for 12.2.1.3, add the `WLSDEPLOY_HOME/lib/typedefs/SOA.json` file with contents like those shown below.
 
 ```json
 {
@@ -801,13 +801,13 @@ topology:
         NodeManagerPasswordEncrypted: welcome1
 ```
 
-One last note is that if the model or variables file contains encrypted passwords, add the `-use_encryption` flag to the command line to tell the create domain tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input.
+One last note is that if the model or variables file contains encrypted passwords, add the `-use_encryption` flag to the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input.
 
 ## The Deploy Applications Tool
 
-**NOTE: Work on the deploy applications tool to bring it in line with the text below is still in progress.**
+**NOTE: Work on the Deploy Applications Tool to bring it in line with the text below is still in progress.**
 
-The Deploy Applications tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode.  When deploying applications and resources from a model, the deploy tool focuses primarily on the `resources` and `appDeployments` sections of the model.  There are exceptions for the `domainInfo` and `topology` sections, where those configuration elements are deemed to be "application-related."  For example, the servers' `ServerStart` folder has an `Arguments` and a `ClassPath` attribute that change the server environment (when started by the Node Manager) that applications may rely on to function properly.  Likewise, the `domainInfo` section contains a list of JAR files that are to be placed in `<DOMAIN_HOME>/lib` which are relevant to applications for a similar reason.
+The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode.  When deploying applications and resources from a model, the deploy tool focuses primarily on the `resources` and `appDeployments` sections of the model.  There are exceptions for the `domainInfo` and `topology` sections, where those configuration elements are deemed to be "application-related."  For example, the servers' `ServerStart` folder has an `Arguments` and a `ClassPath` attribute that change the server environment (when started by the Node Manager) that applications may rely on to function properly.  Likewise, the `domainInfo` section contains a list of JAR files that are to be placed in `<DOMAIN_HOME>/lib` which are relevant to applications for a similar reason.
 
 In WLST online mode, the tool tries to minimize the need to redeploy the applications and shared libraries, and the need to restart the server.  It does this in a few ways:
 
@@ -816,7 +816,7 @@ In WLST online mode, the tool tries to minimize the need to redeploy the applica
 
 The goal is to make the tool both able to support iterative deployment and able to minimize service disruption while doing its work when working against a running domain.
 
-Running the deploy applications tool in WLST offline mode is very similar to running the create domain tool; simply provide the domain location and archive file, and separate model and variable files, if needed.  For example:
+Running the Deploy Applications Tool in WLST offline mode is very similar to running the Create Domain Tool; simply provide the domain location and archive file, and separate model and variable files, if needed.  For example:
 
     weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties
 
@@ -826,17 +826,17 @@ In WLST online mode, simply replace the `-domain_home` argument with the informa
 
 As usual, the tool will prompt for the password (it can also be supplied by piping it to standard input of the tool).
 
-When running the tool in WLST online mode, the deploy operation may require server restarts or a domain restart to pick up the changes.  The deploy operation can also encounter situations where it cannot complete its operation until the domain is restarted.  To communicate these conditions to scripts that may be calling the deploy applications tool, the shell scripts have three special, non-zero exit codes to communicate these states:
+When running the tool in WLST online mode, the deploy operation may require server restarts or a domain restart to pick up the changes.  The deploy operation can also encounter situations where it cannot complete its operation until the domain is restarted.  To communicate these conditions to scripts that may be calling the Deploy Applications Tool, the shell scripts have three special, non-zero exit codes to communicate these states:
 
-- `101` - The domain needs to be restarted and the deploy applications tool needs to be re-invoked with the same arguments.
+- `101` - The domain needs to be restarted and the Deploy Applications Tool needs to be re-invoked with the same arguments.
 - `102` - The servers impacted by the deploy operation need to be restarted, in a rolling fashion, starting with the Administration Server, if applicable.
 - `103` - The entire domain needs to be restarted.
 
 ## The Discover Domain Tool
 
-The discover domain tool provides a bootstrapping mechanism to creating a model and archive file by inspecting an existing domain and gathering configuration and binaries from it.  Note that the model file produced by the tool is not directly usable by the create domain tool or the deploy applications tool because the discover domain tool does not discover the passwords from the existing domain.  Instead, it puts a `--FIX ME--` placeholder for passwords it finds.  Domain users are also not discoverable so the tool does not create the `AdminUserName` and `AdminPassword` fields in the `domainInfo` section, which are needed by the create domain tool.  The idea of this tool is simply to provide a starting point where the user can edit the generated model and archive file to suit their needs for running one of the other tools.
+The Discover Domain Tool provides a bootstrapping mechanism to creating a model and archive file by inspecting an existing domain and gathering configuration and binaries from it.  Note that the model file produced by the tool is not directly usable by the Create Domain Tool or the Deploy Applications Tool because the Discover Domain Tool does not discover the passwords from the existing domain.  Instead, it puts a `--FIX ME--` placeholder for passwords it finds.  Domain users are also not discoverable so the tool does not create the `AdminUserName` and `AdminPassword` fields in the `domainInfo` section, which are needed by the Create Domain Tool.  The idea of this tool is simply to provide a starting point where the user can edit the generated model and archive file to suit their needs for running one of the other tools.
 
-To run the discover domain tool, simply provide the domain location and the name of the archive file; a separate model file can also be provided to make editing the generated model easier.  For example:
+To run the Discover Domain Tool, simply provide the domain location and the name of the archive file; a separate model file can also be provided to make editing the generated model easier.  For example:
 
     weblogic-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.yaml
 
