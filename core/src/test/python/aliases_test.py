@@ -455,6 +455,24 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(wlst_attribute_name, 'RowPrefetch')
         return
 
+    def testGetWlstAttributeName2(self):
+        location=LocationContext().append_location(FOLDERS.JMS_SYSTEM_RESOURCE)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'TheModule')
+        location.append_location(FOLDERS.JMS_RESOURCE)
+        location.append_location(FOLDERS.DISTRIBUTED_TOPIC)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'TheTopic')
+
+        model_attribute_name = 'SafExportPolicy'
+        result = self.aliases.get_wlst_attribute_name(location, model_attribute_name)
+        self.assertEqual(result, 'SafExportPolicy')
+
+        result = self.online_aliases.get_wlst_attribute_name(location, model_attribute_name)
+        self.assertEqual(result, 'SAFExportPolicy')
+
+        return
+
     def testIsWlstModelAttributeName(self):
         wls_version = '10.3.4'
         online_aliases = Aliases(self.model_context, WlstModes.ONLINE, wls_version)
