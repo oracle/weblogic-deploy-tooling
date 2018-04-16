@@ -841,6 +841,37 @@ class Aliases(object):
                              result={model_attribute_name: model_attribute_value})
         return model_attribute_name, model_attribute_value
 
+    def get_model_attribute_name(self, location, wlst_attribute_name):
+        """
+        Returns the model attribute name for the specified WLST attribute name and value.
+
+        model_attribute_value will be set to None, if value assigned to wlst_attribute_value arg
+        is the default value for model_attribute_name.
+        :param location: the location
+        :param wlst_attribute_name: the WLST attribute name
+        :return: the name and value
+        :raises: AliasException: if an error occurs
+        """
+        _method_name = 'get_model_attribute_name'
+
+        self._logger.entering(str(location), wlst_attribute_name,
+                              class_name=self._class_name, method_name=_method_name)
+        model_attribute_name = None
+
+        attribute_info = self._alias_entries.get_alias_attribute_entry_by_wlst_name(location, wlst_attribute_name)
+        if attribute_info is not None:
+            model_attribute_name = attribute_info[MODEL_NAME]
+
+        if wlst_attribute_name not in ('Id', 'Tag', 'Name') and model_attribute_name is None:
+            ex = exception_helper.create_alias_exception('WLSDPLY-08406', wlst_attribute_name,
+                                                         location.get_folder_path())
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name,
+                             result=model_attribute_name)
+        return model_attribute_name
+
     def get_model_attribute_names(self, location):
         """
         Returns the model attribute names for the specified location.
