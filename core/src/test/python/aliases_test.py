@@ -1096,5 +1096,26 @@ class AliasesTestCase(unittest.TestCase):
 
         return
 
+    def testGetModelAttributeName(self):
+        location=LocationContext().append_location(FOLDERS.JMS_SYSTEM_RESOURCE)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'TheModule')
+        location.append_location(FOLDERS.JMS_RESOURCE)
+        location.append_location(FOLDERS.DISTRIBUTED_TOPIC)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'TheTopic')
+
+        # model name should be the same, whether online or offline
+        expected_model_name = 'SafExportPolicy'
+
+        model_name = self.aliases.get_model_attribute_name(location, 'SafExportPolicy')
+        self.assertEqual(model_name, expected_model_name)
+
+        model_name = self.online_aliases.get_model_attribute_name(location, 'SAFExportPolicy')
+        self.assertEqual(model_name, expected_model_name)
+
+        return
+
+
 if __name__ == '__main__':
     unittest.main()
