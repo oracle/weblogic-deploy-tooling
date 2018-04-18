@@ -1123,7 +1123,7 @@ class DomainCreator(Creator):
         location.append_location(model_subtype)
 
         wlst_attribute_path = self.alias_helper.get_wlst_attributes_path(location)
-        default_value = self.alias_helper.get_wlst_attribute_default_value(location, ACTIVE_TYPE)
+        default_value = self.alias_helper.get_model_attribute_default_value(location, ACTIVE_TYPE)
         wlst_name = self.alias_helper.get_wlst_attribute_name(location, ACTIVE_TYPE)
         self.wlst_helper.cd(wlst_attribute_path)
         self.wlst_helper.set(wlst_name, default_value)
