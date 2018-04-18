@@ -295,20 +295,23 @@ def validate_model(model_dictionary, model_context, aliases):
         sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
 
-def main():
+def main(args):
     """
     The entry point for the create domain tool.
+
+    :param args:
+    :return:
     """
     _method_name = 'main'
 
-    __logger.entering(sys.argv[0], class_name=_class_name, method_name=_method_name)
-    for index, arg in enumerate(sys.argv):
+    __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
+    for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
     wlst_helper.silence()
 
     try:
-        model_context = __process_args(sys.argv)
+        model_context = __process_args(args)
     except CLAException, ex:
         exit_code = ex.getExitCode()
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
@@ -362,4 +365,4 @@ def main():
 
 if __name__ == "main":
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main()
+    main(sys.argv)

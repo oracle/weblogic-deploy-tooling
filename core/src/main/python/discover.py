@@ -390,14 +390,17 @@ def __log_and_exit(exit_code, _class_name, _method_name):
     sys.exit(exit_code)
 
 
-def main():
+def main(args):
     """
     The main entry point for the discoverDomain tool.
+
+    :param args:
+    :return:
     """
     _method_name = 'main'
 
     __logger.entering(class_name=_class_name, method_name=_method_name)
-    for index, arg in enumerate(sys.argv):
+    for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
     wlst_helper.silence()
@@ -406,7 +409,7 @@ def main():
 
     model_context = None
     try:
-        model_context = __process_args(sys.argv)
+        model_context = __process_args(args)
     except CLAException, ex:
         exit_code = ex.getExitCode()
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
@@ -446,4 +449,4 @@ def main():
 
 if __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main()
+    main(sys.argv)
