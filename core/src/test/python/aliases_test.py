@@ -1114,6 +1114,22 @@ class AliasesTestCase(unittest.TestCase):
 
         return
 
+    def testIssue50Fix(self):
+        location = LocationContext().append_location(FOLDERS.SERVER_TEMPLATE)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'ServerTemplate-0')
+        location.append_location(FOLDERS.WEB_SERVICE)
+        location.append_location(FOLDERS.WEB_SERVICE_BUFFERING)
+
+        wlst_attribute_name = self.aliases.get_wlst_attribute_name(location, 'RetryCount')
+        expected = 'RetryCount'
+        self.assertEqual(wlst_attribute_name, expected)
+
+        wlst_attribute_name = self.online_aliases.get_wlst_attribute_name(location, 'RetryCount')
+        self.assertEqual(wlst_attribute_name, expected)
+
+        return
+
     def testGetModelAttributeName(self):
         location=LocationContext().append_location(FOLDERS.JMS_SYSTEM_RESOURCE)
         token = self.aliases.get_name_token(location)
