@@ -1245,6 +1245,7 @@
                     },
                     "attributes": {
                         "Notes":      [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "Notes",      "wlst_path": "WP001", "value": {"default": "None"    }, "wlst_type": "string"} ],
+                        "RetryCount": [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "RetryCount", "wlst_path": "WP001", "value": {"default": 3         }, "wlst_type": "integer"} ],
                         "RetryDelay": [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "RetryDelay", "wlst_path": "WP001", "value": {"default": "P0DT30S" }, "wlst_type": "string"} ]
                     },
                     "wlst_attributes_path": "WP001",
