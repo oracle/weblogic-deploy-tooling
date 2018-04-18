@@ -222,7 +222,7 @@ def _process_request(args):
     """
     _method_name = '_process_request'
 
-    __logger.entering(sys.argv[0], class_name=_class_name, method_name=_method_name)
+    __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
     try:
         model_context = __process_args(args)
     except CLAException, ex:
@@ -250,21 +250,24 @@ def _process_request(args):
     return exit_code
 
 
-def main():
+def main(args):
     """
     The main entry point for the encryptModel tool.
+
+    :param args:
+    :return:
     """
     _method_name = 'main'
 
-    __logger.entering(sys.argv[0], class_name=_class_name, method_name=_method_name)
-    for index, arg in enumerate(sys.argv):
+    __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
+    for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
     wlst_helper.silence()
-    exit_code = _process_request(sys.argv)
+    exit_code = _process_request(args)
     __logger.exiting(class_name=_class_name, method_name=_method_name, result=exit_code)
     sys.exit(exit_code)
 
 if __name__ == "main":
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main()
+    main(sys.argv)
