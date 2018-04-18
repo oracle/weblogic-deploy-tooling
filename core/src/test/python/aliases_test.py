@@ -1130,6 +1130,23 @@ class AliasesTestCase(unittest.TestCase):
 
         return
 
+    def testIssue57Fix(self):
+        location = LocationContext().append_location(FOLDERS.LOG)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'DemoDomain')
+
+        # NOTE: The FOLDERS.LOG folder is only visible in ONLINE mode, so technically
+        #       this should fail...but it doesn't because we don't currently have anything
+        #       that deals with "wlst_mode": "<wlst-mode>" at the folder level.
+        default_value = self.aliases.get_model_attribute_default_value(location, 'RotateLogOnStartup')
+        expected = 'true'
+        self.assertEqual(default_value, expected)
+
+        default_value = self.online_aliases.get_model_attribute_default_value(location, 'RotateLogOnStartup')
+        self.assertEqual(default_value, expected)
+
+        return
+
     def testGetModelAttributeName(self):
         location=LocationContext().append_location(FOLDERS.JMS_SYSTEM_RESOURCE)
         token = self.aliases.get_name_token(location)
