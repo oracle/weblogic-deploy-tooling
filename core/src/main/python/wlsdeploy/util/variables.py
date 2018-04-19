@@ -4,8 +4,10 @@ The Universal Permissive License (UPL), Version 1.0
 """
 import re
 
+from java.io import BufferedReader
 from java.io import FileInputStream
 from java.io import FileOutputStream
+from java.io import FileReader
 from java.io import IOException
 from java.util import Properties
 
@@ -17,6 +19,7 @@ from wlsdeploy.logging import platform_logger
 _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
 _variable_pattern = re.compile("\\$\\{[\w.-]+\\}")
+_file_variable_pattern = re.compile("@@FILE:[\w.\\\/:-]+@@")
 
 
 def load_variables(file_path):
@@ -150,5 +153,38 @@ def _substitute(text, variables):
                 value = variables[key]
                 text = text.replace(token, value)
 
+    if '@@FILE:' in text:
+        tokens = _file_variable_pattern.findall(text)
+        if tokens:
+            for token in tokens:
+                path = token[7:-2]
+                value = _read_value_from_file(path)
+                text = text.replace(token, value)
+
     return text
 
+
+def _read_value_from_file(file_path):
+    """
+    Read a single text value from the first line in the specified file.
+    :param file_path: the file from which to read the value
+    :return: the text value
+    :raises BundleAwareException if an error occurs while reading the value
+    """
+    method_name = '_read_value_from_file'
+
+    try:
+        file_reader = BufferedReader(FileReader(file_path))
+        line = file_reader.readLine()
+        file_reader.close()
+    except IOException, e:
+        ex = exception_helper.create_variable_exception('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e)
+        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+        raise ex
+
+    if line is None:
+        ex = exception_helper.create_variable_exception('WLSDPLY-01734', file_path)
+        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+        raise ex
+
+    return str(line).strip()

@@ -12,6 +12,8 @@ from wlsdeploy.util.model_translator import FileToPython
 class VariablesTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes'
     _variables_file = _resources_dir + '/variables.properties'
+    _file_variable_name = 'file-variable.txt'
+    _file_variable_path = _resources_dir + '/' + _file_variable_name
     _use_ordering = True
 
     def setUp(self):
@@ -47,6 +49,29 @@ class VariablesTestCase(unittest.TestCase):
             pass
         else:
             self.fail('Test must raise VariableException when variable is not found')
+
+    def testFileVariable(self):
+        path = self._resources_dir + '/' + self._file_variable_name
+        model = {'domainInfo': {'AdminUserName': '@@FILE:' + path + '@@'}}
+        variables.substitute(model, {})
+        self.assertEqual(model['domainInfo']['AdminUserName'], 'file-variable-value')
+
+    def testFileVariableWithVariable(self):
+        model = {'domainInfo': {'AdminUserName': '@@FILE:${variable_dir}/' + self._file_variable_name + '@@'}}
+        variables.substitute(model, {'variable_dir': self._resources_dir})
+        self.assertEqual(model['domainInfo']['AdminUserName'], 'file-variable-value')
+
+    def testFileVariableNotFound(self):
+        try:
+            path = self._resources_dir + '/no-file.txt'
+            model = {'domainInfo': {'AdminUserName': '@@FILE:' + path + '@@'}}
+            variables.substitute(model, {})
+            self.assertEqual(model['domainInfo']['AdminUserName'], 'file-variable-value')
+        except VariableException:
+            pass
+        else:
+            self.fail('Test must raise VariableException when variable file is not found')
+
 
 if __name__ == '__main__':
     unittest.main()
