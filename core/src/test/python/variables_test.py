@@ -29,6 +29,7 @@ class VariablesTestCase(unittest.TestCase):
         variables.substitute(model, variable_map)
         self.assertEqual(model['topology']['Name'], 'xyz123')
         self.assertEqual(model['topology']['Server']['s1']['ListenPort'], '1009')
+        self.assertEqual(model['topology']['Server']['s2']['Cluster'], 'myCluster')
         self.assertEqual(True, 'myCluster' in model['topology']['Cluster'])
 
     def testSubstituteJson(self):
@@ -37,12 +38,27 @@ class VariablesTestCase(unittest.TestCase):
         variables.substitute(model, variable_map)
         self.assertEqual(model['topology']['Name'], 'xyz123')
         self.assertEqual(model['topology']['Server']['s1']['ListenPort'], '1009')
+        self.assertEqual(model['topology']['Server']['s2']['Cluster'], 'myCluster')
         self.assertEqual(True, 'myCluster' in model['topology']['Cluster'])
 
     def testVariableNotFound(self):
+        """
+        For ${key} substitution, no replacement is done, and no error is reported, if variable not found.
+        ${key} substitution is deprecated.
+        """
+        model = FileToPython(self._resources_dir + '/variables-test.json', self._use_ordering).parse()
+        model['topology']['Name'] = '${bad.variable}'
+        variable_map = variables.load_variables(self._variables_file)
+        variables.substitute(model, variable_map)
+        self.assertEqual(model['topology']['Name'], '${bad.variable}')
+
+    def testPropertyNotFound(self):
+        """
+        For @@PROP:key@@ substitution, an exception is thrown if variable not found.
+        """
         try:
             model = FileToPython(self._resources_dir + '/variables-test.json', self._use_ordering).parse()
-            model['topology']['Name'] = '${bad.variable}'
+            model['topology']['Name'] = '@@PROP:bad.variable@@'
             variable_map = variables.load_variables(self._variables_file)
             variables.substitute(model, variable_map)
         except VariableException:
