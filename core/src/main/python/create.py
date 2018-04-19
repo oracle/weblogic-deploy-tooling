@@ -326,15 +326,16 @@ def main():
         __clean_up_temp_files()
         sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    if model_context.get_variable_file():
-        try:
+    try:
+        variable_map = {}
+        if model_context.get_variable_file():
             variable_map = variables.load_variables(model_context.get_variable_file())
-            variables.substitute(model, variable_map)
-        except VariableException, ex:
-            __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
-                            class_name=_class_name, method_name=_method_name)
-            __clean_up_temp_files()
-            sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        variables.substitute(model, variable_map)
+    except VariableException, ex:
+        __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+        __clean_up_temp_files()
+        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     validate_model(model, model_context, aliases)
