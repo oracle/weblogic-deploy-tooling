@@ -20,6 +20,7 @@ _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
 _variable_pattern = re.compile("\\$\\{[\w.-]+\\}")
 _file_variable_pattern = re.compile("@@FILE:[\w.\\\/:-]+@@")
+_property_pattern = re.compile("@@PROP:[\w.-]+@@")
 
 
 def load_variables(file_path):
@@ -146,6 +147,21 @@ def _substitute(text, variables):
         if tokens:
             for token in tokens:
                 key = token[2:-1]
+                # for ${key} variables, leave them in place if not defined.
+                # there are cases where WebLogic allows ${key} values, such as server templates.
+                # ${key} substitution is deprecated, so log if replacement occurs.
+                if key in variables:
+                    value = variables[key]
+                    text = text.replace(token, value)
+                    _logger.info('WLSDPLY-01735', token, key, method_name=method_name, class_name=_class_name)
+
+    # skip lookups for text with no @@
+    if '@@' in text:
+        tokens = _property_pattern.findall(text)
+        if tokens:
+            for token in tokens:
+                key = token[7:-2]
+                # for @@PROP:key@@ variables, throw an exception if key is not found.
                 if key not in variables:
                     ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
                     _logger.throwing(ex, class_name=_class_name, method_name=method_name)
@@ -153,7 +169,6 @@ def _substitute(text, variables):
                 value = variables[key]
                 text = text.replace(token, value)
 
-    if '@@FILE:' in text:
         tokens = _file_variable_pattern.findall(text)
         if tokens:
             for token in tokens:
