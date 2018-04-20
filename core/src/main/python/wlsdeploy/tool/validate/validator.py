@@ -362,9 +362,7 @@ class Validator(object):
             # section_dict_value is either the dict of a folder in the
             # section, or the value of an attribute in the section
             if '${' in section_dict_key:
-                section_dict_key, validation_result = self.__validate_variable_substitution(section_dict_key,
-                                                                                            model_folder_path,
-                                                                                            validation_result)
+                validation_result.add_error('WLSDPLY-05035', model_folder_path, section_dict_key)
 
             self._logger.finer('WLSDPLY-05011', section_dict_key, section_dict_value,
                                class_name=_class_name, method_name=_method_name)
@@ -536,8 +534,7 @@ class Validator(object):
             for name in model_node:
                 expanded_name = name
                 if '${' in name:
-                    expanded_name, validation_result = \
-                        self.__validate_variable_substitution(name, model_folder_path, validation_result)
+                    _report_unsupported_variable_usage(name, model_folder_path, validation_result)
 
                 self._logger.finest('3 expanded_name={0}', expanded_name,
                                     class_name=_class_name, method_name=_method_name)
@@ -830,18 +827,12 @@ class Validator(object):
                     # FIXME(mwooten) - the cla_utils should be fixing all windows paths to use forward slashes already...
                     # assuming that the value is not None
                     variables_file_name = self._model_context.get_variable_file()
-                    if self._validation_mode == _ValidationModes.STANDALONE:
-                        if variables_file_name is None:
-                            validation_result.add_info('WLSDPLY-05021', model_folder_path, property_name)
-                        else:
-                            validation_result.add_info('WLSDPLY-05022', model_folder_path, property_name,
-                                                       variables_file_name)
-                    elif self._validation_mode == _ValidationModes.TOOL:
-                        if variables_file_name is None:
-                            validation_result.add_error('WLSDPLY-05021', model_folder_path, property_name)
-                        else:
-                            validation_result.add_error('WLSDPLY-05022', model_folder_path, property_name,
-                                                        variables_file_name)
+                    if variables_file_name is None:
+                        self._logger.warning('WLSDPLY-05021', model_folder_path, property_name,
+                                             class_name=_class_name, method_name=_method_name)
+                    else:
+                        self._logger.warning('WLSDPLY-05022', model_folder_path, property_name, variables_file_name,
+                                             class_name=_class_name, method_name=_method_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name, result=untokenized_value)
         return untokenized_value, validation_result
