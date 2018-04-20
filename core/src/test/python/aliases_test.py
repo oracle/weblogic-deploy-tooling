@@ -1130,6 +1130,21 @@ class AliasesTestCase(unittest.TestCase):
 
         return
 
+    def testIssue57Fix(self):
+        location = LocationContext().append_location(FOLDERS.LOG)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'DemoDomain')
+
+        expected = 'true'
+        default_value = self.aliases.get_model_attribute_default_value(location, 'RotateLogOnStartup')
+        self.assertEqual(default_value, expected)
+
+        expected = 'true'
+        default_value = self.online_aliases.get_model_attribute_default_value(location, 'RotateLogOnStartup')
+        self.assertEqual(default_value, expected)
+
+        return
+
     def testGetModelAttributeName(self):
         location=LocationContext().append_location(FOLDERS.JMS_SYSTEM_RESOURCE)
         token = self.aliases.get_name_token(location)
