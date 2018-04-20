@@ -2,6 +2,8 @@
     "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
     "license": "The Universal Permissive License (UPL), Version 1.0",
     "wlst_type": "Log",
+    "child_folders_type": "single_unpredictable",
+    "default_name_value": "${NO_NAME_0:%DOMAIN%}",
     "folders": {},
     "attributes": {
         "BufferSizeKb":                                  [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "BufferSizeK${b:B}",                             "wlst_path": "WP001", "value": {"default": 8       }, "wlst_type": "integer"} ],
@@ -46,7 +48,7 @@
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
-        "WP001": "/Log/%DOMAIN%"
+        "WP001": "/Log/%LOG%"
     }
 }
 
