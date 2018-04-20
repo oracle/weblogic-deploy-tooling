@@ -23,11 +23,12 @@ class ValidationTestCase(unittest.TestCase):
     _class_name = 'ValidationTestCase'
     _resources_dir = '../../test-classes'
     _model_file = _resources_dir + '/test_jms_mail.json'
-    _variable_file = _resources_dir + "/test_sub_variable_file.properties"
+    _variable_file = None
+    _archive_file = None
+    # _variable_file = _resources_dir + "/test_sub_variable_file.properties"
     # _model_file = _resources_dir + '/test_empty.json'
     # _variable_file = _resources_dir + "/test_invalid_variable_file.properties"
-    # _variable_file = None
-    _archive_file = _resources_dir + "/test_jms_archive.zip"
+    # _archive_file = _resources_dir + "/test_jms_archive.zip"
     _logger = PlatformLogger('wlsdeploy.validate')
 
     def setUp(self):
@@ -41,10 +42,14 @@ class ValidationTestCase(unittest.TestCase):
         mw_home = os.environ['MW_HOME']
         args_map = {
             '-oracle_home': mw_home,
-            '-model_file': self._model_file,
-            '-variable_file': self._variable_file,
-            '-archive_file': self._archive_file
+            '-model_file': self._model_file
         }
+
+        if self._variable_file is not None:
+            args_map['-variable_file'] = self._variable_file
+
+        if self._variable_file is not None:
+            args_map['-archive_file'] = self._archive_file
 
         model_context = ModelContext('ValidationTestCase', args_map)
 
