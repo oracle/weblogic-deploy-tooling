@@ -890,7 +890,7 @@ class Validator(object):
         #
         if WLSDeployArchive.isPathIntoArchive(path):
             if self._archive_helper is not None:
-                archive_has_file = self._archive_helper.contains_file(path)
+                archive_has_file = self._archive_helper.contains_file_or_path(path)
                 if not archive_has_file:
                     validation_result.add_error('WLSDPLY-05024', attribute_name, model_folder_path,
                                                 path, self._archive_file_name)

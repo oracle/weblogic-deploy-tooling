@@ -79,7 +79,7 @@ class ArchiveHelper(object):
         """
         Does the archive file contain the specified location?
         :param path: the path to test
-        :return: True, if the path was found in the archive file, False otherwise
+        :return: True, if the path was found in the archive file and is a file, False otherwise
         :raises: BundleAwareException of the appropriate type: if an error occurs
         """
         _method_name = 'contains_file'
@@ -89,6 +89,46 @@ class ArchiveHelper(object):
             result = self.__archive_file.containsFile(path)
         except (IllegalArgumentException, WLSDeployArchiveIOException), e:
             ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19302", path,
+                                                   self.__archive_file_name, e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def contains_path(self, path):
+        """
+        Check that the provided path is a path, not a file, contained inside the archive file
+        :param path: the path to test
+        :return: True, if the path was found in the archive file and is a path, False otherwise
+        :raises: BundleAwareException of the appropriate type: if an error occurs
+        """
+        _method_name = 'contains_path'
+
+        self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
+        try:
+            result = self.__archive_file.containsPath(path)
+        except (IllegalArgumentException, WLSDeployArchiveIOException), e:
+            ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19308", path,
+                                                   self.__archive_file_name, e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def contains_file_or_path(self, path):
+        """
+        Check that the provided path is a file or path contained inside the archive file
+        :param path: the path to test
+        :return: True, if the path was found in the archive file. False otherwise
+        :raises: BundleAwareException of the appropriate type: if an error occurs
+        """
+        _method_name = 'contains_file_or_path'
+
+        self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
+        try:
+            result = self.__archive_file.containsFileOrPath(path)
+        except (IllegalArgumentException, WLSDeployArchiveIOException), e:
+            ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19309", path,
                                                    self.__archive_file_name, e.getLocalizedMessage(), error=e)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
