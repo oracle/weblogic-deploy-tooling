@@ -287,11 +287,12 @@ fragment ID_CONTINUE
 fragment QUOTED_ID_START
     : ID_START
     | '$'
+    | '@'
     ;
 
 fragment QUOTED_ID_CONTINUE
     : ID_CONTINUE
-    | [@#\-(){}[\]]
+    | [@#\-(){}[\]:]
     ;
 
 fragment SQUOTED_STRING_CHARS
