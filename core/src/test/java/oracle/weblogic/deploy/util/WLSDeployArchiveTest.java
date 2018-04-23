@@ -29,6 +29,10 @@ public class WLSDeployArchiveTest {
     private static final String APP2_ENTRY_NAME1 = "wlsdeploy/applications/my-other-app.war";
     private static final String APP2_ENTRY_NAME2 = "wlsdeploy/applications/my-other-app(1).war";
     private static final String APP2_ENTRY_NAME3 = "wlsdeploy/applications/my-other-app(2).war";
+    private static final String INVALID_APP_ENTRY_NAME = "wlsdeploy/applications/does-not-exist.war";
+    private static final String APP_DIR_TO_ADD = "src/test/resources/my-app/";
+    private static final String APP_DIR_ENTRY_NAME = "wlsdeploy/applications/my-app/";
+    private static final String INVALID_DIR_ENTRY_NAME = "wlsdeploy/applications/does-not-exist/";
 
     private static final String ZIP_FILE_EXISTING_EMPTY_FILE = "my-empty-zip.zip";
     private static final String ZIP_FILE_EXISTING_BINARIES_FILE = "DiscoveredDemoDomain.zip";
@@ -86,6 +90,37 @@ public class WLSDeployArchiveTest {
         Assert.assertTrue("expected extracted model file to exist", extractedModelFile.exists());
         Assert.assertFalse("expected extracted model file not to be a directory", extractedModelFile.isDirectory());
         archive.close();
+    }
+
+    @Test
+    public void testAddDirectory() throws Exception {
+        WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
+        String appName = archive.addApplication(new File(APP_DIR_TO_ADD));
+        Assert.assertEquals("unexpected app name: " + appName, APP_DIR_ENTRY_NAME, appName);
+        archive.close();
+    }
+
+    @Test
+    public void testIsAFile() throws Exception {
+        WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
+        archive.addApplication(new File(APP1_TO_ADD));
+        Assert.assertTrue("File not found in archive: " + APP1_ENTRY_NAME1, archive.containsFile(APP1_ENTRY_NAME1));
+        Assert.assertTrue("File not found in archive: "
+                + APP1_ENTRY_NAME1, archive.containsFileOrPath(APP1_ENTRY_NAME1));
+        Assert.assertFalse("Is not a File", archive.containsFile(APP_DIR_ENTRY_NAME));
+        Assert.assertFalse("File should not exist", archive.containsFileOrPath(INVALID_APP_ENTRY_NAME));
+        archive.close();
+    }
+
+    @Test
+    public void testIsAPath() throws Exception {
+        WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
+        archive.addApplication(new File(APP_DIR_TO_ADD));
+        Assert.assertTrue("Path not found in archive: " + APP_DIR_ENTRY_NAME, archive.containsPath(APP_DIR_ENTRY_NAME));
+        Assert.assertTrue("Path not found in archive: " + APP_DIR_ENTRY_NAME,
+                archive.containsFileOrPath(APP_DIR_ENTRY_NAME));
+        Assert.assertFalse("Is not a Path", archive.containsPath(APP1_ENTRY_NAME1));
+        Assert.assertFalse("Path should not exist", archive.containsFileOrPath(INVALID_DIR_ENTRY_NAME));
     }
 
     @Test

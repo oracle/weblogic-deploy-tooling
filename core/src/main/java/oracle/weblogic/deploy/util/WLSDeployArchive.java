@@ -278,6 +278,55 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Determines whether or not the provided path is a directory in the archive file.
+     *
+     * @param path the path into the archive file to test
+     * @return true if the specified location was found in the archive file and is a directory
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive file
+     * @throws IllegalArgumentException if the path is null or empty
+     */
+    public boolean containsPath(String path) throws WLSDeployArchiveIOException {
+        final String METHOD = "isAPath";
+
+        LOGGER.entering(CLASS, METHOD, path);
+        validateNonEmptyString(path, "path", METHOD);
+
+        boolean result = false;
+        // Verify that the path is into the binary root directory so that we do not allow random content.
+        if (isPathIntoArchive(path)) {
+            List<String> entries = getZipFile().listZipEntries();
+            result = !entries.contains(path) && zipListContainsPath(entries, path);
+        }
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
+     * Determines whether or not the provided path is a directory or a file in a directory
+     * in the archive file.
+     *
+     * @param path the path into the archive file to test
+     * @return true if the specified location was found in the archive file
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive file
+     * @throws IllegalArgumentException if the path is null or empty
+     */
+    public boolean containsFileOrPath(String path) throws WLSDeployArchiveIOException {
+        final String METHOD = "containsFileOrPath";
+
+        LOGGER.entering(CLASS, METHOD, path);
+        validateNonEmptyString(path, "path", METHOD);
+
+        boolean result = false;
+        // Verify that the path is into the binary root directory so that we do not allow random content.
+        if (isPathIntoArchive(path)) {
+            List<String> entries = getZipFile().listZipEntries();
+            result = entries.contains(path) || zipListContainsPath(entries, path);
+        }
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
      * Extract the specified file to the specified location (which is typically the domain home).  For example,
      * if the path is wlsdeploy/applications/myapp.ear and the extractToLocation is the domain home, the file
      * will be written to $DOMAIN_HOME/wlsdeploy/applications/myapp.ear.
@@ -1090,6 +1139,19 @@ public class WLSDeployArchive {
     ///////////////////////////////////////////////////////////////////////////
     // Private Helper methods used by the protected methods above...         //
     ///////////////////////////////////////////////////////////////////////////
+
+    private static boolean zipListContainsPath(List<String> entries, String path) {
+        boolean foundInList = false;
+        if (path != null && entries != null) {
+            for (String entry : entries) {
+                if (entry.startsWith(path)) {
+                    foundInList = true;
+                    break;
+                }
+            }
+        }
+        return foundInList;
+    }
 
     private static void copyFile(InputStream input, FileOutputStream output) throws IOException {
         byte[] readBuffer = new byte[READ_BUFFER_SIZE];
