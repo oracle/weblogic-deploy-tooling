@@ -15,3 +15,6 @@ topology:
             ListenAddress: 127.0.0.1
             ListenPort: 8101
             Cluster: '@@PROP:my.cluster@@'
+        '@@PROP:server3.id@@':
+            ListenAddress: 127.0.0.2
+            ListenPort: 8102

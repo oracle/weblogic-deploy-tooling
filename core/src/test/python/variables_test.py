@@ -31,6 +31,7 @@ class VariablesTestCase(unittest.TestCase):
         self.assertEqual(model['topology']['Server']['s1']['ListenPort'], '1009')
         self.assertEqual(model['topology']['Server']['s2']['Cluster'], 'myCluster')
         self.assertEqual(True, 'myCluster' in model['topology']['Cluster'])
+        self.assertEqual(True, 's3' in model['topology']['Server'])
 
     def testSubstituteJson(self):
         model = FileToPython(self._resources_dir + '/variables-test.json', self._use_ordering).parse()
@@ -40,6 +41,7 @@ class VariablesTestCase(unittest.TestCase):
         self.assertEqual(model['topology']['Server']['s1']['ListenPort'], '1009')
         self.assertEqual(model['topology']['Server']['s2']['Cluster'], 'myCluster')
         self.assertEqual(True, 'myCluster' in model['topology']['Cluster'])
+        self.assertEqual(True, 's3' in model['topology']['Server'])
 
     def testVariableNotFound(self):
         """
