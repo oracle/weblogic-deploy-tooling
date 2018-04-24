@@ -9,6 +9,7 @@ from oracle.weblogic.deploy.create import RCURunner
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.create.creator import Creator
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.util import dictionary_utils
@@ -26,6 +27,7 @@ from wlsdeploy.aliases.model_constants import AUTHENTICATION_PROVIDER
 from wlsdeploy.aliases.model_constants import AUTHORIZER
 from wlsdeploy.aliases.model_constants import CERT_PATH_PROVIDER
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import COHERENCE_CLUSTER_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import CREDENTIAL_MAPPER
 from wlsdeploy.aliases.model_constants import DEFAULT_ADJUDICATOR_NAME
 from wlsdeploy.aliases.model_constants import DEFAULT_ADJUDICATOR_TYPE
@@ -95,6 +97,8 @@ class DomainCreator(Creator):
         _method_name = '__init__'
         Creator.__init__(self, model_dictionary, model_context, aliases)
 
+        self._coherence_cluster_elements = [CLUSTER, SERVER, SERVER_TEMPLATE]
+
         # domainInfo section is required to get the admin password, everything else
         # is optional and will use the template defaults
         if model_helper.get_model_domain_info_key() not in model_dictionary:
@@ -157,6 +161,22 @@ class DomainCreator(Creator):
         self.__deploy_resources_and_apps()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    # Override
+    def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False):
+        """
+        Override default behavior to create placeholders for referenced Coherence clusters.
+        :param type_name: the model folder type
+        :param model_nodes: the model dictionary of the specified model folder type
+        :param base_location: the base location object to use to create the MBeans
+        :param log_created: whether or not to log created at INFO level, by default it is logged at the FINE level
+        :raises: CreateException: if an error occurs
+        """
+        if type_name in self._coherence_cluster_elements:
+            self._check_coherence_cluster_references(model_nodes, base_location)
+            # continue with regular processing
+
+        Creator._create_named_mbeans(self, type_name, model_nodes, base_location)
 
     def __run_rcu(self):
         """
@@ -1152,3 +1172,38 @@ class DomainCreator(Creator):
                     default_value = self.alias_helper.get_model_attribute_default_value(location, ACTIVE_TYPE)
                     subtype_dict[ACTIVE_TYPE] = default_value
         return
+
+    def _check_coherence_cluster_references(self, named_nodes, location):
+        """
+        If a named element has the Coherence cluster system resource attribute, confirm that the resource exists.
+        If the resource does not exist, create a placeholder resource to allow assignment.
+        :param named_nodes: a dictionary containing the named model elements
+        :param location: the location of the cluster
+        :return:
+        """
+        for name in named_nodes:
+            child_nodes = dictionary_utils.get_dictionary_element(named_nodes, name)
+            resource_name = dictionary_utils.get_element(child_nodes, COHERENCE_CLUSTER_SYSTEM_RESOURCE)
+            if resource_name is not None:
+                self._create_placeholder_coherence_cluster(resource_name)
+
+    def _create_placeholder_coherence_cluster(self, cluster_name):
+        """
+        Create a placeholder Coherence cluster system resource to be referenced from a topology element.
+        The new cluster will be created at the root domain level.
+        Clusters referenced from the model's resources section should not require placeholder entries.
+        :param cluster_name: the name of the Coherence cluster system resource to be added
+        """
+        _method_name = '_create_placeholder_coherence_cluster'
+        original_location = self.wlst_helper.get_pwd()
+        cluster_location = LocationContext().append_location(COHERENCE_CLUSTER_SYSTEM_RESOURCE)
+        existing_names = deployer_utils.get_existing_object_list(cluster_location, self.alias_helper)
+
+        if cluster_name not in existing_names:
+            self.logger.info('WLSDPLY-12230', cluster_name, class_name=self.__class_name, method_name=_method_name)
+
+        cluster_token = self.alias_helper.get_name_token(cluster_location)
+        cluster_location.add_name_token(cluster_token, cluster_name)
+        deployer_utils.create_and_cd(cluster_location, existing_names, self.alias_helper)
+
+        self.wlst_helper.cd(original_location)
