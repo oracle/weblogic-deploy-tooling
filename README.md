@@ -65,17 +65,17 @@ Here is a simple example of a model to deploy an application and its data source
 resources:
     JDBCSystemResource:
         MyDataSource:
-            Target: '${myjcs.cluster1.name}'
+            Target: '@@PROP:myjcs.cluster1.name@@'
             JdbcResource:        
                 JDBCDataSourceParams:
                     JNDIName: jdbc/generic1
                 JDBCDriverParams:
                     DriverName: oracle.jdbc.OracleDriver
-                    URL: 'jdbc:oracle:thin:@//${dbcs1.url}'
-                    PasswordEncrypted: '${dbcs1.password}'
+                    URL: 'jdbc:oracle:thin:@//@@PROP:dbcs1.url@@'
+                    PasswordEncrypted: '@@PROP:dbcs1.password@@'
                     Properties:
                         user:
-                            Value: '${dbcs1.user}'
+                            Value: '@@PROP:dbcs1.user@@'
                         oracle.net.CONNECT_TIMEOUT:
                             Value: 5000
                 JDBCConnectionPoolParams:
@@ -84,16 +84,16 @@ appDeployments:
     Application:
         simpleear :
             SourcePath: wlsdeploy/applications/simpleear.ear
-            Target: '${myjcs.cluster1.name}'
+            Target: '@@PROP:myjcs.cluster1.name@@'
             ModuleType: ear
      Library:
         'jsf#2.0':
             SourcePath: '@@WL_HOME@@/common/deployable-libraries/jsf-2.0.war'
-            Target: '${myjcs.cluster1.name}'
+            Target: '@@PROP:myjcs.cluster1.name@@'
             ModuleType: war
 ```
 
-The above example shows two important features of the framework.  First, notice that the `URL`, `PasswordEncrypted`, `user` property `Value` and all `Target` fields contain values that have a `${<name>}` pattern.  This syntax denotes a variable placeholder whose value is specified at runtime using a variables file (in a standard Java properties file format).  Variables can be used for any value and even for some names.  For example, to automate standing up an environment with one or more applications in the Oracle Java Cloud Service, service provisioning does not allow the provisioning script to specify the server names.  For example, if the application being deployed immediately following provisioning needs to tweak the Server Start arguments to specify a Java system property, the model can use a variable placeholder in place of the server name and populate the variable file with the provisioned server names dynamically between provisioning and application deployment.
+The above example shows two important features of the framework.  First, notice that the `URL`, `PasswordEncrypted`, `user` property `Value` and all `Target` fields contain values that have a `@@PROP:<name>@@` pattern.  This syntax denotes a variable placeholder whose value is specified at runtime using a variables file (in a standard Java properties file format).  Variables can be used for any value and even for some names.  For example, to automate standing up an environment with one or more applications in the Oracle Java Cloud Service, service provisioning does not allow the provisioning script to specify the server names.  For example, if the application being deployed immediately following provisioning needs to tweak the Server Start arguments to specify a Java system property, the model can use a variable placeholder in place of the server name and populate the variable file with the provisioned server names dynamically between provisioning and application deployment.
 
 Second, notice that the `jsf#2.0` shared library `SourcePath` attribute value starts with `@@WL_HOME@@`.  This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  This path token is automatically resolved to the proper location when the tool runs.  The tooling supports path tokens at any location in the model that specifies a file or directory location.  The supported tokens are:
 
@@ -546,11 +546,11 @@ resources:
                   GlobalTransactionsProtocol: TwoPhaseCommit
               JDBCDriverParams:
                   DriverName: oracle.jdbc.xa.client.OracleXADataSource
-                  URL: 'jdbc:oracle:thin:@//${db.url}'
-                  PasswordEncrypted: '${db.password}'
+                  URL: 'jdbc:oracle:thin:@//@@PROP:db.url@@'
+                  PasswordEncrypted: '@@PROP:db.password@@'
                   Properties:
                       user:
-                          Value: '${db.user}'
+                          Value: '@@PROP:db.user@@'
                       oracle.net.CONNECT_TIMEOUT:
                           Value: 5000
                       oracle.jdbc.ReadTimeout:
@@ -565,7 +565,7 @@ resources:
             JNDIName: mail/MyMailSession
             Target: mycluster
             SessionUsername: 'john.smith@example.com'
-            SessionPasswordEncrypted: '${mymailsession.password}'
+            SessionPasswordEncrypted: '@@PROP:mymailsession.password@@'
             Properties:
                 mail.store.protocol: imap
                 mail.imap.port: 993
