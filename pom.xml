@@ -8,7 +8,7 @@
 
     <groupId>com.oracle.weblogic.lifecycle</groupId>
     <artifactId>weblogic-deploy</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
     <packaging>pom</packaging>
 
     <name>Oracle WebLogic Server Deploy Tooling</name>
@@ -33,7 +33,8 @@
         <url>https://github.com/oracle/weblogic-deploy-tooling</url>
         <connection>scm:git:git@github.com:oracle/weblogic-deploy-tooling.git</connection>
         <developerConnection>scm:git:git@github.com:oracle/weblogic-deploy-tooling.git</developerConnection>
-    </scm>
+      <tag>weblogic-deploy-0.9</tag>
+  </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
