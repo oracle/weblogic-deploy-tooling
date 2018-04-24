@@ -260,7 +260,7 @@ fragment FALSE_TEXT
     ;
 
 fragment INT_TEXT
-    : [1-9] [0-9]*
+    : [+-]? [1-9] [0-9]*
     ;
 
 fragment FLOAT_TEXT
