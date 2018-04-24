@@ -263,6 +263,8 @@ class TopologyDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_restful_management_services()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self._get_domain_log()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def discover_security_configuration(self):
@@ -306,7 +308,7 @@ class TopologyDiscoverer(Discoverer):
     def _get_jmx(self):
         """
         Discover the JMX agents configured in the domain.
-        :return: model name for JMX:dictionary containing the discover JMX attributes
+        :return: model name for JMX:dictionary containing the discovered JMX attributes
         """
         _method_name = '_get_jmx'
         _logger.entering(class_name=_class_name, method_name=_method_name)
@@ -320,6 +322,26 @@ class TopologyDiscoverer(Discoverer):
             location.add_name_token(self._alias_helper.get_name_token(location), name)
             self._populate_model_parameters(result, location)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
+        return model_top_folder_name, result
+
+    def _get_domain_log(self):
+        """
+        Discover the domain log attributes.
+        :return: model name for the Log:dictionary containing the discovered Log attributes
+        """
+        _method_name = '_get_domain_log'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.LOG
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        name = self._find_singleton_name_in_folder(location)
+        if name is not None:
+            _logger.info('WLSDPLY-06626', class_name=_class_name, method_name=_method_name)
+            location.add_name_token(self._alias_helper.get_name_token(location), name)
+            self._populate_model_parameters(result, location)
+            self._discover_subfolders(result, location)
+
         return model_top_folder_name, result
 
     def _get_restful_management_services(self):
