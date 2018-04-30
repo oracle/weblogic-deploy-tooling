@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +35,7 @@ public class ProcessHandler {
     private ProcessBuilder procBuilder;
     private Process process;
     private File logFile;
+    private boolean appendFlag = false;
     private PrintStream stdoutWriter;
     private int timeout = -1;
     private WaitHandler waitHandler;
@@ -53,12 +55,24 @@ public class ProcessHandler {
     }
 
     /**
-     * Set the log to which to write the standard output of the process.
+     * Set the file to which standard out of the process should be written.
      *
      * @param log the stdout log file
      */
     public void setStdoutLog(File log) {
-        logFile = log;
+        setStdoutLog(log, false);
+    }
+
+    /**
+     * Set the log that standard out of process will be written to, using
+     * the specified append flag. The default is to not append to <code>log</code>.
+     *
+     * @param log the stdout log file
+     * @param appendFlag flag indicating if file should be appended to
+     */
+    public void setStdoutLog(File log, boolean appendFlag) {
+        this.logFile = log;
+        this.appendFlag = appendFlag;
     }
 
     /**
@@ -192,8 +206,7 @@ public class ProcessHandler {
         LOGGER.entering(CLASS, METHOD);
 
         if (waitHandler == null) {
-            ScriptRunnerException sre =
-                new ScriptRunnerException("WLSDPLY-01201", this.toString());
+            ScriptRunnerException sre = new ScriptRunnerException("WLSDPLY-01201", this.toString());
             LOGGER.throwing(CLASS, METHOD, sre);
             throw sre;
         }
@@ -214,6 +227,7 @@ public class ProcessHandler {
         if (linesToPipeToStdin != null && !linesToPipeToStdin.isEmpty()) {
             try (BufferedWriter writer =
                 new BufferedWriter(new OutputStreamWriter(process.getOutputStream(), DEFAULT_CHARSET))) {
+
                 for (String line : linesToPipeToStdin) {
                     writer.write(line);
                     writer.newLine();
@@ -292,8 +306,10 @@ public class ProcessHandler {
             PrintStream logWriter = null;
             try (BufferedReader reader =
                 new BufferedReader(new InputStreamReader(process.getInputStream(), DEFAULT_CHARSET))) {
+
                 if (logFile != null) {
-                    logWriter = new PrintStream(logFile, StandardCharsets.UTF_8.toString());
+                    FileOutputStream fos = new FileOutputStream(logFile, appendFlag);
+                    logWriter = new PrintStream(fos, true, StandardCharsets.UTF_8.toString());
                 }
 
                 String msg;
