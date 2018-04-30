@@ -55,7 +55,7 @@ public class ProcessHandler {
     }
 
     /**
-     * Set the log that standard out of process will be written to.
+     * Set the file to which standard out of the process should be written.
      *
      * @param log the stdout log file
      */
@@ -206,8 +206,7 @@ public class ProcessHandler {
         LOGGER.entering(CLASS, METHOD);
 
         if (waitHandler == null) {
-            ScriptRunnerException sre =
-                    new ScriptRunnerException("WLSDPLY-01201", this.toString());
+            ScriptRunnerException sre = new ScriptRunnerException("WLSDPLY-01201", this.toString());
             LOGGER.throwing(CLASS, METHOD, sre);
             throw sre;
         }
@@ -220,21 +219,22 @@ public class ProcessHandler {
             process = procBuilder.start();
         } catch (IOException ioe) {
             ScriptRunnerException sre =
-                    new ScriptRunnerException("WLSDPLY-01203", ioe, this.toString(), ioe.getLocalizedMessage());
+                new ScriptRunnerException("WLSDPLY-01203", ioe, this.toString(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, sre);
             throw sre;
         }
 
         if (linesToPipeToStdin != null && !linesToPipeToStdin.isEmpty()) {
             try (BufferedWriter writer =
-                         new BufferedWriter(new OutputStreamWriter(process.getOutputStream(), DEFAULT_CHARSET))) {
+                new BufferedWriter(new OutputStreamWriter(process.getOutputStream(), DEFAULT_CHARSET))) {
+
                 for (String line : linesToPipeToStdin) {
                     writer.write(line);
                     writer.newLine();
                 }
             } catch (IOException ioe) {
                 ScriptRunnerException sre =
-                        new ScriptRunnerException("WLSDPLY-01204", ioe, this.toString(), ioe.getLocalizedMessage());
+                    new ScriptRunnerException("WLSDPLY-01204", ioe, this.toString(), ioe.getLocalizedMessage());
                 LOGGER.throwing(CLASS, METHOD, sre);
                 throw sre;
             }
@@ -257,7 +257,7 @@ public class ProcessHandler {
                         process.destroy();
                     }
                     ScriptRunnerException sre =
-                            new ScriptRunnerException("WLSDPLY-01205", this.toString(), elapsed, timeout);
+                        new ScriptRunnerException("WLSDPLY-01205", this.toString(), elapsed, timeout);
                     LOGGER.throwing(CLASS, METHOD, sre);
                     throw sre;
                 }
@@ -305,7 +305,8 @@ public class ProcessHandler {
         public void run() {
             PrintStream logWriter = null;
             try (BufferedReader reader =
-                         new BufferedReader(new InputStreamReader(process.getInputStream(), DEFAULT_CHARSET))) {
+                new BufferedReader(new InputStreamReader(process.getInputStream(), DEFAULT_CHARSET))) {
+
                 if (logFile != null) {
                     FileOutputStream fos = new FileOutputStream(logFile, appendFlag);
                     logWriter = new PrintStream(fos, true, StandardCharsets.UTF_8.toString());
