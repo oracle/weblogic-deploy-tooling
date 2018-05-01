@@ -1214,6 +1214,25 @@ class AliasesTestCase(unittest.TestCase):
 
         return
 
+    def testIssue91Fix(self):
+        location = LocationContext().append_location(FOLDERS.NM_PROPERTIES)
+
+        expected = 'startWebLogic.cmd'
+        default_value = self.aliases.get_model_attribute_default_value(location, 'weblogic.StartScriptName')
+        self.assertEqual(default_value, expected)
+
+        expected = '/'
+        wlst_list_path = self.aliases.get_wlst_list_path(location)
+        self.assertEqual(wlst_list_path, expected)
+
+        # All the attributes in FOLDERS.NM_PROPERTIES have 'wlst_mode':'offline", so
+        # the default value should be None
+        expected = None
+        default_value = self.online_aliases.get_model_attribute_default_value(location, 'weblogic.StartScriptName')
+        self.assertEqual(default_value, expected)
+
+        return
+
     def testGetModelAttributeName(self):
         location=LocationContext().append_location(FOLDERS.JMS_SYSTEM_RESOURCE)
         token = self.aliases.get_name_token(location)
