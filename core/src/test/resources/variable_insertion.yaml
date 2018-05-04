@@ -1,0 +1,123 @@
+domainInfo:
+    ServerStartMode: prod
+    AdminUserName: weblogic
+    AdminPassword: '--FIX-ME--'
+topology:
+    Name: DemoDomain
+    AdminServerName: AdminServer
+    DomainVersion: 12.2.1.3.0
+    Notes: 'Test note replacement'
+    Machine:
+        machine1:
+            NodeManager:
+                ListenAddress: 127.0.0.1
+                Notes: The only node manager
+            Notes: The only machine
+    Server:
+        m2:
+            ListenAddress: 127.0.0.1
+            Machine: machine1
+            Cluster: mycluster
+            SSL:
+                Enabled: true
+                ListenPort: 9006
+            ListenPort: 9005
+        m1:
+            ListenAddress: 127.0.0.1
+            Machine: machine1
+            Cluster: mycluster
+            SSL:
+                Enabled: true
+                ListenPort: 9004
+            ListenPort: 9003
+        AdminServer:
+            ListenAddress: 127.0.0.1
+            Machine: machine1
+            SSL:
+                Enabled: true
+                ListenPort: 9002
+            ListenPort: 9001
+resources:
+    MailSession:
+        MyMailSession:
+            Properties:
+                mail.store.protocol: imap
+                mail.imap.port: 993L
+                mail.smtp.ssl.enable: True
+                mail.imap.auth: True
+                mail.transport.protocol: smtp
+                mail.imap.ssl.enable: True
+                mail.smtp.host: stbeehive.oracle.com
+                mail.smtp.starttls.enable: True
+                mail.smtp.port: 465L
+                mail.smtp.auth: True
+                mail.imap.host: stbeehive.oracle.com
+                mail.imap.starttls.enable: True
+            SessionUsername: 'john.smith@oracle.com'
+            JNDIName: mail/MyMailSession
+            Target: mycluster
+            SessionPasswordEncrypted: '--FIX ME--'
+        'MailSession-0':
+            Properties:
+                mail.imap.port: 996L
+                mail.smtp.port: 465L
+                mail.imap.host: stbeehive.oracle.com
+                mail.smtp.host: stbeehive.oracle.com
+                mail.store.protocol: imap
+            SessionUsername: weblogic
+            JNDIName: javamail/oracle
+            Target: mycluster
+            SessionPasswordEncrypted: '--FIX ME--'
+    JMSSystemResource:
+        MyJmsModule:
+             JmsResource:
+                 ForeignServer:
+                     MyForeignServer:
+                         ForeignDestination:
+                             MyRemoteQ:
+                                 RemoteJndiName: jms/myQ
+                                 LocalJNDIName: jms/remoteQ
+                         ForeignConnectionFactory:
+                             MyRemoteCF:
+                                 RemoteJndiName: jms/myCF
+                                 LocalJNDIName: jms/remoteCF
+                         ConnectionURL: 't3://my.other.cluster:7001'
+                         JNDIProperty:
+                             java.naming.security.principal:
+                                 Key: java.naming.security.principal
+                                 Value: weblogic
+                             bar:
+                                 Key: bar
+                                 Value: True
+                         JNDIPropertiesCredentialEncrypted: '--FIX ME--'
+    JDBCSystemResource:
+        Database1:
+            DescriptorFileName: 'jdbc/Database1-3195-jdbc.xml'
+            Target: mycluster
+            JdbcResource:
+                JDBCDriverParams:
+                    Properties:
+                        oracle.jdbc.ReadTimeout:
+                            Value: 30000
+                        user:
+                            Value: jshum
+                        oracle.net.CONNECT_TIMEOUT:
+                            Value: 5000
+                    URL: 'jdbc:oracle:thin:@//den00chv.us.oracle.com:1521/PDBORCL'
+                    PasswordEncrypted: '--FIX ME--'
+                    DriverName: oracle.jdbc.xa.client.OracleXADataSource
+        Database2:
+            DescriptorFileName: 'jdbc/Database2-3194-jdbc.xml'
+            Target: mycluster
+            JdbcResource:
+                JDBCDriverParams:
+                    Properties:
+                        oracle.jdbc.ReadTimeout:
+                            Value: 30000
+                        user:
+                            Value: jshum
+                        oracle.net.CONNECT_TIMEOUT:
+                            Value: 5000
+                    URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=slc05til.us.oracle.com)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
+                    PasswordEncrypted: '--FIX ME--'
+                    DriverName: oracle.jdbc.xa.client.OracleXADataSource
