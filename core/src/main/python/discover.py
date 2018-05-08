@@ -117,9 +117,9 @@ def __process_online_args(optional_arg_map):
     if CommandLineArgUtil.ADMIN_URL_SWITCH in optional_arg_map:
         if CommandLineArgUtil.ADMIN_USER_SWITCH not in optional_arg_map:
             try:
-                username = getcreds.getuser('WLSDPLY-09044')
+                username = getcreds.getuser('WLSDPLY-06016')
             except IOException, ioe:
-                ex = exception_helper.create_cla_exception('WLSDPLY-09046', ioe.getLocalizedMessage(), error=ioe)
+                ex = exception_helper.create_cla_exception('WLSDPLY-06017', ioe.getLocalizedMessage(), error=ioe)
                 ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
@@ -127,15 +127,15 @@ def __process_online_args(optional_arg_map):
 
         if CommandLineArgUtil.ADMIN_PASS_SWITCH not in optional_arg_map:
             try:
-                password = getcreds.getpass('WLSDPLY-09045')
+                password = getcreds.getpass('WLSDPLY-06018')
             except IOException, ioe:
-                ex = exception_helper.create_cla_exception('WLSDPLY-09047', ioe.getLocalizedMessage(), error=ioe)
+                ex = exception_helper.create_cla_exception('WLSDPLY-06019', ioe.getLocalizedMessage(), error=ioe)
                 ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
             optional_arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH] = String(password)
 
-        mode = WlstModes.ONLINE
+        __logger.info('WLSDPLY-06020')
     return mode
 
 
