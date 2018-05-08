@@ -4,9 +4,7 @@ The Universal Permissive License (UPL), Version 1.0
 """
 import unittest
 
-import java.io.FileInputStream as FileInputStream
-import java.util.Properties as Properties
-
+import wlsdeploy.util.variables as variables
 from wlsdeploy.tool.util.variable_file_helper import VariableFileHelper
 from wlsdeploy.util.model_translator import FileToPython
 
@@ -42,12 +40,12 @@ class VariableFileHelperTest(unittest.TestCase):
         #     = 't3://my.other.cluster:7001'
         # expected['jmssystemresource-MyJmsModule-jmsresource-foreignserver-MyForeignServer-'
         #          'foreigndestination-MyRemoteQ-localjndiname'] = 'jms/remoteQ'
-        expected['/Server/AdminServer/SSL/ListenPort'] = 9002
-        expected['/Server/AdminServer/ListenPort'] = 9001
-        expected['/Server/m2/ListenPort'] = 9005
-        expected['/Server/m1/ListenPort'] = 9003
-        expected['/Server/m1/SSL/ListenPort'] = 9004
-        expected['/Server/m2/SSL/ListenPort'] = 9006
+        expected['/Server/AdminServer/SSL/ListenPort'] = '9002'
+        expected['/Server/AdminServer/ListenPort'] = '9001'
+        expected['/Server/m2/ListenPort'] = '9005'
+        expected['/Server/m1/ListenPort'] = '9003'
+        expected['/Server/m1/SSL/ListenPort'] = '9004'
+        expected['/Server/m2/SSL/ListenPort'] = '9006'
         expected['/JMSSystemResource/MyJmsModule/JmsResource/ForeignServer/MyForeignServer/ConnectionURL'] \
             = 't3://my.other.cluster:7001'
         expected['/JMSSystemResource/MyJmsModule/JmsResource/ForeignServer/MyForeignServer/'
@@ -91,17 +89,17 @@ class VariableFileHelperTest(unittest.TestCase):
         expected = dict()
         expected['/JMSSystemResource/MyJmsModule/JmsResource/ForeignServer/MyForeignServer/ConnectionURL'] \
             = 't3://my.other.cluster:7001'
-        expected['/Server/AdminServer/ListenPort'] = 9001
-        expected['/Server/m2/ListenPort'] = 9005
-        expected['/Server/m1/ListenPort'] = 9003
-        expected['/Machine/machine1/NodeManager/ListenPort'] = '127.0.0.1'
+        expected['/Server/AdminServer/ListenPort'] = '9001'
+        expected['/Server/m2/ListenPort'] = '9005'
+        expected['/Server/m1/ListenPort'] = '9003'
+        expected['/Machine/machine1/NodeManager/ListenPort'] = '5557'
         expected['/Machine/machine1/NodeManager/PasswordEncrypted'] = '--FIX ME--'
         expected['/Machine/machine1/NodeManager/UserName'] = 'admin'
-        inserted = self._helper.replace_variables_file(self._variable_file_location,
+        inserted, model = self._helper.replace_variables_file(self._variable_file_location,
                                                        variable_helper_path_name=self._resources_dir,
                                                        variable_helper_file_name=self._variable_helper_keyword)
         self.assertEqual(True, inserted)
-        actual = self.__read_variable_properties()
+        actual = variables.load_variables(self._variable_file_location)
         self._compare_to_expected_dictionary(expected, actual)
 
     def _compare_to_expected_dictionary(self, expected, actual):
@@ -109,16 +107,8 @@ class VariableFileHelperTest(unittest.TestCase):
                          'Not the same number of entries : expected=' + str(len(expected)) + ', actual=' + str(
                              len(actual)))
         for k, v in actual.iteritems():
-            self.assertEqual(True, k in expected and v == expected[k], 'Actual item not in expected ' + str(k) +
-                             ' : ' + str(v) + '   expected=' + str(expected))
-
-    def __read_variable_properties(self):
-        props = Properties()
-        ins = FileInputStream(self._variable_file_location)
-        props.load(ins)
-        print props
-        ins.close()
-        return props
+            self.assertEqual(True, k in expected and v == expected[k], 'Actual item not in expected ' + k +
+                             ' : ' + v + '   expected=' + str(expected))
 
 
 if __name__ == '__main__':

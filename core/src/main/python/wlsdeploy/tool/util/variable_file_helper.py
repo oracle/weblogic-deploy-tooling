@@ -8,6 +8,7 @@ import os
 import java.lang.IllegalArgumentException as IllegalArgumentException
 
 import oracle.weblogic.deploy.util.VariableException as VariableException
+import oracle.weblogic.deploy.aliases.AliasException as AliasException
 
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 import wlsdeploy.util.model as model_sections
@@ -36,6 +37,8 @@ _logger = PlatformLogger('wlsdeploy.util')
 class VariableFileHelper(object):
 
     def __init__(self, model, model_context=None, version=None):
+        self.__original = model
+        self.__model = copy.deepcopy(model)
         self.__model = model
         if version is not None:
             self.__aliases = Aliases(model_context, WlstModes.OFFLINE, version, None)
@@ -58,13 +61,6 @@ class VariableFileHelper(object):
         _method_name = 'insert_variables'
         _logger.entering(variable_file_location, class_name=_class_name, method_name=_method_name)
 
-        variables_inserted = False
-
-        self.__open_variable_file(variable_file_location)
-        if not self.__variable_file:
-            _logger.warning('WLSDPLY-19404', variable_file_location)
-            return variables_inserted
-
         variable_helper_file_name = VARIABLE_HELPER_FILE_NAME
         if VARIABLE_HELPER_FILE_NAME_ARG in kwargs:
             variable_helper_file_name = kwargs[VARIABLE_HELPER_FILE_NAME_ARG]
@@ -77,22 +73,20 @@ class VariableFileHelper(object):
         file_map = dict()
         for key, value in _keyword_to_file_map.iteritems():
             file_map[key] = os.path.join(variable_helper_location_path, value)
-        print file_map
 
         variables_helper_dictionary = _load_variables_dictionary(variable_helper_location_file)
-        print 'variables_helper_dictionary=', variables_helper_dictionary
-
         variables_file_dictionary = self.replace_variables_dictionary(file_map, variables_helper_dictionary)
-        if variables_file_dictionary:
-            variables_inserted = True
+        variables_inserted = _write_variables_file(variables_file_dictionary, variable_file_location)
 
-            for entry in variables_file_dictionary:
-                self.__variable_file.write(entry)
+        if variables_inserted:
+            _logger.info('WLSDPLY-19418', variable_helper_location_file)
+            return_model = self.__model
+        else:
+            _logger.fine('WLSDPLY-19419')
+            return_model = self.__original
 
-        # now persist the dictionary even if empty
-        self.__variable_file.close()
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_inserted)
-        return variables_inserted
+        return variables_inserted, return_model
 
     def replace_variables_dictionary(self, keyword_map, variables_dictionary):
         """
@@ -100,31 +94,29 @@ class VariableFileHelper(object):
         :param variables_dictionary:
         :return:
         """
-        print 'keyword map=', keyword_map
+        _method_name = 'replace_variables_dictionary'
+        _logger.entering(keyword_map, class_name=_class_name, method_name=_method_name)
         variable_file_entries = dict()
         if variables_dictionary:
-            file_list = []
+            file_map = dict()
             if not dictionary_utils.is_empty_dictionary_element(variables_dictionary, CUSTOM_KEYWORD):
-                file_list.append(variables_dictionary[CUSTOM_KEYWORD])
-                _logger.fine('WLSDPLY-19401', file_list[0])
+                file_map[CUSTOM_KEYWORD] = variables_dictionary[CUSTOM_KEYWORD]
+                _logger.fine('WLSDPLY-19401', file_map[CUSTOM_KEYWORD])
             else:
                 for keyword in variables_dictionary:
-                    print 'find keyword in var dict ', keyword
                     if keyword in keyword_map:
-                        file_list.append(keyword_map[keyword])
+                        _logger.fine('WLSDPLY-1940', keyword, keyword_map[keyword])
+                        file_map[keyword] = keyword_map[keyword]
                     elif keyword != CUSTOM_KEYWORD:
-                        print 'keyword not understood ', keyword
                         _logger.warning('WLSDPLY-19403', keyword)
-            print 'file_list=', file_list
-            for file_name in file_list:
+            for keyword, file_name in file_map.iteritems():
                 replacement_list = _load_replacement_list(file_name)
-                print 'replacement_list=', replacement_list
                 if replacement_list:
                     entries = self.process_variable_replacement(replacement_list)
                     if entries:
-                        # log that a set of entries was returned for the keywood
+                        _logger.finer('WLSDPLY-19413', keyword)
                         variable_file_entries.update(entries)
-        print variable_file_entries
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_file_entries)
         return variable_file_entries
 
     def process_variable_replacement(self, replacement_list):
@@ -156,6 +148,7 @@ class VariableFileHelper(object):
             if mbean_list:
                 mbean = mbean_list.pop(0)
                 if mbean in model_section:
+                    _logger.finest('WLSDPLY-19414', mbean)
                     next_model_section = model_section[mbean]
                     location.append_location(mbean)
                     name_token = self.__aliases.get_name_token(location)
@@ -169,7 +162,15 @@ class VariableFileHelper(object):
                         _traverse_variables(next_model_section, mbean_list, attribute)
                     location.pop_location()
                 else:
-                    print 'invalid mbean in mbean_list ', mbean, ' : ', model_section
+                    mbean_list = []
+                    try:
+                        mbean_list = self.__aliases.get_model_subfolder_names(location)
+                    except AliasException:
+                        pass
+                    if mbean in mbean_list:
+                        _logger.finer('WLSDPLY-19416', mbean, replacement, location.get_folder_path())
+                    else:
+                        _logger.warning('WLSDPLY-19415', mbean, replacement, location.get_folder_path())
                     return False
             else:
                 if attribute in model_section:
@@ -181,7 +182,7 @@ class VariableFileHelper(object):
                         variable_dict[var_name] = var_value
                 else:
                     print 'attribute not in model'
-                    _logger.finer('attribute not in the model')
+                    _logger.finer('WLSDPLY-19417', attribute, replacement, location.get_folder_path())
             return True
 
         section, attr, segment = _split_section(replacement)
@@ -190,17 +191,6 @@ class VariableFileHelper(object):
             _traverse_variables(self.__model[section], start_mbean_list, start_attribute)
         return variable_dict
 
-    def __open_variable_file(self, variable_file_name):
-        _method_name = '_open_variable_file'
-        _logger.entering(variable_file_name, class_name=_class_name, method_name=_method_name)
-        if variable_file_name and os.path.isfile(variable_file_name):
-            try:
-                self.__variable_file = open(variable_file_name, 'w')
-            except OSError, oe:
-                _logger.warning('WLSDPLY-19405', variable_file_name, str(oe), class_name=_class_name,
-                                method_name=_method_name)
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
-
     def __insert_variable(self, location, attribute, value):
         path = ''
         make_path = self.__aliases.get_model_folder_path(location)
@@ -208,7 +198,7 @@ class VariableFileHelper(object):
             make_path = make_path.split(':')
             if len(make_path) > 1 and len(make_path[1]) > 1:
                 path = make_path[1]
-        return path + '/' + attribute, value
+        return path + '/' + attribute, str(value).strip()
 
 
 def _load_replacement_list(replacement_file_name):
@@ -216,22 +206,27 @@ def _load_replacement_list(replacement_file_name):
     _logger.entering(replacement_file_name, class_name=_class_name, method_name=_method_name)
     replacement_list = []
     if os.path.isfile(replacement_file_name):
-        replacement_file = open(replacement_file_name, 'r')
-        entry = replacement_file.readline()
-        while entry:
-            print 'entry=', entry
-            if entry != '\n':
-                replacement_list.append(entry.strip())
+        try:
+            replacement_file = open(replacement_file_name, 'r')
             entry = replacement_file.readline()
+            while entry:
+                if entry != '\n':
+                    _logger.finest('WLSDPLY-19411', entry, replacement_file_name, class_name=_class_name,
+                                   method_name=_method_name)
+                    replacement_list.append(entry.strip())
+                entry = replacement_file.readline()
+        except OSError, oe:
+            _logger.warning('WLDPLY-19409', replacement_file_name, oe.getLocalizedMessage())
     else:
-        print 'file is not a file', replacement_file_name
+        _logger.warning('WLSDPLY-19410', replacement_file_name)
 
-    _logger.exiting(class_name=_class_name, method_name=_method_name, result=replacement_list)
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
     return replacement_list
 
 
 def _load_variables_dictionary(variable_helper_location):
     _method_name = '_load_variables_dictionary'
+    _logger.entering(variable_helper_location, class_name=_class_name, method_name=_method_name)
     variables_dictionary = None
     if os.path.isfile(variable_helper_location):
         try:
@@ -240,6 +235,7 @@ def _load_variables_dictionary(variable_helper_location):
         except IllegalArgumentException, ia:
             _logger.warning('WLSDPLY-19402', variable_helper_location, ia.getLocalizedMessage(), class_name=_class_name,
                             method_name=_method_name)
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
     return variables_dictionary
 
 
@@ -269,9 +265,16 @@ def _split_attribute_path(attribute_path):
         attribute = mbean_list.pop()
     return mbean_list, attribute
 
+
 def _write_variables_file(variables_dictionary, variables_file_name):
     _method_name = '_write_variables_file'
     _logger.entering(variables_dictionary, variables_file_name, class_name=_class_name, method_name=_method_name)
-    try:
-        variables.write_variables(variables_dictionary, variables_file_name)
-    except VariableException, ve:
+    written = False
+    if variables_dictionary:
+        try:
+            variables.write_variables(variables_dictionary, variables_file_name)
+            written = True
+        except VariableException, ve:
+            _logger.warning('WLSDPLY-19407', ve.getLocalizedMessage())
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=written)
+    return written
