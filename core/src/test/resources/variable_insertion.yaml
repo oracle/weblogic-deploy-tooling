@@ -11,7 +11,10 @@ topology:
         machine1:
             NodeManager:
                 ListenAddress: 127.0.0.1
+                ListenPort: 5557
                 Notes: The only node manager
+                PasswordEncrypted: '--FIX ME--'
+                UserName: 'admin'
             Notes: The only machine
     Server:
         m2:
