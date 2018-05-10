@@ -176,7 +176,7 @@ class DomainCreator(Creator):
             self._check_coherence_cluster_references(model_nodes, base_location)
             # continue with regular processing
 
-        Creator._create_named_mbeans(self, type_name, model_nodes, base_location)
+        Creator._create_named_mbeans(self, type_name, model_nodes, base_location, log_created=log_created)
 
     def __run_rcu(self):
         """
