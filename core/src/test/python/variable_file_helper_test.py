@@ -5,14 +5,15 @@ The Universal Permissive License (UPL), Version 1.0
 import unittest
 
 import wlsdeploy.util.variables as variables
+import wlsdeploy.tool.util.variable_file_helper as variable_file_helper
 from wlsdeploy.tool.util.variable_file_helper import VariableFileHelper
 from wlsdeploy.util.model_translator import FileToPython
 
 
 class VariableFileHelperTest(unittest.TestCase):
     _resources_dir = '../../test-classes'
+    _variable_file = _resources_dir + '/variables.properties'
     _model_file = _resources_dir + '/variable_insertion.yaml'
-    _variable_file_location = _resources_dir + '/variables.properties'
     _variable_helper_keyword = 'variable_helper_keyword.json'
     _variable_helper_custom = 'variable_helper_custom.json'
 
@@ -20,6 +21,9 @@ class VariableFileHelperTest(unittest.TestCase):
         self.name = VariableFileHelperTest
         self._model = FileToPython(self._model_file).parse()
         self._helper = VariableFileHelper(self._model, None, '12.2.1.3')
+
+    def testSplitPattern(self):
+        print variable_file_helper.split_attribute_segment('resources:this.that.[other]')
 
     def testSingleVariableReplacement(self):
         replacement_list = ['topology:Machine.NodeManager.ListenAddress']
@@ -95,11 +99,11 @@ class VariableFileHelperTest(unittest.TestCase):
         expected['/Machine/machine1/NodeManager/ListenPort'] = '5557'
         expected['/Machine/machine1/NodeManager/PasswordEncrypted'] = '--FIX ME--'
         expected['/Machine/machine1/NodeManager/UserName'] = 'admin'
-        inserted, model = self._helper.replace_variables_file(self._variable_file_location,
-                                                       variable_helper_path_name=self._resources_dir,
-                                                       variable_helper_file_name=self._variable_helper_keyword)
+        inserted, model, variable_file_name = self._helper.replace_variables_file(
+            variable_helper_path_name=self._resources_dir, variable_helper_file_name=self._variable_helper_keyword)
         self.assertEqual(True, inserted)
-        actual = variables.load_variables(self._variable_file_location)
+        self.assertEqual(self._variable_file, variable_file_name)
+        actual = variables.load_variables(self._variable_file)
         self._compare_to_expected_dictionary(expected, actual)
 
     def _compare_to_expected_dictionary(self, expected, actual):

@@ -105,6 +105,18 @@ def get_filename_from_path(file_path):
     return file_name
 
 
+def get_pathname_from_path(file_path):
+    """
+    Return the path without the file name from the existing file path.
+    :param file_path: file path
+    :return: path without file name or None if a file name is not present or the file or file path does not exist
+    """
+    file_name = None
+    if not JStringUtils.isEmpty(file_path) and (os.path.exists(file_path) is False or os.path.isfile(file_path)):
+        file_path, _ = os.path.split(file_path)
+    return file_path
+
+
 def get_filename_no_ext_from_path(file_path):
     """
     Return the filename with the extension stripped off from the provided file path.
