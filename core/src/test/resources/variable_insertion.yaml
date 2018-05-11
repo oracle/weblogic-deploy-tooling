@@ -24,6 +24,9 @@ topology:
             SSL:
                 Enabled: true
                 ListenPort: 9006
+            ServerStart:
+              Arguments: '-Doracle.net.tns_admin=/etc -DANTLR_USE_DIRECT_CLASS_LOADING=true -DANTLR_USE_DIRECT_CLASS_LOADING=true -Djava.awt.headless=true -Dhttp.webdir.enable=false -Duser.timezone=Europe/Zurich -Djava.net.preferIPv4Stack=true -Djava.security.egd=file:/dev/./urandom -Dweblogic.data.canTransferAnyFile=true'
+              ClassPath: 'wlsdeploy/classpathLibraries/WlsAttributeNameMapper-2.0.jar'
             ListenPort: 9005
         m1:
             ListenAddress: 127.0.0.1
@@ -44,6 +47,7 @@ resources:
     MailSession:
         MyMailSession:
             Properties:
+                mail.host: stbeehive.oracle.com
                 mail.store.protocol: imap
                 mail.imap.port: 993L
                 mail.smtp.ssl.enable: True

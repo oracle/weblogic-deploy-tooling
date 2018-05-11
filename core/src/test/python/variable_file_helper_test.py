@@ -109,6 +109,37 @@ class VariableFileHelperTest(unittest.TestCase):
         self.assertEqual(db1, self._model['resources']['JDBCSystemResource']['Database1']['JdbcResource'][
             'JDBCDriverParams']['URL'])
 
+    def testWithSegmentInDictionary(self):
+        expected = dict()
+        expected['/MailSession/MailSession-0/PropertiesSmtpHost'] = 'stbeehive.oracle.com'
+        expected['/MailSession/MyMailSession/PropertiesSmtpHost'] = 'stbeehive.oracle.com'
+        expected['/MailSession/MailSession-0/PropertiesImapHost'] = 'stbeehive.oracle.com'
+        expected['/MailSession/MyMailSession/PropertiesImapHost'] = 'stbeehive.oracle.com'
+        replacement_list = ["resources:MailSession.Properties[SmtpHost:mail.smtp.host]",
+                            "resources:MailSession.Properties[ImapHost:mail.imap.host]"]
+        actual = self._helper.process_variable_replacement(replacement_list)
+        print 'actual=', actual
+        self._compare_to_expected_dictionary(expected, actual)
+        self.assertEqual('@@PROP:/MailSession/MyMailSession/PropertiesSmtpHost@@',
+                         self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.smtp.host'])
+        self.assertEqual('@@PROP:/MailSession/MyMailSession/PropertiesImapHost@@',
+                         self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.imap.host'])
+
+    def testWithSegmentInDictionaryAndAPattern(self):
+        expected = dict()
+        expected['/MailSession/MyMailSession/PropertiesHost'] = 'stbeehive.oracle.com'
+        expected['/MailSession/MailSession-0/PropertiesHost'] = 'stbeehive.oracle.com'
+        replacement_list = ['resources:MailSession.Properties[Host:(?<=\w.)host]']
+        actual = self._helper.process_variable_replacement(replacement_list)
+        print 'actual2=', actual
+        self._compare_to_expected_dictionary(expected, actual)
+        self.assertEqual('@@PROP:/MailSession/MyMailSession/PropertiesHost@@',
+                         self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.imap.host'])
+        self.assertEqual('@@PROP:/MailSession/MyMailSession/PropertiesHost@@',
+                         self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.host'])
+        self.assertEqual('@@PROP:/MailSession/MyMailSession/PropertiesHost@@',
+                         self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.smtp.host'])
+
     def testWithVariableHelperKeywords(self):
         expected = dict()
         expected['/JMSSystemResource/MyJmsModule/JmsResource/ForeignServer/MyForeignServer/ConnectionURL'] \

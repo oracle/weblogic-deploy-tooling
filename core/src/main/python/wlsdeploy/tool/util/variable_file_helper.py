@@ -196,25 +196,39 @@ class VariableFileHelper(object):
                     if type(variable_value) != str or not variable_value.startswith('@@PROP:'):
                         variable_name = self.__format_variable_name(location, attribute)
                         attribute_value = '@@PROP:%s@@' % variable_name
-                        if segment and type(variable_value) == str:
+                        if segment:
                             segment_attribute_value = attribute_value
                             segment_variable_name = variable_name
                             if segment_name:
                                 segment_variable_name += segment_name
                                 segment_attribute_value = '@@PROP:%s@@' % segment_variable_name
-                            replaced, attr_value, var_replaced = _replace_segment(segment, variable_value,
-                                                                                  segment_attribute_value)
-                            if replaced:
-                                variable_name = segment_variable_name
-                                variable_value = var_replaced
-                                attribute_value = attr_value
-                            elif replace_if_nosegment:
-                                variable_value = str(variable_value)
-                            else:
-                                _logger.finer('WLSDPLY-19424', segment, attribute, replacement,
-                                              location.get_folder_path, class_name=_class_name,
-                                              method_name=_method_name)
+                            if isinstance(variable_value, dict):
+                                segment_dict = variable_value
                                 variable_value = None
+                                for entry in segment_dict:
+                                    if segment_dict != str or not segment_dict[entry].startswith('@@PROP:'):
+                                        matcher = re.search(segment, entry)
+                                        if matcher:
+                                            variable_value = str(segment_dict[entry])
+                                            segment_dict[entry] = segment_attribute_value
+                                            variable_name = segment_variable_name
+                                            attribute_value = segment_dict
+                            elif isinstance(variable_value, list):
+                                print ' need to refactor first'
+                            else:
+                                variable_value = str(variable_value)
+                                replaced, attr_value, var_replaced = _replace_segment(segment, variable_value,
+                                                                                      segment_attribute_value)
+                                if replaced:
+                                    variable_name = segment_variable_name
+                                    variable_value = var_replaced
+                                    attribute_value = attr_value
+                                elif not replace_if_nosegment:
+                                    _logger.finer('WLSDPLY-19424', segment, attribute, replacement,
+                                                  location.get_folder_path, class_name=_class_name,
+                                                  method_name=_method_name)
+                                    variable_value = None
+
                         else:
                             variable_value = str(variable_value)
                         if variable_value:
