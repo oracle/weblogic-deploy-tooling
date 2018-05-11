@@ -148,8 +148,9 @@ class VariableFileHelper(object):
         _method_name = '__process_variable'
         _logger.entering(replacement, class_name=_class_name, method_name=_method_name)
         variable_dict = dict()
+        section, start_mbean_list, attribute, segment, segment_name, replace_if_nosegment = _split_property(replacement)
 
-        def _traverse_variables(model_section, mbean_list, attribute):
+        def _traverse_variables(model_section, mbean_list):
             if mbean_list:
                 mbean = mbean_list.pop(0)
                 if mbean in model_section:
@@ -161,10 +162,10 @@ class VariableFileHelper(object):
                         for mbean_name in next_model_section:
                             continue_mbean_list = copy.copy(mbean_list)
                             location.add_name_token(name_token, mbean_name)
-                            _traverse_variables(next_model_section[mbean_name], continue_mbean_list, attribute)
+                            _traverse_variables(next_model_section[mbean_name], continue_mbean_list)
                             location.remove_name_token(name_token)
                     else:
-                        _traverse_variables(next_model_section, mbean_list, attribute)
+                        _traverse_variables(next_model_section, mbean_list)
                     location.pop_location()
                 else:
                     mbean_list = []
@@ -190,34 +191,57 @@ class VariableFileHelper(object):
                     return False
             else:
                 if attribute in model_section:
-                    value = model_section[attribute]
-                    if type(value) != str or not value.startswith('@@PROP:'):
-                        # change this to be a loaded thing
-                        var_name, var_value = self.__insert_variable(location, attribute, value)
-                        model_section[attribute] = '@@PROP:%s@@' % var_name
-                        variable_dict[var_name] = var_value
+                    # change this to be a loaded thing
+                    variable_value = model_section[attribute]
+                    if type(variable_value) != str or not variable_value.startswith('@@PROP:'):
+                        variable_name = self.__format_variable_name(location, attribute)
+                        attribute_value = '@@PROP:%s@@' % variable_name
+                        if segment and type(variable_value) == str:
+                            segment_attribute_value = attribute_value
+                            segment_variable_name = variable_name
+                            if segment_name:
+                                segment_variable_name += segment_name
+                                segment_attribute_value = '@@PROP:%s@@' % segment_variable_name
+                            replaced, attr_value, var_replaced = _replace_segment(segment, variable_value,
+                                                                                  segment_attribute_value)
+                            if replaced:
+                                variable_name = segment_variable_name
+                                variable_value = var_replaced
+                                attribute_value = attr_value
+                            elif replace_if_nosegment:
+                                variable_value = str(variable_value)
+                            else:
+                                _logger.finer('WLSDPLY-19424', segment, attribute, replacement,
+                                              location.get_folder_path, class_name=_class_name,
+                                              method_name=_method_name)
+                                variable_value = None
+                        else:
+                            variable_value = str(variable_value)
+                        if variable_value:
+                            _logger.fine('WLSDPLY-19425', attribute_value, attribute, variable_name, variable_value,
+                                         class_name=_class_name, method_name=_method_name)
+                            model_section[attribute] = attribute_value
+                            variable_dict[variable_name] = variable_value
                 else:
                     _logger.finer('WLSDPLY-19417', attribute, replacement, location.get_folder_path(),
                                   class_name=_class_name, method_name=_method_name)
             return True
 
-        section, attr, segment = _split_section(replacement)
         if section and section in self.__model:
-            start_mbean_list, start_attribute = _split_attribute_path(attr)
-            _traverse_variables(self.__model[section], start_mbean_list, start_attribute)
+            _traverse_variables(self.__model[section], start_mbean_list)
         else:
             _logger.finer('WLSDPLY-19423', section, replacement)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return variable_dict
 
-    def __insert_variable(self, location, attribute, value):
+    def __format_variable_name(self, location, attribute):
         path = ''
         make_path = self.__aliases.get_model_folder_path(location)
         if make_path:
             make_path = make_path.split(':')
             if len(make_path) > 1 and len(make_path[1]) > 1:
                 path = make_path[1]
-        return path + '/' + attribute, str(value).strip()
+        return path + '/' + attribute
 
 
 def _get_variable_file_name(variables_helper_dictionary, **kwargs):
@@ -289,27 +313,38 @@ def _load_variables_dictionary(variable_helper_location):
     return variables_dictionary
 
 
-def split_attribute_segment(attribute_path):
-    return _segment_pattern.split(attribute_path)
+def _replace_segment(segment, variable_value, attribute_value):
+    replaced = False
+    replaced_value = None
+    replacement_string = None
+    pattern = re.compile(segment)
+    matcher = pattern.search(variable_value)
+    if matcher:
+        replaced = True
+        replaced_value = variable_value[matcher.start():matcher.end()]
+        replacement_string = pattern.sub(attribute_value, variable_value)
+    return replaced, replacement_string, replaced_value
 
 
-def _split_section(attribute_path):
+def _split_property(attribute_path):
     """
     Split the section from the attribute path.
     :param attribute_path:
     :return:
     """
-    split_list = attribute_path.split(':', 1)
     section = None
     attribute = None
+    mbean_list = None
     segment = None
+    segment_name = None
+    if_notfound_replace_full = None
+    split_list = attribute_path.split(':', 1)
     if len(split_list) == 2 and split_list[0] in model_sections.get_model_top_level_keys():
         section = split_list[0]
-        attribute_split_list = split_list[1].split('${')
-        attribute = attribute_split_list[0]
-        if len(attribute_split_list) == 2:
-            segment = attribute_split_list[1][:len(attribute_split_list[1]) - 1]
-    return section, attribute, segment
+        segment, segment_name, if_notfound_replace_full = _find_segment(split_list[1])
+        attribute_path = _split_from_segment(split_list[1])
+        mbean_list, attribute = _split_attribute_path(attribute_path)
+    return section, mbean_list, attribute, segment, segment_name, if_notfound_replace_full
 
 
 def _split_attribute_path(attribute_path):
@@ -318,6 +353,39 @@ def _split_attribute_path(attribute_path):
     if len(mbean_list) > 0:
         attribute = mbean_list.pop()
     return mbean_list, attribute
+
+
+def _split_from_segment(attribute_path):
+    return re.split('[\[\(].+[\]\)]$', attribute_path)[0]
+
+
+def _find_segment(attribute_path):
+    segment = None
+    segment_name = None
+    if_notfound_replace_full = None
+    matcher = re.search('[\[\(].+[\]\)]$', attribute_path)
+    if matcher:
+        if attribute_path[matcher.start()] == '(':
+            if_notfound_replace_full = True
+        else:
+            if_notfound_replace_full = False
+        segment = attribute_path[matcher.start()+1:matcher.end()-1]
+        matcher = re.search('\w*:', segment)
+        if matcher:
+            segment_name = segment[matcher.start():matcher.end()-1]
+            segment = segment[matcher.end():]
+    return segment, segment_name, if_notfound_replace_full
+
+
+def _find_special_name(mbean):
+    mbean_name_list = []
+    matcher = re.search('(?<=\[).+(?=\])', mbean)
+    if matcher:
+        mbean_name = mbean[matcher.start():matcher.end()]
+        for entry in mbean_name.split[',']:
+            if entry:
+                mbean_name_list.append(entry)
+    return mbean_name_list
 
 
 def _write_variables_file(variables_dictionary, variables_file_name):

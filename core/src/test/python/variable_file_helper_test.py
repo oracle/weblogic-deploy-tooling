@@ -22,9 +22,6 @@ class VariableFileHelperTest(unittest.TestCase):
         self._model = FileToPython(self._model_file).parse()
         self._helper = VariableFileHelper(self._model, None, '12.2.1.3')
 
-    def testSplitPattern(self):
-        print variable_file_helper.split_attribute_segment('resources:this.that.[other]')
-
     def testSingleVariableReplacement(self):
         replacement_list = ['topology:Machine.NodeManager.ListenAddress']
         expected = dict()
@@ -88,6 +85,29 @@ class VariableFileHelperTest(unittest.TestCase):
         actual = self._helper.process_variable_replacement(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
         self.assertEqual(expected_replacement, self._model['topology']['Notes'])
+
+    def testWithSegment(self):
+        expected = dict()
+        expected['/JDBCSystemResource/Database1/JdbcResource/JDBCDriverParams/URL'] = \
+            'jdbc:oracle:thin:@//den00chv.us.oracle.com:1521/PDBORCL'
+        expected['/JDBCSystemResource/Database2/JdbcResource/JDBCDriverParams/URLHost'] = \
+            'slc05til.us.oracle.com'
+        expected['/JDBCSystemResource/Database2/JdbcResource/JDBCDriverParams/URLPort'] = \
+            '1521'
+        replacement_list = [
+            'resources:JDBCSystemResource.JdbcResource.JDBCDriverParams.URL(Port:(?<=PORT=)[\w.-]+(?=\)))',
+            'resources:JDBCSystemResource.JdbcResource.JDBCDriverParams.URL(Host:(?<=HOST=)[\w.-]+(?=\)))']
+        actual = self._helper.process_variable_replacement(replacement_list)
+        self._compare_to_expected_dictionary(expected, actual)
+        db2 = 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)' \
+              '(HOST=@@PROP:/JDBCSystemResource/Database2/JdbcResource/JDBCDriverParams/URLHost@@)' \
+              '(PORT=@@PROP:/JDBCSystemResource/Database2/JdbcResource/JDBCDriverParams/URLPort@@)))' \
+              '(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
+        db1 = '@@PROP:/JDBCSystemResource/Database1/JdbcResource/JDBCDriverParams/URL@@'
+        self.assertEqual(db2, self._model['resources']['JDBCSystemResource']['Database2']['JdbcResource'][
+            'JDBCDriverParams']['URL'])
+        self.assertEqual(db1, self._model['resources']['JDBCSystemResource']['Database1']['JdbcResource'][
+            'JDBCDriverParams']['URL'])
 
     def testWithVariableHelperKeywords(self):
         expected = dict()
