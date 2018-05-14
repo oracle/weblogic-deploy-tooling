@@ -168,74 +168,19 @@ class VariableFileHelper(object):
                         _traverse_variables(next_model_section, mbean_list)
                     location.pop_location()
                 else:
-                    mbean_list = []
-                    if len(location.get_folder_path()) > 1:
-                        try:
-                            mbean_list = self.__aliases.get_model_subfolder_names(location)
-                        except AliasException, ae:
-                            _logger.fine('AliasException {0}', ae.getLocalizedMessage())
-                            pass
-                    else:
-                        try:
-                            mbean_list = self.__aliases.get_model_top_level_folder_names()
-                        except AliasException, ae:
-                            _logger.fine('AliasException {0}', ae.getLocalizedMessage())
-                            pass
-                    _logger.fine('The mbean list from get model subfolder is {0}', mbean_list)
-                    if mbean in mbean_list:
-                        _logger.finer('WLSDPLY-19416', mbean, replacement, location.get_folder_path(),
-                                      class_name=_class_name, method_name=_method_name)
-                    else:
-                        _logger.warning('WLSDPLY-19415', mbean, replacement, location.get_folder_path(),
-                                        class_name=_class_name, method_name=_method_name)
+                    self._log_mbean_not_found(mbean, replacement, location)
                     return False
             else:
                 if attribute in model_section:
                     # change this to be a loaded thing
-                    variable_value = model_section[attribute]
-                    if type(variable_value) != str or not variable_value.startswith('@@PROP:'):
-                        variable_name = self.__format_variable_name(location, attribute)
-                        attribute_value = '@@PROP:%s@@' % variable_name
-                        if segment:
-                            segment_attribute_value = attribute_value
-                            segment_variable_name = variable_name
-                            if segment_name:
-                                segment_variable_name += segment_name
-                                segment_attribute_value = '@@PROP:%s@@' % segment_variable_name
-                            if isinstance(variable_value, dict):
-                                segment_dict = variable_value
-                                variable_value = None
-                                for entry in segment_dict:
-                                    if segment_dict != str or not segment_dict[entry].startswith('@@PROP:'):
-                                        matcher = re.search(segment, entry)
-                                        if matcher:
-                                            variable_value = str(segment_dict[entry])
-                                            segment_dict[entry] = segment_attribute_value
-                                            variable_name = segment_variable_name
-                                            attribute_value = segment_dict
-                            elif isinstance(variable_value, list):
-                                print ' need to refactor first'
-                            else:
-                                variable_value = str(variable_value)
-                                replaced, attr_value, var_replaced = _replace_segment(segment, variable_value,
-                                                                                      segment_attribute_value)
-                                if replaced:
-                                    variable_name = segment_variable_name
-                                    variable_value = var_replaced
-                                    attribute_value = attr_value
-                                elif not replace_if_nosegment:
-                                    _logger.finer('WLSDPLY-19424', segment, attribute, replacement,
-                                                  location.get_folder_path, class_name=_class_name,
-                                                  method_name=_method_name)
-                                    variable_value = None
-
-                        else:
-                            variable_value = str(variable_value)
-                        if variable_value:
-                            _logger.fine('WLSDPLY-19425', attribute_value, attribute, variable_name, variable_value,
-                                         class_name=_class_name, method_name=_method_name)
-                            model_section[attribute] = attribute_value
-                            variable_dict[variable_name] = variable_value
+                    if segment:
+                        variable_name, variable_value = self._process_segment(model_section, attribute, segment,
+                                                                              segment_name, replace_if_nosegment,
+                                                                              location)
+                    else:
+                        variable_name, variable_value = self._process_attribute(model_section, attribute, location)
+                    if variable_value:
+                        variable_dict[variable_name] = variable_value
                 else:
                     _logger.finer('WLSDPLY-19417', attribute, replacement, location.get_folder_path(),
                                   class_name=_class_name, method_name=_method_name)
@@ -256,6 +201,136 @@ class VariableFileHelper(object):
             if len(make_path) > 1 and len(make_path[1]) > 1:
                 path = make_path[1]
         return path + '/' + attribute
+
+    def __format_variable_name_segment(self, location, attribute, segment_name):
+        path = ''
+        make_path = self.__aliases.get_model_folder_path(location)
+        if make_path:
+            make_path = make_path.split(':')
+            if len(make_path) > 1 and len(make_path[1]) > 1:
+                path = make_path[1]
+        variable_name = path + '/' + attribute
+        if segment_name:
+            variable_name += segment_name
+        return variable_name
+
+    def _process_attribute(self, model, attribute, location):
+        _method_name = '_process_attribute'
+        _logger.entering(attribute, str(location), class_name=_class_name, method_name=_method_name)
+        variable_name = None
+        variable_value = None
+        attribute_value = model[attribute]
+        if type(attribute_value) != str or not attribute_value.startswith('@@PROP:'):
+            variable_name = self.__format_variable_name(location, attribute)
+            variable_value = str(model[attribute])
+            model[attribute] = '@@PROP:%s@@' % variable_name
+        else:
+            _logger.finer('WLSDPLY-19426', attribute_value, attribute, str(location), class_name=_class_name,
+                          method_name=_method_name)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
+        return variable_name, variable_value
+
+    def _process_segment(self, model, attribute, segment, segment_name, replace_if_nosegment, location):
+        if isinstance(model[attribute], dict):
+            return self._process_segment_in_dictionary(attribute, model[attribute], segment, segment_name, location)
+        elif isinstance(model[attribute], list):
+            return self._process_segment_in_list(attribute, model[attribute], segment, segment_name, location)
+        else:
+            return self._process_segment_string(model, attribute, segment, segment_name,
+                                                replace_if_nosegment, location)
+
+    def _process_segment_string(self, model, attribute, segment, segment_name, replace_if_nosegment, location):
+        _method_name = '_process_segment_string'
+        _logger.entering(attribute, segment, segment_name, replace_if_nosegment, str(location))
+        variable_name = None
+        variable_value = None
+        search_string = model[attribute]
+        if (type(search_string) != str) or (not search_string.startswith('@@PROP:')):
+            variable_name = self.__format_variable_name_segment(location, attribute, segment_name)
+            attribute_value, variable_value = _replace_segment(segment, str(search_string),
+                                                               '@@PROP:%s@@' % variable_name)
+            if variable_value:
+                _logger.finer('WLSDPLY-19429', attribute, attribute_value, class_name=_class_name,
+                              method_name=_method_name)
+                if variable_value.startswith('@@PROP:'):
+                    variable_value = None
+                else:
+                    model[attribute] = attribute_value
+            elif replace_if_nosegment:
+                variable_value = search_string
+                variable_name = self.__format_variable_name(location, attribute)
+                model[attribute] = '@@PROP:%s@@' % variable_name
+                _logger.finer('WLSDPLY-19430', attribute, model[attribute], class_name=_class_name,
+                              method_name=_method_name)
+            else:
+                _logger.finer('WLSDPLY-19424', segment, attribute, model[attribute],
+                              location.get_folder_path, class_name=_class_name,
+                              method_name=_method_name)
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
+        return variable_name, variable_value
+
+    def _process_segment_in_list(self, attribute_name, attribute_list, segment, segment_name, location):
+        _method_name = '_process_segment_in_dictionary'
+        _logger.entering(attribute_name, attribute_list, segment, str(location), class_name=_class_name,
+                         method_name=_method_name)
+        variable_name = self.__format_variable_name_segment(location, attribute_name, segment_name)
+        variable_value = None
+        replacement = '@@PROP:%s@@' % variable_name
+        for entry in attribute_list:
+            if type(entry) != str or not entry.startswith('@@PROP:'):
+                attribute_value = str(entry)
+                matcher = re.search(segment, attribute_value)
+                if matcher:
+                    _logger.finer('WLSDPLY-19428', attribute_name, replacement, class_name=_class_name,
+                                  method_name=_method_name)
+                    variable_value = str(entry)
+                    attribute_list[entry] = replacement
+                    # don't break, continue replacing any in dictionary, return the last variable value found
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
+        return variable_name, variable_value
+
+    def _process_segment_in_dictionary(self, attribute_name, attribute_dict, segment, segment_name, location):
+        _method_name = '_process_segment_in_dictionary'
+        _logger.entering(attribute_name, attribute_dict, segment, str(location), class_name=_class_name,
+                         method_name=_method_name)
+        variable_name = self.__format_variable_name_segment(location, attribute_name, segment_name)
+        variable_value = None
+        replacement = '@@PROP:%s@@' % variable_name
+        for entry in attribute_dict:
+            if type(attribute_dict[entry]) != str or not attribute_dict[entry].startswith('@@PROP:'):
+                matcher = re.search(segment, entry)
+                if matcher:
+                    _logger.finer('WLSDPLY-19427', attribute_name, replacement, class_name=_class_name,
+                                  method_name=_method_name)
+                    variable_value = str(attribute_dict[entry])
+                    attribute_dict[entry] = replacement
+                    # don't break, continue replacing any in dictionary, return the last variable value found
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
+        return variable_name, variable_value
+
+    def _log_mbean_not_found(self, mbean, replacement, location):
+        _method_name = '_log_mbean_not_found'
+        mbean_list = []
+        if len(location.get_folder_path()) > 1:
+            try:
+                mbean_list = self.__aliases.get_model_subfolder_names(location)
+            except AliasException, ae:
+                _logger.fine('AliasException {0}', ae.getLocalizedMessage())
+                pass
+        else:
+            try:
+                mbean_list = self.__aliases.get_model_top_level_folder_names()
+            except AliasException, ae:
+                _logger.fine('AliasException {0}', ae.getLocalizedMessage())
+                pass
+        _logger.fine('The mbean list from get model subfolder is {0}', mbean_list)
+        if mbean in mbean_list:
+            _logger.finer('WLSDPLY-19416', mbean, replacement, location.get_folder_path(),
+                          class_name=_class_name, method_name=_method_name)
+        else:
+            _logger.warning('WLSDPLY-19415', mbean, replacement, location.get_folder_path(),
+                            class_name=_class_name, method_name=_method_name)
 
 
 def _get_variable_file_name(variables_helper_dictionary, **kwargs):
@@ -328,16 +403,15 @@ def _load_variables_dictionary(variable_helper_location):
 
 
 def _replace_segment(segment, variable_value, attribute_value):
-    replaced = False
     replaced_value = None
-    replacement_string = None
+    replacement_string = variable_value
     pattern = re.compile(segment)
     matcher = pattern.search(variable_value)
     if matcher:
-        replaced = True
         replaced_value = variable_value[matcher.start():matcher.end()]
+
         replacement_string = pattern.sub(attribute_value, variable_value)
-    return replaced, replacement_string, replaced_value
+    return replacement_string, replaced_value
 
 
 def _split_property(attribute_path):
