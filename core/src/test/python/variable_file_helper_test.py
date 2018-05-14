@@ -138,6 +138,14 @@ class VariableFileHelperTest(unittest.TestCase):
         self.assertEqual('@@PROP:/MailSession/MyMailSession/PropertiesHost@@',
                          self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.smtp.host'])
 
+    def testWithSegmentInList(self):
+        expected = dict()
+        expected['/WLDFSystemResource/MyWldfModule/WLDFResource/Harvester/HarvestedType/weblogic.management.'
+                 'runtime.ServerRuntimeMBean/HarvestedAttribute'] = 'OracleHome'
+        replacement_list = ['resources:WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedAttribute[OracleHome]']
+        actual = self._helper.process_variable_replacement(replacement_list)
+        self._compare_to_expected_dictionary(expected, actual)
+
     def testWithVariableHelperKeywords(self):
         expected = dict()
         expected['/JMSSystemResource/MyJmsModule/JmsResource/ForeignServer/MyForeignServer/ConnectionURL'] \

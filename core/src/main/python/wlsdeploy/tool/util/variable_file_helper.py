@@ -216,14 +216,14 @@ class VariableFileHelper(object):
 
     def _process_attribute(self, model, attribute, location):
         _method_name = '_process_attribute'
-        _logger.entering(attribute, str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(attribute, location.get_folder_path(), class_name=_class_name, method_name=_method_name)
         variable_name = None
         variable_value = None
         attribute_value = model[attribute]
-        if type(attribute_value) != str or not attribute_value.startswith('@@PROP:'):
+        if not _already_property(attribute_value):
             variable_name = self.__format_variable_name(location, attribute)
             variable_value = str(model[attribute])
-            model[attribute] = '@@PROP:%s@@' % variable_name
+            model[attribute] = _format_as_property(variable_name)
         else:
             _logger.finer('WLSDPLY-19426', attribute_value, attribute, str(location), class_name=_class_name,
                           method_name=_method_name)
@@ -234,7 +234,7 @@ class VariableFileHelper(object):
     def _process_segment(self, model, attribute, segment, segment_name, replace_if_nosegment, location):
         if isinstance(model[attribute], dict):
             return self._process_segment_in_dictionary(attribute, model[attribute], segment, segment_name, location)
-        elif isinstance(model[attribute], list):
+        elif type(model[attribute]) == list:
             return self._process_segment_in_list(attribute, model[attribute], segment, segment_name, location)
         else:
             return self._process_segment_string(model, attribute, segment, segment_name,
@@ -243,50 +243,56 @@ class VariableFileHelper(object):
     def _process_segment_string(self, model, attribute, segment, segment_name, replace_if_nosegment, location):
         _method_name = '_process_segment_string'
         _logger.entering(attribute, segment, segment_name, replace_if_nosegment, str(location))
-        variable_name = None
-        variable_value = None
-        search_string = model[attribute]
-        if (type(search_string) != str) or (not search_string.startswith('@@PROP:')):
-            variable_name = self.__format_variable_name_segment(location, attribute, segment_name)
-            attribute_value, variable_value = _replace_segment(segment, str(search_string),
-                                                               '@@PROP:%s@@' % variable_name)
-            if variable_value:
-                _logger.finer('WLSDPLY-19429', attribute, attribute_value, class_name=_class_name,
-                              method_name=_method_name)
-                if variable_value.startswith('@@PROP:'):
-                    variable_value = None
-                else:
-                    model[attribute] = attribute_value
-            elif replace_if_nosegment:
-                variable_value = search_string
+        attribute_value, variable_name, variable_value = self._find_segment_in_string(attribute, model[attribute],
+                                                                                      segment, segment_name, location)
+        if variable_value:
+            _logger.finer('WLSDPLY-19429', attribute, attribute_value, class_name=_class_name,
+                          method_name=_method_name)
+            model[attribute] = attribute_value
+        elif replace_if_nosegment:
+            check_value = model[attribute]
+            if not _already_property(check_value):
+                variable_value = check_value
                 variable_name = self.__format_variable_name(location, attribute)
-                model[attribute] = '@@PROP:%s@@' % variable_name
+                model[attribute] = _format_as_property(variable_name)
                 _logger.finer('WLSDPLY-19430', attribute, model[attribute], class_name=_class_name,
                               method_name=_method_name)
-            else:
-                _logger.finer('WLSDPLY-19424', segment, attribute, model[attribute],
-                              location.get_folder_path, class_name=_class_name,
-                              method_name=_method_name)
+        else:
+            _logger.finer('WLSDPLY-19424', segment, attribute, model[attribute],
+                          location.get_folder_path, class_name=_class_name,
+                          method_name=_method_name)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
         return variable_name, variable_value
+
+    def _find_segment_in_string(self, attribute, attribute_value, segment, segment_name, location):
+        variable_name = None
+        variable_value = None
+        if not _already_property(attribute_value):
+            variable_name = self.__format_variable_name_segment(location, attribute, segment_name)
+            attribute_value, variable_value = _replace_segment(segment, str(attribute_value),
+                                                               _format_as_property(variable_name))
+        return attribute_value, variable_name, variable_value
 
     def _process_segment_in_list(self, attribute_name, attribute_list, segment, segment_name, location):
         _method_name = '_process_segment_in_dictionary'
         _logger.entering(attribute_name, attribute_list, segment, str(location), class_name=_class_name,
                          method_name=_method_name)
-        variable_name = self.__format_variable_name_segment(location, attribute_name, segment_name)
+        variable_name = None
         variable_value = None
-        replacement = '@@PROP:%s@@' % variable_name
+        idx = 0
         for entry in attribute_list:
-            if type(entry) != str or not entry.startswith('@@PROP:'):
-                attribute_value = str(entry)
-                matcher = re.search(segment, attribute_value)
-                if matcher:
-                    _logger.finer('WLSDPLY-19428', attribute_name, replacement, class_name=_class_name,
-                                  method_name=_method_name)
-                    variable_value = str(entry)
-                    attribute_list[entry] = replacement
-                    # don't break, continue replacing any in dictionary, return the last variable value found
+            attribute_value, seg_var_name, seg_var_value = self._find_segment_in_string(attribute_name, entry,
+                                                                                          segment, segment_name,
+                                                                                          location)
+            if seg_var_value:
+                _logger.finer('WLSDPLY-19429', attribute_name, attribute_value, class_name=_class_name,
+                              method_name=_method_name)
+                attribute_list[idx] = attribute_value
+                variable_name = seg_var_name
+                variable_value = seg_var_value
+
+            idx += 1
+            # don't break, continue replacing any in dictionary, return the last variable value found
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
         return variable_name, variable_value
 
@@ -296,9 +302,9 @@ class VariableFileHelper(object):
                          method_name=_method_name)
         variable_name = self.__format_variable_name_segment(location, attribute_name, segment_name)
         variable_value = None
-        replacement = '@@PROP:%s@@' % variable_name
+        replacement = _format_as_property(variable_name)
         for entry in attribute_dict:
-            if type(attribute_dict[entry]) != str or not attribute_dict[entry].startswith('@@PROP:'):
+            if not _already_property(attribute_dict[entry]):
                 matcher = re.search(segment, entry)
                 if matcher:
                     _logger.finer('WLSDPLY-19427', attribute_name, replacement, class_name=_class_name,
@@ -412,6 +418,14 @@ def _replace_segment(segment, variable_value, attribute_value):
 
         replacement_string = pattern.sub(attribute_value, variable_value)
     return replacement_string, replaced_value
+
+
+def _already_property(check_string):
+    return type(check_string) == str and check_string.startswith('@@PROP:')
+
+
+def _format_as_property(prop_name):
+    return '@@PROP:%s@@' % prop_name
 
 
 def _split_property(attribute_path):

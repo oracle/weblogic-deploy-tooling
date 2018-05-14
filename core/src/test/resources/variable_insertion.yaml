@@ -128,3 +128,19 @@ resources:
                     URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=slc05til.us.oracle.com)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
                     PasswordEncrypted: '--FIX ME--'
                     DriverName: oracle.jdbc.xa.client.OracleXADataSource
+    WLDFSystemResource:
+            MyWldfModule:
+                WLDFResource:
+                 Target: mycluster
+                 Harvester:
+                   SamplePeriod: 6000000
+                   HarvestedType:
+                       weblogic.management.runtime.ServerRuntimeMBean:
+                           Enabled: true
+                           Namespace: ServerRuntime
+                           HarvestedInstance: [ 'com.bea:Name=AdminServer,Type=ServerRuntime', 'com.bea:Name=m1,Type=ServerRuntime' ]
+                           HarvestedAttribute: [ CurrentDirectory, MiddlewareHome, OracleHome, ServerClasspath, ServerStartupTime ]
+                       weblogic.management.runtime.PersistentStoreRuntimeMBean:
+                           Namespace: DomainRuntime
+                           HarvestedInstance: [  ]
+                           HarvestedAttribute: [ AllocatedIoBufferBytes ]
