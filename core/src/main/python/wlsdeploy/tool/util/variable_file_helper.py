@@ -153,13 +153,16 @@ class VariableFileHelper(object):
         def _traverse_variables(model_section, mbean_list):
             if mbean_list:
                 mbean = mbean_list.pop(0)
+                mbean, mbean_name_list = _find_special_name(mbean)
                 if mbean in model_section:
                     _logger.finest('WLSDPLY-19414', mbean, class_name=_class_name, method_name=_method_name)
                     next_model_section = model_section[mbean]
                     location.append_location(mbean)
                     name_token = self.__aliases.get_name_token(location)
-                    if self.__aliases.supports_multiple_mbean_instances(location):
-                        for mbean_name in next_model_section:
+                    if not mbean_name_list and self.__aliases.supports_multiple_mbean_instances(location):
+                        mbean_name_list = next_model_section
+                    if mbean_name_list:
+                        for mbean_name in mbean_name_list:
                             continue_mbean_list = copy.copy(mbean_list)
                             location.add_name_token(name_token, mbean_name)
                             _traverse_variables(next_model_section[mbean_name], continue_mbean_list)
@@ -281,9 +284,8 @@ class VariableFileHelper(object):
         variable_value = None
         idx = 0
         for entry in attribute_list:
-            attribute_value, seg_var_name, seg_var_value = self._find_segment_in_string(attribute_name, entry,
-                                                                                          segment, segment_name,
-                                                                                          location)
+            attribute_value, seg_var_name, seg_var_value = self._find_segment_in_string(attribute_name, entry, segment,
+                                                                                        segment_name, location)
             if seg_var_value:
                 _logger.finer('WLSDPLY-19429', attribute_name, attribute_value, class_name=_class_name,
                               method_name=_method_name)
@@ -446,6 +448,7 @@ def _split_property(attribute_path):
         segment, segment_name, if_notfound_replace_full = _find_segment(split_list[1])
         attribute_path = _split_from_segment(split_list[1])
         mbean_list, attribute = _split_attribute_path(attribute_path)
+    _logger.finest('WLSDPLY-19431', section, mbean_list, attribute, segment, segment_name, if_notfound_replace_full)
     return section, mbean_list, attribute, segment, segment_name, if_notfound_replace_full
 
 
@@ -472,22 +475,21 @@ def _find_segment(attribute_path):
         else:
             if_notfound_replace_full = False
         segment = attribute_path[matcher.start()+1:matcher.end()-1]
-        matcher = re.search('\w*:', segment)
+        matcher = re.search('(?<=`)\w*(?=`)', segment)
         if matcher:
-            segment_name = segment[matcher.start():matcher.end()-1]
-            segment = segment[matcher.end():]
+            segment_name = segment[matcher.start():matcher.end()]
+            segment = segment[matcher.end()+1:]
     return segment, segment_name, if_notfound_replace_full
 
 
 def _find_special_name(mbean):
+    mbean_name = mbean
     mbean_name_list = []
-    matcher = re.search('(?<=\[).+(?=\])', mbean)
-    if matcher:
-        mbean_name = mbean[matcher.start():matcher.end()]
-        for entry in mbean_name.split[',']:
-            if entry:
-                mbean_name_list.append(entry)
-    return mbean_name_list
+    name_list = re.split('[\{).+\}]', mbean)
+    if name_list and len(name_list) > 1:
+        mbean_name = name_list[0]
+        mbean_name_list = name_list[1].split(',')
+    return mbean_name, mbean_name_list
 
 
 def _write_variables_file(variables_dictionary, variables_file_name):

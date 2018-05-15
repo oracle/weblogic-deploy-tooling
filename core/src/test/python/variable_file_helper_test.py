@@ -95,8 +95,8 @@ class VariableFileHelperTest(unittest.TestCase):
         expected['/JDBCSystemResource/Database2/JdbcResource/JDBCDriverParams/URLPort'] = \
             '1521'
         replacement_list = [
-            'resources:JDBCSystemResource.JdbcResource.JDBCDriverParams.URL(Port:(?<=PORT=)[\w.-]+(?=\)))',
-            'resources:JDBCSystemResource.JdbcResource.JDBCDriverParams.URL(Host:(?<=HOST=)[\w.-]+(?=\)))']
+            'resources:JDBCSystemResource.JdbcResource.JDBCDriverParams.URL(`Port`(?<=PORT=)[\w.-]+(?=\)))',
+            'resources:JDBCSystemResource.JdbcResource.JDBCDriverParams.URL(`Host`(?<=HOST=)[\w.-]+(?=\)))']
         actual = self._helper.process_variable_replacement(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
         db2 = 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)' \
@@ -115,8 +115,8 @@ class VariableFileHelperTest(unittest.TestCase):
         expected['/MailSession/MyMailSession/PropertiesSmtpHost'] = 'stbeehive.oracle.com'
         expected['/MailSession/MailSession-0/PropertiesImapHost'] = 'stbeehive.oracle.com'
         expected['/MailSession/MyMailSession/PropertiesImapHost'] = 'stbeehive.oracle.com'
-        replacement_list = ["resources:MailSession.Properties[SmtpHost:mail.smtp.host]",
-                            "resources:MailSession.Properties[ImapHost:mail.imap.host]"]
+        replacement_list = ["resources:MailSession.Properties[`SmtpHost`mail.smtp.host]",
+                            "resources:MailSession.Properties[`ImapHost`mail.imap.host]"]
         actual = self._helper.process_variable_replacement(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
         self.assertEqual('@@PROP:/MailSession/MyMailSession/PropertiesSmtpHost@@',
@@ -128,7 +128,7 @@ class VariableFileHelperTest(unittest.TestCase):
         expected = dict()
         expected['/MailSession/MyMailSession/PropertiesHost'] = 'stbeehive.oracle.com'
         expected['/MailSession/MailSession-0/PropertiesHost'] = 'stbeehive.oracle.com'
-        replacement_list = ['resources:MailSession.Properties[Host:(?<=\w.)host]']
+        replacement_list = ['resources:MailSession.Properties[`Host`(?<=\w.)host]']
         actual = self._helper.process_variable_replacement(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
         self.assertEqual('@@PROP:/MailSession/MyMailSession/PropertiesHost@@',
@@ -142,9 +142,52 @@ class VariableFileHelperTest(unittest.TestCase):
         expected = dict()
         expected['/WLDFSystemResource/MyWldfModule/WLDFResource/Harvester/HarvestedType/weblogic.management.'
                  'runtime.ServerRuntimeMBean/HarvestedAttribute'] = 'OracleHome'
-        replacement_list = ['resources:WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedAttribute[OracleHome]']
+        replacement_list = [
+            'resources:WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedAttribute[OracleHome]']
         actual = self._helper.process_variable_replacement(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
+        list = self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester'][
+            'HarvestedType']['weblogic.management.runtime.ServerRuntimeMBean']['HarvestedAttribute']
+        found = False
+        for entry in list:
+            if entry == '@@PROP:/WLDFSystemResource/MyWldfModule/WLDFResource/Harvester/HarvestedType/' \
+                        'weblogic.management.runtime.ServerRuntimeMBean/HarvestedAttribute@@':
+                found = True
+                break
+        self.assertEqual(True, found)
+
+    def testWithSegmentInStringInList(self):
+        expected = dict()
+        expected['/WLDFSystemResource/MyWldfModule/WLDFResource/Harvester/HarvestedType/weblogic.management.'
+                 'runtime.ServerRuntimeMBean/HarvestedInstanceManagedServer'] = 'm1'
+        replacement_list = [
+            'resources:WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedInstance[`ManagedServer`m1]']
+        actual = self._helper.process_variable_replacement(replacement_list)
+        self._compare_to_expected_dictionary(expected, actual)
+        list = \
+        self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester']['HarvestedType'][
+            'weblogic.management.runtime.ServerRuntimeMBean']['HarvestedInstance']
+        found = False
+        for entry in list:
+            if entry == 'com.bea:Name=@@PROP:/WLDFSystemResource/MyWldfModule/WLDFResource/Harvester/HarvestedType/' \
+                        'weblogic.management.runtime.ServerRuntimeMBean/HarvestedInstanceManagedServer@@' \
+                        ',Type=ServerRuntime':
+                found = True
+                break
+        self.assertEqual(True, found)
+
+    def testWithNameInMBeanSingle(self):
+        expected = dict()
+        expected['/Server/m2/ServerStart/Arguments'] = '/etc'
+        replacement_list = ['topology:Server{m2}.ServerStart.Arguments[(?<=-Doracle.net.tns_admin=)[\w\\/._:]+]']
+        actual = self._helper.process_variable_replacement(replacement_list)
+        self._compare_to_expected_dictionary(expected, actual)
+        arg = '-Doracle.net.tns_admin=@@PROP:/Server/m2/ServerStart/Arguments@@ ' \
+              '-DANTLR_USE_DIRECT_CLASS_LOADING=true ' \
+              '-DANTLR_USE_DIRECT_CLASS_LOADING=true -Djava.awt.headless=true -Dhttp.webdir.enable=false ' \
+              '-Duser.timezone=Europe/Zurich -Djava.net.preferIPv4Stack=true -Djava.security.egd=file:/dev/./urandom ' \
+              '-Dweblogic.data.canTransferAnyFile=true'
+        self.assertEqual(arg, self._model['topology']['Server']['m2']['ServerStart']['Arguments'])
 
     def testWithVariableHelperKeywords(self):
         expected = dict()
