@@ -1,9 +1,6 @@
 {
   "variable_file_name": "../../test-classes/variables.properties",
-  "PORT": [
-  ],
-  "URL": [
-  ],
-  "CREDENTIALS": [
-  ]
+  "PORT": {},
+  "URL": {},
+  "CREDENTIALS": {}
 }

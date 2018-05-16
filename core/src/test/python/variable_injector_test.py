@@ -1,0 +1,232 @@
+"""
+Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+The Universal Permissive License (UPL), Version 1.0
+"""
+import unittest
+
+import wlsdeploy.util.variables as variables
+import wlsdeploy.tool.util.variable_injector as variable_injector
+from wlsdeploy.tool.util.variable_injector import VariableFileHelper
+from wlsdeploy.util.model_translator import FileToPython
+
+
+class VariableFileHelperTest(unittest.TestCase):
+    _resources_dir = '../../test-classes'
+    _variable_file = _resources_dir + '/variables.properties'
+    _model_file = _resources_dir + '/variable_insertion.yaml'
+    _variable_helper_keyword = 'variable_injector_keyword.json'
+    _variable_helper_custom = 'variable_injector_custom.json'
+
+    def setUp(self):
+        self.name = VariableFileHelperTest
+        self._model = FileToPython(self._model_file).parse()
+        self._helper = VariableFileHelper(self._model, None, '12.2.1.3')
+
+    def testSingleVariableReplacement(self):
+        replacement_dict = dict()
+        replacement_dict['Machine.NodeManager.ListenAddress'] = dict()
+        expected = dict()
+        expected['Machine.machine1.NodeManager.ListenAddress'] = '127.0.0.1'
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
+    def testMultiplesReplacement(self):
+        expected = dict()
+        expected['Server.AdminServer.SSL.ListenPort'] = '9002'
+        expected['Server.AdminServer.ListenPort'] = '9001'
+        expected['Server.m2.ListenPort'] = '9005'
+        expected['Server.m1.ListenPort'] = '9003'
+        expected['Server.m1.SSL.ListenPort'] = '9004'
+        expected['Server.m2.SSL.ListenPort'] = '9006'
+        expected['JMSSystemResource.MyJmsModule.JmsResource.ForeignServer.MyForeignServer.ConnectionURL'] \
+            = 't3://my.other.cluster:7001'
+        expected['JMSSystemResource.MyJmsModule.JmsResource.ForeignServer.MyForeignServer.'
+                 'ForeignDestination.MyRemoteQ.LocalJNDIName'] = 'jms.remoteQ'
+        replacement_dict = dict()
+        replacement_dict['Server.ListenPort'] = dict()
+        replacement_dict['JMSSystemResource.JmsResource.ForeignServer.ConnectionURL'] = dict()
+        replacement_dict['JMSSystemResource.JmsResource.ForeignServer.ForeignDestination.LocalJNDIName'] = dict()
+        replacement_dict['Server.SSL.ListenPort'] = dict()
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
+    def testInvalidMBeanNameNoException(self):
+        expected = dict()
+        replacement_dict = dict()
+        replacement_dict['JmsSystemResource.Notes'] = dict()
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
+    def testInvalidAttributeName(self):
+        expected = dict()
+        replacement_dict = dict()
+        replacement_dict['Server.listenaddress'] = dict()
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
+    def testInvalidSection(self):
+        expected = dict()
+        replacement_dict = dict()
+        replacement_dict['Server.ListenAddress'] = dict()
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
+    def testDomainAttributeReplacementAndModel(self):
+        expected = dict()
+        expected['Notes'] = 'Test note replacement'
+        expected_replacement = '@@PROP:Notes@@'
+        replacement_dict = dict()
+        replacement_dict['Notes'] = dict()
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+        self.assertEqual(expected_replacement, self._model['topology']['Notes'])
+
+    def testWithSegment(self):
+        expected = dict()
+        expected['JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Host'] = \
+            'slc05til.us.oracle.com'
+        expected['JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Port'] = \
+            '1521'
+        replacement_dict = dict()
+        replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.URL'] = dict()
+        replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.URL'][
+            variable_injector.REGEXP] = '(?<=PORT=)[\w.-]+(?=\)))'
+        replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.URL'][variable_injector.SUFFIX] = 'Port'
+
+        replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.URL'] = dict()
+        replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.URL'][
+            variable_injector.REGEXP] = '(?<=HOST=)[\w.-]+(?=\)))'
+        replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.URL'][variable_injector.SUFFIX] = 'Host'
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+        db2 = 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)' \
+              '(HOST=@@PROP:JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Host@@)' \
+              '(PORT=@@PROP:JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Port@@)))' \
+              '(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
+        db1 = 'jdbc:oracle:thin:@//den00chv.us.oracle.com:1521/PDBORCL'
+        self.assertEqual(db2, self._model['resources']['JDBCSystemResource']['Database2']['JdbcResource'][
+            'JDBCDriverParams']['URL'])
+        self.assertEqual(db1, self._model['resources']['JDBCSystemResource']['Database1']['JdbcResource'][
+            'JDBCDriverParams']['URL'])
+
+    def testWithSegmentInDictionary(self):
+        expected = dict()
+        expected['MailSession.MailSession-0.Properties--SmtpHost'] = 'stbeehive.oracle.com'
+        expected['MailSession.MyMailSession.Properties--SmtpHost'] = 'stbeehive.oracle.com'
+        expected['MailSession.MailSession-0.Properties--ImapHost'] = 'stbeehive.oracle.com'
+        expected['MailSession.MyMailSession.Properties--ImapHost'] = 'stbeehive.oracle.com'
+        replacement_dict = dict()
+        replacement_dict['MailSession.Properties'] = dict()
+        replacement_dict['MailSession.Properties'][variable_injector.REGEXP] = 'mail.smtp.host'
+        replacement_dict['MailSession.Properties'][variable_injector.SUFFIX] = 'SmtpHost'
+        replacement_dict['MailSession.Properties'] = dict()
+        replacement_dict['MailSession.Properties'][variable_injector.REGEXP] = 'mail.imap.host'
+        replacement_dict['MailSession.Properties'][variable_injector.SUFFIX] = 'ImapHost'
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+        self.assertEqual('@@PROP:MailSession.MyMailSession.Properties--SmtpHost@@',
+                         self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.smtp.host'])
+        self.assertEqual('@@PROP:MailSession.MyMailSession.Properties--ImapHost@@',
+                         self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.imap.host'])
+
+    def testWithSegmentInDictionaryAndAPattern(self):
+        expected = dict()
+        expected['MailSession.MyMailSession.Properties--Host'] = 'stbeehive.oracle.com'
+        expected['MailSession.MailSession-0.Properties--Host'] = 'stbeehive.oracle.com'
+        replacement_dict = dict()
+        replacement_dict['MailSession.Properties'] = dict()
+        replacement_dict['MailSession.Properties'][variable_injector.REGEXP] = '(?<=\w.)host]'
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+        self.assertEqual('@@PROP:MailSession.MyMailSession.Properties--Host@@',
+                         self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.imap.host'])
+        self.assertEqual('@@PROP:MailSession.MyMailSession.PropertiesHost@@',
+                         self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.host'])
+        self.assertEqual('@@PROP:MailSession.MyMailSession.PropertiesHost@@',
+                         self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.smtp.host'])
+
+    def testWithSegmentInList(self):
+        expected = dict()
+        expected['WLDFSystemResource.MyWldfModule.WLDFResource.Harvester.HarvestedType.weblogic.management.'
+                 'runtime.ServerRuntimeMBean.HarvestedAttribute'] = 'OracleHome'
+        replacement_dict = dict()
+        replacement_dict['WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedAttribute'] = dict()
+        replacement_dict['WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedAttribute'][
+            variable_injector.REGEXP] = 'OracleHome'
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+        list = self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester'][
+            'HarvestedType']['weblogic.management.runtime.ServerRuntimeMBean']['HarvestedAttribute']
+        found = False
+        for entry in list:
+            if entry == '@@PROP:WLDFSystemResource.MyWldfModule.WLDFResource.Harvester.HarvestedType.' \
+                        'weblogic.management.runtime.ServerRuntimeMBean.HarvestedAttribute@@':
+                found = True
+                break
+        self.assertEqual(True, found)
+
+    def testWithSegmentInStringInList(self):
+        expected = dict()
+        expected['WLDFSystemResource.MyWldfModule.WLDFResource.Harvester.HarvestedType.weblogic.management.'
+                 'runtime.ServerRuntimeMBean.HarvestedInstanceManagedServer'] = 'm1'
+        replacement_dict = dict()
+        replacement_dict['WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedInstance'] = dict()
+        replacement_dict['WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedInstance'][
+            variable_injector.REGEXP] = 'm1'
+        replacement_dict['WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedInstance'][
+            variable_injector.SUFFIX] = 'ManagedServer'
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+        list = \
+        self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester']['HarvestedType'][
+            'weblogic.management.runtime.ServerRuntimeMBean']['HarvestedInstance']
+        found = False
+        for entry in list:
+            if entry == 'com.bea:Name=@@PROP:WLDFSystemResource.MyWldfModule.WLDFResource.Harvester.HarvestedType.' \
+                        'weblogic.management.runtime.ServerRuntimeMBean.HarvestedInstanceManagedServer@@' \
+                        ',Type=ServerRuntime':
+                found = True
+                break
+        self.assertEqual(True, found)
+    #
+    # def testWithNameInMBeanSingle(self):
+    #     expected = dict()
+    #     expected['Server.m2.ServerStart.Arguments'] = '/etc'
+    #     replacement_list = ['topology:Server{m2}.ServerStart.Arguments[(?<=-Doracle.net.tns_admin=)[\w\\/._:]+]']
+    #     actual = self._helper.inject_variables(replacement_list)
+    #     self._compare_to_expected_dictionary(expected, actual)
+    #     arg = '-Doracle.net.tns_admin=@@PROP:Server.m2.ServerStart.Arguments@@ ' \
+    #           '-DANTLR_USE_DIRECT_CLASS_LOADING=true ' \
+    #           '-DANTLR_USE_DIRECT_CLASS_LOADING=true -Djava.awt.headless=true -Dhttp.webdir.enable=false ' \
+    #           '-Duser.timezone=Europe/Zurich -Djava.net.preferIPv4Stack=true -Djava.security.egd=file:/dev/./urandom ' \
+    #           '-Dweblogic.data.canTransferAnyFile=true'
+    #     self.assertEqual(arg, self._model['topology']['Server']['m2']['ServerStart']['Arguments'])
+
+    def testWithVariableHelperKeywords(self):
+        expected = dict()
+        expected['JMSSystemResource.MyJmsModule.JmsResource.ForeignServer.MyForeignServer.ConnectionURL'] \
+            = 't3://my.other.cluster:7001'
+        expected['Server.AdminServer.ListenPort'] = '9001'
+        expected['Server.m2.ListenPort'] = '9005'
+        expected['Server.m1.ListenPort'] = '9003'
+        expected['Machine.machine1.NodeManager.ListenPort'] = '5557'
+        expected['Machine.machine1.NodeManager.PasswordEncrypted'] = '--FIX ME--'
+        expected['Machine.machine1.NodeManager.UserName'] = 'admin'
+        inserted, model, variable_file_name = self._helper.inject_variables_keyword_file(
+            variable_helper_path_name=self._resources_dir, variable_helper_file_name=self._variable_helper_keyword)
+        self.assertEqual(True, inserted)
+        self.assertEqual(self._variable_file, variable_file_name)
+        actual = variables.load_variables(self._variable_file)
+        self._compare_to_expected_dictionary(expected, actual)
+
+    def _compare_to_expected_dictionary(self, expected, actual):
+        self.assertEqual(len(expected), len(actual),
+                         'Not the same number of entries : expected=' + str(len(expected)) + ', actual=' + str(
+                             len(actual)))
+        for k, v in actual.iteritems():
+            self.assertEqual(True, k in expected and v == expected[k], 'Actual item not in expected ' + k +
+                             ' : ' + v + '   expected=' + str(expected))
+
+
+if __name__ == '__main__':
+    unittest.main()
