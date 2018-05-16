@@ -48,7 +48,7 @@ class VariableFileHelper(object):
         else:
             self.__aliases = Aliases(model_context)
 
-    def replace_variables_file(self, **kwargs):
+    def inject_variables_keyword_file(self, **kwargs):
         """
         Replace attribute values with variables and generate a variable dictionary.
         The variable replacement is driven from the values in the model variable helper file.
@@ -60,7 +60,7 @@ class VariableFileHelper(object):
         :param kwargs: arguments used to override default for variable processing, typically used in test situations
         :return: variable dictionary containing
         """
-        _method_name = 'insert_variables'
+        _method_name = 'inject_variables_keyword_file'
         _logger.entering(class_name=_class_name, method_name=_method_name)
 
         variable_helper_location_file = _get_variable_helper_file_name(**kwargs)
@@ -80,7 +80,7 @@ class VariableFileHelper(object):
                 for key, value in _keyword_to_file_map.iteritems():
                     file_map[key] = os.path.join(variable_keywords_location_path, value)
 
-                variables_file_dictionary = self.replace_variables_dictionary(file_map, variables_helper_dictionary)
+                variables_file_dictionary = self.inject_variables_keyword_dictionary(file_map, variables_helper_dictionary)
                 variables_inserted = _write_variables_file(variables_file_dictionary, variable_file_location)
                 if variables_inserted:
                     _logger.info('WLSDPLY-19418', variable_file_location, class_name=_class_name,
@@ -94,13 +94,13 @@ class VariableFileHelper(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_inserted)
         return variables_inserted, return_model, variable_file_location
 
-    def replace_variables_dictionary(self, keyword_map, variables_dictionary):
+    def inject_variables_keyword_dictionary(self, keyword_map, variables_dictionary):
         """
         Takes a variable keyword dictionary and returns a variables for file in a dictionary
         :param variables_dictionary:
         :return:
         """
-        _method_name = 'replace_variables_dictionary'
+        _method_name = 'inject_variables_keyword_dictionary'
         _logger.entering(variables_dictionary, class_name=_class_name, method_name=_method_name)
         variable_file_entries = dict()
         if variables_dictionary:
@@ -118,15 +118,15 @@ class VariableFileHelper(object):
             for keyword, file_name in file_map.iteritems():
                 replacement_list = _load_replacement_list(file_name)
                 if replacement_list:
-                    entries = self.process_variable_replacement(replacement_list)
+                    entries = self.inject_variables(replacement_list)
                     if entries:
                         _logger.finer('WLSDPLY-19413', keyword, class_name=_class_name, method_name=_method_name)
                         variable_file_entries.update(entries)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_file_entries)
         return variable_file_entries
 
-    def process_variable_replacement(self, replacement_list):
-        _method_name = '__process_variable_replacement'
+    def inject_variables(self, replacement_list):
+        _method_name = 'inject_variables'
         variable_dict = dict()
         if replacement_list:
             topology = self.__model[model_sections.get_model_topology_key()]
@@ -138,13 +138,13 @@ class VariableFileHelper(object):
             domain_token = self.__aliases.get_name_token(location)
             location.add_name_token(domain_token, domain_name)
             for replacement_entry in replacement_list:
-                entries_dict = self.__process_variable(location, replacement_entry)
+                entries_dict = self.__inject_variable(location, replacement_entry)
                 if len(entries_dict) > 0:
                     variable_dict.update(entries_dict)
 
         return variable_dict
 
-    def __process_variable(self, location, replacement):
+    def __inject_variable(self, location, replacement):
         _method_name = '__process_variable'
         _logger.entering(replacement, class_name=_class_name, method_name=_method_name)
         variable_dict = dict()

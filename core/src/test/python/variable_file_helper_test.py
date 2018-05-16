@@ -5,8 +5,8 @@ The Universal Permissive License (UPL), Version 1.0
 import unittest
 
 import wlsdeploy.util.variables as variables
-import wlsdeploy.tool.util.variable_file_helper as variable_file_helper
-from wlsdeploy.tool.util.variable_file_helper import VariableFileHelper
+import wlsdeploy.tool.util.variable_injector as variable_file_helper
+from wlsdeploy.tool.util.variable_injector import VariableFileHelper
 from wlsdeploy.util.model_translator import FileToPython
 
 
@@ -26,7 +26,7 @@ class VariableFileHelperTest(unittest.TestCase):
         replacement_list = ['topology:Machine.NodeManager.ListenAddress']
         expected = dict()
         expected['/Machine/machine1/NodeManager/ListenAddress'] = '127.0.0.1'
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testMultiplesReplacement(self):
@@ -56,25 +56,25 @@ class VariableFileHelperTest(unittest.TestCase):
                             'resources:JMSSystemResource.JmsResource.ForeignServer.ConnectionURL',
                             'resources:JMSSystemResource.JmsResource.ForeignServer.ForeignDestination.LocalJNDIName',
                             'topology:Server.SSL.ListenPort']
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testInvalidMBeanNameNoException(self):
         expected = dict()
         replacement_list = ['resources:JmsSystemResource.Notes']
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testInvalidAttributeName(self):
         expected = dict()
         replacement_list = ['topology:Server.listenaddress']
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testInvalidSection(self):
         expected = dict()
         replacement_list = ['topologies:Server.ListenAddress']
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testDomainAttributeReplacementAndModel(self):
@@ -82,7 +82,7 @@ class VariableFileHelperTest(unittest.TestCase):
         expected['/Notes'] = 'Test note replacement'
         expected_replacement = '@@PROP:/Notes@@'
         replacement_list = ['topology:Notes']
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
         self.assertEqual(expected_replacement, self._model['topology']['Notes'])
 
@@ -97,7 +97,7 @@ class VariableFileHelperTest(unittest.TestCase):
         replacement_list = [
             'resources:JDBCSystemResource.JdbcResource.JDBCDriverParams.URL(`Port`(?<=PORT=)[\w.-]+(?=\)))',
             'resources:JDBCSystemResource.JdbcResource.JDBCDriverParams.URL(`Host`(?<=HOST=)[\w.-]+(?=\)))']
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
         db2 = 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)' \
               '(HOST=@@PROP:/JDBCSystemResource/Database2/JdbcResource/JDBCDriverParams/URLHost@@)' \
@@ -117,7 +117,7 @@ class VariableFileHelperTest(unittest.TestCase):
         expected['/MailSession/MyMailSession/PropertiesImapHost'] = 'stbeehive.oracle.com'
         replacement_list = ["resources:MailSession.Properties[`SmtpHost`mail.smtp.host]",
                             "resources:MailSession.Properties[`ImapHost`mail.imap.host]"]
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
         self.assertEqual('@@PROP:/MailSession/MyMailSession/PropertiesSmtpHost@@',
                          self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.smtp.host'])
@@ -129,7 +129,7 @@ class VariableFileHelperTest(unittest.TestCase):
         expected['/MailSession/MyMailSession/PropertiesHost'] = 'stbeehive.oracle.com'
         expected['/MailSession/MailSession-0/PropertiesHost'] = 'stbeehive.oracle.com'
         replacement_list = ['resources:MailSession.Properties[`Host`(?<=\w.)host]']
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
         self.assertEqual('@@PROP:/MailSession/MyMailSession/PropertiesHost@@',
                          self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.imap.host'])
@@ -144,7 +144,7 @@ class VariableFileHelperTest(unittest.TestCase):
                  'runtime.ServerRuntimeMBean/HarvestedAttribute'] = 'OracleHome'
         replacement_list = [
             'resources:WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedAttribute[OracleHome]']
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
         list = self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester'][
             'HarvestedType']['weblogic.management.runtime.ServerRuntimeMBean']['HarvestedAttribute']
@@ -162,7 +162,7 @@ class VariableFileHelperTest(unittest.TestCase):
                  'runtime.ServerRuntimeMBean/HarvestedInstanceManagedServer'] = 'm1'
         replacement_list = [
             'resources:WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedInstance[`ManagedServer`m1]']
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
         list = \
         self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester']['HarvestedType'][
@@ -180,7 +180,7 @@ class VariableFileHelperTest(unittest.TestCase):
         expected = dict()
         expected['/Server/m2/ServerStart/Arguments'] = '/etc'
         replacement_list = ['topology:Server{m2}.ServerStart.Arguments[(?<=-Doracle.net.tns_admin=)[\w\\/._:]+]']
-        actual = self._helper.process_variable_replacement(replacement_list)
+        actual = self._helper.inject_variables(replacement_list)
         self._compare_to_expected_dictionary(expected, actual)
         arg = '-Doracle.net.tns_admin=@@PROP:/Server/m2/ServerStart/Arguments@@ ' \
               '-DANTLR_USE_DIRECT_CLASS_LOADING=true ' \
@@ -199,7 +199,7 @@ class VariableFileHelperTest(unittest.TestCase):
         expected['/Machine/machine1/NodeManager/ListenPort'] = '5557'
         expected['/Machine/machine1/NodeManager/PasswordEncrypted'] = '--FIX ME--'
         expected['/Machine/machine1/NodeManager/UserName'] = 'admin'
-        inserted, model, variable_file_name = self._helper.replace_variables_file(
+        inserted, model, variable_file_name = self._helper.inject_variables_keyword_file(
             variable_helper_path_name=self._resources_dir, variable_helper_file_name=self._variable_helper_keyword)
         self.assertEqual(True, inserted)
         self.assertEqual(self._variable_file, variable_file_name)
