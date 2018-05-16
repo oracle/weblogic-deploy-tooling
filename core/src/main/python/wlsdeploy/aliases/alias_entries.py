@@ -296,31 +296,29 @@ class AliasEntries(object):
         """
         _method_name = 'get_model_folder_path_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str(location),class_name=_class_name, method_name=_method_name)
+
+        # Initialize return variable
+        model_folder_path = ''
+
         if not location.is_empty():
             location_folders = location.get_model_folders()
+
+            if location_folders[0] in self.get_model_topology_subfolder_names():
+                model_folder_path += 'topology:/'
+            elif location_folders[0] in self.get_model_resources_subfolder_names():
+                model_folder_path += 'resources:/'
+            elif location_folders[0] in self.get_model_app_deployments_subfolder_names():
+                model_folder_path += 'appDeployments:/'
+            elif location_folders[0] == 'domainInfo':
+                model_folder_path += 'domainInfo:/'
+
             my_loc = LocationContext()
 
-            first_folder = True
-            result = ''
             for location_folder in location_folders:
-                if first_folder:
-                    first_folder = False
-                    if location_folder in self.__topology_top_level_folders:
-                        result += 'topology:/'
-                    elif location_folder in self.__resources_top_level_folders:
-                        result += 'resources:/'
-                    elif location_folder in self.__app_deployments_top_level_folders:
-                        result += 'appDeployments:/'
-                    elif location_folder == 'domainInfo':
-                        result += 'domainInfo:/'
-                    else:
-                        ex = exception_helper.create_alias_exception('WLSDPLY-08100', location_folder)
-                        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                        raise ex
-
-                result += location_folder + '/'
+                model_folder_path += '%s/' % location_folder
                 my_loc.append_location(location_folder)
+
                 # Have to check for security provider artificial folders that don't have a trailing name token
                 if location_folder not in SECURITY_PROVIDER_NAME_MAP:
                     name_token = self.get_name_token_for_location(my_loc)
@@ -328,23 +326,27 @@ class AliasEntries(object):
                         name = location.get_name_for_token(name_token)
                         if name is not None:
                             my_loc.add_name_token(name_token, name)
-                            result += name + '/'
+                            model_folder_path += '%s/' % name
                         elif location_folder != location_folders[-1]:
-                            # Allow the location to be missing a name_token for the last folder only...
+                            # Throw AliasException if name_token is missing
+                            # from any location folder, except the last one
                             ex = exception_helper.create_alias_exception('WLSDPLY-08101', str(location), name_token)
                             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                             raise ex
-            # Strip the trailing slash only if the path is not still '<section-name>:/'
-            section_end_index = result.find(':/')
-            if section_end_index != -1 and len(result) > section_end_index + 2:
-                result = result[:-1]
-        else:
-            # Hard to know exactly what to do here but since an empty location is the top-level,
-            # just return the location of top-level Domain attributes.
-            result = 'topology:/'
 
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
-        return result
+            # Strip off trailing '/' if model_folder_path is not '<section-name>:/'
+            if model_folder_path[-2:] != ':/':
+                # Strip off trailing '/'
+                model_folder_path = model_folder_path[:-1]
+        else:
+            # Hard to know exactly what to do here but since an empty
+            # location is the top-level, just return the location of
+            # top-level Domain attributes.
+            model_folder_path = 'topology:/'
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_folder_path)
+
+        return model_folder_path
 
     def get_wlst_attribute_path_for_location(self, location):
         """
@@ -536,46 +538,58 @@ class AliasEntries(object):
         _method_name = 'get_name_token_for_location'
 
         _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+
         result = None
+
         if len(location.get_model_folders()) == 0:
-            result = self.__domain_name_token
-        else:
-            folder_dict = self.__get_dictionary_for_location(location, False)
-            if folder_dict is not None:
-                if WLST_ATTRIBUTES_PATH in folder_dict:
-                    paths_index = folder_dict[WLST_ATTRIBUTES_PATH]
-                    tokenized_path = \
-                        alias_utils.resolve_path_index(folder_dict, paths_index, WLST_ATTRIBUTES_PATH, location)
-                    last_token = tokenized_path.split('/')[-1]
+            # There are no model folders in the location, so
+            # just return %DOMAIN% for the name token
+            return self.__domain_name_token
 
-                    if last_token != 'NO_NAME_0' and last_token.startswith('%') and last_token.endswith('%'):
-                        token_occurrences = alias_utils.count_substring_occurrences(last_token, tokenized_path)
-                        if token_occurrences == 1:
-                            result = last_token[1:-1]
-                else:
-                    ex = exception_helper.create_alias_exception('WLSDPLY-08103', location.get_folder_path(),
-                                                                 WLST_ATTRIBUTES_PATH)
-                    _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                    raise ex
+        # Use get_wlst_mbean_type_for_location(location) call
+        # to determine if location is VERSION_INVALID, or not.
+        if self.get_wlst_mbean_type_for_location(location) is None:
+            # This means location is VERSION_INVALID, so just return
+            # None for the name_token
+            return result
+
+        folder_dict = self.__get_dictionary_for_location(location, False)
+        if folder_dict is not None:
+            if WLST_ATTRIBUTES_PATH in folder_dict:
+                paths_index = folder_dict[WLST_ATTRIBUTES_PATH]
+                tokenized_path = \
+                    alias_utils.resolve_path_index(folder_dict, paths_index, WLST_ATTRIBUTES_PATH, location)
+                last_token = tokenized_path.split('/')[-1]
+
+                if last_token != 'NO_NAME_0' and last_token.startswith('%') and last_token.endswith('%'):
+                    token_occurrences = alias_utils.count_substring_occurrences(last_token, tokenized_path)
+                    if token_occurrences == 1:
+                        result = last_token[1:-1]
             else:
-                path = location.get_folder_path()
-
-                err_location = LocationContext(location)
-                if  not err_location.is_empty():
-                    folder_name = err_location.pop_location()
-                    code, message = self.is_valid_model_folder_name_for_location(err_location, folder_name)
-                    if code == ValidationCodes.VERSION_INVALID:
-                        ex = exception_helper.create_alias_exception('WLSDPLY-08130', path,
-                                                                     self._wls_helper.get_actual_weblogic_version(),
-                                                                     message)
-                        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                        raise ex
-                ex = exception_helper.create_alias_exception('WLSDPLY-08131', path,
-                                                             self._wls_helper.get_actual_weblogic_version())
+                ex = exception_helper.create_alias_exception('WLSDPLY-08103', location.get_folder_path(),
+                                                             WLST_ATTRIBUTES_PATH)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
+        else:
+            path = location.get_folder_path()
+
+            err_location = LocationContext(location)
+            if  not err_location.is_empty():
+                folder_name = err_location.pop_location()
+                code, message = self.is_valid_model_folder_name_for_location(err_location, folder_name)
+                if code == ValidationCodes.VERSION_INVALID:
+                    ex = exception_helper.create_alias_exception('WLSDPLY-08130', path,
+                                                                 self._wls_helper.get_actual_weblogic_version(),
+                                                                 message)
+                    _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                    raise ex
+            ex = exception_helper.create_alias_exception('WLSDPLY-08131', path,
+                                                         self._wls_helper.get_actual_weblogic_version())
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+
         return result
 
     def get_wlst_mbean_name_for_location(self, location):
@@ -788,6 +802,36 @@ class AliasEntries(object):
                 result = ValidationCodes.INVALID
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[result, valid_version_range])
         return result, valid_version_range
+
+    def is_version_valid_location(self, location):
+        """
+        Verify that the specified location is valid for the WLS version
+        being used.
+
+        Caller needs to determine what action (e.g. log, raise exception,
+        continue processing, record validation item, etc.) to take, when
+        return code is VERSION_INVALID.
+
+        :param location: the location to be checked
+        :return: A ValidationCodes Enum value of either VERSION_INVALID or VALID
+        :return: A message saying which WLS version location is valid in, if
+                return code is VERSION_INVALID
+        """
+        _method_name = 'is_version_valid_location'
+
+        _logger.entering(str(location),class_name=_class_name, method_name=_method_name)
+
+        code = ValidationCodes.VALID
+        message = ''
+        if self.get_wlst_mbean_type_for_location(location) is None:
+            model_folder_path = self.get_model_folder_path_for_location(location)
+            message = exception_helper.get_message('WLSDPLY-08138', model_folder_path,
+                                                   self._wls_helper.get_weblogic_version())
+            code = ValidationCodes.VERSION_INVALID
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=[code, message])
+
+        return code, message
 
     def is_valid_model_attribute_name_for_location(self, location, model_attribute_name):
         """

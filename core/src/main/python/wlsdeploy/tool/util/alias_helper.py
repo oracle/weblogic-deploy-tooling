@@ -468,6 +468,32 @@ class AliasHelper(object):
             raise ex
         return result, message
 
+    def is_version_valid_location(self, location):
+        """
+        Verify that the specified location is valid for the WLS version
+        being used.
+
+        Caller needs to determine what action (e.g. log, raise exception,
+        continue processing, record validation item, etc.) to take, when
+        return code is VERSION_INVALID.
+
+        :param location: the location to be checked
+        :return: A ValidationCodes Enum value of either VERSION_INVALID or VALID
+        :return: A message saying which WLS version location is valid in, if
+                return code is VERSION_INVALID
+        """
+        _method_name = 'is_version_valid_location'
+
+        try:
+            code, message = self.__aliases.is_version_valid_location(location)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19033',
+                                                   location.get_folder_path(), ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        return code, message
+
     def is_valid_model_attribute_name(self, location, model_attribute_name):
         """
         Return whether or not location's model folders list has an attribute
