@@ -37,7 +37,8 @@ KEYWORD_FILES = 'file-list'
 DEFAULT_FILE_LOCATION = 'lib'
 # should these injector json keywords be included in the keyword file
 REGEXP = 'regexp'
-SUFFIX = 'suffix'
+REGEXP_SUFFIX = 'suffix'
+REGEXP_PATTERN = 'pattern'
 FORCE = 'force'
 
 VARIABLE_SEP = '.'
@@ -54,15 +55,11 @@ class VariableFileHelper(object):
 
     def __init__(self, model, model_context=None, version=None):
         self.__original = copy.deepcopy(model)
-        self.__model = dict()
-        # consolidate all the model sections into one for speedier search
-        # currently don't want to do variable injection in the domainInfo section of the model
-        if model_sections.get_model_topology_key() in model:
-            self.__model.update(model[model_sections.get_model_topology_key()])
-        elif model_sections.get_model_resources_key() in model:
-            self.__model.update(model_sections.get_model_resources_key())
-        elif model_sections.get_model_deployments_key() in model:
-            self.__model.update(model_sections.get_model_deployments_key())
+        self.__model = model
+
+        self.__section_keys = model_sections.get_model_top_level_keys()
+        self.__section_keys.remove(model_sections.get_model_domain_info_key())
+
         if version:
             self.__aliases = Aliases(model_context, WlstModes.OFFLINE, version, None)
         else:
@@ -91,10 +88,10 @@ class VariableFileHelper(object):
         return_model = dict()
         variable_file_location = None
         if variables_injector_dictionary and keywords_dictionary:
+            variable_file_location = _get_variable_file_name(variables_injector_dictionary, **kwargs)
             injector_file_list = _create_injector_file_list(variables_injector_dictionary, keywords_dictionary,
                                                             _get_keyword_files_location(**kwargs))
-            return_model = dict()
-            variable_file_location = _get_variable_file_name(variables_injector_dictionary, **kwargs)
+            return_model = self.__original
             if not variable_file_location:
                 _logger.warning('WLSDPLY-19420', variable_injector_location_file, class_name=_class_name,
                                 method_name=_method_name)
@@ -107,7 +104,6 @@ class VariableFileHelper(object):
                     return_model = self.__model
                 else:
                     _logger.fine('WLSDPLY-19419', class_name=_class_name, method_name=_method_name)
-                    return_model = self.__original
                     variable_file_location = None
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_inserted)
@@ -143,14 +139,14 @@ class VariableFileHelper(object):
             location = LocationContext()
             domain_token = self.__aliases.get_name_token(location)
             location.add_name_token(domain_token, 'fakedomain')
-            for injector in injector_dictionary:
-                entries_dict = self.__inject_variable(location, injector)
+            for injector, injector_values in injector_dictionary.iteritems():
+                entries_dict = self.__inject_variable(location, injector, injector_values)
                 if len(entries_dict) > 0:
                     variable_dict.update(entries_dict)
 
         return variable_dict
 
-    def __inject_variable(self, location, injector):
+    def __inject_variable(self, location, injector, injector_values):
         _method_name = '__inject_variable'
         _logger.entering(injector, class_name=_class_name, method_name=_method_name)
         variable_dict = dict()
@@ -179,79 +175,109 @@ class VariableFileHelper(object):
                         _traverse_variables(next_model_section, mbean_list)
                     location.pop_location()
                 else:
-                    self._log_mbean_not_found(mbean, injector[0], location)
+                    self._log_mbean_not_found(mbean, injector, location)
                     return False
             else:
                 if attribute in model_section:
-                    variable_name, variable_value = self._variable_info(model_section, attribute, location, injector)
-                    if variable_value:
-                        variable_dict[variable_name] = variable_value
+                    returned_dict = self._variable_info(model_section, attribute, location, injector,
+                                                                        injector_values)
+                    if returned_dict:
+                        variable_dict.update(returned_dict)
                 else:
                     _logger.finer('WLSDPLY-19417', attribute, injector, location.get_folder_path(),
                                   class_name=_class_name, method_name=_method_name)
             return True
 
-        _traverse_variables(self.__model, start_mbean_list)
+        section = self.__model
+        if start_mbean_list:
+            # Find out in what section is the mbean top folder so can move to that section in the model
+            for entry in self.__section_keys:
+                if entry in self.__model and start_mbean_list[0] in self.__model[entry]:
+                    section = self.__model[entry]
+                    break
+        else:
+            # This is a domain attribute
+            section = self.__model[model_sections.get_model_topology_key()]
+        # if it wasn't found, will log appropriately in the called method
+        # This also will allow someone to put the section in the injector string
+        _traverse_variables(section, start_mbean_list)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_dict)
+
         return variable_dict
 
     def __format_variable_name(self, location, attribute):
-        path = ''
+        variable_name = attribute
         make_path = self.__aliases.get_model_folder_path(location)
         if make_path:
             make_path = make_path.split(':')
             if len(make_path) > 1 and len(make_path[1]) > 1:
-                path = make_path[1]
-                path = path[1:] + VARIABLE_SEP + attribute
-        _variable_sep_pattern.sub(VARIABLE_SEP, path)
-        return path
+                variable_name = make_path[1]
+                variable_name = variable_name[1:] + VARIABLE_SEP + attribute
+                variable_name = variable_name.replace('/', '.')
+        return variable_name
 
     def __format_variable_name_segment(self, location, attribute, suffix):
         path = self.__format_variable_name(location, attribute)
-        return path + SUFFIX_SEP + suffix
+        if suffix:
+            return path + SUFFIX_SEP + suffix
+        return path
 
-    def _variable_info(self, model, attribute, location, injector):
-        if REGEXP in injector:
-            return self._process_regexp(model, attribute, location, injector)
+    def _variable_info(self, model, attribute, location, injector, injector_values):
+        # add code here to put in model if force in injector values
+        if REGEXP in injector_values:
+            return self._process_regexp(model, attribute, location, injector_values[REGEXP])
         else:
-            return self._process_attribute(model, attribute, location, injector)
+            return self._process_attribute(model, attribute, location)
 
-    def _process_attribute(self, model, attribute, location, injector):
+    def _process_attribute(self, model, attribute, location):
         _method_name = '_process_attribute'
-        _logger.entering(attribute, location.get_folder_path(), injector, class_name=_class_name,
+        _logger.entering(attribute, location.get_folder_path(), class_name=_class_name,
                          method_name=_method_name)
+        variable_dict = dict()
         variable_name = None
         variable_value = None
         attribute_value = model[attribute]
         if not _already_property(attribute_value):
             variable_name = self.__format_variable_name(location, attribute)
-            variable_value = str(model[attribute])
+            variable_value = str(attribute_value)
             model[attribute] = _format_as_property(variable_name)
         else:
             _logger.finer('WLSDPLY-19426', attribute_value, attribute, str(location), class_name=_class_name,
                           method_name=_method_name)
-
+        if variable_value:
+            variable_dict[variable_name] = variable_value
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
-        return variable_name, variable_value
+        return variable_dict
 
-    def _process_regexp(self, model, attribute, location, injector):
-        regexp = injector[REGEXP]
-        suffix = None
-        if SUFFIX in injector:
-            suffix = injector[SUFFIX]
+    def _process_regexp(self, model, attribute, location, regexp_list):
         if isinstance(model[attribute], dict):
-            return self._process_regexp_dictionary(attribute, model[attribute], location, regexp, suffix)
+            return self._process_patterns_dictionary(attribute, model[attribute], location, regexp_list)
         elif type(model[attribute]) == list:
-            return self._process_regexp_list(attribute, model[attribute], location, regexp, suffix)
+            return self._process_patterns_list(attribute, model[attribute], location, regexp_list)
         else:
-            return self._process_regexp_string(model, attribute, location, regexp, suffix)
+            return self._process_patterns_string(model, attribute, location, regexp_list)
 
-    def _process_regexp_string(self, model, attribute, location, regexp, suffix):
+    def _process_patterns_string(self, model, attribute, location, regexp_list):
+        variable_dict = dict()
+        for dictionary in regexp_list:
+            pattern = None
+            suffix = None
+            if REGEXP_PATTERN in dictionary:
+                pattern = dictionary[REGEXP_PATTERN]
+            if REGEXP_SUFFIX in dictionary:
+                suffix = dictionary[REGEXP_SUFFIX]
+            variable_name, variable_value =  self._process_pattern_string(model, attribute, location, pattern, suffix)
+            if variable_value:
+                variable_dict[variable_name] = variable_value
+        return variable_dict
+
+    def _process_pattern_string(self, model, attribute, location, pattern, suffix):
         _method_name = '_process_regexp_string'
-        _logger.entering(attribute, location.get_folder_path(), regexp, suffix, class_name=_class_name,
+        _logger.entering(attribute, location.get_folder_path(), pattern, suffix, class_name=_class_name,
                          method_name=_method_name)
         attribute_value, variable_name, variable_value = self._find_segment_in_string(attribute, model[attribute],
-                                                                                      regexp, suffix, location)
+                                                                                      location, pattern, suffix)
         if variable_value:
             _logger.finer('WLSDPLY-19429', attribute, attribute_value, class_name=_class_name,
                           method_name=_method_name)
@@ -265,31 +291,46 @@ class VariableFileHelper(object):
         #         _logger.finer('WLSDPLY-19430', attribute, model[attribute], class_name=_class_name,
         #                       method_name=_method_name)
         else:
-            _logger.finer('WLSDPLY-19424', regexp, attribute, model[attribute],
+            _logger.finer('WLSDPLY-19424', pattern, attribute, model[attribute],
                           location.get_folder_path, class_name=_class_name,
                           method_name=_method_name)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
         return variable_name, variable_value
 
-    def _find_segment_in_string(self, attribute, attribute_value, regexp, suffix, location):
+    def _find_segment_in_string(self, attribute, attribute_value, location, pattern, suffix):
         variable_name = None
         variable_value = None
         if not _already_property(attribute_value):
             variable_name = self.__format_variable_name_segment(location, attribute, suffix)
-            attribute_value, variable_value = _replace_segment(regexp, str(attribute_value),
+            attribute_value, variable_value = _replace_segment(pattern, str(attribute_value),
                                                                _format_as_property(variable_name))
         return attribute_value, variable_name, variable_value
 
-    def _process_regexp_list(self, attribute_name, attribute_list, regexp, location, suffix):
+    def _process_patterns_list(self, attribute, attribute_value, location, regexp_list):
+        variable_dict = dict()
+        for dictionary in regexp_list:
+            pattern = None
+            suffix = None
+            if REGEXP_PATTERN in dictionary:
+                pattern = dictionary[REGEXP_PATTERN]
+            if REGEXP_SUFFIX in dictionary:
+                suffix = dictionary[REGEXP_SUFFIX]
+            variable_name, variable_value = self._process_pattern_list(attribute, attribute_value, location, pattern,
+                                                                       suffix)
+            if variable_value:
+                variable_dict[variable_name] = variable_value
+        return variable_dict
+
+    def _process_pattern_list(self, attribute_name, attribute_list, location, pattern, suffix):
         _method_name = '_process_regexp_list'
-        _logger.entering(attribute_name, attribute_list, regexp, location.get_folder_path(), suffix,
+        _logger.entering(attribute_name, attribute_list, location.get_folder_path(), pattern, suffix,
                          class_name=_class_name, method_name=_method_name)
         variable_name = None
         variable_value = None
         idx = 0
         for entry in attribute_list:
-            attribute_value, seg_var_name, seg_var_value = self._find_segment_in_string(attribute_name, entry, regexp,
-                                                                                        suffix, location)
+            attribute_value, seg_var_name, seg_var_value = self._find_segment_in_string(attribute_name, entry, location,
+                                                                                        pattern, suffix)
             if seg_var_value:
                 _logger.finer('WLSDPLY-19429', attribute_name, attribute_value, class_name=_class_name,
                               method_name=_method_name)
@@ -302,21 +343,38 @@ class VariableFileHelper(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
         return variable_name, variable_value
 
-    def _process_regexp_dictionary(self, attribute_name, attribute_dict, location, regexp, suffix):
+    def _process_patterns_dictionary(self, attribute, attribute_dict, location, regexp_list):
+        variable_dict = dict()
+        for dictionary in regexp_list:
+            pattern = None
+            suffix = None
+            if REGEXP_PATTERN in dictionary:
+                pattern = dictionary[REGEXP_PATTERN]
+            if REGEXP_SUFFIX in dictionary:
+                suffix = dictionary[REGEXP_SUFFIX]
+            variable_name, variable_value = self._process_pattern_dictionary(attribute, attribute_dict, location,
+                                                                             pattern, suffix)
+            if variable_value:
+                variable_dict[variable_name] = variable_value
+        return variable_dict
+
+    def _process_pattern_dictionary(self, attribute_name, attribute_dict, location, regexp, suffix):
         _method_name = '_process_regexp_dictionary'
         _logger.entering(attribute_name, attribute_dict, location.get_folder_path(), regexp, suffix,
                          class_name=_class_name, method_name=_method_name)
         variable_name = self.__format_variable_name_segment(location, attribute_name, suffix)
         variable_value = None
-        replacement = _format_as_property(variable_name)
-        for entry in attribute_dict:
-            if not _already_property(attribute_dict[entry]):
-                matcher = re.search(suffix, entry)
-                if matcher:
-                    _logger.finer('WLSDPLY-19427', attribute_name, replacement, class_name=_class_name,
-                                  method_name=_method_name)
-                    variable_value = str(attribute_dict[entry])
-                    attribute_dict[entry] = replacement
+        pattern = _compile_pattern(regexp)
+        if pattern:
+            replacement = _format_as_property(variable_name)
+            for entry in attribute_dict:
+                if not _already_property(attribute_dict[entry]):
+                    matcher = pattern.search(entry)
+                    if matcher:
+                        _logger.finer('WLSDPLY-19427', attribute_name, replacement, class_name=_class_name,
+                                      method_name=_method_name)
+                        variable_value = str(attribute_dict[entry])
+                        attribute_dict[entry] = replacement
                     # don't break, continue replacing any in dictionary, return the last variable value found
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
         return variable_name, variable_value
@@ -454,13 +512,22 @@ def _load_injector_file(injector_file_name):
 def _replace_segment(regexp, variable_value, attribute_value):
     replaced_value = None
     replacement_string = variable_value
-    pattern = re.compile(regexp)
-    matcher = pattern.search(variable_value)
-    if matcher:
-        replaced_value = variable_value[matcher.start():matcher.end()]
+    pattern = _compile_pattern(regexp)
+    if pattern:
+        matcher = pattern.search(variable_value)
+        if matcher:
+            replaced_value = variable_value[matcher.start():matcher.end()]
 
-        replacement_string = pattern.sub(attribute_value, variable_value)
+            replacement_string = pattern.sub(attribute_value, variable_value)
     return replacement_string, replaced_value
+
+
+def _compile_pattern(pattern):
+    try:
+        return re.compile(pattern)
+    except Exception, e:
+        _logger.warning('WLSDPLY-19435', pattern, e)
+    return None
 
 
 def _already_property(check_string):

@@ -1,4 +1,4 @@
 {
-  Server.ListenPort: {},
-  Machine.NodeManager.ListenPort: {}
+  "Server.ListenPort": {},
+  "Machine.NodeManager.ListenPort": {}
 }
