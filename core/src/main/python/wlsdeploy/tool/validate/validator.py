@@ -478,10 +478,7 @@ class Validator(object):
                                                                                     section_dict_key)
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID folder
-                        if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning('WLSDPLY-05027', message)
-                        else:
-                            validation_result.add_error('WLSDPLY-05027', message)
+                        validation_result.add_warning('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
                         validation_result.add_error('WLSDPLY-05026', section_dict_key, 'folder',
                                                     model_folder_path, '%s' % ', '.join(valid_section_folders))
@@ -489,10 +486,7 @@ class Validator(object):
                     result, message = self._alias_helper.is_valid_model_attribute_name(validation_location,
                                                                                        section_dict_key)
                     if result == ValidationCodes.VERSION_INVALID:
-                        if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning('WLSDPLY-05027', message)
-                        else:
-                            validation_result.add_error('WLSDPLY-05027', message)
+                        validation_result.add_warning('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
                         validation_result.add_error('WLSDPLY-05029', section_dict_key,
                                                     model_folder_path, '%s' % ', '.join(valid_attr_infos))
@@ -679,10 +673,7 @@ class Validator(object):
                     result, message = self._alias_helper.is_valid_model_folder_name(validation_location, key)
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID folder
-                        if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning('WLSDPLY-05027', message)
-                        else:
-                            validation_result.add_error('WLSDPLY-05027', message)
+                        validation_result.add_warning('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID folder
                         validation_result.add_error('WLSDPLY-05026', key, 'folder',
@@ -696,10 +687,7 @@ class Validator(object):
                     result, message = self._alias_helper.is_valid_model_attribute_name(validation_location, key)
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID attribute
-                        if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning('WLSDPLY-05027', message)
-                        else:
-                            validation_result.add_error('WLSDPLY-05027', message)
+                        validation_result.add_warning('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID attribute
                         validation_result.add_error('WLSDPLY-05029', key,
@@ -769,10 +757,7 @@ class Validator(object):
         else:
             result, message = self._alias_helper.is_valid_model_attribute_name(validation_location, attribute_name)
             if result == ValidationCodes.VERSION_INVALID:
-                if self._validation_mode == _ValidationModes.STANDALONE:
-                    validation_result.add_warning('WLSDPLY-05027', message)
-                else:
-                    validation_result.add_error('WLSDPLY-05027', message)
+                validation_result.add_warning('WLSDPLY-05027', message)
             elif result == ValidationCodes.INVALID:
                 validation_result.add_error('WLSDPLY-05029', attribute_name,
                                             model_folder_path, '%s' % ', '.join(valid_attr_infos))
