@@ -121,6 +121,12 @@ class Creator(object):
             return
 
         location = LocationContext(base_location).append_location(type_name)
+        result, message = self.alias_helper.is_version_valid_location(location)
+        if result == ValidationCodes.VERSION_INVALID:
+            self.logger.warning('WLSDPLY-12123', message,
+                                class_name=self.__class_name, method_name=_method_name)
+            return
+
         create_path = self.alias_helper.get_wlst_create_path(location)
         existing_folder_names = self._get_existing_folders(create_path)
 
