@@ -296,7 +296,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_model_folder_path_for_location'
 
-        _logger.entering(str(location),class_name=_class_name, method_name=_method_name)
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
 
         # Initialize return variable
         model_folder_path = ''
