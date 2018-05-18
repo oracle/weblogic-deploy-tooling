@@ -43,10 +43,9 @@ FORCE = 'force'
 
 VARIABLE_SEP = '.'
 SUFFIX_SEP = '--'
-_variable_sep_pattern = re.compile('/')
+_find_special_names_pattern = re.compile('[\[).+\]]')
 
 _wlsdeploy_location = os.environ.get('WLSDEPLOY_HOME')
-_segment_pattern = re.compile("\\[[\w.-]+\\]$")
 _class_name = 'variable_file_helper'
 _logger = PlatformLogger('wlsdeploy.util')
 
@@ -85,17 +84,16 @@ class VariableFileHelper(object):
         keywords_dictionary = _load_keywords_file(variable_keywords_location_file)
 
         variables_inserted = False
-        return_model = dict()
+        return_model = self.__original
         variable_file_location = None
         if variables_injector_dictionary and keywords_dictionary:
             variable_file_location = _get_variable_file_name(variables_injector_dictionary, **kwargs)
-            injector_file_list = _create_injector_file_list(variables_injector_dictionary, keywords_dictionary,
-                                                            _get_keyword_files_location(**kwargs))
-            return_model = self.__original
             if not variable_file_location:
                 _logger.warning('WLSDPLY-19420', variable_injector_location_file, class_name=_class_name,
                                 method_name=_method_name)
             else:
+                injector_file_list = _create_injector_file_list(variables_injector_dictionary, keywords_dictionary,
+                                                                _get_keyword_files_location(**kwargs))
                 variables_file_dictionary = self.inject_variables_keyword_dictionary(injector_file_list)
                 variables_inserted = _write_variables_file(variables_file_dictionary, variable_file_location)
                 if variables_inserted:
@@ -155,22 +153,27 @@ class VariableFileHelper(object):
         def _traverse_variables(model_section, mbean_list):
             if mbean_list:
                 mbean = mbean_list.pop(0)
-                # mbean, mbean_name_list = _find_special_name(mbean)
+                mbean, mbean_name_list = _find_special_name(mbean)
+                _logger.finer('WLSDPLY-19423', mbean, location.get_folder_path(), class_name=_class_name,
+                              method_name=_method_name)
                 if mbean in model_section:
                     _logger.finest('WLSDPLY-19414', mbean, class_name=_class_name, method_name=_method_name)
                     next_model_section = model_section[mbean]
                     location.append_location(mbean)
                     name_token = self.__aliases.get_name_token(location)
-                    # if not mbean_name_list and self.__aliases.supports_multiple_mbean_instances(location):
-                    #     mbean_name_list = next_model_section
-                    # if mbean_name_list:
-                    #     for mbean_name in mbean_name_list:
-                    if self.__aliases.supports_multiple_mbean_instances(location):
-                        for mbean_name in next_model_section:
-                            continue_mbean_list = copy.copy(mbean_list)
-                            location.add_name_token(name_token, mbean_name)
-                            _traverse_variables(next_model_section[mbean_name], continue_mbean_list)
-                            location.remove_name_token(name_token)
+                    if not mbean_name_list:
+                        if self.__aliases.supports_multiple_mbean_instances(location):
+                            mbean_name_list = next_model_section
+                    else:
+                        _logger.fine('WLSDPLY-19406', mbean_name_list, attribute, location.get_folder_path(),
+                                     class_name=_class_name, method_name=_method_name)
+                    if mbean_name_list:
+                        for mbean_name in mbean_name_list:
+                            if mbean_name in next_model_section:
+                                continue_mbean_list = copy.copy(mbean_list)
+                                location.add_name_token(name_token, mbean_name)
+                                _traverse_variables(next_model_section[mbean_name], continue_mbean_list)
+                                location.remove_name_token(name_token)
                     else:
                         _traverse_variables(next_model_section, mbean_list)
                     location.pop_location()
@@ -179,8 +182,7 @@ class VariableFileHelper(object):
                     return False
             else:
                 if attribute in model_section:
-                    returned_dict = self._variable_info(model_section, attribute, location, injector,
-                                                                        injector_values)
+                    returned_dict = self._variable_info(model_section, attribute, location, injector_values)
                     if returned_dict:
                         variable_dict.update(returned_dict)
                 else:
@@ -191,8 +193,9 @@ class VariableFileHelper(object):
         section = self.__model
         if start_mbean_list:
             # Find out in what section is the mbean top folder so can move to that section in the model
+            mbean, __ = _find_special_name(start_mbean_list[0])
             for entry in self.__section_keys:
-                if entry in self.__model and start_mbean_list[0] in self.__model[entry]:
+                if entry in self.__model and  mbean in self.__model[entry]:
                     section = self.__model[entry]
                     break
         else:
@@ -223,7 +226,7 @@ class VariableFileHelper(object):
             return path + SUFFIX_SEP + suffix
         return path
 
-    def _variable_info(self, model, attribute, location, injector, injector_values):
+    def _variable_info(self, model, attribute, location, injector_values):
         # add code here to put in model if force in injector values
         if REGEXP in injector_values:
             return self._process_regexp(model, attribute, location, injector_values[REGEXP])
@@ -240,8 +243,10 @@ class VariableFileHelper(object):
         attribute_value = model[attribute]
         if not _already_property(attribute_value):
             variable_name = self.__format_variable_name(location, attribute)
-            variable_value = str(attribute_value)
+            variable_value = _format_variable_value(attribute_value)
             model[attribute] = _format_as_property(variable_name)
+            _logger.fine('WLSDPLY-19425', variable_name, attribute_value, attribute, variable_value,
+                         class_name=_class_name, method_name=_method_name)
         else:
             _logger.finer('WLSDPLY-19426', attribute_value, attribute, str(location), class_name=_class_name,
                           method_name=_method_name)
@@ -267,7 +272,7 @@ class VariableFileHelper(object):
                 pattern = dictionary[REGEXP_PATTERN]
             if REGEXP_SUFFIX in dictionary:
                 suffix = dictionary[REGEXP_SUFFIX]
-            variable_name, variable_value =  self._process_pattern_string(model, attribute, location, pattern, suffix)
+            variable_name, variable_value = self._process_pattern_string(model, attribute, location, pattern, suffix)
             if variable_value:
                 variable_dict[variable_name] = variable_value
         return variable_dict
@@ -279,8 +284,8 @@ class VariableFileHelper(object):
         attribute_value, variable_name, variable_value = self._find_segment_in_string(attribute, model[attribute],
                                                                                       location, pattern, suffix)
         if variable_value:
-            _logger.finer('WLSDPLY-19429', attribute, attribute_value, class_name=_class_name,
-                          method_name=_method_name)
+            _logger.finer('WLSDPLY-19429', variable_name, attribute_value, attribute, variable_value,
+                          class_name=_class_name, method_name=_method_name)
             model[attribute] = attribute_value
         # elif replace_if_nosegment:
         #     check_value = model[attribute]
@@ -302,7 +307,7 @@ class VariableFileHelper(object):
         variable_value = None
         if not _already_property(attribute_value):
             variable_name = self.__format_variable_name_segment(location, attribute, suffix)
-            attribute_value, variable_value = _replace_segment(pattern, str(attribute_value),
+            attribute_value, variable_value = _replace_segment(pattern, _format_variable_value(attribute_value),
                                                                _format_as_property(variable_name))
         return attribute_value, variable_name, variable_value
 
@@ -332,7 +337,7 @@ class VariableFileHelper(object):
             attribute_value, seg_var_name, seg_var_value = self._find_segment_in_string(attribute_name, entry, location,
                                                                                         pattern, suffix)
             if seg_var_value:
-                _logger.finer('WLSDPLY-19429', attribute_name, attribute_value, class_name=_class_name,
+                _logger.finer('WLSDPLY-19428', variable_name, attribute_name, variable_value, class_name=_class_name,
                               method_name=_method_name)
                 attribute_list[idx] = attribute_value
                 variable_name = seg_var_name
@@ -373,7 +378,7 @@ class VariableFileHelper(object):
                     if matcher:
                         _logger.finer('WLSDPLY-19427', attribute_name, replacement, class_name=_class_name,
                                       method_name=_method_name)
-                        variable_value = str(attribute_dict[entry])
+                        variable_value = _format_variable_value(attribute_dict[entry])
                         attribute_dict[entry] = replacement
                     # don't break, continue replacing any in dictionary, return the last variable value found
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
@@ -450,9 +455,9 @@ def _load_keywords_file(variable_keywords_location):
     if os.path.isfile(variable_keywords_location):
         try:
             keywords_dictionary = FileToPython(variable_keywords_location).parse()
-            _logger.fine('WLSDPLY-19432', variable_keywords_location, class_name=_class_name, method_name=_method_name)
+            _logger.finer('WLSDPLY-19404', variable_keywords_location, class_name=_class_name, method_name=_method_name)
         except IllegalArgumentException, ia:
-            _logger.warning('WLSDPLY-19433', variable_keywords_location, ia.getLocalizedMessage(),
+            _logger.warning('WLSDPLY-19405', variable_keywords_location, ia.getLocalizedMessage(),
                             class_name=_class_name, method_name=_method_name)
 
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=keywords_dictionary)
@@ -464,13 +469,12 @@ def _create_injector_file_list(variables_dictionary, keyword_dictionary, injecto
     injector_file_list = []
     if CUSTOM_KEYWORD in variables_dictionary:
         if KEYWORD_FILES in variables_dictionary[CUSTOM_KEYWORD]:
-            file_list = variables_dictionary[CUSTOM_KEYWORD][KEYWORD_FILES]
-            if type(file_list) != list:
-                file_list = file_list.split(',')
-            for filename in file_list:
-                injector_file_list.append(filename)
+            injector_file_list = variables_dictionary[CUSTOM_KEYWORD][KEYWORD_FILES]
+            if type(injector_file_list) != list:
+                injector_file_list = injector_file_list.split(',')
+            _logger.fine('WLSDPLY-19401', injector_file_list)
         else:
-            _logger.info('WLSDPLY-19434', class_name=_class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-19412', class_name=_class_name, method_name=_method_name)
         del variables_dictionary[CUSTOM_KEYWORD]
     for keyword in variables_dictionary:
         if keyword in keyword_dictionary:
@@ -509,6 +513,30 @@ def _load_injector_file(injector_file_name):
     return injector_dictionary
 
 
+def _write_variables_file(variables_dictionary, variables_file_name):
+    _method_name = '_write_variables_file'
+    _logger.entering(variables_dictionary, variables_file_name, class_name=_class_name, method_name=_method_name)
+    written = False
+    if variables_dictionary:
+        try:
+            variables.write_variables(variables_dictionary, variables_file_name)
+            written = True
+        except VariableException, ve:
+            _logger.warning('WLSDPLY-19407', variables_file_name, ve.getLocalizedMessage(), class_name=_class_name,
+                            method_name=_method_name)
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=written)
+    return written
+
+
+def _format_variable_value(value):
+    if type(value) == bool:
+        if value:
+            return 'True'
+        return 'False'
+    else:
+        return str(value)
+
+
 def _replace_segment(regexp, variable_value, attribute_value):
     replaced_value = None
     replacement_string = variable_value
@@ -526,7 +554,7 @@ def _compile_pattern(pattern):
     try:
         return re.compile(pattern)
     except Exception, e:
-        _logger.warning('WLSDPLY-19435', pattern, e)
+        _logger.warning('WLSDPLY-19411', pattern, e)
     return None
 
 
@@ -554,23 +582,8 @@ def _split_injector(injector_path):
 def _find_special_name(mbean):
     mbean_name = mbean
     mbean_name_list = []
-    name_list = re.split('[\{).+\}]', mbean)
+    name_list = _find_special_names_pattern.split(mbean)
     if name_list and len(name_list) > 1:
         mbean_name = name_list[0]
         mbean_name_list = name_list[1].split(',')
     return mbean_name, mbean_name_list
-
-
-def _write_variables_file(variables_dictionary, variables_file_name):
-    _method_name = '_write_variables_file'
-    _logger.entering(variables_dictionary, variables_file_name, class_name=_class_name, method_name=_method_name)
-    written = False
-    if variables_dictionary:
-        try:
-            variables.write_variables(variables_dictionary, variables_file_name)
-            written = True
-        except VariableException, ve:
-            _logger.warning('WLSDPLY-19407', variables_file_name, ve.getLocalizedMessage(), class_name=_class_name,
-                            method_name=_method_name)
-    _logger.exiting(class_name=_class_name, method_name=_method_name, result=written)
-    return written

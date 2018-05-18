@@ -190,19 +190,24 @@ class VariableFileHelperTest(unittest.TestCase):
                 found = True
                 break
         self.assertEqual(True, found)
-    #
-    # def testWithNameInMBeanSingle(self):
-    #     expected = dict()
-    #     expected['Server.m2.ServerStart.Arguments'] = '/etc'
-    #     replacement_list = ['topology:Server{m2}.ServerStart.Arguments[(?<=-Doracle.net.tns_admin=)[\w\\/._:]+]']
-    #     actual = self._helper.inject_variables(replacement_list)
-    #     self._compare_to_expected_dictionary(expected, actual)
-    #     arg = '-Doracle.net.tns_admin=@@PROP:Server.m2.ServerStart.Arguments@@ ' \
-    #           '-DANTLR_USE_DIRECT_CLASS_LOADING=true ' \
-    #           '-DANTLR_USE_DIRECT_CLASS_LOADING=true -Djava.awt.headless=true -Dhttp.webdir.enable=false ' \
-    #           '-Duser.timezone=Europe/Zurich -Djava.net.preferIPv4Stack=true -Djava.security.egd=file:/dev/./urandom ' \
-    #           '-Dweblogic.data.canTransferAnyFile=true'
-    #     self.assertEqual(arg, self._model['topology']['Server']['m2']['ServerStart']['Arguments'])
+
+    def testWithMBeanName(self):
+        expected = dict()
+        expected['JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.Properties.user.Value'] = 'sys as dba'
+        expected['JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.Properties.user.Value'] = 'admin'
+        replacement_dict = dict()
+        replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.Properties[user].Value'] = dict()
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
+    def testWithListMBeanName(self):
+        expected = dict()
+        expected['Server.m1.SSL.Enabled'] = 'True'
+        expected['Server.m2.SSL.Enabled'] = 'True'
+        replacement_dict = dict()
+        replacement_dict['Server[m1,m2].SSL.Enabled'] = dict()
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
 
     def testWithVariableHelperKeywords(self):
         expected = dict()
