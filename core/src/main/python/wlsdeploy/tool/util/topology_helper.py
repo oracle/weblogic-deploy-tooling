@@ -13,7 +13,6 @@ from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class TopologyHelper(object):
@@ -22,12 +21,9 @@ class TopologyHelper(object):
     """
     __class_name = 'TopologyHelper'
 
-    def __init__(self, wlst_mode, aliases, exception_type, logger):
-        self.wlst_mode = wlst_mode
-        self.aliases = aliases
+    def __init__(self, aliases, exception_type, logger):
         self.logger = logger
         self.alias_helper = AliasHelper(aliases, self.logger, exception_type)
-        self.wls_helper = WebLogicHelper(self.logger)
         self.wlst_helper = WlstHelper(self.logger, exception_type)
 
         self._coherence_cluster_elements = [CLUSTER, SERVER, SERVER_TEMPLATE]

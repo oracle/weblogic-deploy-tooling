@@ -13,6 +13,7 @@ from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import UNIX_MACHINE
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
@@ -29,7 +30,9 @@ class TopologyUpdater(Deployer):
         Deployer.__init__(self, model, model_context, aliases, wlst_mode)
         self._topology = self.model.get_model_topology()
         self._resources = self.model.get_model_resources()
-        self._topology_helper = TopologyHelper(self.wlst_mode, self.aliases, ExceptionType.DEPLOY, self.logger)
+        self._topology_helper = TopologyHelper(self.aliases, ExceptionType.DEPLOY, self.logger)
+        self._security_provider_creator = SecurityProviderCreator(model.get_model(), model_context, aliases,
+                                                                  ExceptionType.DEPLOY, self.logger)
 
     # Override
     def _add_named_elements(self, type_name, model_nodes, location):
@@ -59,7 +62,7 @@ class TopologyUpdater(Deployer):
         # /Security cannot be updated on existing domain
         folder_list.remove(SECURITY)
 
-        # TODO: process security configuration
+        self._security_provider_creator.create_security_configuration(location)
         folder_list.remove(SECURITY_CONFIGURATION)
 
         self._process_section(self._topology, folder_list, MACHINE, location)

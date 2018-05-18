@@ -31,15 +31,17 @@ class Creator(object):
     """
     __class_name = 'Creator'
 
-    def __init__(self, model, model_context, aliases):
-        self.logger = PlatformLogger('wlsdeploy.create')
+    def __init__(self, model, model_context, aliases, exception_type=ExceptionType.CREATE,
+                 logger=PlatformLogger('wlsdeploy.create')):
+
+        self.logger = logger
         self.aliases = aliases
-        self.alias_helper = AliasHelper(self.aliases, self.logger, ExceptionType.CREATE)
-        self.wlst_helper = WlstHelper(self.logger, ExceptionType.CREATE)
+        self.alias_helper = AliasHelper(self.aliases, self.logger, exception_type)
+        self.wlst_helper = WlstHelper(self.logger, exception_type)
         self.model = Model(model)
         self.model_context = model_context
         self.wls_helper = WebLogicHelper(self.logger)
-        self.attribute_setter = AttributeSetter(self.aliases, self.logger, ExceptionType.CREATE)
+        self.attribute_setter = AttributeSetter(self.aliases, self.logger, exception_type)
         # Must be initialized by the subclass since only it has
         # the knowledge required to compute the domain name.
         self.archive_helper = None
