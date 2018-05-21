@@ -715,7 +715,12 @@ class Validator(object):
                              model_folder_path, validation_location, validation_result):
         _method_name = '__validate_attribute'
 
-        self._logger.entering(attribute_name, attribute_value, str(valid_attr_infos), str(path_tokens_attr_keys),
+        log_value = attribute_value
+        expected_data_type = dictionary_utils.get_element(valid_attr_infos, attribute_name)
+        if expected_data_type == 'password':
+            log_value = '<masked>'
+
+        self._logger.entering(attribute_name, log_value, str(valid_attr_infos), str(path_tokens_attr_keys),
                               model_folder_path, str(validation_location),
                               class_name=_class_name, method_name=_method_name)
 

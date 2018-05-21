@@ -1114,6 +1114,75 @@ class AliasesTestCase(unittest.TestCase):
 
         return
 
+    def testIssue39Fix(self):
+        location = LocationContext().append_location(FOLDERS.PARTITION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'Partition-0')
+
+        # Check offline value of wlst_mbean_type of FOLDERS.PARTITION
+        wlst_mbean_type = self.aliases.get_wlst_mbean_type(location)
+        expected = FOLDERS.PARTITION
+        self.assertEqual(wlst_mbean_type, expected)
+
+        # Check online value of wlst_mbean_type of FOLDERS.PARTITION.
+        # There should be an 's' on the end of FOLDERS.PARTITION
+        wlst_mbean_type = self.online_aliases.get_wlst_mbean_type(location)
+        expected = '%ss' % FOLDERS.PARTITION
+        self.assertEqual(wlst_mbean_type, expected)
+
+        # Add FOLDERS.RESOURCE_MANAGER to the location
+        location.append_location(FOLDERS.RESOURCE_MANAGER)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'ResourceManager-0')
+
+        # Check offline value of wlst_mbean_type after adding
+        # FOLDERS.RESOURCE_MANAGER to the location. There
+        # should not be an 's' on the end of FOLDERS.RESOURCE_MANAGER
+        wlst_mbean_type = self.aliases.get_wlst_mbean_type(location)
+        expected = FOLDERS.RESOURCE_MANAGER
+        self.assertEqual(wlst_mbean_type, expected)
+
+        # Check online value of wlst_mbean_type after adding
+        # FOLDERS.RESOURCE_MANAGER to the location. It
+        # should be the same value as offline; no 's' on the
+        # end of FOLDERS.RESOURCE_MANAGER
+        wlst_mbean_type = self.online_aliases.get_wlst_mbean_type(location)
+        self.assertEqual(wlst_mbean_type, expected)
+
+        # Check offline value of wlst_list_path after adding
+        # FOLDERS.RESOURCE_MANAGER to the location. There
+        # should not be an 's' on the end of FOLDERS.PARTITION or
+        # FOLDERS.RESOURCE_MANAGER
+        expected = [FOLDERS.PARTITION, 'Partition-0', FOLDERS.RESOURCE_MANAGER]
+        wlst_list_path = self.aliases.get_wlst_list_path(location)
+        self.assertEqual(wlst_list_path, '/%s' % '/'.join(expected))
+
+        # Check online value of wlst_list_path after adding
+        # FOLDERS.RESOURCE_MANAGER to the location. There
+        # should be an 's' on the end of FOLDERS.PARTITION, but
+        # not on the end of FOLDERS.RESOURCE_MANAGER
+        expected = ['%ss' % FOLDERS.PARTITION, 'Partition-0', FOLDERS.RESOURCE_MANAGER]
+        wlst_list_path = self.online_aliases.get_wlst_list_path(location)
+        self.assertEqual(wlst_list_path, '/%s' % '/'.join(expected))
+
+        # Check offline value of wlst_subfolders_path after adding
+        # FOLDERS.RESOURCE_MANAGER to the location. There
+        # should be an 's' on the end of FOLDERS.PARTITION, but
+        # not on the end of FOLDERS.RESOURCE_MANAGER
+        expected = [FOLDERS.PARTITION, 'Partition-0', FOLDERS.RESOURCE_MANAGER, 'ResourceManager-0']
+        wlst_subfolders_path = self.aliases.get_wlst_subfolders_path(location)
+        self.assertEqual(wlst_subfolders_path, '/%s' % '/'.join(expected))
+
+        # Check online value of wlst_subfolders_path after adding
+        # FOLDERS.RESOURCE_MANAGER to the location. There
+        # should be an 's' on the end of FOLDERS.PARTITION, but
+        # not on the end of FOLDERS.RESOURCE_MANAGER
+        expected = ['%ss' % FOLDERS.PARTITION, 'Partition-0', FOLDERS.RESOURCE_MANAGER, 'ResourceManager-0']
+        wlst_subfolders_path = self.online_aliases.get_wlst_subfolders_path(location)
+        self.assertEqual(wlst_subfolders_path, '/%s' % '/'.join(expected))
+
+        return
+
     def testIssue50Fix(self):
         location = LocationContext().append_location(FOLDERS.SERVER_TEMPLATE)
         token = self.aliases.get_name_token(location)
@@ -1141,6 +1210,25 @@ class AliasesTestCase(unittest.TestCase):
 
         expected = 'true'
         default_value = self.online_aliases.get_model_attribute_default_value(location, 'RotateLogOnStartup')
+        self.assertEqual(default_value, expected)
+
+        return
+
+    def testIssue91Fix(self):
+        location = LocationContext().append_location(FOLDERS.NM_PROPERTIES)
+
+        expected = 'startWebLogic.cmd'
+        default_value = self.aliases.get_model_attribute_default_value(location, 'weblogic.StartScriptName')
+        self.assertEqual(default_value, expected)
+
+        expected = '/'
+        wlst_list_path = self.aliases.get_wlst_list_path(location)
+        self.assertEqual(wlst_list_path, expected)
+
+        # All the attributes in FOLDERS.NM_PROPERTIES have 'wlst_mode':'offline", so
+        # the default value should be None
+        expected = None
+        default_value = self.online_aliases.get_model_attribute_default_value(location, 'weblogic.StartScriptName')
         self.assertEqual(default_value, expected)
 
         return

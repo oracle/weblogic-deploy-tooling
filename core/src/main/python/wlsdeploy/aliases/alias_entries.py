@@ -85,6 +85,7 @@ class AliasEntries(object):
         'MailSession': 'MailSession',
         'MessagingBridge': 'MessagingBridge',
         'MigratableTarget': 'MigratableTarget',
+        'NMProperties': 'NMProperties',
         'Partition': 'Partition',
         'PartitionWorkManager': 'PartitionWorkManager',
         'PathService': 'PathService',
@@ -114,6 +115,7 @@ class AliasEntries(object):
         'Log',
         'Machine',
         'MigratableTarget',
+        'NMProperties',
         "RestfulManagementServices",
         'Security',
         'SecurityConfiguration',
@@ -155,7 +157,7 @@ class AliasEntries(object):
 
     __domain_info_attributes_and_types = {
         'AdminUserName': 'string',
-        'AdminPassword': 'string',
+        'AdminPassword': 'password',
         'ServerStartMode': 'string',
         'domainLibraries': 'list',
         # A map of Server Group names to the list of servers/clusters to which they should

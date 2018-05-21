@@ -45,12 +45,27 @@ public class ScriptRunner {
      * Run the external program.
      *
      * @param scriptToRun the executable program to run
-     * @param linesToPipeToStdout an optional list of lines to write to the external program's starndard input
+     * @param linesToPipeToStdout an optional list of lines to write to the external program's standard input
      * @param args the arguments to pass to the external program on the command-line
      * @return the exit code of the external program
      * @throws ScriptRunnerException if argument validation error or error running the external program occurs
      */
     public int executeScript(File scriptToRun, List<String> linesToPipeToStdout, String... args)
+            throws ScriptRunnerException{
+        return executeScript(scriptToRun,false, linesToPipeToStdout, args);
+    }
+
+    /**
+     * Run the external program.
+     *
+     * @param scriptToRun the executable program to run
+     * @param appendFlag flag indicating if stdout file should be appended to
+     * @param linesToPipeToStdout an optional list of lines to write to the external program's standard input
+     * @param args the arguments to pass to the external program on the command-line
+     * @return the exit code of the external program
+     * @throws ScriptRunnerException if argument validation error or error running the external program occurs
+     */
+    public int executeScript(File scriptToRun, boolean appendFlag, List<String> linesToPipeToStdout, String... args)
         throws ScriptRunnerException{
         final String METHOD = "executeScript";
 
@@ -60,7 +75,7 @@ public class ScriptRunner {
         String[] command = getCommandStringArray(scriptToRun, args);
 
         ProcessHandler processHandler = new ProcessHandler(command, cwd);
-        processHandler.setStdoutLog(stdoutFile);
+        processHandler.setStdoutLog(stdoutFile, appendFlag);
         processHandler.setBufferStdout();
 
         for (Map.Entry<String, String> envEntry : env.entrySet()) {

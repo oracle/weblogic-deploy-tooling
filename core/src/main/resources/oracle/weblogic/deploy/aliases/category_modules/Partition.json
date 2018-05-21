@@ -380,6 +380,158 @@
             "wlst_paths": {
                 "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%"
             }
+        },
+        "ResourceManager": {
+            "wlst_type": "ResourceManager",
+            "version": "[12.2.1,)",
+            "child_folders_type": "multiple",
+            "folders": {
+                "CpuUtilization": {
+                    "wlst_type": "CpuUtilization",
+                    "version": "[12.2.1,)",
+                    "child_folders_type": "single_unpredictable",
+                    "default_name_value": "${NO_NAME_0:CpuTimeResource}",
+                    "folders": {
+                        "FairShareConstraint": {
+                            "wlst_type": "FairShareConstraint",
+                            "version": "[12.2.1,)",
+                            "child_folders_type": "single_unpredictable",
+                            "default_name_value": "${NO_NAME_0:CpuUtilizationFairShareConstraint}",
+                            "folders": { },
+                            "attributes": {
+                                "Notes": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                                "Value": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Value", "wlst_path": "WP001", "value": {"default": 50     }, "wlst_type": "integer"} ]
+                            },
+                            "wlst_attributes_path": "WP001",
+                            "wlst_paths": {
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%/FairShareConstraint/%FAIRSHARE%"
+                            }
+                        },
+                        "Trigger": {
+                            "wlst_type": "Trigger${:s}",
+                            "version": "[12.2.1,)",
+                            "child_folders_type": "multiple",
+                            "folders": { },
+                            "attributes": {
+                                "Action": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Action", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"} ],
+                                "Notes":  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"} ],
+                                "Value":  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Value",  "wlst_path": "WP001", "value": {"default": 0      }, "wlst_type": "long"  } ]
+                            },
+                            "wlst_attributes_path": "WP001",
+                            "wlst_paths": {
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%/Trigger${:s}/%TRIGGER%"
+                            }
+                        }
+                    },
+                    "attributes": {
+                        "Notes": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"} ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%"
+                    }
+                },
+                "FileOpen": {
+                    "wlst_type": "FileOpen",
+                    "version": "[12.2.1,)",
+                    "child_folders_type": "single_unpredictable",
+                    "default_name_value": "${NO_NAME_0:FileOpenResource}",
+                    "folders": {
+                        "Trigger": {
+                            "wlst_type": "Trigger${:s}",
+                            "version": "[12.2.1,)",
+                            "child_folders_type": "multiple",
+                            "folders": { },
+                            "attributes": {
+                                "Action": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Action", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"} ],
+                                "Notes":  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"} ],
+                                "Value":  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Value",  "wlst_path": "WP001", "value": {"default": 0      }, "wlst_type": "long"  } ]
+                            },
+                            "wlst_attributes_path": "WP001",
+                            "wlst_paths": {
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/FileOpen/%FILEOPEN%/Trigger${:s}/%TRIGGER%"
+                            }
+                        }
+                    },
+                    "attributes": {
+                        "Notes": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"} ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/FileOpen/%FILEOPEN%"
+                    }
+                },
+                "HeapRetained": {
+                    "wlst_type": "HeapRetained",
+                    "version": "[12.2.1,)",
+                    "child_folders_type": "single_unpredictable",
+                    "default_name_value": "${NO_NAME_0:HeapRetainedResource}",
+                    "folders": {
+                        "FairShareConstraint": {
+                            "wlst_type": "FairShareConstraint",
+                            "version": "[12.2.1,)",
+                            "child_folders_type": "single_unpredictable",
+                            "default_name_value": "${NO_NAME_0:HeapRetainedFairShareConstraint}",
+                            "folders": { },
+                            "attributes": {
+                                "Notes": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                                "Value": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Value",  "wlst_path": "WP001", "value": {"default": 0      }, "wlst_type": "integer"} ]
+                            },
+                            "wlst_attributes_path": "WP001",
+                            "wlst_paths": {
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%/FairShareConstraint/%FAIRSHARE%"
+                            }
+                        },
+                        "Trigger": {
+                            "wlst_type": "Trigger${:s}",
+                            "version": "[12.2.1,)",
+                            "child_folders_type": "multiple",
+                            "folders": { },
+                            "attributes": {
+                                "Action": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Action", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"} ],
+                                "Notes":  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"} ],
+                                "Value":  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Value",  "wlst_path": "WP001", "value": {"default": 0      }, "wlst_type": "long"  } ]
+                            },
+                            "wlst_attributes_path": "WP001",
+                            "wlst_paths": {
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%/Trigger${:s}/%TRIGGER%"
+                            }
+                        }
+                    },
+                    "attributes": {
+                        "Notes": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"} ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%"
+                    }
+                },
+                "RestartLoopProtection": {
+                    "wlst_type": "RestartLoopProtection",
+                    "version": "[12.2.1,)",
+                    "child_folders_type": "single_unpredictable",
+                    "default_name_value": "${NO_NAME_0:%RESOURCEMANAGER%}",
+                    "folders": { },
+                    "attributes": {
+                        "MaxRestartAllowed":            [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MaxRestartAllowed",            "wlst_path": "WP001", "value": {"default": 0      }, "wlst_type": "long"    } ],
+                        "MaxRestartAllowedInterval":    [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MaxRestartAllowedInterval",    "wlst_path": "WP001", "value": {"default": 0      }, "wlst_type": "long"    } ],
+                        "Notes":                        [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",                        "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"  } ],
+                        "RestartDelay":                 [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "RestartDelay",                 "wlst_path": "WP001", "value": {"default": 0      }, "wlst_type": "long"    } ],
+                        "RestartLoopProtectionEnabled": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "RestartLoopProtectionEnabled", "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean" } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/RestartLoopProtection/%RESTARTLOOP%"
+                    }
+                }
+            },
+            "attributes": {
+                "Notes": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"} ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%"
+            }
         }
     },
     "attributes": {
@@ -417,7 +569,6 @@
     },
     "contains": [
         "ResourceGroup",
-        "ResourceManager",
         "SelfTuning"
     ]
 }

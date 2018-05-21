@@ -265,12 +265,15 @@ class TopologyDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_domain_log()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self._get_nm_properties()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def discover_security_configuration(self):
         """
         Discover the security configuration for the domain.
-        :return: name for the model:dictionary continaing the discovered security configuration
+        :return: name for the model:dictionary containing the discovered security configuration
         """
         _method_name = 'discover_security_configuration'
         _logger.entering(class_name=_class_name, method_name=_method_name)
@@ -342,6 +345,23 @@ class TopologyDiscoverer(Discoverer):
             self._populate_model_parameters(result, location)
             self._discover_subfolders(result, location)
 
+        return model_top_folder_name, result
+
+    def _get_nm_properties(self):
+        """
+        Discover the NMProperties attributes.
+        :return: model name for the Log:dictionary containing the discovered NMProperties attributes
+        """
+        _method_name = '_get_nm_properties'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.NM_PROPERTIES
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        if self._subfolder_exists(model_top_folder_name, location):
+            _logger.info('WLSDPLY-06627', class_name=_class_name, method_name=_method_name)
+            location.append_location(model_top_folder_name)
+            self._populate_model_parameters(result, location)
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_top_folder_name, result
 
     def _get_restful_management_services(self):
