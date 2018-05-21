@@ -13,7 +13,6 @@ from wlsdeploy.aliases.model_constants import APP_DIR
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
-from wlsdeploy.aliases.model_constants import DOMAIN_LIBRARIES
 from wlsdeploy.aliases.model_constants import DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DRIVER_NAME
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
@@ -50,6 +49,7 @@ from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model as model_helper
@@ -66,10 +66,6 @@ class DomainCreator(Creator):
         _method_name = '__init__'
         Creator.__init__(self, model_dictionary, model_context, aliases)
 
-        self.topology_helper = TopologyHelper(self.aliases, ExceptionType.CREATE, self.logger)
-        self.security_provider_creator = SecurityProviderCreator(model_dictionary, model_context, aliases,
-                                                                 ExceptionType.CREATE, self.logger)
-
         # domainInfo section is required to get the admin password, everything else
         # is optional and will use the template defaults
         if model_helper.get_model_domain_info_key() not in model_dictionary:
@@ -78,6 +74,10 @@ class DomainCreator(Creator):
                                                           self.model_context.get_model_file())
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
+
+        self.topology_helper = TopologyHelper(self.aliases, ExceptionType.CREATE, self.logger)
+        self.security_provider_creator = SecurityProviderCreator(model_dictionary, model_context, aliases,
+                                                                 ExceptionType.CREATE, self.logger)
 
         self._domain_typedef = self.model_context.get_domain_typedef()
         self._topology = self.model.get_model_topology()
@@ -102,6 +102,10 @@ class DomainCreator(Creator):
         if archive_file_name is not None:
             self.archive_helper = ArchiveHelper(archive_file_name, self._domain_home, self.logger,
                                                 exception_helper.ExceptionType.CREATE)
+
+        self.library_helper = LibraryHelper(self.model, self.model_context, self.aliases, self._domain_home,
+                                            ExceptionType.CREATE, self.logger)
+
         #
         # Creating domains with the wls.jar template is busted for pre-12.1.2 domains with regards to the
         # names of the default authentication providers (both the DefaultAuthenticator and the
@@ -227,8 +231,8 @@ class DomainCreator(Creator):
             for file_to_extract in self.files_to_extract_from_archive:
                 self.archive_helper.extract_file(file_to_extract)
 
-        self.__install_domain_libraries(self._domain_home)
-        self.__extract_classpath_libraries(self._domain_home)
+        self.library_helper.install_domain_libraries()
+        self.library_helper.extract_classpath_libraries()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -347,55 +351,6 @@ class DomainCreator(Creator):
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.write_domain(domain_home)
         self.wlst_helper.close_template()
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
-
-    def __install_domain_libraries(self, domain_home):
-        """
-        Extract the domain libraries listed in the model, if any, to the <DOMAIN_HOME>/lib directory.
-        :param domain_home: the domain home directory
-        :raises: CreateException: if an error occurs
-        """
-        _method_name = '__install_domain_libraries'
-
-        self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
-        domain_info_dict = self.model.get_model_domain_info()
-        if DOMAIN_LIBRARIES not in domain_info_dict or len(domain_info_dict[DOMAIN_LIBRARIES]) == 0:
-            self.logger.info('WLSDPLY-12213', class_name=self.__class_name, method_name=_method_name)
-        else:
-            domain_libs = dictionary_utils.get_dictionary_element(domain_info_dict, DOMAIN_LIBRARIES)
-            if self.archive_helper is None:
-                ex = exception_helper.create_create_exception('WLSDPLY-12214', domain_libs)
-                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-
-            for domain_lib in domain_libs:
-                self.logger.info('WLSDPLY-12215', domain_lib, domain_home,
-                                 class_name=self.__class_name, method_name=_method_name)
-                self.archive_helper.extract_domain_library(domain_lib)
-
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
-
-    def __extract_classpath_libraries(self, domain_home):
-        """
-        Extract any classpath libraries in the archive to the domain home.
-        :param domain_home: the domain home directory
-        :raises: CreateException: if an error occurs
-        """
-        _method_name = '__extract_classpath_libraries'
-
-        self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
-        if self.archive_helper is None:
-            self.logger.info('WLSDPLY-12216', class_name=self.__class_name, method_name=_method_name)
-        else:
-            num_cp_libs = self.archive_helper.extract_classpath_libraries()
-            if num_cp_libs > 0:
-                self.logger.info('WLSDPLY-12217', num_cp_libs, domain_home,
-                                 class_name=self.__class_name, method_name=_method_name)
-            else:
-                self.logger.info('WLSDPLY-12218', self.model_context.get_archive_file_name(),
-                                 class_name=self.__class_name, method_name=_method_name)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 

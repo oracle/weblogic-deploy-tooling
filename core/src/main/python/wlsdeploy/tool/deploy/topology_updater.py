@@ -16,6 +16,7 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.deployer import Deployer
+from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 
@@ -33,6 +34,9 @@ class TopologyUpdater(Deployer):
         self._topology_helper = TopologyHelper(self.aliases, ExceptionType.DEPLOY, self.logger)
         self._security_provider_creator = SecurityProviderCreator(model.get_model(), model_context, aliases,
                                                                   ExceptionType.DEPLOY, self.logger)
+
+        self.library_helper = LibraryHelper(self.model, self.model_context, self.aliases,
+                                            model_context.get_domain_home(), ExceptionType.DEPLOY, self.logger)
 
     # Override
     def _add_named_elements(self, type_name, model_nodes, location):
@@ -83,6 +87,11 @@ class TopologyUpdater(Deployer):
             self._process_section(self._topology, folder_list, folder_name, location)
 
         # TODO: update targeting
+
+        # files referenced in attributes are extracted as attributes are processed
+
+        self.library_helper.install_domain_libraries()
+        self.library_helper.extract_classpath_libraries()
 
     def _process_section(self, folder_dict, folder_list, key, location):
         if key in folder_dict:
