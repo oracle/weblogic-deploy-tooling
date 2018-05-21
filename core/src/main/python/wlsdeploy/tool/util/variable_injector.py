@@ -22,6 +22,7 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
+WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
 VARIABLE_INJECTOR_FILE_NAME = 'model_variable_injector.json'
 VARIABLE_KEYWORDS_FILE_NAME = 'variable_keywords.json'
 VARIABLE_INJECTOR_PATH_NAME_ARG = 'variable_injector_path_name'
@@ -60,7 +61,7 @@ class VariableInjector(object):
     def __init__(self, model, model_context=None, version=None):
         self.__original = copy.deepcopy(model)
         self.__model = model
-
+        self.__model_context = model_context
         self.__section_keys = model_sections.get_model_top_level_keys()
         self.__section_keys.remove(model_sections.get_model_domain_info_key())
 
@@ -97,6 +98,9 @@ class VariableInjector(object):
                 _logger.warning('WLSDPLY-19420', variable_injector_location_file, class_name=_class_name,
                                 method_name=_method_name)
             else:
+                _logger.info('WLSDPLY-19433', variable_injector_location_file, class_name=_class_name,
+                             method_name=_method_name)
+                variable_file_location = self._replace_tokens(variable_file_location)
                 injector_file_list = _create_injector_file_list(variables_injector_dictionary, keywords_dictionary,
                                                                 _get_keyword_files_location(**kwargs))
                 variables_file_dictionary = self.inject_variables_keyword_dictionary(injector_file_list)
@@ -106,8 +110,11 @@ class VariableInjector(object):
                                  method_name=_method_name)
                     return_model = self.__model
                 else:
-                    _logger.fine('WLSDPLY-19419', class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-19419', class_name=_class_name, method_name=_method_name)
                     variable_file_location = None
+        else:
+            _logger.info('WLSDPLY-19432', variable_injector_location_file, class_name=_class_name,
+                         method_name=_method_name)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_inserted)
         return variables_inserted, return_model, variable_file_location
@@ -122,7 +129,7 @@ class VariableInjector(object):
         _logger.entering(injector_file_list, class_name=_class_name, method_name=_method_name)
         variables_dictionary = PyOrderedDict()
         for filename in injector_file_list:
-            injector_dictionary = _load_injector_file(filename)
+            injector_dictionary = _load_injector_file(self._replace_tokens(filename))
             entries = self.inject_variables(injector_dictionary)
             if entries:
                 _logger.finer('WLSDPLY-19413', filename, class_name=_class_name, method_name=_method_name)
@@ -398,6 +405,14 @@ class VariableInjector(object):
         if self.__aliases.requires_unpredictable_single_name_handling(location):
             location.add_name_token(name_token, _fake_name_marker)
 
+    def _replace_tokens(self, path_string):
+        result = path_string
+        if path_string.startswith(WEBLOGIC_DEPLOY_HOME_TOKEN):
+            result = path_string.replace(WEBLOGIC_DEPLOY_HOME_TOKEN, _wlsdeploy_location)
+        elif self.__model_context:
+            result = self.__model_context.tokenize_path(path_string)
+        return result
+
     def _log_mbean_not_found(self, mbean, replacement, location):
         _method_name = '_log_mbean_not_found'
         code = ValidationCodes.INVALID
@@ -577,7 +592,7 @@ def _compile_pattern(pattern):
     try:
         return re.compile(pattern)
     except Exception, e:
-        _logger.warning('WLSDPLY-19411', pattern, e)
+        _logger.warning('WLSDPLY-19411', pattern, e, class_name=_class_name, method_name='_compile_pattern')
     return None
 
 
