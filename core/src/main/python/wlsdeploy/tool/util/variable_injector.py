@@ -9,7 +9,8 @@ import re
 import java.lang.IllegalArgumentException as IllegalArgumentException
 
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
-import oracle.weblogic.deploy.json.JsonException
+import oracle.weblogic.deploy.json.JsonException as JsonException
+import oracle.weblogic.deploy.util.PyOrderedDict as PyOrderedDict
 import oracle.weblogic.deploy.util.VariableException as VariableException
 
 import wlsdeploy.util.model as model_sections
@@ -20,7 +21,6 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util.model_translator import FileToPython
 
 VARIABLE_INJECTOR_FILE_NAME = 'model_variable_injector.json'
 VARIABLE_KEYWORDS_FILE_NAME = 'variable_keywords.json'
@@ -28,6 +28,7 @@ VARIABLE_INJECTOR_PATH_NAME_ARG = 'variable_injector_path_name'
 VARIABLE_KEYWORDS_PATH_NAME_ARG = 'variable_keywords_path_name'
 VARIABLE_INJECTOR_FILE_NAME_ARG = 'variable_injector_file_name'
 VARIABLE_KEYWORDS_FILE_NAME_ARG = 'variable_keywords_file_name'
+VARIABLE_INJECTOR_FILES_PATH_ARG = 'variable_injector_files_path_name'
 VARIABLE_FILE_NAME_ARG = 'variable_file_name'
 VARIABLE_FILE_NAME = 'variables.json'
 # custom keyword in model injector file
@@ -35,6 +36,7 @@ CUSTOM_KEYWORD = 'CUSTOM'
 KEYWORD_FILES = 'file-list'
 # location for model injector file, keyword file and injector files
 DEFAULT_FILE_LOCATION = 'lib'
+INJECTORS_LOCATION = 'injectors'
 # should these injector json keywords be included in the keyword file
 REGEXP = 'regexp'
 REGEXP_SUFFIX = 'suffix'
@@ -44,13 +46,16 @@ FORCE = 'force'
 VARIABLE_SEP = '.'
 SUFFIX_SEP = '--'
 _find_special_names_pattern = re.compile('[\[).+\]]')
+_fake_name_marker = 'fakename'
+_fake_name_replacement = re.compile('.' + _fake_name_marker)
+_white_space_replacement = re.compile('\s')
 
 _wlsdeploy_location = os.environ.get('WLSDEPLOY_HOME')
-_class_name = 'variable_file_helper'
+_class_name = 'variable_injector'
 _logger = PlatformLogger('wlsdeploy.util')
 
 
-class VariableFileHelper(object):
+class VariableInjector(object):
 
     def __init__(self, model, model_context=None, version=None):
         self.__original = copy.deepcopy(model)
@@ -115,7 +120,7 @@ class VariableFileHelper(object):
         """
         _method_name = 'inject_variables_keyword_dictionary'
         _logger.entering(injector_file_list, class_name=_class_name, method_name=_method_name)
-        variables_dictionary = dict()
+        variables_dictionary = PyOrderedDict()
         for filename in injector_file_list:
             injector_dictionary = _load_injector_file(filename)
             entries = self.inject_variables(injector_dictionary)
@@ -136,7 +141,7 @@ class VariableFileHelper(object):
         if injector_dictionary:
             location = LocationContext()
             domain_token = self.__aliases.get_name_token(location)
-            location.add_name_token(domain_token, 'fakedomain')
+            location.add_name_token(domain_token, _fake_name_marker)
             for injector, injector_values in injector_dictionary.iteritems():
                 entries_dict = self.__inject_variable(location, injector, injector_values)
                 if len(entries_dict) > 0:
@@ -164,6 +169,8 @@ class VariableFileHelper(object):
                     if not mbean_name_list:
                         if self.__aliases.supports_multiple_mbean_instances(location):
                             mbean_name_list = next_model_section
+                        else:
+                            self._check_name_token(location, name_token)
                     else:
                         _logger.fine('WLSDPLY-19406', mbean_name_list, attribute, location.get_folder_path(),
                                      class_name=_class_name, method_name=_method_name)
@@ -195,7 +202,7 @@ class VariableFileHelper(object):
             # Find out in what section is the mbean top folder so can move to that section in the model
             mbean, __ = _find_special_name(start_mbean_list[0])
             for entry in self.__section_keys:
-                if entry in self.__model and  mbean in self.__model[entry]:
+                if entry in self.__model and mbean in self.__model[entry]:
                     section = self.__model[entry]
                     break
         else:
@@ -211,14 +218,17 @@ class VariableFileHelper(object):
 
     def __format_variable_name(self, location, attribute):
         variable_name = attribute
-        make_path = self.__aliases.get_model_folder_path(location)
+        make_path = None
+        try:
+            make_path = self.__aliases.get_model_folder_path(location)
+        except AliasException, ae:
+            _logger.warning('WLSDPLY-19431', str(location), attribute, ae.getLocalizedMessage())
         if make_path:
             make_path = make_path.split(':')
             if len(make_path) > 1 and len(make_path[1]) > 1:
                 variable_name = make_path[1]
                 variable_name = variable_name[1:] + VARIABLE_SEP + attribute
-                variable_name = variable_name.replace('/', '.')
-        return variable_name
+        return _massage_name(variable_name)
 
     def __format_variable_name_segment(self, location, attribute, suffix):
         path = self.__format_variable_name(location, attribute)
@@ -384,6 +394,10 @@ class VariableFileHelper(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
         return variable_name, variable_value
 
+    def _check_name_token(self, location, name_token):
+        if self.__aliases.requires_unpredictable_single_name_handling(location):
+            location.add_name_token(name_token, _fake_name_marker)
+
     def _log_mbean_not_found(self, mbean, replacement, location):
         _method_name = '_log_mbean_not_found'
         code = ValidationCodes.INVALID
@@ -404,10 +418,10 @@ def _get_variable_file_name(variables_injector_dictionary, **kwargs):
     if VARIABLE_FILE_NAME_ARG in variables_injector_dictionary:
         variable_file_location = variables_injector_dictionary[VARIABLE_FILE_NAME_ARG]
         del variables_injector_dictionary[VARIABLE_FILE_NAME_ARG]
-        _logger.finer('WLSDPLY-19422', variable_file_location)
+        _logger.finer('WLSDPLY-19421', variable_file_location)
     elif VARIABLE_FILE_NAME_ARG in kwargs:
         variable_file_location = kwargs[VARIABLE_FILE_NAME_ARG]
-        _logger.finer('WLSDPLY-19421', variable_file_location)
+        _logger.finer('WLSDPLY-19422', variable_file_location)
     else:
         variable_file_location = None
     return variable_file_location
@@ -434,30 +448,31 @@ def _get_variable_keywords_file_name(**kwargs):
 
 
 def _load_variables_file(variable_injector_location):
-    _method_name = '_load_variables_dictionary'
+    _method_name = '_load_variables_file'
     _logger.entering(variable_injector_location, class_name=_class_name, method_name=_method_name)
     variables_dictionary = None
     if os.path.isfile(variable_injector_location):
         try:
-            variables_dictionary = FileToPython(variable_injector_location).parse()
+            variables_dictionary = JsonToPython(variable_injector_location).parse()
             _logger.fine('WLSDPLY-19400', variable_injector_location, class_name=_class_name, method_name=_method_name)
-        except IllegalArgumentException, ia:
-            _logger.warning('WLSDPLY-19402', variable_injector_location, ia.getLocalizedMessage(),
+        except (IllegalArgumentException, JsonException), e:
+            _logger.warning('WLSDPLY-19402', variable_injector_location, e.getLocalizedMessage(),
                             class_name=_class_name, method_name=_method_name)
+
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_dictionary)
     return variables_dictionary
 
 
 def _load_keywords_file(variable_keywords_location):
-    _method_name = '_load_keywords_dictionary'
+    _method_name = '_load_keywords_file'
     _logger.entering(variable_keywords_location, class_name=_class_name, method_name=_method_name)
     keywords_dictionary = None
     if os.path.isfile(variable_keywords_location):
         try:
-            keywords_dictionary = FileToPython(variable_keywords_location).parse()
+            keywords_dictionary = JsonToPython(variable_keywords_location).parse()
             _logger.finer('WLSDPLY-19404', variable_keywords_location, class_name=_class_name, method_name=_method_name)
-        except IllegalArgumentException, ia:
-            _logger.warning('WLSDPLY-19405', variable_keywords_location, ia.getLocalizedMessage(),
+        except (IllegalArgumentException, JsonException), e:
+            _logger.warning('WLSDPLY-19405', variable_keywords_location, e.getLocalizedMessage(),
                             class_name=_class_name, method_name=_method_name)
 
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=keywords_dictionary)
@@ -493,7 +508,7 @@ def _get_keyword_files_location(**kwargs):
     if VARIABLE_INJECTOR_PATH_NAME_ARG in kwargs:
         return kwargs[VARIABLE_INJECTOR_PATH_NAME_ARG]
     else:
-        return _wlsdeploy_location
+        return os.path.join(_wlsdeploy_location, DEFAULT_FILE_LOCATION, INJECTORS_LOCATION)
 
 
 def _load_injector_file(injector_file_name):
@@ -503,8 +518,8 @@ def _load_injector_file(injector_file_name):
     if os.path.isfile(injector_file_name):
         try:
             injector_dictionary = JsonToPython(injector_file_name).parse()
-        except oracle.weblogic.deploy.json, je:
-            _logger.warning('WLDPLY-19409', injector_file_name, je.getLocalizedMessage(), class_name=_class_name,
+        except (IllegalArgumentException, JsonException), e:
+            _logger.warning('WLDPLY-19409', injector_file_name, e.getLocalizedMessage(), class_name=_class_name,
                             method_name=_method_name)
     else:
         _logger.warning('WLSDPLY-19410', injector_file_name, class_name=_class_name, method_name=_method_name)
@@ -535,6 +550,14 @@ def _format_variable_value(value):
         return 'False'
     else:
         return str(value)
+
+
+def _massage_name(variable_name):
+    if variable_name:
+        variable_name = variable_name.replace('/', '.')
+        variable_name = _white_space_replacement.sub('-', variable_name)
+        variable_name = _fake_name_replacement.sub('', variable_name)
+    return variable_name
 
 
 def _replace_segment(regexp, variable_value, attribute_value):

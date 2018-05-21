@@ -6,7 +6,7 @@ import unittest
 
 import wlsdeploy.util.variables as variables
 import wlsdeploy.tool.util.variable_injector as variable_injector
-from wlsdeploy.tool.util.variable_injector import VariableFileHelper
+from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util.model_translator import FileToPython
 
 
@@ -21,7 +21,7 @@ class VariableFileHelperTest(unittest.TestCase):
     def setUp(self):
         self.name = VariableFileHelperTest
         self._model = FileToPython(self._model_file).parse()
-        self._helper = VariableFileHelper(self._model, None, '12.2.1.3')
+        self._helper = VariableInjector(self._model, None, '12.2.1.3')
 
     def testSingleVariableReplacement(self):
         replacement_dict = dict()

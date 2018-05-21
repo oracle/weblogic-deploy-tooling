@@ -55,6 +55,20 @@
         </fileSet>
 
         <fileSet>
+            <directory>src/main/lib</directory>
+            <outputDirectory>lib</outputDirectory>
+            <fileMode>0750</fileMode>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/main/samples</directory>
+            <outputDirectory>samples</outputDirectory>
+            <fileMode>0750</fileMode>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
+
+        <fileSet>
             <directory>..</directory>
             <outputDirectory>.</outputDirectory>
             <includes>

@@ -30,7 +30,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import getcreds
-from wlsdeploy.tool.util.variable_injector import VariableFileHelper
+from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
 from wlsdeploy.tool.discover.domain_info_discoverer import DomainInfoDiscoverer
@@ -370,14 +370,9 @@ def __check_and_customize_model(model, model_context):
     if filter_helper.apply_filters(model.get_model(), "discover"):
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
-    default_variable_file = __get_default_variable_file(model_context)
-    inserted, variable_model, variable_file_name = VariableFileHelper(model.get_model(), model_context, WebLogicHelper(
-        __logger).get_actual_weblogic_version()).inject_variables_keyword_file(variable_file_name=default_variable_file)
-    if default_variable_file:
-        default_variable_file = os.path.join(path_utils.get_pathname_from_path(model_context.get_archive_file_name()),
-                                             default_variable_file + '.properties')
-    inserted, variable_model, variable_file_name = VariableFileHelper(model.get_model(), model_context, WebLogicHelper(
-        __logger).get_actual_weblogic_version()).inject_variables_keyword_file(variable_file_name=default_variable_file)
+    inserted, variable_model, variable_file_name = VariableInjector(model.get_model(), model_context, WebLogicHelper(
+        __logger).get_actual_weblogic_version()).inject_variables_keyword_file(
+        variable_file_name=__get_default_variable_file(model_context))
     if inserted:
         model = Model(variable_model)
     try:
