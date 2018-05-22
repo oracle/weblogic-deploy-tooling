@@ -36,7 +36,6 @@ class LibraryHelper(object):
         :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'install_domain_libraries'
-        print('\n' + _method_name)
 
         self.logger.entering(self.domain_home, class_name=self.__class_name, method_name=_method_name)
         domain_info_dict = self.model.get_model_domain_info()
@@ -63,7 +62,6 @@ class LibraryHelper(object):
         :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'extract_classpath_libraries'
-        print('\n' + _method_name)
 
         self.logger.entering(self.domain_home, class_name=self.__class_name, method_name=_method_name)
         if self.archive_helper is None:

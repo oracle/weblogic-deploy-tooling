@@ -32,12 +32,14 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.create.domain_typedef import DomainTypedef
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.deploy.topology_updater import TopologyUpdater
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -91,10 +93,18 @@ def __process_args(args):
     __wlst_mode = __process_online_args(optional_arg_map)
     __process_encryption_args(optional_arg_map)
 
+    domain_type = dictionary_utils.get_element(optional_arg_map, CommandLineArgUtil.DOMAIN_TYPE_SWITCH)
+    if domain_type is None:
+        domain_type = 'WLS'
+    domain_typedef = DomainTypedef(_program_name, domain_type)
+    optional_arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF] = domain_typedef
+
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
 
-    return ModelContext(_program_name, combined_arg_map)
+    model_context = ModelContext(_program_name, combined_arg_map)
+    domain_typedef.set_model_context(model_context)
+    return model_context
 
 
 def __verify_required_args_present(required_arg_map):

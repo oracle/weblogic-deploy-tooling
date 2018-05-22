@@ -17,6 +17,7 @@ from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCrea
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.tool.util.library_helper import LibraryHelper
+from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 
@@ -32,11 +33,16 @@ class TopologyUpdater(Deployer):
         self._topology = self.model.get_model_topology()
         self._resources = self.model.get_model_resources()
         self._topology_helper = TopologyHelper(self.aliases, ExceptionType.DEPLOY, self.logger)
+        self._domain_typedef = self.model_context.get_domain_typedef()
+
         self._security_provider_creator = SecurityProviderCreator(model.get_model(), model_context, aliases,
                                                                   ExceptionType.DEPLOY, self.logger)
 
         self.library_helper = LibraryHelper(self.model, self.model_context, self.aliases,
                                             model_context.get_domain_home(), ExceptionType.DEPLOY, self.logger)
+
+        self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, ExceptionType.DEPLOY,
+                                          self.logger)
 
     # Override
     def _add_named_elements(self, type_name, model_nodes, location):
@@ -86,7 +92,8 @@ class TopologyUpdater(Deployer):
         for folder_name in remaining:
             self._process_section(self._topology, folder_list, folder_name, location)
 
-        # TODO: update targeting
+        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+        self.target_helper.target_server_groups_to_servers(server_groups_to_target)
 
         # files referenced in attributes are extracted as attributes are processed
 
