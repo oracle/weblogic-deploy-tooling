@@ -2,5 +2,6 @@
   "CREDENTIALS": "credentials.json",
   "PORT": "port.json",
   "HOST": "host.json",
-  "URL": "url.json"
+  "URL": "url.json",
+  "TOPOLOGY": "topology.json"
 }

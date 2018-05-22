@@ -533,6 +533,7 @@ def _load_injector_file(injector_file_name):
     if os.path.isfile(injector_file_name):
         try:
             injector_dictionary = JsonToPython(injector_file_name).parse()
+            __temporary_fix(injector_dictionary)
         except (IllegalArgumentException, JsonException), e:
             _logger.warning('WLDPLY-19409', injector_file_name, e.getLocalizedMessage(), class_name=_class_name,
                             method_name=_method_name)
@@ -625,3 +626,21 @@ def _find_special_name(mbean):
         mbean_name = name_list[0]
         mbean_name_list = name_list[1].split(',')
     return mbean_name, mbean_name_list
+
+
+def __temporary_fix(injector_dictionary):
+    #this is very dangerous - for now, if you want to escape a backslash, need to do 4 backslash.
+    _method_name = '__temporary_fix'
+    for value in injector_dictionary.itervalues():
+        if REGEXP in value:
+            for dict_entry in value[REGEXP]:
+                if REGEXP_PATTERN in dict_entry:
+                    pattern = dict_entry[REGEXP_PATTERN]
+                    listsplit = re.split('\\\\(?!\\\\)', pattern)
+                    if listsplit:
+                        newpattern = ''
+                        for split in listsplit:
+                            newpattern += split[:len(split)]
+                        dict_entry[REGEXP_PATTERN] = newpattern
+                _logger.fine('Pattern after temporary fix {0}', dict_entry[REGEXP_PATTERN])
+

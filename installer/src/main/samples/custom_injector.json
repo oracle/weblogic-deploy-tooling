@@ -1,13 +1,28 @@
+//{
+//  "JDBCSystemResource.JdbcResource.JDBCDriverParams.URL":
+//  {
+//    "regexp": [
+//      {
+//        "pattern": "(?<=PORT=)[\w.-]+(?=\))",
+//        "suffix": "Port"
+//      },
+//      {
+//        "pattern": "(?<=HOST=)[\w.-]+(?=\))",
+//        "suffix": "Host"
+//      }
+//    ]
+//  }
+//}
 {
   "JDBCSystemResource.JdbcResource.JDBCDriverParams.URL":
   {
     "regexp": [
       {
-        "pattern": "(?<=PORT=)[\\\w.-]+(?=\\\))",
+        "pattern": "(?<=PORT=)[\\w.-]+(?=\\))",
         "suffix": "Port"
       },
       {
-        "pattern": "(?<=HOST=)[\\\w.-]+(?=\\\))",
+        "pattern": "(?<=HOST=)[\\w.-]+(?=\\))",
         "suffix": "Host"
       }
     ]

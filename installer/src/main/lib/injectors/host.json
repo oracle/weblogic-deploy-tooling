@@ -9,6 +9,13 @@
   "CoherenceClusterSystemResource.CoherenceResource.CoherenceClusterParams.UnicastListenAddress": {},
   "CoherenceClusterSystemResource.CoherenceResource.CoherenceFederationParams.RemoteParticipantHost": {},
   "CoherenceClusterSystemResource.FederationRemoteParticipantHost": {},
+  "JDBCSystemResource.JdbcResource.JDBCOracleParams.OnsNodeList": {
+    "regexp": [
+      {
+        "pattern": "[\w\\\\]"
+      }
+    ]
+  },
   "JMSSystemResource.JmsResource.Template.Multicast.MulticastAddress": {},
   "JMSSystemResource.JmsResource.Topic.Multicast.MulticastAddress": {},
   "JMSSystemResource.JmsResource.UniformDistributedTopic.Multicast.MulticastAddress": {},
