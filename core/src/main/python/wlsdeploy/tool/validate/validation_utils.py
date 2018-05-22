@@ -5,108 +5,14 @@ The Universal Permissive License (UPL), Version 1.0
 import re
 import types
 
-from java.io import IOException
-from java.io import FileInputStream
-from java.lang import IllegalArgumentException
-from java.util import Properties
-
 from oracle.weblogic.deploy.exception import ExceptionHelper
-from oracle.weblogic.deploy.validate import ValidateException
-
-from wlsdeploy.exception import exception_helper
 
 divider_string = '-----------------------------------------------'
 
 _class_name = "validation_utils"
 _variable_pattern = re.compile('\$\{[\w.-]+\}')
+_property_pattern = re.compile('@@PROP:[\w.-]+@@')
 _path_token_pattern = re.compile('@@[\w._]+@@')
-
-
-def load_model_variables_file_properties(variable_properties_file, logger):
-    """
-
-    :param variable_properties_file:
-    :param logger:
-    :return:
-    """
-    _method_name = 'load_model_variables_file_properties'
-
-    variable_properties = Properties()
-
-    try:
-        prop_inputstream = FileInputStream(variable_properties_file)
-        variable_properties.load(prop_inputstream)
-        prop_inputstream.close()
-        variable_properties = __expand_model_variable_properties(variable_properties,
-                                                                 variable_properties_file,
-                                                                 logger)
-    except (IOException, IllegalArgumentException), e:
-        ex = exception_helper.create_validate_exception('WLSDPLY-01730', variable_properties_file,
-                                                        e.getLocalizedMessage(), error=e)
-        logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
-    except ValidateException:
-        # This ValidationException is thrown by __expand_model_variable_properties(). Later,
-        # there will be code that handles these in a "context-driven" way, but for now just
-        # catch and ignore them. This is okay because the calling code performs substitution
-        # variable validation, which will create validation ERROR messages for the situation
-        # that caused the exception.
-        pass
-
-    return variable_properties
-
-
-def __expand_model_variable_properties(loaded_properties, variable_properties_file, logger):
-    """
-
-    :param loaded_properties:
-    :param variable_properties_file:
-    :param logger:
-    :return:
-    """
-
-    _method_name = '__expand_model_variable_properties'
-
-    expanded_properties = Properties()
-    property_names = loaded_properties.stringPropertyNames()
-
-    # Loop through all the properties looking for variable expressions
-    for property_name in property_names:
-        property_value = loaded_properties.get(property_name)
-        if '${' in property_value and '}' in property_value:
-            # property_value contains a variable expression, so extract
-            # the tokens
-            tokens = extract_substitution_tokens(property_value)
-            logger.finer('tokens={0}', str(tokens),
-                         class_name=_class_name, method_name=_method_name)
-            # Loop through all the tokens
-            for token in tokens:
-                variable_name = token[2:len(token)-1]
-                # Attempt to get valiable value from properties
-                variable_value = loaded_properties.get(variable_name)
-                logger.finer('variable_name={0}, variable_value={1}',
-                             variable_name, variable_value,
-                             class_name=_class_name, method_name=_method_name)
-
-                if variable_value is not None:
-                    # Found variable_name in the properties, so add variable_name
-                    # and variable_value to expanded_properties
-                    property_value = property_value.replace(token, variable_value)
-                    expanded_properties.setProperty(property_name, property_value)
-                else:
-                    # variable_name wasn't in properties, so throw an exception
-                    ex = exception_helper.create_validate_exception('WLSDPLY-05300',
-                                                                    variable_name,
-                                                                    variable_properties_file)
-                    logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                    raise ex
-
-        else:
-            # property_value didn't contain a variable expression, so just
-            # add variable_name and variable value to expanded_properties
-            expanded_properties.setProperty(property_name, property_value)
-
-    return expanded_properties
 
 
 def extract_path_tokens(tokenized_value):
@@ -201,7 +107,7 @@ def extract_substitution_tokens(tokenized_value):
     :param tokenized_value:
     :return:
     """
-    tokens = re.findall(_variable_pattern, str(tokenized_value))
+    tokens = re.findall(_property_pattern, str(tokenized_value))
     if tokens is None:
         # tokenized_value didn't contain any variable expressions, so
         # return an empty list

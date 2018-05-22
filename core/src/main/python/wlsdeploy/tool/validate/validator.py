@@ -4,9 +4,8 @@ The Universal Permissive License (UPL), Version 1.0
 """
 import os
 
-from java.util import Properties
-
 from oracle.weblogic.deploy.util import WLSDeployArchive
+from oracle.weblogic.deploy.util import VariableException
 
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
@@ -14,6 +13,7 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
@@ -22,6 +22,7 @@ from wlsdeploy.tool.validate.validation_results import ValidationResults, Valida
 from wlsdeploy.tool.validate.usage_printer import UsagePrinter
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
+from wlsdeploy.util import variables
 from wlsdeploy.util.enum import Enum
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -60,13 +61,14 @@ class Validator(object):
 
         self._validation_mode = None
         self._validation_results = ValidationResults()
-        self._variable_properties = Properties()
+        self._variable_properties = {}
+        self._wls_helper = WebLogicHelper(self._logger)
 
         if wlst_mode is not None:
             # In TOOL validate mode, the WLST mode is specified by the calling tool and the
             # WebLogic version is always the current version used to run WLST.
             self._wlst_mode = wlst_mode
-            self._wls_version = WebLogicHelper(self._logger).get_actual_weblogic_version()
+            self._wls_version = self._wls_helper.get_actual_weblogic_version()
         else:
             # In STANDALONE mode, the user can specify the target WLST mode and the target
             # WLS version using command-line args so get the value from the model_context.
@@ -121,8 +123,8 @@ class Validator(object):
 
         Possible return codes are:
 
-            PROCEED     No error or warning messages, but possibly info messages.
-            STOP        One or more error or warning messages.
+            PROCEED     No error messages, put possibly warning or info messages.
+            STOP        One or more error messages.
 
         :param model_dict: A Python dictionary of the model to be validated
         :param variables_file_name: Path to file containing variable substitution data used with model file.
@@ -151,7 +153,8 @@ class Validator(object):
 
         self._validation_results.log_results(self._logger)
 
-        if status == Validator.ValidationStatus.VALID or status == Validator.ValidationStatus.INFOS_VALID:
+        if status == Validator.ValidationStatus.VALID or status == Validator.ValidationStatus.INFOS_VALID \
+                or status == Validator.ValidationStatus.WARNINGS_INVALID:
             return_code = Validator.ReturnCode.PROCEED
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name, result=return_code)
@@ -208,8 +211,15 @@ class Validator(object):
 
         if variables_file_name is not None:
             self._logger.info('WLSDPLY-05004', variables_file_name, class_name=_class_name, method_name=_method_name)
-            self._variable_properties = \
-                validation_utils.load_model_variables_file_properties(variables_file_name, self._logger)
+            try:
+                if self._model_context.get_variable_file():
+                    self._variable_properties = variables.load_variables(self._model_context.get_variable_file())
+                variables.substitute(model_dict, self._variable_properties)
+            except VariableException, ve:
+                ex = exception_helper.create_validate_exception('WLSDPLY-20004', 'validateModel',
+                                                                ve.getLocalizedMessage(), error=ve)
+                self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
 
         if archive_file_name is not None:
             self._logger.info('WLSDPLY-05005', archive_file_name, class_name=_class_name, method_name=_method_name)
@@ -468,10 +478,7 @@ class Validator(object):
                                                                                     section_dict_key)
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID folder
-                        if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning('WLSDPLY-05027', message)
-                        else:
-                            validation_result.add_error('WLSDPLY-05027', message)
+                        validation_result.add_warning('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
                         validation_result.add_error('WLSDPLY-05026', section_dict_key, 'folder',
                                                     model_folder_path, '%s' % ', '.join(valid_section_folders))
@@ -479,10 +486,7 @@ class Validator(object):
                     result, message = self._alias_helper.is_valid_model_attribute_name(validation_location,
                                                                                        section_dict_key)
                     if result == ValidationCodes.VERSION_INVALID:
-                        if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning('WLSDPLY-05027', message)
-                        else:
-                            validation_result.add_error('WLSDPLY-05027', message)
+                        validation_result.add_warning('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
                         validation_result.add_error('WLSDPLY-05029', section_dict_key,
                                                     model_folder_path, '%s' % ', '.join(valid_attr_infos))
@@ -491,6 +495,14 @@ class Validator(object):
 
     def __validate_section_folder(self, model_node, validation_location, validation_result):
         _method_name = '__validate_section_folder'
+
+        result, message = self._alias_helper.is_version_valid_location(validation_location)
+        if result == ValidationCodes.VERSION_INVALID:
+            validation_result.add_warning('WLSDPLY-05027', message)
+            return validation_result
+        elif result == ValidationCodes.INVALID:
+            validation_result.add_error('WLSDPLY-05027', message)
+            return validation_result
 
         model_folder_path = self._alias_helper.get_model_folder_path(validation_location)
         self._logger.finest('1 model_folder_path={0}', model_folder_path,
@@ -595,7 +607,8 @@ class Validator(object):
         self._logger.finest('5 aliases.get_model_attribute_names_and_types(validation_location) returned: {0}',
                             str(valid_attr_infos),
                             class_name=_class_name, method_name=_method_name)
-        self._logger.finest('5 model_folder_path={0}', model_folder_path, class_name=_class_name, method_name=_method_name)
+        self._logger.finest('5 model_folder_path={0}', model_folder_path, class_name=_class_name,
+                            method_name=_method_name)
 
         for key, value in model_node.iteritems():
             if '${' in key:
@@ -617,7 +630,8 @@ class Validator(object):
                                         class_name=_class_name, method_name=_method_name)
                     valid_attr_infos = self._alias_helper.get_model_attribute_names_and_types(new_location)
 
-                    validation_result = self.__validate_attributes(value, valid_attr_infos, new_location, validation_result)
+                    validation_result = self.__validate_attributes(value, valid_attr_infos,
+                                                                   new_location, validation_result)
                 else:
                     self.__validate_section_folder(value, new_location, validation_result)
 
@@ -659,10 +673,7 @@ class Validator(object):
                     result, message = self._alias_helper.is_valid_model_folder_name(validation_location, key)
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID folder
-                        if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning('WLSDPLY-05027', message)
-                        else:
-                            validation_result.add_error('WLSDPLY-05027', message)
+                        validation_result.add_warning('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID folder
                         validation_result.add_error('WLSDPLY-05026', key, 'folder',
@@ -676,10 +687,7 @@ class Validator(object):
                     result, message = self._alias_helper.is_valid_model_attribute_name(validation_location, key)
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID attribute
-                        if self._validation_mode == _ValidationModes.STANDALONE:
-                            validation_result.add_warning('WLSDPLY-05027', message)
-                        else:
-                            validation_result.add_error('WLSDPLY-05027', message)
+                        validation_result.add_warning('WLSDPLY-05027', message)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID attribute
                         validation_result.add_error('WLSDPLY-05029', key,
@@ -749,10 +757,7 @@ class Validator(object):
         else:
             result, message = self._alias_helper.is_valid_model_attribute_name(validation_location, attribute_name)
             if result == ValidationCodes.VERSION_INVALID:
-                if self._validation_mode == _ValidationModes.STANDALONE:
-                    validation_result.add_warning('WLSDPLY-05027', message)
-                else:
-                    validation_result.add_error('WLSDPLY-05027', message)
+                validation_result.add_warning('WLSDPLY-05027', message)
             elif result == ValidationCodes.INVALID:
                 validation_result.add_error('WLSDPLY-05029', attribute_name,
                                             model_folder_path, '%s' % ', '.join(valid_attr_infos))
@@ -825,7 +830,9 @@ class Validator(object):
             tokens = validation_utils.extract_substitution_tokens(tokenized_value)
             for token in tokens:
                 property_name = token[2:len(token)-1]
-                property_value = self._variable_properties.get(property_name)
+                property_value = None
+                if property_name in self._variable_properties:
+                    property_value = self._variable_properties[property_name]
                 if property_value is not None:
                     untokenized_value = untokenized_value.replace(token, property_value)
                 else:
@@ -918,7 +925,9 @@ class Validator(object):
 
         if attribute_value is not None:
             if not isinstance(attribute_value, dict):
-                validation_result.add_error('WLSDPLY-05032', attribute_name, model_folder_path, str(type(attribute_value)))
+                validation_result.add_error('WLSDPLY-05032',
+                                            attribute_name, model_folder_path,
+                                            str(type(attribute_value)))
             else:
                 model_folder_path += '/' + attribute_name
                 for key, value in attribute_value.iteritems():
@@ -937,7 +946,8 @@ class Validator(object):
                     if type(value) is list:
                         for element in value:
                             validation_result = \
-                                _validate_single_server_group_target_limits_value(key, element.strip(), model_folder_path,
+                                _validate_single_server_group_target_limits_value(key, element.strip(),
+                                                                                  model_folder_path,
                                                                                   validation_result)
                     elif type(value) is str:
                         validation_result = \
