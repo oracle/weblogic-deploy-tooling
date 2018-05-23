@@ -46,6 +46,7 @@ from wlsdeploy.aliases.alias_constants import WLST_NAME
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 
+
 class Aliases(object):
     """
     The public interface into the aliases subsystem that abstracts out the WLST knowledge base from the
@@ -526,6 +527,22 @@ class Aliases(object):
 
         return model_subfolder_name
 
+    def is_version_valid_location(self, location):
+        """
+        Verify that the specified location is valid for the WLS version
+        being used.
+
+        Caller needs to determine what action (e.g. log, raise exception,
+        continue processing, record validation item, etc.) to take, when
+        return code is VERSION_INVALID.
+
+        :param location: the location to be checked
+        :return: A ValidationCodes Enum value of either VERSION_INVALID or VALID
+        :return: A message saying which WLS version location is valid in, if
+                return code is VERSION_INVALID
+        """
+        return self._alias_entries.is_version_valid_location(location)
+
     def is_valid_model_folder_name(self, location, model_folder_name):
         """
         Return whether or not location's model folders list has a subfolder
@@ -804,8 +821,8 @@ class Aliases(object):
             # The logic below to compare the str() representation of the converted value and the default value
             # only works for lists/maps if both the converted value and the default value are the same data type...
             #
-            if (data_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES) and not \
-                (default_value == '[]' or default_value == 'None'):
+            if (data_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES) \
+                    and not (default_value == '[]' or default_value == 'None'):
                 default_value = alias_utils.convert_to_type(data_type, default_value, delimiter=delimiter)
 
             if data_type == 'password':
