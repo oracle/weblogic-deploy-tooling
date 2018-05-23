@@ -10,13 +10,15 @@ from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.model_context import ModelContext
 
+import validate
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.aliases import alias_constants
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 import oracle.weblogic.deploy.util.TranslateException as TranslateException
-
+from oracle.weblogic.deploy.validate import ValidateException
 
 class ValidationTestCase(unittest.TestCase):
     _program_name = 'validation_test'
@@ -64,6 +66,121 @@ class ValidationTestCase(unittest.TestCase):
                                 class_name=self._class_name, method_name=_method_name)
 
         self.assertNotEqual(return_code, Validator.ReturnCode.STOP)
+
+    def testPrintUsageFoldersOnly(self):
+        _method_name = 'testPrintUsageFoldersOnly'
+
+        _FOLDERS_ONLY = '-folders_only'
+
+        args = {
+            '-oracle_home': os.environ['MW_HOME']
+        }
+
+        model_paths = [
+            'topology:/Server'
+        ]
+
+        try:
+            # Loop through valid list of model sections
+            for model_path in model_paths:
+                # Set print usage context
+                args['-print_usage'] = '%s %s' % (model_path, _FOLDERS_ONLY)
+                self._logger.info('args={0}', str(args), class_name=self._class_name, method_name=_method_name)
+                model_context = ModelContext(self._program_name, args)
+                model_validator = Validator(model_context, wlst_mode=WlstModes.ONLINE)
+                model_validator.print_usage(model_path)
+                self.assertEquals(True, True)
+        except ValidateException, ve:
+            self.fail(ve.getLocalizedMessage())
+
+        return
+
+    def testPrintUsageAttributesOnly(self):
+        _method_name = 'testPrintUsageAttributesOnly'
+
+        _ATTRIBUTES_ONLY = '-attributes_only'
+
+        args = {
+            '-oracle_home': os.environ['MW_HOME']
+        }
+
+        model_paths = [
+            'domainInfo'
+        ]
+
+        try:
+            # Loop through valid list of model sections
+            for model_path in model_paths:
+                # Set print usage context
+                args['-print_usage'] = '%s %s' % (model_path, _ATTRIBUTES_ONLY)
+                self._logger.info('args={0}', str(args), class_name=self._class_name, method_name=_method_name)
+                model_context = ModelContext(self._program_name, args)
+                model_validator = Validator(model_context, wlst_mode=WlstModes.ONLINE)
+                model_validator.print_usage(model_path)
+                self.assertEquals(True, True)
+        except ValidateException, ve:
+            self.fail(ve.getLocalizedMessage())
+
+        return
+
+    def testPrintUsageRecursive(self):
+        _method_name = 'testPrintUsageRecursive'
+
+        _RECURSIVE = '-recursive'
+
+        args = {
+            '-oracle_home': os.environ['MW_HOME']
+        }
+
+        model_paths = [
+            'appDeployments:/Application'
+        ]
+
+        try:
+            # Loop through valid list of model sections
+            for model_path in model_paths:
+                # Set print usage context
+                args['-print_usage'] = '%s %s' % (model_path, _RECURSIVE)
+                self._logger.info('args={0}', str(args), class_name=self._class_name, method_name=_method_name)
+                model_context = ModelContext(self._program_name, args)
+                model_validator = Validator(model_context, wlst_mode=WlstModes.ONLINE)
+                model_validator.print_usage(model_path)
+                self.assertEquals(True, True)
+        except ValidateException, ve:
+            self.fail(ve.getLocalizedMessage())
+
+        return
+
+    def testPrintUsageCLAEnforcement(self):
+        _method_name = 'testPrintUsageCLAEnforcement'
+
+        _FOLDERS_ONLY = '-folders_only'
+        _RECURSIVE = '-recursive'
+
+        args = list()
+        args.append(self._program_name)
+        args.append('-oracle_home')
+        args.append(os.environ['MW_HOME'])
+        args.append('-print_usage')
+        args.append('topology:/Server')
+        args.append(_FOLDERS_ONLY)
+        args.append('')
+        args.append(_RECURSIVE)
+
+        self._logger.info('args={0}', str(args), class_name=self._class_name, method_name=_method_name)
+
+        try:
+            # Should raise an exception because control options
+            # are mutually exclusive, and we passed _FOLDERS_ONLY
+            # and _RECURSIVE
+            validate.main(args)
+        except ValidateException, ve:
+            self.fail(ve.getLocalizedMessage())
+        except SystemExit, se:
+            exit_code = str(se)
+            self.assertEqual(exit_code, str(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE))
+
+        return
 
     def testIsCompatibleDataType(self):
         _method_name = 'testIsCompatibleDataType'
