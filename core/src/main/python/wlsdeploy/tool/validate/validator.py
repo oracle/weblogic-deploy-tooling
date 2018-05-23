@@ -212,8 +212,7 @@ class Validator(object):
         if variables_file_name is not None:
             self._logger.info('WLSDPLY-05004', variables_file_name, class_name=_class_name, method_name=_method_name)
             try:
-                if self._model_context.get_variable_file():
-                    self._variable_properties = variables.load_variables(self._model_context.get_variable_file())
+                self._variable_properties = variables.load_variables(variables_file_name)
                 variables.substitute(model_dict, self._variable_properties)
             except VariableException, ve:
                 ex = exception_helper.create_validate_exception('WLSDPLY-20004', 'validateModel',
