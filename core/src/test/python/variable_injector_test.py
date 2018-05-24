@@ -2,6 +2,7 @@
 Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+import os
 import unittest
 
 import wlsdeploy.util.variables as variables
@@ -12,7 +13,7 @@ from wlsdeploy.util.model_translator import FileToPython
 
 class VariableFileHelperTest(unittest.TestCase):
     _resources_dir = '../../test-classes'
-    _variable_file = _resources_dir + '/variables.properties'
+    _variable_file = _resources_dir + '/variable.injector.test.properties'
     _model_file = _resources_dir + '/variable_insertion.yaml'
     _variable_injector_keyword = 'variable_injector_keyword.json'
     _variable_injector_custom = 'variable_injector_custom.json'
@@ -21,7 +22,7 @@ class VariableFileHelperTest(unittest.TestCase):
     def setUp(self):
         self.name = VariableFileHelperTest
         self._model = FileToPython(self._model_file).parse()
-        self._helper = VariableInjector(self._model, None, '12.2.1.3')
+        self._helper = VariableInjector(self.name, self._model, None, '12.2.1.3')
 
     def testSingleVariableReplacement(self):
         replacement_dict = dict()
@@ -223,9 +224,10 @@ class VariableFileHelperTest(unittest.TestCase):
             variable_injector_path_name=self._resources_dir,
             variable_injector_file_name=self._variable_injector_keyword,
             variable_keywords_path_name=self._resources_dir, variable_keywords_file_name=self._keywords_file)
-        self.assertEqual(True, inserted)
         self.assertEqual(self._variable_file, variable_file_name)
+        self.assertEqual(True, inserted)
         actual = variables.load_variables(self._variable_file)
+        print actual
         self._compare_to_expected_dictionary(expected, actual)
 
     def _compare_to_expected_dictionary(self, expected, actual):

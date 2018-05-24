@@ -177,8 +177,8 @@ def __inject(model, model_context):
     :param model_context: the model context
     :return: True if variables were inserted into model: The updated model
     """
-    __kwargs[variable_injector.VARIABLE_FILE_APPEND_ARG] = True
-    inserted, variable_model, variable_file_name = VariableInjector(model, model_context,
+    __kwargs[variable_injector.VARIABLE_FILE_APPEND_ARG] = variable_injector.VARIABLE_FILE_UPDATE
+    inserted, variable_model, variable_file_name = VariableInjector(_program_name, model, model_context,
                                                                     WebLogicHelper(
                                                                         __logger).get_actual_weblogic_version()). \
         inject_variables_keyword_file(**__kwargs)

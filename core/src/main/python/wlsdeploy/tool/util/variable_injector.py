@@ -10,7 +10,6 @@ import java.lang.IllegalArgumentException as IllegalArgumentException
 
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
 import oracle.weblogic.deploy.json.JsonException as JsonException
-import oracle.weblogic.deploy.util.PyOrderedDict as PyOrderedDict
 import oracle.weblogic.deploy.util.VariableException as VariableException
 
 import wlsdeploy.util.model as model_sections
@@ -33,6 +32,9 @@ VARIABLE_INJECTOR_FILES_PATH_ARG = 'variable_injector_files_path_name'
 VARIABLE_FILE_NAME_ARG = 'variable_file_name'
 VARIABLE_FILE_NAME = 'variables.json'
 VARIABLE_FILE_APPEND_ARG = 'append_to_variables'
+VARIABLE_FILE_APPEND = 'append'
+VARIABLE_FILE_UPDATE = 'update'
+VARIABLE_FILE_APPEND_VALS = [VARIABLE_FILE_APPEND, VARIABLE_FILE_UPDATE]
 # custom keyword in model injector file
 CUSTOM_KEYWORD = 'CUSTOM'
 KEYWORD_FILES = 'file-list'
@@ -59,7 +61,15 @@ _logger = PlatformLogger('wlsdeploy.tool.util')
 
 class VariableInjector(object):
 
-    def __init__(self, model, model_context=None, version=None):
+    def __init__(self, program_name, model, model_context=None, version=None):
+        """
+        Construct an instance of the injector with the model and information used by the injector.
+        :param program_name: name of the calling tool
+        :param model: to be updated with variables
+        :param model_context: context with command line information
+        :param version: of model if model context is not provided
+        """
+        self.__program_name = program_name
         self.__original = copy.deepcopy(model)
         self.__model = model
         self.__model_context = model_context
@@ -86,7 +96,7 @@ class VariableInjector(object):
         _logger.entering(class_name=_class_name, method_name=_method_name)
 
         variable_injector_location_file = _get_variable_injector_file_name(**kwargs)
-        variables_injector_dictionary = _load_variables_file(variable_injector_location_file)
+        variables_injector_dictionary = _load_variable_injector_file(variable_injector_location_file)
         variable_keywords_location_file = _get_variable_keywords_file_name(**kwargs)
         keywords_dictionary = _load_keywords_file(variable_keywords_location_file)
 
@@ -101,12 +111,14 @@ class VariableInjector(object):
             else:
                 _logger.info('WLSDPLY-19533', variable_injector_location_file, class_name=_class_name,
                              method_name=_method_name)
-                variable_file_location = self._replace_tokens(variable_file_location)
+                append, stage_dictionary = _load_variable_file(variable_file_location, **kwargs)
                 injector_file_list = _create_injector_file_list(variables_injector_dictionary, keywords_dictionary,
                                                                 _get_keyword_files_location(**kwargs))
                 variables_file_dictionary = self.inject_variables_keyword_dictionary(injector_file_list)
-                variables_inserted = _write_variables_file(variables_file_dictionary, variable_file_location,
-                                                           _get_append_to_variable_file(**kwargs))
+                if variables_file_dictionary:
+                    stage_dictionary.update(variables_file_dictionary)
+                    variables_inserted = self._write_variables_file(stage_dictionary, variable_file_location,
+                                                                    append)
                 if variables_inserted:
                     _logger.info('WLSDPLY-19518', variable_file_location, class_name=_class_name,
                                  method_name=_method_name)
@@ -124,20 +136,20 @@ class VariableInjector(object):
     def inject_variables_keyword_dictionary(self, injector_file_list):
         """
         Takes a variable keyword dictionary and returns a variables for file in a dictionary
-        :param injector_file_list:
-        :return:
+        :param injector_file_list: list of injector files for processing variable injection
+        :return: variables_dictionary containing the variable properties to persist to the variable file
         """
         _method_name = 'inject_variables_keyword_dictionary'
         _logger.entering(injector_file_list, class_name=_class_name, method_name=_method_name)
-        variables_dictionary = PyOrderedDict()
+        variable_dictionary = dict()
         for filename in injector_file_list:
             injector_dictionary = _load_injector_file(self._replace_tokens(filename))
             entries = self.inject_variables(injector_dictionary)
             if entries:
                 _logger.finer('WLSDPLY-19513', filename, class_name=_class_name, method_name=_method_name)
-                variables_dictionary.update(entries)
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_dictionary)
-        return variables_dictionary
+                variable_dictionary.update(entries)
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_dictionary)
+        return variable_dictionary
 
     def inject_variables(self, injector_dictionary):
         """
@@ -422,7 +434,7 @@ class VariableInjector(object):
         code = ValidationCodes.INVALID
         try:
             code, __ = self.__aliases.is_valid_model_folder_name(location, mbean)
-        except AliasException, ae:
+        except AliasException:
             pass
         if code == ValidationCodes.INVALID:
             _logger.warning('WLSDPLY-19515', mbean, replacement, location.get_folder_path(),
@@ -444,7 +456,45 @@ class VariableInjector(object):
             _logger.finer('WLSDPLY-19521', variable_file_location, class_name=_class_name, method_name=_method_name)
         else:
             variable_file_location = variables.get_default_variable_file_name(self.__model_context)
+        if variable_file_location:
+            variable_file_location = self._replace_tokens(variable_file_location)
         return variable_file_location
+
+    def _write_variables_file(self, variables_dictionary, variables_file_name, append):
+        _method_name = '_write_variables_file'
+        _logger.entering(variables_dictionary, variables_file_name, class_name=_class_name, method_name=_method_name)
+
+        written = False
+        if variables_dictionary:
+            try:
+                variables.write_variables(self.__program_name, variables_dictionary, variables_file_name, append)
+                written = True
+            except VariableException, ve:
+                _logger.warning('WLSDPLY-19507', variables_file_name, ve.getLocalizedMessage(), class_name=_class_name,
+                                method_name=_method_name)
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=written)
+        return written
+
+
+def _load_variable_file(variable_file_location, **kwargs):
+    _method_name = '_load_variable_file'
+    append = False
+    variable_dictionary = dict()
+    if VARIABLE_FILE_APPEND_ARG in kwargs and kwargs[VARIABLE_FILE_APPEND_ARG] in VARIABLE_FILE_APPEND_VALS:
+        _logger.fine('append argument found {0}', kwargs[VARIABLE_FILE_APPEND_ARG] )
+        if kwargs[VARIABLE_FILE_APPEND_ARG] == VARIABLE_FILE_APPEND:
+            _logger.fine('WLSDPLY-19536', variable_file_location, class_name=_class_name, method_name=_method_name)
+            append = True
+        elif kwargs[VARIABLE_FILE_APPEND_ARG] == VARIABLE_FILE_UPDATE and os.path.isfile(variable_file_location):
+            _logger.fine('WLSDPLY-19534', variable_file_location, class_name=_class_name, method_name=_method_name)
+            try:
+                variable_dictionary = variables.load_variables(variable_file_location)
+            except VariableException, ve:
+                _logger.warning('WLSDPLY-19537', variable_file_location, ve.getLocalizedMessage(),
+                                class_name=_class_name, method_name=_method_name)
+        else:
+            _logger.fine('WLSDPLY-19535', variable_file_location, class_name=_class_name, method_name=_method_name)
+    return append, variable_dictionary
 
 
 def _get_variable_injector_file_name(**kwargs):
@@ -467,7 +517,7 @@ def _get_variable_keywords_file_name(**kwargs):
         return os.path.join(_wlsdeploy_location, DEFAULT_FILE_LOCATION, variable_keywords_file_name)
 
 
-def _load_variables_file(variable_injector_location):
+def _load_variable_injector_file(variable_injector_location):
     _method_name = '_load_variables_file'
     _logger.entering(variable_injector_location, class_name=_class_name, method_name=_method_name)
     variables_dictionary = None
@@ -555,20 +605,6 @@ def _get_append_to_variable_file(**kwargs):
     return False
 
 
-def _write_variables_file(variables_dictionary, variables_file_name, append):
-    _method_name = '_write_variables_file'
-    _logger.entering(variables_dictionary, variables_file_name, class_name=_class_name, method_name=_method_name)
-
-    written = False
-    if variables_dictionary:
-        try:
-            variables.write_variables(variables_dictionary, variables_file_name, append)
-            written = True
-        except VariableException, ve:
-            _logger.warning('WLSDPLY-19507', variables_file_name, ve.getLocalizedMessage(), class_name=_class_name,
-                            method_name=_method_name)
-    _logger.exiting(class_name=_class_name, method_name=_method_name, result=written)
-    return written
 
 
 def _format_variable_value(value):

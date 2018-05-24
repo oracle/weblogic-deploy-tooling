@@ -58,22 +58,23 @@ def load_variables(file_path):
     return variable_map
 
 
-def write_variables(variable_map, file_path, append=False):
+def write_variables(program_name, variable_map, file_path, append=False):
     """
     Write the dictionary of variables to the specified file.
+    :param program_name: name of tool that invoked the method which will be written to the variable properties file
     :param variable_map: the dictionary of variables
     :param file_path: the file to which to write the properties
     :param append: defaults to False. Append properties to the end of file
     :raises VariableException if an error occurs while storing the variables in the file
     """
     _method_name = 'write_variables'
-    _logger.entering(file_path, append, class_name=_class_name, method_name=_method_name)
+    _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
     props = Properties()
     for key in variable_map:
         value = variable_map[key]
         props.setProperty(key, value)
 
-    comment = exception_helper.get_message('WLSDPLY-01731')
+    comment = exception_helper.get_message('WLSDPLY-01731', program_name)
     output_stream = None
     try:
         output_stream = FileOutputStream(File(file_path), Boolean(append))
