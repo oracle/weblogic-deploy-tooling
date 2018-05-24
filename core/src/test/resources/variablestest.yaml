@@ -1,0 +1,482 @@
+topology:
+    AdminServerName: AdminServer
+    ConfigurationVersion: 12.2.1.3.0
+    DomainVersion: 12.2.1.3.0
+    Name: JmsMailDomain
+    ProductionModeEnabled: true
+    NMProperties:
+        DomainsFile: 'C:\Users\crountre\workspace\redo\jcs-las\system-test\tests\jmsMailTest\target\domains\test1-source\JmsMailDomain\nodemanager\nodemanager.domains'
+        JavaHome: 'C:/jdk1.8.0_151'
+        ListenAddress: 127.0.0.1
+        LogFile: 'C:\Users\crountre\workspace\redo\jcs-las\system-test\tests\jmsMailTest\target\domains\test1-source\JmsMailDomain\nodemanager\nodemanager.log'
+        NodeManagerHome: 'C:\Users\crountre\workspace\redo\jcs-las\system-test\tests\jmsMailTest\target\domains\test1-source\JmsMailDomain\nodemanager'
+    Cluster:
+        mycluster:
+            DataSourceForAutomaticMigration: MyPersistentStoreDS
+            MigrationBasis: database
+    Server:
+        AdminServer:
+            ListenAddress: 127.0.0.1
+            ListenPort: 8001
+            Machine: machine1
+        Server2:
+            Cluster: mycluster
+            ListenAddress: 127.0.0.1
+            ListenPort: 8201
+            Machine: machine1
+        Server1:
+            Cluster: mycluster
+            ListenAddress: 127.0.0.1
+            ListenPort: 8101
+            Machine: machine1
+    MigratableTarget:
+        Server1 (migratable):
+            Cluster: mycluster
+            UserPreferredServer: Server1
+        Server2 (migratable):
+            Cluster: mycluster
+            UserPreferredServer: Server2
+    Machine:
+        machine1:
+            NodeManager:
+                ListenAddress: 127.0.0.1
+    SecurityConfiguration:
+        CredentialEncrypted: '@@PROP:SecurityConfiguration.CredentialEncrypted@@'
+        NodeManagerPasswordEncrypted: '@@PROP:SecurityConfiguration.NodeManagerPasswordEncrypted@@'
+        NodeManagerUsername: '@@PROP:SecurityConfiguration.NodeManagerUsername@@'
+        Realm:
+            myrealm:
+                Adjudicator:
+                    DefaultAdjudicator:
+                        DefaultAdjudicator:
+                AuthenticationProvider:
+                    DefaultAuthenticator:
+                        DefaultAuthenticator:
+                    DefaultIdentityAsserter:
+                        DefaultIdentityAsserter:
+                Authorizer:
+                    XACMLAuthorizer:
+                        XACMLAuthorizer:
+                CertPathProvider:
+                    WebLogicCertPathProvider:
+                        WebLogicCertPathProvider:
+                CredentialMapper:
+                    DefaultCredentialMapper:
+                        DefaultCredentialMapper:
+                PasswordValidator:
+                    SystemPasswordValidator:
+                        SystemPasswordValidator:
+                RoleMapper:
+                    XACMLRoleMapper:
+                        XACMLRoleMapper:
+resources:
+    JDBCSystemResource:
+        MyPersistentStoreDS:
+            DescriptorFileName: 'jdbc/MyPersistentStoreDS-2413-jdbc.xml'
+            Target: mycluster
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    InitialCapacity: 3
+                    MaxCapacity: 15
+                    TestTableName: SQL ISVALID
+                JDBCDataSourceParams:
+                    JNDIName: jdbc/MyPersistentStoreDS
+                JDBCDriverParams:
+                    DriverName: oracle.jdbc.OracleDriver
+                    PasswordEncrypted: '@@PROP:JDBCSystemResource.MyPersistentStoreDS.JdbcResource.JDBCDriverParams.PasswordEncrypted@@'
+                    URL: 'jdbc:oracle:thin:@den00chv.us.oracle.com:1521:pdborcl'
+                    Properties:
+                        user:
+                            Value: '@@PROP:JDBCSystemResource.MyPersistentStoreDS.JdbcResource.JDBCDriverParams.Properties.user.Value@@'
+        MyDataSource:
+            DescriptorFileName: 'jdbc/MyDataSource-0625-jdbc.xml'
+            Target: mycluster
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    InitialCapacity: 3
+                    MaxCapacity: 15
+                    TestTableName: SQL ISVALID
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: TwoPhaseCommit
+                    JNDIName: jdbc/MyDataSource
+                JDBCDriverParams:
+                    DriverName: oracle.jdbc.xa.client.OracleXADataSource
+                    PasswordEncrypted: '@@PROP:JDBCSystemResource.MyDataSource.JdbcResource.JDBCDriverParams.PasswordEncrypted@@'
+                    URL: 'jdbc:oracle:thin:@den00chv.us.oracle.com:1521:pdborcl'
+                    Properties:
+                        oracle.jdbc.ReadTimeout:
+                            Value: 30000
+                        user:
+                            Value: '@@PROP:JDBCSystemResource.MyDataSource.JdbcResource.JDBCDriverParams.Properties.user.Value@@'
+                        oracle.net.CONNECT_TIMEOUT:
+                            Value: 5000
+    MailSession:
+        MyMailSession:
+            JNDIName: mail/MyMailSession
+            Properties:
+                mail.store.protocol: imap
+                mail.imap.port: 993
+                mail.smtp.ssl.enable: true
+                mail.imap.auth: true
+                mail.transport.protocol: smtp
+                mail.imap.ssl.enable: true
+                mail.smtp.host: stbeehive.oracle.com
+                mail.smtp.starttls.enable: true
+                mail.smtp.port: 465
+                mail.smtp.auth: true
+                mail.imap.host: stbeehive.oracle.com
+                mail.imap.starttls.enable: true
+            SessionPasswordEncrypted: '@@PROP:MailSession.MyMailSession.SessionPasswordEncrypted@@'
+            SessionUsername: '@@PROP:MailSession.MyMailSession.SessionUsername@@'
+            Target: mycluster
+        'MailSession-0':
+            JNDIName: javamail/oracle
+            Properties:
+                mail.imap.port: 996
+                mail.smtp.port: 465
+                mail.imap.host: stbeehive.oracle.com
+                mail.smtp.host: stbeehive.oracle.com
+                mail.store.protocol: imap
+            SessionPasswordEncrypted: '@@PROP:MailSession.MailSession-0.SessionPasswordEncrypted@@'
+            SessionUsername: '@@PROP:MailSession.MailSession-0.SessionUsername@@'
+            Target: mycluster
+    FileStore:
+        FileStore2:
+            Directory: wlsdeploy/stores/FileStore2/
+            RestartInPlace: false
+            SynchronousWritePolicy: 'Direct-Write'
+            Target: Server2 (migratable)
+        FileStore1:
+            Directory: wlsdeploy/stores/FileStore1/
+            RestartInPlace: false
+            SynchronousWritePolicy: 'Direct-Write'
+            Target: Server1 (migratable)
+    JDBCStore:
+        JDBCStore2:
+            DataSource: MyPersistentStoreDS
+            PrefixName: JDBCStore2
+            Target: Server2 (migratable)
+        JDBCStore1:
+            DataSource: MyPersistentStoreDS
+            PrefixName: JDBCStore1
+            Target: Server1 (migratable)
+        PathServiceStore:
+            DataSource: MyPersistentStoreDS
+            DistributionPolicy: Singleton
+            MigrationPolicy: Always
+            PrefixName: PathSvc
+            Target: Server1 (migratable)
+    JMSServer:
+        JMSServer2:
+            PersistentStore: FileStore2
+            Target: Server2 (migratable)
+        JMSServer1:
+            PersistentStore: FileStore1
+            Target: Server1 (migratable)
+    SAFAgent:
+        MySAFagent:
+            Store: FileStore1
+            Target: 'Server1 (migratable)'
+            WindowSize: 2
+    JMSSystemResource:
+        MyJmsModule:
+            DescriptorFileName: 'jms/MyJmsModule-8736-jms.xml'
+            Target: mycluster
+            SubDeployment:
+                JMSServer2Subdeployment:
+                    Target: JMSServer2
+                JMSServer1Subdeployment:
+                    Target: JMSServer1
+            JmsResource:
+                ConnectionFactory:
+                    WebAppConnectionFactory:
+                        DefaultTargetingEnabled: true
+                        JNDIName: jms/WebCF
+                        ClientParams:
+                            MessagesMaximum: 1
+                        DefaultDeliveryParams:
+                            DefaultTimeToDeliver: 3
+                            DefaultTimeToLive: 3600
+                        FlowControlParams:
+                            FlowControlEnabled: false
+                        LoadBalancingParams:
+                            LoadBalancingEnabled: false
+                        SecurityParams:
+                            AttachJMSXUserId: true
+                        TransactionParams:
+                            XAConnectionFactoryEnabled: true
+                    MDBConnectionFactory:
+                        DefaultTargetingEnabled: true
+                        JNDIName: jms/mdbCF
+                        TransactionParams:
+                            XAConnectionFactoryEnabled: true
+                DestinationKey:
+                    PurchaseAmountKey:
+                        KeyType: Double
+                        Property: PurchaseAmount
+                        SortOrder: Descending
+                DistributedQueue:
+                    MyDistributedQueue:
+                        ForwardDelay: 88
+                        JNDIName: jms/MyDistributedQueue
+                        ResetDeliveryCountOnForward: false
+                        DistributedQueueMember:
+                            Queue2:
+                                Weight: 50
+                            Queue1:
+                                Weight: 50
+                DistributedTopic:
+                    MyDistributedTopic:
+                        JNDIName: jms/MyDistributedTopic
+                        SafExportPolicy: None
+                        DistributedTopicMember:
+                            Topic2:
+                                Weight: 50
+                            Topic1:
+                                Weight: 50
+                ForeignServer:
+                    MyForeignServer:
+                        ConnectionURL: 't3://my.other.cluster:7001'
+                        DefaultTargetingEnabled: true
+                        JNDIPropertiesCredentialEncrypted: '@@PROP:JMSSystemResource.MyJmsModule.JmsResource.ForeignServer.MyForeignServer.JNDIPropertiesCredentialEncrypted@@'
+                        ForeignConnectionFactory:
+                            MyRemoteCF:
+                                LocalJNDIName: jms/remoteCF
+                                RemoteJndiName: jms/myCF
+                        ForeignDestination:
+                            MyRemoteQ:
+                                LocalJNDIName: jms/remoteQ
+                                RemoteJndiName: jms/myQ
+                        JNDIProperty:
+                            bar:
+                                Key: bar
+                                Value: true
+                            java.naming.security.principal:
+                                Key: java.naming.security.principal
+                                Value: weblogic
+                Queue:
+                    Queue2:
+                        JNDIName: jms/Q2
+                        SafExportPolicy: None
+                        SubDeploymentName: JMSServer2Subdeployment
+                    Queue1:
+                        JNDIName: jms/Q1
+                        JmsCreateDestinationIdentifier: CDI1
+                        SubDeploymentName: JMSServer1Subdeployment
+                SAFImportedDestinations:
+                    MyRemoteSAFdestinations:
+                        SAFRemoteContext: MyRemoteSAFcontext
+                        SAFQueue:
+                            MyRemoteSAFqueue:
+                                RemoteJndiName: jms/myUDQ
+                SAFRemoteContext:
+                    MyRemoteSAFcontext:
+                        SAFLoginContext:
+                            LoginURL: 't3://127.0.0.1:8101'
+                            PasswordEncrypted: '@@PROP:JMSSystemResource.MyJmsModule.JmsResource.SAFRemoteContext.MyRemoteSAFcontext.SAFLoginContext.PasswordEncrypted@@'
+                            Username: '@@PROP:JMSSystemResource.MyJmsModule.JmsResource.SAFRemoteContext.MyRemoteSAFcontext.SAFLoginContext.Username@@'
+                Template:
+                    MyMemberTopicTemplate:
+                        MaximumMessageSize: 32000
+                        DeliveryFailureParams:
+                            RedeliveryLimit: 3
+                        DeliveryParamsOverrides:
+                            DeliveryMode: Persistent
+                        GroupParams:
+                            JMSServer2Subdeployment:
+                                ErrorDestination: Queue2
+                                SubDeploymentName: JMSServer2Subdeployment
+                            JMSServer1Subdeployment:
+                                ErrorDestination: Queue1
+                                SubDeploymentName: JMSServer1Subdeployment
+                        MessageLoggingParams:
+                            MessageLoggingEnabled: true
+                            MessageLoggingFormat: '%header%,%properties%'
+                        Thresholds:
+                            MessagesHigh: 10000
+                            MessagesLow: 100
+                Topic:
+                    Topic2:
+                        JNDIName: jms/myT2
+                        SafExportPolicy: None
+                        SubDeploymentName: JMSServer2Subdeployment
+                        Template: MyMemberTopicTemplate
+                    Topic1:
+                        JNDIName: jms/myT1
+                        JmsCreateDestinationIdentifier: CDI2
+                        SubDeploymentName: JMSServer1Subdeployment
+                        Template: MyMemberTopicTemplate
+                UniformDistributedQueue:
+                    MyUniformDistributedQueue:
+                        DefaultTargetingEnabled: true
+                        JNDIName: jms/myUDQ
+                        JmsCreateDestinationIdentifier: CDI3
+                UniformDistributedTopic:
+                    MyUniformDistributedTopic:
+                        DefaultTargetingEnabled: true
+                        JNDIName: jms/myUDT
+                        JmsCreateDestinationIdentifier: CDI4
+                        SafExportPolicy: None
+    JMSBridgeDestination:
+        JMS Bridge Local Destination:
+            ConnectionFactoryJndiName: jms/WebCF
+            ConnectionURL: 't3://localhost:8001'
+            DestinationJNDIName: jms/webUDQ
+        JMS Bridge Remote Destination:
+            ConnectionFactoryJndiName: jms/mdbCF
+            ConnectionURL: 't3://localhost:8101'
+            DestinationJNDIName: jms/myUDQ
+            UserName: '@@PROP:JMSBridgeDestination.JMS-Bridge-Remote-Destination.UserName@@'
+            UserPasswordEncrypted: '@@PROP:JMSBridgeDestination.JMS-Bridge-Remote-Destination.UserPasswordEncrypted@@'
+    MessagingBridge:
+        MyMessagingBridge:
+            PartialClusterStabilityDelaySeconds: 240
+            RestartInPlace: false
+            SourceDestination: JMS Bridge Local Destination
+            Started: false
+            Target: Server1 (migratable)
+            TargetDestination: JMS Bridge Remote Destination
+    WLDFSystemResource:
+        MyWldfModule:
+            Description: JCS A2C system test WDLF module
+            DescriptorFileName: 'diagnostics/MyWldfModule-0047.xml'
+            Target: mycluster
+            WLDFResource:
+                Harvester:
+                    SamplePeriod: 6000000
+                    HarvestedType:
+                        weblogic.management.runtime.ServerRuntimeMBean:
+                            Enabled: true
+                            HarvestedAttribute: [ CurrentDirectory, MiddlewareHome, OracleHome, ServerClasspath, ServerStartupTime ]
+                            HarvestedInstance: [ 'com.bea:Location=Server1,Name=_WLS_Server1,ServerRuntime=Server1,Type=PersistentStoreRuntime', 'com.bea:Location=Server2,Name=_WLS_Server2,ServerRuntime=Server2,Type=PersistentStoreRuntime' ]
+                            Namespace: ServerRuntime
+                        weblogic.management.runtime.PersistentStoreRuntimeMBean:
+                            HarvestedAttribute: [ AllocatedIoBufferBytes ]
+                            Namespace: DomainRuntime
+                Instrumentation:
+                    WLDFInstrumentationMonitor:
+                        JDBC_Before_Rollback_Internal:
+                            Enabled: false
+                        DyeInjection:
+                            Properties: 'a2c=true;timer=123'
+                        Connector_Before_Outbound:
+                            Action: [ DisplayArgumentsAction ]
+                            Description: Connector before outbound
+                            Enabled: false
+                        Connector_Before_Tx:
+                            Action: [ TraceAction, StackDumpAction ]
+                            Description: Connector before Tx
+                            DyeMask: 'ADDR1,ADDR2,ADDR3,ADDR4'
+                        Connector_Around_Outbound:
+                            Action: [ MemoryAllocationStatisticsAction, MethodInvocationStatisticsAction, TraceElapsedTimeAction, TraceMemoryAllocationAction ]
+                            Description: Connector around outbound
+                            DyeMask: 'USER1,USER2,USER3,USER4'
+                            Enabled: false
+                WatchNotification:
+                    LogWatchSeverity: Error
+                    Severity: Critical
+                    HeapDumpAction:
+                        MyHeapDumpAction:
+                    ImageNotification:
+                        MyImageAction:
+                    JMSNotification:
+                        MyJmsAction:
+                            DestinationJndiName: jms/myUDQ
+                            Timeout: 120
+                    JMXNotification:
+                        MyJmxAction:
+                    LogAction:
+                        MyLogAction:
+                            Message: My dog has fleas
+                            Severity: Warning
+                            SubsystemName: JoesGarage
+                    RestNotification:
+                        MyRestAction:
+                            AcceptedResponseType: application/json
+                            CustomNotificationProperties:
+                                foo: bar
+                                mail.default: mail/MyMailSession
+                            EndpointUrl: 'http://dummy.org/foobar'
+                            HttpAuthenticationMode: Basic
+                            HttpAuthenticationPasswordEncrypted: '@@PROP:WLDFSystemResource.MyWldfModule.WLDFResource.WatchNotification.RestNotification.MyRestAction.HttpAuthenticationPasswordEncrypted@@'
+                            HttpAuthenticationUserName: '@@PROP:WLDFSystemResource.MyWldfModule.WLDFResource.WatchNotification.RestNotification.MyRestAction.HttpAuthenticationUserName@@'
+                            RestInvocationMethodType: PUT
+                    SMTPNotification:
+                        MyEmailAction:
+                            Body: This is an interesting WLDF event
+                            MailSessionJndiName: mail/MyMailSession
+                            Recipient: 'fred.jones@oracle.com'
+                            Subject: Hello from WLDF
+                    SNMPNotification:
+                        MySNMPAction:
+                            Enabled: false
+                    ScriptAction:
+                        MyScriptAction:
+                            Enabled: false
+                            Environment:
+                                A2C_HOME: 'c:/tmp/oracle_jcs_app2cloud'
+                            Parameter: '-oh,c:/wls12212,-domainDir,c:/tmp/wls12212/wldf_domain,-archiveFile,c:/tmp/output/wldf_domain.zip'
+                            PathToScript: 'wlsdeploy/scripts/a2c-export.cmd'
+                            WorkingDirectory: '@@TMP@@'
+                    ThreadDumpAction:
+                        MyThreadDumpAction:
+                            ThreadDumpCount: 5
+                            ThreadDumpDelaySeconds: 15
+                    Watch:
+                        MyDomainLogPolicy:
+                            AlarmType: ManualReset
+                            Enabled: false
+                            ExpressionLanguage: EL
+                            Notification: MyJmsAction
+                            RuleExpression: '(USERID = ''weblogic'')'
+                            RuleType: DomainLog
+                        MyCalendarPolicy:
+                            AlarmType: ManualReset
+                            ExpressionLanguage: EL
+                            Notification: MyHeapDumpAction
+                            RuleType: Harvester
+                        MyEventDataPolicy:
+                            Enabled: false
+                            Notification: MyThreadDumpAction
+                            RuleExpression: '(SERVER = ''Server1'')'
+                            RuleType: EventData
+                        MySmartRulePolicy:
+                            AlarmResetPeriod: 300000
+                            AlarmType: AutomaticReset
+                            ExpressionLanguage: EL
+                            Notification: 'MyThreadDumpAction, MyHeapDumpAction'
+                            RuleExpression: 'wls:ServerHighStuckThreads(""30 seconds"",""10 minutes"",2)'
+                            RuleType: Harvester
+                            Severity: Emergency
+                            Schedule:
+                                Second: '*/30'
+                        MyCollectedMetricsPolicy:
+                            AlarmType: AutomaticReset
+                            Enabled: false
+                            Notification: 'MyEmailAction, MyThreadDumpAction'
+                            RuleExpression: 'SEVERITY IN (''Error'',''Emergency'',''Critical'')'
+                            RuleType: Log
+                            Schedule:
+                                Hour: '*/1'
+appDeployments:
+    Application:
+        'jms-notran-adp':
+            ModuleType: rar
+            SourcePath: '@@WL_HOME@@/server/lib/jms-notran-adp.rar'
+            Target: mycluster
+        JMSWebApp:
+            ModuleType: war
+            SourcePath: 'wlsdeploy/applications/jmswebapp-11g.war'
+            Target: mycluster
+        'jms-local-adp':
+            ModuleType: rar
+            SourcePath: '@@WL_HOME@@/server/lib/jms-local-adp.rar'
+            Target: mycluster
+        'jms-xa-adp':
+            ModuleType: rar
+            SourcePath: '@@WL_HOME@@/server/lib/jms-xa-adp.rar'
+            Target: mycluster
+        JMSMessageDrivenBean:
+            ModuleType: jar
+            SourcePath: wlsdeploy/applications/jmsmdb.jar
+            Target: mycluster

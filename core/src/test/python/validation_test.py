@@ -35,14 +35,18 @@ class ValidationTestCase(unittest.TestCase):
         self.wls_helper = WebLogicHelper(self._logger)
 
     def testModelValidation(self):
-
-        _model_file = self._resources_dir + '/test_jms_mail.json'
         _method_name = 'testModelValidation'
+
+        _model_file = self._resources_dir + '/variablestest.yaml'
+        _variable_file = self._resources_dir + '/variablestest.properties'
+        _archive_file = self._resources_dir + '/variablestest.zip'
 
         mw_home = os.environ['MW_HOME']
         args_map = {
             '-oracle_home': mw_home,
-            '-model_file': _model_file
+            '-model_file': _model_file,
+            '-variable_file': _variable_file,
+            '-archive_file': _archive_file
         }
 
         model_context = ModelContext('ValidationTestCase', args_map)
