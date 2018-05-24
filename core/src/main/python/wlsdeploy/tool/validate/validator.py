@@ -3,6 +3,7 @@ Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import os
+import copy
 
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import VariableException
@@ -108,9 +109,11 @@ class Validator(object):
         """
         _method_name = 'validate_in_standalone_mode'
 
+        cloned_model_dict = copy.deepcopy(model_dict)
+
         self._logger.entering(variables_file_name, archive_file_name, class_name=_class_name, method_name=_method_name)
         self._validation_mode = _ValidationModes.STANDALONE
-        self.__validate_model_file(model_dict, variables_file_name, archive_file_name)
+        self.__validate_model_file(cloned_model_dict, variables_file_name, archive_file_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._validation_results
@@ -137,10 +140,12 @@ class Validator(object):
         """
         _method_name = 'validate_in_tool_mode'
 
+        cloned_model_dict = copy.deepcopy(model_dict)
+
         self._logger.entering(variables_file_name, archive_file_name, class_name=_class_name, method_name=_method_name)
         return_code = Validator.ReturnCode.STOP
         self._validation_mode = _ValidationModes.TOOL
-        self.__validate_model_file(model_dict, variables_file_name, archive_file_name)
+        self.__validate_model_file(cloned_model_dict, variables_file_name, archive_file_name)
 
         status = Validator.ValidationStatus.VALID
 
