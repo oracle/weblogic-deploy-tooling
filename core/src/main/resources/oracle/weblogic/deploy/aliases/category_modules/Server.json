@@ -43,7 +43,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/COM/${NO_NAME_0:%SERVER%}"
+                "WP001": "/Server${:s}/%SERVER%/COM/%SERVER%"
             }
         },
         "ConfigurationProperty" : {
@@ -259,7 +259,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/Log/${NO_NAME_0:%SERVER%}"
+                "WP001": "/Server${:s}/%SERVER%/Log/%SERVER%"
             }
         },
         "NetworkAccessPoint": {
@@ -913,7 +913,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/ServerStart/${NO_NAME_0:%SERVER%}"
+                "WP001": "/Server${:s}/%SERVER%/ServerStart/%SERVER%"
             }
         },
         "SingleSignOnServices" : {
@@ -1020,7 +1020,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/SSL/${NO_NAME_0:%SERVER%}"
+                "WP001": "/Server${:s}/%SERVER%/SSL/%SERVER%"
             }
         },
         "TransactionLogJDBCStore": {
@@ -1071,6 +1071,8 @@
             "folders": {
                 "WebServerLog": {
                     "wlst_type": "WebServerLog",
+                    "child_folders_type": "single_unpredictable",
+                    "default_name_value": "%SERVER%",
                     "folders": {},
                     "attributes": {
                         "BufferSizeKb":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BufferSizeKb",         "wlst_path": "WP001", "value": {"default": 8                                     }, "wlst_type": "integer", "get_method": "LSA"} ],
@@ -1094,7 +1096,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Server${:s}/%SERVER%/WebServer/${NO_NAME_0:%SERVER%}/WebServerLog/${NO_NAME_0:%SERVER%}"
+                        "WP001": "/Server${:s}/%SERVER%/WebServer/%SERVER%/WebServerLog/%WEBSERVERLOG%"
                     }
                 }
             },
@@ -1133,8 +1135,8 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/WebServer/${NO_NAME_0:%SERVER%}",
-                "WP002": "/Server${:s}/%SERVER%/WebServer/${NO_NAME_0:%SERVER%}/Targets"
+                "WP001": "/Server${:s}/%SERVER%/WebServer/%SERVER%",
+                "WP002": "/Server${:s}/%SERVER%/WebServer/%SERVER%/Targets"
             }
         },
         "WebService": {
