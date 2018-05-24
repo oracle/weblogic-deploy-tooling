@@ -210,6 +210,25 @@ class VariableFileHelperTest(unittest.TestCase):
         actual = self._helper.inject_variables(replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
+    def testWithManagedServerKeyword(self):
+        expected = dict()
+        expected['Server.m1.SSL.Enabled'] = 'True'
+        expected['Server.m2.SSL.Enabled'] = 'True'
+        replacement_dict = dict()
+        replacement_dict['Server[MANAGED_SERVERS].SSL.Enabled'] = dict()
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
+    def testWithMultiKeyword(self):
+        expected = dict()
+        expected['Server.AdminServer.SSL.Enabled'] = 'True'
+        expected['Server.m1.SSL.Enabled'] = 'True'
+        expected['Server.m2.SSL.Enabled'] = 'True'
+        replacement_dict = dict()
+        replacement_dict['Server[MANAGED_SERVERS,ADMIN_SERVER].SSL.Enabled'] = dict()
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
     def testWithVariableHelperKeywords(self):
         expected = dict()
         expected['JMSSystemResource.MyJmsModule.JmsResource.ForeignServer.MyForeignServer.ConnectionURL'] \

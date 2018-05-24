@@ -12,6 +12,7 @@ import oracle.weblogic.deploy.aliases.AliasException as AliasException
 import oracle.weblogic.deploy.json.JsonException as JsonException
 import oracle.weblogic.deploy.util.VariableException as VariableException
 
+import wlsdeploy.tool.util.variable_injector_functions as variable_injector_functions
 import wlsdeploy.util.model as model_sections
 import wlsdeploy.util.variables as variables
 from wlsdeploy.aliases.aliases import Aliases
@@ -22,6 +23,8 @@ from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
+
+# KWARGS to modify how files are found and loaded on the inject_variables_keyword_file(..) function
 VARIABLE_INJECTOR_FILE_NAME = 'model_variable_injector.json'
 VARIABLE_KEYWORDS_FILE_NAME = 'variable_keywords.json'
 VARIABLE_INJECTOR_PATH_NAME_ARG = 'variable_injector_path_name'
@@ -35,6 +38,8 @@ VARIABLE_FILE_APPEND_ARG = 'append_to_variables'
 VARIABLE_FILE_APPEND = 'append'
 VARIABLE_FILE_UPDATE = 'update'
 VARIABLE_FILE_APPEND_VALS = [VARIABLE_FILE_APPEND, VARIABLE_FILE_UPDATE]
+
+
 # custom keyword in model injector file
 CUSTOM_KEYWORD = 'CUSTOM'
 KEYWORD_FILES = 'file-list'
@@ -49,6 +54,17 @@ FORCE = 'force'
 
 VARIABLE_SEP = '.'
 SUFFIX_SEP = '--'
+
+MANAGED_SERVERS = 'MANAGED_SERVERS'
+ADMIN_SERVER = 'ADMIN_SERVER'
+
+# This could be changed into a loaded file so that others can add their own bits of code to
+# selectively identify which names in an mbean list should be injected with properties
+USER_KEYWORD_DICT = {
+    MANAGED_SERVERS: 'managed_server_list',
+    ADMIN_SERVER: 'admin_server_list'
+}
+# global variables for functions in VariableInjector
 _find_special_names_pattern = re.compile('[\[).+\]]')
 _fake_name_marker = 'fakename'
 _fake_name_replacement = re.compile('.' + _fake_name_marker)
@@ -179,7 +195,7 @@ class VariableInjector(object):
         def _traverse_variables(model_section, mbean_list):
             if mbean_list:
                 mbean = mbean_list.pop(0)
-                mbean, mbean_name_list = _find_special_name(mbean)
+                mbean, mbean_name_list = self._find_special_name(mbean)
                 _logger.finer('WLSDPLY-19523', mbean, location.get_folder_path(), class_name=_class_name,
                               method_name=_method_name)
                 if mbean in model_section:
@@ -221,7 +237,7 @@ class VariableInjector(object):
         section = self.__model
         if start_mbean_list:
             # Find out in what section is the mbean top folder so can move to that section in the model
-            top_mbean, __ = _find_special_name(start_mbean_list[0])
+            top_mbean, __ = self._find_special_name(start_mbean_list[0])
             for entry in self.__section_keys:
                 if entry in self.__model and top_mbean in self.__model[entry]:
                     section = self.__model[entry]
@@ -442,7 +458,7 @@ class VariableInjector(object):
         else:
             _logger.finer('WLSDPLY-19516', mbean, replacement, location.get_folder_path(),
                           class_name=_class_name, method_name=_method_name)
-    
+
     def _get_variable_file_name(self, variables_injector_dictionary, **kwargs):
         _method_name = '_get_variable_file_name'
         if VARIABLE_FILE_NAME_ARG in kwargs:
@@ -475,13 +491,38 @@ class VariableInjector(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=written)
         return written
 
+    def _find_special_name(self, mbean):
+        mbean_name = mbean
+        mbean_name_list = []
+        name_list = _find_special_names_pattern.split(mbean)
+        if name_list and len(name_list) > 1:
+            mbean_name = name_list[0]
+            mbean_name_list = name_list[1].split(',')
+        if mbean_name_list:
+            new_list = []
+            for entry in mbean_name_list:
+                if entry in USER_KEYWORD_DICT:
+                    _logger.fine('WLSDPLY-19538', entry, mbean)
+                    try:
+                        method = getattr(variable_injector_functions, USER_KEYWORD_DICT[entry])
+                        append_list = method(self.__model)
+                        new_list.extend(append_list)
+                    except AttributeError, e:
+                        _logger.warning('WLSDPLY-19539', entry, USER_KEYWORD_DICT[entry], e)
+                        new_list = mbean_name_list
+                        break
+                else:
+                    new_list.append(entry)
+            mbean_name_list = new_list
+        return mbean_name, mbean_name_list
+
 
 def _load_variable_file(variable_file_location, **kwargs):
     _method_name = '_load_variable_file'
     append = False
     variable_dictionary = dict()
     if VARIABLE_FILE_APPEND_ARG in kwargs and kwargs[VARIABLE_FILE_APPEND_ARG] in VARIABLE_FILE_APPEND_VALS:
-        _logger.fine('append argument found {0}', kwargs[VARIABLE_FILE_APPEND_ARG] )
+        _logger.fine('append argument found {0}', kwargs[VARIABLE_FILE_APPEND_ARG])
         if kwargs[VARIABLE_FILE_APPEND_ARG] == VARIABLE_FILE_APPEND:
             _logger.fine('WLSDPLY-19536', variable_file_location, class_name=_class_name, method_name=_method_name)
             append = True
@@ -605,8 +646,6 @@ def _get_append_to_variable_file(**kwargs):
     return False
 
 
-
-
 def _format_variable_value(value):
     if type(value) == bool:
         if value:
@@ -665,16 +704,6 @@ def _split_injector(injector_path):
     if len(ml) > 0:
         attr = ml.pop()
     return ml, attr
-
-
-def _find_special_name(mbean):
-    mbean_name = mbean
-    mbean_name_list = []
-    name_list = _find_special_names_pattern.split(mbean)
-    if name_list and len(name_list) > 1:
-        mbean_name = name_list[0]
-        mbean_name_list = name_list[1].split(',')
-    return mbean_name, mbean_name_list
 
 
 def __temporary_fix(injector_dictionary):

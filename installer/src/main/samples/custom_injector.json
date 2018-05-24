@@ -11,5 +11,6 @@
         "suffix": "Host"
       }
     ]
-  }
+  },
+  "Server[MANAGED_SERVERS].SSL.Enabled": {}
 }
