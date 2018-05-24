@@ -109,6 +109,10 @@ class Validator(object):
         """
         _method_name = 'validate_in_standalone_mode'
 
+        # We need to make a deep copy of model_dict here, to ensure it's
+        # treated as a "read-only'" reference variable, during the variable
+        # file validation process. The variable file validation process could
+        # actually require changes to be made to the cloned model dictionary
         cloned_model_dict = copy.deepcopy(model_dict)
 
         self._logger.entering(variables_file_name, archive_file_name, class_name=_class_name, method_name=_method_name)
@@ -140,6 +144,10 @@ class Validator(object):
         """
         _method_name = 'validate_in_tool_mode'
 
+        # We need to make a deep copy of model_dict here, to ensure it's
+        # treated as a "read-only'" reference variable, during the variable
+        # file validation process. The variable file validation process could
+        # actually require changes to be made to the cloned model dictionary
         cloned_model_dict = copy.deepcopy(model_dict)
 
         self._logger.entering(variables_file_name, archive_file_name, class_name=_class_name, method_name=_method_name)
