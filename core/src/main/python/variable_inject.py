@@ -4,55 +4,46 @@ The Universal Permissive License (UPL), Version 1.0
 
 The entry point for the discoverDomain tool.
 """
-import javaos as os
+import os
 import sys
 
 from java.io import File
-from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
-from java.lang import String
-
-from oracle.weblogic.deploy.aliases import AliasException
-from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
-from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
-from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
-from oracle.weblogic.deploy.validate import ValidateException
+from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
+
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
+import wlsdeploy.tool.util.variable_injector as variable_injector
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util import getcreds
 from wlsdeploy.tool.util.variable_injector import VariableInjector
-from wlsdeploy.tool.discover import discoverer
-from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
-from wlsdeploy.tool.discover.domain_info_discoverer import DomainInfoDiscoverer
-from wlsdeploy.tool.discover.multi_tenant_discoverer import MultiTenantDiscoverer
-from wlsdeploy.tool.discover.resources_discoverer import ResourcesDiscoverer
-from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
-from wlsdeploy.tool.validate.validator import Validator
-from wlsdeploy.tool.util import filter_helper
-from wlsdeploy.util import path_utils
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
+from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
-_program_name = 'discoverDomain'
-_class_name = 'discover'
-__logger = PlatformLogger(discoverer.get_discover_logger_name())
+_program_name = 'injectVariables'
+_class_name = 'variable_inject'
+__logger = PlatformLogger('wlsdeploy.tool.util')
 __wlst_mode = WlstModes.OFFLINE
+__kwargs = dict()
+__inserted = False
+__tmp_model_dir = None
 
-__required_arguments = []
+__required_arguments = [
+    CommandLineArgUtil.ORACLE_HOME_SWITCH
+]
 
 __optional_arguments = [
     CommandLineArgUtil.MODEL_FILE_SWITCH,
@@ -75,9 +66,10 @@ def __process_args(args):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     required_arg_map, optional_arg_map = cla_util.process_args(args)
 
-    __verify_required_args_present(required_arg_map)
-    __wlst_mode = __process_online_args(optional_arg_map)
-    __process_archive_filename_arg(required_arg_map)
+    __process_model_args(optional_arg_map)
+    __process_injector_file(optional_arg_map)
+    __process_keywords_file(optional_arg_map)
+    __process_properties_file(optional_arg_map)
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
@@ -102,158 +94,97 @@ def __verify_required_args_present(required_arg_map):
     return
 
 
-def __process_online_args(optional_arg_map):
+def __process_model_args(optional_arg_map):
     """
-    Determine if we are discover in online mode and if so, validate/prompt for the necessary parameters.
+    Verify that either the model_file or archive_file was provided and exists.
+    If the model_file was not provided, the archive_file must be provided and the indicated archive file
+    must contain a model file. Extract the model file if the archive_file was provided.
     :param optional_arg_map: the optional arguments map
-    :return: the WLST mode
-    :raises CLAException: if an error occurs reading input from the user
+    :raises CLAException: if the arguments are invalid or an error occurs extracting the model from the archive
     """
-    _method_name = '__process_online_args'
+    _method_name = '__process_model_args'
+    global __tmp_model_dir
 
-    mode = WlstModes.OFFLINE
-    if CommandLineArgUtil.ADMIN_URL_SWITCH in optional_arg_map:
-        if CommandLineArgUtil.ADMIN_USER_SWITCH not in optional_arg_map:
-            try:
-                username = getcreds.getuser('WLSDPLY-06016')
-            except IOException, ioe:
-                ex = exception_helper.create_cla_exception('WLSDPLY-06017', ioe.getLocalizedMessage(), error=ioe)
-                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-            optional_arg_map[CommandLineArgUtil.ADMIN_USER_SWITCH] = username
+    if CommandLineArgUtil.MODEL_FILE_SWITCH in optional_arg_map:
+        model_file_name = optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
 
-        if CommandLineArgUtil.ADMIN_PASS_SWITCH not in optional_arg_map:
-            try:
-                password = getcreds.getpass('WLSDPLY-06018')
-            except IOException, ioe:
-                ex = exception_helper.create_cla_exception('WLSDPLY-06019', ioe.getLocalizedMessage(), error=ioe)
-                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-            optional_arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH] = String(password)
-
-        __logger.info('WLSDPLY-06020')
-    return mode
-
-
-def __process_archive_filename_arg(required_arg_map):
-    """
-    Validate the archive file name and load the archive file object.
-    :param required_arg_map: the required arguments map
-    :raises CLAException: if a validation error occurs while loading the archive file object
-    """
-    _method_name = '__process_archive_filename_arg'
-
-    archive_file_name = required_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-    try:
-        archive_file = WLSDeployArchive(archive_file_name)
-    except (IllegalArgumentException, IllegalStateException), ie:
-        ex = exception_helper.create_cla_exception('WLSDPLY-06013', _program_name, archive_file_name,
-                                                   ie.getLocalizedMessage(), error=ie)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
-    required_arg_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
-    return
-
-
-def __discover(model_context):
-    """
-    Populate the model from the domain.
-    :param model_context: the model context
-    :return: the fully-populated model
-    :raises DiscoverException: if an error occurred while discover the domain
-    """
-    _method_name = '__discover'
-
-    model = Model()
-    __connect_to_domain(model_context)
-    try:
-        DomainInfoDiscoverer(model_context, model.get_model_domain_info(), wlst_mode=__wlst_mode).discover()
-        TopologyDiscoverer(model_context, model.get_model_topology(), wlst_mode=__wlst_mode).discover()
-        ResourcesDiscoverer(model_context, model.get_model_resources(), wlst_mode=__wlst_mode).discover()
-        DeploymentsDiscoverer(model_context, model.get_model_app_deployments(), wlst_mode=__wlst_mode).discover()
-        __discover_multi_tenant(model, model_context)
-    except AliasException, ae:
-        wls_version = WebLogicHelper(__logger).get_actual_weblogic_version()
-        wlst_mode = WlstModes.from_value(__wlst_mode)
-        ex = exception_helper.create_discover_exception('WLSDPLY-06000', model_context.get_domain_name(),
-                                                        model_context.get_domain_home(), wls_version, wlst_mode,
-                                                        ae.getLocalizedMessage(), error=ae)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
-
-    __disconnect_domain()
-    return model
-
-
-def __discover_multi_tenant(model, model_context):
-    """
-    Discover the multi-tenant-related parts of the domain, if they exist.
-    :param model: the model object to populate
-    :param model_context: the model context object
-    :raises DiscoverException: if an error occurs during discovery
-    """
-    MultiTenantDiscoverer(model, model_context, wlst_mode=__wlst_mode).discover()
-    return
-
-
-def __connect_to_domain(model_context):
-    """
-    Connects WLST to the domain by either connecting to the Admin Server or reading the domain from disk.
-    :param model_context: the model context
-    :raises DiscoverException: if a WLST error occurs while connecting to or reading the domain
-    """
-    _method_name = '__connect_to_domain'
-
-    __logger.entering(class_name=_class_name, method_name=_method_name)
-    if __wlst_mode == WlstModes.ONLINE:
         try:
-            wlst_helper.connect(model_context.get_admin_user(), model_context.get_admin_password(),
-                                model_context.get_admin_url())
-        except PyWLSTException, wlst_ex:
-            ex = exception_helper.create_discover_exception('WLSDPLY-06001', model_context.get_admin_url(),
-                                                            model_context.get_admin_user(),
-                                                            wlst_ex.getLocalizedMessage(), error=wlst_ex)
+            FileUtils.validateExistingFile(model_file_name)
+        except IllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-20006', _program_name, model_file_name,
+                                                       iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
+    elif CommandLineArgUtil.ARCHIVE_FILE_SWITCH in optional_arg_map:
+        archive_file_name = optional_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
+
+        try:
+            archive_file = WLSDeployArchive(archive_file_name)
+            contains_model = archive_file.containsModel()
+            if not contains_model:
+                ex = exception_helper.create_cla_exception('WLSDPLY-19603', archive_file_name)
+                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+            else:
+                __tmp_model_dir = FileUtils.createTempDirectory(_program_name)
+                tmp_model_file = \
+                    FileUtils.fixupFileSeparatorsForJython(archive_file.extractModel(__tmp_model_dir).getAbsolutePath())
+        except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
+            ex = exception_helper.create_cla_exception('WLSDPLY-20010', _program_name, archive_file_name,
+                                                       archex.getLocalizedMessage(), error=archex)
+            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+        optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = FileUtils.fixupFileSeparatorsForJython(tmp_model_file)
     else:
-        try:
-            wlst_helper.read_domain(model_context.get_domain_home())
-        except PyWLSTException, wlst_ex:
-            ex = exception_helper.create_discover_exception('WLSDPLY-06002', model_context.get_domain_home(),
-                                                            wlst_ex.getLocalizedMessage(), error=wlst_ex)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-
-    __logger.exiting(class_name=_class_name, method_name=_method_name)
+        ex = exception_helper.create_cla_exception('WLSDPLY-20015', _program_name, CommandLineArgUtil.MODEL_FILE_SWITCH,
+                                                   CommandLineArgUtil.ARCHIVE_FILE_SWITCH)
+        ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
     return
 
 
-def __clear_archive_file(model_context):
+def __process_injector_file(optional_arg_map):
+    _method_name = '__process_injector_file'
+    if CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH in optional_arg_map:
+        injector = optional_arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH]
+        __logger.fine('WLSDPLY-19600', injector, class_name=_class_name, method_name=_method_name)
+        __kwargs[variable_injector.VARIABLE_INJECTOR_FILE_NAME_ARG] = injector
+
+
+def __process_keywords_file(optional_arg_map):
+    _method_name = '__process_keywords_file'
+    if CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH in optional_arg_map:
+        keywords = optional_arg_map[CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH]
+        __logger.fine('WLSDPLY-19601', keywords, class_name=_class_name, method_name=_method_name)
+        __kwargs[variable_injector.VARIABLE_KEYWORDS_FILE_NAME_ARG] = keywords
+
+
+def __process_properties_file(optional_arg_map):
+    _method_name = '__process_properties_file'
+    if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in optional_arg_map:
+        properties = optional_arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH]
+        __logger.fine('WLSDPLY-19602', properties, class_name=_class_name, method_name=_method_name)
+        __kwargs[variable_injector.VARIABLE_FILE_NAME_ARG] = properties
+
+
+def __inject(model, model_context):
     """
-    Remove any binaries already in the archive file.
+    Inject variables into the model file that is loaded into the model_context.
     :param model_context: the model context
-    :raises DiscoverException: if an error occurs while removing the binaries
+    :return: True if variables were inserted into model: The updated model
     """
-    _method_name = '__clear_archive_file'
-    __logger.entering(class_name=_class_name, method_name=_method_name)
-
-    archive_file = model_context.get_archive_file()
-
-    if archive_file is None:
-        de = exception_helper.create_discover_exception('WLSDPLY-06004', model_context.get_archive_file_name())
-        __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-        raise de
-
-    try:
-        archive_file.removeAllBinaries()
-    except WLSDeployArchiveIOException, wioe:
-        de = exception_helper.create_discover_exception('WLSDPLY-06005', wioe.getLocalizedMessage())
-        __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-        raise de
-
-    return
+    __kwargs[variable_injector.VARIABLE_FILE_APPEND_ARG] = True
+    inserted, variable_model, variable_file_name = VariableInjector(model, model_context,
+                                                                    WebLogicHelper(
+                                                                        __logger).get_actual_weblogic_version()). \
+        inject_variables_keyword_file(**__kwargs)
+    if inserted:
+        model = Model(variable_model)
+    return inserted, model
 
 
 def __close_archive(model_context):
@@ -265,36 +196,8 @@ def __close_archive(model_context):
 
     __logger.entering(_class_name=_class_name, method_name=_method_name)
     archive_file = model_context.get_archive_file()
-    archive_file.close()
-    __logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
-
-
-def __disconnect_domain():
-    """
-    Disconnects WLST from the domain by either disconnecting from the Admin Server or closing the domain read from disk.
-    :raises DiscoverException: if a WLST error occurred while disconnecting or closing the domain
-    """
-    _method_name = '__disconnect_domain'
-
-    __logger.entering(class_name=_class_name, method_name=_method_name)
-    if __wlst_mode == WlstModes.ONLINE:
-        try:
-            wlst_helper.disconnect()
-        except PyWLSTException, wlst_ex:
-            ex = exception_helper.create_discover_exception('WLSDPLY-06006',
-                                                            wlst_ex.getLocalizedMessage(), error=wlst_ex)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    else:
-        try:
-            wlst_helper.close_domain()
-        except PyWLSTException, wlst_ex:
-            ex = exception_helper.create_discover_exception('WLSDPLY-06007',
-                                                            wlst_ex.getLocalizedMessage(), error=wlst_ex)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-
+    if archive_file:
+        archive_file.close()
     __logger.exiting(class_name=_class_name, method_name=_method_name)
     return
 
@@ -314,19 +217,9 @@ def __persist_model(model, model_context):
 
     add_to_archive = False
     model_file_name = model_context.get_model_file()
+    model_file = FileUtils.getCanonicalFile(File(model_file_name))
     if model_file_name is None:
         add_to_archive = True
-        try:
-            domain_name = model_context.get_domain_name()
-            model_file = File.createTempFile(domain_name, '.yaml').getCanonicalFile()
-            model_file_name = model_context.get_domain_name() + '.yaml'
-        except (IllegalArgumentException, IOException), ie:
-            ex = exception_helper.create_discover_exception('WLSDPLY-06008', ie.getLocalizedMessage(), error=ie)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    else:
-        model_file = FileUtils.getCanonicalFile(File(model_file_name))
-
     try:
         model_translator.PythonToFile(model.get_model()).write_to_file(model_file.getAbsolutePath())
     except TranslateException, ex:
@@ -342,8 +235,9 @@ def __persist_model(model, model_context):
             if not model_file.delete():
                 model_file.deleteOnExit()
         except (WLSDeployArchiveIOException, IllegalArgumentException), arch_ex:
-            ex = exception_helper.create_discover_exception('WLSDPLY-06009', model_file.getAbsolutePath(),
-                                                            model_file_name, arch_ex.getLocalizedMessage(),
+            ex = exception_helper.create_discover_exception('WLSDPLY-20023', _program_name,
+                                                            model_file.getAbsolutePath(), model_file_name,
+                                                            arch_ex.getLocalizedMessage(),
                                                             error=arch_ex)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             if not model_file.delete():
@@ -354,53 +248,14 @@ def __persist_model(model, model_context):
     return
 
 
-def __check_and_customize_model(model, model_context):
-    """
-    Customize the model dictionary before persisting. Validate the model after customization for informational
-    purposes. Any validation errors will not stop the discovered model to be persisted.
-    :param model: completely discovered model
-    """
-    _method_name = '__check_and_customize_model'
-    __logger.entering(class_name=_class_name, method_name=_method_name)
-
-    if filter_helper.apply_filters(model.get_model(), "discover"):
-        __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
-
-    inserted, variable_model, variable_file_name = VariableInjector(model.get_model(), model_context, WebLogicHelper(
-        __logger).get_actual_weblogic_version()).inject_variables_keyword_file(
-        variable_file_name=__get_default_variable_file(model_context))
-    if inserted:
-        model = Model(variable_model)
-    try:
-        validator = Validator(model_context, wlst_mode=__wlst_mode)
-
-        # no variables are generated by the discover tool
-        validator.validate_in_tool_mode(model.get_model(), variables_file_name=variable_file_name,
-                                        archive_file_name=model_context.get_archive_file_name())
-    except ValidateException, ex:
-        __logger.warning('WLSDPLY-06015', ex.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-    return model
-
-
-def __get_default_variable_file(model_context):
-    extract_file_name = model_context.get_model_file()
-    if not extract_file_name:
-        extract_file_name = model_context.get_archive_file_name()
-    default_variable_file = path_utils.get_filename_no_ext_from_path(extract_file_name)
-    if default_variable_file:
-        default_variable_file = os.path.join(path_utils.get_pathname_from_path(extract_file_name),
-                                             default_variable_file + '.properties')
-    return default_variable_file
-
-
-def __log_and_exit(exit_code, _class_name, _method_name):
+def __log_and_exit(exit_code, class_name, _method_name):
     """
     Helper method to log the exiting message and call sys.exit()
     :param exit_code: the exit code to use
-    :param _class_name: the class name to pass  to the logger
+    :param class_name: the class name to pass  to the logger
     :param _method_name: the method name to pass to the logger
     """
-    __logger.exiting(result=exit_code, class_name=_class_name, method_name=_method_name)
+    __logger.exiting(result=exit_code, class_name=class_name, method_name=_method_name)
     sys.exit(exit_code)
 
 
@@ -431,30 +286,24 @@ def main(args):
                             class_name=_class_name, method_name=_method_name)
         __log_and_exit(exit_code, _class_name, _method_name)
 
+    model_file = model_context.get_model_file()
     try:
-        __clear_archive_file(model_context)
-    except DiscoverException, ex:
-        __logger.severe('WLSDPLY-06010', _program_name, model_context.get_archive_file_name(),
-                        ex.getLocalizedMessage(), error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
+        model = FileToPython(model_file, True).parse()
+    except TranslateException, te:
+        __logger.severe('WLSDPLY-20009', _program_name, model_file, te.getLocalizedMessage(), error=te,
+                        class_name=_class_name, method_name=_method_name)
+        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    model = None
-    try:
-        model = __discover(model_context)
-    except DiscoverException, ex:
-        __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
-                        model_context.get_domain_home(), ex.getLocalizedMessage(),
-                        error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
+    inserted, model = __inject(model, model_context)
+    if inserted:
+        __logger.info('WLSDPLY-19604', class_name=_class_name, method_name=_method_name)
+        try:
+            __persist_model(model, model_context)
 
-    model = __check_and_customize_model(model, model_context)
-    try:
-        __persist_model(model, model_context)
-
-    except TranslateException, ex:
-        __logger.severe('WLSDPLY-06012', _program_name, model_context.get_archive_file_name(), ex.getLocalizedMessage(),
-                error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
+        except TranslateException, ex:
+            __logger.severe('WLSDPLY-20024', _program_name, model_context.get_archive_file_name(),
+                            ex.getLocalizedMessage(), error=ex, class_name=_class_name, method_name=_method_name)
+            __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
 
     __close_archive(model_context)
 

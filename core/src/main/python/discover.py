@@ -39,7 +39,6 @@ from wlsdeploy.tool.discover.resources_discoverer import ResourcesDiscoverer
 from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.tool.util import filter_helper
-from wlsdeploy.util import path_utils
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -137,7 +136,7 @@ def __process_online_args(optional_arg_map):
                 raise ex
             optional_arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH] = String(password)
 
-        __logger.info('WLSDPLY-06020')
+        __logger.info('WLSDPLY-06020', class_name=_class_name, method_name=_method_name)
     return mode
 
 
@@ -346,7 +345,7 @@ def __persist_model(model, model_context):
             if not model_file.delete():
                 model_file.deleteOnExit()
         except (WLSDeployArchiveIOException, IllegalArgumentException), arch_ex:
-            ex = exception_helper.create_discover_exception('WLSDPLY-06009', model_file.getAbsolutePath(),
+            ex = exception_helper.create_discover_exception('WLSDPLY-20023', model_file.getAbsolutePath(),
                                                             model_file_name, arch_ex.getLocalizedMessage(),
                                                             error=arch_ex)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -371,8 +370,7 @@ def __check_and_customize_model(model, model_context):
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
     inserted, variable_model, variable_file_name = VariableInjector(model.get_model(), model_context, WebLogicHelper(
-        __logger).get_actual_weblogic_version()).inject_variables_keyword_file(
-        variable_file_name=__get_default_variable_file(model_context))
+        __logger).get_actual_weblogic_version()).inject_variables_keyword_file()
     if inserted:
         model = Model(variable_model)
     try:
@@ -384,17 +382,6 @@ def __check_and_customize_model(model, model_context):
     except ValidateException, ex:
         __logger.warning('WLSDPLY-06015', ex.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
     return model
-
-
-def __get_default_variable_file(model_context):
-    extract_file_name = model_context.get_model_file()
-    if not extract_file_name:
-        extract_file_name = model_context.get_archive_file_name()
-    default_variable_file = path_utils.get_filename_no_ext_from_path(extract_file_name)
-    if default_variable_file:
-        default_variable_file = os.path.join(path_utils.get_pathname_from_path(extract_file_name),
-                                             default_variable_file + '.properties')
-    return default_variable_file
 
 
 def __log_and_exit(exit_code, _class_name, _method_name):
@@ -456,7 +443,7 @@ def main(args):
         __persist_model(model, model_context)
 
     except TranslateException, ex:
-        __logger.severe('WLSDPLY-06012', _program_name, model_context.get_archive_file_name(), ex.getLocalizedMessage(),
+        __logger.severe('WLSDPLY-20024', _program_name, model_context.get_archive_file_name(), ex.getLocalizedMessage(),
                 error=ex, class_name=_class_name, method_name=_method_name)
         __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
 
