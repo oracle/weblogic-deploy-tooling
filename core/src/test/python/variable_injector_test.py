@@ -260,6 +260,50 @@ class VariableFileHelperTest(unittest.TestCase):
         actual = self._helper.inject_variables(replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
+    def testReplaceVariableValueAttribute(self):
+        expected = dict()
+        expected[
+            'JMSSystemResource.MyJmsModule.JmsResource.ForeignServer.MyForeignServer.JNDIProperty'
+            '.java.naming.security.principal.Value'] = 'k8s'
+        replacement_dict = dict()
+        replacement_dict['JMSSystemResource.JmsResource.ForeignServer.'
+                         'JNDIProperty[java.naming.security.principal].Value'] = dict()
+        replacement_dict['JMSSystemResource.JmsResource.ForeignServer.'
+                         'JNDIProperty[java.naming.security.principal].Value'][
+            variable_injector.VARIABLE_VALUE] = 'k8s'
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
+    def testReplaceVariableValueSegmentInString(self):
+        expected = dict()
+        expected['JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Host'] = \
+            'den00chv'
+        replacement_dict = dict()
+        replacement_dict['JDBCSystemResource[Database2].JdbcResource.JDBCDriverParams.URL'] = dict()
+        list_entry = dict()
+        list_entry[variable_injector.REGEXP_PATTERN] = '(?<=HOST=)[\w.-]+(?=\))'
+        list_entry[variable_injector.REGEXP_SUFFIX] = 'Host'
+        replacement_dict['JDBCSystemResource[Database2].JdbcResource.JDBCDriverParams.URL'][variable_injector.REGEXP] = [
+            list_entry]
+        replacement_dict['JDBCSystemResource[Database2].JdbcResource.JDBCDriverParams.URL'][
+            variable_injector.VARIABLE_VALUE] = 'den00chv'
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
+    def testReplaceVariableValueSegmentInDictionary(self):
+        expected = dict()
+        expected['MailSession.MailSession-0.Properties--SmtpHost'] = 'localhost'
+        expected['MailSession.MyMailSession.Properties--SmtpHost'] = 'localhost'
+        replacement_dict = dict()
+        replacement_dict['MailSession.Properties'] = dict()
+        list_entry = dict()
+        list_entry[variable_injector.REGEXP_PATTERN] = 'mail.smtp.host'
+        list_entry[variable_injector.REGEXP_SUFFIX] = 'SmtpHost'
+        replacement_dict['MailSession.Properties'][variable_injector.REGEXP] = [list_entry]
+        replacement_dict['MailSession.Properties'][variable_injector.VARIABLE_VALUE] = 'localhost'
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
     def _compare_to_expected_dictionary(self, expected, actual):
         self.assertEqual(len(expected), len(actual),
                          'Not the same number of entries : expected=' + str(len(expected)) + ', actual=' + str(

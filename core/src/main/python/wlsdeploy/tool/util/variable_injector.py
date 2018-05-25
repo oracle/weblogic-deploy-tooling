@@ -52,6 +52,7 @@ REGEXP = 'regexp'
 REGEXP_SUFFIX = 'suffix'
 REGEXP_PATTERN = 'pattern'
 FORCE = 'force'
+VARIABLE_VALUE = 'variable_value'
 
 VARIABLE_SEP = '.'
 SUFFIX_SEP = '--'
@@ -280,11 +281,11 @@ class VariableInjector(object):
     def _variable_info(self, model, attribute, location, injector_values):
         # add code here to put in model if force in injector values
         if REGEXP in injector_values:
-            return self._process_regexp(model, attribute, location, injector_values[REGEXP])
+            return self._process_regexp(model, attribute, location, injector_values)
         else:
-            return self._process_attribute(model, attribute, location)
+            return self._process_attribute(model, attribute, location, injector_values)
 
-    def _process_attribute(self, model, attribute, location):
+    def _process_attribute(self, model, attribute, location, injector_values):
         _method_name = '_process_attribute'
         _logger.entering(attribute, location.get_folder_path(), class_name=_class_name,
                          method_name=_method_name)
@@ -302,20 +303,22 @@ class VariableInjector(object):
             _logger.finer('WLSDPLY-19526', attribute_value, attribute, str(location), class_name=_class_name,
                           method_name=_method_name)
         if variable_value:
-            variable_dict[variable_name] = variable_value
+            variable_dict[variable_name] = self._check_replace_variable_value(location, attribute, variable_value,
+                                                                              injector_values)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
         return variable_dict
 
-    def _process_regexp(self, model, attribute, location, regexp_list):
+    def _process_regexp(self, model, attribute, location, injector_values):
         if isinstance(model[attribute], dict):
-            return self._process_patterns_dictionary(attribute, model[attribute], location, regexp_list)
+            return self._process_patterns_dictionary(attribute, model[attribute], location, injector_values)
         elif type(model[attribute]) == list:
-            return self._process_patterns_list(attribute, model[attribute], location, regexp_list)
+            return self._process_patterns_list(attribute, model[attribute], location, injector_values)
         else:
-            return self._process_patterns_string(model, attribute, location, regexp_list)
+            return self._process_patterns_string(model, attribute, location, injector_values)
 
-    def _process_patterns_string(self, model, attribute, location, regexp_list):
+    def _process_patterns_string(self, model, attribute, location, injector_values):
         variable_dict = dict()
+        regexp_list = injector_values[REGEXP]
         for dictionary in regexp_list:
             pattern = None
             suffix = None
@@ -325,7 +328,8 @@ class VariableInjector(object):
                 suffix = dictionary[REGEXP_SUFFIX]
             variable_name, variable_value = self._process_pattern_string(model, attribute, location, pattern, suffix)
             if variable_value:
-                variable_dict[variable_name] = variable_value
+                variable_dict[variable_name] = self._check_replace_variable_value(location, attribute, variable_value,
+                                                                                  injector_values)
         return variable_dict
 
     def _process_pattern_string(self, model, attribute, location, pattern, suffix):
@@ -350,6 +354,7 @@ class VariableInjector(object):
             _logger.finer('WLSDPLY-19524', pattern, attribute, model[attribute],
                           location.get_folder_path, class_name=_class_name,
                           method_name=_method_name)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
         return variable_name, variable_value
 
@@ -362,8 +367,9 @@ class VariableInjector(object):
                                                                _format_as_property(variable_name))
         return attribute_value, variable_name, variable_value
 
-    def _process_patterns_list(self, attribute, attribute_value, location, regexp_list):
+    def _process_patterns_list(self, attribute, attribute_value, location, injector_values):
         variable_dict = dict()
+        regexp_list = injector_values[REGEXP]
         for dictionary in regexp_list:
             pattern = None
             suffix = None
@@ -374,7 +380,8 @@ class VariableInjector(object):
             variable_name, variable_value = self._process_pattern_list(attribute, attribute_value, location, pattern,
                                                                        suffix)
             if variable_value:
-                variable_dict[variable_name] = variable_value
+                variable_dict[variable_name] = self._check_replace_variable_value(location, attribute, variable_value,
+                                                                                  injector_values)
         return variable_dict
 
     def _process_pattern_list(self, attribute_name, attribute_list, location, pattern, suffix):
@@ -399,8 +406,9 @@ class VariableInjector(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
         return variable_name, variable_value
 
-    def _process_patterns_dictionary(self, attribute, attribute_dict, location, regexp_list):
+    def _process_patterns_dictionary(self, attribute, attribute_dict, location, injector_values):
         variable_dict = dict()
+        regexp_list = injector_values[REGEXP]
         for dictionary in regexp_list:
             pattern = None
             suffix = None
@@ -411,7 +419,8 @@ class VariableInjector(object):
             variable_name, variable_value = self._process_pattern_dictionary(attribute, attribute_dict, location,
                                                                              pattern, suffix)
             if variable_value:
-                variable_dict[variable_name] = variable_value
+                variable_dict[variable_name] = self._check_replace_variable_value(location, attribute, variable_value,
+                                                                                  injector_values)
         return variable_dict
 
     def _process_pattern_dictionary(self, attribute_name, attribute_dict, location, regexp, suffix):
@@ -497,9 +506,12 @@ class VariableInjector(object):
         mbean_name = mbean
         mbean_name_list = []
         name_list = _find_special_names_pattern.split(mbean)
+        print 'mbean before split ', mbean
+        print 'after pattern split ', name_list
         if name_list and len(name_list) > 1:
             mbean_name = name_list[0]
             mbean_name_list = name_list[1].split(',')
+            print 'after second split ', mbean_name_list
         if mbean_name_list:
             new_list = []
             for entry in mbean_name_list:
@@ -516,6 +528,7 @@ class VariableInjector(object):
                 else:
                     new_list.append(entry)
             mbean_name_list = new_list
+        print 'mbean ', mbean_name, ' mbean_name_list ', mbean_name_list
         return mbean_name, mbean_name_list
 
     def _check_insert_attribute_model(self, location, model_section, attribute, injector_values):
@@ -527,6 +540,21 @@ class VariableInjector(object):
             _logger.fine('WLSDPLY-19540', attribute, location.get_folder_path(), wlst_value,
                          class_name=_class_name, method_name=_method_name)
             model_section[attribute] = wlst_value
+
+    def _check_replace_variable_value(self, location, attribute, variable_value, injector_values):
+        _method_name = '_format_variable_value'
+        if VARIABLE_VALUE in injector_values:
+            value = injector_values[VARIABLE_VALUE]
+            # might add code to call a method to populate the replacement value
+            try:
+                self.__aliases.get_wlst_attribute_name_and_value(location, attribute, value)
+                variable_value = value
+                _logger.fine('WLSDPLY-19542', value, variable_value, attribute, location.get_folder_path(),
+                             class_name=_class_name, method_name=_method_name)
+            except AliasException, ae:
+                _logger.warning('WLSDPLY-19541', value, attribute, location, ae.getLocalizedMessage(),
+                                class_name=_class_name, method_name=_method_name)
+        return variable_value
 
 
 def _load_variable_file(variable_file_location, **kwargs):
@@ -703,6 +731,7 @@ def _already_property(check_string):
 
 def _format_as_property(prop_name):
     return '@@PROP:%s@@' % prop_name
+
 
 
 def _split_injector(injector_path):
