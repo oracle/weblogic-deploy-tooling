@@ -51,6 +51,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      */
     public PyOrderedDict(PyOrderedDict other) {
         this();
+        super.update(other);
         update(other);
     }
 
@@ -279,6 +280,9 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         synchronized (this.linkedHashMap) {
             this.linkedHashMap.put(key, value);
         }
+        synchronized (super.table) {
+            super.table.put(key, value);
+        }
     }
 
     /**
@@ -287,6 +291,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
     @Override
     public void clear() {
         this.linkedHashMap.clear();
+        super.table.clear();;
     }
 
     /**
@@ -476,6 +481,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         for (int i = 0; i < pylist.size(); i++) {
             PyTuple tuple = (PyTuple) pylist.get(i);
             this.__setitem__(Py.java2py(tuple.get(0)), Py.java2py(tuple.get(1)));
+            super.__setitem__(Py.java2py(tuple.get(0)), Py.java2py(tuple.get(1)));
         }
     }
 
