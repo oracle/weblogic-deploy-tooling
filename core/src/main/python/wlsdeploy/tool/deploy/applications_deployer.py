@@ -5,7 +5,6 @@ The Universal Permissive License (UPL), Version 1.0
 import copy
 import javaos as os
 from sets import Set
-import zipfile
 
 from java.io import File
 from java.io import IOException
