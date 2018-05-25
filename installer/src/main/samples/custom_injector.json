@@ -1,4 +1,6 @@
 {
+  "UnixMachine.NodeManager.ListenAddress": {},
+  "UnixMachine.NodeManager.ListenPort": {},
   "JDBCSystemResource.JdbcResource.JDBCDriverParams.URL":
   {
     "regexp": [
@@ -12,5 +14,8 @@
       }
     ]
   },
-  "Server[MANAGED_SERVERS].SSL.Enabled": {}
+  "Server[MANAGED_SERVERS].SSL.Enabled": {},
+  "Server[ADMIN_SERVER].SSL.HostnameVerificationIgnored": {
+    "force": true
+  }
 }

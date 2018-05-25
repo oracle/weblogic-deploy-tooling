@@ -249,6 +249,17 @@ class VariableFileHelperTest(unittest.TestCase):
         print actual
         self._compare_to_expected_dictionary(expected, actual)
 
+    def testForceAttribute(self):
+        expected = dict()
+        expected['Server.AdminServer.SSL.HostnameVerificationIgnored'] = 'false'
+        expected['Server.m1.SSL.HostnameVerificationIgnored'] = 'false'
+        expected['Server.m2.SSL.HostnameVerificationIgnored'] = 'false'
+        replacement_dict = dict()
+        replacement_dict['Server.SSL.HostnameVerificationIgnored'] = dict()
+        replacement_dict['Server.SSL.HostnameVerificationIgnored'][variable_injector.FORCE] = True
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
     def _compare_to_expected_dictionary(self, expected, actual):
         self.assertEqual(len(expected), len(actual),
                          'Not the same number of entries : expected=' + str(len(expected)) + ', actual=' + str(

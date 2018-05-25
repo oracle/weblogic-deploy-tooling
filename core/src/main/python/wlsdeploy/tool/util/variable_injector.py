@@ -6,6 +6,7 @@ import copy
 import os
 import re
 
+import java.lang.Boolean as Boolean
 import java.lang.IllegalArgumentException as IllegalArgumentException
 
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
@@ -225,6 +226,7 @@ class VariableInjector(object):
                     self._log_mbean_not_found(mbean, injector, location)
                     return False
             else:
+                self._check_insert_attribute_model(location, model_section, attribute, injector_values)
                 if attribute in model_section:
                     returned_dict = self._variable_info(model_section, attribute, location, injector_values)
                     if returned_dict:
@@ -516,6 +518,16 @@ class VariableInjector(object):
             mbean_name_list = new_list
         return mbean_name, mbean_name_list
 
+    def _check_insert_attribute_model(self, location, model_section, attribute, injector_values):
+        _method_name = '_check_insert_attribute_model'
+        if attribute not in model_section and (FORCE in injector_values and Boolean(injector_values[FORCE])):
+            value = self.__aliases.get_model_attribute_default_value(location, attribute)
+            # This is the best I can do - need a get_default_value_model function(location, attribute)
+            __, wlst_value = self.__aliases.get_wlst_attribute_name_and_value(location, attribute, value)
+            _logger.fine('WLSDPLY-19540', attribute, location.get_folder_path(), wlst_value,
+                         class_name=_class_name, method_name=_method_name)
+            model_section[attribute] = wlst_value
+
 
 def _load_variable_file(variable_file_location, **kwargs):
     _method_name = '_load_variable_file'
@@ -559,7 +571,7 @@ def _get_variable_keywords_file_name(**kwargs):
 
 
 def _load_variable_injector_file(variable_injector_location):
-    _method_name = '_load_variables_file'
+    _method_name = '_load_variable_injector_file'
     _logger.entering(variable_injector_location, class_name=_class_name, method_name=_method_name)
     variables_dictionary = None
     if os.path.isfile(variable_injector_location):
