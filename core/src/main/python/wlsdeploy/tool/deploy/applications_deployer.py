@@ -5,11 +5,16 @@ The Universal Permissive License (UPL), Version 1.0
 import copy
 import javaos as os
 from sets import Set
-import zipfile
 
 from java.io import File
 from java.io import IOException
+from java.io import FileNotFoundException
+from java.util.zip import ZipException
 from java.security import NoSuchAlgorithmException
+from java.util.jar import JarFile
+from java.util.jar import Manifest
+from java.lang import IllegalStateException
+from java.io import ByteArrayOutputStream
 
 import oracle.weblogic.deploy.util.FileUtils as FileUtils
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
@@ -776,9 +781,14 @@ class ApplicationsDeployer(Deployer):
         old_name_tuple = deployer_utils.get_library_name_components(model_name, self.wlst_mode)
         try:
             source_path = self.model_context.replace_token_string(source_path)
-            archive = zipfile.ZipFile(source_path)
-            manifest = archive.read('META-INF/MANIFEST.MF')
-            tokens = manifest.split()
+            archive = JarFile(source_path)
+            manifest_object = archive.getManifest()
+            tokens = []
+            if manifest_object is not None:
+                bao = ByteArrayOutputStream()
+                manifest_object.write(bao)
+                manifest = bao.toString('UTF-8')
+                tokens = manifest.split()
 
             if 'Extension-Name:' in tokens:
                 extension_index = tokens.index('Extension-Name:')
@@ -812,7 +822,7 @@ class ApplicationsDeployer(Deployer):
                     raise ex
             self.logger.info('WLSDPLY-09324', model_name, versioned_name,
                              class_name=self._class_name, method_name=_method_name)
-        except (zipfile.BadZipfile, IOError), e:
+        except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09325', model_name, source_path, str(e), error=e)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
