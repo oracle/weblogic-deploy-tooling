@@ -67,10 +67,11 @@ USER_KEYWORD_DICT = {
     ADMIN_SERVER: 'admin_server_list'
 }
 # global variables for functions in VariableInjector
-_find_special_names_pattern = re.compile('[\[).+\]]')
+_find_special_names_pattern = re.compile('[\[\]]')
 _fake_name_marker = 'fakename'
 _fake_name_replacement = re.compile('.' + _fake_name_marker)
 _white_space_replacement = re.compile('\s')
+_split_around_special_names = re.compile('([\w]+\[[\w\.,]+\])|\.')
 
 _wlsdeploy_location = os.environ.get('WLSDEPLOY_HOME')
 _class_name = 'variable_injector'
@@ -506,12 +507,9 @@ class VariableInjector(object):
         mbean_name = mbean
         mbean_name_list = []
         name_list = _find_special_names_pattern.split(mbean)
-        print 'mbean before split ', mbean
-        print 'after pattern split ', name_list
         if name_list and len(name_list) > 1:
             mbean_name = name_list[0]
             mbean_name_list = name_list[1].split(',')
-            print 'after second split ', mbean_name_list
         if mbean_name_list:
             new_list = []
             for entry in mbean_name_list:
@@ -528,7 +526,6 @@ class VariableInjector(object):
                 else:
                     new_list.append(entry)
             mbean_name_list = new_list
-        print 'mbean ', mbean_name, ' mbean_name_list ', mbean_name_list
         return mbean_name, mbean_name_list
 
     def _check_insert_attribute_model(self, location, model_section, attribute, injector_values):
@@ -562,7 +559,6 @@ def _load_variable_file(variable_file_location, **kwargs):
     append = False
     variable_dictionary = dict()
     if VARIABLE_FILE_APPEND_ARG in kwargs and kwargs[VARIABLE_FILE_APPEND_ARG] in VARIABLE_FILE_APPEND_VALS:
-        _logger.fine('append argument found {0}', kwargs[VARIABLE_FILE_APPEND_ARG])
         if kwargs[VARIABLE_FILE_APPEND_ARG] == VARIABLE_FILE_APPEND:
             _logger.fine('WLSDPLY-19536', variable_file_location, class_name=_class_name, method_name=_method_name)
             append = True
@@ -733,18 +729,29 @@ def _format_as_property(prop_name):
     return '@@PROP:%s@@' % prop_name
 
 
-
 def _split_injector(injector_path):
     """
     Split the injector path into an mbean list and an attribute name from the injector path string
     :param injector_path:
     :return: attribute name:mbean list of mbean folder nodes
     """
+    _method_name = '_split_injector'
     attr = None
-    ml = injector_path.split('.')
+    ml = _split_around_special_names.split(injector_path)
+    mbean_list = []
     if len(ml) > 0:
         attr = ml.pop()
-    return ml, attr
+        for mbean_item in ml:
+            if mbean_item:
+                start = 0
+                end = len(mbean_item)
+                if mbean_item.startswith('\.'):
+                    start += 1
+                if mbean_item.endswith('\.'):
+                    end -= 1
+                mbean_list.append(mbean_item[start:end])
+    _logger.finer('WLSDPLY-19543', mbean_list, attr, class_name=_class_name, method_name=_method_name)
+    return mbean_list, attr
 
 
 def __temporary_fix(injector_dictionary):
