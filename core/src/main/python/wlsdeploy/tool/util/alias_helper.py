@@ -522,6 +522,20 @@ class AliasHelper(object):
         """
         return self.__aliases.get_model_topology_top_level_folder_names()
 
+    def get_model_resources_top_level_folder_names(self):
+        """
+        Get the model resources top-level folder names.
+        :return: the list of top-level resources folders
+        """
+        return self.__aliases.get_model_resources_top_level_folder_names()
+
+    def get_model_app_deployments_top_level_folder_names(self):
+        """
+        Get the model app_deployments top-level folder names.
+        :return: the list of top-level app_deployments folders
+        """
+        return self.__aliases.get_model_app_deployments_top_level_folder_names()
+
     def get_model_attribute_names(self, location):
         """
         Get the model attribute names.

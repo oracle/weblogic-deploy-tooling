@@ -151,5 +151,51 @@ class CollectionsTestCase(unittest.TestCase):
         new_list.extend([6, 7, 8, 9, 10])
         self.assertEqual(len(my_list), 5, 'expected deepcopy to make a copy of my_list but it did not')
 
+    def testDictDictUpdate(self):
+        dict1 = dict()
+        dict1['entry1'] = 'you'
+        dict2 = dict()
+        dict2['entry2'] = 'me'
+        print 'Before:         dict() dict1=', dict1
+        print '                dict() dict2=', dict2
+        dict1.update(dict2)
+        self.assertEqual('entry1' in dict1 and 'entry2' in dict1, True,
+                         "expected dict1 to contain 'entry1' and 'entry2' keys")
+
+    def testOrderedDictOrderedDictUpdate(self):
+        dict1 = OrderedDict()
+        dict1['entry1'] = 'you'
+        dict2 = OrderedDict()
+        dict2['entry2'] = 'me'
+        print 'Before: OrderedDict() dict1=', dict1
+        print '        OrderedDict() dict2=', dict2
+        dict1.update(dict2)
+        self.assertEqual('entry1' in dict1 and 'entry2' in dict1, True,
+                         "expected ordereddict1 to contain 'entry1' and 'entry2' keys")
+
+    def testOrderedDictDictUpdate(self):
+        dict1 = OrderedDict()
+        dict1['entry1'] = 'you'
+        dict2 = dict()
+        dict2['entry2'] = 'me'
+        print 'Before: OrderedDict() dict1=', dict1
+        print '               dict() dict2=', dict2
+        print
+        dict1.update(dict2)
+        self.assertEqual('entry1' in dict1 and 'entry2' in dict1, True,
+                         "expected ordereddict1 to contain 'entry1' and 'entry2' keys")
+
+    def testDictOrderedDictUpdate(self):
+        dict1 = dict()
+        dict1['entry1'] = 'you'
+        dict2 = OrderedDict()
+        dict2['entry2'] = 'me'
+        print 'Before:         dict() dict1=', dict1
+        print '         OrderedDict() dict2=', dict2
+        print
+        dict1.update(dict2)
+        self.assertEqual('entry1' in dict1 and 'entry2' in dict1, True,
+                         "expected ordereddict1 to contain 'entry1' and 'entry2' keys")
+
 if __name__ == '__main__':
     unittest.main()

@@ -96,7 +96,7 @@ def __verify_required_args_present(required_arg_map):
 
     for req_arg in __required_arguments:
         if req_arg not in required_arg_map:
-            ex = exception_helper.create_cla_exception('WLSDPLY-09040', _program_name, req_arg)
+            ex = exception_helper.create_cla_exception('WLSDPLY-20005', _program_name, req_arg)
             ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
