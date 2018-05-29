@@ -845,6 +845,220 @@ When creating the archive, the tool will try to gather all binaries, scripts, an
 1. Any binaries referenced from the `ORACLE_HOME` will not be gathered, as they are assumed to exist in any target domain to which model-driven operations will be applied.  Doing this is key to allowing the model to be WebLogic Server version independent.
 2. In its current form, the discover domain Tool will only gather binaries and scripts that are accessible from the local machine.  Warnings will be generated for any binaries or scripts that cannot be found but the configuration for those binaries will still be collected, where possible.  It is the user's responsibility to add those missing files to the archive in the appropriate locations and edit the the model, as needed, to point to those files inside the archive using the relative path inside the archive (for example, `wlsdeploy/applications/myapp.ear`).
 
+    -----------------------------------------------
+    Variable Injector Tool
+    -----------------------------------------------
+
+An optional feature for the Discover Domain is the Variable Injector tool. The variable injector will replace a selected model attribute value with a property marker containing a unique variable name. This variable name and the replaced value are inserted into a variable property file.
+
+To enable the Variable Injector during the Discover Domain, you must place a json file named model_variable_injector.json into the <WLSDEPLOY>/lib directory. This file must be manually created and contain one of the pre-defined keywords and/or a CUSTOM designated file.
+
+A variable name substitution is only performed once for an attribute during the variable injector run. The first substitution is not replaced by and subsequent matches.
+
+The supported keywords are as follows:
+
+- CREDENTIALS
+    All MBean credentials attribute values (user and password) are injected with a variable property string and the string and value placed in the variable property file
+
+- HOST
+    All MBean Host attribute values in the model are injected with a variable property string and the string and value placed in the variable property file
+
+- PORT
+    All MBean Port attribute values in the model are injected with a variable property string and the string and value placed in the variable property file
+
+- TARGET
+    All MBean Target attribute values in the model are injected with a variable property string and the string and value placed in the variable property file
+
+- TOPOLOGY
+   Special MBean attributes found in the topology section of the model are injected with a variable property string and the string value placed in the variable
+   property file. This includes server, machine and node manager ports, credentials and listen addresses, and cluster messaging modes, addresses and ports.
+
+- URL
+    All MBean URL attribute values in the model are injected with a variable property string and the string and value placed in the variable property file
+
+These special keywords are defined in a keyword file that is installed into the <WLSDEPLOY>/lib directory. Each keyword is associated with an injector json file.
+Each injector json file is installed into the <WLSDEPLOY>/lib/injectors directory. An injector file contains the directives for the Variable Injector tool to
+inject variables into specific model attributes.
+
+Here is an example of a model_variable_injector.json file using the PORT keyword.
+
+```json
+{
+	"PORT": {},
+}
+```
+
+Below is a model snippet that shows injected variables for the port values in a topology section.
+
+```$yaml
+
+topology:
+    Name: soa_domain
+    AdminServerName: AdminServer
+    Cluster:
+        soa_cluster:
+        osb_cluster:
+    Server:
+        AdminServer:
+            ListenAddress: myadmin.example.com
+            ListenPort: @@PROP:Server.AdminServer.ListenPort@@
+            Machine: machine1
+            SSL:
+                Enabled: true
+                ListenPort: @@PROP:Server.SSL.AdminServer.ListenPort@@
+        soa_server1:
+            ListenAddress: managed1.example.com
+            ListenPort: @@PROP:Server.soa_server1.ListenPort@@
+            Cluster: soa_cluster
+            Machine: machine2
+            SSL:
+                Enabled: true
+                ListenPort: @@PROP:Server.SSL.soa_server1.ListenPort@@
+        soa_server2:
+            ListenAddress: managed2.example.com
+            ListenPort: @@PROP:Server.so_server2.ListenPort@@
+            Cluster: soa_cluster
+            Machine: machine3
+            SSL:
+                Enabled: true
+                ListenPort: @@PROP:Server.SSL.soa_server2.ListenPort@@
+
+And the resulting variable property file:
+
+```txt
+Server.AdminServer.ListenPort=7001
+Server.AdminServer.SSL.ListenPort=7002
+Server.soa_server1.ListenPort=8001
+Server.soa_server1.SSL.ListenPort=8002
+Server.soa_server2.ListenPort=8001
+Server.soa_server2.SSL.ListenPort=8002
+```
+
+To designate the name and location of the variable properties file, include the variable_file_name directive in the model_variable_injector.json file.
+
+```json
+{
+	"variable_file_name": "/home/savedomain/variables.properties",
+}
+```
+
+If this directive is not included in the json file, the model or archive file name and location is used to create the variable properties file name and location. If the model_file command line
+argument is used on the Discover Domain run, the properties file name and location will be the same as the model file, with the file extension `.properties`. If only the archive file argument is present, the archive file name
+and location will be used to create the variable properties file name and location.
+
+As with the archive and model file, each run of the discover domain tool will overwrite the contents of an existing variable property file with the values from the current run.
+
+# Custom Variable Injector
+
+You may customize the injector attribute replacement by using the CUSTOM keyword in the model_variable_injector.json. The CUSTOM keyword identifies a list of one or more custom injector json files.
+These injector json files will be processed first, in list order, and the resulting variable properties will not be replaced when processing additional keywords in the model variable injector json file.
+
+An entry in the injector json file is a key that specifies the unique MBean attribute that will be injected, and an optional set of directives.
+
+The injector is a period separated MBean hierarchy and attribute name as they are defined in the model. Do not enter the name of the model section into the injector key.
+
+For example, an injector key for the Server SSL Listen Port is Server.SSL.ListenPort. The Server.SSL identifies the hierarchy in the model to the attribute.
+
+```json
+{
+  "Server.SSL.ListenPort": {},
+}
+```
+
+An example of that hierarchy in a model (notice that the MBean name of AdminServer is NOT included):
+```yaml
+topology:
+    Server:
+        AdminServer:
+            ListenAddress: myadmin.example.com
+            ListenPort: 7001
+            Machine: machine1
+            SSL:
+                Enabled: true
+                ListenPort: 7002
+```
+
+The Variable Injector tool will inject a unique variable name for every server in the model that has the Server/SSL/ListenPort attribute.
+
+# Custom special directives
+
+The following directives can refine the variable injection.
+
+- force:<true|false>
+    For true, if the MBean hierarchy exists in the model, but the attribute does not, then the attribute will be added and persisted to the discovered model. The value stored in the
+    model is the weblogic default value.
+
+- variable_value:<value>
+    Replace the model value with the specified value in the variable properties. This may be used in conjunction with the force directive, replacing the default value with the indicated value.
+
+-regexp:<list of regular expression directives>
+    A list of regexp patterns that will be applied to either the string values or map values of an attribute in the model. If the pattern matches, then the matching part of the
+    string or dictionary will be injected with a unique variable name.
+    -pattern:<regexp pattern>
+        the regular expression pattern to apply to the string value or map values of an attribute
+    -suffix:<suffix name>
+        The suffix name to append to each resulting variable name in the variable properties file
+
+The regexp list is useful when only a segment of a string value needs to be parameterized (making for quick manipulation of the variable properties). If more than one
+pattern is specified in the regexp directive list, then a suffix MUST be added in order to generate a unique variable name.
+
+The following is an example of how to effectively use the regexp directive list to search for a segment in a string value. In this example, we want to search for
+the host and port in each Oracle JDBC URL that uses the special Oracle URL notation, and create an entry for the host and port in the variable properties file.
+
+In the model, we expect to find a URL like the following:
+
+```$yaml
+    JDBCSystemResource:
+        Database1:
+            JdbcResource:
+                JDBCDriverParams:
+                    URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=slc05til.us.oracle.com)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
+```
+
+We create a directive in our custom injector json file:
+
+```json
+  "JDBCSystemResource.JdbcResource.JDBCDriverParams.URL":
+  {
+    "regexp": [
+      {
+        "pattern": "(?<=PORT=)[\\w.-]+(?=\\))",
+        "suffix": "Port"
+      },
+      {
+        "pattern": "(?<=HOST=)[\\w.-]+(?=\\))",
+        "suffix": "Host"
+      }
+    ]
+  },
+```
+
+During the Discover Domain tool run, the pattern is applied to the URL string, and the resulting entries added to the variable properties:
+
+-  URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=@@PROP:JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Host@@:)(PORT=@@PROP:JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port@@)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
+-
+    JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Host=slc05til.us.oracle.com
+    JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
+
+## Selecting specific MBean names for variable injection
+
+The final custom directive allows you to explicitly define which named entries for an MBean in the model you wish to inject properties. For instance, you might wish to parameterize an attribute for a specific server, or for all the managed servers.
+To define a list of one or more names of an MBean, add a user directive to the injector keyword value. The user directive is added to the end of an MBean between brackets. For instance, to select only the admin server named AdminServer, add the
+user directive to the Server MBean - Server[AdminServer]. To select servers soa_server1 and soa_server2 from the model, create the injector key Server[soa_server1,soa_server2]
+
+The injector tool recognizes two KEYWORDS for a user list, MANAGED_SERVERS (all the managed servers in the model) and ADMIN_SERVER (The admin server in the model).
+
+A custom injector to parameterize the admin server SSL listen port is:
+
+```json
+{
+  "Server[ADMIN_SERVER].SSL.ListenPort": {},
+}
+```
+
+A sample of a model_variable_injector.json file and a custom injector json file are installed in the <WLSDEPLOY>/samples directory.
+
+
 ## Downloading and Installing the Software
 
 The Oracle WebLogic Server Deploy Tooling project repository is located at [`https://github.com/oracle/weblogic-deploy-tooling`](https://github.com/oracle/weblogic-deploy-tooling).  Binary distributions of the `weblogic-deploy.zip` installer can be downloaded from the [GitHub Releases page](https://github.com/oracle/weblogic-deploy-tooling/releases).  To install the software, simply unzip the `weblogic-deploy.zip` installer on a machine that has the desired versions of WebLogic Server installed.  After being unzipped, the software is ready to use, just set the `JAVA_HOME` environment variable to point to a Java 7 or higher JDK  and the shell scripts are ready to run.
