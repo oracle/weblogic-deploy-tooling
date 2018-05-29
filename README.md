@@ -923,12 +923,14 @@ topology:
 
 And the resulting variable property file:
 
+```
 Server.AdminServer.ListenPort=7001
 Server.AdminServer.SSL.ListenPort=7002
 Server.soa_server1.ListenPort=8001
 Server.soa_server1.SSL.ListenPort=8002
 Server.soa_server2.ListenPort=8001
 Server.soa_server2.SSL.ListenPort=8002
+```
 
 To designate the name and location of the variable properties file, include the variable_file_name directive in the model_variable_injector.json file.
 
@@ -1030,10 +1032,12 @@ We create a directive in our custom injector json file:
 
 During the Discover Domain tool run, the pattern is applied to the URL string, and the resulting entries added to the variable properties:
 
+```
 URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=@@PROP:JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Host@@:)(PORT=@@PROP:JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port@@)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
 
 JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Host=slc05til.us.oracle.com
 JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
+```
 
 ### Selecting specific MBean names for variable injection
 
