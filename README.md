@@ -845,9 +845,7 @@ When creating the archive, the tool will try to gather all binaries, scripts, an
 1. Any binaries referenced from the `ORACLE_HOME` will not be gathered, as they are assumed to exist in any target domain to which model-driven operations will be applied.  Doing this is key to allowing the model to be WebLogic Server version independent.
 2. In its current form, the discover domain Tool will only gather binaries and scripts that are accessible from the local machine.  Warnings will be generated for any binaries or scripts that cannot be found but the configuration for those binaries will still be collected, where possible.  It is the user's responsibility to add those missing files to the archive in the appropriate locations and edit the the model, as needed, to point to those files inside the archive using the relative path inside the archive (for example, `wlsdeploy/applications/myapp.ear`).
 
-    -----------------------------------------------
-    Variable Injector Tool
-    -----------------------------------------------
+## The Variable Injector Tool
 
 An optional feature for the Discover Domain is the Variable Injector tool. The variable injector will replace a selected model attribute value with a property marker containing a unique variable name. This variable name and the replaced value are inserted into a variable property file.
 
