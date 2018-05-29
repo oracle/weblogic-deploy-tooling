@@ -16,7 +16,6 @@ class VariableFileHelperTest(unittest.TestCase):
     _variable_file = _resources_dir + '/variable.injector.test.properties'
     _model_file = _resources_dir + '/variable_insertion.yaml'
     _variable_injector_keyword = 'variable_injector_keyword.json'
-    _variable_injector_custom = 'variable_injector_custom.json'
     _keywords_file = 'keywords.json'
 
     def setUp(self):
