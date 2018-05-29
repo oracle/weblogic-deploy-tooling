@@ -1039,11 +1039,11 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Host=slc05til.us
 JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
 ```
 
-### Selecting specific MBean names for variable injection
+#### Selecting specific MBean names for variable injection
 
 The final custom directive allows you to explicitly define which named entries for an MBean in the model you wish to inject properties. For instance, you might wish to parameterize an attribute just for a specific set of servers.
 To define a list of one or more names of an MBean, add a user directive to the injector keyword value. The user directive is added to the end of an MBean between brackets. For instance, to select only the admin server named AdminServer, add the
-user directive to the Server MBean - Server[AdminServer]. To select servers soa_server1 and soa_server2 from the model, create the injector key Server[soa_server1,soa_server2]
+user directive to the Server MBean - Server[AdminServer]. To select servers soa_server1 and soa_server2 from the model, the injector key is Server[soa_server1,soa_server2]
 
 The injector tool recognizes two KEYWORDS for a user list, MANAGED_SERVERS (all the managed servers in the model) and ADMIN_SERVER (The admin server in the model).
 
@@ -1054,6 +1054,8 @@ A custom injector to parameterize the admin server SSL listen port is:
   "Server[ADMIN_SERVER].SSL.ListenPort": {},
 }
 ```
+
+## Samples
 
 A sample of a model_variable_injector.json file and a custom injector json file are installed in the WLSDEPLOY/samples directory.
 
