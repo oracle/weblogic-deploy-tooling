@@ -847,11 +847,11 @@ When creating the archive, the tool will try to gather all binaries, scripts, an
 
 ## The Variable Injector Tool
 
-An optional feature for the Discover Domain is the Variable Injector tool. The variable injector will replace a selected model attribute value with a property marker containing a unique variable name. This variable name and the replaced value are inserted into a variable property file.
+The variable injector tool is used to parameterize a model with variables. These variables are assigned values by you in the external variable properties file. This facilitates the ease of using the same domain model to create new domains in different environments. You can run the variable injector tool as an option in the Discover Domain tool, or you can update a model with variables with the stand-alone command line interface.
 
-To enable the Variable Injector during the Discover Domain, you must place a json file named model_variable_injector.json into the WLSDEPLOY/lib directory. This file must be manually created and contain one of the pre-defined keywords and/or a CUSTOM designated file.
+To enable the Variable Injector during the Discover Domain, you must place a json file named model_variable_injector.json into the \<WLSDEPLOY\>/lib directory. This file must be manually created and contain one of the Variable Injector pre-defined keywords and/or a CUSTOM designated file. A keyword points to, and the custom file is, an injector directive file. These injector directives control how the variables are injected into the model and variable properties file.
 
-A variable name substitution is only performed once for an attribute during the variable injector run. The first substitution is not replaced by any subsequent matches. 
+As the directives are processed by the Variable Injector tool, a model attribute is assessed for a match for parameterization, and a property token and a unique variable name is injected into the attribute in the model. The variable name, and the model value, are placed into the external variable properties file. A variable name substitution on a model attribute is only performed once during the variable injector run. The first substitution is not replaced by any subsequent matches. 
 
 The Discover Domain tool calls the variable injector after the model has been discovered and any filters processed. The subsequent model and variable file are then validated with the validator tool.
 
@@ -876,7 +876,7 @@ The supported keywords are as follows:
 - URL
     All MBean URL attribute values in the model are injected with a variable property string and the string and value placed in the variable property file
 
-These special keywords are defined in a keyword file that is installed into the WLSDEPLOY/lib directory. Each keyword is associated with an injector json file. Each injector json file is installed into the WLSDEPLOY/lib/injectors directory. An injector file contains the directives for the Variable Injector tool to inject variable names into specified model attributes.
+These special keywords are defined in a keyword file that is installed into the \<WLSDEPLOY\>/lib directory. Each keyword is associated with an injector json file. Each injector json file is installed into the \<WLSDEPLOY\>/lib/injectors directory. An injector file contains the directives for the Variable Injector tool to inject variable names into specified model attributes.
 
 Here is an example of a model_variable_injector.json file using the PORT keyword.
 
