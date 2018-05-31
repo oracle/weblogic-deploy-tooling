@@ -918,6 +918,7 @@ topology:
             SSL:
                 Enabled: true
                 ListenPort: @@PROP:Server.SSL.soa_server2.ListenPort@@
+```
 
 And the resulting variable property file:
 
