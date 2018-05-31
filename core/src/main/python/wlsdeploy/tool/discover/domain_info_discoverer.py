@@ -26,8 +26,8 @@ class DomainInfoDiscoverer(Discoverer):
     configuration files, but extra information that is required for the completeness of the domain.
     """
 
-    def __init__(self, model_context, domain_info_dictionary, wlst_mode=WlstModes.OFFLINE):
-        Discoverer.__init__(self, model_context, wlst_mode)
+    def __init__(self, model_context, domain_info_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
         self._dictionary = domain_info_dictionary
 
     def discover(self):

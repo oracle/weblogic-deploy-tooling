@@ -21,9 +21,8 @@ class JmsResourcesDiscoverer(Discoverer):
     model format json or yaml file.
     """
 
-    def __init__(self, model_context, resource_dictionary, wlst_mode=WlstModes.OFFLINE,
-                 base_location=LocationContext()):
-        Discoverer.__init__(self, model_context, wlst_mode, base_location)
+    def __init__(self, model_context, resource_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
         self._dictionary = resource_dictionary
 
     def discover(self):

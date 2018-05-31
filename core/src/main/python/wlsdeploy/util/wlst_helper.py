@@ -1001,3 +1001,12 @@ def _get_wlst_mode():
     else:
         result = 'offline'
     return result
+
+
+def get_mbi():
+    """
+    Get the MBeanInfo for the current MBean location.
+    :return: javax.management.modelmbean.ModelMBeanInfo instance for the current location
+    """
+    return wlst.getMBI()
+

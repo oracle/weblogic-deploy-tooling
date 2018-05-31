@@ -26,18 +26,18 @@ class MultiTenantDiscoverer(Discoverer):
     partition resources and deployments, including partition resource groups.
     """
 
-    def __init__(self, model, model_context, wlst_mode=WlstModes.OFFLINE):
-        Discoverer.__init__(self, model_context, wlst_mode)
+    def __init__(self, model, model_context, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
         self._model = model
 
     def discover(self):
         _method_name = 'discover'
         _logger.entering(class_name=_class_name, method_name=_method_name)
         _logger.info('WLSDPLY-06700', class_name=_class_name, method_name=_method_name)
-        MultiTenantTopologyDiscoverer(self._model_context, self._model.get_model_topology(),
-                                      wlst_mode=self._wlst_mode).discover()
-        MultiTenantResourcesDiscoverer(self._model_context, self._model.get_model_resources(),
-                                       wlst_mode=self._wlst_mode).discover()
+        MultiTenantTopologyDiscoverer(self._model_context, self._model.get_model_topology(), self._base_location,
+                                      wlst_mode=self._wlst_mode, aliases=self._aliases).discover()
+        MultiTenantResourcesDiscoverer(self._model_context, self._model.get_model_resources(), self._base_location,
+                                       wlst_mode=self._wlst_mode, aliases=self._aliases).discover()
         dictionary = self._model.get_model_resources()
         model_folder_name, result = self.get_resource_group_templates()
         discoverer.add_to_model_if_not_empty(dictionary, model_folder_name, result)
@@ -97,10 +97,10 @@ class MultiTenantDiscoverer(Discoverer):
                              class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, resource_group)
                 result[resource_group] = self._discover_single_folder(location)
-                CommonResourcesDiscoverer(self._model_context, result[resource_group],
-                                          wlst_mode=self._wlst_mode, base_location=location).discover()
-                DeploymentsDiscoverer(self._model_context, result[resource_group],
-                                      wlst_mode=self._wlst_mode, base_location=location).discover()
+                CommonResourcesDiscoverer(self._model_context, result[resource_group], base_location,
+                                          wlst_mode=self._wlst_mode, aliases=self._aliases).discover()
+                DeploymentsDiscoverer(self._model_context, result[resource_group], base_location,
+                                      wlst_mode=self._wlst_mode, aliases=self._aliases).discover()
                 location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result

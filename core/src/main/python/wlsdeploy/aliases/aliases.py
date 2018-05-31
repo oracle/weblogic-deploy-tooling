@@ -809,7 +809,7 @@ class Aliases(object):
         model_attribute_value = None
 
         attribute_info = self._alias_entries.get_alias_attribute_entry_by_wlst_name(location, wlst_attribute_name)
-        if attribute_info is not None:
+        if attribute_info is not None and not self.__is_model_attribute_read_only(location, attribute_info):
             data_type, delimiter = \
                 alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(attribute_info,
                                                                                      wlst_attribute_value)

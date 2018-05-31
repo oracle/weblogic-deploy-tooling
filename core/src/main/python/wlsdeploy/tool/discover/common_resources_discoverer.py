@@ -30,15 +30,14 @@ class CommonResourcesDiscoverer(Discoverer):
     partition resource group.
     """
 
-    def __init__(self, model_context, resource_dictionary, wlst_mode=WlstModes.OFFLINE,
-                 base_location=LocationContext()):
+    def __init__(self, model_context, resource_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
         """
 
         :param model_context: context about the model for this instance of discover domain
         :param resource_dictionary: to populate the common resources. By default, populates the initialized resources
         :param base_location: to look for common weblogic resources. By default this is the global path or '/'
         """
-        Discoverer.__init__(self, model_context, wlst_mode, base_location)
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
         self._dictionary = resource_dictionary
         self._add_att_handler(model_constants.PATH_TO_SCRIPT, self._add_wldf_script)
 
@@ -59,10 +58,12 @@ class CommonResourcesDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_jdbc_stores()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        JmsResourcesDiscoverer(self._model_context, self._dictionary, wlst_mode=self._wlst_mode).discover()
+        JmsResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, wlst_mode=self._wlst_mode,
+                               aliases=self._aliases).discover()
         model_folder_name, folder_result = self.get_wldf_system_resources()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        CoherenceResourcesDiscoverer(self._model_context, self._dictionary, wlst_mode=self._wlst_mode).discover()
+        CoherenceResourcesDiscoverer(self._model_context, self._dictionary, self._base_location,
+                                     wlst_mode=self._wlst_mode, aliases=self._aliases).discover()
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary

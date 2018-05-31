@@ -20,8 +20,7 @@ class MultiTenantResourcesDiscoverer(Discoverer):
     Discover the weblogic multi-tenant resources from the domain.
     """
 
-    def __init__(self, model_context, resources_dictionary, wlst_mode=WlstModes.OFFLINE,
-                 base_location=LocationContext()):
+    def __init__(self, model_context, resources_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
         Discoverer.__init__(self, model_context, wlst_mode, base_location)
         self._dictionary = resources_dictionary
 
@@ -43,7 +42,7 @@ class MultiTenantResourcesDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.RESOURCE_MANAGEMENT
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         resource = self._find_singleton_name_in_folder(location)
         if resource is not None:

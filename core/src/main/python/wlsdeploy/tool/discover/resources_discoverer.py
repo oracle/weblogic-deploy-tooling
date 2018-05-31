@@ -18,7 +18,9 @@ class ResourcesDiscoverer(object):
     resources common to both global and multi-tenant.
     """
 
-    def __init__(self, model_context, resource_dictionary, wlst_mode=WlstModes.OFFLINE):
+    def __init__(self, model_context, resource_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
+        self._base_location = base_location
+        self._aliases = aliases
         self._model_context = model_context
         self._dictionary = resource_dictionary
         self._wlst_mode = wlst_mode
@@ -31,7 +33,9 @@ class ResourcesDiscoverer(object):
         _method_name = 'discover'
         _logger.entering(class_name=_class_name, method_name=_method_name)
         _logger.info('WLSDPLY-06300', class_name=_class_name, method_name=_method_name)
-        GlobalResourcesDiscoverer(self._model_context, self._dictionary, self._wlst_mode).discover()
-        CommonResourcesDiscoverer(self._model_context, self._dictionary, self._wlst_mode).discover()
+        GlobalResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, self._wlst_mode,
+                                  self._aliases).discover()
+        CommonResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, self._wlst_mode,
+                                  self._aliases).discover()
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary

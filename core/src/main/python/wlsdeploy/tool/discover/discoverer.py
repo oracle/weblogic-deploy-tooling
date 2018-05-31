@@ -32,7 +32,7 @@ class Discoverer(object):
     Discoverer contains the private methods used to facilitate discovery of the domain information by its subclasses.
     """
 
-    def __init__(self, model_context, wlst_mode, base_location=LocationContext()):
+    def __init__(self, model_context, base_location, wlst_mode, aliases=None):
         """
 
         :param model_context: context about the model for this instance of discover domain
@@ -41,8 +41,11 @@ class Discoverer(object):
         self._model_context = model_context
         self._base_location = base_location
         self._wlst_mode = wlst_mode
-        self.__aliases = Aliases(self._model_context, wlst_mode=self._wlst_mode)
-        self._alias_helper = AliasHelper(self.__aliases, _logger, ExceptionType.DISCOVER)
+        if aliases:
+            self._aliases = aliases
+        else:
+            self._aliases = Aliases(self._model_context, wlst_mode=self._wlst_mode)
+        self._alias_helper = AliasHelper(self._aliases, _logger, ExceptionType.DISCOVER)
         self._att_handler_map = OrderedDict()
         self._wls_version = WebLogicHelper(_logger).get_actual_weblogic_version()
         self._wlst_helper = WlstHelper(_logger, ExceptionType.DISCOVER)
@@ -61,10 +64,10 @@ class Discoverer(object):
         wlst_path = self._alias_helper.get_wlst_attributes_path(location)
         _logger.finer('WLSDPLY-06100', wlst_path, class_name=_class_name, method_name=_method_name)
         self._wlst_helper.cd(wlst_path)
-        wlst_params = self._wlst_helper.lsa()
+        wlst_params = self._get_attributes_for_current_location(location)
         _logger.finest('WLSDPLY-06102', self._wlst_helper.get_pwd(), wlst_params, class_name=_class_name,
                        method_name=_method_name)
-        wlst_get_params = self._alias_helper.get_wlst_get_required_attribute_names(location)
+        wlst_get_params = self._get_required_attributes(location)
         _logger.finest('WLSDPLY-06103', str(location), wlst_get_params,
                        class_name=_class_name, method_name=_method_name)
         attr_dict = OrderedDict()
@@ -119,6 +122,50 @@ class Discoverer(object):
             _logger.fine('WLSDPLY-06109', name, str(location), pe.getLocalizedMessage(), class_name=_class_name,
                          method_name=_method_name)
         return attributes
+
+    def _get_required_attributes(self, location):
+        if self._wlst_mode == WlstModes.OFFLINE:
+            return self._get_required_attributes_offline(location)
+        else:
+            return self._get_required_attributes_online(location)
+
+    def _get_required_attributes_offline(self, location):
+        return self._alias_helper.get_wlst_get_required_attribute_names(location)
+
+    def _get_required_attributes_online(self, location):
+        """
+        Use get for all online attributes, and use the attribute names in the
+        :param location:
+        :return:
+        """
+        _method_name = '_get_required_attributes_online'
+        attributes = []
+        try:
+            mbi = wlst_helper.get_mbi()
+            mbean_attribute_info = mbi.getAttributes()
+            for mbean_attribute in mbean_attribute_info:
+                attributes.append(mbean_attribute.getName())
+        except PyWLSTException, pe:
+            name = location.get_model_folders()[-1]
+            _logger.warning('WLSDPLY-06109', name, str(location), pe.getLocalizedMessage(), class_name=_class_name,
+                            method_name=_method_name)
+        return attributes
+
+    def _mbean_names_exist(self, location):
+        """
+        Check to see if there are any configured MBeans for the current location
+        :param location: context with the current location
+        :return: True if MBeans of the type at the location exist
+        """
+        path = self._alias_helper.get_wlst_list_path(location)
+        mbean_name_map = None
+        try:
+            mbean_name_map = wlst_helper.lsa(path)
+        except DiscoverException, de:
+            _logger.warning('WLSDPLY-06130', path, de.getLocalizedMessage())
+        if mbean_name_map:
+            return True
+        return False
 
     def _check_attribute(self, model_name, model_value, location):
         """
@@ -203,10 +250,11 @@ class Discoverer(object):
         _logger.entering(model_subfolder_name, str(location), class_name=_class_name, method_name=_method_name)
         subfolder_result = OrderedDict()
         # For all server subfolder names there should only be one path
-        subfolder_path = self._alias_helper.get_wlst_attributes_path(location)
-        self._wlst_helper.cd(subfolder_path)
-        self._populate_model_parameters(subfolder_result, location)
-        self._discover_subfolders(subfolder_result, location)
+        if self._mbean_names_exist(location):
+            subfolder_path = self._alias_helper.get_wlst_attributes_path(location)
+            self._wlst_helper.cd(subfolder_path)
+            self._populate_model_parameters(subfolder_result, location)
+            self._discover_subfolders(subfolder_result, location)
         _logger.finest('WLSDPLY-06111', str(location), class_name=_class_name, method_name=_method_name)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return subfolder_result
