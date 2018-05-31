@@ -847,13 +847,13 @@ When creating the archive, the tool will try to gather all binaries, scripts, an
 
 ## The Variable Injector Tool
 
-The variable injector tool is used to parameterize a model with variables. These variables are assigned values by you in the external variable properties file. This facilitates the ease of using the same domain model to create new domains in different environments. You can run the variable injector tool as an option in the Discover Domain tool, or you can update a model with variables with the stand-alone command line interface.
+The variable injector tool is used to tokenize a model with variables. You assign a value for a variable in an external variable properties file. This facilitates using the same domain model to create new domains in different environments. You can run the variable injector tool as an option in the Discover Domain tool, or you can update a model with variables with the stand-alone command line interface.
 
-To enable the Variable Injector during the Discover Domain, you must place a json file named model_variable_injector.json into the \<WLSDEPLOY\>/lib directory. This file must be manually created and contain one of the Variable Injector pre-defined keywords and/or a CUSTOM designated file. A keyword points to, and the custom file is, an injector directive file. These injector directives control how the variables are injected into the model and variable properties file.
+To enable the Variable Injector during the Discover Domain, you place a json file named model_variable_injector.json into the \<WLSDEPLOY\>/lib directory. This file will tell the injector tool which model attributes to tokenize. You create it with one of the injector's pre-defined keywords and/or a CUSTOM file or files. A keyword points to, and the custom file is, an injector directive file. These injector directives control which variables are injected into the model and variable properties file.
 
-As the directives are processed by the Variable Injector tool, a model attribute is assessed for a match for parameterization, and a property token and a unique variable name is injected into the attribute in the model. The variable name, and the model value, are placed into the external variable properties file. A variable name substitution on a model attribute is only performed once during the variable injector run. The first substitution is not replaced by any subsequent matches. 
+As these directives are applied to the model, each model attribute is assessed for a match. If the attribute matches a directive, then a property token and a unique variable name is injected into the attribute. The variable name, and the model value, are placed into the external variable properties file. A variable name substitution on a model attribute is only performed once during the variable injector run. The first substitution is not replaced by any subsequent matches.
 
-The Discover Domain tool calls the variable injector after the model has been discovered and any filters processed. The subsequent model and variable file are then validated with the validator tool.
+The Discover Domain tool calls the variable injector after the model has been discovered and any filters processed. After variables have been injected by the tool, the model and variable file are validated with the validator tool.
 
 The supported keywords are as follows:
 
@@ -932,29 +932,17 @@ Server.soa_server2.ListenPort=8001
 Server.soa_server2.SSL.ListenPort=8002
 ```
 
-To designate the name and location of the variable properties file, include the variable_file_name directive in the model_variable_injector.json file.
-
-```json
-{
-	"variable_file_name": "/home/savedomain/variables.properties",
-}
-```
-
-If this directive is not included in the json file, the model or archive file name and location is used to create the variable properties file name and location. If the model_file command line
-argument is used on the Discover Domain run, the properties file name and location will be the same as the model file, with the file extension `.properties`. If only the archive file argument is present, the archive file name
+To specify the name and location of the variable properties file, you can use the argument `-variable_properties_file` on the discover domain command line. If you use this command line argument, the model variable injector file must exist in the \<WLSDEPLOY\>/lib directory.
+If the model variable injector file exists in the directory, but the command line argument is not used, the variable properties file will be named as follows: If the model_file command line argument is used on the Discover Domain run, the properties file name and location will be the same as the model file, with the file extension `.properties`. If only the archive file argument is present, the archive file name
 and location will be used.
 
 As with the archive and model file, each run of the discover domain tool will overwrite the contents of an existing variable property file with the values from the current run.
 
 ### Custom Variable Injector
 
-You may customize the injector attribute replacement by using the CUSTOM keyword in the model_variable_injector.json. The CUSTOM keyword identifies a list of one or more custom injector json files.
-These injector json files will be processed by the Variable Injector tool first, in list order. Any resulting variable replacement will not be overlaid when processing additional keywords.
+You may designate custom injector directives by using the CUSTOM keyword in the model_variable_injector.json. On the CUSTOM keyword, you identify a list of one or more custom injector directive json files. An entry in the injector json file is a key that specifies the unique MBean attribute to tokenize, and an optional set of directives. The injector is a period separated MBean hierarchy and attribute name as they are defined in the model. Do not enter the name of the model section into the injector key.
 
-An entry in the injector json file is a key that specifies the unique MBean attribute to parameterize, and an optional set of directives. The injector is a period separated MBean hierarchy and attribute name as they are defined in the model.
-Do not enter the name of the model section into the injector key.
-
-For example, an injector key for the Server SSL Listen Port is Server.SSL.ListenPort. The Server.SSL identifies the hierarchy in the model to the attribute.
+For example, an injector key for the Server SSL Listen Port is as below.
 
 ```json
 {
@@ -962,7 +950,8 @@ For example, an injector key for the Server SSL Listen Port is Server.SSL.Listen
 }
 ```
 
-An example of that hierarchy in a model (notice that the MBean name of AdminServer is NOT included):
+Note the hierarchy of MBeans in the model for the ListenPort attribute and note that the MBean name of AdminServer is NOT included in the directive:
+
 ```yaml
 topology:
     Server:
@@ -975,14 +964,14 @@ topology:
                 ListenPort: 7002
 ```
 
-For this example, the Variable Injector tool will inject a unique variable name for every server in the model that has the Server/SSL/ListenPort attribute.
+These custom injector json files will be processed by the Variable Injector tool before keywords, each file processed in list order. A property injected into an attribute will not be replaced by any subsequent matches.
 
 #### Custom special directives
 
 The following directives can refine the variable injection.
 
-- force:<true|false>
-    For true, if the MBean hierarchy exists in the model, but the attribute does not, then the attribute will be added and persisted to the discovered model. The value stored in the
+- force:<attribute>
+    If the MBean hierarchy exists in the model, but the attribute does not, then the attribute will be added and persisted to the discovered model. The value stored in the
     model is the weblogic default value.
 
 - variable_value:
@@ -990,14 +979,13 @@ The following directives can refine the variable injection.
 
 - regexp:
     A list of regexp patterns that will be applied to either the string values or map values of an attribute in the model. If the pattern matches, then the matching part of the
-    string or dictionary will be injected with a unique variable name.
+    string or dictionary will be injected with a property token and a unique variable name .
 -- pattern:
     the regular expression pattern to apply to the string value or map values of an attribute
 -- suffix:
-    The suffix name to append to each resulting variable name in the variable properties file
+    The suffix name to append to each resulting variable name in order to create a unique variable name
 
-The regexp list is useful when only a segment of a string value needs to be parameterized (making for quick manipulation of the variable properties). If more than one
-pattern is specified in the regexp directive list, then a suffix MUST be added in order to generate a unique variable name.
+The regexp list is useful when only a segment of a string value or map needs to be injected (giving you a clean list of property values in the variable properties file). You can inject more than one token into a string or map with multiple patterns. However, when you have more than one pattern, you must provide a suffix for each. This allows the tool to generate a unique variable name for each token in the string or map.
 
 The following is an example of how to effectively use the regexp directive list to search for a segment in a string value. In this example, we want to search for
 the host and port in each Oracle JDBC URL that uses the special Oracle URL notation, and create an entry for the host and port in the variable properties file.
@@ -1030,24 +1018,31 @@ We create a directive in our custom injector json file:
   },
 ```
 
-During the Discover Domain tool run, the pattern is applied to the URL string, and the resulting entries added to the variable properties:
+During the Discover Domain tool run, the pattern is applied to the URL string and tokens injected into the string:
 
 ```
 URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=@@PROP:JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Host@@:)(PORT=@@PROP:JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port@@)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
+```
 
+And The variables put in the properties file:
+
+```
 JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Host=slc05til.us.oracle.com
 JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
 ```
 
 #### Selecting specific MBean names for variable injection
 
-The final custom directive allows you to explicitly define which named entries for an MBean in the model you wish to inject properties. For instance, you might wish to parameterize an attribute just for a specific set of servers.
-To define a list of one or more names of an MBean, add a user directive to the injector keyword value. The user directive is added to the end of an MBean between brackets. For instance, to select only the admin server named AdminServer, add the
-user directive to the Server MBean - Server[AdminServer]. To select servers soa_server1 and soa_server2 from the model, the injector key is Server[soa_server1,soa_server2]
+The final custom directive allows you to explicitly define which named entries for an MBean in the model you wish to inject properties. For instance, you might wish to tokenize an attribute just for a specific server.
+To define a list of one or more names for a specific MBean in the injector directive hierarchy, format the list as follows:
+```
+MBean[comma separated list of names]
+``
+For instance, to select only the admin server named AdminServer for a Server directive, use the format Server[AdminServer]. To select servers soa_server1 and soa_server2 from the model, the injector key use the format Server[soa_server1,soa_server2]
 
 The injector tool recognizes two KEYWORDS for a user list, MANAGED_SERVERS (all the managed servers in the model) and ADMIN_SERVER (The admin server in the model).
 
-A custom injector to parameterize the admin server SSL listen port is:
+A custom injector for the admin server SSL listen port is:
 
 ```json
 {
