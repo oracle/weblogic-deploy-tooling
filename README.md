@@ -984,7 +984,7 @@ Include the following properties to refine the directive as specified.
 -- suffix:
     The suffix name to append to each resulting variable name in order to create a unique variable name
 
-The regexp list is useful when only a segment of a string value or map needs to be injected (giving you a clean list of property values in the variable properties file). You can inject more than one token into a string or map with multiple patterns. However, when you have more than one pattern, you must provide a suffix for each. This allows the tool to generate a unique variable name for each token in the string or map.
+The regexp list is useful when only a segment of a string value or map needs to be tokenized (giving you a clean list of property values in the variable properties file). You can inject more than one token into a string or map with multiple patterns. However, when you have more than one pattern, you must provide a suffix for each. This allows the tool to generate a unique variable name for each token in the string or map.
 
 The following is an example of how to effectively use the regexp directive list to search for a segment in a string value. In this example, we want to search for the host and port in each Oracle JDBC URL that uses the special Oracle URL notation, and create an entry for the host and port in the variable properties file.
 
@@ -1035,7 +1035,7 @@ This final custom directive allows you to explicitly define which named entries 
 ```
 MBean[comma separated list of names]
 ``
-For instance, to select only the admin server named AdminServer for a Server directive, use the format Server[AdminServer]. To select servers soa_server1 and soa_server2 from the model, the injector key use the format Server[soa_server1,soa_server2]
+To select only the admin server named AdminServer for a Server directive, use the format Server[AdminServer]. To select servers soa_server1 and soa_server2, format the key as Server[soa_server1,soa_server2]
 
 The injector tool recognizes two KEYWORDS for a user list, MANAGED_SERVERS (all the managed servers in the model) and ADMIN_SERVER (The admin server in the model).
 
