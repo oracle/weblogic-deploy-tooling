@@ -115,6 +115,13 @@ IF %JVM_VERSION% LSS 7 (
   ECHO JDK version is %JVM_FULL_VERSION%, setting JAVA_VENDOR to Sun...
   SET JAVA_VENDOR=Sun
 )
+@rem
+@rem Check to see if no args were given and print the usage message
+@rem
+IF "%~1" == "" (
+  SET RETURN_CODE=0
+  GOTO usage
+)
 
 @rem
 @rem Find the args required to determine the WLST script to run
@@ -125,6 +132,10 @@ SET DOMAIN_TYPE=
 SET WLST_PATH_DIR=
 
 :arg_loop
+IF "%1" == "-help" (
+  SET RETURN_CODE=0
+  GOTO usage
+)
 IF "%1" == "-oracle_home" (
   SET ORACLE_HOME=%2
   SHIFT
@@ -295,8 +306,6 @@ ECHO.
 ECHO discoverDomain.cmd failed ^(exit code = %RETURN_CODE%^) >&2
 GOTO exit_script
 
-:usage
-ECHO.
 :usage
 ECHO.
 ECHO Usage: %~nx0 -oracle_home ^<oracle-home^>

@@ -34,7 +34,7 @@ VARIABLE_INJECTOR_FILE_NAME_ARG = 'variable_injector_file_name'
 VARIABLE_KEYWORDS_FILE_NAME_ARG = 'variable_keywords_file_name'
 VARIABLE_INJECTOR_FILES_PATH_ARG = 'variable_injector_files_path_name'
 VARIABLE_FILE_NAME_ARG = 'variable_file_name'
-VARIABLE_FILE_NAME = 'variables.json'
+VARIABLE_FILE_NAME = 'variable.properties'
 VARIABLE_FILE_APPEND_ARG = 'append_to_variables'
 VARIABLE_FILE_APPEND = 'append'
 VARIABLE_FILE_UPDATE = 'update'
@@ -123,7 +123,7 @@ class VariableInjector(object):
         return_model = self.__original
         variable_file_location = None
         if variables_injector_dictionary and keywords_dictionary:
-            variable_file_location = self._get_variable_file_name(variables_injector_dictionary, **kwargs)
+            variable_file_location = self._get_variable_file_name(**kwargs)
             if not variable_file_location:
                 _logger.warning('WLSDPLY-19520', variable_injector_location_file, class_name=_class_name,
                                 method_name=_method_name)
@@ -471,17 +471,11 @@ class VariableInjector(object):
             _logger.finer('WLSDPLY-19516', mbean, replacement, location.get_folder_path(),
                           class_name=_class_name, method_name=_method_name)
 
-    def _get_variable_file_name(self, variables_injector_dictionary, **kwargs):
+    def _get_variable_file_name(self, **kwargs):
         _method_name = '_get_variable_file_name'
         if VARIABLE_FILE_NAME_ARG in kwargs:
             variable_file_location = kwargs[VARIABLE_FILE_NAME_ARG]
             _logger.finer('WLSDPLY-19522', variable_file_location, class_name=_class_name, method_name=_method_name)
-            if VARIABLE_FILE_NAME_ARG in variables_injector_dictionary:
-                del variables_injector_dictionary[VARIABLE_FILE_NAME_ARG]
-        elif VARIABLE_FILE_NAME_ARG in variables_injector_dictionary:
-            variable_file_location = variables_injector_dictionary[VARIABLE_FILE_NAME_ARG]
-            del variables_injector_dictionary[VARIABLE_FILE_NAME_ARG]
-            _logger.finer('WLSDPLY-19521', variable_file_location, class_name=_class_name, method_name=_method_name)
         else:
             variable_file_location = variables.get_default_variable_file_name(self.__model_context)
         if variable_file_location:
@@ -554,6 +548,15 @@ class VariableInjector(object):
         return variable_value
 
 
+def get_default_variable_injector_file_name(variable_injector_file_name=VARIABLE_INJECTOR_FILE_NAME):
+    """
+    Return the default name and location of the model variable injector json file
+    :param variable_injector_file_name: if different than the default name
+    :return: file path in the wlsdeploy location and file name
+    """
+    return os.path.join(_wlsdeploy_location, DEFAULT_FILE_LOCATION, variable_injector_file_name)
+
+
 def _load_variable_file(variable_file_location, **kwargs):
     _method_name = '_load_variable_file'
     append = False
@@ -581,7 +584,7 @@ def _get_variable_injector_file_name(**kwargs):
     if VARIABLE_INJECTOR_PATH_NAME_ARG in kwargs:
         return os.path.join(kwargs[VARIABLE_INJECTOR_PATH_NAME_ARG], variable_injector_file_name)
     else:
-        return os.path.join(_wlsdeploy_location, DEFAULT_FILE_LOCATION, variable_injector_file_name)
+        return get_default_variable_injector_file_name(variable_injector_file_name)
 
 
 def _get_variable_keywords_file_name(**kwargs):

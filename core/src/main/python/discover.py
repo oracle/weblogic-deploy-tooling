@@ -25,6 +25,7 @@ from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
+import wlsdeploy.tool.util.variable_injector as variable_injector
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -60,6 +61,7 @@ __optional_arguments = [
     # Used by shell script to locate WLST
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
+    CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH,
     CommandLineArgUtil.ADMIN_URL_SWITCH,
     CommandLineArgUtil.ADMIN_USER_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_SWITCH
@@ -80,6 +82,7 @@ def __process_args(args):
     __verify_required_args_present(required_arg_map)
     __wlst_mode = __process_online_args(optional_arg_map)
     __process_archive_filename_arg(required_arg_map)
+    __process_variable_filename_arg(optional_arg_map)
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
@@ -156,6 +159,28 @@ def __process_archive_filename_arg(required_arg_map):
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     required_arg_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
+    return
+
+
+def __process_variable_filename_arg(optional_arg_map):
+    """
+    If the variable filename argument is present, the required model variable injector json file must exist in
+    the WLSDEPLOY lib directory.
+    :param optional_arg_map: containing the variable file name
+    :raises: CLAException: if this argument is present but the model variable injector json does not exist
+    """
+    _method_name = '__process_variable_filename_arg'
+
+    if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in optional_arg_map:
+        variable_injector_file_name = variable_injector.get_default_variable_injector_file_name()
+        try:
+            FileUtils.validateExistingFile(variable_injector_file_name)
+        except IllegalArgumentException, ie:
+            ex = exception_helper.create_cla_exception('WLSDPLY-06021', optional_arg_map[
+                CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH], variable_injector_file_name,
+                                                       ie.getLocalizedMessage(), error=ie)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
     return
 
 

@@ -1,5 +1,4 @@
 {
-	"variable_file_name": "@@WLSDEPLOY@@/samples/variables.properties",
 	"CREDENTIALS": {},
 	"CUSTOM": {
 		"file-list": [ "@@WLSDEPLOY@@/samples/custom_injector.json" ]

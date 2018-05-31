@@ -239,6 +239,7 @@ class VariableFileHelperTest(unittest.TestCase):
         expected['Machine.machine1.NodeManager.PasswordEncrypted'] = '--FIX ME--'
         expected['Machine.machine1.NodeManager.UserName'] = 'admin'
         inserted, model, variable_file_name = self._helper.inject_variables_keyword_file(
+            variable_file_name=self._variable_file,
             variable_injector_path_name=self._resources_dir,
             variable_injector_file_name=self._variable_injector_keyword,
             variable_keywords_path_name=self._resources_dir, variable_keywords_file_name=self._keywords_file)

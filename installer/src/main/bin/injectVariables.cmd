@@ -312,45 +312,40 @@ GOTO exit_script
 ECHO.
 ECHO Usage: %~nx0 [-help]
 ECHO              -oracle_home ^<oracle-home^>
-ECHO              -model_file ^<model-file^> | -archive_file ^<archive-file^>
+ECHO              [-model_file ^<model-file^>]
+ECHO              [-archive_file ^<archive-file^>]
 ECHO              [-variable_injector_file ^<variable-injector-file^>]
-ECHO              [-variable_keywords_file ^<variable-keywords-file^>]
 ECHO              [-variable_properties_file ^<variable-file^>]
 ECHO              [-domain_type ^<domain-type^>]
 ECHO              [-wlst_path ^<wlst-path^>]
 ECHO.
 ECHO     where:
-ECHO         oracle-home     - the existing Oracle Home directory with the correct version for the model
+ECHO         oracle-home            - the existing Oracle Home directory with the correct version for the model
 ECHO.
-ECHO         model-file      - the location of the model file in which variables will be injected.
-ECHO                           If not specified, the tool will look for the model
-ECHO                           in the archive file. Either the model_file or the archive_file argument must be provided.
+ECHO         model-file             - the location of the model file in which variables will be injected.
+ECHO                                  If not specified, the tool will look for the model
+ECHO                                  in the archive file. Either the model_file or the archive_file argument
+ECHO                                  must be provided.
 ECHO.
-ECHO         archive-file    - the path to the archive file that contains a model in which the variables
-ECHO                           will be injected. If the model-file argument is used, this argument will be
-ECHO                           ignored. The archive file must contain a valid model.
+ECHO         archive-file           - the path to the archive file that contains a model in which the variables
+ECHO                                  will be injected. If the model-file argument is used, this argument will be
+ECHO                                  ignored. The archive file must contain a valid model.
 ECHO.
-ECHO         variable-injector-file  - the location of the variable injector file which contains the variable
-ECHO                           injector keywords for this model injection run. If this argument is not provided,
-ECHO                           the model_variable_injector.json file must exist in the lib directory in the
-ECHO                           WLSDEPLOY_HOME location.
+ECHO         variable_properties_file - the location of the property file in which to store any variable names injected
+ECHO                                    into the model. If this command line argument is not specified, the variable
+ECHO                                    will be located and named based on the model file or archive file name and
+ECHO                                    location. If the file exists, the file will be updated with new variable values.
 ECHO.
-ECHO         variable-keywords-file   - this argument overrides the INSTALLED version of the allowed variable keywords
-ECHO                           for the variable injector. This argument is for advanced usage only. The installed
-ECHO                           keywords file is located in the lib directory of WLSDEPLOY_HOME location.
+ECHO         variable-injector-file - the location of the variable injector file which contains the variable
+ECHO                                  injector keywords for this model injection run. If this argument is not provided,
+ECHO                                  the model_variable_injector.json file must exist in the lib directory in the
+ECHO                                  WLSDEPLOY_HOME location.
 ECHO.
-ECHO         variable-file   - the location of the property file in which to store any variable names injected
-ECHO                           into the model. This argument overrides the value in the model injector file.
-ECHO                           If the variable file is not listed in the model injector file, and this command
-ECHO                           line argument is not used, the variable properties will be located and named
-ECHO                           based on the model file or archive file name and location.
-ECHO                           If the variable file exists, new variable values will be appended to the file.
+ECHO         domain-type            - the type of domain (e.g., WLS, JRF).
+ECHO                                  Used to locate wlst.cmd if wlst-path not specified
 ECHO.
-ECHO         domain-type     - the type of domain (e.g., WLS, JRF).
-ECHO                           Used to locate wlst.cmd if wlst-path not specified
-ECHO.
-ECHO         wlst-path       - the Oracle Home subdirectory of the wlst.cmd
-ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa)
+ECHO         wlst-path              - the Oracle Home subdirectory of the wlst.cmd
+ECHO                                  script to use (e.g., ^<ORACLE_HOME^>\soa)
 ECHO.
 
 :exit_script
