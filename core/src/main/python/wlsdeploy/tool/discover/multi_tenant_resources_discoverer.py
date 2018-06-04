@@ -21,7 +21,7 @@ class MultiTenantResourcesDiscoverer(Discoverer):
     """
 
     def __init__(self, model_context, resources_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
-        Discoverer.__init__(self, model_context, wlst_mode, base_location)
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
         self._dictionary = resources_dictionary
 
     def discover(self):

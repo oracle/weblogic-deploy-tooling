@@ -229,14 +229,16 @@ def lsa(path=None, log_throwing=True):
     """
     _method_name = 'lsa'
     result = _ls(_method_name, 'a', path, log_throwing)
-    if wlst.WLS_ON.isConnected() and result is not None and type(result) is dict:
-        for key, value in result.iteritems():
-            if value is not None and type(value) is str:
-                new_value = value.rstrip()
-                if new_value == 'null':
-                    result[key] = None
-                else:
-                    result[key] = new_value
+    if result:
+        if wlst.WLS_ON.isConnected():
+            for key, value in result.iteritems():
+                if value is not None and type(value) is str:
+                    new_value = value.rstrip()
+                    _logger.info('what type is it {0}', new_value)
+                    if new_value == 'null':
+                        result[key] = None
+                    else:
+                        result[key] = new_value
     return result
 
 def lsc(path=None, log_throwing=True):

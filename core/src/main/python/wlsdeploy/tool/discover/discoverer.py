@@ -84,7 +84,7 @@ class Discoverer(object):
                 else:
                     wlst_value = wlst_params[wlst_param]
 
-                _logger.finest('WLSDPLY-06105', wlst_param, wlst_value, wlst_path, class_name=_class_name,
+                _logger.finer('WLSDPLY-06105', wlst_param, wlst_value, wlst_path, class_name=_class_name,
                                method_name=_method_name)
                 try:
                     model_param, model_value = self._alias_helper.get_model_attribute_name_and_value(location,
@@ -112,8 +112,14 @@ class Discoverer(object):
         :param location: context with the current location information
         :return: list of attributes
         """
-        _method_name = '_get_attributes_for_current_location'
-        attributes = None
+        if self._wlst_mode == WlstModes.OFFLINE:
+            return self._get_attributes_for_current_location_offline(location)
+        else:
+            return self._get_attributes_for_current_location_online(location)
+
+    def _get_attributes_for_current_location_offline(self, location):
+        _method_name = '_get_attributes_for_current_location_offline'
+        attributes = []
         path = self._alias_helper.get_wlst_attributes_path(location)
         try:
             attributes = wlst_helper.lsa(path)
@@ -123,31 +129,36 @@ class Discoverer(object):
                          method_name=_method_name)
         return attributes
 
+    def _get_attributes_for_current_location_online(self, location):
+        _method_name = '_get_attributes_for_current_location_online'
+        attributes = []
+        path = self._alias_helper.get_wlst_attributes_path(location)
+        try:
+            attributes = wlst_helper.lsa(path)
+            mbean_attributes = wlst_helper.get_mbi().getAttributes()
+            for mbean_attribute in mbean_attributes:
+                name = mbean_attribute.getName()
+                if name not in attributes:
+                    attributes[name] = wlst_helper.get(name)
+        except PyWLSTException, pe:
+            name = location.get_model_folders()[-1]
+            _logger.fine('WLSDPLY-06109', name, str(location), pe.getLocalizedMessage(), class_name=_class_name,
+                         method_name=_method_name)
+        return attributes
+
     def _get_required_attributes(self, location):
-        if self._wlst_mode == WlstModes.OFFLINE:
-            return self._get_required_attributes_offline(location)
-        else:
-            return self._get_required_attributes_online(location)
-
-    def _get_required_attributes_offline(self, location):
-        return self._alias_helper.get_wlst_get_required_attribute_names(location)
-
-    def _get_required_attributes_online(self, location):
         """
         Use get for all online attributes, and use the attribute names in the
         :param location:
         :return:
         """
-        _method_name = '_get_required_attributes_online'
+        _method_name = '_get_required_attributes'
         attributes = []
         try:
-            mbi = wlst_helper.get_mbi()
-            mbean_attribute_info = mbi.getAttributes()
-            for mbean_attribute in mbean_attribute_info:
-                attributes.append(mbean_attribute.getName())
-        except PyWLSTException, pe:
+            attributes = self._alias_helper.get_wlst_get_required_attribute_names(location)
+        except DiscoverException, de:
             name = location.get_model_folders()[-1]
-            _logger.warning('WLSDPLY-06109', name, str(location), pe.getLocalizedMessage(), class_name=_class_name,
+            _logger.warning('WLSDPLY-06109', name, str(location), de.getLocalizedMessage(), class_name=_class_name,
                             method_name=_method_name)
         return attributes
 
@@ -176,7 +187,10 @@ class Discoverer(object):
         :param location: context containing current location information
         :return: new value if modified by the handler or the original value if not a special attribute
         """
-        new_value = model_value
+        if model_value == 'null ':
+            new_value = None
+        else:
+            new_value = model_value
         if model_name in self._att_handler_map:
             type_method = self._att_handler_map[model_name]
             if type_method is not None:

@@ -590,22 +590,22 @@ def compute_read_data_type_and_delimiter_from_attribute_info(attribute_info, val
     if WLST_TYPE in attribute_info:
         data_type = attribute_info[WLST_TYPE]
         delimiter = compute_delimiter_from_data_type(data_type, value)
+    else:
+        if WLST_READ_TYPE in attribute_info:
+            data_type = attribute_info[WLST_READ_TYPE]
+            read_delimiter = compute_delimiter_from_data_type(data_type, value)
+            if read_delimiter is not None:
+                delimiter = read_delimiter
 
-    if WLST_READ_TYPE in attribute_info:
-        data_type = attribute_info[WLST_READ_TYPE]
-        read_delimiter = compute_delimiter_from_data_type(data_type, value)
-        if read_delimiter is not None:
-            delimiter = read_delimiter
-
-    if PREFERRED_MODEL_TYPE in attribute_info:
-        data_type = attribute_info[PREFERRED_MODEL_TYPE]
-        #
-        # This code does not consider the delimiter defined by the preferred_model_type field unless there is
-        # no other delimiter defined by wlst_type or wlst_read_type.  This is required to handle the use case
-        # where the value read from WLST had a different separator than the preferred_model_type.
-        #
-        if delimiter is None:
-            delimiter = compute_delimiter_from_data_type(data_type, value)
+        if PREFERRED_MODEL_TYPE in attribute_info:
+            data_type = attribute_info[PREFERRED_MODEL_TYPE]
+            #
+            # This code does not consider the delimiter defined by the preferred_model_type field unless there is
+            # no other delimiter defined by wlst_type or wlst_read_type.  This is required to handle the use case
+            # where the value read from WLST had a different separator than the preferred_model_type.
+            #
+            if delimiter is None:
+                delimiter = compute_delimiter_from_data_type(data_type, value)
 
     return data_type, delimiter
 
@@ -653,12 +653,13 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
             raise ex
 
         if new_value is not None:
+            _logger.warning('data type {0} value {1}', data_type, new_value)
             if data_type == LONG:
                 new_value = Long(new_value)
             elif data_type == JAVA_LANG_BOOLEAN:
                 new_value = Boolean(new_value)
             elif data_type == JARRAY:
-                if subtype is None or subtype == 'java.lang.String':
+                if subtype == 'java.lang.String':
                     new_value = _create_string_array(new_value)
                 else:
                     new_value = _create_mbean_array(new_value, subtype)
