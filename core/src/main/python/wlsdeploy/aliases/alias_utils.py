@@ -555,7 +555,7 @@ def is_attribute_server_start_arguments(location, model_attribute_name):
     :return: True if so, False otherwise
     """
     return location.get_folder_path() == _server_start_location_folder_path and \
-           model_attribute_name == _server_start_argument_attribute_name
+        model_attribute_name == _server_start_argument_attribute_name
 
 
 def compute_delimiter_from_data_type(data_type, value):
@@ -631,6 +631,8 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
     Convert the value to the specified type.
     :param data_type: the type
     :param value: the value
+    :param subtype: optional subtype for jarray type
+    :param delimiter: optional delimiter to use for parsing
     :return: the value converted to the specified type
     """
     _method_name = 'convert_to_type'
@@ -652,14 +654,13 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        if new_value is not None:
-            _logger.warning('data type {0} value {1}', data_type, new_value)
+        try:
             if data_type == LONG:
                 new_value = Long(new_value)
             elif data_type == JAVA_LANG_BOOLEAN:
                 new_value = Boolean(new_value)
             elif data_type == JARRAY:
-                if subtype == 'java.lang.String':
+                if subtype is None or subtype == 'java.lang.String':
                     new_value = _create_string_array(new_value)
                 else:
                     new_value = _create_mbean_array(new_value, subtype)
@@ -676,6 +677,10 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
                 #
                 delimiter = compute_delimiter_from_data_type(data_type, new_value)
                 new_value = delimiter.join(new_value)
+        except TypeError, te:
+            ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter, te)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
     return new_value
 
