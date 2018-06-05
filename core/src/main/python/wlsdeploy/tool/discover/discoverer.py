@@ -4,6 +4,7 @@ The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
 
+from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import PyWLSTException
@@ -131,20 +132,37 @@ class Discoverer(object):
 
     def _get_attributes_for_current_location_online(self, location):
         _method_name = '_get_attributes_for_current_location_online'
-        attributes = []
+        attributes = dict()
         path = self._alias_helper.get_wlst_attributes_path(location)
+        added = False
         try:
             attributes = wlst_helper.lsa(path)
             mbean_attributes = wlst_helper.get_mbi().getAttributes()
-            for mbean_attribute in mbean_attributes:
-                name = mbean_attribute.getName()
-                if name not in attributes:
-                    attributes[name] = wlst_helper.get(name)
+            if mbean_attributes:
+                alias_attributes = self._get_wlst_attributes(location)
+                for mbean_attribute in mbean_attributes:
+                    name = mbean_attribute.getName()
+                    if name not in attributes and name in alias_attributes:
+                        attributes[name] = wlst_helper.get(name)
+                        added = True
+                        _logger.fine('Adding attribute {0} value {1}', name, attributes[name])
         except PyWLSTException, pe:
             name = location.get_model_folders()[-1]
             _logger.fine('WLSDPLY-06109', name, str(location), pe.getLocalizedMessage(), class_name=_class_name,
                          method_name=_method_name)
+        if added:
+            for key, value in attributes.iteritems():
+                _logger.fine('attribute list {0}={1}', key, value)
         return attributes
+
+    def _is_defined_attribute(self, location, wlst_name):
+        attribute = False
+        try:
+            if self._aliases.get_model_attribute_name(location, wlst_name):
+                attribute = True
+        except AliasException, ae:
+            pass
+        return attribute
 
     def _get_required_attributes(self, location):
         """
@@ -247,8 +265,13 @@ class Discoverer(object):
         wlst_path = self._alias_helper.get_wlst_subfolders_path(location)
         self._wlst_helper.cd(wlst_path)
         wlst_subfolders = self._wlst_helper.lsc()
-        if len(wlst_subfolders) == 0:
-            wlst_subfolders = None
+        if wlst_subfolders:
+            new_subfolders = []
+            for wlst_subfolder in wlst_subfolders:
+                model_subfolder_name = self._get_model_name(location, wlst_subfolder)
+                if model_subfolder_name:
+                    new_subfolders.append(wlst_subfolder)
+            wlst_subfolders = new_subfolders
         return wlst_subfolders
 
     def _discover_subfolder_singleton(self, model_subfolder_name, location):
@@ -539,6 +562,19 @@ class Discoverer(object):
                                  method_name=_method_name)
                 break
         return mbean_name
+
+    def _get_wlst_attributes(self, location):
+        wlst_attributes = []
+        model_attributes = self._alias_helper.get_model_attribute_names(location)
+        if model_attributes:
+            for model_attribute in model_attributes:
+                try:
+                    wlst_attribute = self._aliases.get_wlst_attribute_name(location, model_attribute)
+                    if wlst_attribute:
+                        wlst_attributes.append(wlst_attribute)
+                except AliasException, ae:
+                    continue
+        return wlst_attributes
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):

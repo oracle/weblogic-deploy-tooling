@@ -814,7 +814,12 @@ class Aliases(object):
                 alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(attribute_info,
                                                                                      wlst_attribute_value)
 
-            converted_value = alias_utils.convert_to_type(data_type, wlst_attribute_value, delimiter=delimiter)
+            preferred_type = None
+            if PREFERRED_MODEL_TYPE in attribute_info:
+                preferred_type = attribute_info[PREFERRED_MODEL_TYPE]
+            self._logger.fine('wlst attribute {0} data type {1} delimiter {2}')
+            converted_value = alias_utils.convert_from_type(data_type, wlst_attribute_value, delimiter=delimiter,
+                                                            preferred=preferred_type)
             model_attribute_name = attribute_info[MODEL_NAME]
             default_value = attribute_info[VALUE][DEFAULT]
             #

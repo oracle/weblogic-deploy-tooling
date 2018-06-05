@@ -17,6 +17,7 @@ from java.lang import NumberFormatException
 from java.lang import RuntimeException
 from java.lang import String
 from java.util import Properties
+from javax.management import ObjectName
 
 from oracle.weblogic.deploy.aliases import TypeUtils
 from oracle.weblogic.deploy.aliases import VersionException
@@ -30,11 +31,13 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.alias_constants import COMMA_DELIMITED_STRING
 from wlsdeploy.aliases.alias_constants import DELIMITED_STRING
+from wlsdeploy.aliases.alias_constants import DICTIONARY
 from wlsdeploy.aliases.alias_constants import JARRAY
 from wlsdeploy.aliases.alias_constants import JAVA_LANG_BOOLEAN
 from wlsdeploy.aliases.alias_constants import LIST
 from wlsdeploy.aliases.alias_constants import LONG
 from wlsdeploy.aliases.alias_constants import PATH_SEPARATOR_DELIMITED_STRING
+from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_FOLDER_PATHS
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_MBEAN_NAME_MAP
@@ -626,6 +629,67 @@ def get_number_of_directories_to_strip(desired_path_type, actual_path_type):
     return result
 
 
+def convert_from_type(data_type, value, preferred=None, delimiter=None):
+    """
+    Convert from wlst type
+    :param data_type: type of data
+    :param value: value of data
+    :param preferred: how it should be represented
+    :param delimiter: for representation
+    :return: converted type
+    """
+
+    _method_name = 'convert_from_type'
+    if value is not None and data_type == 'password':
+        # The password is an array of bytes coming back from the WLST get() method and only
+        # java.lang.String() is able to properly convert it to the cipher text string.  However,
+        # we don't really want to return a java.lang.String to the caller so convert that Java
+        # String back to a Python string...ugly but effective.
+        new_value = str(String(value))
+    elif value is not None and isinstance(value, ObjectName):
+        new_value = value.getKeyProperty('Name')
+    else:
+        try:
+            new_value = TypeUtils.convertToType(data_type, value, delimiter)
+        except NumberFormatException, nfe:
+            ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter,
+                                                         nfe.getLocalizedMessage(), error=nfe)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+
+        if preferred:
+            delimiter = compute_delimiter_from_data_type(preferred, value)
+        try:
+            if data_type == LONG:
+                new_value = Long(new_value)
+            elif data_type == JAVA_LANG_BOOLEAN:
+                new_value = Boolean(new_value)
+            elif data_type == JARRAY:
+                new_value = _create_array(new_value, delimiter)
+            elif data_type == PROPERTIES:
+                if preferred == DICTIONARY:
+                    new_value =
+            elif data_type == LIST:
+                new_value = list(new_value)
+            elif data_type in (COMMA_DELIMITED_STRING, DELIMITED_STRING, SEMI_COLON_DELIMITED_STRING,
+                               SPACE_DELIMITED_STRING, PATH_SEPARATOR_DELIMITED_STRING):
+                #
+                # This code intentionally ignores the delimiter value passed in and computes it from the data type.
+                # This is required to handle the special case where the value we read from WLST might have a
+                # different delimiter than the model value.  In this use case, the value passed into the method
+                # is the WLST value delimiter and the data_type is the preferred_model_type, so we compute the
+                # model delimiter from the data_type directly.
+                #
+                delimiter = compute_delimiter_from_data_type(data_type, new_value)
+                new_value = delimiter.join(new_value)
+        except TypeError, te:
+            ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter, te)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+
+    return new_value
+
+
 def convert_to_type(data_type, value, subtype=None, delimiter=None):
     """
     Convert the value to the specified type.
@@ -661,7 +725,7 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
                 new_value = Boolean(new_value)
             elif data_type == JARRAY:
                 if subtype is None or subtype == 'java.lang.String':
-                    new_value = _create_string_array(new_value)
+                    new_value = _create_string_jarray(new_value)
                 else:
                     new_value = _create_mbean_array(new_value, subtype)
             elif data_type == LIST:
@@ -951,7 +1015,7 @@ def _get_value_for_path_type(path_type):
     return result
 
 
-def _create_string_array(iterable):
+def _create_string_jarray(iterable):
     """
     Create a jarray of java.lang.String suitable for WLST attributes that take list objects.
     This is mostly used for WLST online.
@@ -962,8 +1026,35 @@ def _create_string_array(iterable):
     myarray = jarray.zeros(array_len, String)
     idx = 0
     for element in iterable:
-        myarray[idx] = element
+        if isinstance(element, String):
+            myarray[idx] = element
+        elif isinstance(element, ObjectName):
+            myarray[idx] = ObjectName.unquote(element.getKeyProperty('Name'))
+        else:
+            myarray[idx] = str(element)
         idx += 1
+    return myarray
+
+
+def _create_array(iterable, delimiter):
+    """
+    Create an array from the jarray objects. If the delimiter is present, convert it to
+    a string with the delimiter.
+    :param iterable: a List object or other iterable type
+    :param delimiter: to create a string from the array
+    :return: an array or a string containing the same contents as the provided iterable
+    """
+    myarray = []
+    for element in iterable:
+        if isinstance(element, ObjectName):
+            myarray.append(element.getKeyProperty('Name'))
+        elif not delimiter or isinstance(element, String):
+            myarray.append(str(element))
+        else:
+            myarray.append(element)
+    if delimiter:
+        # make it to a string
+        myarray = delimiter.join(myarray)
     return myarray
 
 

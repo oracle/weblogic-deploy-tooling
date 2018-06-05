@@ -242,8 +242,8 @@ def lsa(path=None, log_throwing=True):
     if wlst.WLS_ON.isConnected() and result and len(result) > 1:
         make_dict = dict()
         for entry in result.entrySet():
-            key = entry.getValue()
-            value = entry.getKey()
+            key = entry.getKey()
+            value = entry.getValue()
             if value is not None and type(value) is str:
                 new_value = value.rstrip()
                 if new_value == 'null':
