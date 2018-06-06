@@ -187,6 +187,10 @@ public final class TypeUtils {
             strValue = String.valueOf((char[]) value);
         } else {
             strValue = value.toString().trim();
+            LOGGER.fine("The string value is {0}", strValue);
+            if (strValue.length() == 0) {
+                return null;
+            }
         }
 
         Object result;
@@ -277,6 +281,7 @@ public final class TypeUtils {
         } else {
             result = convertStringToList(strValue, delimiter).toArray(new String[0]);
         }
+        LOGGER.fine("before convert {0} and after convert {1}", value, strValue);
         return result;
     }
 

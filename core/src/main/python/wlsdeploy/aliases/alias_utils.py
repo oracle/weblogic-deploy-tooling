@@ -51,6 +51,7 @@ from wlsdeploy.aliases.alias_constants import WLST_PATHS
 from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 
 _class_name = 'alias_utils'
 _logger = PlatformLogger('wlsdeploy.aliases')
@@ -256,9 +257,9 @@ def parse_curly_braces(value):
                 idx2 = alist[i].index(':')
                 idx3 = alist[i].index('}')
                 if i == 0:
-                    alist[i] = alist[i][0:idx1]+alist[i][idx1+2:idx2]+alist[i][idx3+1:]
+                    alist[i] = alist[i][0:idx1] + alist[i][idx1 + 2:idx2] + alist[i][idx3 + 1:]
                 else:
-                    alist[i] = alist[i][0:idx1]+alist[i][idx2+1:idx3]+alist[i][idx3+1:]
+                    alist[i] = alist[i][0:idx1] + alist[i][idx2 + 1:idx3] + alist[i][idx3 + 1:]
     return alist
 
 
@@ -558,7 +559,7 @@ def is_attribute_server_start_arguments(location, model_attribute_name):
     :return: True if so, False otherwise
     """
     return location.get_folder_path() == _server_start_location_folder_path and \
-        model_attribute_name == _server_start_argument_attribute_name
+           model_attribute_name == _server_start_argument_attribute_name
 
 
 def compute_delimiter_from_data_type(data_type, value):
@@ -593,24 +594,50 @@ def compute_read_data_type_and_delimiter_from_attribute_info(attribute_info, val
     if WLST_TYPE in attribute_info:
         data_type = attribute_info[WLST_TYPE]
         delimiter = compute_delimiter_from_data_type(data_type, value)
-    else:
-        if WLST_READ_TYPE in attribute_info:
-            data_type = attribute_info[WLST_READ_TYPE]
-            read_delimiter = compute_delimiter_from_data_type(data_type, value)
-            if read_delimiter is not None:
-                delimiter = read_delimiter
 
-        if PREFERRED_MODEL_TYPE in attribute_info:
-            data_type = attribute_info[PREFERRED_MODEL_TYPE]
-            #
-            # This code does not consider the delimiter defined by the preferred_model_type field unless there is
-            # no other delimiter defined by wlst_type or wlst_read_type.  This is required to handle the use case
-            # where the value read from WLST had a different separator than the preferred_model_type.
-            #
-            if delimiter is None:
-                delimiter = compute_delimiter_from_data_type(data_type, value)
+    if WLST_READ_TYPE in attribute_info:
+        data_type = attribute_info[WLST_READ_TYPE]
+        read_delimiter = compute_delimiter_from_data_type(data_type, value)
+        if read_delimiter is not None:
+            delimiter = read_delimiter
+
+    if PREFERRED_MODEL_TYPE in attribute_info:
+        data_type = attribute_info[PREFERRED_MODEL_TYPE]
+        #
+        # This code does not consider the delimiter defined by the preferred_model_type field unless there is
+        # no other delimiter defined by wlst_type or wlst_read_type.  This is required to handle the use case
+        # where the value read from WLST had a different separator than the preferred_model_type.
+        #
+        if delimiter is None:
+            delimiter = compute_delimiter_from_data_type(data_type, value)
 
     return data_type, delimiter
+
+
+def compute_read_data_type_for_wlst_and_delimiter_from_attribute_info(attribute_info, value):
+    """
+    Get the WLST read data type and delimiter from the attribute
+    :param attribute_info: attribute dictionary
+    :param value: the attribute value
+    :return: the data type and delimiter
+    """
+    data_type = None
+    preferred_data_type = None
+    delimiter = None
+    if WLST_TYPE in attribute_info:
+        data_type = attribute_info[WLST_TYPE]
+        delimiter = compute_delimiter_from_data_type(data_type, value)
+
+    if WLST_READ_TYPE in attribute_info:
+        data_type = attribute_info[WLST_READ_TYPE]
+        read_delimiter = compute_delimiter_from_data_type(data_type, value)
+        if read_delimiter is not None:
+            delimiter = read_delimiter
+
+    if PREFERRED_MODEL_TYPE in attribute_info:
+        preferred_data_type = attribute_info[PREFERRED_MODEL_TYPE]
+
+    return data_type, preferred_data_type, delimiter
 
 
 def get_number_of_directories_to_strip(desired_path_type, actual_path_type):
@@ -640,6 +667,7 @@ def convert_from_type(data_type, value, preferred=None, delimiter=None):
     """
 
     _method_name = 'convert_from_type'
+    new_value = None
     if value is not None and data_type == 'password':
         # The password is an array of bytes coming back from the WLST get() method and only
         # java.lang.String() is able to properly convert it to the cipher text string.  However,
@@ -649,43 +677,13 @@ def convert_from_type(data_type, value, preferred=None, delimiter=None):
     elif value is not None and isinstance(value, ObjectName):
         new_value = value.getKeyProperty('Name')
     else:
-        try:
-            new_value = TypeUtils.convertToType(data_type, value, delimiter)
-        except NumberFormatException, nfe:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter,
-                                                         nfe.getLocalizedMessage(), error=nfe)
-            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
+        new_value = _jconvert_to_type(data_type, value, delimiter)
 
         if preferred:
-            delimiter = compute_delimiter_from_data_type(preferred, value)
-        try:
-            if data_type == LONG:
-                new_value = Long(new_value)
-            elif data_type == JAVA_LANG_BOOLEAN:
-                new_value = Boolean(new_value)
-            elif data_type == JARRAY:
-                new_value = _create_array(new_value, delimiter)
-            elif data_type == PROPERTIES:
-                if preferred == DICTIONARY:
-                    new_value =
-            elif data_type == LIST:
-                new_value = list(new_value)
-            elif data_type in (COMMA_DELIMITED_STRING, DELIMITED_STRING, SEMI_COLON_DELIMITED_STRING,
-                               SPACE_DELIMITED_STRING, PATH_SEPARATOR_DELIMITED_STRING):
-                #
-                # This code intentionally ignores the delimiter value passed in and computes it from the data type.
-                # This is required to handle the special case where the value we read from WLST might have a
-                # different delimiter than the model value.  In this use case, the value passed into the method
-                # is the WLST value delimiter and the data_type is the preferred_model_type, so we compute the
-                # model delimiter from the data_type directly.
-                #
-                delimiter = compute_delimiter_from_data_type(data_type, new_value)
-                new_value = delimiter.join(new_value)
-        except TypeError, te:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter, te)
-            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
+            # now put it into the preferred model type, but the model delimiter should ALWAYS be the
+            # model default delimiter
+            delimiter = MODEL_LIST_DELIMITER
+            new_value = _jconvert_to_type(preferred, new_value, delimiter)
 
     return new_value
 
@@ -718,33 +716,34 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        try:
-            if data_type == LONG:
-                new_value = Long(new_value)
-            elif data_type == JAVA_LANG_BOOLEAN:
-                new_value = Boolean(new_value)
-            elif data_type == JARRAY:
-                if subtype is None or subtype == 'java.lang.String':
-                    new_value = _create_string_jarray(new_value)
-                else:
-                    new_value = _create_mbean_array(new_value, subtype)
-            elif data_type == LIST:
-                new_value = list(new_value)
-            elif data_type in (COMMA_DELIMITED_STRING, DELIMITED_STRING, SEMI_COLON_DELIMITED_STRING,
-                               SPACE_DELIMITED_STRING, PATH_SEPARATOR_DELIMITED_STRING):
-                #
-                # This code intentionally ignores the delimiter value passed in and computes it from the data type.
-                # This is required to handle the special case where the value we read from WLST might have a
-                # different delimiter than the model value.  In this use case, the value passed into the method
-                # is the WLST value delimiter and the data_type is the preferred_model_type, so we compute the
-                # model delimiter from the data_type directly.
-                #
-                delimiter = compute_delimiter_from_data_type(data_type, new_value)
-                new_value = delimiter.join(new_value)
-        except TypeError, te:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter, te)
-            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
+        if new_value is not None:
+            try:
+                if data_type == LONG:
+                    new_value = Long(new_value)
+                elif data_type == JAVA_LANG_BOOLEAN:
+                    new_value = Boolean(new_value)
+                elif data_type == JARRAY:
+                    if subtype is None or subtype == 'java.lang.String':
+                        new_value = _create_string_jarray(new_value)
+                    else:
+                        new_value = _create_mbean_array(new_value, subtype)
+                elif data_type == LIST:
+                    new_value = list(new_value)
+                elif data_type in (COMMA_DELIMITED_STRING, DELIMITED_STRING, SEMI_COLON_DELIMITED_STRING,
+                                   SPACE_DELIMITED_STRING, PATH_SEPARATOR_DELIMITED_STRING):
+                    #
+                    # This code intentionally ignores the delimiter value passed in and computes it from the data type.
+                    # This is required to handle the special case where the value we read from WLST might have a
+                    # different delimiter than the model value.  In this use case, the value passed into the method
+                    # is the WLST value delimiter and the data_type is the preferred_model_type, so we compute the
+                    # model delimiter from the data_type directly.
+                    #
+                    delimiter = compute_delimiter_from_data_type(data_type, new_value)
+                    new_value = delimiter.join(new_value)
+            except TypeError, te:
+                ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter, te)
+                _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
 
     return new_value
 
@@ -804,9 +803,52 @@ def get_security_provider_model_folder_name(mbean_name):
         result = SECURITY_PROVIDER_MBEAN_NAME_MAP[mbean_name]
     return result
 
+
 ###############################################################################
 #                              Private functions                              #
 ###############################################################################
+
+
+def _jconvert_to_type(data_type, value, delimiter):
+    _method_name = '_jconvert_to_type'
+    try:
+        converted = TypeUtils.convertToType(data_type, value, delimiter)
+    except NumberFormatException, nfe:
+        ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter,
+                                                     nfe.getLocalizedMessage(), error=nfe)
+        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+    _logger.fine('the converted is {0} converter from original {1} and the alias type is {2}', converted, value, data_type)
+    try:
+        if data_type == LONG:
+            converted = Long(converted)
+        elif data_type == JAVA_LANG_BOOLEAN:
+            converted = Boolean(converted)
+        elif data_type == JARRAY:
+            converted = _create_array(converted, delimiter)
+        # elif data_type == PROPERTIES:
+        #     if preferred == DICTIONARY:
+        #         new_value = _jconvert_to_type(preferred, new_value, delimiter)
+        elif data_type == LIST:
+            if converted:
+                converted = list(converted)
+        elif data_type in (COMMA_DELIMITED_STRING, DELIMITED_STRING, SEMI_COLON_DELIMITED_STRING,
+                           SPACE_DELIMITED_STRING, PATH_SEPARATOR_DELIMITED_STRING):
+            #
+            # This code intentionally ignores the delimiter value passed in and computes it from the data type.
+            # This is required to handle the special case where the value we read from WLST might have a
+            # different delimiter than the model value.  In this use case, the value passed into the method
+            # is the WLST value delimiter and the data_type is the preferred_model_type, so we compute the
+            # model delimiter from the data_type directly.
+            #
+            delimiter = compute_delimiter_from_data_type(data_type, converted)
+            if delimiter and converted:
+                converted = delimiter.join(converted)
+    except TypeError, te:
+        ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter, str(te))
+        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+    return converted
 
 
 def _get_path_separator(value):
@@ -1045,16 +1087,15 @@ def _create_array(iterable, delimiter):
     :return: an array or a string containing the same contents as the provided iterable
     """
     myarray = []
-    for element in iterable:
-        if isinstance(element, ObjectName):
-            myarray.append(element.getKeyProperty('Name'))
-        elif not delimiter or isinstance(element, String):
-            myarray.append(str(element))
-        else:
-            myarray.append(element)
-    if delimiter:
-        # make it to a string
-        myarray = delimiter.join(myarray)
+    _logger.fine('The iterable is {0} of type {1}', iterable, type(iterable))
+    if iterable:
+        for element in iterable:
+            if isinstance(element, ObjectName):
+                myarray.append(element.getKeyProperty('Name'))
+            elif delimiter or isinstance(element, String):
+                myarray.append(str(element))
+            else:
+                myarray.append(element)
     return myarray
 
 

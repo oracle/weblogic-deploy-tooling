@@ -77,23 +77,28 @@ class Discoverer(object):
                 if wlst_param in wlst_get_params:
                     _logger.finest('WLSDPLY-06104', wlst_param, class_name=_class_name, method_name=_method_name)
                     try:
-                        wlst_value = self._wlst_helper.get(wlst_param)
-                    except DiscoverException, pe:
-                        _logger.warning('WLSDPLY-06127', wlst_param, self._get_wlst_mode_string(), self._wls_version,
-                                        pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
+                        wlst_value = wlst_helper.get(wlst_param)
+                    except PyWLSTException, pe:
+                        _logger.warning('WLSDPLY-06127', wlst_param, str(location), self._get_wlst_mode_string(),
+                                        self._wls_version, pe.getLocalizedMessage(), class_name=_class_name,
+                                        method_name=_method_name)
                         continue
                 else:
                     wlst_value = wlst_params[wlst_param]
 
+                # if type(wlst_value) == str and len(wlst_value) == 0:
+                #     wlst_value = None
+
                 _logger.finer('WLSDPLY-06105', wlst_param, wlst_value, wlst_path, class_name=_class_name,
-                               method_name=_method_name)
+                              method_name=_method_name)
                 try:
-                    model_param, model_value = self._alias_helper.get_model_attribute_name_and_value(location,
-                                                                                                     wlst_param,
-                                                                                                     wlst_value)
-                except DiscoverException, de:
-                    _logger.warning('WLSDPLY-06106', wlst_param, self._get_wlst_mode_string(), self._wls_version,
-                                    de.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
+                    model_param, model_value = self._aliases.get_model_attribute_name_and_value(location,
+                                                                                                wlst_param,
+                                                                                                wlst_value)
+                except AliasException, de:
+                    _logger.warning('WLSDPLY-06106', wlst_param, str(location), self._get_wlst_mode_string(),
+                                    self._wls_version, de.getLocalizedMessage(), class_name=_class_name,
+                                    method_name=_method_name)
                     continue
 
                 attr_dict[model_param] = wlst_value
@@ -145,14 +150,10 @@ class Discoverer(object):
                     if name not in attributes and name in alias_attributes:
                         attributes[name] = wlst_helper.get(name)
                         added = True
-                        _logger.fine('Adding attribute {0} value {1}', name, attributes[name])
         except PyWLSTException, pe:
             name = location.get_model_folders()[-1]
             _logger.fine('WLSDPLY-06109', name, str(location), pe.getLocalizedMessage(), class_name=_class_name,
                          method_name=_method_name)
-        if added:
-            for key, value in attributes.iteritems():
-                _logger.fine('attribute list {0}={1}', key, value)
         return attributes
 
     def _is_defined_attribute(self, location, wlst_name):
@@ -189,7 +190,7 @@ class Discoverer(object):
         path = self._alias_helper.get_wlst_list_path(location)
         mbean_name_map = None
         try:
-            mbean_name_map = wlst_helper.lsa(path)
+            mbean_name_map = wlst_helper.lsc(path)
         except DiscoverException, de:
             _logger.warning('WLSDPLY-06130', path, de.getLocalizedMessage())
         if mbean_name_map:
