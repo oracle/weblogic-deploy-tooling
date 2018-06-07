@@ -818,7 +818,6 @@ def _jconvert_to_type(data_type, value, delimiter):
                                                      nfe.getLocalizedMessage(), error=nfe)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
-    _logger.fine('the converted is {0} converter from original {1} and the alias type is {2}', converted, value, data_type)
     try:
         if data_type == LONG:
             converted = Long(converted)
@@ -1087,7 +1086,6 @@ def _create_array(iterable, delimiter):
     :return: an array or a string containing the same contents as the provided iterable
     """
     myarray = []
-    _logger.fine('The iterable is {0} of type {1}', iterable, type(iterable))
     if iterable:
         for element in iterable:
             if isinstance(element, ObjectName):
