@@ -246,7 +246,7 @@ def lsa(path=None, log_throwing=True):
             value = entry.getValue()
             if value is not None and type(value) is str:
                 new_value = value.rstrip()
-                if new_value == 'null':
+                if new_value == 'null' or new_value == 'none':
                     make_dict[key] = None
                 else:
                     make_dict[key] = new_value
