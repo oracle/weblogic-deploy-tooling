@@ -187,7 +187,6 @@ public final class TypeUtils {
             strValue = String.valueOf((char[]) value);
         } else {
             strValue = value.toString().trim();
-            LOGGER.fine("The string value is {0}", strValue);
             if (strValue.length() == 0) {
                 return null;
             }
