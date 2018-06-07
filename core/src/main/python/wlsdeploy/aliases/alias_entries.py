@@ -738,7 +738,7 @@ class AliasEntries(object):
                 else:
                     _logger.warning('WLSDPLY-08110', wlst_attribute_name, location.get_folder_path(), WLST_PATH)
             else:
-                if wlst_attribute_name not in ('Id', 'Tag', 'Name'):
+                if wlst_attribute_name not in ('Id', 'Tag', 'Tags', 'Type', 'Name'):
                     ex = exception_helper.create_alias_exception('WLSDPLY-08111', location.get_folder_path(),
                                                                  wlst_attribute_name)
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)

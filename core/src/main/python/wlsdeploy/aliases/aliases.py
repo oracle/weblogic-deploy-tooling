@@ -854,12 +854,6 @@ class Aliases(object):
                     model_attribute_value = converted_value
                     if USES_PATH_TOKENS in attribute_info:
                         model_attribute_value = self._model_context.tokenize_path(model_attribute_value)
-
-            if wlst_attribute_name not in ('Id', 'Tag', 'Tags', 'Type', 'Name') and model_attribute_name is None:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08406', wlst_attribute_name,
-                                                             location.get_folder_path())
-                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                raise ex
         self._logger.exiting(class_name=self._class_name, method_name=_method_name,
                              result={model_attribute_name: model_attribute_value})
         return model_attribute_name, model_attribute_value
