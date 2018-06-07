@@ -2,7 +2,6 @@
 Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-import os
 import unittest
 
 import wlsdeploy.util.variables as variables
@@ -156,10 +155,10 @@ class VariableFileHelperTest(unittest.TestCase):
             variable_injector.REGEXP] = [list_entry]
         actual = self._helper.inject_variables(replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
-        list = self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester'][
+        wldf_list = self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester'][
             'HarvestedType']['weblogic.management.runtime.ServerRuntimeMBean']['HarvestedAttribute']
         found = False
-        for entry in list:
+        for entry in wldf_list:
             if entry == '@@PROP:WLDFSystemResource.MyWldfModule.WLDFResource.Harvester.HarvestedType.' \
                         'weblogic.management.runtime.ServerRuntimeMBean.HarvestedAttribute@@':
                 found = True
@@ -179,11 +178,10 @@ class VariableFileHelperTest(unittest.TestCase):
             variable_injector.REGEXP] = [list_entry]
         actual = self._helper.inject_variables(replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
-        list = \
-        self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester']['HarvestedType'][
-            'weblogic.management.runtime.ServerRuntimeMBean']['HarvestedInstance']
+        wldf_list = self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester'][
+            'HarvestedType']['weblogic.management.runtime.ServerRuntimeMBean']['HarvestedInstance']
         found = False
-        for entry in list:
+        for entry in wldf_list:
             if entry == 'com.bea:Name=@@PROP:WLDFSystemResource.MyWldfModule.WLDFResource.Harvester.HarvestedType.' \
                         'weblogic.management.runtime.ServerRuntimeMBean.HarvestedInstance--ManagedServer@@' \
                         ',Type=ServerRuntime':
@@ -246,7 +244,6 @@ class VariableFileHelperTest(unittest.TestCase):
         self.assertEqual(self._variable_file, variable_file_name)
         self.assertEqual(True, inserted)
         actual = variables.load_variables(self._variable_file)
-        print actual
         self._compare_to_expected_dictionary(expected, actual)
 
     def testForceAttribute(self):
@@ -257,6 +254,15 @@ class VariableFileHelperTest(unittest.TestCase):
         replacement_dict = dict()
         replacement_dict['Server.SSL.HostnameVerificationIgnored'] = dict()
         replacement_dict['Server.SSL.HostnameVerificationIgnored'][variable_injector.FORCE] = True
+        actual = self._helper.inject_variables(replacement_dict)
+        self._compare_to_expected_dictionary(expected, actual)
+
+    def testForceAttributeWithTwoDefaults(self):
+        expected = dict()
+        expected['JMSSystemResource.MyJmsModule.JmsResource.Template.JmsTemplate.MaximumMessageSize'] = '0'
+        replacement_dict = dict()
+        replacement_dict['JMSSystemResource.JmsResource.Template.MaximumMessageSize'] = dict()
+        replacement_dict['JMSSystemResource.JmsResource.Template.MaximumMessageSize'][variable_injector.FORCE] = True
         actual = self._helper.inject_variables(replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
@@ -272,6 +278,7 @@ class VariableFileHelperTest(unittest.TestCase):
                          'JNDIProperty[java.naming.security.principal].Value'][
             variable_injector.VARIABLE_VALUE] = 'k8s'
         actual = self._helper.inject_variables(replacement_dict)
+        print actual
         self._compare_to_expected_dictionary(expected, actual)
 
     def testReplaceVariableValueSegmentInString(self):
@@ -283,8 +290,8 @@ class VariableFileHelperTest(unittest.TestCase):
         list_entry = dict()
         list_entry[variable_injector.REGEXP_PATTERN] = '(?<=HOST=)[\w.-]+(?=\))'
         list_entry[variable_injector.REGEXP_SUFFIX] = 'Host'
-        replacement_dict['JDBCSystemResource[Database2].JdbcResource.JDBCDriverParams.URL'][variable_injector.REGEXP] = [
-            list_entry]
+        replacement_dict['JDBCSystemResource[Database2].JdbcResource.JDBCDriverParams.URL'][
+            variable_injector.REGEXP] = [list_entry]
         replacement_dict['JDBCSystemResource[Database2].JdbcResource.JDBCDriverParams.URL'][
             variable_injector.VARIABLE_VALUE] = 'den00chv'
         actual = self._helper.inject_variables(replacement_dict)

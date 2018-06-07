@@ -35,6 +35,8 @@ topology:
             SSL:
                 Enabled: true
                 ListenPort: 9004
+            DefaultFileStore:
+                InitialSize:  512
             ListenPort: 9003
         AdminServer:
             ListenAddress: 127.0.0.1
@@ -44,6 +46,13 @@ topology:
                 ListenPort: 9002
             ListenPort: 9001
 resources:
+    SelfTuning:
+        MaxThreadsConstraint:
+            ThreeMax:
+                Count: 3
+        WorkManager:
+            MaxThWM:
+                Target: mycluster
     MailSession:
         MyMailSession:
             Properties:
@@ -97,6 +106,9 @@ resources:
                                  Key: bar
                                  Value: True
                          JNDIPropertiesCredentialEncrypted: '--FIX ME--'
+                 Template:
+                     JmsTemplate:
+                         InsertionPausedAtStartup: true
     JDBCSystemResource:
         Database1:
             DescriptorFileName: 'jdbc/Database1-3195-jdbc.xml'

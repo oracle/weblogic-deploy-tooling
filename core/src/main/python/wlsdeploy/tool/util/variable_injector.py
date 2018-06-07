@@ -92,11 +92,15 @@ class VariableInjector(object):
         self.__original = copy.deepcopy(model)
         self.__model = model
         self.__model_context = model_context
+        if self.__model_context:
+            self.__wlst_mode = self.__model_context.get_target_wlst_mode()
+        else:
+            self.__wlst_mode = WlstModes.OFFLINE
         self.__section_keys = model_sections.get_model_top_level_keys()
         self.__section_keys.remove(model_sections.get_model_domain_info_key())
 
         if version:
-            self.__aliases = Aliases(model_context, WlstModes.OFFLINE, version, None)
+            self.__aliases = Aliases(model_context, self.__wlst_mode, version, None)
         else:
             self.__aliases = Aliases(model_context)
 
@@ -526,26 +530,25 @@ class VariableInjector(object):
         _method_name = '_check_insert_attribute_model'
         if attribute not in model_section and (FORCE in injector_values and Boolean(injector_values[FORCE])):
             value = self.__aliases.get_model_attribute_default_value(location, attribute)
-            # This is the best I can do - need a get_default_value_model function(location, attribute)
-            __, wlst_value = self.__aliases.get_wlst_attribute_name_and_value(location, attribute, value)
-            _logger.fine('WLSDPLY-19540', attribute, location.get_folder_path(), wlst_value,
+            _logger.fine('WLSDPLY-19540', attribute, location.get_folder_path(), value,
                          class_name=_class_name, method_name=_method_name)
-            model_section[attribute] = wlst_value
+            model_section[attribute] = value
 
     def _check_replace_variable_value(self, location, attribute, variable_value, injector_values):
         _method_name = '_format_variable_value'
+        value = variable_value
         if VARIABLE_VALUE in injector_values:
             value = injector_values[VARIABLE_VALUE]
             # might add code to call a method to populate the replacement value
             try:
-                self.__aliases.get_wlst_attribute_name_and_value(location, attribute, value)
-                variable_value = value
+                wlst_attribute_name = self.__aliases.get_wlst_attribute_name(location, attribute)
+                __, value = self.__aliases.get_model_attribute_name_and_value(location, wlst_attribute_name, value)
                 _logger.fine('WLSDPLY-19542', value, variable_value, attribute, location.get_folder_path(),
                              class_name=_class_name, method_name=_method_name)
             except AliasException, ae:
                 _logger.warning('WLSDPLY-19541', value, attribute, location, ae.getLocalizedMessage(),
                                 class_name=_class_name, method_name=_method_name)
-        return variable_value
+        return value
 
 
 def get_default_variable_injector_file_name(variable_injector_file_name=VARIABLE_INJECTOR_FILE_NAME):
