@@ -190,7 +190,7 @@ def __encrypt_model_and_variables(model_context):
 
     if variable_change_count > 0:
         try:
-            variable_helper.write_variables(variables, variable_file)
+            variable_helper.write_variables(_program_name, variables, variable_file)
             __logger.info('WLSDPLY-04209', _program_name, variable_change_count, variable_file,
                           class_name=_class_name, method_name=_method_name)
         except VariableException, ve:

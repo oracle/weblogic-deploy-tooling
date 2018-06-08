@@ -12,20 +12,20 @@ from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from java.lang import String
-
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
-from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
+from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
+import wlsdeploy.tool.util.variable_injector as variable_injector
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -36,8 +36,9 @@ from wlsdeploy.tool.discover.domain_info_discoverer import DomainInfoDiscoverer
 from wlsdeploy.tool.discover.multi_tenant_discoverer import MultiTenantDiscoverer
 from wlsdeploy.tool.discover.resources_discoverer import ResourcesDiscoverer
 from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
-from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.util.variable_injector import VariableInjector
+from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -58,8 +59,9 @@ __required_arguments = [
 
 __optional_arguments = [
     # Used by shell script to locate WLST
-    CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH,
+    CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
+    CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH,
     CommandLineArgUtil.ADMIN_URL_SWITCH,
     CommandLineArgUtil.ADMIN_USER_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_SWITCH
@@ -80,6 +82,7 @@ def __process_args(args):
     __verify_required_args_present(required_arg_map)
     __wlst_mode = __process_online_args(optional_arg_map)
     __process_archive_filename_arg(required_arg_map)
+    __process_variable_filename_arg(optional_arg_map)
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
@@ -135,7 +138,7 @@ def __process_online_args(optional_arg_map):
                 raise ex
             optional_arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH] = String(password)
 
-        __logger.info('WLSDPLY-06020')
+        __logger.info('WLSDPLY-06020', class_name=_class_name, method_name=_method_name)
     return mode
 
 
@@ -156,6 +159,28 @@ def __process_archive_filename_arg(required_arg_map):
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     required_arg_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
+    return
+
+
+def __process_variable_filename_arg(optional_arg_map):
+    """
+    If the variable filename argument is present, the required model variable injector json file must exist in
+    the WLSDEPLOY lib directory.
+    :param optional_arg_map: containing the variable file name
+    :raises: CLAException: if this argument is present but the model variable injector json does not exist
+    """
+    _method_name = '__process_variable_filename_arg'
+
+    if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in optional_arg_map:
+        variable_injector_file_name = variable_injector.get_default_variable_injector_file_name()
+        try:
+            FileUtils.validateExistingFile(variable_injector_file_name)
+        except IllegalArgumentException, ie:
+            ex = exception_helper.create_cla_exception('WLSDPLY-06021', optional_arg_map[
+                CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH], variable_injector_file_name,
+                                                       ie.getLocalizedMessage(), error=ie)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
     return
 
 
@@ -344,7 +369,7 @@ def __persist_model(model, model_context):
             if not model_file.delete():
                 model_file.deleteOnExit()
         except (WLSDeployArchiveIOException, IllegalArgumentException), arch_ex:
-            ex = exception_helper.create_discover_exception('WLSDPLY-06009', model_file.getAbsolutePath(),
+            ex = exception_helper.create_discover_exception('WLSDPLY-20023', model_file.getAbsolutePath(),
                                                             model_file_name, arch_ex.getLocalizedMessage(),
                                                             error=arch_ex)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -368,25 +393,31 @@ def __check_and_customize_model(model, model_context):
     if filter_helper.apply_filters(model.get_model(), "discover"):
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
-
+    inserted, variable_model, variable_file_name = VariableInjector(_program_name, model.get_model(), model_context,
+                                                                    WebLogicHelper(
+                                                                        __logger).get_actual_weblogic_version()).\
+        inject_variables_keyword_file()
+    if inserted:
+        model = Model(variable_model)
     try:
         validator = Validator(model_context, wlst_mode=__wlst_mode)
 
         # no variables are generated by the discover tool
-        validator.validate_in_tool_mode(model.get_model(), variables_file_name=None,
-                                                      archive_file_name=model_context.get_archive_file_name())
+        validator.validate_in_tool_mode(model.get_model(), variables_file_name=variable_file_name,
+                                        archive_file_name=model_context.get_archive_file_name())
     except ValidateException, ex:
         __logger.warning('WLSDPLY-06015', ex.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
+    return model
 
 
-def __log_and_exit(exit_code, _class_name, _method_name):
+def __log_and_exit(exit_code, class_name, _method_name):
     """
     Helper method to log the exiting message and call sys.exit()
     :param exit_code: the exit code to use
-    :param _class_name: the class name to pass  to the logger
+    :param class_name: the class name to pass  to the logger
     :param _method_name: the method name to pass to the logger
     """
-    __logger.exiting(result=exit_code, class_name=_class_name, method_name=_method_name)
+    __logger.exiting(result=exit_code, class_name=class_name, method_name=_method_name)
     sys.exit(exit_code)
 
 
@@ -433,12 +464,12 @@ def main(args):
                         error=ex, class_name=_class_name, method_name=_method_name)
         __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
 
-    __check_and_customize_model(model, model_context)
-
+    model = __check_and_customize_model(model, model_context)
     try:
         __persist_model(model, model_context)
+
     except TranslateException, ex:
-        __logger.severe('WLSDPLY-06012', _program_name, model_context.get_archive_file_name(), ex.getLocalizedMessage(),
+        __logger.severe('WLSDPLY-20024', _program_name, model_context.get_archive_file_name(), ex.getLocalizedMessage(),
                         error=ex, class_name=_class_name, method_name=_method_name)
         __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
 

@@ -61,6 +61,10 @@ class CommandLineArgUtil(object):
     ATTRIBUTES_ONLY_SWITCH     = '-attributes_only'
     FOLDERS_ONLY_SWITCH        = '-folders_only'
     RECURSIVE_SWITCH           = '-recursive'
+    # overrides for the variable injector
+    VARIABLE_INJECTOR_FILE_SWITCH   = '-variable_injector_file'
+    VARIABLE_KEYWORDS_FILE_SWITCH   = '-variable_keywords_file'
+    VARIABLE_PROPERTIES_FILE_SWITCH = '-variable_properties_file'
     # a slot to stash the parsed domain typedef dictionary
     DOMAIN_TYPEDEF             = 'domain_typedef'
     # a slot to stash the archive file object
@@ -332,6 +336,33 @@ class CommandLineArgUtil(object):
                 self._add_arg(key, True)
             elif self.is_recursive_switch(key):
                 self._add_arg(key, True)
+            elif self.is_variable_injector_file_key(key):
+                idx += 1
+                if idx < args_len:
+                    full_path = self._validate_variable_injector_file_arg(args[idx])
+                    self._add_arg(key, full_path, True)
+                else:
+                    ex = self._get_out_of_args_exception(key)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
+            elif self.is_variable_keywords_file_key(key):
+                idx += 1
+                if idx < args_len:
+                    full_path = self._validate_variable_keywords_file_arg(args[idx])
+                    self._add_arg(key, full_path, True)
+                else:
+                    ex = self._get_out_of_args_exception(key)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
+            elif self.is_variable_properties_file_key(key):
+                idx += 1
+                if idx < args_len:
+                    full_path = self._validate_variable_properties_file_arg(args[idx])
+                    self._add_arg(key, full_path, True)
+                else:
+                    ex = self._get_out_of_args_exception(key)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
             else:
                 ex = exception_helper.create_cla_exception('WLSDPLY-01601', self._program_name, key)
                 ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
@@ -387,7 +418,6 @@ class CommandLineArgUtil(object):
             raise ex
 
         return oh_name
-
 
     def get_java_home_key(self):
         return str(self.JAVA_HOME_SWITCH)
@@ -506,7 +536,6 @@ class CommandLineArgUtil(object):
             raise ex
 
         return wlst_path.getAbsolutePath()
-
 
     def get_admin_url_key(self):
         return self.ADMIN_URL_SWITCH
@@ -862,6 +891,61 @@ class CommandLineArgUtil(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return
+
+    def get_variable_injector_file_key(self):
+        return self.VARIABLE_INJECTOR_FILE_SWITCH
+
+    def is_variable_injector_file_key(self, key):
+        return self.VARIABLE_INJECTOR_FILE_SWITCH == key
+
+    def _validate_variable_injector_file_arg(self, value):
+        method_name = '_validate_variable_injector_file_arg'
+
+        try:
+            injector = JFileUtils.validateExistingFile(value)
+        except JIllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01635', value, iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return injector.getAbsolutePath()
+
+    def get_variable_keywords_file_key(self):
+        return self.VARIABLE_KEYWORDS_FILE_SWITCH
+
+    def is_variable_keywords_file_key(self, key):
+        return self.VARIABLE_KEYWORDS_FILE_SWITCH == key
+
+    def _validate_variable_keywords_file_arg(self, value):
+        method_name = '_validate_variable_keywords_file_arg'
+
+        try:
+            keywords = JFileUtils.validateExistingFile(value)
+        except JIllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01636', value, iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return keywords.getAbsolutePath()
+
+    # use this argument switch for the injector as the variables file does not have to exist
+    def get_variable_properties_file_key(self):
+        return self.VARIABLE_PROPERTIES_FILE_SWITCH
+
+    def is_variable_properties_file_key(self, key):
+        return self.VARIABLE_PROPERTIES_FILE_SWITCH == key
+
+    def _validate_variable_properties_file_arg(self, value):
+        method_name = '_validate_variable_properties_file_arg'
+
+        try:
+            variables = JFileUtils.validateFileName(value)
+        except JIllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01620', value, iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return variables.getAbsolutePath()
 
     ###########################################################################
     # Helper methods                                                          #

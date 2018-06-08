@@ -1,0 +1,21 @@
+{
+  "UnixMachine.NodeManager.ListenAddress": {},
+  "UnixMachine.NodeManager.ListenPort": {},
+  "JDBCSystemResource.JdbcResource.JDBCDriverParams.URL":
+  {
+    "regexp": [
+      {
+        "pattern": "(?<=PORT=)[\\w.-]+(?=\\))",
+        "suffix": "Port"
+      },
+      {
+        "pattern": "(?<=HOST=)[\\w.-]+(?=\\))",
+        "suffix": "Host"
+      }
+    ]
+  },
+  "Server[MANAGED_SERVERS].SSL.Enabled": {},
+  "Server[ADMIN_SERVER].SSL.HostnameVerificationIgnored": {
+    "force": true
+  }
+}
