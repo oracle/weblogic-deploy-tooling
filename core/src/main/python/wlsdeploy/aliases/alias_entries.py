@@ -11,12 +11,14 @@ from oracle.weblogic.deploy.json import JsonStreamTranslator
 from oracle.weblogic.deploy.util import FileUtils
 
 import wlsdeploy.aliases.alias_utils as alias_utils
+from wlsdeploy.aliases import password_utils
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
@@ -46,6 +48,7 @@ from wlsdeploy.aliases.alias_constants import WLST_NAME
 from wlsdeploy.aliases.alias_constants import WLST_NAMES_MAP
 from wlsdeploy.aliases.alias_constants import WLST_PATH
 from wlsdeploy.aliases.alias_constants import WLST_PATHS
+from wlsdeploy.aliases.alias_constants import WLST_SKIP_NAMES
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 
@@ -730,7 +733,9 @@ class AliasEntries(object):
 
         _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
-        if folder_dict is not None and WLST_NAMES_MAP in folder_dict:
+        if self._is_wlst_attribute_skipped(folder_dict, wlst_attribute_name):
+            result = None
+        elif folder_dict is not None and WLST_NAMES_MAP in folder_dict:
             if wlst_attribute_name in folder_dict[WLST_NAMES_MAP]:
                 result = copy.deepcopy(folder_dict[WLST_NAMES_MAP][wlst_attribute_name])
                 if WLST_PATH in result:
@@ -1149,6 +1154,7 @@ class AliasEntries(object):
             result_model_attrs = dict()
             result_wlst_attrs = dict()
             unresolved_attrs = dict()
+            wlst_skip_attrs = list()
 
             model_attrs = alias_dict[ATTRIBUTES]
             for model_attr in model_attrs:
@@ -1184,9 +1190,15 @@ class AliasEntries(object):
                 result_model_attrs[model_attr] = model_attr_dict
                 result_wlst_attrs[wlst_name] = model_attr_dict
 
+                # if attribute is dual-password, add its WLST skip name to the skip list
+                skip_name = password_utils.get_wlst_skip_name(model_attr_dict, self._wlst_mode)
+                if skip_name is not None:
+                    wlst_skip_attrs.append(skip_name)
+
             result[ATTRIBUTES] = result_model_attrs
             result[WLST_NAMES_MAP] = result_wlst_attrs
             result[UNRESOLVED_ATTRIBUTES_MAP] = unresolved_attrs
+            result[WLST_SKIP_NAMES] = wlst_skip_attrs
 
         return result
 
@@ -1363,6 +1375,12 @@ class AliasEntries(object):
             raise ex
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=version_range)
         return version_range
+
+    def _is_wlst_attribute_skipped(self, folder_dict, wlst_attribute_name):
+        skip_names = dictionary_utils.get_element(folder_dict, WLST_SKIP_NAMES)  # type: list
+        if skip_names is not None:
+            return wlst_attribute_name in skip_names
+        return False
 
     def __get_path_for_location(self, location, path_type=WLST_ATTRIBUTES_PATH):
         """

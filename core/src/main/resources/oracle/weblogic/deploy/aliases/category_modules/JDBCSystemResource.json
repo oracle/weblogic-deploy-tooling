@@ -103,8 +103,7 @@
                     "attributes": {
                         "DriverName":                 [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DriverName",                 "wlst_path": "WP001", "value": {"default": "None" },  "wlst_type": "string"    } ],
                         "URL":                        [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "${URL:Url}",                 "wlst_path": "WP001", "value": {"default": "None" },  "wlst_type": "string"    } ],
-                        "Password":                   [ {"version": "[10,)",     "wlst_mode": "online",  "wlst_name": "Password",                   "wlst_path": "WP001", "value": {"default": "None" },  "wlst_type": "password", "access": "RO"} ],
-                        "PasswordEncrypted":          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Password${Encrypted:}",      "wlst_path": "WP001", "value": {"default": "None" },  "wlst_type": "password", "get_method": "GET"} ],
+                        "PasswordEncrypted":          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "PasswordEncrypted",          "wlst_path": "WP001", "value": {"default": "None" },  "wlst_type": "password", "get_method": "GET"} ],
                         "UsePasswordIndirection":     [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "UsePasswordIndirection",     "wlst_path": "WP001", "value": {"default": "false"},  "wlst_type": "boolean",  "get_method": "LSA"} ],
                         "UseXaDataSourceInterface":   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "UseXaDataSourceInterface",   "wlst_path": "WP001", "value": {"default": "false"},  "wlst_type": "boolean",  "get_method": "LSA"} ]
                     },

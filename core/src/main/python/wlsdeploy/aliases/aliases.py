@@ -16,6 +16,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases import password_utils
 from wlsdeploy.util import string_utils
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -340,7 +341,14 @@ class Aliases(object):
         attribute_info = module_folder[ATTRIBUTES][model_attribute_name]
 
         if attribute_info and not self.__is_model_attribute_read_only(location, attribute_info):
-            wlst_attribute_name = attribute_info[WLST_NAME]
+            password_attribute_name = \
+                password_utils.get_wlst_attribute_name(attribute_info, model_attribute_value, self._wlst_mode)
+
+            if password_attribute_name is not None:
+                wlst_attribute_name = password_attribute_name
+            else:
+                wlst_attribute_name = attribute_info[WLST_NAME]
+
             if USES_PATH_TOKENS in attribute_info and string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
                 model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
 
