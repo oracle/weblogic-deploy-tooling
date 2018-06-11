@@ -14,7 +14,7 @@
         "InitialContextFactory":                   [ {"version": "[10,)",  "wlst_mode": "both",    "wlst_name": "InitialContextFactory",                  "wlst_path": "WP001", "value": {"default": "weblogic.jndi.WLInitialContextFactory" },    "wlst_type": "string"      } ],
         "Notes":                                   [ {"version": "[10,)",  "wlst_mode": "both",    "wlst_name": "Notes",                                  "wlst_path": "WP001", "value": {"default": "None"                                  },    "wlst_type": "string"      } ],
         "UserName":                                [ {"version": "[10,)",  "wlst_mode": "both",    "wlst_name": "UserName",                               "wlst_path": "WP001", "value": {"default": "None"                                  },    "wlst_type": "credential"  } ],
-        "UserPasswordEncrypted":                   [ {"version": "[10,)",  "wlst_mode": "both",    "wlst_name": "UserPassword${Encrypted:}",              "wlst_path": "WP001", "value": {"default": "None"                                  },    "wlst_type": "password",   "get_method": "GET"} ]
+        "UserPasswordEncrypted":                   [ {"version": "[10,)",  "wlst_mode": "both",    "wlst_name": "UserPasswordEncrypted",                  "wlst_path": "WP001", "value": {"default": "None"                                  },    "wlst_type": "password",   "get_method": "GET"} ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
