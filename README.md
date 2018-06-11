@@ -18,6 +18,7 @@ The metadata model, described in detail in the next section, is WebLogic Server 
 Currently, the project provides five single-purpose tools, all exposed as shell scripts (both Windows and UNIX scripts are provided):
 
 - The Create Domain Tool (`createDomain`) understands how to create a domain and populate the domain with all resources and applications specified in the model.
+- The Update Domain Tool (`updateDomain`) understands how to update an existing domain and populate the domain with all resources and applications specified in the model, either in offline or online mode.
 - The Deploy Applications Tool (`deployApps`) understands how to add resources and applications to an existing domain, either in offline or online mode.
 - The Discover Domain Tool (`discoverDomain`) introspects an existing domain and creates a model file describing the domain and an archive file of the binaries deployed to the domain.
 - The Encrypt Model Tool (`encryptModel`) encrypts the passwords in a model (or its variable file) using a user-provided passphrase.
@@ -802,6 +803,30 @@ topology:
 ```
 
 One last note is that if the model or variables file contains encrypted passwords, add the `-use_encryption` flag to the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input.
+
+## The Update Domain Tool
+
+The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode.  The update tool will add or re-configure elements from the `topology` section of the model, and deploy applications and resources from the `resources` and `appDeployments` sections, as described in the Deploy Applications tool.
+
+Running the Update Domain Tool in WLST offline mode is very similar to running the Create Domain Tool; simply provide the domain location and archive file, and separate model and variable files, if needed.  For example:
+
+    weblogic-deploy\bin\updateDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties
+
+In WLST online mode, simply add the information on how to connect to the WebLogic Server Administration Server, for example:
+
+    weblogic-deploy\bin\updateDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties -admin_url t3://127.0.0.1:7001 -admin_user weblogic
+
+As usual, the tool will prompt for the password (it can also be supplied by piping it to standard input of the tool).
+
+Unlike the Create Domain Tool, the full domain home directory is specified, rather than the domain's parent directory, since the domain has already been established.
+
+The Update Domain Tool will not attempt to recreate the schemas for the RCU database, for domain types that use RCU.
+
+When running the tool in WLST online mode, the update operation may require server restarts or a domain restart to pick up the changes.  The update operation can also encounter situations where it cannot complete its operation until the domain is restarted.  To communicate these conditions to scripts that may be calling the Update Domain Tool, the shell scripts have three special, non-zero exit codes to communicate these states:
+
+- `101` - The domain needs to be restarted and the Update Domain Tool needs to be re-invoked with the same arguments.
+- `102` - The servers impacted by the update operation need to be restarted, in a rolling fashion, starting with the Administration Server, if applicable.
+- `103` - The entire domain needs to be restarted.
 
 ## The Deploy Applications Tool
 
