@@ -52,6 +52,7 @@ from wlsdeploy.aliases.alias_constants import WLST_SKIP_NAMES
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 
+IGNORE_FOR_MODEL_LIST = ['DynamicallyCreated', 'Id', 'Tag', 'Tags', 'Type', 'Name']
 _class_name = 'AliasEntries'
 _logger = PlatformLogger('wlsdeploy.aliases')
 
@@ -743,7 +744,7 @@ class AliasEntries(object):
                 else:
                     _logger.warning('WLSDPLY-08110', wlst_attribute_name, location.get_folder_path(), WLST_PATH)
             else:
-                if wlst_attribute_name not in ('Id', 'Tag', 'Tags', 'Type', 'Name'):
+                if wlst_attribute_name not in IGNORE_FOR_MODEL_LIST:
                     ex = exception_helper.create_alias_exception('WLSDPLY-08111', location.get_folder_path(),
                                                                  wlst_attribute_name)
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)

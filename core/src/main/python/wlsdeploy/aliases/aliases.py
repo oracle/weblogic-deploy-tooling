@@ -887,12 +887,6 @@ class Aliases(object):
         if attribute_info is not None:
             model_attribute_name = attribute_info[MODEL_NAME]
 
-        if wlst_attribute_name not in ('Id', 'Tag', 'Name') and model_attribute_name is None:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08406', wlst_attribute_name,
-                                                         location.get_folder_path())
-            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
-
         self._logger.exiting(class_name=self._class_name, method_name=_method_name,
                              result=model_attribute_name)
         return model_attribute_name

@@ -23,7 +23,6 @@
     },
     "attributes": {
         "DeploymentOrder":                         [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DeploymentOrder",        "wlst_path": "WP001", "value": {"default": 100    }, "wlst_type": "integer"          } ],
-        "DynamicallyCreated":                      [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DynamicallyCreated",     "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean", "access": "RO" } ],
         "InitialContextFactory":                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "InitialContextFactory",  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"           } ],
         "Notes":                                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Notes",                  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"           } ],
         "PasswordEncrypted":                       [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "PasswordEncrypted",      "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "password",        "get_method": "GET" } ],
