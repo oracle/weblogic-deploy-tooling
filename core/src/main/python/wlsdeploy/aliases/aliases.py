@@ -16,6 +16,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases import password_utils
 from wlsdeploy.util import string_utils
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -340,7 +341,14 @@ class Aliases(object):
         attribute_info = module_folder[ATTRIBUTES][model_attribute_name]
 
         if attribute_info and not self.__is_model_attribute_read_only(location, attribute_info):
-            wlst_attribute_name = attribute_info[WLST_NAME]
+            password_attribute_name = \
+                password_utils.get_wlst_attribute_name(attribute_info, model_attribute_value, self._wlst_mode)
+
+            if password_attribute_name is not None:
+                wlst_attribute_name = password_attribute_name
+            else:
+                wlst_attribute_name = attribute_info[WLST_NAME]
+
             if USES_PATH_TOKENS in attribute_info and string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
                 model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
 
@@ -378,6 +386,7 @@ class Aliases(object):
                         merged_value = alias_utils.merge_model_and_existing_lists(model_val, existing_val)
                     else:
                         merged_value = model_attribute_value
+
 
                     if data_type == JARRAY:
                         subtype = 'java.lang.String'
@@ -809,14 +818,19 @@ class Aliases(object):
         model_attribute_value = None
 
         attribute_info = self._alias_entries.get_alias_attribute_entry_by_wlst_name(location, wlst_attribute_name)
-        if attribute_info is not None:
-            data_type, delimiter = \
-                alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(attribute_info,
+        if attribute_info is not None and not self.__is_model_attribute_read_only(location, attribute_info):
+            data_type, preferred_type, delimiter = \
+                alias_utils.compute_read_data_type_for_wlst_and_delimiter_from_attribute_info(attribute_info,
                                                                                      wlst_attribute_value)
 
-            converted_value = alias_utils.convert_to_type(data_type, wlst_attribute_value, delimiter=delimiter)
+            converted_value = alias_utils.convert_from_type(data_type, wlst_attribute_value, delimiter=delimiter,
+                                                            preferred=preferred_type)
             model_attribute_name = attribute_info[MODEL_NAME]
             default_value = attribute_info[VALUE][DEFAULT]
+            if preferred_type:
+                data_type = preferred_type
+                # never use anything but model default delimiter
+                delimiter = MODEL_LIST_DELIMITER
             #
             # The logic below to compare the str() representation of the converted value and the default value
             # only works for lists/maps if both the converted value and the default value are the same data type...
@@ -848,12 +862,6 @@ class Aliases(object):
                     model_attribute_value = converted_value
                     if USES_PATH_TOKENS in attribute_info:
                         model_attribute_value = self._model_context.tokenize_path(model_attribute_value)
-
-        if wlst_attribute_name not in ('Id', 'Tag', 'Name') and model_attribute_name is None:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08406', wlst_attribute_name,
-                                                         location.get_folder_path())
-            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
         self._logger.exiting(class_name=self._class_name, method_name=_method_name,
                              result={model_attribute_name: model_attribute_value})
         return model_attribute_name, model_attribute_value
@@ -878,12 +886,6 @@ class Aliases(object):
         attribute_info = self._alias_entries.get_alias_attribute_entry_by_wlst_name(location, wlst_attribute_name)
         if attribute_info is not None:
             model_attribute_name = attribute_info[MODEL_NAME]
-
-        if wlst_attribute_name not in ('Id', 'Tag', 'Name') and model_attribute_name is None:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08406', wlst_attribute_name,
-                                                         location.get_folder_path())
-            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name,
                              result=model_attribute_name)

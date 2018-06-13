@@ -22,13 +22,13 @@ class GlobalResourcesDiscoverer(Discoverer):
 
     TYPE_domain = "Domain"
 
-    def __init__(self, model_context, resource_dictionary, wlst_mode=WlstModes.OFFLINE):
+    def __init__(self, model_context, resource_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
         """
 
         :param model_context: context about the model for this instance of the discover domain
         :param resource_dictionary: to populate with global resources. Uses the initialized resources if none passed
         """
-        Discoverer.__init__(self, model_context, wlst_mode)
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
         self._dictionary = resource_dictionary
 
     def discover(self):
@@ -58,7 +58,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.SELF_TUNING
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         tuning = self._find_singleton_name_in_folder(location)
         if tuning is not None:
@@ -77,7 +77,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.STARTUP_CLASS
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         startup_classes = self._find_names_in_folder(location)
         if startup_classes is not None:
@@ -102,7 +102,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.SHUTDOWN_CLASS
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         shutdown_classes = self._find_names_in_folder(location)
         if shutdown_classes is not None:

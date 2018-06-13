@@ -30,7 +30,7 @@ class TopologyDiscoverer(Discoverer):
     including clusters, servers, server templates, machines and migratable targets,
     """
 
-    def __init__(self, model_context, topology_dictionary, wlst_mode=WlstModes.OFFLINE):
+    def __init__(self, model_context, topology_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
         """
         Instantiate an instance of the TopologyDiscoverer class with the runtime information provided by
         the init parameters.
@@ -38,7 +38,7 @@ class TopologyDiscoverer(Discoverer):
         :param topology_dictionary: dictionary in which to add discovered topology information
         :param wlst_mode: indicates whether this discover is run in online or offline mode
         """
-        Discoverer.__init__(self, model_context, wlst_mode)
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
         self._dictionary = topology_dictionary
         self._add_att_handler(model_constants.CLASSPATH, self._add_classpath_libraries_to_archive)
         self._add_att_handler(model_constants.CUSTOM_IDENTITY_KEYSTORE_FILE, self._add_keystore_file_to_archive)
@@ -250,13 +250,9 @@ class TopologyDiscoverer(Discoverer):
         """
         _method_name = 'discover_domain_parameters'
         _logger.entering(class_name=_class_name, method_name=_method_name)
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         self._populate_model_parameters(self._dictionary, location)
-        if model_constants.DOMAIN_NAME in self._dictionary:
-            name = self._dictionary[model_constants.DOMAIN_NAME]
-            if name is not None:
-                self._base_location.add_name_token(self._alias_helper.get_name_token(location), name)
-                _logger.info('WLSDPLY-06613', name, class_name=_class_name, method_name=_method_name)
+
         model_folder_name, folder_result = self._get_jta()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_jmx()

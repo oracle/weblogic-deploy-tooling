@@ -40,6 +40,7 @@ WLST_NAMES_MAP = '__wlst_names__'
 WLST_PATH = 'wlst_path'
 WLST_PATHS = 'wlst_paths'
 WLST_READ_TYPE = 'wlst_read_type'
+WLST_SKIP_NAMES = '__wlst_skip_names__'
 WLST_SUBFOLDERS_PATH = 'wlst_subfolders_path'
 WLST_TYPE = 'wlst_type'
 
@@ -106,6 +107,7 @@ ALIAS_DATA_TYPES.extend(ALIAS_PRIMITIVE_DATA_TYPES)
 ALIAS_DATA_TYPES.extend(ALIAS_LIST_TYPES)
 ALIAS_DATA_TYPES.extend(ALIAS_MAP_TYPES)
 
+
 def __build_security_provider_data_structures(name_map, base_path):
     """
     Populate the security provider data structures for the given provider type.
@@ -118,6 +120,7 @@ def __build_security_provider_data_structures(name_map, base_path):
         mbean_name = value + 'MBean'
         SECURITY_PROVIDER_MBEAN_NAME_MAP[mbean_name] = key
     return
+
 
 ADJUDICATION_PROVIDER_NAME_MAP = {
     'DefaultAdjudicator': 'weblogic.security.providers.authorization.DefaultAdjudicator'

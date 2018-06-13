@@ -9,6 +9,7 @@ import unittest
 
 from java.lang import String, Long
 from java.util import Properties
+from javax.management import ObjectName
 
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.aliases import TypeUtils
@@ -1253,6 +1254,42 @@ class AliasesTestCase(unittest.TestCase):
 
         return
 
+    def testJarrayWithPreferredAndStringArray(self):
+        location = LocationContext().append_location(FOLDERS.SERVER)
+        location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
+        empty_array = jarray.array([], String)
+        attribute = 'JNDITransportableObjectFactoryList'
+        expected = None
+
+        actual_attr, actual_value = self.aliases.get_model_attribute_name_and_value(location, attribute, empty_array)
+        self.assertEqual(expected, actual_value)
+
+        actual_attr, actual_value = self.aliases.get_wlst_attribute_name_and_value(location, actual_attr, actual_value)
+        self.assertEqual(expected, actual_value)
+
+        attribute_array = jarray.array(['factory1', 'factory2'], String)
+        model_expected = 'factory1,factory2'
+        wlst_expected = attribute_array
+
+        actual_attr, actual_value = self.aliases.get_model_attribute_name_and_value(location, attribute,
+                                                                                    attribute_array)
+        self.assertEqual(model_expected, actual_value)
+
+        actual_attr, actual_value = self.aliases.get_wlst_attribute_name_and_value(location, actual_attr, actual_value)
+        self.assertEqual(wlst_expected, actual_value)
+
+    def testListGetToList(self):
+        location = LocationContext().append_location(FOLDERS.SERVER)
+        location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
+        location = location.append_location(FOLDERS.SSL)
+        wlst_list = ['TLS', 'WITH_AES_256_CBC']
+        attribute = 'Ciphersuite'
+
+        actual_attr, actual_value = self.aliases.get_model_attribute_name_and_value(location, attribute, wlst_list)
+        self.assertEqual(wlst_list, actual_value)
+
+        actual_attr, actual_value = self.aliases.get_wlst_attribute_name_and_value(location, actual_attr, actual_value)
+        self.assertEqual(wlst_list, actual_value)
 
 if __name__ == '__main__':
     unittest.main()

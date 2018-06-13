@@ -21,8 +21,8 @@ class MultiTenantTopologyDiscoverer(Discoverer):
     topology of a multi tenant domain
     """
 
-    def __init__(self, model_context, topology_dictionary, wlst_mode=WlstModes.OFFLINE):
-        Discoverer.__init__(self, model_context, wlst_mode)
+    def __init__(self, model_context, topology_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
         self._dictionary = topology_dictionary
 
     def discover(self):
@@ -47,7 +47,7 @@ class MultiTenantTopologyDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.VIRTUAL_TARGET
-        location = LocationContext()
+        location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         targets = self._find_names_in_folder(location)
         if targets:

@@ -25,7 +25,11 @@ from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
+from wlsdeploy.aliases import model_constants
+from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.location_context import LocationContext
 import wlsdeploy.tool.util.variable_injector as variable_injector
+
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -138,7 +142,7 @@ def __process_online_args(optional_arg_map):
                 raise ex
             optional_arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH] = String(password)
 
-        __logger.info('WLSDPLY-06020', class_name=_class_name, method_name=_method_name)
+        mode = WlstModes.ONLINE
     return mode
 
 
@@ -184,7 +188,7 @@ def __process_variable_filename_arg(optional_arg_map):
     return
 
 
-def __discover(model_context):
+def __discover(model_context, aliases):
     """
     Populate the model from the domain.
     :param model_context: the model context
@@ -192,15 +196,20 @@ def __discover(model_context):
     :raises DiscoverException: if an error occurred while discover the domain
     """
     _method_name = '__discover'
-
     model = Model()
+    base_location = LocationContext()
     __connect_to_domain(model_context)
     try:
-        DomainInfoDiscoverer(model_context, model.get_model_domain_info(), wlst_mode=__wlst_mode).discover()
-        TopologyDiscoverer(model_context, model.get_model_topology(), wlst_mode=__wlst_mode).discover()
-        ResourcesDiscoverer(model_context, model.get_model_resources(), wlst_mode=__wlst_mode).discover()
-        DeploymentsDiscoverer(model_context, model.get_model_app_deployments(), wlst_mode=__wlst_mode).discover()
-        __discover_multi_tenant(model, model_context)
+        _add_domain_name(base_location, aliases)
+        DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
+                             aliases=aliases).discover()
+        TopologyDiscoverer(model_context, model.get_model_topology(), base_location, wlst_mode=__wlst_mode,
+                           aliases=aliases).discover()
+        ResourcesDiscoverer(model_context, model.get_model_resources(), base_location, wlst_mode=__wlst_mode,
+                            aliases=aliases).discover()
+        DeploymentsDiscoverer(model_context, model.get_model_app_deployments(), base_location, wlst_mode=__wlst_mode,
+                              aliases=aliases).discover()
+        __discover_multi_tenant(model, model_context, base_location, aliases)
     except AliasException, ae:
         wls_version = WebLogicHelper(__logger).get_actual_weblogic_version()
         wlst_mode = WlstModes.from_value(__wlst_mode)
@@ -214,14 +223,32 @@ def __discover(model_context):
     return model
 
 
-def __discover_multi_tenant(model, model_context):
+def _add_domain_name(location, aliases):
+    _method_name = '_get_domain_name'
+    try:
+        wlst_helper.cd('/')
+        domain_name = wlst_helper.get(model_constants.DOMAIN_NAME)
+    except PyWLSTException, pe:
+        de = exception_helper.create_discover_exception('WLSDPLY-06020', pe.getLocalizedMessage())
+        __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+        raise de
+    if domain_name is not None:
+        location.add_name_token(aliases.get_name_token(location), domain_name)
+        __logger.info('WLSDPLY-06022', domain_name, class_name=_class_name, method_name=_method_name)
+    else:
+        de = exception_helper.create_discover_exception('WLSDPLY-WLSDPLY-06023')
+        __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+        raise de
+
+
+def __discover_multi_tenant(model, model_context, base_location, aliases):
     """
     Discover the multi-tenant-related parts of the domain, if they exist.
     :param model: the model object to populate
     :param model_context: the model context object
     :raises DiscoverException: if an error occurs during discovery
     """
-    MultiTenantDiscoverer(model, model_context, wlst_mode=__wlst_mode).discover()
+    MultiTenantDiscoverer(model, model_context, base_location, wlst_mode=__wlst_mode, aliases=aliases).discover()
     return
 
 
@@ -381,7 +408,7 @@ def __persist_model(model, model_context):
     return
 
 
-def __check_and_customize_model(model, model_context):
+def __check_and_customize_model(model, model_context, aliases):
     """
     Customize the model dictionary before persisting. Validate the model after customization for informational
     purposes. Any validation errors will not stop the discovered model to be persisted.
@@ -400,7 +427,7 @@ def __check_and_customize_model(model, model_context):
     if inserted:
         model = Model(variable_model)
     try:
-        validator = Validator(model_context, wlst_mode=__wlst_mode)
+        validator = Validator(model_context, wlst_mode=__wlst_mode, aliases=aliases)
 
         # no variables are generated by the discover tool
         validator.validate_in_tool_mode(model.get_model(), variables_file_name=variable_file_name,
@@ -410,14 +437,15 @@ def __check_and_customize_model(model, model_context):
     return model
 
 
-def __log_and_exit(exit_code, class_name, _method_name):
+def __log_and_exit(exit_code, class_name, method_name):
     """
     Helper method to log the exiting message and call sys.exit()
     :param exit_code: the exit code to use
     :param class_name: the class name to pass  to the logger
-    :param _method_name: the method name to pass to the logger
+    :param method_name: the method name to pass to the logger
     """
-    __logger.exiting(result=exit_code, class_name=class_name, method_name=_method_name)
+    __logger.exiting(result=exit_code, class_name=class_name, method_name=method_name)
+
     sys.exit(exit_code)
 
 
@@ -455,16 +483,18 @@ def main(args):
                         ex.getLocalizedMessage(), error=ex, class_name=_class_name, method_name=_method_name)
         __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
 
+    aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     model = None
     try:
-        model = __discover(model_context)
+        model = __discover(model_context, aliases)
     except DiscoverException, ex:
         __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
                         model_context.get_domain_home(), ex.getLocalizedMessage(),
                         error=ex, class_name=_class_name, method_name=_method_name)
         __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
-
-    model = __check_and_customize_model(model, model_context)
+        
+    model = __check_and_customize_model(model, model_context, aliases)
+    
     try:
         __persist_model(model, model_context)
 

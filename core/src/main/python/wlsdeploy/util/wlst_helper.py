@@ -13,6 +13,7 @@ from oracle.weblogic.deploy.util import PyWLSTException
 _logger = PlatformLogger('wlsdeploy.wlst')
 _class_name = 'wlst_helper'
 
+
 def cd(path):
     """
     Change location to the provided path.
@@ -32,6 +33,7 @@ def cd(path):
                                                        _format_exception(e), error=e)
     _logger.finest('WLSDPLY-00003', path, result, class_name=_class_name, method_name=_method_name)
     return result
+
 
 def get(attribute):
     """
@@ -54,6 +56,7 @@ def get(attribute):
     _logger.finest('WLSDPLY-00006', attribute, result, class_name=_class_name, method_name=_method_name)
     return result
 
+
 def set(attribute, value):
     """
     Set the configuration for the indicated attribute to the provided value.
@@ -72,6 +75,7 @@ def set(attribute, value):
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.finest('WLSDPLY-00009', class_name=_class_name, method_name=_method_name)
+
 
 def set_with_cmo(wlst_name, wlst_value, masked=False):
     """
@@ -113,6 +117,7 @@ def set_with_cmo(wlst_name, wlst_value, masked=False):
     _logger.finest('WLSDPLY-00015', wlst_name, value, class_name=_class_name, method_name=_method_name)
     return
 
+
 def create(name, folder, base_provider_type=None):
     """
     Create the mbean folder with the provided name at the current location.
@@ -143,6 +148,7 @@ def create(name, folder, base_provider_type=None):
                    class_name=_class_name, method_name=_method_name)
     return result
 
+
 def delete(name, folder):
     """
     Delete an MBean of the specified name and type at the current location.
@@ -163,6 +169,7 @@ def delete(name, folder):
     _logger.finest('WLSDPLY-00021', name, folder, class_name=_class_name, method_name=_method_name)
     return
 
+
 def get_database_defaults():
     """
     sets the database defaults indicated by RCU.
@@ -177,6 +184,7 @@ def get_database_defaults():
         _logger.throwing(pwe, class_name=_class_name, method_name=_method_name)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
+
 
 def set_server_groups(server, server_groups):
     """
@@ -197,6 +205,7 @@ def set_server_groups(server, server_groups):
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
+
 def set_option(option, value):
     """
     Set the configuration for the indicated option to the provided value.
@@ -216,6 +225,7 @@ def set_option(option, value):
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
+
 def lsa(path=None, log_throwing=True):
     """
     Return a map of weblogic attributes found at the wlst path or the current path.
@@ -229,15 +239,20 @@ def lsa(path=None, log_throwing=True):
     """
     _method_name = 'lsa'
     result = _ls(_method_name, 'a', path, log_throwing)
-    if wlst.WLS_ON.isConnected() and result is not None and type(result) is dict:
-        for key, value in result.iteritems():
+    if wlst.WLS_ON.isConnected() and result and len(result) > 1:
+        make_dict = dict()
+        for entry in result.entrySet():
+            key = entry.getKey()
+            value = entry.getValue()
             if value is not None and type(value) is str:
                 new_value = value.rstrip()
-                if new_value == 'null':
-                    result[key] = None
+                if new_value == 'null' or new_value == 'none':
+                    make_dict[key] = None
                 else:
-                    result[key] = new_value
+                    make_dict[key] = new_value
+        result = make_dict
     return result
+
 
 def lsc(path=None, log_throwing=True):
     """
@@ -249,6 +264,7 @@ def lsc(path=None, log_throwing=True):
     """
     _method_name = 'lsc'
     return _ls(_method_name, 'c', path, log_throwing)
+
 
 def path_exists(path):
     """
@@ -269,6 +285,7 @@ def path_exists(path):
         exists = False
     _logger.finest('WLSDPLY-00027', path, exists, class_name=_class_name, method_name=_method_name)
     return exists
+
 
 def _ls(method_name, ls_type, path=None, log_throwing=True):
     """
@@ -311,6 +328,7 @@ def _ls(method_name, ls_type, path=None, log_throwing=True):
                    class_name=_class_name, method_name=_method_name)
     return result
 
+
 def get_singleton_name(path=None):
     """
     Return the name at the current location or at the provided path. This location represents
@@ -343,6 +361,7 @@ def get_singleton_name(path=None):
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=mbean_name)
     return mbean_name
 
+
 def get_pwd():
     """
     Return the current weblogic path. The domain name is stripped from this path.
@@ -367,6 +386,7 @@ def get_pwd():
     _logger.finest('WLSDPLY-00035', path, class_name=_class_name, method_name=_method_name)
     return path
 
+
 def get_cmo():
     """
     update the Current Management Object (cmo) to current mbean in wlst.
@@ -386,6 +406,7 @@ def get_cmo():
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=wlst.cmo)
     return wlst.cmo
 
+
 def get_mbean_for_wlst_path(path):
     """
     Return the mbean object for the provided path.
@@ -401,6 +422,7 @@ def get_mbean_for_wlst_path(path):
     cd(current_dir)
     _logger.exiting(_class_name, _method_name, the_object)
     return the_object
+
 
 def read_template(template):
     """
@@ -419,6 +441,7 @@ def read_template(template):
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
+
 def add_template(template):
     """
     Extend the domain with the server template.
@@ -436,6 +459,7 @@ def add_template(template):
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
+
 def close_template():
     """
     Close the template that is currently loaded for domain creation.
@@ -451,6 +475,7 @@ def close_template():
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
+
 
 def select_template(template):
     """
@@ -470,6 +495,7 @@ def select_template(template):
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
+
 def load_templates():
     """
     Load all the selected templates.
@@ -485,6 +511,7 @@ def load_templates():
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
+
 
 def read_domain(domain_home):
     """
@@ -502,6 +529,7 @@ def read_domain(domain_home):
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
+
 
 def write_domain(domain_home):
     """
@@ -528,6 +556,7 @@ def write_domain(domain_home):
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
+
 def update_domain():
     """
     Update the existing domain configuration with the edits made during the offline session.
@@ -543,6 +572,7 @@ def update_domain():
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
+
 
 def close_domain():
     """
@@ -560,6 +590,7 @@ def close_domain():
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
+
 def silence():
     """
     Performs the wlst commands to suppress stdout and stderr chatter.
@@ -570,6 +601,7 @@ def silence():
     wlst.WLS_ON.setHideDumpStack('true')
     wlst.WLS.getCommandExceptionHandler().setMode(True)
     wlst.WLS.getCommandExceptionHandler().setSilent(True)
+
 
 def connect(username, password, url):
     """
@@ -591,6 +623,7 @@ def connect(username, password, url):
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
+
 def disconnect():
     """
     Disconnects WLST from the current connected WebLogic Server instance.
@@ -606,6 +639,7 @@ def disconnect():
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
+
 
 def edit():
     """
@@ -623,6 +657,7 @@ def edit():
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
+
 def start_edit():
     """
     Start an edit session with the Weblogic Server for the currently connected user.
@@ -638,6 +673,7 @@ def start_edit():
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
+
 
 def stop_edit():
     """
@@ -655,6 +691,7 @@ def stop_edit():
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
+
 def save():
     """
     Save the outstanding Weblogic Server configuration changes for the current edit session.
@@ -670,6 +707,7 @@ def save():
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
+
 
 def activate():
     """
@@ -687,6 +725,7 @@ def activate():
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
+
 def get_quoted_name_for_wlst(name):
     """
     Return a wlst required string for a name value in format ('<name>')
@@ -697,6 +736,7 @@ def get_quoted_name_for_wlst(name):
     if name is not None and '/' in name:
         result = '(' + name + ')'
     return result
+
 
 def get_existing_object_list(wlst_objects_path):
     """
@@ -716,6 +756,7 @@ def get_existing_object_list(wlst_objects_path):
     cd(current_dir)
     _logger.finest('WLSDPLY-00055', wlst_objects_path, result, class_name=_class_name, method_name=_method_name)
     return result
+
 
 def start_application(application_name, *args, **kwargs):
     """
@@ -739,6 +780,7 @@ def start_application(application_name, *args, **kwargs):
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
+
 def stop_application(application_name, *args, **kwargs):
     """
     Stop the application in the connected domain.
@@ -760,6 +802,7 @@ def stop_application(application_name, *args, **kwargs):
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
+
 
 def deploy_application(application_name, *args, **kwargs):
     """
@@ -783,6 +826,7 @@ def deploy_application(application_name, *args, **kwargs):
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
+
 def undeploy_application(application_name, *args, **kwargs):
     """
     Undeploy the application in the connected domain.
@@ -804,6 +848,7 @@ def undeploy_application(application_name, *args, **kwargs):
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
+
 
 def redeploy_application(application_name, *args, **kwargs):
     """
@@ -827,6 +872,7 @@ def redeploy_application(application_name, *args, **kwargs):
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
+
 def get_config_manager():
     """
     Return the online configuration manager
@@ -844,6 +890,7 @@ def get_config_manager():
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
+
 
 def get_active_activation_tasks(cmgr):
     """
@@ -864,6 +911,7 @@ def get_active_activation_tasks(cmgr):
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
+
 def get_current_editor(cmgr):
     """
     Return current editor
@@ -882,6 +930,7 @@ def get_current_editor(cmgr):
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
+
 
 def have_unactivated_changes(cmgr):
     """
@@ -902,6 +951,7 @@ def have_unactivated_changes(cmgr):
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
+
 def server_config():
     """
     Change to the serverConfig MBean tree.
@@ -916,6 +966,7 @@ def server_config():
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
+
 
 def domain_runtime():
     """
@@ -932,6 +983,7 @@ def domain_runtime():
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
 
+
 def custom():
     """
     Change to the custom MBean tree.
@@ -947,6 +999,7 @@ def custom():
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
 
+
 def _get_exception_mode(e):
     """
     Return a text value dependent on online or offline mode. The wlst exception messages differ between offline
@@ -960,6 +1013,7 @@ def _get_exception_mode(e):
     if isinstance(e, offlineWLSTException):
         return 'offline'
     return 'unknown'
+
 
 def _format_exception(e):
     """
@@ -980,6 +1034,7 @@ def _format_exception(e):
         return message
     return str(e)
 
+
 def _cd_back(return_directory):
     """
     Change directories back to the original directory, logging a warning if it fails
@@ -991,6 +1046,7 @@ def _cd_back(return_directory):
         except (wlst.WLSTException, offlineWLSTException), ex:
             _logger.warning('WLSDPLY-00068', return_directory, ex.getLocalizedMessage(), error=ex)
 
+
 def _get_wlst_mode():
     """
     Get the text to describe the current WLST mode.
@@ -1001,3 +1057,11 @@ def _get_wlst_mode():
     else:
         result = 'offline'
     return result
+
+
+def get_mbi():
+    """
+    Get the MBeanInfo for the current MBean location.
+    :return: javax.management.modelmbean.ModelMBeanInfo instance for the current location
+    """
+    return wlst.getMBI()
