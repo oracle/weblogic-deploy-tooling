@@ -493,7 +493,7 @@ def main(args):
                         error=ex, class_name=_class_name, method_name=_method_name)
         __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
         
-    model = __check_and_customize_model(model, model_context)
+    model = __check_and_customize_model(model, model_context, aliases)
     
     try:
         __persist_model(model, model_context)
