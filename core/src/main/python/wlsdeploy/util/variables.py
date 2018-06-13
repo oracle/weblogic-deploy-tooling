@@ -2,9 +2,12 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+import os
 import re
 
+from java.lang import Boolean
 from java.io import BufferedReader
+from java.io import File
 from java.io import FileInputStream
 from java.io import FileOutputStream
 from java.io import FileReader
@@ -13,6 +16,7 @@ from java.util import Properties
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
+from wlsdeploy.util import path_utils
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging import platform_logger
 
@@ -54,33 +58,57 @@ def load_variables(file_path):
     return variable_map
 
 
-def write_variables(variable_map, file_path):
+def write_variables(program_name, variable_map, file_path, append=False):
     """
     Write the dictionary of variables to the specified file.
+    :param program_name: name of tool that invoked the method which will be written to the variable properties file
     :param variable_map: the dictionary of variables
     :param file_path: the file to which to write the properties
+    :param append: defaults to False. Append properties to the end of file
     :raises VariableException if an error occurs while storing the variables in the file
     """
-    method_name = 'write_variables'
+    _method_name = 'write_variables'
+    _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
     props = Properties()
     for key in variable_map:
         value = variable_map[key]
         props.setProperty(key, value)
 
-    comment = exception_helper.get_message('WLSDPLY-01731')
+    comment = exception_helper.get_message('WLSDPLY-01731', program_name)
     output_stream = None
     try:
-        output_stream = FileOutputStream(file_path)
+        output_stream = FileOutputStream(File(file_path), Boolean(append))
         props.store(output_stream, comment)
         output_stream.close()
     except IOException, ioe:
         ex = exception_helper.create_variable_exception('WLSDPLY-20007', file_path,
                                                         ioe.getLocalizedMessage(), error=ioe)
-        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         if output_stream is not None:
             output_stream.close()
         raise ex
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
+
+
+def get_default_variable_file_name(model_context):
+    """
+    Generate location and file name for the variable file.
+    If model file is present, use the model file name and location;
+    else, use the archive file name and location.
+    :param model_context: contains the model and archive file arguments
+    :return: location and file name of variable properties file.
+    """
+    _method_name = 'get_default_variable_file_name'
+    extract_file_name = model_context.get_model_file()
+    if not extract_file_name:
+        extract_file_name = model_context.get_archive_file_name()
+    default_variable_file = path_utils.get_filename_no_ext_from_path(extract_file_name)
+    if default_variable_file:
+        default_variable_file = os.path.join(path_utils.get_pathname_from_path(extract_file_name),
+                                             default_variable_file + '.properties')
+        _logger.finer('WLSDPLY-01736', default_variable_file, class_name=_class_name, method_name=_method_name)
+    return default_variable_file
 
 
 def get_variable_names(text):

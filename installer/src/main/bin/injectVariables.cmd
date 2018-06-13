@@ -1,17 +1,19 @@
 @ECHO OFF
 @rem **************************************************************************
-@rem discoverDomain.cmd
+@rem injectVariables.cmd
 @rem
-@rem Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+@rem Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 @rem The Universal Permissive License (UPL), Version 1.0
 @rem
 @rem     NAME
-@rem       discoverDomain.cmd - WLS Deploy tool to discover a domain.
+@rem       injectVariables.cmd - Inject variables into the model.
 @rem
 @rem     DESCRIPTION
-@rem       This script discovers the model of an existing domain and gathers
-@rem       the binaries needed to recreate the domain elsewhere with all of
-@rem       its applications and resources configured.
+@rem        This script will inject variable tokens into the model and persist the variables to the
+@rem        indicated variable file. This can be run against a model that has injected variables. Any
+@rem        injected variables will not be replaced. If the existing variable file was provided, the
+@rem        new injected variables will be appended to the file.
+@rem
 @rem
 @rem
 @rem This script uses the following command-line arguments directly, the rest
@@ -50,7 +52,7 @@
 
 SETLOCAL
 
-SET WLSDEPLOY_PROGRAM_NAME=discoverDomain
+SET WLSDEPLOY_PROGRAM_NAME=injectVariables
 
 SET SCRIPT_PATH=%~dp0
 FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi
@@ -115,6 +117,7 @@ IF %JVM_VERSION% LSS 7 (
   ECHO JDK version is %JVM_FULL_VERSION%, setting JAVA_VENDOR to Sun...
   SET JAVA_VENDOR=Sun
 )
+
 @rem
 @rem Check to see if no args were given and print the usage message
 @rem
@@ -269,10 +272,9 @@ ECHO CLASSPATH = %CLASSPATH%
 ECHO WLST_PROPERTIES = %WLST_PROPERTIES%
 
 SET PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python
+ECHO %WLST% %PY_SCRIPTS_PATH%\variable_inject.py %*
 
-ECHO %WLST% "%PY_SCRIPTS_PATH%\discover.py" %*
-
-"%WLST%" "%PY_SCRIPTS_PATH%\discover.py" %*
+"%WLST%" "%PY_SCRIPTS_PATH%\variable_inject.py" %*
 
 SET RETURN_CODE=%ERRORLEVEL%
 IF "%RETURN_CODE%" == "100" (
@@ -283,60 +285,67 @@ IF "%RETURN_CODE%" == "99" (
 )
 IF "%RETURN_CODE%" == "98" (
   ECHO.
-  ECHO discoverDomain.cmd failed due to a parameter validation error >&2
+  ECHO variableInjector.cmd failed due to a parameter validation error >&2
   GOTO exit_script
 )
 IF "%RETURN_CODE%" == "2" (
   ECHO.
-  ECHO discoverDomain.cmd failed ^(exit code = %RETURN_CODE%^)
+  ECHO variableInjector.cmd failed ^(exit code = %RETURN_CODE%^)
   GOTO exit_script
 )
 IF "%RETURN_CODE%" == "1" (
   ECHO.
-  ECHO discoverDomain.cmd completed but with some issues ^(exit code = %RETURN_CODE%^) >&2
+  ECHO variableInjector.cmd completed but with some issues ^(exit code = %RETURN_CODE%^) >&2
   GOTO exit_script
 )
 IF "%RETURN_CODE%" == "0" (
   ECHO.
-  ECHO discoverDomain.cmd completed successfully ^(exit code = %RETURN_CODE%^)
+  ECHO variableInjector.cmd completed successfully ^(exit code = %RETURN_CODE%^)
   GOTO exit_script
 )
 @rem Unexpected return code so just print the message and exit...
 ECHO.
-ECHO discoverDomain.cmd failed ^(exit code = %RETURN_CODE%^) >&2
+ECHO variableInjector.cmd failed ^(exit code = %RETURN_CODE%^) >&2
 GOTO exit_script
 
 :usage
 ECHO.
-ECHO Usage: %~nx0 -oracle_home ^<oracle-home^>
-ECHO              -domain_home ^<domain-home^>
-ECHO              -archive_file ^<archive-file^>
+ECHO Usage: %~nx0 [-help]
+ECHO              -oracle_home ^<oracle-home^>
 ECHO              [-model_file ^<model-file^>]
+ECHO              [-archive_file ^<archive-file^>]
+ECHO              [-variable_injector_file ^<variable-injector-file^>]
+ECHO              [-variable_properties_file ^<variable-file^>]
 ECHO              [-domain_type ^<domain-type^>]
 ECHO              [-wlst_path ^<wlst-path^>]
-ECHO              [-admin_url ^<admin-url^>
-ECHO               -admin_user ^<admin-user^>
-ECHO              ]
 ECHO.
 ECHO     where:
-ECHO         oracle-home    - the existing Oracle Home directory for the domain
+ECHO         oracle-home            - the existing Oracle Home directory with the correct version for the model
 ECHO.
-ECHO         domain-home    - the domain home directory
+ECHO         model-file             - the location of the model file in which variables will be injected.
+ECHO                                  If not specified, the tool will look for the model
+ECHO                                  in the archive file. Either the model_file or the archive_file argument
+ECHO                                  must be provided.
 ECHO.
-ECHO         archive-file   - the path to the archive file to create
+ECHO         archive-file           - the path to the archive file that contains a model in which the variables
+ECHO                                  will be injected. If the model-file argument is used, this argument will be
+ECHO                                  ignored. The archive file must contain a valid model.
 ECHO.
-ECHO         model-file     - the location to write the model file,
-ECHO                          the default is to write it inside the archive
+ECHO         variable_properties_file - the location of the property file in which to store any variable names injected
+ECHO                                    into the model. If this command line argument is not specified, the variable
+ECHO                                    will be located and named based on the model file or archive file name and
+ECHO                                    location. If the file exists, the file will be updated with new variable values.
 ECHO.
-ECHO         domain-type    - the type of domain (e.g., WLS, JRF).
-ECHO                          used to locate wlst.cmd if wlst-path not specified
+ECHO         variable-injector-file - the location of the variable injector file which contains the variable
+ECHO                                  injector keywords for this model injection run. If this argument is not provided,
+ECHO                                  the model_variable_injector.json file must exist in the lib directory in the
+ECHO                                  WLSDEPLOY_HOME location.
 ECHO.
-ECHO         wlst-path      - the Oracle Home subdirectory of the wlst.cmd
-ECHO                          script to use (e.g., ^<ORACLE_HOME^>\soa)
+ECHO         domain-type            - the type of domain (e.g., WLS, JRF).
+ECHO                                  Used to locate wlst.cmd if wlst-path not specified
 ECHO.
-ECHO         admin-url      - the admin server URL (used for online discovery)
-ECHO.
-ECHO         admin-user     - the admin username (used for online discovery)
+ECHO         wlst-path              - the Oracle Home subdirectory of the wlst.cmd
+ECHO                                  script to use (e.g., ^<ORACLE_HOME^>\soa)
 ECHO.
 
 :exit_script
