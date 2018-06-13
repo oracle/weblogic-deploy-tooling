@@ -578,6 +578,8 @@ def compute_delimiter_from_data_type(data_type, value):
         delimiter = ' '
     elif data_type == PATH_SEPARATOR_DELIMITED_STRING:
         delimiter = _get_path_separator(value)
+    else:
+        delimiter = PREFERRED_MODEL_TYPE
     return delimiter
 
 
@@ -819,9 +821,7 @@ def _jconvert_to_type(data_type, value, delimiter):
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     try:
-        if data_type == LONG:
-            converted = Long(converted)
-        elif data_type == JAVA_LANG_BOOLEAN:
+        if data_type == JAVA_LANG_BOOLEAN:
             converted = Boolean(converted)
         elif data_type == JARRAY:
             converted = _create_array(converted, delimiter)
