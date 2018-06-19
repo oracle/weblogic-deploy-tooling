@@ -72,7 +72,8 @@ RUN chmod +xw /u01/oracle/*.sh && \
         -domain_parent /u01/oracle/user_projects/domains \
         -domain_type WLS \
         $MODEL_OPT \
-        $ARCHIVE_OPT
+        $ARCHIVE_OPT && \
+    chown -R oracle:oracle $PRE_DOMAIN_HOME
 
 VOLUME $PRE_DOMAIN_HOME
 # Expose Node Manager default port, and also default for admin and managed server
