@@ -1,0 +1,46 @@
+Example Image with a  WLS Domain
+================================
+This Dockerfile extends the Oracle WebLogic image by creating a sample WLS 12.2.1.3 domain and cluster from a WebLogic Deploy Tool model.
+
+Utility scripts are copied into the image, enabling users to plug Node Manager automatically into the Administration Server running on another container.
+
+### WebLogic Deploy Tool
+
+The WebLogic Deploy Tool is used to create the domain image from a model file. Details about the tool and the model file format can be found in its GitHub project:
+
+https://github.com/oracle/weblogic-deploy-tooling
+
+### How to Build and Run
+
+**NOTE:** The image is based on a WebLogic image in the Docker store: store/oracle/weblogic:12.2.1.3 . Verify that you have access to download this image.
+
+The WebLogic Deploy Tool installer is required to build this image. Add weblogic-deploy.zip to the sample directory.
+
+    $ wget https://github.com/oracle/weblogic-deploy-tooling/releases/download/weblogic-deploy-tooling-0.11/weblogic-deploy.zip
+
+To build this sample, run:
+
+    $ docker build \
+          --build-arg WDT_MODEL=simple-topology.yaml \
+          -t 12213-domain-wdt .
+
+This will use the model file in the sample directory.
+
+To start the containerized Administration Server, run:
+
+    $ docker run -d --name wlsadmin --hostname wlsadmin -p 7001:7001 --env-file ./container-scripts/domain.properties 12213-domain-wdt
+    
+TBD To start a containerized Managed Server (MS1) to self-register with the Administration Server above, run:
+
+ 	$ docker run -d --name MS1 --link wlsadmin:wlsadmin -p 8001:8001 --env-file ./container-scripts/domain.properties -e ADMIN_PASSWORD=<admin_password> -e MS_NAME=MS1 --volumes-from wlsadmin 12213-domain createServer.sh
+
+TBD To start a second Managed Server (MS2), run:
+
+ 	$ docker run -d --name MS2 --link wlsadmin:wlsadmin -p 8002:8001 --env-file ./container-scripts/domain.properties -e ADMIN_PASSWORD=<admin_password> -e MS_NAME=MS2 --volumes-from wlsadmin 12213-domain createServer.sh
+
+The above scenario from this sample will give you a WebLogic domain with a cluster set up on a single host environment.
+
+You may create more containerized Managed Servers by calling the `docker` command above for `createServer.sh` as long you link properly with the Administration Server. For an example of a multihost environment, see the sample `1221-multihost`.
+
+# Copyright
+Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
