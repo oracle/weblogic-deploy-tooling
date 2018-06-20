@@ -88,3 +88,12 @@ resources:
                     MaxCapacity: 15
                     TestTableName: SQL ISVALID
                     TestConnectionsOnReserve: true
+appDeployments:
+    Application:
+        # Quote needed because of hyphen in string
+        'simple-app':
+            SourcePath: 'wlsdeploy/applications/simple-app.war'
+            Target: AdminServer
+            ModuleType: war
+            StagingMode: nostage
+            PlanStagingMode: nostage
