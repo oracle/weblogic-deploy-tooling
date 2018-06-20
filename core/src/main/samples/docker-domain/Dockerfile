@@ -65,7 +65,7 @@ RUN chmod +xw /u01/oracle/*.sh && \
     chmod +xw /u01/weblogic-deploy/bin/*.sh && \
     chmod -R +xw /u01/weblogic-deploy/lib/python && \
     if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file /u01/$WDT_MODEL"; fi && \
-    if [ -n "$WDT_ARCHIVE" ]; then MODEL_OPT="-archive_file /u01/$WDT_ARCHIVE"; fi && \
+    if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file /u01/$WDT_ARCHIVE"; fi && \
     /u01/weblogic-deploy/bin/createDomain.sh \
         -oracle_home /u01/oracle \
         -java_home ${JAVA_HOME} \
