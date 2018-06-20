@@ -19,6 +19,7 @@ GET_METHOD = 'get_method'
 MERGE = 'merge'
 MODEL_NAME = 'model_name'
 NAME_VALUE = 'name_value'
+PASSWORD_TOKEN = "--FIX ME--"
 PREFERRED_MODEL_TYPE = 'preferred_model_type'
 RESTART_REQUIRED = 'restart_required'
 SET_MBEAN_TYPE = 'set_mbean_type'
