@@ -18,6 +18,10 @@ The WebLogic Deploy Tool installer is required to build this image. Add weblogic
 
     $ wget https://github.com/oracle/weblogic-deploy-tooling/releases/download/weblogic-deploy-tooling-0.11/weblogic-deploy.zip
 
+This sample deploys a simple one-page web application contained in a .zip archive. This archive needs to be built (one time only) before building the Docker image.
+
+    $ ./build-archive.sh
+
 To build this sample, run:
 
     $ docker build \
