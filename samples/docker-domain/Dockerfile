@@ -73,7 +73,7 @@ RUN chmod +xw /u01/oracle/*.sh && \
     /u01/weblogic-deploy/bin/createDomain.sh \
         -oracle_home $ORACLE_HOME \
         -java_home ${JAVA_HOME} \
-        -domain_parent $PRE_DOMAIN_HOME \
+        -domain_parent $PRE_DOMAIN_HOME/domains \
         -domain_type WLS \
         $MODEL_OPT \
         $ARCHIVE_OPT && \
