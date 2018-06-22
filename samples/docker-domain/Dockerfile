@@ -12,9 +12,13 @@
 # HOW TO BUILD THIS IMAGE
 # -----------------------
 # Put all downloaded files in the same directory as this Dockerfile
+# Build the deployment archive file using the build-archive.sh script.
+#      $ ./build-archive.sh
+#
 # Run:
 #      $ sudo docker build \
 #            --build-arg WDT_MODEL=simple-topology.yaml \
+#            --build-arg WDT_ARCHIVE=archive.zip \
 #            -t 12213-domain-wdt .
 #
 # Pull base image
@@ -67,9 +71,9 @@ RUN chmod +xw /u01/oracle/*.sh && \
     if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file /u01/$WDT_MODEL"; fi && \
     if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file /u01/$WDT_ARCHIVE"; fi && \
     /u01/weblogic-deploy/bin/createDomain.sh \
-        -oracle_home /u01/oracle \
+        -oracle_home $ORACLE_HOME \
         -java_home ${JAVA_HOME} \
-        -domain_parent /u01/oracle/user_projects/domains \
+        -domain_parent $PRE_DOMAIN_HOME \
         -domain_type WLS \
         $MODEL_OPT \
         $ARCHIVE_OPT && \
