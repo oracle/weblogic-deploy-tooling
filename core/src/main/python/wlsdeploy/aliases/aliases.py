@@ -1073,6 +1073,27 @@ class Aliases(object):
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=default_value)
         return default_value
 
+    def get_model_attribute_type(self, location, model_attribute_name):
+        """
+        Get the wlst_type for the model attribute name at the specified location
+        :param location:
+        :param model_attribute_name:
+        :return:
+        """
+        wlst_type = None
+        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
+        if attribute_info is not None:
+            wlst_type = attribute_info[WLST_TYPE]
+        return wlst_type
+
+    def get_ignore_attribute_names(self):
+        """
+        Return the list of attribute names that are ignored by the aliases and not defined in the alias category
+        json files.
+        :return: list of ignored attribute
+        """
+        return self._alias_entries.IGNORE_FOR_MODEL_LIST
+
     ####################################################################################
     #
     # Private methods, private inner classes and static methods only, beyond here please
