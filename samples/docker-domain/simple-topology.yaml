@@ -68,7 +68,7 @@ appDeployments:
         # Quote needed because of hyphen in string
         'simple-app':
             SourcePath: 'wlsdeploy/applications/simple-app.war'
-            Target: AdminServer
+            Target: mycluster
             ModuleType: war
             StagingMode: nostage
             PlanStagingMode: nostage
