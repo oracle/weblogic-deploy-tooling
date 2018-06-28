@@ -41,17 +41,17 @@ To start the containerized Administration Server, run:
 
     $ docker run -d --name wlsadmin --hostname wlsadmin -p 7001:7001 --env-file ./container-scripts/domain.properties 12213-domain-wdt
     
-TBD To start a containerized Managed Server (MS1) to self-register with the Administration Server above, run:
+To start a containerized Managed Server (ms-1) to self-register with the Administration Server above, run:
 
- 	$ docker run -d --name MS1 --link wlsadmin:wlsadmin -p 8001:8001 --env-file ./container-scripts/domain.properties -e ADMIN_PASSWORD=<admin_password> -e MS_NAME=MS1 --volumes-from wlsadmin 12213-domain createServer.sh
+    $ docker run -d --name ms-1 --link wlsadmin:wlsadmin -p 9001:9001 --env-file ./container-scripts/domain.properties -e ADMIN_PASSWORD=<admin_password> -e MS_NAME=ms-1 12213-domain-wdt startManagedServer.sh
 
-TBD To start a second Managed Server (MS2), run:
+To start an additional Managed Server (in this example ms-2), run:
 
- 	$ docker run -d --name MS2 --link wlsadmin:wlsadmin -p 8002:8001 --env-file ./container-scripts/domain.properties -e ADMIN_PASSWORD=<admin_password> -e MS_NAME=MS2 --volumes-from wlsadmin 12213-domain createServer.sh
+    $ docker run -d --name ms-2 --link wlsadmin:wlsadmin -p 9002:9001 --env-file ./container-scripts/domain.properties -e ADMIN_PASSWORD=<admin_password> -e MS_NAME=ms-2 12213-domain-wdt startManagedServer.sh
 
-The above scenario from this sample will give you a WebLogic domain with a cluster set up on a single host environment.
+The above scenario from this sample will give you a WebLogic domain with a dynamic cluster set up on a single host environment.
 
-You may create more containerized Managed Servers by calling the `docker` command above for `createServer.sh` as long you link properly with the Administration Server. For an example of a multihost environment, see the sample `1221-multihost`.
+You may create more containerized Managed Servers by calling the `docker` command above for `startManagedServer.sh` as long you link properly with the Administration Server. For an example of a multihost environment, see the sample `1221-multihost`.
 
 # Copyright
 Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
