@@ -91,13 +91,13 @@ class CommonResourcesDiscoverer(Discoverer):
                 self._populate_model_parameters(result[datasource], location)
 
                 location.append_location(model_second_folder)
-                wlst_helper.cd(self._alias_helper.get_wlst_attributes_path(location))
-                result[datasource][model_second_folder] = OrderedDict()
-                resource_result = result[datasource][model_second_folder]
-                self._populate_model_parameters(resource_result, location)
-                self._discover_subfolders(resource_result, location)
-                location.remove_name_token(name_token)
-                location.pop_location()
+                if self.wlst_cd(self._alias_helper.get_wlst_attributes_path(location), location):
+                    result[datasource][model_second_folder] = OrderedDict()
+                    resource_result = result[datasource][model_second_folder]
+                    self._populate_model_parameters(resource_result, location)
+                    self._discover_subfolders(resource_result, location)
+                    location.remove_name_token(name_token)
+                    location.pop_location()
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
