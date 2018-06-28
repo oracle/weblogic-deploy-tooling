@@ -75,6 +75,7 @@ RUN chmod +xw /u01/oracle/*.sh && \
         -java_home ${JAVA_HOME} \
         -domain_parent $PRE_DOMAIN_HOME/domains \
         -domain_type WLS \
+        -variable_file /u01/oracle/domain.properties \
         $MODEL_OPT \
         $ARCHIVE_OPT && \
     chown -R oracle:oracle $PRE_DOMAIN_HOME

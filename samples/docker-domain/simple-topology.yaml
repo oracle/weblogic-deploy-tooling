@@ -1,47 +1,29 @@
 domainInfo:
-    AdminUserName: weblogic
+    AdminUserName: '@@PROP:ADMIN_USER@@'
     AdminPassword: welcome1
     ServerStartMode: dev
 topology:
-    Name: my_domain
+    Name: '@@PROP:DOMAIN_NAME@@'
     AdminServerName: AdminServer
     Cluster:
         mycluster:
             ClientCertProxyEnabled: true
+            ClusterMessagingMode: unicast
+            DynamicServers:
+                ServerTemplate: template1
+                CalculatedListenPorts: false
+                MaximumDynamicServerCount: 2
+                ServerNamePrefix: 'ms-'
+                DynamicClusterSize: 2
+                MaxDynamicClusterSize: 8
     Server:
         AdminServer:
             Machine: machine1
-            ListenPort: 7001
-            SSL:
-                Enabled: true
-                ListenPort: 7002
-        m1:
-            Machine: machine1
-            ListenPort: 9003
-            Cluster: mycluster
-            ServerStart:
-                ClassPath: '@@PWD@@/src/test/resources/nosuch.jar'
-                Arguments: '-Dosgi=true'
-            SSL:
-                Enabled: true
-                ListenPort: 9004
-        m2:
-            Machine: machine1
-            ListenPort: 9005
-            Cluster: mycluster
-            ServerStart:
-                ClassPath: '@@PWD@@/src/test/resources/nosuch.jar'
-                Arguments: '-Dosgi=true'
-            SSL:
-                Enabled : true
-                ListenPort: 9006
+            ListenPort: '@@PROP:ADMIN_PORT@@'
     ServerTemplate:
         template1:
             Machine: machine1
-            ListenPort: 9008
-            SSL:
-                Enabled: true
-                ListenPort: 9009
+            ListenPort: 9001
     Machine:
         machine1:
             Notes: The only machine
@@ -60,11 +42,6 @@ topology:
         MaxTransactions: 4
         Notes: JTA notes
 resources:
-    JDBCStore:
-        JDBCStore99:
-            Notes: JDBC store notes
-            Target: m1
-            DataSource: Generic1
     JDBCSystemResource:
         Generic1:
             Target: mycluster
@@ -84,10 +61,8 @@ resources:
                         oracle.jdbc.ReadTimeout:
                             Value: 30000
                 JDBCConnectionPoolParams:
-                    InitialCapacity: 3
+                    InitialCapacity: 0
                     MaxCapacity: 15
-                    TestTableName: SQL ISVALID
-                    TestConnectionsOnReserve: true
 appDeployments:
     Application:
         # Quote needed because of hyphen in string
