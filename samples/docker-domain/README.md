@@ -18,7 +18,7 @@ When the WDT discoverDomain tool is used on an existing domain, a ZIP archive is
 
 ### How to Build and Run
 
-**NOTE:** The image is based on a WebLogic image in the Docker store: store/oracle/weblogic:12.2.1.3 . Download this image to your local repository before building the image.
+**NOTE:** The image is based on a WebLogic image in the docker-images project: oracle/weblogic:12.2.1.3-developer . Build that image to your local repository before building this sample.
 
 The WebLogic Deploy Tool installer is required to build this image. Add weblogic-deploy.zip to the sample directory.
 
@@ -33,21 +33,22 @@ To build this sample, run:
     $ docker build \
           --build-arg WDT_MODEL=simple-topology.yaml \
           --build-arg WDT_ARCHIVE=archive.zip \
+          --force-rm=true \
           -t 12213-domain-wdt .
 
 This will use the model file and archive in the sample directory.
 
 To start the containerized Administration Server, run:
 
-    $ docker run -d --name wlsadmin --hostname wlsadmin -p 7001:7001 --env-file ./container-scripts/domain.properties 12213-domain-wdt
+    $ docker run -d --name wlsadmin --hostname wlsadmin -p 7001:7001 -v <sample-directory>/properties:/u01/oracle/properties 12213-domain-wdt
     
 To start a containerized Managed Server (ms-1) to self-register with the Administration Server above, run:
 
-    $ docker run -d --name ms-1 --link wlsadmin:wlsadmin -p 9001:9001 --env-file ./container-scripts/domain.properties -e ADMIN_PASSWORD=<admin_password> -e MS_NAME=ms-1 12213-domain-wdt startManagedServer.sh
+    $ docker run -d --name ms-1 --link wlsadmin:wlsadmin -p 9001:9001 -v <sample-directory>/properties:/u01/oracle/properties -e MS_NAME=ms-1 12213-domain-wdt startManagedServer.sh
 
 To start an additional Managed Server (in this example ms-2), run:
 
-    $ docker run -d --name ms-2 --link wlsadmin:wlsadmin -p 9002:9001 --env-file ./container-scripts/domain.properties -e ADMIN_PASSWORD=<admin_password> -e MS_NAME=ms-2 12213-domain-wdt startManagedServer.sh
+    $ docker run -d --name ms-2 --link wlsadmin:wlsadmin -p 9002:9001 -v <sample-directory>/properties:/u01/oracle/properties -e MS_NAME=ms-2 12213-domain-wdt startManagedServer.sh
 
 The above scenario from this sample will give you a WebLogic domain with a dynamic cluster set up on a single host environment.
 
