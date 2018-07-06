@@ -19,11 +19,13 @@
 #      $ sudo docker build \
 #            --build-arg WDT_MODEL=simple-topology.yaml \
 #            --build-arg WDT_ARCHIVE=archive.zip \
+#            --force-rm=true \
 #            -t 12213-domain-wdt .
 #
 # Pull base image
 # ---------------
-FROM store/oracle/weblogic:12.2.1.3
+# FROM store/oracle/weblogic:12.2.1.3
+FROM oracle/weblogic:12.2.1.3-developer
 
 # Maintainer
 # ----------
@@ -56,7 +58,11 @@ COPY container-scripts/* /u01/oracle/
 COPY weblogic-deploy.zip /u01
 COPY ${WDT_MODEL} ${ARCHIVE_FILE} /u01/
 
-#Create directory where domain will be written to
+# this file contains credentials.
+# be sure to build with --force-rm to eliminate this container layer
+COPY properties /u01/oracle
+
+# Create directory where domain will be written to
 USER root
 RUN chmod +xw /u01/oracle/*.sh && \
     chmod +xw /u01/oracle/*.py && \
@@ -78,7 +84,8 @@ RUN chmod +xw /u01/oracle/*.sh && \
         -variable_file /u01/oracle/domain.properties \
         $MODEL_OPT \
         $ARCHIVE_OPT && \
-    chown -R oracle:oracle $PRE_DOMAIN_HOME
+    chown -R oracle:oracle $PRE_DOMAIN_HOME && \
+    rm /u01/oracle/domain.properties
 
 VOLUME $PRE_DOMAIN_HOME
 # Expose Node Manager default port, and also default for admin and managed server

@@ -1,7 +1,7 @@
 domainInfo:
-    AdminUserName: '@@PROP:ADMIN_USER@@'
-    AdminPassword: welcome1
-    ServerStartMode: dev
+    AdminUserName: '@@PROP:username@@'
+    AdminPassword: '@@PROP:password@@'
+    ServerStartMode: prod
 topology:
     Name: '@@PROP:DOMAIN_NAME@@'
     AdminServerName: AdminServer
@@ -12,7 +12,6 @@ topology:
             DynamicServers:
                 ServerTemplate: template1
                 CalculatedListenPorts: false
-                MaximumDynamicServerCount: 2
                 ServerNamePrefix: 'ms-'
                 DynamicClusterSize: 2
                 MaxDynamicClusterSize: 8
@@ -32,8 +31,8 @@ topology:
                 ListenPort: 5556
                 Notes: The only node manager
     SecurityConfiguration:
-        NodeManagerUsername: weblogic
-        NodeManagerPasswordEncrypted: welcome1
+        NodeManagerUsername: '@@PROP:NM_USER@@'
+        NodeManagerPasswordEncrypted: '@@PROP:NM_PASSWORD@@'
     JMX:
         InvocationTimeoutSeconds: 40
         Notes: JMX notes
@@ -52,10 +51,10 @@ resources:
                 JDBCDriverParams:
                     DriverName: oracle.jdbc.xa.client.OracleXADataSource
                     URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=slc05til.us.oracle.com)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
-                    PasswordEncrypted: welcome1
+                    PasswordEncrypted: '@@PROP:DB_PASSWORD@@'
                     Properties:
                         user:
-                            Value: jshum
+                            Value: '@@PROP:DB_USER@@'
                         oracle.net.CONNECT_TIMEOUT:
                             Value: 5000
                         oracle.jdbc.ReadTimeout:
