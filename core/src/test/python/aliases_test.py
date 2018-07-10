@@ -31,19 +31,19 @@ class AliasesTestCase(unittest.TestCase):
        1) Unit tests must be a class that extends unittest.TestCase
        2) Class methods with names starting with 'test' will be executed by the framework (all others skipped)
     """
+    wls_version = '12.2.1.3'
 
     arg_map = {
-        CommandLineArgUtil.ORACLE_HOME_SWITCH: os.environ.get('ORACLE_HOME'),
+        CommandLineArgUtil.ORACLE_HOME_SWITCH: '/oracleHome',
         CommandLineArgUtil.DOMAIN_HOME_SWITCH: ''
     }
 
     logger = platform_logger.PlatformLogger('wlsdeploy.unittest')
-    wlst_version = WebLogicHelper(logger).wl_version_actual
-    model_context = ModelContext(sys.argv[0], arg_map)
+    model_context = ModelContext("test", arg_map)
 
     # create a set of aliases for use with WLST
-    aliases = Aliases(model_context=model_context)
-    online_aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.ONLINE)
+    aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE, wls_version=wls_version)
+    online_aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.ONLINE, wls_version=wls_version)
 
     def testDomainLevelAttributeAccessibility(self):
         location = LocationContext()
