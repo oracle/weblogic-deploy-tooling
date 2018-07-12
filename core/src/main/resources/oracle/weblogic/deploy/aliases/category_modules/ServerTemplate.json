@@ -47,6 +47,7 @@
             }
         },
         "ConfigurationProperty" : {
+            "child_folders_type": "multiple",
             "version" : "[12.2.1,)",
             "folders" : {},
             "attributes" : {
@@ -59,7 +60,7 @@
             "wlst_type" : "ConfigurationPropert${y:ies}",
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/ConfigurationPropert${y:ies}/%PROPERTY_NAME%"
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/ConfigurationPropert${y:ies}/%PROPERTY_NAME%"
             }
         },
         "DataSource": {
@@ -342,7 +343,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/OverloadProtection/${NO_NAME_0:%SERVERTEMPLATE%}/ServerFailureTrigger/${NO_NAME_0:%SERVER%}"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/OverloadProtection/${NO_NAME_0:%SERVERTEMPLATE%}/ServerFailureTrigger/${NO_NAME_0:%SERVERTEMPLATE%}"
                     }
                 }
             },
@@ -1062,7 +1063,7 @@
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
                 "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/TransactionLogJDBCStore/${NO_NAME_0:%SERVERTEMPLATE%}",
-                "WP003": "/ServerTemplate${:s}/%SERVERTEMPLATE%/DataSource/${NO_NAME_0:%SERVERTEMPLATE%}/Targets"
+                "WP002": "/ServerTemplate${:s}/%SERVERTEMPLATE%/DataSource/${NO_NAME_0:%SERVERTEMPLATE%}/Targets"
             }
         },
         "WebServer": {
@@ -1201,7 +1202,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServicePersistence/${NO_NAME_0:%SERVERTEMPLATE%}%"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServicePersistence/${NO_NAME_0:%SERVERTEMPLATE%}"
                     }
                 },
                 "WebServiceBuffering": {

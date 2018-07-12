@@ -46,6 +46,7 @@
             }
         },
         "ConfigurationProperty" : {
+            "child_folders_type": "multiple",
             "version" : "[12.2.1,)",
             "folders" : {},
             "attributes" : {
