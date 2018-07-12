@@ -1282,6 +1282,7 @@ class AliasesTestCase(unittest.TestCase):
         location = LocationContext().append_location(FOLDERS.SERVER)
         location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
         location = location.append_location(FOLDERS.SSL)
+        location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
         wlst_list = ['TLS', 'WITH_AES_256_CBC']
         attribute = 'Ciphersuite'
 
