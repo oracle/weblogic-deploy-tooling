@@ -31,6 +31,8 @@
         },
         "COM": {
             "wlst_type": "COM",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders": {},
             "attributes": {
                 "ApartmentThreaded":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ApartmentThreaded",     "wlst_path": "WP001", "value": {"default": "false" }, "wlst_type": "boolean" } ],
@@ -43,10 +45,11 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/COM/%SERVERTEMPLATE%"
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/COM/%SERVERTEMPLATE_COM%"
             }
         },
         "ConfigurationProperty" : {
+            "child_folders_type": "multiple",
             "version" : "[12.2.1,)",
             "folders" : {},
             "attributes" : {
@@ -59,7 +62,7 @@
             "wlst_type" : "ConfigurationPropert${y:ies}",
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/ConfigurationPropert${y:ies}/%PROPERTY_NAME%"
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/ConfigurationPropert${y:ies}/%PROPERTY_NAME%"
             }
         },
         "DataSource": {
@@ -82,6 +85,8 @@
         },
         "DefaultFileStore": {
             "wlst_type": "DefaultFileStore",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders": {},
             "attributes": {
                 "BlockSize":              [ {"version": "[10,10.3.4)", "wlst_mode": "both", "wlst_name": "BlockSize",              "wlst_path": "WP001", "value": {"default": "${512:-1}"}, "wlst_type": "integer",  "access": "${:RO}"},
@@ -99,7 +104,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/DefaultFileStore/${NO_NAME_0:%SERVERTEMPLATE%}"
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/DefaultFileStore/%SERVERTEMPLATE_DEFAULTFILESTORE%"
             }
         },
         "ExecuteQueue": {
@@ -159,6 +164,8 @@
         },
         "IIOP": {
             "wlst_type": "IIOP",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders": {},
             "attributes": {
                 "CompleteMessageTimeout":    [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "CompleteMessageTimeout",    "wlst_path": "WP001", "value": {"default": -1      }, "wlst_type": "integer"  } ],
@@ -180,7 +187,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/IIOP/%SERVERTEMPLATE%"
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/IIOP/%SERVERTEMPLATE_IIOP%"
             }
         },
         "JTAMigratableTarget": {
@@ -213,6 +220,8 @@
         },
         "Log": {
             "wlst_type": "Log",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders": {},
             "attributes": {
                 "BufferSizeKb":                                  [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "BufferSizeKb",                                  "wlst_path": "WP001", "value": {"default": 8       }, "wlst_type": "integer"} ],
@@ -257,8 +266,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/Log/%SERVERTEMPLATE%",
-                "WP002": "/ServerTemplate${:s}/%SERVERTEMPLATE%/Log/${NO_NAME_0:%SERVERTEMPLATE%}"
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/Log/%SERVERTEMPLATE_LOG%"
             }
         },
         "NetworkAccessPoint": {
@@ -337,12 +345,13 @@
                     "wlst_type": "ServerFailureTrigger",
                     "folders": {},
                     "attributes": {
-                        "MaxStuckThreadTime": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MaxStuckThreadTime", "wlst_path": "WP001", "value": {"default": 0      }, "wlst_type": "integer"} ],
+                        "MaxStuckThreadTime": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MaxStuckThreadTime", "wlst_path": "WP001", "value": {"default": 600    }, "wlst_type": "integer"} ],
+                        "StuckThreadCount":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "StuckThreadCount",   "wlst_path": "WP001", "value": {"default": 0      }, "wlst_type": "integer"} ],
                         "Notes":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",              "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ]
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/OverloadProtection/${NO_NAME_0:%SERVERTEMPLATE%}/ServerFailureTrigger/${NO_NAME_0:%SERVER%}"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/OverloadProtection/${NO_NAME_0:%SERVERTEMPLATE%}/ServerFailureTrigger/${NO_NAME_0:%SERVERTEMPLATE%}"
                     }
                 }
             },
@@ -361,6 +370,8 @@
         },
         "ServerDebug": {
             "wlst_type": "ServerDebug",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders": {},
             "attributes": {
                 "ApplicationContainer":                         [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "ApplicationContainer",                         "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ],
@@ -852,7 +863,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/ServerDebug/${NO_NAME_0:%SERVERTEMPLATE%}"
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/ServerDebug/%SERVERTEMPLATE_DEBUG%"
             }
         },
         "ServerDiagnosticConfig": {
@@ -894,6 +905,8 @@
         },
         "ServerStart": {
             "wlst_type": "ServerStart",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders": {},
             "attributes": {
                 "BeaHome":            [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "BeaHome",            "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string",                           "uses_path_tokens": "true"} ],
@@ -911,7 +924,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/ServerStart/${NO_NAME_0:%SERVERTEMPLATE%}"
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/ServerStart/%SERVERTEMPLATE_START%"
             }
         },
         "SingleSignOnServices" : {
@@ -1019,7 +1032,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/SSL/%SERVERTEMPLATESSL%"
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/SSL/%SERVERTEMPLATE_SSL%"
             }
         },
         "TransactionLogJDBCStore": {
@@ -1062,11 +1075,13 @@
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
                 "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/TransactionLogJDBCStore/${NO_NAME_0:%SERVERTEMPLATE%}",
-                "WP003": "/ServerTemplate${:s}/%SERVERTEMPLATE%/DataSource/${NO_NAME_0:%SERVERTEMPLATE%}/Targets"
+                "WP002": "/ServerTemplate${:s}/%SERVERTEMPLATE%/DataSource/${NO_NAME_0:%SERVERTEMPLATE%}/Targets"
             }
         },
         "WebServer": {
             "wlst_type": "WebServer",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders": {
                 "WebServerLog": {
                     "wlst_type": "WebServerLog",
@@ -1093,7 +1108,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebServer/${NO_NAME_0:%SERVERTEMPLATE%}/WebServerLog/${NO_NAME_0:%SERVERTEMPLATE%}"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebServer/%SERVERTEMPLATE_WEBSERVER%/WebServerLog/${NO_NAME_0:%SERVERTEMPLATE%}"
                     }
                 }
             },
@@ -1132,8 +1147,8 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebServer/${NO_NAME_0:%SERVERTEMPLATE%}",
-                "WP002": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebServer/${NO_NAME_0:%SERVERTEMPLATE%}/Targets"
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebServer/%SERVERTEMPLATE_WEBSERVER%",
+                "WP002": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebServer/%SERVERTEMPLATE_WEBSERVER%/Targets"
             }
         },
         "WebService": {
@@ -1201,7 +1216,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServicePersistence/${NO_NAME_0:%SERVERTEMPLATE%}%"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServicePersistence/${NO_NAME_0:%SERVERTEMPLATE%}"
                     }
                 },
                 "WebServiceBuffering": {
