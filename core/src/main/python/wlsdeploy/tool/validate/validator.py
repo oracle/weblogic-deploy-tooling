@@ -922,9 +922,9 @@ class Validator(object):
             self._logger.finest('tokens={0}', str(tokens), class_name=_class_name, method_name=_method_name)
             # TODO(mwooten) - This would be a good place to validate any path token found...
 
-            substituted_path = self._model_context.replace_token_string(path)
-            if not os.path.isabs(substituted_path):
-                validation_result.add_info('WLSDPLY-05031', attribute_name, model_folder_path, substituted_path)
+            if not self._model_context.has_token_prefix(path):
+                if not os.path.isabs(path):
+                    validation_result.add_info('WLSDPLY-05031', attribute_name, model_folder_path, path)
 
         return validation_result
 
