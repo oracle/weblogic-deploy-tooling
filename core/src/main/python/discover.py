@@ -20,6 +20,7 @@ from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
+from oracle.weblogic.deploy.util import WLSDeployBeforeExitAction
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
@@ -504,6 +505,9 @@ def main(args):
         __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
 
     __close_archive(model_context)
+
+    __logger.fine("About to call the deploy before exit action ")
+    WLSDeployBeforeExitAction.cleanup_and_exit(__wlst_mode == WlstModes.ONLINE)
 
     __logger.exiting(result=exit_code, class_name=_class_name, method_name=_method_name)
     sys.exit(exit_code)

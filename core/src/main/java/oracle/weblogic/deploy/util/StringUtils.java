@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 public final class StringUtils {
 
     private static final int KEY_VALUE_LIST_LENGTH = 2;
+    private static final String COMMA_SEPARATED_LIST_SPLITTER = "[ \t]*,[ \t]*";
 
     private StringUtils() {
         // hide the constructor for this utility class
@@ -133,4 +134,17 @@ public final class StringUtils {
         }
         return properties;
     }
+
+    /**
+     * Return an array of Strings from the provided comma separated list
+     * @param listString containing comma separated strings.
+     * @return String[] from string or empty array if the listString is null or empty
+     */
+    public static String[] splitCommaSeparatedList(String listString) {
+        if (StringUtils.isEmpty(listString)) {
+            return new String[0];
+        }
+        return listString.split(COMMA_SEPARATED_LIST_SPLITTER);
+    }
+
 }

@@ -10,12 +10,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
@@ -28,7 +26,7 @@ import oracle.weblogic.deploy.util.StringUtils;
 public class WLSDeployLoggingConfig {
     private static final String DEFAULT_PROGRAM_NAME = "unknown-test";
     private static final List<String> WLSDEPLOY_ROOT_LOGGERS =
-        Arrays.asList("oracle.weblogic.deploy");
+        Collections.singletonList("oracle.weblogic.deploy");
     private static final String DEFAULT_LOG_CONFIG_FILE_NAME = "logging.properties";
     private static final String LOG_NAME_PATTERN = "%s.log";
 
@@ -46,6 +44,8 @@ public class WLSDeployLoggingConfig {
     private static final String HANDLER_COUNT_PROP = ".count";
     private static final String HANDLER_APPEND_PROP = ".append";
 
+    private static final String WLSDEPLOY_HANDLER_METHOD = "getHandlerProperties";
+
     private static final String LOGGER_LEVEL_PROP = HANDLER_LEVEL_PROP;
 
     private static final String DEFAULT_FILE_HANDLER_LEVEL = Level.ALL.toString();
@@ -56,11 +56,12 @@ public class WLSDeployLoggingConfig {
     private static final String DEFAULT_FILE_HANDLER_COUNT = "1";
     private static final String DEFAULT_FILE_HANDLER_APPEND = "false";
     private static final String DEFAULT_DEBUG_TO_STDOUT = "false";
+    private static final Class<SummaryHandler> DEFAULT_TOOL_HANDLER = SummaryHandler.class;
 
     private static final String LOG_FORMATTER = WLSDeployLogFormatter.class.getName();
-    private static final String COMMA_SEPARATED_LIST_SPLITTER = "[ \t]*,[ \t]*";
     private static final int ERROR_EXIT_CODE = 2;
 
+    public static final String WLSDEPLOY_LOGGER_NAME = "wlsdeploy";
     /**
      * The environment variable name set by the shell script to specify the name of
      * the application.  This is used only to make the error messages during log
@@ -82,11 +83,21 @@ public class WLSDeployLoggingConfig {
     public static final String WLSDEPLOY_LOGS_DIRECTORY_ENV_VARIABLE = "WLSDEPLOY_LOG_DIRECTORY";
 
     /**
+     * The environment variable name used to specify a comma separated list of handlers to add
+     * to the tool parent logger (WLSDEPLOY_LOGGER_NAME). The handler name is the handler class name.
+     */
+    public static final String WLSDEPLOY_LOG_HANDLERS_ENV_VARIABLE = "WLSDEPLOY_LOG_HANDLERS";
+
+    /**
      * Java System property to change the ConsoleHandler configuration to log
      * all levels of message to the console.  The default is false, which will
      * set the ConsoleHandler level to INFO.
      */
-    public static final String WLSDEPLOY_DEBUG_TO_STDOUT_PROP = "wlsdeploy.debugToStdout";
+    public static final String WLSDEPLOY_DEBUG_TO_STDOUT_PROP = WLSDEPLOY_LOGGER_NAME + ".debugToStdout";
+
+    /**
+     * The property name for the list of handlers for the tool root logger.
+     */
 
     private static File loggingDirectory;
     private static File loggingPropertiesFile;
@@ -178,7 +189,7 @@ public class WLSDeployLoggingConfig {
         for (String key : keys) {
             if (HANDLERS_PROP.equals(key)) {
                 String val = logProps.getProperty(key);
-                handlers = Arrays.asList(splitCommaSeparatedList(val));
+                handlers = Arrays.asList(StringUtils.splitCommaSeparatedList(val));
             } else if (isKeyKnownHandlerProperty(key) || CONFIG_PROP.equals(key)) {
                 logProps.remove(key);
             }
@@ -197,6 +208,9 @@ public class WLSDeployLoggingConfig {
         }
         String handlersListString = StringUtils.getCommaSeparatedListString(handlers);
         logProps.setProperty(HANDLERS_PROP, handlersListString);
+
+        augmentToolLoggingProperties(logProps);
+
         String logFileName = configureFileHandler(programName, logProps);
         configureConsoleHandler(logProps);
 
@@ -209,6 +223,7 @@ public class WLSDeployLoggingConfig {
 
         String message = MessageFormat.format("The {0} program will write its log to {1}", programName, logFileName);
         System.out.println(message);
+        System.out.println("*** The properties are " + logProps.toString());
     }
 
     private static boolean isKeyKnownHandlerProperty(String key) {
@@ -239,6 +254,35 @@ public class WLSDeployLoggingConfig {
         }
 
         logProps.setProperty(consoleHandler + HANDLER_FORMATTER_PROP, LOG_FORMATTER);
+    }
+
+    private static void augmentToolLoggingProperties(Properties logProps) {
+        System.out.println("***** In the augment ");
+        List<Class<?>> classList  = new ArrayList<>();
+        for (String handlerName : findExtraHandlers(logProps)) {
+            classList.add(getHandlerClass(handlerName));
+        }
+        if (classList.size() == 0) {
+            System.out.println("*** Adding the Default tool handler");
+            classList.add(DEFAULT_TOOL_HANDLER);
+        }
+        for (Class<?> handler : classList) {
+            addHandlerProperties(logProps, handler);
+        }
+    }
+
+    private static Set<String> findExtraHandlers(Properties logProps) {
+        // The handlers are applied in order - process environment variable first, then logging properties
+        Set<String> handlers = new HashSet<>();
+        String[] addTo = StringUtils.splitCommaSeparatedList(System.getenv(WLSDEPLOY_LOG_HANDLERS_ENV_VARIABLE));
+        if (addTo.length > 0) {
+            handlers.addAll(Arrays.asList(addTo));
+        }
+        addTo = StringUtils.splitCommaSeparatedList(logProps.getProperty(WLSDEPLOY_LOGGER_NAME + "." + HANDLERS_PROP));
+        if (addTo.length > 0) {
+            handlers.addAll(Arrays.asList(addTo));
+        }
+        return handlers;
     }
 
     private static File findLoggingDirectory(String programName) {
@@ -298,10 +342,63 @@ public class WLSDeployLoggingConfig {
         }
     }
 
-    private static String[] splitCommaSeparatedList(String s) {
-        if (StringUtils.isEmpty(s)) {
-            return new String[0];
+    private static Class<?> getHandlerClass(String handlerName) {
+        String message = null;
+        Class<?> handler = null;
+        try {
+            handler = Class.forName(handlerName);
+            if (!Handler.class.isAssignableFrom(handler)) {
+                message = MessageFormat.format("Class {0} is not a Handler", handlerName);
+            }
+        } catch(ClassNotFoundException cnf) {
+            message = MessageFormat.format("Unable to find handler class {0} so skipping logging configuration",
+                    handlerName);
         }
-        return s.split(COMMA_SEPARATED_LIST_SPLITTER);
+        if (message != null) {
+            System.err.println(message);
+            System.exit(ERROR_EXIT_CODE);
+        }
+        return handler;
     }
+
+    private static void addHandlerProperties(Properties logProps, Class<?> clazz) {
+        System.out.println("*** in add handler properties");
+        Properties props = null;
+        // a forEach would be good here!
+        String clazzName = clazz.getName();
+        Set<String> propSet = logProps.stringPropertyNames();
+        try {
+            // only look in this class
+            Method method = clazz.getDeclaredMethod(WLSDEPLOY_HANDLER_METHOD, (Class<?>)null);
+            System.out.println("*** found method " + method.toGenericString() + " for class " + clazzName);
+            props =  (Properties)method.invoke(null, (Class<?>)null);
+        } catch (NoSuchMethodException nsm) {
+            System.out.println("*** method not found for class " + clazzName);
+            return;
+        } catch (Exception e) {
+            String message = MessageFormat.format("Unable to successfully populate properties for handler {0} " +
+                    "so skipping logging configuration : {1}", clazzName, e.getLocalizedMessage());
+            System.err.println(message);
+            System.exit(ERROR_EXIT_CODE);
+        }
+
+        if (props != null) {
+            System.out.print("*** props returned " + props.toString());
+            for (Map.Entry<?, ?> listItem : props.entrySet()) {
+                if (listItem.getKey() instanceof String && listItem.getValue() instanceof String) {
+                    // requires the handler property name without the handler class name
+                    // this method will add the class to make sure the handler is not setting global properties
+                    // or properties for other handlers
+                    String property = clazzName + '.' + listItem;
+                    if (!propSet.contains(property)) {
+                        // logging.properties property takes precedent
+                        logProps.setProperty(property, (String)listItem.getValue());
+                    }
+                }
+            }
+        } else {
+            System.out.println("*** No props returned");
+        }
+    }
+
 }
