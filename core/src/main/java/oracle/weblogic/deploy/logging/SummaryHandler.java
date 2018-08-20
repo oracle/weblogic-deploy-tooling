@@ -1,11 +1,34 @@
+/*
+ * Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+ * The Universal Permissive License (UPL), Version 1.0
+ */
 package oracle.weblogic.deploy.logging;
 
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.logging.*;
-import java.util.logging.Formatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import java.util.logging.MemoryHandler;
 
 
+/**
+ * This class save the log records logged by the tool at Info level or greater. The WLSDeployExit exit method will
+ * call this Handler to publish the messages, along with the total of the log records, by Level category.
+ *
+ * The WLSDeployCustomizeLoggingConfig adds the properties from this class' getHandlerProperties() to the
+ * log manager logger properties and adds the handler to the root WLSDEPLOY Logger. See the class for information
+ * on how to inject this handler into the wlsdeploy root logger.
+ *
+ * Before the tool exit, if specified by the caller, a recap of the saved logs is displayed to the console.
+ * A final total of the records logged by the tool for the Level categories indicated above is displayed to the console.
+ *
+ * @see WLSDeployCustomizeLoggingConfig
+ * @see oracle.weblogic.deploy.util.WLSDeployExit
+ */
 public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHandler {
     private static final String CLASS = SummaryHandler.class.getName();
     private static final String LEVEL_PROPERTY = "level";
@@ -16,13 +39,16 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
     private static final String LINE_SEPARATION = System.lineSeparator();
 
     private PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.exit");
-    private boolean online = false;
+    private boolean recap = false;
     private int bufferSize;
 
     private Handler target;
     private List<LevelHandler> handlers = new ArrayList<>();
     private boolean closed = false;
 
+    /**
+     * This default constructor is populated with the handler properties loaded by the WLSDeployCustomizeLoggingConfig.
+     */
     public SummaryHandler() {
         super();
         configure();
@@ -31,9 +57,14 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
         addLevelHandler(Level.INFO);
         addLevelHandler(Level.WARNING);
         addLevelHandler(Level.SEVERE);
-        System.out.println("*** summary handler");
     }
 
+    /**
+     * Tally and save the log record if it matches one of the category Level handlers. Once the summary has completed,
+     * all further log records will be ignored.
+     *
+     * @param record to tally and save in handler with matching Level category
+     */
     @Override
     public synchronized void publish(LogRecord record) {
         // after close, take yourself out of the mix. The stored up log messages are going to go to the
@@ -45,9 +76,11 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
         }
     }
 
+    /**
+     * The Summary Handler will publish the recaps and total. The log records are discarded and the total reset.
+     */
     @Override
     public synchronized void push() {
-        System.out.println("i am in push ");
         String METHOD = "push";
         LOGGER.entering(CLASS, METHOD);
         closed = true;
@@ -58,7 +91,7 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
             int count = handler.pushSection();
             super.push();
             if (count >= 0) {
-                fmt.format("  %1$s : %2$,5d", handler.getLevel().getName(), count);
+                fmt.format("    %1$s : %2$,5d", handler.getLevel().getName(), count);
             }
         }
 
@@ -76,17 +109,34 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
         super.close();
     }
 
-    public void setOnline(boolean isOnline) {
-        online = isOnline;
+    /**
+     * Specify if the log records should be displayed to the console before the tool exit.
+     *
+     * @param recap if true a recap of the log records will be performed
+     */
+    public void setRecap(boolean recap) {
+        this.recap = recap;
     }
 
-    public boolean isOnline() {
-        return online;
+    /**
+     * Return whether the log records should be displayed to the console.
+     *
+     * @return true if a recap of the log records is specified
+     */
+    public boolean isRecap() {
+        return recap;
     }
 
+    /**
+     * This method is called by the tool to complete the SummaryHandler, and display the recap and total information
+     * to the console. The log records are only displayed to the console if the tool was run in online mode.
+     * This compensates for wlst writing spurious blank lines to the console during online mode.
+     *
+     * @param onlineMode if true, a recap of the log records will be displayed
+     */
     @Override
-    public void logEnd(boolean online) {
-        setOnline(online);
+    public void logEnd(boolean onlineMode) {
+        setRecap(onlineMode);
         push();
     }
 
@@ -100,26 +150,20 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
         Properties properties = new Properties();
         properties.setProperty(LEVEL_PROPERTY, Level.INFO.getName());
         properties.setProperty(TARGET_PROPERTY, WLSDeployLoggingConsoleHandler.class.getName());
-        properties.setProperty(FORMATTER_PROPERTY, SummaryFormatter.class.getName());
+        properties.setProperty(FORMATTER_PROPERTY, WLSDeployLogFormatter.class.getName());
         return properties;
     }
 
-    public class SummaryFormatter extends Formatter {
-        public synchronized String format(LogRecord logRecord) {
-            // for now, only format the message in summary - maybe add logger name or other later
-            return formatMessage(logRecord);
-        }
-    }
-
     private void addLevelHandler(Level level) {
-        LevelHandler handler = null;
+        LevelHandler handler;
         if (getLevel().intValue() <= level.intValue()) {
             handler = new LevelHandler(target, bufferSize, level);
-            handler.setLevel(level);
-            handler.setFilter(getFilter());
-            //handler.setFormatter(new SummaryFormatter());
-            handlers.add(handler);
+        } else {
+            handler = new NoActionHandler(target, bufferSize, level);
         }
+        handler.setLevel(level);
+        handler.setFilter(getFilter());
+        handlers.add(handler);
     }
 
     private class LevelHandler extends MemoryHandler {
@@ -140,12 +184,14 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
         }
 
         public synchronized int pushSection() {
-            if (isOnline()) {
+            if (isRecap()) {
                 logStart();
                 super.push();
                 logEnd();
             }
-            return getTotalRecords();
+            int result = totalRecords;
+            totalRecords = 0;
+            return result;
         }
 
         int getTotalRecords() {

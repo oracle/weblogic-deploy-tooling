@@ -4,69 +4,110 @@
  */
 package oracle.weblogic.deploy.util;
 
-import oracle.weblogic.deploy.logging.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.Stack;
+
+import oracle.weblogic.deploy.logging.PlatformLogger;
+import oracle.weblogic.deploy.logging.WLSDeployLogEndHandler;
+import oracle.weblogic.deploy.logging.WLSDeployLoggingConfig;
+import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 
 /**
- * Perform any Log and Clean up action prior to exiting the tool.
+ * Perform generic "ready to exit" methods and exit the jvm. This should be used by the base tools
+ * to exit instead of System.exit.
  */
 public class WLSDeployExit {
 
     private static final String CLASS = WLSDeployExit.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.util");
 
-    public static void initiate(String name, boolean online) {
-        LOGGER.log(Level.ALL, "{0} tool started", name);
-    }
-
+    /**
+     * Perform any last methods for the tools and exit the JVM.
+     *
+     * @param error_code for exit from the JVM.
+     * @param online true if the tool ran in online mode
+     */
     public static void exit(int error_code, boolean online) {
         String METHOD = "exit";
         LOGGER.entering(CLASS, METHOD, online);
         log_cleanup(online);
         LOGGER.exiting(CLASS, METHOD);
+        exit(error_code);
     }
 
-    private static void exit(int error_code) {
+    /**
+     * Exit the JVM with the provided exit code.
+     *
+     * @param error_code for exit from the JVM
+     */
+    public static void exit(int error_code) {
         // might want to validate the exit code first
         System.exit(error_code);
     }
 
-    private static void log_cleanup(boolean online) {
+    /**
+     * Call any WLSDeployLogEnd Logger handlers so the handlers can perform end actions.
+     *
+     * @param online true if the tool ran in online mode.
+     */
+    public static void log_cleanup(boolean online) {
         String METHOD = "log_cleanup";
         LOGGER.entering(CLASS, METHOD, online);
-        LogManager manager = LogManager.getLogManager();
-        Enumeration<String> e = manager.getLoggerNames();
-        Set<Handler> handlerSet = new HashSet<>();
-        while (e.hasMoreElements()) {
-            String loggerName = e.nextElement();
-            if (loggerName.startsWith(WLSDeployLoggingConfig.WLSDEPLOY_LOGGER_NAME)) {
-                Logger logger = manager.getLogger(loggerName);
-                handlerSet.addAll(callLoggerHandlers(logger, online));
-            }
-        }
-        for (Handler handler : handlerSet) {
-            LOGGER.fine("Calling Handler {0} for log cleanup and end", handler.getClass());
-            ((WLSDeployLogEndHandler) handler).logEnd(online);
+        Stack<Handler> handlers = reduceList(traverseHandlers(getTopLogList(), new LinkedList<Handler>()));
+        while (handlers.size() > 0) {
+            logEnd((WLSDeployLogEndHandler)handlers.pop(), online);
         }
         LOGGER.exiting(CLASS, METHOD);
     }
 
-    private static Set<Handler> callLoggerHandlers(Logger logger, boolean online) {
-        Set<Handler> handlerSet = new HashSet<>();
-        for (Handler handler : logger.getHandlers()) {
-            if (WLSDeployLogEndHandler.class.isAssignableFrom(handler.getClass())) {
-                handlerSet.add(handler);
+    private static List<Logger> getTopLogList() {
+        List<Logger> loggerList = new ArrayList<>();
+        for (Logger logger : PlatformLogger.getLoggers()) {
+            if (logger.getName().startsWith(WLSDeployLoggingConfig.WLSDEPLOY_LOGGER_NAME)) {
+                loggerList.add(logger);
             }
         }
-        if (logger.getUseParentHandlers() && logger.getParent() != null) {
-            handlerSet.addAll(callLoggerHandlers(logger.getParent(), online));
+        return loggerList;
+    }
+
+    private static synchronized void logEnd(WLSDeployLogEndHandler handler, boolean online) {
+        handler.logEnd(online);
+    }
+
+    private static LinkedList<Handler> traverseHandlers(List<Logger> loggers, LinkedList<Handler> handlerList) {
+        List<Logger> parents = new ArrayList<>();
+        if (loggers.size() > 0) {
+            for (Logger logger : loggers) {
+                if (logger.getUseParentHandlers()) {
+                    for (Handler handler : logger.getHandlers()) {
+                        if (WLSDeployLogEndHandler.class.isAssignableFrom(handler.getClass())) {
+                            handlerList.add(handler);
+                        }
+                        Logger parent = logger.getParent();
+                        if (parent != null) {
+                            parents.add(parent);
+                        }
+                    }
+                }
+            }
+            handlerList = traverseHandlers(parents, handlerList);
         }
-        return handlerSet;
+        return handlerList;
+    }
+
+    private static Stack<Handler> reduceList(LinkedList<Handler> handlers) {
+        Stack<Handler> reducedList = new Stack<>();
+        while (handlers.size() > 0 ){
+            Handler bottom = handlers.removeLast();
+            if (!reducedList.contains(bottom)) {
+                reducedList.add(bottom);
+            }
+        }
+        return reducedList;
     }
 
 }

@@ -4,7 +4,11 @@
  */
 package oracle.weblogic.deploy.logging;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
@@ -524,6 +528,23 @@ public class PlatformLogger {
     public void warning(String msg, Throwable thrown) {
         CallerDetails details = inferCaller();
         logger.logp(Level.WARNING, details.clazz, details.method, msg, thrown);
+    }
+
+    /**
+     * Return a list of the current loggers.
+     *
+     * @return List of Logger from the Log Manager
+     */
+    public static List<Logger> getLoggers() {
+        LogManager manager = LogManager.getLogManager();
+        Enumeration<String> e = manager.getLoggerNames();
+        List<Logger> topList = new ArrayList<>();
+        while (e.hasMoreElements()) {
+            String loggerName = e.nextElement();
+            Logger logger = manager.getLogger(loggerName);
+            topList.add(logger);
+        }
+        return topList;
     }
 
     /**
