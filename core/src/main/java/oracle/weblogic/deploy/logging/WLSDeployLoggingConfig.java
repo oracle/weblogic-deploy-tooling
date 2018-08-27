@@ -160,6 +160,15 @@ public class WLSDeployLoggingConfig {
         return WLSDEPLOY_CONSOLE_HANDLER;
     }
 
+    /**
+     * To augment the logging properties with custom properties, extend this class and overwrite this method.
+     * The method should add applicable properties to the logProps. These properties will be loaded into the LogManager
+     * and available to Logger instances. Do not instantiate Loggers in this class as the reload will reset the
+     * Loggers.
+     *
+     * @param programName the name of the tool running, useful for messages.
+     * @param logProps property instance to which to add log properties in string format, key=value
+     */
     public void customizeLoggingProperties(String programName, Properties logProps) {
        // override to customize
     }
