@@ -483,6 +483,17 @@ class Discoverer(object):
                              class_name=_class_name, method_name=_method_name)
         return model_name
 
+    def _topfolder_exists(self, model_top_folder_name):
+        """
+        Check to see if the folder represented by the top folder name exists at the current location.
+        There is not a way to check for wlst_type for top folders. The top folder name and the wlst name
+        must be the same.
+        :param model_top_folder_name: to check for at top directory
+        :return: True if the folder exists at the current location in the domain
+        """
+        result = self._wlst_helper.lsc('/', log_throwing=False)
+        return model_top_folder_name in result
+
     def _subfolder_exists(self, model_folder_name, location):
         """
         Check to see if the folder represented by the model folder name exists at the current loction

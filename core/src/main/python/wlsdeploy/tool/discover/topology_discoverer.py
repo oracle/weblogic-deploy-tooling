@@ -353,7 +353,7 @@ class TopologyDiscoverer(Discoverer):
         model_top_folder_name = model_constants.NM_PROPERTIES
         result = OrderedDict()
         location = LocationContext(self._base_location)
-        if self._subfolder_exists(model_top_folder_name, location):
+        if self._topfolder_exists(model_top_folder_name):
             _logger.info('WLSDPLY-06627', class_name=_class_name, method_name=_method_name)
             location.append_location(model_top_folder_name)
             self._populate_model_parameters(result, location)
