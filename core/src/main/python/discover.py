@@ -438,7 +438,7 @@ def __check_and_customize_model(model, model_context, aliases):
     return model
 
 
-def __log_and_exit(exit_code, class_name, method_name):
+def __log_and_exit(program_name, exit_code, class_name, method_name):
     """
     Helper method to log the exiting message and call sys.exit()
     :param exit_code: the exit code to use
@@ -447,7 +447,7 @@ def __log_and_exit(exit_code, class_name, method_name):
     """
     __logger.exiting(result=exit_code, class_name=class_name, method_name=method_name)
 
-    WLSDeployExit.exit(exit_code, __wlst_mode == WlstModes.ONLINE)
+    WLSDeployExit.exit(program_name, exit_code, __wlst_mode == WlstModes.ONLINE)
 
 
 def main(args):
@@ -475,14 +475,15 @@ def main(args):
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
-        __log_and_exit(exit_code, _class_name, _method_name)
+        __log_and_exit(None, exit_code, _class_name, _method_name)
 
     try:
         __clear_archive_file(model_context)
     except DiscoverException, ex:
         __logger.severe('WLSDPLY-06010', _program_name, model_context.get_archive_file_name(),
                         ex.getLocalizedMessage(), error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
+        __log_and_exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name,
+                       _method_name)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     model = None
@@ -492,7 +493,8 @@ def main(args):
         __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
                         model_context.get_domain_home(), ex.getLocalizedMessage(),
                         error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
+        __log_and_exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name,
+                       _method_name)
         
     model = __check_and_customize_model(model, model_context, aliases)
     
@@ -502,11 +504,12 @@ def main(args):
     except TranslateException, ex:
         __logger.severe('WLSDPLY-20024', _program_name, model_context.get_archive_file_name(), ex.getLocalizedMessage(),
                         error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
+        __log_and_exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name,
+                       _method_name)
 
     __close_archive(model_context)
 
-    __log_and_exit(exit_code, _class_name, _method_name)
+    __log_and_exit(model_context.get_program_name(), exit_code, _class_name, _method_name)
 
 if __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)

@@ -21,8 +21,9 @@ public interface WLSDeployLogEndHandler {
     /**
      * The handler performs any wrap-up action.
      *
+     * @param toolName the name of the tool that is running
      * @param online true if the tool is running in online mode.
      */
-    void logEnd(boolean online);
+    void logEnd(String toolName, boolean online);
 
 }

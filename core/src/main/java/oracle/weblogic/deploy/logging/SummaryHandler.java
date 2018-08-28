@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -40,6 +41,7 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
 
     private PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.exit");
     private boolean recap = false;
+    private String toolName;
     private int bufferSize;
 
     private Handler target;
@@ -53,6 +55,7 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
         super();
         configure();
         target = getConsoleHandler();
+        target.setFormatter(new SummaryFormatter());
         LOGGER.setLevel(Level.INFO);
         addLevelHandler(Level.INFO);
         addLevelHandler(Level.WARNING);
@@ -135,8 +138,9 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
      * @param onlineMode if true, a recap of the log records will be displayed
      */
     @Override
-    public void logEnd(boolean onlineMode) {
+    public void logEnd(String toolName, boolean onlineMode) {
         setRecap(onlineMode);
+        this.toolName = toolName;
         push();
     }
 
@@ -164,6 +168,37 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
         handler.setLevel(level);
         handler.setFilter(getFilter());
         handlers.add(handler);
+    }
+    private class SummaryFormatter extends Formatter {
+
+        private final String MSG_FORMAT = "    %1$5d. %2$s: %3$s" + System.lineSeparator();
+        private final String INTERNAL = "%s" + System.lineSeparator();
+        private int sequence = 0;
+
+        @Override
+        public synchronized String format(LogRecord record) {
+            String message = "";
+            String msgId = record.getMessage();
+            if (msgId.indexOf('{') >= 0) {
+                msgId = null;
+            }
+            String formatted = formatMessage(record);
+            if (msgId != null && !msgId.equals(formatted)) {
+                // this has a msg id. don't post any that don't have msg id.
+                if (msgId.startsWith("WLSDPLY-21")) {
+                    message = String.format(INTERNAL, formatted);
+                } else {
+                    message = String.format(MSG_FORMAT, ++sequence, msgId, formatted);
+                }
+            }
+            return message;
+        }
+
+        @Override
+        public String getHead(Handler handler) {
+            return formatMessage(getLogRecord("WLSDPLY-21000", handler.getLevel().getLocalizedName()))
+                    + System.lineSeparator();
+        }
     }
 
     private class LevelHandler extends MemoryHandler {

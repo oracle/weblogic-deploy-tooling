@@ -28,15 +28,16 @@ public class WLSDeployExit {
     /**
      * Perform any last methods for the tools and exit the JVM.
      *
-     * @param error_code for exit from the JVM.
+     * @param toolName of tool that is currently running
+     * @param errorCode for exit from the JVM
      * @param online true if the tool ran in online mode
      */
-    public static void exit(int error_code, boolean online) {
+    public static void exit(String toolName, int errorCode, boolean online) {
         String METHOD = "exit";
         LOGGER.entering(CLASS, METHOD, online);
-        log_cleanup(online);
+        log_cleanup(toolName, online);
         LOGGER.exiting(CLASS, METHOD);
-        exit(error_code);
+        exit(errorCode);
     }
 
     /**
@@ -52,14 +53,15 @@ public class WLSDeployExit {
     /**
      * Call any WLSDeployLogEnd Logger handlers so the handlers can perform end actions.
      *
-     * @param online true if the tool ran in online mode.
+     * @param toolName name of tool that is currently running
+     * @param online true if the tool ran in online mode
      */
-    public static void log_cleanup(boolean online) {
+    public static void log_cleanup(String toolName, boolean online) {
         String METHOD = "log_cleanup";
         LOGGER.entering(CLASS, METHOD, online);
         Stack<Handler> handlers = reduceList(traverseHandlers(getTopLogList(), new LinkedList<Handler>()));
         while (handlers.size() > 0) {
-            logEnd((WLSDeployLogEndHandler)handlers.pop(), online);
+            logEnd(toolName, (WLSDeployLogEndHandler)handlers.pop(), online);
         }
         LOGGER.exiting(CLASS, METHOD);
     }
@@ -74,8 +76,8 @@ public class WLSDeployExit {
         return loggerList;
     }
 
-    private static synchronized void logEnd(WLSDeployLogEndHandler handler, boolean online) {
-        handler.logEnd(online);
+    private static synchronized void logEnd(String toolName, WLSDeployLogEndHandler handler, boolean online) {
+        handler.logEnd(toolName, online);
     }
 
     private static LinkedList<Handler> traverseHandlers(List<Logger> loggers, LinkedList<Handler> handlerList) {

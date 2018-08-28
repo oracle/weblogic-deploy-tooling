@@ -70,7 +70,7 @@ public class WLSDeployExitTest {
         expect(PlatformLogger.getLoggers()).andReturn(loggers);
         PowerMock.replayAll();
 
-        WLSDeployExit.log_cleanup(true);
+        WLSDeployExit.log_cleanup("myname", true);
 
         PowerMock.verifyAll();
 
@@ -103,7 +103,7 @@ public class WLSDeployExitTest {
         expect(PlatformLogger.getLoggers()).andReturn(loggers);
         PowerMock.replayAll();
 
-        WLSDeployExit.log_cleanup(true);
+        WLSDeployExit.log_cleanup("myname", true);
 
         PowerMock.verifyAll();
 
@@ -137,7 +137,7 @@ public class WLSDeployExitTest {
         expect(PlatformLogger.getLoggers()).andReturn(loggers);
         PowerMock.replayAll();
 
-        WLSDeployExit.log_cleanup(true);
+        WLSDeployExit.log_cleanup("myname", true);
 
         PowerMock.verifyAll();
 
@@ -177,7 +177,7 @@ public class WLSDeployExitTest {
         }
 
         @Override
-        public synchronized void logEnd(boolean online) {
+        public synchronized void logEnd(String name, boolean online) {
             actual[actualIdx++] = getState();
         }
     }

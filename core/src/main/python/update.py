@@ -424,12 +424,14 @@ def validate_model(model_dictionary, model_context, aliases):
         __logger.severe('WLSDPLY-20000', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, __wlst_mode == WlstModes.ONLINE)
+        WLSDeployExit.exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE,
+                           __wlst_mode == WlstModes.ONLINE)
 
     if return_code == Validator.ReturnCode.STOP:
         __logger.severe('WLSDPLY-20001', _program_name, class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, __wlst_mode == WlstModes.ONLINE)
+        WLSDeployExit.exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE,
+                           __wlst_mode == WlstModes.ONLINE)
 
 
 def main(args):
@@ -455,7 +457,7 @@ def main(args):
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(exit_code, __wlst_mode == WlstModes.ONLINE)
+        WLSDeployExit.exit(None, exit_code, __wlst_mode == WlstModes.ONLINE)
 
     model_file = model_context.get_model_file()
     try:
@@ -464,7 +466,8 @@ def main(args):
         __logger.severe('WLSDPLY-09014', _program_name, model_file, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, __wlst_mode == WlstModes.ONLINE)
+        WLSDeployExit.exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE,
+                           __wlst_mode == WlstModes.ONLINE)
 
     try:
         variable_map = {}
@@ -475,7 +478,8 @@ def main(args):
         __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, __wlst_mode == WlstModes.ONLINE)
+        WLSDeployExit.exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE,
+                           __wlst_mode == WlstModes.ONLINE)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     validate_model(model_dictionary, model_context, aliases)
@@ -491,7 +495,8 @@ def main(args):
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, __wlst_mode == WlstModes.ONLINE)
+        WLSDeployExit.exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE,
+                           __wlst_mode == WlstModes.ONLINE)
 
     __clean_up_temp_files()
     return
