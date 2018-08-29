@@ -40,7 +40,7 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
     private static final String LINE_SEPARATION = System.lineSeparator();
 
     private PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.exit");
-    private boolean recap = false;
+    private boolean online = false;
     private String toolName;
     private int bufferSize;
 
@@ -55,7 +55,7 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
         super();
         configure();
         target = getConsoleHandler();
-        target.setFormatter(new SummaryFormatter());
+        target.setFormatter(new TotalFormatter());
         LOGGER.setLevel(Level.INFO);
         addLevelHandler(Level.INFO);
         addLevelHandler(Level.WARNING);
@@ -89,6 +89,8 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
         closed = true;
         setPushLevel(getLevel());
         StringBuffer buffer = new StringBuffer();
+        System.out.println(LINE_SEPARATION);
+        target.publish(getLogRecord("WLSDPLY-21003", toolName));
         java.util.Formatter fmt = new java.util.Formatter(buffer);
         for (LevelHandler handler : handlers) {
             int count = handler.pushSection();
@@ -113,24 +115,6 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
     }
 
     /**
-     * Specify if the log records should be displayed to the console before the tool exit.
-     *
-     * @param recap if true a recap of the log records will be performed
-     */
-    public void setRecap(boolean recap) {
-        this.recap = recap;
-    }
-
-    /**
-     * Return whether the log records should be displayed to the console.
-     *
-     * @return true if a recap of the log records is specified
-     */
-    public boolean isRecap() {
-        return recap;
-    }
-
-    /**
      * This method is called by the tool to complete the SummaryHandler, and display the recap and total information
      * to the console. The log records are only displayed to the console if the tool was run in online mode.
      * This compensates for wlst writing spurious blank lines to the console during online mode.
@@ -139,7 +123,6 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
      */
     @Override
     public void logEnd(String toolName, boolean onlineMode) {
-        setRecap(onlineMode);
         this.toolName = toolName;
         push();
     }
@@ -160,15 +143,25 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
 
     private void addLevelHandler(Level level) {
         LevelHandler handler;
+        Handler levelTarget = getConsoleHandler();
+        levelTarget.setFormatter(new SummaryFormatter());
         if (getLevel().intValue() <= level.intValue()) {
-            handler = new LevelHandler(target, bufferSize, level);
+            handler = new LevelHandler(levelTarget, bufferSize, level);
         } else {
-            handler = new NoActionHandler(target, bufferSize, level);
+            handler = new NoActionHandler(levelTarget, bufferSize, level);
         }
         handler.setLevel(level);
         handler.setFilter(getFilter());
         handlers.add(handler);
     }
+
+    private class TotalFormatter extends Formatter {
+        @Override
+        public synchronized String format(LogRecord record) {
+            return formatMessage(record) + System.lineSeparator();
+        }
+    }
+
     private class SummaryFormatter extends Formatter {
 
         private final String MSG_FORMAT = "    %1$5d. %2$s: %3$s" + System.lineSeparator();
@@ -219,11 +212,7 @@ public class SummaryHandler extends MemoryHandler implements WLSDeployLogEndHand
         }
 
         public synchronized int pushSection() {
-            if (isRecap()) {
-                logStart();
-                super.push();
-                logEnd();
-            }
+            super.push();
             int result = totalRecords;
             totalRecords = 0;
             return result;
