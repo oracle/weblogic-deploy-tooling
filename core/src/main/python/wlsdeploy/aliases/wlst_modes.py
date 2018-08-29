@@ -8,3 +8,4 @@ The WlstModes enum module.
 from wlsdeploy.util.enum import Enum
 
 WlstModes = Enum(['OFFLINE', 'ONLINE'])
+
