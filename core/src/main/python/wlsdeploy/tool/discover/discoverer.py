@@ -82,9 +82,8 @@ class Discoverer(object):
                     try:
                         wlst_value = wlst_helper.get(wlst_param)
                     except PyWLSTException, pe:
-                        _logger.warning('WLSDPLY-06127', wlst_param, str(location), self._get_wlst_mode_string(),
-                                        self._wls_version, pe.getLocalizedMessage(), class_name=_class_name,
-                                        method_name=_method_name)
+                        _logger.warning('WLSDPLY-06127', wlst_param, wlst_path,
+                                        pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
                         continue
                 else:
                     wlst_value = wlst_params[wlst_param]
@@ -179,8 +178,8 @@ class Discoverer(object):
             attributes = self._alias_helper.get_wlst_get_required_attribute_names(location)
         except DiscoverException, de:
             name = location.get_model_folders()[-1]
-            _logger.warning('WLSDPLY-06109', name, str(location), de.getLocalizedMessage(), class_name=_class_name,
-                            method_name=_method_name)
+            _logger.warning('WLSDPLY-06109', name, location.get_folder_path(), de.getLocalizedMessage(),
+                            class_name=_class_name, method_name=_method_name)
         return attributes
 
     def _mbean_names_exist(self, location):
