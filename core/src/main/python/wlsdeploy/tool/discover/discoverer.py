@@ -99,8 +99,7 @@ class Discoverer(object):
                                                                                                 wlst_param,
                                                                                                 wlst_value)
                 except AliasException, de:
-                    _logger.warning('WLSDPLY-06106', wlst_param, str(location), self._get_wlst_mode_string(),
-                                    self._wls_version, de.getLocalizedMessage(), class_name=_class_name,
+                    _logger.warning('WLSDPLY-06106', wlst_param, de.getLocalizedMessage(), class_name=_class_name,
                                     method_name=_method_name)
                     continue
 

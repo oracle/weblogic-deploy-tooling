@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
 package oracle.weblogic.deploy.logging;
+
+import oracle.weblogic.deploy.util.WLSDeployContext;
 
 /**
  * This interface should be used by a Logger Handler that wishes to perform some action or clean-up
@@ -21,9 +23,8 @@ public interface WLSDeployLogEndHandler {
     /**
      * The handler performs any wrap-up action.
      *
-     * @param toolName the name of the tool that is running
-     * @param online true if the tool is running in online mode.
+     * @param context containing contextual information about the tool
      */
-    void logEnd(String toolName, boolean online);
+    void logEnd(WLSDeployContext context);
 
 }

@@ -7,6 +7,8 @@ package oracle.weblogic.deploy.logger;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogEndHandler;
 import oracle.weblogic.deploy.logging.WLSDeployLoggingConfig;
+import oracle.weblogic.deploy.util.WLSDeployContext;
+import oracle.weblogic.deploy.util.WLSDeployContext.WLSTMode;
 import oracle.weblogic.deploy.util.WLSDeployExit;
 import org.junit.Assert;
 import org.junit.Before;
@@ -70,7 +72,7 @@ public class WLSDeployExitTest {
         expect(PlatformLogger.getLoggers()).andReturn(loggers);
         PowerMock.replayAll();
 
-        WLSDeployExit.log_cleanup("myname", true);
+        WLSDeployExit.logCleanup(new WLSDeployContext("myname", "12.2.1.3", WLSTMode.OFFLINE));
 
         PowerMock.verifyAll();
 
@@ -103,7 +105,7 @@ public class WLSDeployExitTest {
         expect(PlatformLogger.getLoggers()).andReturn(loggers);
         PowerMock.replayAll();
 
-        WLSDeployExit.log_cleanup("myname", true);
+        WLSDeployExit.logCleanup(new WLSDeployContext("myname", "12.2.1.3", WLSTMode.OFFLINE));
 
         PowerMock.verifyAll();
 
@@ -137,7 +139,7 @@ public class WLSDeployExitTest {
         expect(PlatformLogger.getLoggers()).andReturn(loggers);
         PowerMock.replayAll();
 
-        WLSDeployExit.log_cleanup("myname", true);
+        WLSDeployExit.logCleanup(new WLSDeployContext("myname", "12.2.1.3", WLSTMode.OFFLINE));
 
         PowerMock.verifyAll();
 
@@ -177,7 +179,7 @@ public class WLSDeployExitTest {
         }
 
         @Override
-        public synchronized void logEnd(String name, boolean online) {
+        public synchronized void logEnd(WLSDeployContext context) {
             actual[actualIdx++] = getState();
         }
     }

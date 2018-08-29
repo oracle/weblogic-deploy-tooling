@@ -21,7 +21,6 @@ from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
-from oracle.weblogic.deploy.util import WLSDeployExit
 from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
@@ -37,16 +36,19 @@ from wlsdeploy.tool.create.domain_typedef import DomainTypedef
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import getcreds
+from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 _program_name = 'createDomain'
 _class_name = 'create'
 __logger = PlatformLogger('wlsdeploy.create')
 __wlst_mode = WlstModes.OFFLINE
+__version = WebLogicHelper(__logger).get_actual_weblogic_version()
 __tmp_model_dir = None
 
 __required_arguments = [
@@ -289,14 +291,12 @@ def validate_model(model_dictionary, model_context, aliases):
         __logger.severe('WLSDPLY-20000', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE,
-                           __wlst_mode == WlstModes.ONLINE)
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     if return_code == Validator.ReturnCode.STOP:
         __logger.severe('WLSDPLY-20001', _program_name, class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE,
-                           __wlst_mode == WlstModes.ONLINE)
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
 
 def main(args):
@@ -322,7 +322,7 @@ def main(args):
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(None, exit_code, __wlst_mode == WlstModes.ONLINE)
+        tool_exit.end(None, exit_code)
 
     model_file = model_context.get_model_file()
     try:
@@ -331,8 +331,7 @@ def main(args):
         __logger.severe('WLSDPLY-20009', _program_name, model_file, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE,
-                           __wlst_mode == WlstModes.ONLINE)
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     try:
         variable_map = {}
@@ -343,8 +342,7 @@ def main(args):
         __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE,
-                           __wlst_mode == WlstModes.ONLINE)
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     validate_model(model, model_context, aliases)
@@ -360,14 +358,12 @@ def main(args):
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE,
-                           __wlst_mode == WlstModes.ONLINE)
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
     except DeployException, ex:
         __logger.severe('WLSDPLY-12410', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        WLSDeployExit.exit(model_context.get_program_name(), CommandLineArgUtil.PROG_ERROR_EXIT_CODE,
-                           __wlst_mode == WlstModes.ONLINE)
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     __clean_up_temp_files()
     return

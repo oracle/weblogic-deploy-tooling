@@ -28,14 +28,13 @@ public class WLSDeployExit {
     /**
      * Perform any last methods for the tools and exit the JVM.
      *
-     * @param toolName of tool that is currently running
+     * @param deployContext containing contextual information about the tool
      * @param errorCode for exit from the JVM
-     * @param online true if the tool ran in online mode
      */
-    public static void exit(String toolName, int errorCode, boolean online) {
+    public static void exit(WLSDeployContext deployContext, int errorCode) {
         String METHOD = "exit";
-        LOGGER.entering(CLASS, METHOD, online);
-        log_cleanup(toolName, online);
+        LOGGER.entering(errorCode, CLASS, METHOD);
+        logCleanup(deployContext);
         LOGGER.exiting(CLASS, METHOD);
         exit(errorCode);
     }
@@ -53,15 +52,14 @@ public class WLSDeployExit {
     /**
      * Call any WLSDeployLogEnd Logger handlers so the handlers can perform end actions.
      *
-     * @param toolName name of tool that is currently running
-     * @param online true if the tool ran in online mode
+     * @param context that contains contextual information about the tool that is currently running
      */
-    public static void log_cleanup(String toolName, boolean online) {
-        String METHOD = "log_cleanup";
-        LOGGER.entering(CLASS, METHOD, online);
+    public static void logCleanup(WLSDeployContext context) {
+        String METHOD = "logCleanup";
+        LOGGER.entering(CLASS, METHOD, context);
         Stack<Handler> handlers = reduceList(traverseHandlers(getTopLogList(), new LinkedList<Handler>()));
         while (handlers.size() > 0) {
-            logEnd(toolName, (WLSDeployLogEndHandler)handlers.pop(), online);
+            logEnd(context, (WLSDeployLogEndHandler)handlers.pop());
         }
         LOGGER.exiting(CLASS, METHOD);
     }
@@ -76,8 +74,8 @@ public class WLSDeployExit {
         return loggerList;
     }
 
-    private static synchronized void logEnd(String toolName, WLSDeployLogEndHandler handler, boolean online) {
-        handler.logEnd(toolName, online);
+    private static synchronized void logEnd(WLSDeployContext context, WLSDeployLogEndHandler handler) {
+        handler.logEnd(context);
     }
 
     private static LinkedList<Handler> traverseHandlers(List<Logger> loggers, LinkedList<Handler> handlerList) {
