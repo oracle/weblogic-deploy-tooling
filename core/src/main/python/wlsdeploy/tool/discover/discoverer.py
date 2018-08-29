@@ -99,8 +99,8 @@ class Discoverer(object):
                                                                                                 wlst_param,
                                                                                                 wlst_value)
                 except AliasException, de:
-                    _logger.warning('WLSDPLY-06106', wlst_param, de.getLocalizedMessage(), class_name=_class_name,
-                                    method_name=_method_name)
+                    _logger.warning('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name)
                     continue
 
                 attr_dict[model_param] = wlst_value
@@ -228,8 +228,8 @@ class Discoverer(object):
         names = None
         mbean_type = self._alias_helper.get_wlst_mbean_type(location)
         if mbean_type is None:
-            _logger.fine('WLSDPLY-06110', location.get_model_folders()[-1], self._get_wlst_mode_string(),
-                         self._wls_version, class_name=_class_name, method_name=_method_name)
+            _logger.fine('WLSDPLY-06110', location.get_model_folders()[-1], location.get_folder_path(),
+                         class_name=_class_name, method_name=_method_name)
         else:
             folder_path = self._alias_helper.get_wlst_list_path(location)
             _logger.finest('WLSDPLY-06111', folder_path, class_name=_class_name, method_name=_method_name)
@@ -341,8 +341,7 @@ class Discoverer(object):
                 artificial = self._get_artificial_type(location)
                 if artificial is None:
                     _logger.warning('WLSDPLY-06123', self._alias_helper.get_model_folder_path(location),
-                                    self._get_wlst_mode_string(), self._wls_version, class_name=_class_name,
-                                    method_name=_method_name)
+                                    class_name=_class_name, method_name=_method_name)
                 else:
                     _logger.finer('WLSDPLY-06120', artificial, name, model_subfolder_name, class_name=_class_name,
                                   method_name=_method_name)
