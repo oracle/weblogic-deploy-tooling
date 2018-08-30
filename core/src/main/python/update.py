@@ -16,7 +16,6 @@ from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
-from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
@@ -296,10 +295,7 @@ def __update_online(model, model_context, aliases):
         deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions()
         __wlst_helper.edit()
         __wlst_helper.start_edit()
-    except PyWLSTException, pwe:
-        ex = exception_helper.create_deploy_exception('WLSDPLY-09006', _program_name, admin_url,
-                                                      pwe.getLocalizedMessage(), error=pwe)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+    except BundleAwareException, ex:
         raise ex
 
     __logger.info("WLSDPLY-09007", admin_url, method_name=_method_name, class_name=_class_name)
@@ -316,9 +312,7 @@ def __update_online(model, model_context, aliases):
     try:
         __wlst_helper.save()
         __wlst_helper.activate()
-    except PyWLSTException, pwe:
-        ex = exception_helper.create_deploy_exception('WLSDPLY-09008', pwe.getLocalizedMessage(), error=pwe)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+    except BundleAwareException, ex:
         __release_edit_session_and_disconnect()
         raise ex
 
@@ -326,10 +320,10 @@ def __update_online(model, model_context, aliases):
 
     try:
         __wlst_helper.disconnect()
-    except PyWLSTException, pwe:
+    except BundleAwareException, ex:
         # All the changes are made and active so don't raise an error that causes the program
         # to indicate a failure...just log the error since the process is going to exit anyway.
-        __logger.warning('WLSDPLY-09009', _program_name, pwe.getLocalizedMessage(), error=pwe,
+        __logger.warning('WLSDPLY-09009', _program_name, ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
     return
 
@@ -376,6 +370,7 @@ def __release_edit_session_and_disconnect():
     """
     _method_name = '__release_edit_session_and_disconnect'
     try:
+        __wlst_helper.undo()
         __wlst_helper.stop_edit()
         __wlst_helper.disconnect()
     except BundleAwareException, ex:
@@ -393,10 +388,10 @@ def __close_domain_on_error():
     _method_name = '__close_domain_on_error'
     try:
         __wlst_helper.close_domain()
-    except PyWLSTException, pwe:
+    except BundleAwareException, ex:
         # This method is only used for cleanup after an error so don't mask
         # the original problem by throwing yet another exception...
-        __logger.warning('WLSDPLY-09013', pwe.getLocalizedMessage(), error=pwe,
+        __logger.warning('WLSDPLY-09013', ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
     return
 
