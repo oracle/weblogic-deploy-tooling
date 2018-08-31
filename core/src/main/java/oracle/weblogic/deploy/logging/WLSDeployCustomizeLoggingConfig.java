@@ -17,7 +17,7 @@ import java.util.logging.Handler;
  *
  * <p>You must add this class to the -Djava.util.logging.config.class parameter before the tool JVM is started.
  * To inject one or more handlers into the WLSDEPLOY logger, you may either add the comma separated list to the
- * logger.properties file as <WLSDEPLOY_LOGGER_NAME>.handlers=<list>, or set the list on the environment variable
+ * logger.properties file as WLSDEPLOY_LOGGER_NAME.handlers=list, or set the list on the environment variable
  * WLSDEPLOY_LOG_HANDLERS_ENV_VARIABLE. The property in the logging.properties file takes precedence
  * over the environment variable.
  *
