@@ -25,12 +25,13 @@
                 }
             },
             "attributes": {
-                "AcknowledgeMode":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AcknowledgeMode",   "wlst_path": "WP001", "value": {"default": "Auto" }, "wlst_type": "string" } ],
-                "ConnectionFactory":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConnectionFactory", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
-                "ListenerClass":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ListenerClass",     "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
-                "Notes":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",             "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
-                "SessionsMaximum":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SessionsMaximum",   "wlst_path": "WP001", "value": {"default": -1     }, "wlst_type": "integer"} ],
-                "Transacted":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Transacted",        "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ]
+                "AcknowledgeMode":      [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "AcknowledgeMode",     "wlst_path": "WP001", "value": {"default": "Auto" }, "wlst_type": "string" } ],
+                "ConnectionConsumers":  [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "ConnectionConsumers", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "get_method": "GET" } ],
+                "ConnectionFactory":    [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "ConnectionFactory",   "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "ListenerClass":        [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "ListenerClass",       "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "Notes":                [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "Notes",               "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "SessionsMaximum":      [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "SessionsMaximum",     "wlst_path": "WP001", "value": {"default": -1     }, "wlst_type": "integer"} ],
+                "Transacted":           [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "Transacted",          "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
