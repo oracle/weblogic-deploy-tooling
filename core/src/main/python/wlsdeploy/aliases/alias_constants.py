@@ -19,6 +19,7 @@ GET_METHOD = 'get_method'
 MERGE = 'merge'
 MODEL_NAME = 'model_name'
 NAME_VALUE = 'name_value'
+PASSWORD_TOKEN = "--FIX ME--"
 PREFERRED_MODEL_TYPE = 'preferred_model_type'
 RESTART_REQUIRED = 'restart_required'
 SET_MBEAN_TYPE = 'set_mbean_type'
@@ -73,12 +74,21 @@ JARRAY = 'jarray'
 JAVA_LANG_BOOLEAN = 'java.lang.Boolean'
 LIST = 'list'
 LONG = 'long'
+OBJECT = 'object'
 PASSWORD = 'password'
 PATH_SEPARATOR_DELIMITED_STRING = 'delimited_string[path_separator]'
 PROPERTIES = 'properties'
 SEMI_COLON_DELIMITED_STRING = 'delimited_string[semicolon]'
 SPACE_DELIMITED_STRING = 'delimited_string[space]'
 STRING = 'string'
+
+ALIAS_DELIMITED_TYPES = [
+    COMMA_DELIMITED_STRING,
+    DELIMITED_STRING,
+    PATH_SEPARATOR_DELIMITED_STRING,
+    SEMI_COLON_DELIMITED_STRING,
+    SPACE_DELIMITED_STRING
+]
 
 ALIAS_LIST_TYPES = [
     COMMA_DELIMITED_STRING,

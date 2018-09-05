@@ -514,18 +514,18 @@ class ModelContext(object):
         cwd = path_utils.fixup_path(os.path.dirname(os.path.abspath(__file__)))
 
         # decide later what is required to be in context home for appropriate exception prevention
-        if self.get_wl_home() and my_path.startswith(self.get_wl_home()):
-            result = my_path.replace(self.get_wl_home(), self.__WL_HOME_TOKEN)
-        elif self.get_domain_home() and  my_path.startswith(self.get_domain_home()):
-            result = my_path.replace(self.get_domain_home(), self.__DOMAIN_HOME_TOKEN)
-        elif self.get_oracle_home() and my_path.startswith(self.get_oracle_home()):
-            result = my_path.replace(self.get_oracle_home(), self.__ORACLE_HOME_TOKEN)
-        elif my_path.startswith(cwd):
-            result = my_path.replace(cwd, self.__CURRENT_DIRECTORY_TOKEN)
-        elif my_path.startswith(tmp_dir):
-            result = my_path.replace(tmp_dir, self.__TEMP_DIRECTORY_TOKEN)
-        else:
-            result = my_path
+        result = my_path
+        if my_path:
+            if self.get_wl_home() and my_path.startswith(self.get_wl_home()):
+                result = my_path.replace(self.get_wl_home(), self.__WL_HOME_TOKEN)
+            elif self.get_domain_home() and  my_path.startswith(self.get_domain_home()):
+                result = my_path.replace(self.get_domain_home(), self.__DOMAIN_HOME_TOKEN)
+            elif self.get_oracle_home() and my_path.startswith(self.get_oracle_home()):
+                result = my_path.replace(self.get_oracle_home(), self.__ORACLE_HOME_TOKEN)
+            elif my_path.startswith(cwd):
+                result = my_path.replace(cwd, self.__CURRENT_DIRECTORY_TOKEN)
+            elif my_path.startswith(tmp_dir):
+                result = my_path.replace(tmp_dir, self.__TEMP_DIRECTORY_TOKEN)
 
         return result
 

@@ -86,6 +86,7 @@ class Discoverer(object):
                                         pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
                         continue
                 else:
+                    _logger.finer('WLSDPLY-06131', wlst_param, class_name=_class_name, method_name=_method_name)
                     wlst_value = wlst_params[wlst_param]
 
                 # if type(wlst_value) == str and len(wlst_value) == 0:
