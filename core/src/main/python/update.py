@@ -16,12 +16,12 @@ from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
-from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
+from oracle.weblogic.deploy.util import WLSDeployExit
 from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
@@ -41,6 +41,7 @@ from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import getcreds
+from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
@@ -294,10 +295,7 @@ def __update_online(model, model_context, aliases):
         deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions()
         __wlst_helper.edit()
         __wlst_helper.start_edit()
-    except PyWLSTException, pwe:
-        ex = exception_helper.create_deploy_exception('WLSDPLY-09006', _program_name, admin_url,
-                                                      pwe.getLocalizedMessage(), error=pwe)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+    except BundleAwareException, ex:
         raise ex
 
     __logger.info("WLSDPLY-09007", admin_url, method_name=_method_name, class_name=_class_name)
@@ -314,9 +312,7 @@ def __update_online(model, model_context, aliases):
     try:
         __wlst_helper.save()
         __wlst_helper.activate()
-    except PyWLSTException, pwe:
-        ex = exception_helper.create_deploy_exception('WLSDPLY-09008', pwe.getLocalizedMessage(), error=pwe)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+    except BundleAwareException, ex:
         __release_edit_session_and_disconnect()
         raise ex
 
@@ -324,10 +320,10 @@ def __update_online(model, model_context, aliases):
 
     try:
         __wlst_helper.disconnect()
-    except PyWLSTException, pwe:
+    except BundleAwareException, ex:
         # All the changes are made and active so don't raise an error that causes the program
         # to indicate a failure...just log the error since the process is going to exit anyway.
-        __logger.warning('WLSDPLY-09009', _program_name, pwe.getLocalizedMessage(), error=pwe,
+        __logger.warning('WLSDPLY-09009', _program_name, ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
     return
 
@@ -374,6 +370,7 @@ def __release_edit_session_and_disconnect():
     """
     _method_name = '__release_edit_session_and_disconnect'
     try:
+        __wlst_helper.undo()
         __wlst_helper.stop_edit()
         __wlst_helper.disconnect()
     except BundleAwareException, ex:
@@ -391,10 +388,10 @@ def __close_domain_on_error():
     _method_name = '__close_domain_on_error'
     try:
         __wlst_helper.close_domain()
-    except PyWLSTException, pwe:
+    except BundleAwareException, ex:
         # This method is only used for cleanup after an error so don't mask
         # the original problem by throwing yet another exception...
-        __logger.warning('WLSDPLY-09013', pwe.getLocalizedMessage(), error=pwe,
+        __logger.warning('WLSDPLY-09013', ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
     return
 
@@ -423,12 +420,12 @@ def validate_model(model_dictionary, model_context, aliases):
         __logger.severe('WLSDPLY-20000', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     if return_code == Validator.ReturnCode.STOP:
         __logger.severe('WLSDPLY-20001', _program_name, class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
 
 def main(args):
@@ -454,7 +451,7 @@ def main(args):
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        sys.exit(exit_code)
+        tool_exit.end(None, exit_code)
 
     model_file = model_context.get_model_file()
     try:
@@ -463,7 +460,7 @@ def main(args):
         __logger.severe('WLSDPLY-09014', _program_name, model_file, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     try:
         variable_map = {}
@@ -474,7 +471,7 @@ def main(args):
         __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     validate_model(model_dictionary, model_context, aliases)
@@ -490,7 +487,7 @@ def main(args):
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     __clean_up_temp_files()
     return

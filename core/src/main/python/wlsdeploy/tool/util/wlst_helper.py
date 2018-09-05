@@ -520,6 +520,22 @@ class WlstHelper(object):
             raise ex
         return
 
+    def undo(self):
+        """
+        Revert all unsaved or unactivated edits.
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'undo'
+
+        try:
+            wlst_helper.undo()
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19142',
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return
+
     def save(self):
         """
         Save the outstanding Weblogic Server configuration changes for the current edit session.

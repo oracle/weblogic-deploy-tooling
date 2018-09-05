@@ -693,6 +693,23 @@ def stop_edit():
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
 
+def undo():
+    """
+    Revert all unsaved or unactivated edits.
+    :raises: PyWLSTException: if a WLST error occurs
+    """
+    _method_name = 'undo'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+
+    try:
+        wlst.undo('true', 'y')
+    except wlst.WLSTException, e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00069', _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
 def save():
     """
     Save the outstanding Weblogic Server configuration changes for the current edit session.

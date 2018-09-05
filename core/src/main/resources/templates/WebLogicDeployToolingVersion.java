@@ -11,7 +11,7 @@ import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
  * The utility class that provides the version of the WebLogic Deploy Tooling software.
  */
 public final class WebLogicDeployToolingVersion {
-    private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.util");
+    private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy");
 
     private static final String WLS_DEPLOY_VERSION = "${project.version}";
     private static final String WLS_DEPLOY_BUILD_REVISION = "${git.branch}.${git.shortRevision}";

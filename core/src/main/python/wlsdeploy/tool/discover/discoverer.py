@@ -64,7 +64,10 @@ class Discoverer(object):
         _method_name = '_populate_model_parameters'
         wlst_path = self._alias_helper.get_wlst_attributes_path(location)
         _logger.finer('WLSDPLY-06100', wlst_path, class_name=_class_name, method_name=_method_name)
-        self._wlst_helper.cd(wlst_path)
+
+        if not self.wlst_cd(wlst_path, location):
+            return
+
         wlst_params = self._get_attributes_for_current_location(location)
         _logger.finest('WLSDPLY-06102', self._wlst_helper.get_pwd(), wlst_params, class_name=_class_name,
                        method_name=_method_name)
@@ -79,9 +82,8 @@ class Discoverer(object):
                     try:
                         wlst_value = wlst_helper.get(wlst_param)
                     except PyWLSTException, pe:
-                        _logger.warning('WLSDPLY-06127', wlst_param, str(location), self._get_wlst_mode_string(),
-                                        self._wls_version, pe.getLocalizedMessage(), class_name=_class_name,
-                                        method_name=_method_name)
+                        _logger.warning('WLSDPLY-06127', wlst_param, wlst_path,
+                                        pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
                         continue
                 else:
                     _logger.finer('WLSDPLY-06131', wlst_param, class_name=_class_name, method_name=_method_name)
@@ -97,9 +99,8 @@ class Discoverer(object):
                                                                                                 wlst_param,
                                                                                                 wlst_value)
                 except AliasException, de:
-                    _logger.warning('WLSDPLY-06106', wlst_param, str(location), self._get_wlst_mode_string(),
-                                    self._wls_version, de.getLocalizedMessage(), class_name=_class_name,
-                                    method_name=_method_name)
+                    _logger.warning('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name)
                     continue
 
                 attr_dict[model_param] = wlst_value
@@ -178,8 +179,8 @@ class Discoverer(object):
             attributes = self._alias_helper.get_wlst_get_required_attribute_names(location)
         except DiscoverException, de:
             name = location.get_model_folders()[-1]
-            _logger.warning('WLSDPLY-06109', name, str(location), de.getLocalizedMessage(), class_name=_class_name,
-                            method_name=_method_name)
+            _logger.warning('WLSDPLY-06109', name, location.get_folder_path(), de.getLocalizedMessage(),
+                            class_name=_class_name, method_name=_method_name)
         return attributes
 
     def _mbean_names_exist(self, location):
@@ -227,13 +228,13 @@ class Discoverer(object):
         names = None
         mbean_type = self._alias_helper.get_wlst_mbean_type(location)
         if mbean_type is None:
-            _logger.fine('WLSDPLY-06110', location.get_model_folders()[-1], self._get_wlst_mode_string(),
-                         self._wls_version, class_name=_class_name, method_name=_method_name)
+            _logger.fine('WLSDPLY-06110', location.get_model_folders()[-1], location.get_folder_path(),
+                         class_name=_class_name, method_name=_method_name)
         else:
             folder_path = self._alias_helper.get_wlst_list_path(location)
             _logger.finest('WLSDPLY-06111', folder_path, class_name=_class_name, method_name=_method_name)
             if wlst_helper.path_exists(folder_path):
-                self._wlst_helper.cd(folder_path)
+                self.wlst_cd(folder_path, location)
                 names = self._wlst_helper.lsc()
         return names
 
@@ -265,15 +266,16 @@ class Discoverer(object):
         :return: list of subfolders
         """
         wlst_path = self._alias_helper.get_wlst_subfolders_path(location)
-        self._wlst_helper.cd(wlst_path)
-        wlst_subfolders = self._wlst_helper.lsc()
-        if wlst_subfolders:
-            new_subfolders = []
-            for wlst_subfolder in wlst_subfolders:
-                model_subfolder_name = self._get_model_name(location, wlst_subfolder)
-                if model_subfolder_name:
-                    new_subfolders.append(wlst_subfolder)
-            wlst_subfolders = new_subfolders
+        wlst_subfolders = []
+        if self.wlst_cd(wlst_path, location):
+            wlst_subfolders = self._wlst_helper.lsc()
+            if wlst_subfolders:
+                new_subfolders = []
+                for wlst_subfolder in wlst_subfolders:
+                    model_subfolder_name = self._get_model_name(location, wlst_subfolder)
+                    if model_subfolder_name:
+                        new_subfolders.append(wlst_subfolder)
+                wlst_subfolders = new_subfolders
         return wlst_subfolders
 
     def _discover_subfolder_singleton(self, model_subfolder_name, location):
@@ -291,9 +293,9 @@ class Discoverer(object):
         # For all server subfolder names there should only be one path
         if self._mbean_names_exist(location):
             subfolder_path = self._alias_helper.get_wlst_attributes_path(location)
-            self._wlst_helper.cd(subfolder_path)
-            self._populate_model_parameters(subfolder_result, location)
-            self._discover_subfolders(subfolder_result, location)
+            if self.wlst_cd(subfolder_path, location):
+                self._populate_model_parameters(subfolder_result, location)
+                self._discover_subfolders(subfolder_result, location)
         _logger.finest('WLSDPLY-06111', str(location), class_name=_class_name, method_name=_method_name)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return subfolder_result
@@ -339,8 +341,7 @@ class Discoverer(object):
                 artificial = self._get_artificial_type(location)
                 if artificial is None:
                     _logger.warning('WLSDPLY-06123', self._alias_helper.get_model_folder_path(location),
-                                    self._get_wlst_mode_string(), self._wls_version, class_name=_class_name,
-                                    method_name=_method_name)
+                                    class_name=_class_name, method_name=_method_name)
                 else:
                     _logger.finer('WLSDPLY-06120', artificial, name, model_subfolder_name, class_name=_class_name,
                                   method_name=_method_name)
@@ -375,9 +376,9 @@ class Discoverer(object):
                 subfolder_result[name] = OrderedDict()
                 location.add_name_token(name_token, name)
                 subfolder_path = self._alias_helper.get_wlst_attributes_path(location)
-                self._wlst_helper.cd(subfolder_path)
-                self._populate_model_parameters(subfolder_result[name], location)
-                self._discover_subfolders(subfolder_result[name], location)
+                if self.wlst_cd(subfolder_path, location):
+                    self._populate_model_parameters(subfolder_result[name], location)
+                    self._discover_subfolders(subfolder_result[name], location)
                 location.remove_name_token(name_token)
         _logger.finest('WLSDPLY-06114', str(location), class_name=_class_name, method_name=_method_name)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -450,8 +451,8 @@ class Discoverer(object):
         _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         subfolder_path = self._alias_helper.get_wlst_attributes_path(location)
-        self._wlst_helper.cd(subfolder_path)
-        self._populate_model_parameters(result, location)
+        if self.wlst_cd(subfolder_path, location):
+            self._populate_model_parameters(result, location)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return result
 
@@ -479,6 +480,17 @@ class Discoverer(object):
                 _logger.fine('WLSDPLY-06119', wlst_name, self._get_wlst_mode_string(), self._wls_version,
                              class_name=_class_name, method_name=_method_name)
         return model_name
+
+    def _topfolder_exists(self, model_top_folder_name):
+        """
+        Check to see if the folder represented by the top folder name exists at the current location.
+        There is not a way to check for wlst_type for top folders. The top folder name and the wlst name
+        must be the same.
+        :param model_top_folder_name: to check for at top directory
+        :return: True if the folder exists at the current location in the domain
+        """
+        result = self._wlst_helper.lsc('/', log_throwing=False)
+        return model_top_folder_name in result
 
     def _subfolder_exists(self, model_folder_name, location):
         """
@@ -533,7 +545,7 @@ class Discoverer(object):
         mbean_name = None
         subfolder_path = self._alias_helper.get_wlst_attributes_path(location)
         if subfolder_path:
-            location_object = self._wlst_helper.cd(subfolder_path)
+            location_object = self.wlst_cd(subfolder_path, location)
             if location_object is None:
                 _logger.fine('WLSDPLY-06121', self._alias_helper.get_wlst_attributes_path(location),
                              class_name=_class_name, method_name=_method_name)
@@ -577,6 +589,24 @@ class Discoverer(object):
                 except AliasException, ae:
                     continue
         return wlst_attributes
+
+    def wlst_cd(self, path, location):
+        """
+        Change to the directory specified in the path. If the wlst.cd() fails, assume something is wrong with the
+        construction of the path tokens: Log a message, and return a indication to the caller that it should
+        not continue on in this path.
+        :param path: where to change directory
+        :param location: context containing the current location information used to determine the path
+        :return: the mbean instance if the wlst.cd() was successful, or None
+        """
+        _method_name = 'wlst_cd'
+        result = None
+        try:
+            result = wlst_helper.cd(path)
+        except PyWLSTException, pe:
+            _logger.warning('WLSDPLY-06140', path, str(location), pe.getLocalizedMessage(), class_name=_class_name,
+                            method_name=_method_name)
+        return result
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):

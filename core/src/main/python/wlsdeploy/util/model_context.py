@@ -425,6 +425,18 @@ class ModelContext(object):
         resource_dict[attribute_name] = result
         return
 
+    def has_token_prefix(self, path):
+        """
+        Determines if the specified path begins with one of the known, portable token prefix paths.
+        :param path: the path to check for token prefix
+        :return: true if the path begins with a known prefix, false otherwise
+        """
+        return path.startswith(self.__ORACLE_HOME_TOKEN) or \
+               path.startswith(self.__WL_HOME_TOKEN) or \
+               path.startswith(self.__DOMAIN_HOME_TOKEN) or \
+               path.startswith(self.__CURRENT_DIRECTORY_TOKEN) or \
+               path.startswith(self.__TEMP_DIRECTORY_TOKEN)
+
     def replace_tokens(self, resource_type, resource_name, attribute_name, resource_dict):
         """
         Replace the tokens in attribute value with the current value.

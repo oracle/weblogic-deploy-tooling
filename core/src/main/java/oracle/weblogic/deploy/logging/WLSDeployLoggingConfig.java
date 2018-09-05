@@ -11,11 +11,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 
@@ -28,7 +25,7 @@ import oracle.weblogic.deploy.util.StringUtils;
 public class WLSDeployLoggingConfig {
     private static final String DEFAULT_PROGRAM_NAME = "unknown-test";
     private static final List<String> WLSDEPLOY_ROOT_LOGGERS =
-        Arrays.asList("oracle.weblogic.deploy");
+        Collections.singletonList("oracle.weblogic.deploy");
     private static final String DEFAULT_LOG_CONFIG_FILE_NAME = "logging.properties";
     private static final String LOG_NAME_PATTERN = "%s.log";
 
@@ -38,6 +35,7 @@ public class WLSDeployLoggingConfig {
     private static final String WLSDEPLOY_CONSOLE_HANDLER =
         "oracle.weblogic.deploy.logging.WLSDeployLoggingConsoleHandler";
     private static final String FILE_HANDLER = "java.util.logging.FileHandler";
+    public static final String WLSDEPLOY_LOGGER_NAME = "wlsdeploy";
 
     private static final String HANDLER_LEVEL_PROP = ".level";
     private static final String HANDLER_FORMATTER_PROP = ".formatter";
@@ -58,8 +56,11 @@ public class WLSDeployLoggingConfig {
     private static final String DEFAULT_DEBUG_TO_STDOUT = "false";
 
     private static final String LOG_FORMATTER = WLSDeployLogFormatter.class.getName();
-    private static final String COMMA_SEPARATED_LIST_SPLITTER = "[ \t]*,[ \t]*";
-    private static final int ERROR_EXIT_CODE = 2;
+
+    /***
+     * The exit code for logging configuration problems.
+     */
+    public static final int ERROR_EXIT_CODE = 2;
 
     /**
      * The environment variable name set by the shell script to specify the name of
@@ -82,14 +83,22 @@ public class WLSDeployLoggingConfig {
     public static final String WLSDEPLOY_LOGS_DIRECTORY_ENV_VARIABLE = "WLSDEPLOY_LOG_DIRECTORY";
 
     /**
+     * The environment variable name used to specify a comma separated list of handlers to add
+     * to the tool parent logger (WLSDEPLOY_LOGGER_NAME). The handler name is the handler class name.
+     */
+    public static final String WLSDEPLOY_LOG_HANDLERS_ENV_VARIABLE = "WLSDEPLOY_LOG_HANDLERS";
+
+    /**
      * Java System property to change the ConsoleHandler configuration to log
      * all levels of message to the console.  The default is false, which will
      * set the ConsoleHandler level to INFO.
      */
-    public static final String WLSDEPLOY_DEBUG_TO_STDOUT_PROP = "wlsdeploy.debugToStdout";
+    public static final String WLSDEPLOY_DEBUG_TO_STDOUT_PROP = WLSDEPLOY_LOGGER_NAME + ".debugToStdout";
 
     private static File loggingDirectory;
     private static File loggingPropertiesFile;
+
+    private String logFileName;
 
     /**
      * The constructor.
@@ -135,6 +144,8 @@ public class WLSDeployLoggingConfig {
                 }
             }
         }
+        PlatformLogger logger = WLSDeployLogFactory.getLogger(WLSDEPLOY_LOGGER_NAME);   // make sure that this is the first logger
+        logger.info("The {0} program will write its log to {1}", programName, logFileName);
     }
 
     public static synchronized File getLoggingDirectory() {
@@ -145,15 +156,27 @@ public class WLSDeployLoggingConfig {
         return new File(loggingPropertiesFile.getAbsolutePath());
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Private helper methods                                                //
-    ///////////////////////////////////////////////////////////////////////////
-
-    private static String getConsoleHandler() {
+    public static String getConsoleHandler() {
         return WLSDEPLOY_CONSOLE_HANDLER;
     }
 
-    private static InputStream processLoggingPropertiesFile(String programName, File logPropsFile) throws IOException {
+    /**
+     * To augment the logging properties with custom properties, extend this class and overwrite this method.
+     * The method should add applicable properties to the logProps. These properties will be loaded into the LogManager
+     * and available to Logger instances. Do not instantiate Loggers in this class as the reload will reset the
+     * Loggers.
+     *
+     * @param programName the name of the tool running, useful for messages.
+     * @param logProps property instance to which to add log properties in string format, key=value
+     */
+    public void customizeLoggingProperties(String programName, Properties logProps) {
+       // override to customize
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Private helper methods                                                //
+    ///////////////////////////////////////////////////////////////////////////
+    private InputStream processLoggingPropertiesFile(String programName, File logPropsFile) throws IOException {
         Properties logProps = new Properties();
 
         try (FileInputStream fis = new FileInputStream(logPropsFile)) {
@@ -172,13 +195,13 @@ public class WLSDeployLoggingConfig {
         return new ByteArrayInputStream(result);
     }
 
-    private static void augmentLoggingProperties(String programName, Properties logProps) {
+    private void augmentLoggingProperties(String programName, Properties logProps) {
         Set<String> keys = logProps.stringPropertyNames();
         List<String> handlers = new ArrayList<>();
         for (String key : keys) {
             if (HANDLERS_PROP.equals(key)) {
                 String val = logProps.getProperty(key);
-                handlers = Arrays.asList(splitCommaSeparatedList(val));
+                handlers = Arrays.asList(StringUtils.splitCommaSeparatedList(val));
             } else if (isKeyKnownHandlerProperty(key) || CONFIG_PROP.equals(key)) {
                 logProps.remove(key);
             }
@@ -197,7 +220,10 @@ public class WLSDeployLoggingConfig {
         }
         String handlersListString = StringUtils.getCommaSeparatedListString(handlers);
         logProps.setProperty(HANDLERS_PROP, handlersListString);
-        String logFileName = configureFileHandler(programName, logProps);
+
+        customizeLoggingProperties(programName, logProps);
+
+        logFileName = configureFileHandler(programName, logProps);
         configureConsoleHandler(logProps);
 
         for (String loggerName : WLSDEPLOY_ROOT_LOGGERS) {
@@ -207,8 +233,6 @@ public class WLSDeployLoggingConfig {
             }
         }
 
-        String message = MessageFormat.format("The {0} program will write its log to {1}", programName, logFileName);
-        System.out.println(message);
     }
 
     private static boolean isKeyKnownHandlerProperty(String key) {
@@ -298,10 +322,4 @@ public class WLSDeployLoggingConfig {
         }
     }
 
-    private static String[] splitCommaSeparatedList(String s) {
-        if (StringUtils.isEmpty(s)) {
-            return new String[0];
-        }
-        return s.split(COMMA_SEPARATED_LIST_SPLITTER);
-    }
 }
