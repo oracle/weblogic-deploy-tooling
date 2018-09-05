@@ -36,6 +36,8 @@ from wlsdeploy.aliases.alias_constants import LSA
 from wlsdeploy.aliases.alias_constants import MBEAN
 from wlsdeploy.aliases.alias_constants import MERGE
 from wlsdeploy.aliases.alias_constants import MODEL_NAME
+from wlsdeploy.aliases.alias_constants import PASSWORD
+from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
 from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
@@ -76,6 +78,20 @@ class Aliases(object):
     ###########################################################################
     #              Model folder navigation-related methods                    #
     ###########################################################################
+
+    def get_mode_string(self):
+        """
+        Return WlstModes ONLINE or OFFLINE in string representation for this Aliases.
+        :return: 'ONLINE' or 'OFFLINE'
+        """
+        return WlstModes.from_value(self._wlst_mode)
+
+    def get_mode_enum(self):
+        """
+        Return the WlstModes enum value for this Aliases.
+        :return: WlstModes.ONLINE or WlstModes.OFFLINE
+        """
+        return self._wlst_mode
 
     def get_model_top_level_folder_names(self):
         """
@@ -349,7 +365,7 @@ class Aliases(object):
             else:
                 wlst_attribute_name = attribute_info[WLST_NAME]
 
-            if USES_PATH_TOKENS in attribute_info and string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
+            if self._model_context and USES_PATH_TOKENS in attribute_info and string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
                 model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
 
             data_type = attribute_info[WLST_TYPE]
@@ -386,7 +402,6 @@ class Aliases(object):
                         merged_value = alias_utils.merge_model_and_existing_lists(model_val, existing_val)
                     else:
                         merged_value = model_attribute_value
-
 
                     if data_type == JARRAY:
                         subtype = 'java.lang.String'
@@ -774,6 +789,28 @@ class Aliases(object):
 
         return model_attribute_names
 
+    def get_model_password_attribute_names(self, location):
+        """
+        Get the list of attribute names for the current location that are marked as password.
+        :param location: current location context
+        :return: list of password attributes
+        """
+        _method_name = 'get_model_password_attribute_names'
+
+        model_attribute_names = list()
+        module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
+
+        if ATTRIBUTES not in module_folder:
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        for key, value in module_folder[ATTRIBUTES].iteritems():
+            if WLST_TYPE in value and value[WLST_TYPE] == PASSWORD:
+                model_attribute_names.append(key)
+
+        return model_attribute_names
+
     def get_model_uses_path_tokens_attribute_names(self, location):
         """
         Get the list of attribute names that "use path tokens" (i.e., ones whose values are file system paths).
@@ -821,7 +858,7 @@ class Aliases(object):
         if attribute_info is not None and not self.__is_model_attribute_read_only(location, attribute_info):
             data_type, preferred_type, delimiter = \
                 alias_utils.compute_read_data_type_for_wlst_and_delimiter_from_attribute_info(attribute_info,
-                                                                                     wlst_attribute_value)
+                                                                                              wlst_attribute_value)
 
             converted_value = alias_utils.convert_from_type(data_type, wlst_attribute_value, delimiter=delimiter,
                                                             preferred=preferred_type)
@@ -843,7 +880,7 @@ class Aliases(object):
                 if string_utils.is_empty(wlst_attribute_value) or converted_value == default_value:
                     model_attribute_value = None
                 else:
-                    model_attribute_value = "--FIX ME--"
+                    model_attribute_value = PASSWORD_TOKEN
             elif data_type == 'boolean':
                 wlst_val = alias_utils.convert_boolean(converted_value)
                 default_val = alias_utils.convert_boolean(default_value)
@@ -860,7 +897,7 @@ class Aliases(object):
                     model_attribute_value = None
                 else:
                     model_attribute_value = converted_value
-                    if USES_PATH_TOKENS in attribute_info:
+                    if self._model_context and USES_PATH_TOKENS in attribute_info:
                         model_attribute_value = self._model_context.tokenize_path(model_attribute_value)
         self._logger.exiting(class_name=self._class_name, method_name=_method_name,
                              result={model_attribute_name: model_attribute_value})
@@ -868,13 +905,12 @@ class Aliases(object):
 
     def get_model_attribute_name(self, location, wlst_attribute_name):
         """
-        Returns the model attribute name for the specified WLST attribute name and value.
+        Returns the model attribute name for the specified WLST attribute name and value. If the model attribute name
+        is not valid for the version or the attribute is marked as read-only, return None
 
-        model_attribute_value will be set to None, if value assigned to wlst_attribute_value arg
-        is the default value for model_attribute_name.
         :param location: the location
         :param wlst_attribute_name: the WLST attribute name
-        :return: the name and value
+        :return: matching model attribute name
         :raises: AliasException: if an error occurs
         """
         _method_name = 'get_model_attribute_name'
@@ -884,7 +920,7 @@ class Aliases(object):
         model_attribute_name = None
 
         attribute_info = self._alias_entries.get_alias_attribute_entry_by_wlst_name(location, wlst_attribute_name)
-        if attribute_info is not None:
+        if attribute_info is not None and not self.__is_model_attribute_read_only(location, attribute_info):
             model_attribute_name = attribute_info[MODEL_NAME]
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name,
@@ -964,8 +1000,8 @@ class Aliases(object):
             if key == model_attribute_name:
                 attribute_info = module_folder[ATTRIBUTES][key]
                 if attribute_info and VALUE in attribute_info and DEFAULT in attribute_info[VALUE]:
-                    result = (model_attribute_value == wlst_attribute_value
-                              and model_attribute_value == attribute_info[VALUE][DEFAULT])
+                    result = (model_attribute_value == wlst_attribute_value and
+                              model_attribute_value == attribute_info[VALUE][DEFAULT])
 
         return result
 
@@ -1037,6 +1073,27 @@ class Aliases(object):
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=default_value)
         return default_value
 
+    def get_model_attribute_type(self, location, model_attribute_name):
+        """
+        Get the wlst_type for the model attribute name at the specified location
+        :param location:
+        :param model_attribute_name:
+        :return:
+        """
+        wlst_type = None
+        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
+        if attribute_info is not None:
+            wlst_type = attribute_info[WLST_TYPE]
+        return wlst_type
+
+    def get_ignore_attribute_names(self):
+        """
+        Return the list of attribute names that are ignored by the aliases and not defined in the alias category
+        json files.
+        :return: list of ignored attribute
+        """
+        return self._alias_entries.IGNORE_FOR_MODEL_LIST
+
     ####################################################################################
     #
     # Private methods, private inner classes and static methods only, beyond here please
@@ -1051,7 +1108,7 @@ class Aliases(object):
         :raises EncryptionException: if an error occurs while decrypting the password
         """
         if text is None or len(str(text)) == 0 or \
-                not self._model_context.is_using_encryption() or\
+                (self._model_context and not self._model_context.is_using_encryption()) or\
                 not EncryptionUtils.isEncryptedString(text):
 
             rtnval = text

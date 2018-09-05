@@ -239,19 +239,20 @@ def lsa(path=None, log_throwing=True):
     """
     _method_name = 'lsa'
     result = _ls(_method_name, 'a', path, log_throwing)
-    if wlst.WLS_ON.isConnected() and result and len(result) > 1:
-        make_dict = dict()
+    make_dict = dict()
+    if result and len(result) > 1:
         for entry in result.entrySet():
             key = entry.getKey()
             value = entry.getValue()
-            if value is not None and type(value) is str:
+            if value and type(value) is str:
                 new_value = value.rstrip()
                 if new_value == 'null' or new_value == 'none':
                     make_dict[key] = None
                 else:
                     make_dict[key] = new_value
-        result = make_dict
-    return result
+            else:
+                make_dict[key] = value
+    return make_dict
 
 
 def lsc(path=None, log_throwing=True):
