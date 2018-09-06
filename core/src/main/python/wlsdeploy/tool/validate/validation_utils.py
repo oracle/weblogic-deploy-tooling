@@ -148,6 +148,8 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
         retval = (actual_data_type in ["<type 'str'>"])
     elif 'delimited_' in expected_data_type:
         retval = (actual_data_type in ["<type 'str'>", "<type 'list'>"])
+    elif 'object' in expected_data_type:
+        retval = (actual_data_type in ["<type 'str'>"])
 
     return retval
 
