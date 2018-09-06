@@ -141,7 +141,6 @@ class Discoverer(object):
         _method_name = '_get_attributes_for_current_location_online'
         attributes = dict()
         path = self._alias_helper.get_wlst_attributes_path(location)
-        added = False
         try:
             attributes = wlst_helper.lsa(path)
             mbean_attributes = wlst_helper.get_mbi().getAttributes()
@@ -151,7 +150,6 @@ class Discoverer(object):
                     name = mbean_attribute.getName()
                     if name not in attributes and name in alias_attributes:
                         attributes[name] = wlst_helper.get(name)
-                        added = True
         except PyWLSTException, pe:
             name = location.get_model_folders()[-1]
             _logger.fine('WLSDPLY-06109', name, str(location), pe.getLocalizedMessage(), class_name=_class_name,
