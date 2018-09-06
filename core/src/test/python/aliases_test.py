@@ -3,13 +3,11 @@ Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from org.python.modules import jarray
-import os
-import sys
 import unittest
 
+from java.lang import Boolean
 from java.lang import String, Long
 from java.util import Properties
-from javax.management import ObjectName
 
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.aliases import TypeUtils
@@ -23,7 +21,6 @@ from wlsdeploy.exception import exception_helper
 import wlsdeploy.logging.platform_logger as platform_logger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class AliasesTestCase(unittest.TestCase):
@@ -870,6 +867,17 @@ class AliasesTestCase(unittest.TestCase):
         name, value = self.aliases.get_model_attribute_name_and_value(location, 'JavaServiceResourcesEnabled', 'false')
         self.assertEqual(name, 'JavaServiceResourcesEnabled')
         self.assertEqual(value, None)
+        return
+
+    def testGetWlstAttributeJavaBoolean(self):
+        location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION, DOMAIN='mydomain')
+        location.append_location(FOLDERS.REALM, REALM="myrealm").\
+            append_location(FOLDERS.AUTHENTICATION_PROVIDER, PROVIDER='myprovider').\
+            append_location(FOLDERS.ACTIVE_DIRECTORY_AUTHENTICATOR)
+        name, value = self.aliases.get_wlst_attribute_name_and_value(location, 'UseRetrievedUserNameAsPrincipal',
+                                                                     'true')
+        self.assertEqual(name, 'UseRetrievedUserNameAsPrincipal')
+        self.assertEqual(value, Boolean('true'))
         return
 
     def testSecurityProviderTypeHandling(self):
