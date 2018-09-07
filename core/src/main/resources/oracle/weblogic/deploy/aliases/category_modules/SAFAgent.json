@@ -19,7 +19,7 @@
                 "NumberOfFilesLimited": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "value": {"default": "true"  }, "wlst_type": "boolean" } ],
                 "RotateLogOnStartup":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RotateLogOnStartup",   "wlst_path": "WP001", "value": {"default": "true"  }, "wlst_type": "boolean" } ],
                 "RotationTime":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RotationTime",         "wlst_path": "WP001", "value": {"default": "00:00" }, "wlst_type": "string"  } ],
-                "RotationType":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RotationType",         "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"  } ]
+                "RotationType":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RotationType",         "wlst_path": "WP001", "value": {"default": "bySize"}, "wlst_type": "string"  } ]
             },
             "wlst_type": "${Jmssaf:JMSSAF}MessageLogFile",
             "wlst_attributes_path": "WP001",
@@ -53,13 +53,13 @@
         "PagingDirectory":                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "PagingDirectory",                   "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"           } ],
         "PagingMessageCompressionEnabled":   [ {"version": "[12.1.2,)", "wlst_mode": "both",    "wlst_name": "PagingMessageCompressionEnabled",   "wlst_path": "WP001", "value": {"default": "false"                   }, "wlst_type": "boolean"          } ],
         "ReceivingPausedAtStartup":          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ReceivingPausedAtStartup",          "wlst_path": "WP001", "value": {"default": "false"                   }, "wlst_type": "boolean"          } ],
-        "ServiceType":                       [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ServiceType",                       "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"           } ],
+        "ServiceType":                       [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ServiceType",                       "wlst_path": "WP001", "value": {"default": "Both"                    }, "wlst_type": "string"           } ],
         "Store":                             [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Store",                             "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string",          "get_method": "LSA", "set_method": "MBEAN.set_persistent_store_mbean", "set_mbean_type": "weblogic.management.configuration.PersistentStoreMBean" } ],
         "StoreMessageCompressionEnabled":    [ {"version": "[12.1.2,)", "wlst_mode": "both",    "wlst_name": "StoreMessageCompressionEnabled",    "wlst_path": "WP001", "value": {"default": "false"                   }, "wlst_type": "boolean"          } ],
         "Target":                            [ {"version": "[10,)",     "wlst_mode": "offline", "wlst_name": "Target",                            "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "delimited_string" },
-                                               {"version": "[10,)",     "wlst_mode": "online",  "wlst_name": "Targets",                           "wlst_path": "WP002", "value": {"default": "None"                    }, "wlst_type": "jarray",          "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+                                               {"version": "[10,)",     "wlst_mode": "online",  "wlst_name": "Targets",                           "wlst_path": "WP002", "value": {"default": "None"                    }, "wlst_type": "jarray",          "get_method": "GET", "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
         "WindowInterval":                    [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "WindowInterval",                    "wlst_path": "WP001", "value": {"default": 0                         }, "wlst_type": "long"             } ],
-        "WindowSize":                        [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "WindowSize",                        "wlst_path": "WP001", "value": {"default": 10                        }, "wlst_type": "long"             } ]
+        "WindowSize":                        [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "WindowSize",                        "wlst_path": "WP001", "value": {"default": 10                        }, "wlst_type": "integer"          } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
