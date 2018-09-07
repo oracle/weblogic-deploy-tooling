@@ -11,7 +11,7 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_translator import FileToPython
 
 __class_name = 'filter_helper'
-__logger = PlatformLogger('wlsdeploy.wlst')
+__logger = PlatformLogger('wlsdeploy.tool.util')
 __filter_file_location = os.path.join(os.environ.get('WLSDEPLOY_HOME'), 'lib', 'model_filters.json')
 
 __id_filter_map = {
