@@ -60,7 +60,7 @@
                                                 "DefaultRedeliveryDelay":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultRedeliveryDelay",      "wlst_path": "WP001", "value": {"default": 0                 }, "wlst_type": "long"    } ],
                                                 "DefaultTimeToDeliver":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTimeToDeliver",        "wlst_path": "WP001", "value": {"default": 0                 }, "wlst_type": "string"  } ],
                                                 "DefaultTimeToLive":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTimeToLive",           "wlst_path": "WP001", "value": {"default": 0                 }, "wlst_type": "long"    } ],
-                                                "DefaultUnitOfOrder":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultUnitOfOrder",          "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"  } ],
+                                                "DefaultUnitOfOrder":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultUnitOfOrder",          "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string", "restart_required": "true" } ],
                                                 "SendTimeout":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SendTimeout",                 "wlst_path": "WP001", "value": {"default": "${0:10}"         }, "wlst_type": "long"    } ]
                                           },
                                           "wlst_attributes_path": "WP001",
@@ -113,8 +113,8 @@
                                           "wlst_type": "TransactionParams",
                                           "folders": {},
                                           "attributes": {
-                                                "TransactionTimeout":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TransactionTimeout",         "wlst_path": "WP001", "value": {"default": 3600   }, "wlst_type": "long"   } ],
-                                                "XAConnectionFactoryEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "XAConnectionFactoryEnabled", "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ]
+                                                "TransactionTimeout":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TransactionTimeout",         "wlst_path": "WP001", "value": {"default": "${0:3600}"   }, "wlst_type": "long"   } ],
+                                                "XAConnectionFactoryEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "XAConnectionFactoryEnabled", "wlst_path": "WP001", "value": {"default": "false"       }, "wlst_type": "boolean"} ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -123,11 +123,11 @@
                                     }
                               },
                               "attributes": {
-                                    "DefaultTargetingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "boolean"} ],
-                                    "JNDIName":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JNDIName",                "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
-                                    "LocalJNDIName":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",           "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
-                                    "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
-                                    "SubDeploymentName":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",       "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ]
+                                    "DefaultTargetingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "boolean", "restart_required": "true"} ],
+                                    "JNDIName":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JNDIName",                "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"   } ],
+                                    "LocalJNDIName":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",           "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"   } ],
+                                    "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"   } ],
+                                    "SubDeploymentName":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",       "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string",  "restart_required": "true" } ]
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
@@ -139,10 +139,10 @@
                               "child_folders_type": "multiple",
                               "folders": {},
                               "attributes": {
-                                    "KeyType":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "KeyType",   "wlst_path": "WP001", "value": {"default": "String"       }, "wlst_type": "string"} ],
-                                    "Notes":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",     "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"} ],
-                                    "Property":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Property",  "wlst_path": "WP001", "value": {"default": "JMSMessageID" }, "wlst_type": "string"} ],
-                                    "SortOrder": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SortOrder", "wlst_path": "WP001", "value": {"default": "Ascending"    }, "wlst_type": "string"} ]
+                                    "KeyType":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "KeyType",   "wlst_path": "WP001", "value": {"default": "String"       }, "wlst_type": "string", "restart_required": "true" } ],
+                                    "Notes":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",     "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"  } ],
+                                    "Property":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Property",  "wlst_path": "WP001", "value": {"default": "JMSMessageID" }, "wlst_type": "string", "restart_required": "true" } ],
+                                    "SortOrder": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SortOrder", "wlst_path": "WP001", "value": {"default": "Ascending"    }, "wlst_type": "string", "restart_required": "true" } ]
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
@@ -158,9 +158,9 @@
                                           "child_folders_type": "multiple",
                                           "folders": {},
                                           "attributes": {
-                                                "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
-                                                "PhysicalDestinationName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PhysicalDestinationName", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
-                                                "Weight":                  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Weight",                  "wlst_path": "WP001", "value": {"default": 1     }, "wlst_type": "integer"} ]
+                                                "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string" } ],
+                                                "PhysicalDestinationName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PhysicalDestinationName", "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string" } ],
+                                                "Weight":                  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Weight",                  "wlst_path": "WP001", "value": {"default": "${0:1}"}, "wlst_type": "integer"} ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -175,8 +175,8 @@
                                     "LocalJNDIName":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",               "wlst_path": "WP001", "value": {"default": "None"       }, "wlst_type": "string", "get_method": "LSA"} ],
                                     "Notes":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                       "wlst_path": "WP001", "value": {"default": "None"       }, "wlst_type": "string"  } ],
                                     "ResetDeliveryCountOnForward": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ResetDeliveryCountOnForward", "wlst_path": "WP001", "value": {"default": "true"       }, "wlst_type": "boolean" } ],
-                                    "SafExportPolicy":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy",      "wlst_path": "WP001", "value": {"default": "All"        }, "wlst_type": "string", "get_method": "LSA"} ],
-                                    "UnitOfOrderRouting":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",          "wlst_path": "WP001", "value": {"default": "Hash"       }, "wlst_type": "string", "get_method": "LSA"} ]
+                                    "SafExportPolicy":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy",      "wlst_path": "WP001", "value": {"default": "All"        }, "wlst_type": "string", "get_method": "LSA", "restart_required": "true"} ],
+                                    "UnitOfOrderRouting":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",          "wlst_path": "WP001", "value": {"default": "Hash"       }, "wlst_type": "string", "get_method": "LSA", "restart_required": "true"} ]
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
@@ -192,9 +192,9 @@
                                           "child_folders_type": "multiple",
                                           "folders": {},
                                           "attributes": {
-                                                "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
-                                                "PhysicalDestinationName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PhysicalDestinationName", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
-                                                "Weight":                  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Weight",                  "wlst_path": "WP001", "value": {"default": 1     }, "wlst_type": "integer"} ]
+                                                "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string" } ],
+                                                "PhysicalDestinationName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PhysicalDestinationName", "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string" } ],
+                                                "Weight":                  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Weight",                  "wlst_path": "WP001", "value": {"default": "${0:1}"}, "wlst_type": "integer"} ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -207,8 +207,8 @@
                                     "LoadBalancingPolicy": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LoadBalancingPolicy",    "wlst_path": "WP001", "value": {"default": "Round-Robin"}, "wlst_type": "string"  } ],
                                     "LocalJNDIName":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",          "wlst_path": "WP001", "value": {"default": "None"       }, "wlst_type": "string", "get_method": "LSA"} ],
                                     "Notes":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                  "wlst_path": "WP001", "value": {"default": "None"       }, "wlst_type": "string"  } ],
-                                    "SafExportPolicy":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy", "wlst_path": "WP001", "value": {"default": "All"        }, "wlst_type": "string", "get_method": "LSA"} ],
-                                    "UnitOfOrderRouting":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",     "wlst_path": "WP001", "value": {"default": "Hash"       }, "wlst_type": "string", "get_method": "LSA"} ]
+                                    "SafExportPolicy":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy", "wlst_path": "WP001", "value": {"default": "All"        }, "wlst_type": "string", "get_method": "LSA", "restart_required": "true"} ],
+                                    "UnitOfOrderRouting":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",     "wlst_path": "WP001", "value": {"default": "Hash"       }, "wlst_type": "string", "get_method": "LSA", "restart_required": "true"} ]
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
@@ -225,10 +225,10 @@
                                           "folders": {},
                                           "attributes": {
                                                 "ConnectionHealthChecking": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConnectionHealthChecking", "wlst_path": "WP001", "value": {"default": "enabled"}, "wlst_type": "string"    } ],
-                                                "LocalJNDIName":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",            "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"    } ],
+                                                "LocalJNDIName":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",            "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string",     "restart_required": "true" } ],
                                                 "Notes":                    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                    "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"    } ],
                                                 "PasswordEncrypted":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PasswordEncrypted",        "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "password",   "get_method": "GET"} ],
-                                                "RemoteJndiName":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Remote${Jndi:JNDI}Name",   "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string",     "get_method": "LSA"} ],
+                                                "RemoteJndiName":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Remote${Jndi:JNDI}Name",   "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string",     "get_method": "LSA", "restart_required": "true"} ],
                                                 "Username":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Username",                 "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "credential"} ]
                                           },
                                           "wlst_attributes_path": "WP001",
@@ -241,9 +241,9 @@
                                           "child_folders_type": "multiple",
                                           "folders": {},
                                           "attributes": {
-                                                "LocalJNDIName":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",          "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"  } ],
+                                                "LocalJNDIName":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",          "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string", "restart_required": "true" } ],
                                                 "Notes":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                  "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"  } ],
-                                                "RemoteJndiName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Remote${Jndi:JNDI}Name", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string", "get_method": "LSA"} ]
+                                                "RemoteJndiName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Remote${Jndi:JNDI}Name", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string", "get_method": "LSA", "restart_required": "true"} ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -265,12 +265,12 @@
                                     }
                               },
                               "attributes": {
-                                    "ConnectionURL":                     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConnectionURL",                         "wlst_path": "WP001", "value": {"default": "None"                                 }, "wlst_type": "string"    } ],
-                                    "DefaultTargetingEnabled":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled",               "wlst_path": "WP001", "value": {"default": "None"                                 }, "wlst_type": "boolean"   } ],
+                                    "ConnectionURL":                     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConnectionURL",                         "wlst_path": "WP001", "value": {"default": "None"                                 }, "wlst_type": "string",   "restart_required": "true" } ],
+                                    "DefaultTargetingEnabled":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled",               "wlst_path": "WP001", "value": {"default": "None"                                 }, "wlst_type": "boolean",  "restart_required": "true" } ],
                                     "InitialContextFactory":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InitialContextFactory",                 "wlst_path": "WP001", "value": {"default": "weblogic.jndi.WLInitialContextFactory"}, "wlst_type": "string"    } ],
                                     "JNDIPropertiesCredentialEncrypted": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JNDIPropertiesCredentialEncrypted",     "wlst_path": "WP001", "value": {"default": "None"                                 }, "wlst_type": "password", "get_method": "GET"} ],
                                     "Notes":                             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                                 "wlst_path": "WP001", "value": {"default": "None"                                 }, "wlst_type": "string"    } ],
-                                    "SubDeploymentName":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",                     "wlst_path": "WP001", "value": {"default": "None"                                 }, "wlst_type": "string"    } ]
+                                    "SubDeploymentName":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",                     "wlst_path": "WP001", "value": {"default": "None"                                 }, "wlst_type": "string",   "restart_required": "true" } ]
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
@@ -339,26 +339,26 @@
                               },
                               "attributes": {
                                     "AttachSender":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AttachSender",                          "wlst_path": "WP001", "value": {"default": "supports"       }, "wlst_type": "string",           "get_method": "LSA"} ],
-                                    "ConsumptionPausedAtStartup":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConsumptionPausedAtStartup",            "wlst_path": "WP001", "value": {"default": "false"          }, "wlst_type": "boolean"           } ],
-                                    "DefaultTargetingEnabled":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled",               "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "boolean"           } ],
+                                    "ConsumptionPausedAtStartup":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConsumptionPausedAtStartup",            "wlst_path": "WP001", "value": {"default": "false"          }, "wlst_type": "boolean",          "restart_required": "true" } ],
+                                    "DefaultTargetingEnabled":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled",               "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "DefaultUnitOfOrder":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultUnitOfOrder",                    "wlst_path": "WP001", "value": {"default": "false"          }, "wlst_type": "boolean"           } ],
-                                    "DestinationKey":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DestinationKey${:s}",                   "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "${delimited_string:jarray}", "get_method": "${LSA:GET}"} ],
+                                    "DestinationKey":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DestinationKey${:s}",                   "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "${delimited_string:jarray}", "get_method": "${LSA:GET}", "restart_required": "true" } ],
                                     "ForwardDelay":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ForwardDelay",                          "wlst_path": "WP001", "value": {"default": "${0:-1}"        }, "wlst_type": "integer"           } ],
-                                    "IncompleteWorkExpirationTime":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "IncompleteWorkExpirationTime",          "wlst_path": "WP001", "value": {"default": -1               }, "wlst_type": "integer"           } ],
-                                    "InsertionPausedAtStartup":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InsertionPausedAtStartup",              "wlst_path": "WP001", "value": {"default": "false"          }, "wlst_type": "boolean"           } ],
+                                    "IncompleteWorkExpirationTime":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "IncompleteWorkExpirationTime",          "wlst_path": "WP001", "value": {"default": "${0:-1}"        }, "wlst_type": "integer"           } ],
+                                    "InsertionPausedAtStartup":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InsertionPausedAtStartup",              "wlst_path": "WP001", "value": {"default": "false"          }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "JNDIName":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JNDIName",                              "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string"            } ],
-                                    "JmsCreateDestinationIdentifier": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Jms:JMS}CreateDestinationIdentifier", "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string",           "get_method": "LSA"} ],
+                                    "JmsCreateDestinationIdentifier": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Jms:JMS}CreateDestinationIdentifier", "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true" } ],
                                     "LoadBalancingPolicy":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LoadBalancingPolicy",                   "wlst_path": "WP001", "value": {"default": "Round-Robin"    }, "wlst_type": "string"            } ],
                                     "LocalJNDIName":                  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",                         "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string"            } ],
                                     "MaximumMessageSize":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MaximumMessageSize",                    "wlst_path": "WP001", "value": {"default": "${0:2147483647}"}, "wlst_type": "integer"           } ],
                                     "MessagingPerformancePreference": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagingPerformancePreference",        "wlst_path": "WP001", "value": {"default": "${50:25}"       }, "wlst_type": "integer"           } ],
                                     "Notes":                          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                                 "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string"            } ],
-                                    "ProductionPausedAtStartup":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ProductionPausedAtStartup",             "wlst_path": "WP001", "value": {"default": "false"          }, "wlst_type": "boolean"           } ],
+                                    "ProductionPausedAtStartup":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ProductionPausedAtStartup",             "wlst_path": "WP001", "value": {"default": "false"          }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "Quota":                          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Quota",                                 "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_quota_mbean",    "set_mbean_type": "weblogic.j2ee.descriptor.wl.QuotaBean"} ],
                                     "ResetDeliveryCountOnForward":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ResetDeliveryCountOnForward",           "wlst_path": "WP001", "value": {"default": "true"           }, "wlst_type": "boolean"           } ],
-                                    "SafExportPolicy":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy",                "wlst_path": "WP001", "value": {"default": "All"            }, "wlst_type": "string",           "get_method": "LSA"} ],
-                                    "SubDeploymentName":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",                     "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string",           "get_method": "LSA"} ],
-                                    "Template":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Template",                              "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_template_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.TemplateBean"} ],
+                                    "SafExportPolicy":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy",                "wlst_path": "WP001", "value": {"default": "All"            }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true" } ],
+                                    "SubDeploymentName":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",                     "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true" } ],
+                                    "Template":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Template",                              "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_template_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.TemplateBean", "restart_required": "true" } ],
                                     "UnitOfOrderRouting":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",                    "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string"            } ],
                                     "UnitOfWorkHandlingPolicy":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfWorkHandlingPolicy",              "wlst_path": "WP001", "value": {"default": "PassThrough"    }, "wlst_type": "string",           "get_method": "LSA"} ]
                               },
@@ -372,11 +372,11 @@
                               "child_folders_type": "multiple",
                               "folders": {},
                               "attributes": {
-                                    "BytesMaximum":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesMaximum",    "wlst_path": "WP001", "value": {"default": "${0:9223372036854775807}"}, "wlst_type": "long"   } ],
-                                    "MessagesMaximum": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesMaximum", "wlst_path": "WP001", "value": {"default": "${0:9223372036854775807}"}, "wlst_type": "long"   } ],
-                                    "Notes":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",           "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string" } ],
-                                    "Policy":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Policy",          "wlst_path": "WP001", "value": {"default": "FIFO"               }, "wlst_type": "string" } ],
-                                    "Shared":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Shared",          "wlst_path": "WP001", "value": {"default": "true"               }, "wlst_type": "boolean"} ]
+                                    "BytesMaximum":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesMaximum",    "wlst_path": "WP001", "value": {"default": "${0:9223372036854775807}"}, "wlst_type": "long"        } ],
+                                    "MessagesMaximum": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesMaximum", "wlst_path": "WP001", "value": {"default": "${0:9223372036854775807}"}, "wlst_type": "long"        } ],
+                                    "Notes":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",           "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"      } ],
+                                    "Policy":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Policy",          "wlst_path": "WP001", "value": {"default": "FIFO"                    }, "wlst_type": "string"      } ],
+                                    "Shared":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Shared",          "wlst_path": "WP001", "value": {"default": "true"                    }, "wlst_type": "boolean",    "restart_required": "true" } ]
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
@@ -388,9 +388,9 @@
                               "child_folders_type": "multiple",
                               "folders": {},
                               "attributes": {
-                                    "LogFormat":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LogFormat",                  "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"  } ],
+                                    "LogFormat":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LogFormat",                  "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string", "restart_required": "true" } ],
                                     "Notes":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                      "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"  } ],
-                                    "Policy":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Policy",                     "wlst_path": "WP001", "value": {"default": "Discard"}, "wlst_type": "string"  } ],
+                                    "Policy":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Policy",                     "wlst_path": "WP001", "value": {"default": "Discard"}, "wlst_type": "string", "restart_required": "true" } ],
                                     "SafErrorDestination": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ErrorDestination", "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_saf_error_destination_mbean"} ]
                               },
                               "wlst_attributes_path": "WP001",
@@ -425,9 +425,9 @@
                                                 "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string"  } ],
                                                 "PersistentQos":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PersistentQos",           "wlst_path": "WP001", "value": {"default": "Exactly-Once"}, "wlst_type": "string", "get_method": "LSA"} ],
                                                 "RemoteJndiName":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Remote${Jndi:JNDI}Name",  "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string", "get_method": "LSA"} ],
-                                                "SAFErrorHandling":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SAFErrorHandling",        "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string", "get_method": "LSA"} ],
-                                                "TimeToLiveDefault":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToLiveDefault",       "wlst_path": "WP001", "value": {"default": 3600000       }, "wlst_type": "long"    } ],
-                                                "UnitOfOrderRouting":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",      "wlst_path": "WP001", "value": {"default": "Hash"        }, "wlst_type": "string", "get_method": "LSA"} ],
+                                                "SAFErrorHandling":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SAFErrorHandling",        "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string", "get_method": "LSA", "restart_required": "true" } ],
+                                                "TimeToLiveDefault":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToLiveDefault",       "wlst_path": "WP001", "value": {"default": "${0:3600000}"}, "wlst_type": "long"    } ],
+                                                "UnitOfOrderRouting":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",      "wlst_path": "WP001", "value": {"default": "Hash"        }, "wlst_type": "string", "get_method": "LSA", "restart_required": "true"} ],
                                                 "UseSAFTimeToLiveDefault": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UseSAFTimeToLiveDefault", "wlst_path": "WP001", "value": {"default": "false"       }, "wlst_type": "boolean"  } ]
                                           },
                                           "wlst_attributes_path": "WP001",
@@ -458,9 +458,9 @@
                                                 "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string"  } ],
                                                 "PersistentQos":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PersistentQos",           "wlst_path": "WP001", "value": {"default": "Exactly-Once"}, "wlst_type": "string"  } ],
                                                 "RemoteJndiName":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Remote${Jndi:JNDI}Name",  "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string", "get_method": "LSA"} ],
-                                                "SAFErrorHandling":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SAFErrorHandling",        "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string", "get_method": "LSA"} ],
-                                                "TimeToLiveDefault":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToLiveDefault",       "wlst_path": "WP001", "value": {"default": 3600000       }, "wlst_type": "long"    } ],
-                                                "UnitOfOrderRouting":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",      "wlst_path": "WP001", "value": {"default": "Hash"        }, "wlst_type": "string"  } ],
+                                                "SAFErrorHandling":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SAFErrorHandling",        "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string", "get_method": "LSA", "restart_required": "true"} ],
+                                                "TimeToLiveDefault":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToLiveDefault",       "wlst_path": "WP001", "value": {"default": "${0:3600000}"}, "wlst_type": "long"    } ],
+                                                "UnitOfOrderRouting":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",      "wlst_path": "WP001", "value": {"default": "Hash"        }, "wlst_type": "string", "restart_required": "true" } ],
                                                 "UseSAFTimeToLiveDefault": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UseSAFTimeToLiveDefault", "wlst_path": "WP001", "value": {"default": "false"       }, "wlst_type": "boolean" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
@@ -482,15 +482,15 @@
                                     }
                               },
                               "attributes": {
-                                    "DefaultTargetingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "boolean" } ],
-                                    "JNDIPrefix":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JNDIPrefix",              "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"  } ],
-                                    "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"  } ],
-                                    "SAFErrorHandling":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SAFErrorHandling",        "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_saf_error_handling_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.SAFErrorHandlingBean"} ],
-                                    "SAFRemoteContext":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SAFRemoteContext",        "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_saf_remote_context_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.SAFRemoteContextBean"} ],
-                                    "SubDeploymentName":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",       "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"  } ],
-                                    "TimeToLiveDefault":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToLiveDefault",       "wlst_path": "WP001", "value": {"default": 3600000}, "wlst_type": "long"    } ],
-                                    "UnitOfOrderRouting":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",      "wlst_path": "WP001", "value": {"default": "Hash" }, "wlst_type": "string", "get_method": "LSA"} ],
-                                    "UseSAFTimeToLiveDefault": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UseSAFTimeToLiveDefault", "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"  } ]
+                                    "DefaultTargetingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled", "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "boolean", "restart_required": "true"} ],
+                                    "JNDIPrefix":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JNDIPrefix",              "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string"   } ],
+                                    "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string"   } ],
+                                    "SAFErrorHandling":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SAFErrorHandling",        "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string",  "get_method": "LSA", "set_method": "MBEAN.set_saf_error_handling_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.SAFErrorHandlingBean", "restart_required": "true" } ],
+                                    "SAFRemoteContext":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SAFRemoteContext",        "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string",  "get_method": "LSA", "set_method": "MBEAN.set_saf_remote_context_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.SAFRemoteContextBean"} ],
+                                    "SubDeploymentName":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",       "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string",  "restart_required": "true" } ],
+                                    "TimeToLiveDefault":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToLiveDefault",       "wlst_path": "WP001", "value": {"default": "${0:3600000}"}, "wlst_type": "long"     } ],
+                                    "UnitOfOrderRouting":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",      "wlst_path": "WP001", "value": {"default": "Hash"        }, "wlst_type": "string",  "get_method": "LSA", "restart_required": "true" } ],
+                                    "UseSAFTimeToLiveDefault": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UseSAFTimeToLiveDefault", "wlst_path": "WP001", "value": {"default": "false"       }, "wlst_type": "boolean"  } ]
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
@@ -516,9 +516,9 @@
                                     }
                               },
                               "attributes": {
-                                    "CompressionThreshold":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "CompressionThreshold",        "wlst_path": "WP001", "value": {"default": 2147483647}, "wlst_type": "integer"} ],
-                                    "Notes":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                       "wlst_path": "WP001", "value": {"default": "None"    }, "wlst_type": "string" } ],
-                                    "ReplyToSAFRemoteContextName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ReplyToSAFRemoteContextName", "wlst_path": "WP001", "value": {"default": "None"    }, "wlst_type": "string" } ]
+                                    "CompressionThreshold":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "CompressionThreshold",        "wlst_path": "WP001", "value": {"default": "${0:2147483647}"}, "wlst_type": "integer"} ],
+                                    "Notes":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                       "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string" } ],
+                                    "ReplyToSAFRemoteContextName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ReplyToSAFRemoteContextName", "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string" } ]
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
@@ -564,7 +564,7 @@
                                           "folders": {},
                                           "attributes": {
                                                 "ErrorDestination":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",  "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean",  "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
-                                                "SubDeploymentName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"  } ]
+                                                "SubDeploymentName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string", "restart_required": "true" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -588,8 +588,8 @@
                                           "folders": {},
                                           "attributes": {
                                                 "MulticastAddress":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
-                                                "MulticastPort":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "value": {"default": 6001  }, "wlst_type": "integer"} ],
-                                                "MulticastTimeToLive": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "value": {"default": 1     }, "wlst_type": "integer"} ]
+                                                "MulticastPort":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "value": {"default": 6001  }, "wlst_type": "integer", "restart_required": "true"} ],
+                                                "MulticastTimeToLive": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "value": {"default": 1     }, "wlst_type": "integer", "restart_required": "true"} ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -613,17 +613,17 @@
                               },
                               "attributes": {
                                     "AttachSender":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AttachSender",                   "wlst_path": "WP001", "value": {"default": "supports"        }, "wlst_type": "string",           "get_method": "LSA"} ],
-                                    "ConsumptionPausedAtStartup":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConsumptionPausedAtStartup",     "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
+                                    "ConsumptionPausedAtStartup":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConsumptionPausedAtStartup",     "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true"} ],
                                     "DefaultUnitOfOrder":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultUnitOfOrder",             "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
-                                    "DestinationKey":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DestinationKey${:s}",            "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "delimited_string", "get_method": "LSA"} ],
-                                    "IncompleteWorkExpirationTime":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "IncompleteWorkExpirationTime",   "wlst_path": "WP001", "value": {"default": -1                }, "wlst_type": "integer"           } ],
-                                    "InsertionPausedAtStartup":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InsertionPausedAtStartup",       "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
+                                    "DestinationKey":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DestinationKey${:s}",            "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "delimited_string", "get_method": "LSA", "restart_required": "true"} ],
+                                    "IncompleteWorkExpirationTime":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "IncompleteWorkExpirationTime",   "wlst_path": "WP001", "value": {"default": "${0:-1}"         }, "wlst_type": "integer"           } ],
+                                    "InsertionPausedAtStartup":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InsertionPausedAtStartup",       "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "MaximumMessageSize":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MaximumMessageSize",             "wlst_path": "WP001", "value": {"default": "${0:2147483647}" }, "wlst_type": "integer"           } ],
                                     "MessagingPerformancePreference": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagingPerformancePreference", "wlst_path": "WP001", "value": {"default": "${50:25}"        }, "wlst_type": "integer"           } ],
                                     "Notes":                          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                          "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"            } ],
-                                    "ProductionPausedAtStartup":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ProductionPausedAtStartup",      "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
+                                    "ProductionPausedAtStartup":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ProductionPausedAtStartup",      "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "Quota":                          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Quota",                          "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_quota_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.QuotaBean"} ],
-                                    "SafExportPolicy":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SafExportPolicy",                "wlst_path": "WP001", "value": {"default": "All"             }, "wlst_type": "string",           "get_method": "LSA"} ],
+                                    "SafExportPolicy":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SafExportPolicy",                "wlst_path": "WP001", "value": {"default": "All"             }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true" } ],
                                     "UnitOfWorkHandlingPolicy":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfWorkHandlingPolicy",       "wlst_path": "WP001", "value": {"default": "PassThrough"     }, "wlst_type": "string",           "get_method": "LSA"} ]
                               },
                               "wlst_attributes_path": "WP001",
@@ -681,8 +681,8 @@
                                           "folders": {},
                                           "attributes": {
                                                 "MulticastAddress":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"  } ],
-                                                "MulticastPort":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "value": {"default": 6001  }, "wlst_type": "integer" } ],
-                                                "MulticastTimeToLive": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "value": {"default": 1     }, "wlst_type": "integer" } ]
+                                                "MulticastPort":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "value": {"default": 6001  }, "wlst_type": "integer", "restart_required": "true"} ],
+                                                "MulticastTimeToLive": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "value": {"default": 1     }, "wlst_type": "integer", "restart_required": "true"} ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -706,25 +706,25 @@
                               },
                               "attributes": {
                                     "AttachSender":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AttachSender",                          "wlst_path": "WP001", "value": {"default": "supports"        }, "wlst_type": "string",           "get_method": "LSA"} ],
-                                    "ConsumptionPausedAtStartup":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConsumptionPausedAtStartup",            "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
-                                    "DefaultTargetingEnabled":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled",               "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "boolean"           } ],
+                                    "ConsumptionPausedAtStartup":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConsumptionPausedAtStartup",            "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true" } ],
+                                    "DefaultTargetingEnabled":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled",               "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "DefaultUnitOfOrder":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultUnitOfOrder",                    "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
-                                    "DestinationKey":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DestinationKey${:s}",                   "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "delimited_string", "get_method": "LSA"} ],
+                                    "DestinationKey":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DestinationKey${:s}",                   "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "delimited_string", "get_method": "LSA", "restart_required": "true"} ],
                                     "ForwardingPolicy":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ForwardingPolicy",                      "wlst_path": "WP001", "value": {"default": "Replicated"      }, "wlst_type": "string"            } ],
-                                    "IncompleteWorkExpirationTime":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "IncompleteWorkExpirationTime",          "wlst_path": "WP001", "value": {"default": -1                }, "wlst_type": "integer"           } ],
-                                    "InsertionPausedAtStartup":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InsertionPausedAtStartup",              "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
+                                    "IncompleteWorkExpirationTime":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "IncompleteWorkExpirationTime",          "wlst_path": "WP001", "value": {"default": "${0:-1}"         }, "wlst_type": "integer"           } ],
+                                    "InsertionPausedAtStartup":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InsertionPausedAtStartup",              "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "JNDIName":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JNDIName",                              "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"            } ],
-                                    "JmsCreateDestinationIdentifier": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Jms:JMS}CreateDestinationIdentifier", "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA"} ],
+                                    "JmsCreateDestinationIdentifier": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Jms:JMS}CreateDestinationIdentifier", "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true"} ],
                                     "LoadBalancingPolicy":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LoadBalancingPolicy",                   "wlst_path": "WP001", "value": {"default": "Round-Robin"     }, "wlst_type": "string"            } ],
                                     "LocalJNDIName":                  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",                         "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"            } ],
                                     "MaximumMessageSize":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MaximumMessageSize",                    "wlst_path": "WP001", "value": {"default": "${0:2147483647}" }, "wlst_type": "integer"           } ],
                                     "MessagingPerformancePreference": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagingPerformancePreference",        "wlst_path": "WP001", "value": {"default": "${50:25}"        }, "wlst_type": "integer"           } ],
                                     "Notes":                          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                                 "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"            } ],
-                                    "ProductionPausedAtStartup":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ProductionPausedAtStartup",             "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
+                                    "ProductionPausedAtStartup":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ProductionPausedAtStartup",             "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "Quota":                          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Quota",                                 "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_quota_mbean",    "set_mbean_type": "weblogic.j2ee.descriptor.wl.QuotaBean"} ],
-                                    "SafExportPolicy":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy",                "wlst_path": "WP001", "value": {"default": "All"             }, "wlst_type": "string",           "get_method": "LSA"} ],
-                                    "SubDeploymentName":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",                     "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA"} ],
-                                    "Template":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Template",                              "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_template_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.TemplateBean"} ],
+                                    "SafExportPolicy":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy",                "wlst_path": "WP001", "value": {"default": "All"             }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true"} ],
+                                    "SubDeploymentName":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",                     "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true"} ],
+                                    "Template":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Template",                              "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_template_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.TemplateBean", "restart_required": "true"} ],
                                     "UnitOfOrderRouting":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",                    "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"            } ],
                                     "UnitOfWorkHandlingPolicy":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfWorkHandlingPolicy",              "wlst_path": "WP001", "value": {"default": "PassThrough"     }, "wlst_type": "string",           "get_method": "LSA"} ]
                               },
@@ -794,28 +794,28 @@
                                     }
                               },
                               "attributes": {
-                                    "AttachSender":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AttachSender",                          "wlst_path": "WP001", "value": {"default": "supports"        }, "wlst_type": "string",          "get_method": "LSA"} ],
-                                    "ConsumptionPausedAtStartup":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConsumptionPausedAtStartup",            "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
-                                    "DefaultTargetingEnabled":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled",               "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "boolean"           } ],
+                                    "AttachSender":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AttachSender",                          "wlst_path": "WP001", "value": {"default": "supports"        }, "wlst_type": "string",           "get_method": "LSA"} ],
+                                    "ConsumptionPausedAtStartup":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConsumptionPausedAtStartup",            "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true"  } ],
+                                    "DefaultTargetingEnabled":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled",               "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "boolean",          "restart_required": "true"  } ],
                                     "DefaultUnitOfOrder":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultUnitOfOrder",                    "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
-                                    "DestinationKey":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DestinationKey${:s}",                   "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "delimited_string", "get_method": "LSA"} ],
-                                    "ForwardDelay":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ForwardDelay",                          "wlst_path": "WP001", "value": {"default": -1                }, "wlst_type": "integer"           } ],
-                                    "IncompleteWorkExpirationTime":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "IncompleteWorkExpirationTime",          "wlst_path": "WP001", "value": {"default": -1                }, "wlst_type": "integer"           } ],
-                                    "InsertionPausedAtStartup":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InsertionPausedAtStartup",              "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
+                                    "DestinationKey":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DestinationKey${:s}",                   "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "delimited_string", "get_method": "LSA", "restart_required": "true"} ],
+                                    "ForwardDelay":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ForwardDelay",                          "wlst_path": "WP001", "value": {"default": "${0:-1}"         }, "wlst_type": "integer"           } ],
+                                    "IncompleteWorkExpirationTime":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "IncompleteWorkExpirationTime",          "wlst_path": "WP001", "value": {"default": "${0:-1}"         }, "wlst_type": "integer"           } ],
+                                    "InsertionPausedAtStartup":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InsertionPausedAtStartup",              "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "JNDIName":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JNDIName",                              "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"            } ],
-                                    "JmsCreateDestinationIdentifier": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Jms:JMS}CreateDestinationIdentifier", "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA"} ],
+                                    "JmsCreateDestinationIdentifier": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Jms:JMS}CreateDestinationIdentifier", "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true"} ],
                                     "LoadBalancingPolicy":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LoadBalancingPolicy",                   "wlst_path": "WP001", "value": {"default": "Round-Robin"     }, "wlst_type": "string"            } ],
                                     "LocalJNDIName":                  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",                         "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"            } ],
                                     "MaximumMessageSize":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MaximumMessageSize",                    "wlst_path": "WP001", "value": {"default": "${0:2147483647}" }, "wlst_type": "integer"           } ],
                                     "MessagingPerformancePreference": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagingPerformancePreference",        "wlst_path": "WP001", "value": {"default": "${50:25}"        }, "wlst_type": "integer"           } ],
                                     "Notes":                          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                                 "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"            } ],
-                                    "ProductionPausedAtStartup":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ProductionPausedAtStartup",             "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
+                                    "ProductionPausedAtStartup":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ProductionPausedAtStartup",             "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "Quota":                          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Quota",                                 "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_quota_mbean",    "set_mbean_type": "weblogic.j2ee.descriptor.wl.QuotaBean"    } ],
                                     "ResetDeliveryCountOnForward":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ResetDeliveryCountOnForward",           "wlst_path": "WP001", "value": {"default": "true"            }, "wlst_type": "boolean"           } ],
-                                    "SafExportPolicy":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy",                "wlst_path": "WP001", "value": {"default": "All"             }, "wlst_type": "string",           "get_method": "LSA"} ],
-                                    "SubDeploymentName":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",                     "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA"} ],
-                                    "Template":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Template",                              "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_template_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.TemplateBean" } ],
-                                    "UnitOfOrderRouting":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",                    "wlst_path": "WP001", "value": {"default": "Hash"            }, "wlst_type": "string",           "get_method": "LSA"} ],
+                                    "SafExportPolicy":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy",                "wlst_path": "WP001", "value": {"default": "All"             }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true"} ],
+                                    "SubDeploymentName":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",                     "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true"} ],
+                                    "Template":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Template",                              "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_template_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.TemplateBean", "restart_required": "true" } ],
+                                    "UnitOfOrderRouting":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",                    "wlst_path": "WP001", "value": {"default": "Hash"            }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true"} ],
                                     "UnitOfWorkHandlingPolicy":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfWorkHandlingPolicy",              "wlst_path": "WP001", "value": {"default": "PassThrough"     }, "wlst_type": "string",           "get_method": "LSA"} ]
                               },
                               "wlst_attributes_path": "WP001",
@@ -872,9 +872,9 @@
                                           "wlst_type": "Multicast",
                                           "folders": {},
                                           "attributes": {
-                                                "MulticastAddress":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
-                                                "MulticastPort":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "value": {"default": 6001  }, "wlst_type": "integer"} ],
-                                                "MulticastTimeToLive": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "value": {"default": 1     }, "wlst_type": "integer"} ]
+                                                "MulticastAddress":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"   } ],
+                                                "MulticastPort":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "value": {"default": 6001  }, "wlst_type": "integer", "restart_required": "true" } ],
+                                                "MulticastTimeToLive": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "value": {"default": 1     }, "wlst_type": "integer", "restart_required": "true" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -898,26 +898,26 @@
                               },
                               "attributes": {
                                     "AttachSender":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AttachSender",                          "wlst_path": "WP001", "value": {"default": "supports"        }, "wlst_type": "string",           "get_method": "LSA"  } ],
-                                    "ConsumptionPausedAtStartup":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConsumptionPausedAtStartup",            "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
-                                    "DefaultTargetingEnabled":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled",               "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "boolean"           } ],
+                                    "ConsumptionPausedAtStartup":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConsumptionPausedAtStartup",            "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true" } ],
+                                    "DefaultTargetingEnabled":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultTargetingEnabled",               "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "DefaultUnitOfOrder":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultUnitOfOrder",                    "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
-                                    "DestinationKey":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DestinationKey${:s}",                   "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "delimited_string", "get_method": "LSA"  } ],
-                                    "ForwardingPolicy":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ForwardingPolicy",                      "wlst_path": "WP001", "value": {"default": "Replicated"      }, "wlst_type": "string",           "get_method": "LSA"  } ],
-                                    "IncompleteWorkExpirationTime":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "IncompleteWorkExpirationTime",          "wlst_path": "WP001", "value": {"default": -1                }, "wlst_type": "integer"           } ],
-                                    "InsertionPausedAtStartup":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InsertionPausedAtStartup",              "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
+                                    "DestinationKey":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DestinationKey${:s}",                   "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "delimited_string", "get_method": "LSA", "restart_required": "true"  } ],
+                                    "ForwardingPolicy":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ForwardingPolicy",                      "wlst_path": "WP001", "value": {"default": "Replicated"      }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true"  } ],
+                                    "IncompleteWorkExpirationTime":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "IncompleteWorkExpirationTime",          "wlst_path": "WP001", "value": {"default": "${0:-1}"         }, "wlst_type": "integer"           } ],
+                                    "InsertionPausedAtStartup":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InsertionPausedAtStartup",              "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "JNDIName":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JNDIName",                              "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"            } ],
-                                    "JmsCreateDestinationIdentifier": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Jms:JMS}CreateDestinationIdentifier", "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA"  } ],
+                                    "JmsCreateDestinationIdentifier": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Jms:JMS}CreateDestinationIdentifier", "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true"  } ],
                                     "LoadBalancingPolicy":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LoadBalancingPolicy",                   "wlst_path": "WP001", "value": {"default": "Round-Robin"     }, "wlst_type": "string"            } ],
                                     "LocalJNDIName":                  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocalJNDIName",                         "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"            } ],
                                     "MaximumMessageSize":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MaximumMessageSize",                    "wlst_path": "WP001", "value": {"default": "${0:2147483647}" }, "wlst_type": "integer"           } ],
                                     "MessagingPerformancePreference": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagingPerformancePreference",        "wlst_path": "WP001", "value": {"default": "${50:25}"        }, "wlst_type": "integer"           } ],
                                     "Notes":                          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                                 "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string"            } ],
-                                    "ProductionPausedAtStartup":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ProductionPausedAtStartup",             "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean"           } ],
+                                    "ProductionPausedAtStartup":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ProductionPausedAtStartup",             "wlst_path": "WP001", "value": {"default": "false"           }, "wlst_type": "boolean",          "restart_required": "true" } ],
                                     "Quota":                          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Quota",                                 "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_quota_mbean",    "set_mbean_type": "weblogic.j2ee.descriptor.wl.QuotaBean"    } ],
-                                    "SafExportPolicy":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy",                "wlst_path": "WP001", "value": {"default": "All"             }, "wlst_type": "string",           "get_method": "LSA"  } ],
-                                    "SubDeploymentName":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",                     "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA"  } ],
-                                    "Template":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Template",                              "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_template_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.TemplateBean" } ],
-                                    "UnitOfOrderRouting":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",                    "wlst_path": "WP001", "value": {"default": "Hash"            }, "wlst_type": "string",           "get_method": "LSA"  } ],
+                                    "SafExportPolicy":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ExportPolicy",                "wlst_path": "WP001", "value": {"default": "All"             }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true" } ],
+                                    "SubDeploymentName":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName",                     "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true" } ],
+                                    "Template":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Template",                              "wlst_path": "WP001", "value": {"default": "None"            }, "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_jms_template_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.TemplateBean", "restart_required": "true" } ],
+                                    "UnitOfOrderRouting":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfOrderRouting",                    "wlst_path": "WP001", "value": {"default": "Hash"            }, "wlst_type": "string",           "get_method": "LSA", "restart_required": "true"  } ],
                                     "UnitOfWorkHandlingPolicy":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UnitOfWorkHandlingPolicy",              "wlst_path": "WP001", "value": {"default": "PassThrough"     }, "wlst_type": "string",           "get_method": "LSA"  } ]
                               },
                               "wlst_attributes_path": "WP001",
@@ -927,8 +927,8 @@
                         }
                   },
                   "attributes": {
-                        "Notes":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",   "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string" } ],
-                        "Version": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Version", "wlst_path": "WP001", "value": {"default": "${0:1}"}, "wlst_type": "integer"} ]
+                        "Notes":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",   "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"   } ],
+                        "Version": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Version", "wlst_path": "WP001", "value": {"default": "${0:1}"}, "wlst_type": "integer", "restart_required": "true"} ]
                   },
                   "wlst_attributes_path": "WP001",
                   "wlst_paths": {
