@@ -341,7 +341,7 @@ public final class VersionUtils {
             LOGGER.throwing(CLASS, METHOD, ve);
             throw ve;
         }
-        LOGGER.exiting(CLASS, METHOD, result);
+        LOGGER.exiting(CLASS, METHOD, Arrays.toString(result));
         return result;
     }
 
