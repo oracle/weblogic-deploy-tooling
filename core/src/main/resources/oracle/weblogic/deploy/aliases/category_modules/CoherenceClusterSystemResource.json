@@ -27,7 +27,7 @@
             }
         },
         "CoherenceResource": {
-            "wlst_type": "${Coherence:}Resource",
+            "wlst_type": "${CoherenceResource:CoherenceClusterResource}",
             "version" : "[12.1.2,)",
             "child_folders_type": "single",
             "folders": {
