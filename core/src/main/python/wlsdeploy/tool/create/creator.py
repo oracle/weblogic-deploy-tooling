@@ -346,7 +346,6 @@ class Creator(object):
             logged_value = wlst_value
             if masked:
                 logged_value = '<masked>'
-            print 'wlst_name ', wlst_name, ' type is ', type(wlst_value)
             self.logger.finest('WLSDPLY-12115', wlst_name, logged_value,
                                class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.set(wlst_name, wlst_value, masked=masked)

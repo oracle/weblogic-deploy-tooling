@@ -8,7 +8,7 @@
             "folders": {},
             "attributes": {
                 "BufferSizeKb":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BufferSize${Kb:KB}",   "wlst_path": "WP001", "value": {"default": 8       }, "wlst_type": "integer" } ],
-                "DateFormatPattern":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DateFormatPattern",    "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"  } ],
+                "DateFormatPattern":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DateFormatPattern",    "wlst_path": "WP001", "value": {"default": "${None:MMM d, yyyy h:mm:ss a z}" }, "wlst_type": "string", "get_method": "${LSA:GET}", "restart_required": "true" } ],
                 "FileCount":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "FileCount",            "wlst_path": "WP001", "value": {"default": 7       }, "wlst_type": "integer" } ],
                 "FileMinSize":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "FileMinSize",          "wlst_path": "WP001", "value": {"default": 500     }, "wlst_type": "integer" } ],
                 "FileName":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "FileName",             "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string", "restart_required": "true" } ],

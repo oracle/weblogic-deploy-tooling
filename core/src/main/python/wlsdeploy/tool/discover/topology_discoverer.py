@@ -259,6 +259,8 @@ class TopologyDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_restful_management_services()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self._get_log_filters()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_domain_log()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_nm_properties()
@@ -341,6 +343,31 @@ class TopologyDiscoverer(Discoverer):
             self._populate_model_parameters(result, location)
             self._discover_subfolders(result, location)
 
+        return model_top_folder_name, result
+
+    def _get_log_filters(self):
+        """
+        Discover the log filters that are used in the different types of Logs in the domain.
+        :return: model name for the folder: dictionary containing the discovered log filters
+        """
+        _method_name = '_get_log_filters'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.LOG_FILTER
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        filters = self._find_names_in_folder(location)
+        if filters is not None:
+            _logger.info('WLSDPLY-06628', len(filters), class_name=_class_name, method_name=_method_name)
+            name_token = self._alias_helper.get_name_token(location)
+            for logfilter in filters:
+                _logger.info('WLSDPLY-06629', logfilter, class_name=_class_name, method_name=_method_name)
+                location.add_name_token(name_token, logfilter)
+                result[logfilter] = OrderedDict()
+                self._populate_model_parameters(result[logfilter], location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
 
     def _get_nm_properties(self):
