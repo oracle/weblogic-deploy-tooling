@@ -500,8 +500,8 @@ class AliasesTestCase(unittest.TestCase):
 
         location.pop_location()
         location.append_location(FOLDERS.JDBC_CONNECTION_POOL_PARAMS)
-        model_attribute_name = 'ProfileConnectionLeakTimeoutSeconds'
-        earliest_version = '12.2.1'
+        model_attribute_name = 'MinCapacity'
+        earliest_version = '10.3.6'
         path = self.aliases.get_model_folder_path(location)
         expected = exception_helper.get_message('WLSDPLY-08207', model_attribute_name, path,
                                                 wls_version, earliest_version)
