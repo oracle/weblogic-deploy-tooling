@@ -18,7 +18,7 @@
                 "Notes":                         [ {"version": "[12.1.2,)",     "wlst_mode": "both",    "wlst_name": "Notes",                        "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"} ],
                 "RuntimeCacheConfigurationUri":  [ {"version": "[12.1.2,)",     "wlst_mode": "offline", "wlst_name": "RuntimeCacheConfigurationUri", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"} ],
                 "Target":                        [ {"version": "[12.1.2,)",     "wlst_mode": "offline", "wlst_name": "Target",                       "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "delimited_string" },
-                                                   {"version": "[12.1.2,)",     "wlst_mode": "online",  "wlst_name": "Targets",                      "wlst_path": "WP002", "value": {"default": "None"}, "wlst_type": "jarray", "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ]
+                                                   {"version": "[12.1.2,)",     "wlst_mode": "online",  "wlst_name": "Targets",                      "wlst_path": "WP002", "value": {"default": "None"}, "wlst_type": "jarray", "preferred_model_type": "delimited_string", "get_method": "GET", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -151,16 +151,16 @@
                         }
                     },
                     "attributes": {
-                        "ClusterListenPort":                [ {"version": "[12.2.1,)",       "wlst_mode": "both",  "wlst_name": "ClusterListenPort",        "wlst_path": "WP001", "value": {"default": 7574       }, "wlst_type": "integer"} ],
-                        "ClusteringMode":                   [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "ClusteringMode",           "wlst_path": "WP001", "value": {"default": "unicast"  }, "wlst_type": "string" } ],
-                        "MulticastListenAddress":           [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "MulticastListenAddress",   "wlst_path": "WP001", "value": {"default": "231.1.1.1"}, "wlst_type": "string" } ],
-                        "MulticastListenPort":              [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "MulticastListenPort",      "wlst_path": "WP001", "value": {"default": "None"     }, "wlst_type": "integer",  "get_method": "LSA"} ],
-                        "SecurityFrameworkEnabled":         [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "SecurityFrameworkEnabled", "wlst_path": "WP001", "value": {"default": "false"    }, "wlst_type": "boolean",  "get_method": "LSA"} ],
-                        "TimeToLive":                       [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "TimeToLive",               "wlst_path": "WP001", "value": {"default": "None"     }, "wlst_type": "integer",  "get_method": "LSA"} ],
-                        "Transport":                        [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "Transport",                "wlst_path": "WP001", "value": {"default": "None"     }, "wlst_type": "string" } ],
-                        "UnicastListenAddress":             [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "UnicastListenAddress",     "wlst_path": "WP001", "value": {"default": "None"     }, "wlst_type": "string",   "get_method": "LSA"} ],
-                        "UnicastListenPort":                [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "UnicastListenPort",        "wlst_path": "WP001", "value": {"default": "None"     }, "wlst_type": "integer",  "get_method": "LSA"} ],
-                        "UnicastPortAutoAdjust":            [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "UnicastPortAutoAdjust",    "wlst_path": "WP001", "value": {"default": "None"     }, "wlst_type": "boolean",  "get_method": "LSA"} ]
+                        "ClusterListenPort":                [ {"version": "[12.2.1,)",       "wlst_mode": "both",  "wlst_name": "ClusterListenPort",        "wlst_path": "WP001", "value": {"default": 7574                 }, "wlst_type": "integer"   } ],
+                        "ClusteringMode":                   [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "ClusteringMode",           "wlst_path": "WP001", "value": {"default": "unicast"            }, "wlst_type": "string"    } ],
+                        "MulticastListenAddress":           [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "MulticastListenAddress",   "wlst_path": "WP001", "value": {"default": "231.1.1.1"          }, "wlst_type": "string"    } ],
+                        "MulticastListenPort":              [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "MulticastListenPort",      "wlst_path": "WP001", "value": {"default": "${None:33387}"      }, "wlst_type": "integer",  "get_method": "LSA"} ],
+                        "SecurityFrameworkEnabled":         [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "SecurityFrameworkEnabled", "wlst_path": "WP001", "value": {"default": "false"              }, "wlst_type": "boolean",  "get_method": "LSA"} ],
+                        "TimeToLive":                       [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "TimeToLive",               "wlst_path": "WP001", "value": {"default": "${None:4}"          }, "wlst_type": "integer",  "get_method": "LSA"} ],
+                        "Transport":                        [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "Transport",                "wlst_path": "WP001", "value": {"default": "${None:udp}"        }, "wlst_type": "string"    } ],
+                        "UnicastListenAddress":             [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "UnicastListenAddress",     "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string",   "get_method": "LSA"} ],
+                        "UnicastListenPort":                [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "UnicastListenPort",        "wlst_path": "WP001", "value": {"default": "${8088:0}"          }, "wlst_type": "integer",  "get_method": "LSA"} ],
+                        "UnicastPortAutoAdjust":            [ {"version": "[12.1.2,)",       "wlst_mode": "both",  "wlst_name": "UnicastPortAutoAdjust",    "wlst_path": "WP001", "value": {"default": "${None:true}"       }, "wlst_type": "boolean",  "get_method": "LSA"} ]
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
@@ -204,10 +204,10 @@
                     "attributes": {
                         "Enabled":           [ {"version": "[12.1.2,)",     "wlst_mode": "both",    "wlst_name": "Enabled",       "wlst_path": "WP001", "value": {"default": "true"                }, "wlst_type": "boolean"} ],
                         "LoggerName":        [ {"version": "[12.1.2,)",     "wlst_mode": "both",    "wlst_name": "LoggerName",    "wlst_path": "WP001", "value": {"default": "com.oracle.coherence"}, "wlst_type": "string" } ],
-                        "MessageFormat":     [ {"version": "[12.1.2,)",     "wlst_mode": "both",    "wlst_name": "MessageFormat", "wlst_path": "WP001", "value": {"default": "{date}/{uptime} {product} {version} &lt;{level}> (thread={thread}, member={member}): {text}"}, "wlst_type": "string"} ]
+                        "MessageFormat":     [ {"version": "[12.1.2,)",     "wlst_mode": "both",    "wlst_name": "MessageFormat", "wlst_path": "WP001", "value": {"default": "{date}/{uptime} {product} {version} &lt;{level}> (thread={thread}, member={member}): {text}"}, "wlst_type": "string", "get_method": "${LSA:GET}" } ]
                     },
                     "wlst_attributes_path": "WP001",
-                    "wlst_paths": {
+                    "wlst_paths": {G
                         "WP001": "/CoherenceClusterSystemResource${:s}/%COHERENCECLUSTER%/${Coherence:}Resource/%COHERENCECLUSTER%/CoherenceLoggingParams/${NO_NAME_0:%COHERENCECLUSTER%}"
                     }
                 }
@@ -243,7 +243,7 @@
         "ReportGroupFile":                     [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "ReportGroupFile",                     "wlst_path": "WP001", "value": {"default": "em/metadata/reports/coherence/report-group.xml"}, "wlst_type": "string"} ],
         "SourcePath":                          [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "SourcePath",                          "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"} ],
         "Target":                              [ {"version": "[12.1.2,)",   "wlst_mode": "offline", "wlst_name": "Target",                              "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "delimited_string" },
-                                                 {"version": "[12.1.2,)",   "wlst_mode": "online",  "wlst_name": "Targets",                             "wlst_path": "WP002", "value": {"default": "None" }, "wlst_type": "jarray",           "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+                                                 {"version": "[12.1.2,)",   "wlst_mode": "online",  "wlst_name": "Targets",                             "wlst_path": "WP002", "value": {"default": "None" }, "wlst_type": "jarray",      "preferred_model_type": "delimited_string", "get_method": "GET", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
         "UsingCustomClusterConfigurationFile": [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "UsingCustomClusterConfigurationFile", "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ]
     },
     "wlst_attributes_path": "WP001",

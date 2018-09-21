@@ -9,10 +9,8 @@
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
-                "LinkDynamicallyCreated":                  [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "LinkDynamicallyCreated",               "wlst_path": "WP001", "value": {"default": "false" },    "wlst_type": "boolean"} ],
                 "LocalJNDIName":                           [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "LocalJNDIName",                        "wlst_path": "WP001", "value": {"default": "None"  },    "wlst_type": "string" } ],
                 "RemoteJNDIName":                          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "RemoteJNDIName",                       "wlst_path": "WP001", "value": {"default": "None"  },    "wlst_type": "string" } ],
-                "LinkName":                                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "LinkName",                             "wlst_path": "WP001", "value": {"default": "false" },    "wlst_type": "boolean"} ],
                 "Notes":                                   [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Notes",                                "wlst_path": "WP001", "value": {"default": "None " },    "wlst_type": "string" } ]
             },
             "wlst_attributes_path": "WP001",

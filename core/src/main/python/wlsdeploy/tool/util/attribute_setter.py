@@ -20,6 +20,7 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 from wlsdeploy.aliases.model_constants import CAPACITY
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import COHERENCE_CLUSTER_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import CONTEXT_REQUEST_CLASS
 from wlsdeploy.aliases.model_constants import DISTRIBUTED_QUEUE
 from wlsdeploy.aliases.model_constants import DISTRIBUTED_TOPIC
@@ -59,6 +60,7 @@ from wlsdeploy.aliases.model_constants import SCRIPT_ACTION
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SELF_TUNING
 from wlsdeploy.aliases.model_constants import SERVER
+from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import SMTP_NOTIFICATION
 from wlsdeploy.aliases.model_constants import SNMP_NOTIFICATION
 from wlsdeploy.aliases.model_constants import TEMPLATE
@@ -291,6 +293,19 @@ class AttributeSetter(object):
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
+    def set_server_template_mbean(self, location, key, value, wlst_value):
+        """
+        Set the Server Template MBean.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if the server template is not found
+        """
+        mbean = self.__find_in_location(LocationContext(), SERVER_TEMPLATE, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
     def set_cluster_mbean(self, location, key, value, wlst_value):
         """
         Set the Cluster MBean.
@@ -301,6 +316,19 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if the cluster is not found
         """
         mbean = self.__find_in_location(LocationContext(), CLUSTER, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_coherence_cluster_mbean(self, location, key, value, wlst_value):
+        """
+        Set the Log Filter MBean.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if store is not found
+        """
+        mbean = self.__find_in_location(LocationContext(), COHERENCE_CLUSTER_SYSTEM_RESOURCE, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
@@ -645,8 +673,8 @@ class AttributeSetter(object):
         Find the domain level log filter with the specified name and return its WLST mbean.
         :param location: the WLST location of the attribute
         :param filter_name: the name of the log filter to find
-        :return: the mbean for the store
-        :raises BundleAwareException of the specified type: if store is not found
+        :return: the mbean for the log filter
+        :raises BundleAwareException of the specified type: if log filter is not found
         """
         method_name = '__find_log_filter_mbean'
         domain_location = self.__get_domain_location(location)

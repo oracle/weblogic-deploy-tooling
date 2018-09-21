@@ -20,8 +20,7 @@
                                                    {"version": "[10.3.4,)",         "wlst_mode": "online" , "wlst_name": "InstalledVMMAdapters",          "wlst_path": "WP001",  "value": {"default": "[]"       }, "wlst_type": "jarray",            "preferred_model_type": "delimited_string", "access": "RO"} ],
                 "ListenAddress":                 [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ListenAddress",                 "wlst_path": "WP001",  "value": {"default": "localhost"}, "wlst_type": "string"             } ],
                 "ListenPort":                    [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ListenPort",                    "wlst_path": "WP001",  "value": {"default": 5556       }, "wlst_type": "integer"            } ],
-                "NMSocketCreateTimeoutInMillis": [ {"version": "[10,12.1.2)",       "wlst_mode": "online",  "wlst_name": "NMSocketCreateTimeoutInMillis", "wlst_path": "WP001",  "value": {"default": 180000     }, "wlst_type": "integer"            } ,
-                                                   {"version": "[12.1.2,)",         "wlst_mode": "both",    "wlst_name": "NMSocketCreateTimeoutInMillis", "wlst_path": "WP001",  "value": {"default": 180000     }, "wlst_type": "integer"            } ],
+                "NMSocketCreateTimeoutInMillis": [ {"version": "[12.1.2,)",         "wlst_mode": "both",    "wlst_name": "NMSocketCreateTimeoutInMillis", "wlst_path": "WP001",  "value": {"default": 180000     }, "wlst_type": "integer"            } ],
                 "NMType":                        [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "NMType",                        "wlst_path": "WP001",  "value": {"default": "SSL"      }, "wlst_type": "string"             } ],
                 "NodeManagerHome":               [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "NodeManagerHome",               "wlst_path": "WP001",  "value": {"default": "None"     }, "wlst_type": "string",            "uses_path_tokens": "true"} ],
                 "Notes":                         [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "Notes",                         "wlst_path": "WP001",  "value": {"default": "None"     }, "wlst_type": "string"             } ],
@@ -38,7 +37,7 @@
     "attributes": {
         "Address": [ {"version": "[10,]", "wlst_mode": "both",   "wlst_name": "Address${:es}", "wlst_path": "WP001",  "value": {"default": ""    }, "wlst_type": "delimited_string"} ],
         "Notes":   [ {"version": "[10,]", "wlst_mode": "both",   "wlst_name": "Notes",         "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string"          } ],
-        "Type":    [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "Type",          "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string",         "access": "RO" } ]
+        "Type":    [ {"version": "[12.2.1,)", "wlst_mode": "online", "wlst_name": "Type",      "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string",         "access": "RO" } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
