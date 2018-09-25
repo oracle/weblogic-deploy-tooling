@@ -210,6 +210,9 @@ class AliasEntries(object):
 
         _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         result = self.__get_dictionary_for_location(location, resolve)
+        # not one caller checks to see if the dictionary returned is None
+        if result is None:
+            result = dict()
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return result
 
