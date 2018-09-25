@@ -13,6 +13,7 @@ from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.aliases import TypeUtils
 
 from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.location_context import LocationContext
 import wlsdeploy.aliases.model_constants as FOLDERS
 from wlsdeploy.aliases.validation_codes import ValidationCodes
@@ -1234,10 +1235,16 @@ class AliasesTestCase(unittest.TestCase):
         wlst_list_path = self.aliases.get_wlst_list_path(location)
         self.assertEqual(wlst_list_path, expected)
 
-        # All the attributes in FOLDERS.NM_PROPERTIES have 'wlst_mode':'offline", so
-        # the default value should be None
+        # NMProperties is an offline only folder and the get_model_attribute_default_value will throw and exception
+        model_attribute_name = 'weblogic.StartScriptName'
+
+        self.assertRaises(AliasException, getattr(self.online_aliases, 'get_model_attribute_default_value'),
+                          location, model_attribute_name)
+
+        # this method will not return an exception but should return a None
+        default_name, default_value = \
+            self.online_aliases.get_wlst_attribute_name_and_value(location, model_attribute_name, 'script')
         expected = None
-        default_value = self.online_aliases.get_model_attribute_default_value(location, 'weblogic.StartScriptName')
         self.assertEqual(default_value, expected)
 
         return
