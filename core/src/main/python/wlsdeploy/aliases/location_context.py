@@ -105,6 +105,22 @@ class LocationContext(object):
             model_folder = model_folder_list[-1]
         return model_folder
 
+    def get_parent_folder_path(self):
+        """
+        Return the parent folder path for the location. This is the parent of the last folder or None if no parent.
+        :return: return the parent folder path
+        """
+        result = None
+        model_folder_list = self.get_model_folders()
+        if model_folder_list:
+            result = ''
+            if len(model_folder_list) > 1:
+                for folder in model_folder_list[-2]:
+                    result += '/' + folder
+            if len(result) == 0:
+                result = '/'
+        return result
+
     def get_name_tokens(self):
         """
         Copy constructor for ``name_tokens`` dictionary of location context.

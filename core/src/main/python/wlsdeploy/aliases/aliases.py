@@ -343,6 +343,11 @@ class Aliases(object):
         wlst_attribute_value = None
 
         module_folder = self._alias_entries.get_dictionary_for_location(location)
+        if not module_folder:
+            self._logger.fine('WLSDPLY-08410', location.get_current_model_folder(), location.get_parent_folder_path(),
+                              WlstModes.from_value(self._wlst_mode), self._wls_version)
+            return wlst_attribute_name, wlst_attribute_value
+
         if ATTRIBUTES not in module_folder:
             ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)

@@ -210,6 +210,9 @@ class AliasEntries(object):
 
         _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         result = self.__get_dictionary_for_location(location, resolve)
+        # not one caller checks to see if the dictionary returned is None
+        if result is None:
+            result = dict()
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return result
 
@@ -1104,6 +1107,18 @@ class AliasEntries(object):
                                                              ve.getLocalizedMessage(), error=ve)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
+
+        if WLST_MODE in alias_dict:
+            dict_wlst_mode = alias_dict[WLST_MODE]
+            mode =  WlstModes.from_value(self._wlst_mode)
+            if not self.__wlst_mode_matches(dict_wlst_mode):
+                _logger.finer('WLSDPLY-08132', path_name, dict_wlst_mode, mode, class_name=_class_name,
+                              method_name=_method_name)
+                if UNRESOLVED_FOLDERS_MAP not in parent_dict:
+                    parent_dict[UNRESOLVED_FOLDERS_MAP] = dict()
+                alias_dict_folder_name = alias_utils.compute_folder_name_from_path(path_name)
+                parent_dict[UNRESOLVED_FOLDERS_MAP][alias_dict_folder_name] = mode
+                return None
 
         result = dict()
         if FOLDERS in alias_dict:
