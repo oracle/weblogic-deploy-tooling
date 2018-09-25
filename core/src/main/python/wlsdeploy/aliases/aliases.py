@@ -343,78 +343,84 @@ class Aliases(object):
         wlst_attribute_value = None
 
         module_folder = self._alias_entries.get_dictionary_for_location(location)
-        if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
-            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
+        if not module_folder:
+            self._logger.fine('WLSDPLY-08410', location.get_current_model_folder(), location.get_parent_folder_path(),
+                              WlstModes.from_value(self._wlst_mode), self._wls_version)
+        else:
+            if ATTRIBUTES not in module_folder:
+                ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
 
-        if model_attribute_name not in module_folder[ATTRIBUTES]:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08401', model_attribute_name,
-                                                         location.get_folder_path())
-            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
+            if model_attribute_name not in module_folder[ATTRIBUTES]:
+                ex = exception_helper.create_alias_exception('WLSDPLY-08401', model_attribute_name,
+                                                             location.get_folder_path())
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
 
-        attribute_info = module_folder[ATTRIBUTES][model_attribute_name]
+            attribute_info = module_folder[ATTRIBUTES][model_attribute_name]
 
-        if attribute_info and not self.__is_model_attribute_read_only(location, attribute_info):
-            password_attribute_name = \
-                password_utils.get_wlst_attribute_name(attribute_info, model_attribute_value, self._wlst_mode)
+            if attribute_info and not self.__is_model_attribute_read_only(location, attribute_info):
+                password_attribute_name = \
+                    password_utils.get_wlst_attribute_name(attribute_info, model_attribute_value, self._wlst_mode)
 
-            if password_attribute_name is not None:
-                wlst_attribute_name = password_attribute_name
-            else:
-                wlst_attribute_name = attribute_info[WLST_NAME]
-
-            if self._model_context and USES_PATH_TOKENS in attribute_info and string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
-                model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
-
-            data_type = attribute_info[WLST_TYPE]
-            if data_type == 'password':
-                try:
-                    wlst_attribute_value = self.__decrypt_password(model_attribute_value)
-                except EncryptionException, ee:
-                    ex = exception_helper.create_alias_exception('WLSDPLY-08402', model_attribute_name,
-                                                                 location.get_folder_path(),
-                                                                 ee.getLocalizedMessage(), error=ee)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                    raise ex
-            else:
-                if data_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES:
-                    merge = True
-                    if MERGE in attribute_info:
-                        merge = alias_utils.convert_boolean(attribute_info[MERGE])
-
-                    if merge and data_type in ALIAS_MAP_TYPES:
-                        model_val = TypeUtils.convertToType(PROPERTIES, model_attribute_value)
-                        existing_val = TypeUtils.convertToType(PROPERTIES, existing_wlst_value)
-                        merged_value = alias_utils.merge_model_and_existing_properties(model_val, existing_val)
-                    elif merge and alias_utils.is_attribute_server_start_arguments(location, model_attribute_name):
-                        merged_value = \
-                            alias_utils.merge_server_start_argument_values(model_attribute_value, existing_wlst_value)
-                    elif merge and existing_wlst_value is not None and len(existing_wlst_value) > 0:
-                        model_val = alias_utils.convert_to_type(LIST, model_attribute_value,
-                                                                delimiter=MODEL_LIST_DELIMITER)
-
-                        _read_type, read_delimiter = \
-                            alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(attribute_info,
-                                                                                                 existing_wlst_value)
-                        existing_val = alias_utils.convert_to_type(LIST, existing_wlst_value, delimiter=read_delimiter)
-                        merged_value = alias_utils.merge_model_and_existing_lists(model_val, existing_val)
-                    else:
-                        merged_value = model_attribute_value
-
-                    if data_type == JARRAY:
-                        subtype = 'java.lang.String'
-                        if SET_MBEAN_TYPE in attribute_info:
-                            subtype = attribute_info[SET_MBEAN_TYPE]
-                        wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value, subtype=subtype,
-                                                                           delimiter=MODEL_LIST_DELIMITER)
-                    else:
-                        wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value,
-                                                                           delimiter=MODEL_LIST_DELIMITER)
+                if password_attribute_name is not None:
+                    wlst_attribute_name = password_attribute_name
                 else:
-                    wlst_attribute_value = alias_utils.convert_to_type(data_type, model_attribute_value,
-                                                                       delimiter=MODEL_LIST_DELIMITER)
+                    wlst_attribute_name = attribute_info[WLST_NAME]
+
+                if self._model_context and USES_PATH_TOKENS in attribute_info\
+                        and string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
+                    model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
+
+                data_type = attribute_info[WLST_TYPE]
+                if data_type == 'password':
+                    try:
+                        wlst_attribute_value = self.__decrypt_password(model_attribute_value)
+                    except EncryptionException, ee:
+                        ex = exception_helper.create_alias_exception('WLSDPLY-08402', model_attribute_name,
+                                                                     location.get_folder_path(),
+                                                                     ee.getLocalizedMessage(), error=ee)
+                        self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                        raise ex
+                else:
+                    if data_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES:
+                        merge = True
+                        if MERGE in attribute_info:
+                            merge = alias_utils.convert_boolean(attribute_info[MERGE])
+
+                        if merge and data_type in ALIAS_MAP_TYPES:
+                            model_val = TypeUtils.convertToType(PROPERTIES, model_attribute_value)
+                            existing_val = TypeUtils.convertToType(PROPERTIES, existing_wlst_value)
+                            merged_value = alias_utils.merge_model_and_existing_properties(model_val, existing_val)
+                        elif merge and alias_utils.is_attribute_server_start_arguments(location, model_attribute_name):
+                            merged_value = alias_utils.merge_server_start_argument_values(model_attribute_value,
+                                                                                          existing_wlst_value)
+                        elif merge and existing_wlst_value is not None and len(existing_wlst_value) > 0:
+                            model_val = alias_utils.convert_to_type(LIST, model_attribute_value,
+                                                                    delimiter=MODEL_LIST_DELIMITER)
+
+                            _read_type, read_delimiter = \
+                                alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(attribute_info,
+                                                                                                     existing_wlst_value)
+                            existing_val = alias_utils.convert_to_type(LIST, existing_wlst_value,
+                                                                       delimiter=read_delimiter)
+                            merged_value = alias_utils.merge_model_and_existing_lists(model_val, existing_val)
+                        else:
+                            merged_value = model_attribute_value
+
+                        if data_type == JARRAY:
+                            subtype = 'java.lang.String'
+                            if SET_MBEAN_TYPE in attribute_info:
+                                subtype = attribute_info[SET_MBEAN_TYPE]
+                            wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value, subtype=subtype,
+                                                                               delimiter=MODEL_LIST_DELIMITER)
+                        else:
+                            wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value,
+                                                                               delimiter=MODEL_LIST_DELIMITER)
+                    else:
+                        wlst_attribute_value = alias_utils.convert_to_type(data_type, model_attribute_value,
+                                                                           delimiter=MODEL_LIST_DELIMITER)
 
         return wlst_attribute_name, wlst_attribute_value
 

@@ -70,6 +70,7 @@ class ListTestCase(unittest.TestCase):
         VERSION,
         WLST_CREATE_PATH,
         WLST_LIST_PATH,
+        WLST_MODE,
         WLST_SUBFOLDERS_PATH
     ]
 
@@ -276,6 +277,7 @@ class ListTestCase(unittest.TestCase):
             result.append(self._get_invalid_dictionary_type_message(folder_name, WLST_PATHS, attribute_value))
         return result
 
+
     def _verify_folder_wlst_type_attribute_type(self, folder_name, attribute_value):
         result = []
         if type(attribute_value) is not str:
@@ -339,6 +341,19 @@ class ListTestCase(unittest.TestCase):
         result = []
         if type(attribute_value) is not str:
             result.append(self._get_invalid_string_type_message(folder_name, VERSION, attribute_value))
+        return result
+
+    def _verify_folder_wlst_mode_attribute_value(self, folder_name, attribute_value):
+        result = []
+        if type(attribute_value) is not str:
+            message = self._get_invalid_attribute_string_type_message(folder_name, folder_name,
+                                                                      WLST_MODE, attribute_value)
+            result.append(message)
+        else:
+            # curly braces not allowed in wlst_mode
+            if attribute_value not in self._known_wlst_mode_attribute_values:
+                message = self._get_invalid_wlst_mode_message(folder_name, attribute_value)
+                result.append(message)
         return result
 
     def _verify_folder_wlst_create_path_attribute_value(self, folder_name, attribute_value):
@@ -652,6 +667,12 @@ class ListTestCase(unittest.TestCase):
                'be a boolean but its string value %s is not a valid boolean value'
 
         return  text % (folder_name, attribute_name, alias_attribute_name, alias_attribute_value)
+
+
+    def _get_invalid_wlst_mode_message(self, folder_name, alias_attribute_name):
+        text = 'Folder at path %s has invalid wlst mode type of %s'
+        result = text %(folder_name, alias_attribute_name)
+        return result
 
     def _get_empty_constrained_value_message(self, folder_name, attribute_name, alias_attribute_name, wlst_mode=None):
         if wlst_mode is None:
