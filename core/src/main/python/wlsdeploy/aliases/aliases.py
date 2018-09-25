@@ -370,8 +370,7 @@ class Aliases(object):
             else:
                 wlst_attribute_name = attribute_info[WLST_NAME]
 
-            if self._model_context and USES_PATH_TOKENS in attribute_info\
-                    and string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
+            if self._model_context and USES_PATH_TOKENS in attribute_info and string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
                 model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
 
             data_type = attribute_info[WLST_TYPE]
@@ -395,8 +394,8 @@ class Aliases(object):
                         existing_val = TypeUtils.convertToType(PROPERTIES, existing_wlst_value)
                         merged_value = alias_utils.merge_model_and_existing_properties(model_val, existing_val)
                     elif merge and alias_utils.is_attribute_server_start_arguments(location, model_attribute_name):
-                        merged_value = alias_utils.merge_server_start_argument_values(model_attribute_value,
-                                                                                      existing_wlst_value)
+                        merged_value = \
+                            alias_utils.merge_server_start_argument_values(model_attribute_value, existing_wlst_value)
                     elif merge and existing_wlst_value is not None and len(existing_wlst_value) > 0:
                         model_val = alias_utils.convert_to_type(LIST, model_attribute_value,
                                                                 delimiter=MODEL_LIST_DELIMITER)
@@ -404,8 +403,7 @@ class Aliases(object):
                         _read_type, read_delimiter = \
                             alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(attribute_info,
                                                                                                  existing_wlst_value)
-                        existing_val = alias_utils.convert_to_type(LIST, existing_wlst_value,
-                                                                   delimiter=read_delimiter)
+                        existing_val = alias_utils.convert_to_type(LIST, existing_wlst_value, delimiter=read_delimiter)
                         merged_value = alias_utils.merge_model_and_existing_lists(model_val, existing_val)
                     else:
                         merged_value = model_attribute_value
