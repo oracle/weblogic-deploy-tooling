@@ -111,7 +111,10 @@ class AliasEntries(object):
         'UnixMachine': 'UnixMachine',
         'VirtualHost': 'VirtualHost',
         'VirtualTarget': 'VirtualTarget',
-        'WLDFSystemResource': 'WLDFSystemResource'
+        'WLDFSystemResource': 'WLDFSystemResource',
+        'WSReliableDeliveryPolicy': 'WSReliableDeliveryPolicy',
+        'XMLEntityCache': 'XMLEntityCache',
+        'XMLRegistry': 'XMLRegistry'
     }
 
     __topology_top_level_folders = [
@@ -130,7 +133,10 @@ class AliasEntries(object):
         'ServerTemplate',
         'UnixMachine',
         'VirtualHost',
-        'VirtualTarget'
+        'VirtualTarget',
+        'WSReliableDeliveryPolicy',
+        'XMLEntityCache',
+        'XMLRegistry'
     ]
 
     __resources_top_level_folders = [

@@ -70,6 +70,9 @@ from wlsdeploy.aliases.model_constants import UNIFORM_DISTRIBUTED_QUEUE
 from wlsdeploy.aliases.model_constants import UNIFORM_DISTRIBUTED_TOPIC
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.aliases.model_constants import WATCH_NOTIFICATION
+from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
+from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
+from wlsdeploy.aliases.model_constants import XML_REGISTRY
 
 
 class AttributeSetter(object):
@@ -395,7 +398,59 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if store is not found
         """
-        mbean = self.__find_log_filter_mbean(location, value)
+        mbean = self.__find_in_location(LocationContext(), LOG_FILTER, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_jms_server_mbean(self, location, key, value, wlst_value):
+        """
+        For those entities, such as WLSReliableDeliveryPolicy, that take a single JMS Server mbean.
+        :param location: location to look for jms server
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if jms server mbean is not found.
+        """
+        mbean = self.__find_in_location(LocationContext(), JMS_SERVER, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_reliable_delivery_policy_mbean(self, location, key, value, wlst_value):
+        """
+        Sets the ws soap reliable delivery policy mbean used by mbeans like Server and Server Template.
+        :param location: location to look for reliable delivery policy
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if reliable delivery policy mbean is not found.
+        """
+        mbean = self.__find_in_location(LocationContext(), WS_RELIABLE_DELIVERY_POLICY, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_xml_entity_cache_mbean(self, location, key, value, wlst_value):
+        """
+        Sets the XML cache mbean used by topology entities such as Server.
+        :param location: location to look for reliable delivery policy
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if xml entity cache mbean is not found.
+        """
+        mbean = self.__find_in_location(LocationContext(), XML_ENTITY_CACHE, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_xml_registry_mbean(self, location, key, value, wlst_value):
+        """
+        Sets the XML registry mbean used by topology entities such as Server.
+        :param location: location to look for reliable delivery policy
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if xml registry mbean is not found.
+        """
+        mbean = self.__find_in_location(LocationContext(), XML_REGISTRY, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
@@ -668,25 +723,6 @@ class AttributeSetter(object):
         self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
         raise ex
 
-    def __find_log_filter_mbean(self, location, filter_name):
-        """
-        Find the domain level log filter with the specified name and return its WLST mbean.
-        :param location: the WLST location of the attribute
-        :param filter_name: the name of the log filter to find
-        :return: the mbean for the log filter
-        :raises BundleAwareException of the specified type: if log filter is not found
-        """
-        method_name = '__find_log_filter_mbean'
-        domain_location = self.__get_domain_location(location)
-        mbean = self.__find_in_location(domain_location, LOG_FILTER, filter_name)
-        if mbean is not None:
-            return mbean
-
-        ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19208', filter_name,
-                                               location.get_folder_path())
-        self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
-        raise ex
-
     def __find_saf_destination_mbean(self, location, destination_name):
         """
         Find the SAF destination with the specified name and return its WLST mbean.
@@ -851,7 +887,6 @@ class AttributeSetter(object):
     def __merge_existing_items(self, items, existing_value):
         """
         Merge the specified items with the items represented by existing value, and return the result.
-        :param location: the location
         :param items: the attribute name
         :param existing_value: the value representing the existing items (may be a string or list)
         :return: the merged list of items

@@ -261,6 +261,12 @@ class TopologyDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_log_filters()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self._get_reliable_delivery_policies()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self._get_xml_entity_caches()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self._get_xml_registries()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_domain_log()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_nm_properties()
@@ -365,6 +371,81 @@ class TopologyDiscoverer(Discoverer):
                 location.add_name_token(name_token, logfilter)
                 result[logfilter] = OrderedDict()
                 self._populate_model_parameters(result[logfilter], location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
+    def _get_reliable_delivery_policies(self):
+        """
+        Discover the reliable delivery policies that are used for soap message delivery in the servers.
+        :return: model name for the folder: dictionary containing the discovered ws reliable delivery policies
+        """
+        _method_name = '_get_reliable_delivery_policies'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.WS_RELIABLE_DELIVERY_POLICY
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        policies = self._find_names_in_folder(location)
+        if policies is not None:
+            _logger.info('WLSDPLY-06630', len(policies), class_name=_class_name, method_name=_method_name)
+            name_token = self._alias_helper.get_name_token(location)
+            for policy in policies:
+                _logger.info('WLSDPLY-06631', policy, class_name=_class_name, method_name=_method_name)
+                location.add_name_token(name_token, policy)
+                result[policy] = OrderedDict()
+                self._populate_model_parameters(result[policy], location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
+    def _get_xml_entity_caches(self):
+        """
+        Discover the XML entity caches that are used by the servers in the domain.
+        :return: model name for the folder: dictionary containing the discovered xml entity caches
+        """
+        _method_name = '_get_xml_entity_caches'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.XML_ENTITY_CACHE
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        caches = self._find_names_in_folder(location)
+        if caches is not None:
+            _logger.info('WLSDPLY-06632', len(caches), class_name=_class_name, method_name=_method_name)
+            name_token = self._alias_helper.get_name_token(location)
+            for cache in caches:
+                _logger.info('WLSDPLY-06633', cache, class_name=_class_name, method_name=_method_name)
+                location.add_name_token(name_token, cache)
+                result[cache] = OrderedDict()
+                self._populate_model_parameters(result[cache], location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
+    def _get_xml_registries(self):
+        """
+        Discover the XML registries that are used by the servers.
+        :return: model name for the folder: dictionary containing the discovered log xml registries
+        """
+        _method_name = '_get_xml_registries'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.XML_REGISTRY
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        registries = self._find_names_in_folder(location)
+        if registries is not None:
+            _logger.info('WLSDPLY-06634', len(registries), class_name=_class_name, method_name=_method_name)
+            name_token = self._alias_helper.get_name_token(location)
+            for registry in registries:
+                _logger.info('WLSDPLY-06635', registry, class_name=_class_name, method_name=_method_name)
+                location.add_name_token(name_token, registry)
+                result[registry] = OrderedDict()
+                self._populate_model_parameters(result[registry], location)
                 location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
@@ -505,11 +586,12 @@ class TopologyDiscoverer(Discoverer):
         _method_name = '_add_keystore_file_to_archive'
         _logger.entering(model_name, str(location), class_name=_class_name, method_name=_method_name)
         server_name = self._get_server_name_from_location(location)
-        archive_file = self._model_context.get_archive_file()
         _logger.finer('WLSDPLY-06223', model_value, server_name, class_name=_class_name, method_name=_method_name)
+        archive_file = self._model_context.get_archive_file()
         file_path = self._convert_path(model_value)
         new_name = None
-        try:6
+        try:
+            archive_file.addServerKeyStoreFile(server_name, File(file_path))
         except IllegalArgumentException, iae:
             _logger.warning('WLSDPLY-06624', server_name, file_path, iae.getLocalizedMessage(),
                             class_name=_class_name, method_name=_method_name)
