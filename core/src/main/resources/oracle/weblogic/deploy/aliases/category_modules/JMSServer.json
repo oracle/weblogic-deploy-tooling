@@ -56,7 +56,7 @@
                 "NumberOfFilesLimited":            [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "NumberOfFilesLimited",  "wlst_path": "WP001", "value": {"default": "true"                   }, "wlst_type": "boolean"  } ],
                 "RotateLogOnStartup":              [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "RotateLogOnStartup",    "wlst_path": "WP001", "value": {"default": "true"                   }, "wlst_type": "boolean"  } ],
                 "RotationTime":                    [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "RotationTime",          "wlst_path": "WP001", "value": {"default": "00:00"                  }, "wlst_type": "string"   } ],
-                "RotationType":                    [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "RotationType",          "wlst_path": "WP001", "value": {"default": "bySize"                 }, "wlst_type": "string"   } ]
+                "RotationType":                    [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "RotationType",          "wlst_path": "WP001", "value": {"default": "${None:bySize}"         }, "wlst_type": "string"   } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -66,7 +66,7 @@
     },
     "attributes": {
         "AllowsPersistentDowngrade":         [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "AllowsPersistentDowngrade",          "wlst_path": "WP001", "value": {"default": "false"                   },   "wlst_type": "boolean"          } ],
-        "BlockingSendPolicy":                [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "BlockingSendPolicy",                 "wlst_path": "WP001", "value": {"default": "FIFO"                    },   "wlst_type": "string"           } ],
+        "BlockingSendPolicy":                [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "BlockingSendPolicy",                 "wlst_path": "WP001", "value": {"default": "${None:FIFO}"            },   "wlst_type": "string"           } ],
         "BytesMaximum":                      [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "BytesMaximum",                       "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "long"             } ],
         "BytesPagingEnabled":                [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "BytesPagingEnabled",                 "wlst_path": "WP001", "value": {"default": "false"                   },   "wlst_type": "boolean",         "restart_required": "true" } ],
         "BytesThresholdHigh":                [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "BytesThresholdHigh",                 "wlst_path": "WP001", "value": {"default": -1                        },   "wlst_type": "long"             } ],

@@ -422,7 +422,7 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(model_attribute_value, boolean_values[1])
 
         # get model attribute value should return the value only if its NOT the default
-        string_value = [0, None]
+        string_value = [None, None]
         wlst_attribute_name = 'RowPrefetchSize'
         wlst_attribute_value = string_value[0]
         model_attribute_name, model_attribute_value = \
