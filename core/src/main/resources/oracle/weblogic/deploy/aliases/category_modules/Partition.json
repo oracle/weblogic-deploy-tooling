@@ -59,8 +59,8 @@
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
-                "EncryptedValueEncrypted": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "EncryptedValueEncrypted", "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "password", "get_method": "GET" } ],
-                "EncryptedValueRequired":  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "EncryptedValueRequired",  "wlst_path": "WP001", "value": { "default": "false" }, "wlst_type": "boolean"    } ],
+                "EncryptedValueEncrypted": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "EncryptedValueEncrypted", "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "password", "get_method": "GET", "access": "RO" } ],
+                "EncryptValueRequired":    [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "EncryptValueRequired",    "wlst_path": "WP001", "value": { "default": "false" }, "wlst_type": "boolean"    } ],
                 "Notes":                   [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string"     } ],
                 "Value":                   [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Value",                   "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string"     } ]
             },
@@ -141,10 +141,10 @@
                 }
             },
             "attributes": {
-                "DataSourceName":          [ {"version": "[12.2.1,)", "wlst_mode": "online", "wlst_name": "DataSourceName",        "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string",    "get_method": "GET" } ],
-                "InitialCapacity":         [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "InitialCapacity",         "wlst_path": "WP001", "value": { "default": -1      }, "wlst_type": "integer"    } ],
-                "MaxCapacity":             [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MaxCapacity",             "wlst_path": "WP001", "value": { "default": -1      }, "wlst_type": "integer"    } ],
-                "MinCapacity":             [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MinCapacity",             "wlst_path": "WP001", "value": { "default": -1      }, "wlst_type": "integer"    } ],
+                "DataSourceName":          [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "DataSourceName",          "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string",    "get_method": "${LSA:GET}" } ],
+                "InitialCapacity":         [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "InitialCapacity",         "wlst_path": "WP001", "value": { "default": -1      }, "wlst_type": "integer"    } ],
+                "MaxCapacity":             [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "MaxCapacity",             "wlst_path": "WP001", "value": { "default": -1      }, "wlst_type": "integer"    } ],
+                "MinCapacity":             [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "MinCapacity",             "wlst_path": "WP001", "value": { "default": -1      }, "wlst_type": "integer"    } ],
                 "Notes":                   [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string"     } ],
                 "PasswordEncrypted":       [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "PasswordEncrypted",       "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "password",  "get_method": "GET" } ],
                 "Url":                     [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "${Url:URL}",              "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string"     } ],
@@ -237,8 +237,8 @@
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
             "attributes": {
-                "TimeoutSeconds": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "TimeoutSeconds", "wlst_path": "WP001", "value": { "default": 30     }, "wlst_type": "integer"} ],
-                "Notes":          [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",          "wlst_path": "WP001", "value": { "default": "None" }, "wlst_type": "string" } ]
+                "TimeoutSeconds": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "TimeoutSeconds", "wlst_path": "WP001", "value": { "default": "${0:30}" }, "wlst_type": "integer"} ],
+                "Notes":          [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",          "wlst_path": "WP001", "value": { "default": "None"    }, "wlst_type": "string" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -253,7 +253,7 @@
             "attributes": {
                 "Notes":                    [ {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "Notes",                        "wlst_path": "WP001", "value": {"default": "None"},    "wlst_type": "string"           } ],
                 "Properties":               [ {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "Properties",                   "wlst_path": "WP001", "value": {"default": "None"},    "wlst_type": "properties",      "wlst_read_type": "delimited_string[semicolon]", "get_method": "LSA" } ],
-                "SessionPasswordEncrypted": [ {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "SessionPasswordEncrypted",     "wlst_path": "WP001", "value": {"default": "None"},    "wlst_type": "password",        "get_method": "GET"} ],
+                "SessionPasswordEncrypted": [ {"version": "[12.2.1,)",     "wlst_mode": "offline", "wlst_name": "SessionPasswordEncrypted",     "wlst_path": "WP001", "value": {"default": "None"},    "wlst_type": "password",        "get_method": "${LSA:GET}"} ],
                 "SessionUsername":          [ {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "SessionUsername",              "wlst_path": "WP001", "value": {"default": "None"},    "wlst_type": "credential"       } ]
             },
             "wlst_attributes_path": "WP001",
@@ -268,9 +268,9 @@
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
             "attributes": {
-                "EnabledServerDebugAttributes":    [ {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "EnabledServerDebugAttributes",   "wlst_path": "WP001", "value": {"default": "[]"},      "wlst_type": "${list:jarray}",  "get_method": "GET" } ],
-                "Notes":                           [ {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "Notes",                          "wlst_path": "WP001", "value": {"default": "None"},    "wlst_type": "string"           } ],
-                "PlatformLoggerLevels":            [ {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "PlatformLoggerLevels",           "wlst_path": "WP001", "value": {"default": "None"},    "wlst_type": "properties",      "preferred_model_type": "dict", "get_method": "GET" } ]
+                "EnabledServerDebugAttribute":     [ {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "EnabledServerDebugAttribute${:s}", "wlst_path": "WP001", "value": {"default": "[]"},      "wlst_type": "${list:jarray}",  "get_method": "${LSA:GET}" } ],
+                "Notes":                           [ {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "Notes",                            "wlst_path": "WP001", "value": {"default": "None"},    "wlst_type": "string"           } ],
+                "PlatformLoggerLevels":            [ {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "PlatformLoggerLevels",             "wlst_path": "WP001", "value": {"default": "None"},    "wlst_type": "properties",      "preferred_model_type": "dict", "get_method": "GET" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -359,9 +359,9 @@
                         }
                     },
                     "attributes": {
-                        "Notes":                  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",            "wlst_path": "WP001", "value": { "default": "None"    }, "wlst_type": "string"  } ],
-                        "RetryCount":             [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "RetryCount",       "wlst_path": "WP001", "value": { "default": 3         }, "wlst_type": "integer" } ],
-                        "RetryDelay":             [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "RetryDelay",       "wlst_path": "WP001", "value": { "default": "P0DT30S" }, "wlst_type": "string"  } ]
+                        "Notes":                  [ {"version": "[12.2.1,)", "wlst_mode": "both",    "wlst_name": "Notes",            "wlst_path": "WP001", "value": { "default": "None"    }, "wlst_type": "string"  } ],
+                        "RetryCount":             [ {"version": "[12.2.1,)", "wlst_mode": "online",  "wlst_name": "RetryCount",       "wlst_path": "WP001", "value": { "default": 3         }, "wlst_type": "integer" } ],
+                        "RetryDelay":             [ {"version": "[12.2.1,)", "wlst_mode": "both",    "wlst_name": "RetryDelay",       "wlst_path": "WP001", "value": { "default": "P0DT30S" }, "wlst_type": "string"  } ]
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
@@ -541,8 +541,8 @@
         "BatchJobsDataSourceJndiName":           [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "BatchJobsDataSourceJndiName",             "wlst_path": "WP001", "value": { "default": "None"           }, "wlst_type": "string"            } ],
         "BatchJobsExecutorServiceName":          [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "BatchJobsExecutorServiceName",            "wlst_path": "WP001", "value": { "default": "None"           }, "wlst_type": "string"            } ],
         "DataSourceForJobScheduler":             [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "DataSourceForJobScheduler",               "wlst_path": "WP001", "value": { "default": "None"           }, "wlst_type": "string",           "set_method": "${:MBEAN.set_data_source_mbean}", "set_mbean_type": "${:weblogic.management.configuration.JDBCSystemResourceMBean}" } ],
-        "DefaultTargets":                        [ {"version": "[12.2.1,12.2.1.1)", "wlst_mode": "offline", "wlst_name": "DefaultTargets",                          "wlst_path": "WP001", "value": { "default": "[]"             }, "wlst_type": "jarray",           "preferred_model_type": "delimited_string", "get_method": "GET",        "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" },
-                                                   {"version": "[12.2.1.1,)",       "wlst_mode": "offline", "wlst_name": "DefaultTargets",                          "wlst_path": "WP001", "value": { "default": "[]"             }, "wlst_type": "delimited_string",                                             "get_method": "LSA",        "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" },
+        "DefaultTargets":                        [ {"version": "[12.2.1,12.2.1.1)", "wlst_mode": "offline", "wlst_name": "DefaultTargets",                          "wlst_path": "WP001", "value": { "default": "None"           }, "wlst_type": "jarray",           "preferred_model_type": "delimited_string", "get_method": "GET",        "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" },
+                                                   {"version": "[12.2.1.1,)",       "wlst_mode": "offline", "wlst_name": "DefaultTargets",                          "wlst_path": "WP001", "value": { "default": "None"           }, "wlst_type": "delimited_string",                                             "get_method": "LSA",        "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" },
                                                    {"version": "[12.2.1,)",         "wlst_mode": "online",  "wlst_name": "DefaultTargets",                          "wlst_path": "WP001", "value": { "default": "[]"             }, "wlst_type": "jarray",           "preferred_model_type": "delimited_string", "get_method": "GET",        "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" } ],
         "EagerTrackingOfResourceMetricsEnabled": [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "EagerTrackingOfResourceMetricsEnabled",   "wlst_path": "WP001", "value": { "default": "false"          }, "wlst_type": "boolean"           } ],
         "GracefulShutdownTimeout":               [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "GracefulShutdownTimeout",                 "wlst_path": "WP001", "value": { "default": 0                }, "wlst_type": "integer"           } ],
