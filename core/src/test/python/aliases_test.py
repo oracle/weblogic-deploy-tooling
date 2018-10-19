@@ -1214,11 +1214,7 @@ class AliasesTestCase(unittest.TestCase):
         token = self.aliases.get_name_token(location)
         location.add_name_token(token, 'DemoDomain')
 
-        expected = 'true'
-        default_value = self.aliases.get_model_attribute_default_value(location, 'RotateLogOnStartup')
-        self.assertEqual(default_value, expected)
-
-        expected = 'true'
+        expected = 'false'
         default_value = self.online_aliases.get_model_attribute_default_value(location, 'RotateLogOnStartup')
         self.assertEqual(default_value, expected)
 
