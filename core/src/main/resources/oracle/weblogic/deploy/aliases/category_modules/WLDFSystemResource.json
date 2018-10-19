@@ -141,11 +141,11 @@
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
-                                "Enabled":       [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Enabled",       "wlst_path": "WP001",  "value": {"default": "true"}, "wlst_type": "boolean" } ],
-                                "Message":       [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Message",       "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string"  } ],
-                                "Severity":      [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Severity",      "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string"  } ],
-                                "SubsystemName": [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "SubsystemName", "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string"  } ],
-                                "Timeout":       [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Timeout",       "wlst_path": "WP001",  "value": {"default": 0     }, "wlst_type": "integer" } ]
+                                "Enabled":       [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Enabled",       "wlst_path": "WP001",  "value": {"default": "true"                }, "wlst_type": "boolean" } ],
+                                "Message":       [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Message",       "wlst_path": "WP001",  "value": {"default": "None"                }, "wlst_type": "string"  } ],
+                                "Severity":      [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Severity",      "wlst_path": "WP001",  "value": {"default": "${None:Notice}"      }, "wlst_type": "string"  } ],
+                                "SubsystemName": [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "SubsystemName", "wlst_path": "WP001",  "value": {"default": "None"                }, "wlst_type": "string"  } ],
+                                "Timeout":       [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Timeout",       "wlst_path": "WP001",  "value": {"default": 0                     }, "wlst_type": "integer" } ]
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
@@ -158,15 +158,15 @@
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
-                                "AcceptedResponseType":                [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "AcceptedResponseType",                    "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string"      } ],
-                                "CustomNotificationProperties":        [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "CustomNotificationProperties",            "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "properties", "preferred_model_type": "dict", "get_method": "GET" } ],
-                                "Enabled":                             [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Enabled",                                 "wlst_path": "WP001",  "value": {"default": "true"}, "wlst_type": "boolean"     } ],
-                                "EndpointUrl":                         [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Endpoint${Url:URL}",                      "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string"      } ],
-                                "HttpAuthenticationMode":              [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "HttpAuthenticationMode",                  "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string"      } ],
-                                "HttpAuthenticationPasswordEncrypted": [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "HttpAuthenticationPasswordEncrypted",     "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "password",   "get_method": "GET" } ],
-                                "HttpAuthenticationUserName":          [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "HttpAuthenticationUserName",              "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "credential"  } ],
-                                "RestInvocationMethodType":            [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "RestInvocationMethodType",                "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string"      } ],
-                                "Timeout":                             [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Timeout",                                 "wlst_path": "WP001",  "value": {"default": 0     }, "wlst_type": "integer"     } ]
+                                "AcceptedResponseType":                [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "AcceptedResponseType",                    "wlst_path": "WP001",  "value": {"default": "${None:application/json}"   }, "wlst_type": "string"      } ],
+                                "CustomNotificationProperties":        [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "CustomNotificationProperties",            "wlst_path": "WP001",  "value": {"default": "None"                       }, "wlst_type": "properties", "preferred_model_type": "dict", "get_method": "GET" } ],
+                                "Enabled":                             [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Enabled",                                 "wlst_path": "WP001",  "value": {"default": "true"                       }, "wlst_type": "boolean"     } ],
+                                "EndpointUrl":                         [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Endpoint${Url:URL}",                      "wlst_path": "WP001",  "value": {"default": "None"                       }, "wlst_type": "string"      } ],
+                                "HttpAuthenticationMode":              [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "HttpAuthenticationMode",                  "wlst_path": "WP001",  "value": {"default": "None"                       }, "wlst_type": "string"      } ],
+                                "HttpAuthenticationPasswordEncrypted": [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "HttpAuthenticationPasswordEncrypted",     "wlst_path": "WP001",  "value": {"default": "None"                       }, "wlst_type": "password",   "get_method": "GET" } ],
+                                "HttpAuthenticationUserName":          [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "HttpAuthenticationUserName",              "wlst_path": "WP001",  "value": {"default": "None"                       }, "wlst_type": "credential"  } ],
+                                "RestInvocationMethodType":            [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "RestInvocationMethodType",                "wlst_path": "WP001",  "value": {"default": "${None:PUT}"                }, "wlst_type": "string"      } ],
+                                "Timeout":                             [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Timeout",                                 "wlst_path": "WP001",  "value": {"default": 0                            }, "wlst_type": "integer"     } ]
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
@@ -213,7 +213,7 @@
                             "attributes": {
                                 "Enabled":          [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Enabled",          "wlst_path": "WP001",  "value": {"default": "true"}, "wlst_type": "boolean"                     } ],
                                 "Environment":      [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Environment",      "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "properties",                 "preferred_model_type": "dict", "get_method" : "GET" } ],
-                                "Parameter":        [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Parameter${:s}",   "wlst_path": "WP001",  "value": {"default": "[]"  }, "wlst_type": "${list:jarray}",             "preferred_model_type": "delimited_string[comma]", "merge": false } ],
+                                "Parameter":        [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Parameter${:s}",   "wlst_path": "WP001",  "value": {"default": "[]"  }, "wlst_type": "${list:jarray}",             "preferred_model_type": "delimited_string", "get_method": "GET", "merge": false } ],
                                 "PathToScript":     [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "PathToScript",     "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string",                     "uses_path_tokens": "true" } ],
                                 "Timeout":          [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Timeout",          "wlst_path": "WP001",  "value": {"default": 0     }, "wlst_type": "integer"                     } ],
                                 "WorkingDirectory": [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "WorkingDirectory", "wlst_path": "WP001",  "value": {"default": "None"}, "wlst_type": "string",                     "uses_path_tokens": "true" } ]
@@ -259,10 +259,11 @@
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
-                                "Enabled":                [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Enabled",                "wlst_path": "WP001",  "value": {"default": "true"}, "wlst_type": "boolean" } ],
-                                "ThreadDumpCount":        [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "ThreadDumpCount",        "wlst_path": "WP001",  "value": {"default": 3     }, "wlst_type": "integer" } ],
-                                "ThreadDumpDelaySeconds": [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "ThreadDumpDelaySeconds", "wlst_path": "WP001",  "value": {"default": 10    }, "wlst_type": "integer" } ],
-                                "Timeout":                [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Timeout",                "wlst_path": "WP001",  "value": {"default": 0     }, "wlst_type": "integer" } ]
+                                "Enabled":                [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "Enabled",                "wlst_path": "WP001",  "value": {"default": "true"}, "wlst_type": "boolean" } ],
+                                "ThreadDumpCount":        [ {"version": "[12.2.1.1,)", "wlst_mode": "online",  "wlst_name": "ThreadDumpCount",        "wlst_path": "WP001",  "value": {"default": 3     }, "wlst_type": "integer" } ,
+                                                            {"version": "[12.2.1.2,)", "wlst_mode": "offline", "wlst_name": "ThreadDumpCount",        "wlst_path": "WP001",  "value": {"default": 3     }, "wlst_type": "integer" } ],
+                                "ThreadDumpDelaySeconds": [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "ThreadDumpDelaySeconds", "wlst_path": "WP001",  "value": {"default": 10    }, "wlst_type": "integer" } ],
+                                "Timeout":                [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "Timeout",                "wlst_path": "WP001",  "value": {"default": 0     }, "wlst_type": "integer" } ]
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
@@ -278,14 +279,15 @@
                                     "version": "[12.2.1,)",
                                     "folders": {},
                                     "attributes": {
-                                        "DayOfMonth": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "DayOfMonth", "wlst_path": "WP001", "value": {"default": "*"   }, "wlst_type": "string" } ],
-                                        "DayOfWeek":  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "DayOfWeek",  "wlst_path": "WP001", "value": {"default": "*"   }, "wlst_type": "string" } ],
-                                        "Hour":       [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Hour",       "wlst_path": "WP001", "value": {"default": "*"   }, "wlst_type": "string" } ],
-                                        "Minute":     [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Minute",     "wlst_path": "WP001", "value": {"default": "*/5" }, "wlst_type": "string" } ],
-                                        "Month":      [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Month",      "wlst_path": "WP001", "value": {"default": "*"   }, "wlst_type": "string" } ],
-                                        "Second":     [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Second",     "wlst_path": "WP001", "value": {"default": "0"   }, "wlst_type": "string" } ],
-                                        "Timezone":   [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Timezone",   "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string" } ],
-                                        "Year":       [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Year",       "wlst_path": "WP001", "value": {"default": "*"   }, "wlst_type": "string" } ]
+                                        "DayOfMonth": [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "DayOfMonth", "wlst_path": "WP001", "value": {"default": "*"              }, "wlst_type": "string" } ],
+                                        "DayOfWeek":  [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "DayOfWeek",  "wlst_path": "WP001", "value": {"default": "*"              }, "wlst_type": "string" } ],
+                                        "Hour":       [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Hour",       "wlst_path": "WP001", "value": {"default": "*"              }, "wlst_type": "string" } ],
+                                        "Minute":     [ {"version": "[12.2.1,12.2.1.1)", "wlst_mode": "both", "wlst_name": "Minute",     "wlst_path": "WP001", "value": {"default": "*/5"            }, "wlst_type": "string" } ,
+                                                        {"version": "[12.2.1.1,)",       "wlst_mode": "both", "wlst_name": "Minute",     "wlst_path": "WP001", "value": {"default": "${None:*/5}"    }, "wlst_type": "string" } ],
+                                        "Month":      [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Month",      "wlst_path": "WP001", "value": {"default": "*"              }, "wlst_type": "string" } ],
+                                        "Second":     [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Second",     "wlst_path": "WP001", "value": {"default": "0"              }, "wlst_type": "string" } ],
+                                        "Timezone":   [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Timezone",   "wlst_path": "WP001", "value": {"default": "None"           }, "wlst_type": "string" } ],
+                                        "Year":       [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Year",       "wlst_path": "WP001", "value": {"default": "*"              }, "wlst_type": "string" } ]
                                     },
                                     "wlst_attributes_path": "WP001",
                                     "wlst_paths": {
