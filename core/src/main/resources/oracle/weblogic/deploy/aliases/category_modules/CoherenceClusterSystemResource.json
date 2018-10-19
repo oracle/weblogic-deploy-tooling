@@ -86,7 +86,7 @@
                             },
                             "attributes": {
                                 "ClassName": [ {"version": "[12.2.1.1,)", "wlst_mode": "online",  "wlst_name": "ClassName", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string",    "get_method": "GET" } ,
-                                               {"version": "[12.2.1.2,)", "wlst_mode": "offline", "wlst_name": "ClassName", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"     } ]
+                                               {"version": "[12.2.1.3,)", "wlst_mode": "offline", "wlst_name": "ClassName", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"     } ]
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
