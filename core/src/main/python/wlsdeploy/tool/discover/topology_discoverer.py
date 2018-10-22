@@ -18,6 +18,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.util import path_utils
+from wlsdeploy.util import string_utils
 from wlsdeploy.util import wlst_helper
 
 _class_name = 'TopologyDiscoverer'
@@ -585,21 +586,22 @@ class TopologyDiscoverer(Discoverer):
         """
         _method_name = '_add_keystore_file_to_archive'
         _logger.entering(model_name, str(location), class_name=_class_name, method_name=_method_name)
-        server_name = self._get_server_name_from_location(location)
-        _logger.finer('WLSDPLY-06223', model_value, server_name, class_name=_class_name, method_name=_method_name)
-        archive_file = self._model_context.get_archive_file()
-        file_path = self._convert_path(model_value)
         new_name = None
-        try:
-            archive_file.addServerKeyStoreFile(server_name, File(file_path))
-        except IllegalArgumentException, iae:
-            _logger.warning('WLSDPLY-06624', server_name, file_path, iae.getLocalizedMessage(),
-                            class_name=_class_name, method_name=_method_name)
-        except WLSDeployArchiveIOException, wioe:
-            de = exception_helper.create_discover_exception('WLSDPLY-06625', server_name, file_path,
-                                                            wioe.getLocalizedMessage())
-            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-            raise de
+        if not string_utils.is_empty(model_value):
+            server_name = self._get_server_name_from_location(location)
+            archive_file = self._model_context.get_archive_file()
+            file_path = self._convert_path(model_value)
+            _logger.finer('WLSDPLY-06623', file_path, server_name, class_name=_class_name, method_name=_method_name)
+            try:
+                new_name = archive_file.addServerKeyStoreFile(server_name, File(file_path))
+            except IllegalArgumentException, iae:
+                _logger.warning('WLSDPLY-06624', server_name, file_path, iae.getLocalizedMessage(),
+                                class_name=_class_name, method_name=_method_name)
+            except WLSDeployArchiveIOException, wioe:
+                de = exception_helper.create_discover_exception('WLSDPLY-06625', server_name, file_path,
+                                                                wioe.getLocalizedMessage())
+                _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                raise de
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
 
