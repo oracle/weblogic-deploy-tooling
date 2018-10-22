@@ -79,6 +79,14 @@ class SecurityProviderCreator(Creator):
         self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
         security_configuration_nodes = dictionary_utils.get_dictionary_element(self._topology, SECURITY_CONFIGURATION)
 
+        # in WLS 11g, the SecurityConfiguration mbean is not created until the domain is written.
+        # if missing, we will create it to initialize realm and default security providers.
+        config_location = LocationContext(location).append_location(SECURITY_CONFIGURATION)
+        existing_names = deployer_utils.get_existing_object_list(config_location, self.alias_helper)
+        if len(existing_names) == 0:
+            mbean_type, mbean_name = self.alias_helper.get_wlst_mbean_type_and_name(config_location)
+            self.wlst_helper.create(mbean_name, mbean_type)
+
         self.__handle_default_security_providers(location, security_configuration_nodes)
         if len(security_configuration_nodes) > 0:
             self._create_mbean(SECURITY_CONFIGURATION, security_configuration_nodes, location, log_created=True)
