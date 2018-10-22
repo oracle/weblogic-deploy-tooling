@@ -240,7 +240,7 @@ def lsa(path=None, log_throwing=True):
     _method_name = 'lsa'
     result = _ls(_method_name, 'a', path, log_throwing)
     make_dict = dict()
-    if result and len(result) > 1:
+    if result and len(result) > 0:
         for entry in result.entrySet():
             key = entry.getKey()
             value = entry.getValue()
