@@ -139,22 +139,28 @@ class Discoverer(object):
 
     def _get_attributes_for_current_location_online(self, location):
         _method_name = '_get_attributes_for_current_location_online'
-        attributes = dict()
+        lsa_attributes = dict()
         path = self._alias_helper.get_wlst_attributes_path(location)
         try:
-            attributes = wlst_helper.lsa(path)
-            mbean_attributes = wlst_helper.get_mbi().getAttributes()
-            if mbean_attributes:
-                alias_attributes = self._get_wlst_attributes(location)
-                for mbean_attribute in mbean_attributes:
-                    name = mbean_attribute.getName()
-                    if name not in attributes and name in alias_attributes:
-                        attributes[name] = wlst_helper.get(name)
+            lsa_attributes = wlst_helper.lsa(path)
+            mbi_attributes = _get_mbi_attribute_list()
+            if mbi_attributes:
+                for lsa_attribute_name in lsa_attributes:
+                    if lsa_attribute_name in lsa_attributes and lsa_attribute_name not in mbi_attributes:
+                        _logger.finer('WLSDPLY-06142', lsa_attribute_name)
+                        del lsa_attributes[lsa_attribute_name]
+                for mbi_attribute_name in mbi_attributes:
+                    if mbi_attribute_name not in lsa_attributes and mbi_attribute_name in mbi_attributes:
+                        # don't count on the item in the get required list in caller, just get the value
+                        # and add it to our lsa list
+                        _logger.finer('WLSDPLY-06141', mbi_attribute_name, class_name=_class_name,
+                                      method_name=_method_name)
+                        lsa_attributes[mbi_attribute_name] = wlst_helper.get(mbi_attribute_name)
         except PyWLSTException, pe:
             name = location.get_model_folders()[-1]
             _logger.fine('WLSDPLY-06109', name, str(location), pe.getLocalizedMessage(), class_name=_class_name,
                          method_name=_method_name)
-        return attributes
+        return lsa_attributes
 
     def _is_defined_attribute(self, location, wlst_name):
         attribute = False
@@ -584,7 +590,7 @@ class Discoverer(object):
                     wlst_attribute = self._aliases.get_wlst_attribute_name(location, model_attribute)
                     if wlst_attribute:
                         wlst_attributes.append(wlst_attribute)
-                except AliasException, ae:
+                except AliasException:
                     continue
         return wlst_attributes
 
@@ -632,6 +638,39 @@ def convert_to_absolute_path(relative_to, file_name):
     if not StringUtils.isEmpty(relative_to) and not StringUtils.isEmpty(file_name):
         file_name = os.path.join(relative_to, file_name)
     return file_name
+
+
+def _get_mbi_attribute_list():
+    attribute_list = []
+    for mbean_attribute_info in wlst_helper.get_mbi().getAttributes():
+        if _is_attribute(mbean_attribute_info):
+            attribute_list.append(mbean_attribute_info.getName())
+    return attribute_list
+
+
+def _is_attribute(attributes_info):
+    return _is_attribute_type(attributes_info) or _is_valid_reference(attributes_info)
+
+
+def _is_valid_reference(attribute_info):
+    # check again after all done to see whether need to use get deprecated
+    return _is_reference(attribute_info) and (
+        attribute_info.isWritable() is True and not _is_deprecated(attribute_info))
+
+
+def _is_reference(mbean_attribute_info):
+    return mbean_attribute_info.getDescriptor().getFieldValue('com.bea.relationship') == 'reference'
+
+
+def _is_deprecated(mbean_attribute_info):
+    deprecated_version = mbean_attribute_info.getDescriptor().getFieldValue('deprecated')
+    return deprecated_version is not None and deprecated_version != 'null' and len(deprecated_version) > 1
+
+
+def _is_attribute_type(attribute_info):
+    return attribute_info.getDescriptor().getFieldValue(
+        'descriptorType') == 'Attribute' and attribute_info.getDescriptor().getFieldValue(
+        'com.bea.relationship') is None
 
 
 def get_discover_logger_name():
