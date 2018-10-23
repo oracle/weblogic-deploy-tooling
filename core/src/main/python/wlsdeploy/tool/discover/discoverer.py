@@ -99,7 +99,7 @@ class Discoverer(object):
                                                                                                 wlst_param,
                                                                                                 wlst_value)
                 except AliasException, de:
-                    _logger.warning('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
+                    _logger.info('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
                                     class_name=_class_name, method_name=_method_name)
                     continue
 
@@ -264,6 +264,11 @@ class Discoverer(object):
         return name
 
     def _find_subfolders(self, location):
+        if self._wlst_mode == WlstModes.OFFLINE:
+            return self._find_subfolders_offline(location)
+        else:
+            return self._find_subfolders_online(location)
+    def _find_subfolders_offline(self, location):
         """
         Find the subfolders of the current location.
         :param location: context containing current location information
@@ -273,6 +278,20 @@ class Discoverer(object):
         wlst_subfolders = []
         if self.wlst_cd(wlst_path, location):
             wlst_subfolders = self._wlst_helper.lsc()
+            if wlst_subfolders:
+                new_subfolders = []
+                for wlst_subfolder in wlst_subfolders:
+                    model_subfolder_name = self._get_model_name(location, wlst_subfolder)
+                    if model_subfolder_name:
+                        new_subfolders.append(wlst_subfolder)
+                wlst_subfolders = new_subfolders
+        return wlst_subfolders
+
+    def _find_subfolders_online(self, location):
+        wlst_path = self._alias_helper.get_wlst_subfolders_path(location)
+        wlst_subfolders = []
+        if self.wlst_cd(wlst_path, location):
+            wlst_subfolders = _massage_online_folders(self._wlst_helper.lsc())
             if wlst_subfolders:
                 new_subfolders = []
                 for wlst_subfolder in wlst_subfolders:
@@ -655,7 +674,7 @@ def _is_attribute(attributes_info):
 def _is_valid_reference(attribute_info):
     # check again after all done to see whether need to use get deprecated
     return _is_reference(attribute_info) and (
-        attribute_info.isWritable() is True and not _is_deprecated(attribute_info))
+        attribute_info.isWritable() or not _is_deprecated(attribute_info))
 
 
 def _is_reference(mbean_attribute_info):
@@ -667,10 +686,37 @@ def _is_deprecated(mbean_attribute_info):
     return deprecated_version is not None and deprecated_version != 'null' and len(deprecated_version) > 1
 
 
+def _is_containment(mbean_attribute_info):
+    return mbean_attribute_info.getDescriptor().getFieldValue('com.bea.relationship') == 'containment'
+
+
 def _is_attribute_type(attribute_info):
+    _method_name = '_is_attribute_type'
+    if not attribute_info.isWritable() and _is_deprecated(attribute_info):
+        _logger.finer('WLSDPLY-06143', attribute_info.getName(), wlst_helper.get_pwd(),
+                       class_name=_class_name, method_name=_method_name)
     return attribute_info.getDescriptor().getFieldValue(
         'descriptorType') == 'Attribute' and attribute_info.getDescriptor().getFieldValue(
-        'com.bea.relationship') is None
+        'com.bea.relationship') is None and (attribute_info.isWritable() or not _is_deprecated(attribute_info))
+
+
+def _massage_online_folders(lsc_folders):
+    _method_name = '_massage_online_folders'
+    location = wlst_helper.get_pwd()
+    folder_list = []
+    mbi_folder_list = []
+    for mbean_attribute_info in wlst_helper.get_mbi().getAttributes():
+        if _is_containment(mbean_attribute_info):
+            mbi_folder_list.append(mbean_attribute_info.getName())
+    for lsc_folder in lsc_folders:
+        if lsc_folder in mbi_folder_list:
+            folder_list.append(lsc_folder)
+        else:
+            _logger.finer('WLSDPLY-06144', lsc_folder, location, class_name=_class_name, method_name=_method_name)
+    if len(folder_list) != len(mbi_folder_list):
+        _logger.fine('WLSDPLY-06145', folder_list, location, mbi_folder_list, class_name=_class_name,
+                     method_name=_method_name)
+    return folder_list
 
 
 def get_discover_logger_name():
