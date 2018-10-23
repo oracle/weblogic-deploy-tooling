@@ -422,7 +422,7 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(model_attribute_value, boolean_values[1])
 
         # get model attribute value should return the value only if its NOT the default
-        string_value = [0, None]
+        string_value = [None, None]
         wlst_attribute_name = 'RowPrefetchSize'
         wlst_attribute_value = string_value[0]
         model_attribute_name, model_attribute_value = \
@@ -501,8 +501,8 @@ class AliasesTestCase(unittest.TestCase):
 
         location.pop_location()
         location.append_location(FOLDERS.JDBC_CONNECTION_POOL_PARAMS)
-        model_attribute_name = 'ProfileConnectionLeakTimeoutSeconds'
-        earliest_version = '12.2.1'
+        model_attribute_name = 'MinCapacity'
+        earliest_version = '10.3.6'
         path = self.aliases.get_model_folder_path(location)
         expected = exception_helper.get_message('WLSDPLY-08207', model_attribute_name, path,
                                                 wls_version, earliest_version)
@@ -1214,11 +1214,7 @@ class AliasesTestCase(unittest.TestCase):
         token = self.aliases.get_name_token(location)
         location.add_name_token(token, 'DemoDomain')
 
-        expected = 'true'
-        default_value = self.aliases.get_model_attribute_default_value(location, 'RotateLogOnStartup')
-        self.assertEqual(default_value, expected)
-
-        expected = 'true'
+        expected = 'false'
         default_value = self.online_aliases.get_model_attribute_default_value(location, 'RotateLogOnStartup')
         self.assertEqual(default_value, expected)
 
@@ -1298,11 +1294,12 @@ class AliasesTestCase(unittest.TestCase):
         location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
         location = location.append_location(FOLDERS.SSL)
         location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
-        wlst_list = ['TLS', 'WITH_AES_256_CBC']
+        wlst_list = "TLS,WITH_AES_256_CBC"
+        expected_wlst_list = ['TLS', 'WITH_AES_256_CBC']
         attribute = 'Ciphersuite'
 
         actual_attr, actual_value = self.aliases.get_model_attribute_name_and_value(location, attribute, wlst_list)
-        self.assertEqual(wlst_list, actual_value)
+        self.assertEqual(expected_wlst_list, actual_value)
 
         actual_attr, actual_value = self.aliases.get_wlst_attribute_name_and_value(location, actual_attr, actual_value)
         self.assertEqual(wlst_list, actual_value)

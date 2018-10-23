@@ -21,6 +21,7 @@ from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import LOG_FILTER
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import NAME
@@ -42,6 +43,9 @@ from wlsdeploy.aliases.model_constants import UNIX_MACHINE
 from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
+from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
+from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
+from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create.creator import Creator
@@ -382,6 +386,8 @@ class DomainCreator(Creator):
         self.security_provider_creator.create_security_configuration(security_config_location)
         topology_folder_list.remove(SECURITY_CONFIGURATION)
 
+        self.__create_mbeans_used_by_topology_mbeans(location, topology_folder_list)
+
         self.__create_machines(location)
         topology_folder_list.remove(MACHINE)
         topology_folder_list.remove(UNIX_MACHINE)
@@ -423,6 +429,21 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
+    def __create_mbeans_used_by_topology_mbeans(self, location, topology_folder_list):
+        """
+        Create the entities that are referenced by domain, machine, server and server template attributes.
+        :param location: current location
+        :raises: CreateException: if an error occurs
+        """
+        self.__create_log_filters(location)
+        topology_folder_list.remove(LOG_FILTER)
+        self.__create_reliable_delivery_policy(location)
+        topology_folder_list.remove(WS_RELIABLE_DELIVERY_POLICY)
+        self.__create_xml_entity_cache(location)
+        topology_folder_list.remove(XML_ENTITY_CACHE)
+        self.__create_xml_registry(location)
+        topology_folder_list.remove(XML_REGISTRY)
+
     def __create_security_folder(self, location):
         """
         Create the /Security folder objects, if any.
@@ -435,6 +456,70 @@ class DomainCreator(Creator):
         security_nodes = dictionary_utils.get_dictionary_element(self._topology, SECURITY)
         if len(security_nodes) > 0:
             self._create_mbean(SECURITY, security_nodes, location)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __create_log_filters(self, location):
+        """
+        Create the /LogFilter objects if any for use in the logs of the base components like domain and server
+        :param location: the location to use
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '__create_log_filters'
+
+        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        log_filter_nodes = dictionary_utils.get_dictionary_element(self._topology, LOG_FILTER)
+
+        if len(log_filter_nodes) > 0:
+            self._create_named_mbeans(LOG_FILTER, log_filter_nodes, location, log_created=True)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __create_reliable_delivery_policy(self, location):
+        """
+        Create the /WSReliableDeliverPolicy objects if any for use by the server and server templates.
+        :param location: the location to use
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '__create_reliable_delivery_policy'
+
+        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        policy_nodes = dictionary_utils.get_dictionary_element(self._topology, WS_RELIABLE_DELIVERY_POLICY)
+
+        if len(policy_nodes) > 0:
+            self._create_named_mbeans(WS_RELIABLE_DELIVERY_POLICY, policy_nodes, location, log_created=True)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __create_xml_entity_cache(self, location):
+        """
+        Create the /XMLEntityCache objects if any for use by the server and server templates.
+        :param location: the location to use
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '__create_xml_entity_cache'
+
+        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        cache_nodes = dictionary_utils.get_dictionary_element(self._topology, XML_ENTITY_CACHE)
+
+        if len(cache_nodes) > 0:
+            self._create_named_mbeans(XML_ENTITY_CACHE, cache_nodes, location, log_created=True)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __create_xml_registry(self, location):
+        """
+        Create the /XMLRegistry objects if any for use by the server and server templates.
+        :param location: the location to use
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '__create_xml_registry'
+
+        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        registry_nodes = dictionary_utils.get_dictionary_element(self._topology, XML_REGISTRY)
+
+        if len(registry_nodes) > 0:
+            self._create_named_mbeans(XML_REGISTRY, registry_nodes, location, log_created=True)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 

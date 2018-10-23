@@ -86,6 +86,7 @@ class AliasEntries(object):
         'JTA': 'JTA',
         'Library': 'Library',
         'Log': 'Log',
+        'LogFilter': 'LogFilter',
         'Machine': 'Machine',
         'MailSession': 'MailSession',
         'MessagingBridge': 'MessagingBridge',
@@ -110,7 +111,10 @@ class AliasEntries(object):
         'UnixMachine': 'UnixMachine',
         'VirtualHost': 'VirtualHost',
         'VirtualTarget': 'VirtualTarget',
-        'WLDFSystemResource': 'WLDFSystemResource'
+        'WLDFSystemResource': 'WLDFSystemResource',
+        'WSReliableDeliveryPolicy': 'WSReliableDeliveryPolicy',
+        'XMLEntityCache': 'XMLEntityCache',
+        'XMLRegistry': 'XMLRegistry'
     }
 
     __topology_top_level_folders = [
@@ -118,6 +122,7 @@ class AliasEntries(object):
         'JMX',
         'JTA',
         'Log',
+        'LogFilter',
         'Machine',
         'MigratableTarget',
         'NMProperties',
@@ -128,7 +133,10 @@ class AliasEntries(object):
         'ServerTemplate',
         'UnixMachine',
         'VirtualHost',
-        'VirtualTarget'
+        'VirtualTarget',
+        'WSReliableDeliveryPolicy',
+        'XMLEntityCache',
+        'XMLRegistry'
     ]
 
     __resources_top_level_folders = [

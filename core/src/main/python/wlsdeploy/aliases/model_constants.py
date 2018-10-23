@@ -132,6 +132,7 @@ LDAP_X509_IDENTITY_ASSERTER = 'LDAPX509IdentityAsserter'
 LIBRARY = 'Library'
 LOAD_BALANCING_PARAMS = 'LoadBalancingParams'
 LOG = 'Log'
+LOG_FILTER = 'LogFilter'
 LOG_ACTION = 'LogAction'
 MACHINE = 'Machine'
 MAIL_SESSION = 'MailSession'
@@ -251,8 +252,11 @@ WORK_MANAGER = "WorkManager"
 WLDF_INSTRUMENTATION_MONITOR = "WLDFInstrumentationMonitor"
 WLDF_RESOURCE = "WLDFResource"
 WLDF_SYSTEM_RESOURCE = "WLDFSystemResource"
+WS_RELIABLE_DELIVERY_POLICY = 'WSReliableDeliveryPolicy'
 XACML_AUTHORIZER = 'XACMLAuthorizer'
 XACML_ROLE_MAPPER = 'XACMLRoleMapper'
+XML_ENTITY_CACHE = 'XMLEntityCache'
+XML_REGISTRY = 'XMLRegistry'
 
 # names of attributes, alphabetically
 

@@ -20,6 +20,7 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 from wlsdeploy.aliases.model_constants import CAPACITY
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import COHERENCE_CLUSTER_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import CONTEXT_REQUEST_CLASS
 from wlsdeploy.aliases.model_constants import DISTRIBUTED_QUEUE
 from wlsdeploy.aliases.model_constants import DISTRIBUTED_TOPIC
@@ -35,6 +36,7 @@ from wlsdeploy.aliases.model_constants import JMS_RESOURCE
 from wlsdeploy.aliases.model_constants import JMS_SERVER
 from wlsdeploy.aliases.model_constants import JMX_NOTIFICATION
 from wlsdeploy.aliases.model_constants import LOG_ACTION
+from wlsdeploy.aliases.model_constants import LOG_FILTER
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MAX_THREADS_CONSTRAINT
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
@@ -58,6 +60,7 @@ from wlsdeploy.aliases.model_constants import SCRIPT_ACTION
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SELF_TUNING
 from wlsdeploy.aliases.model_constants import SERVER
+from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import SMTP_NOTIFICATION
 from wlsdeploy.aliases.model_constants import SNMP_NOTIFICATION
 from wlsdeploy.aliases.model_constants import TEMPLATE
@@ -67,6 +70,9 @@ from wlsdeploy.aliases.model_constants import UNIFORM_DISTRIBUTED_QUEUE
 from wlsdeploy.aliases.model_constants import UNIFORM_DISTRIBUTED_TOPIC
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.aliases.model_constants import WATCH_NOTIFICATION
+from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
+from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
+from wlsdeploy.aliases.model_constants import XML_REGISTRY
 
 
 class AttributeSetter(object):
@@ -290,6 +296,19 @@ class AttributeSetter(object):
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
+    def set_server_template_mbean(self, location, key, value, wlst_value):
+        """
+        Set the Server Template MBean.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if the server template is not found
+        """
+        mbean = self.__find_in_location(LocationContext(), SERVER_TEMPLATE, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
     def set_cluster_mbean(self, location, key, value, wlst_value):
         """
         Set the Cluster MBean.
@@ -300,6 +319,19 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if the cluster is not found
         """
         mbean = self.__find_in_location(LocationContext(), CLUSTER, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_coherence_cluster_mbean(self, location, key, value, wlst_value):
+        """
+        Set the Log Filter MBean.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if store is not found
+        """
+        mbean = self.__find_in_location(LocationContext(), COHERENCE_CLUSTER_SYSTEM_RESOURCE, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
@@ -355,6 +387,71 @@ class AttributeSetter(object):
                 location_mbean.addNotification(action_mbean)
         else:
             self.set_attribute(location, key, action_mbeans, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_log_filter_mbean(self, location, key, value, wlst_value):
+        """
+        Set the Log Filter MBean.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if store is not found
+        """
+        mbean = self.__find_in_location(LocationContext(), LOG_FILTER, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_jms_server_mbean(self, location, key, value, wlst_value):
+        """
+        For those entities, such as WLSReliableDeliveryPolicy, that take a single JMS Server mbean.
+        :param location: location to look for jms server
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if jms server mbean is not found.
+        """
+        mbean = self.__find_in_location(LocationContext(), JMS_SERVER, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_reliable_delivery_policy_mbean(self, location, key, value, wlst_value):
+        """
+        Sets the ws soap reliable delivery policy mbean used by mbeans like Server and Server Template.
+        :param location: location to look for reliable delivery policy
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if reliable delivery policy mbean is not found.
+        """
+        mbean = self.__find_in_location(LocationContext(), WS_RELIABLE_DELIVERY_POLICY, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_xml_entity_cache_mbean(self, location, key, value, wlst_value):
+        """
+        Sets the XML cache mbean used by topology entities such as Server.
+        :param location: location to look for reliable delivery policy
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if xml entity cache mbean is not found.
+        """
+        mbean = self.__find_in_location(LocationContext(), XML_ENTITY_CACHE, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_xml_registry_mbean(self, location, key, value, wlst_value):
+        """
+        Sets the XML registry mbean used by topology entities such as Server.
+        :param location: location to look for reliable delivery policy
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if xml registry mbean is not found.
+        """
+        mbean = self.__find_in_location(LocationContext(), XML_REGISTRY, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
     def set_mt_target_mbeans(self, location, key, value, wlst_value):
@@ -790,7 +887,6 @@ class AttributeSetter(object):
     def __merge_existing_items(self, items, existing_value):
         """
         Merge the specified items with the items represented by existing value, and return the result.
-        :param location: the location
         :param items: the attribute name
         :param existing_value: the value representing the existing items (may be a string or list)
         :return: the merged list of items

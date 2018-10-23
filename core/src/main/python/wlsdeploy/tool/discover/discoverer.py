@@ -99,7 +99,7 @@ class Discoverer(object):
                                                                                                 wlst_param,
                                                                                                 wlst_value)
                 except AliasException, de:
-                    _logger.warning('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
+                    _logger.info('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
                                     class_name=_class_name, method_name=_method_name)
                     continue
 
@@ -139,24 +139,28 @@ class Discoverer(object):
 
     def _get_attributes_for_current_location_online(self, location):
         _method_name = '_get_attributes_for_current_location_online'
-        attributes = dict()
+        lsa_attributes = dict()
         path = self._alias_helper.get_wlst_attributes_path(location)
-        added = False
         try:
-            attributes = wlst_helper.lsa(path)
-            mbean_attributes = wlst_helper.get_mbi().getAttributes()
-            if mbean_attributes:
-                alias_attributes = self._get_wlst_attributes(location)
-                for mbean_attribute in mbean_attributes:
-                    name = mbean_attribute.getName()
-                    if name not in attributes and name in alias_attributes:
-                        attributes[name] = wlst_helper.get(name)
-                        added = True
+            lsa_attributes = wlst_helper.lsa(path)
+            mbi_attributes = _get_mbi_attribute_list()
+            if mbi_attributes:
+                for lsa_attribute_name in lsa_attributes:
+                    if lsa_attribute_name in lsa_attributes and lsa_attribute_name not in mbi_attributes:
+                        _logger.finer('WLSDPLY-06142', lsa_attribute_name)
+                        del lsa_attributes[lsa_attribute_name]
+                for mbi_attribute_name in mbi_attributes:
+                    if mbi_attribute_name not in lsa_attributes and mbi_attribute_name in mbi_attributes:
+                        # don't count on the item in the get required list in caller, just get the value
+                        # and add it to our lsa list
+                        _logger.finer('WLSDPLY-06141', mbi_attribute_name, class_name=_class_name,
+                                      method_name=_method_name)
+                        lsa_attributes[mbi_attribute_name] = wlst_helper.get(mbi_attribute_name)
         except PyWLSTException, pe:
             name = location.get_model_folders()[-1]
             _logger.fine('WLSDPLY-06109', name, str(location), pe.getLocalizedMessage(), class_name=_class_name,
                          method_name=_method_name)
-        return attributes
+        return lsa_attributes
 
     def _is_defined_attribute(self, location, wlst_name):
         attribute = False
@@ -260,6 +264,11 @@ class Discoverer(object):
         return name
 
     def _find_subfolders(self, location):
+        if self._wlst_mode == WlstModes.OFFLINE:
+            return self._find_subfolders_offline(location)
+        else:
+            return self._find_subfolders_online(location)
+    def _find_subfolders_offline(self, location):
         """
         Find the subfolders of the current location.
         :param location: context containing current location information
@@ -269,6 +278,20 @@ class Discoverer(object):
         wlst_subfolders = []
         if self.wlst_cd(wlst_path, location):
             wlst_subfolders = self._wlst_helper.lsc()
+            if wlst_subfolders:
+                new_subfolders = []
+                for wlst_subfolder in wlst_subfolders:
+                    model_subfolder_name = self._get_model_name(location, wlst_subfolder)
+                    if model_subfolder_name:
+                        new_subfolders.append(wlst_subfolder)
+                wlst_subfolders = new_subfolders
+        return wlst_subfolders
+
+    def _find_subfolders_online(self, location):
+        wlst_path = self._alias_helper.get_wlst_subfolders_path(location)
+        wlst_subfolders = []
+        if self.wlst_cd(wlst_path, location):
+            wlst_subfolders = _massage_online_folders(self._wlst_helper.lsc())
             if wlst_subfolders:
                 new_subfolders = []
                 for wlst_subfolder in wlst_subfolders:
@@ -586,7 +609,7 @@ class Discoverer(object):
                     wlst_attribute = self._aliases.get_wlst_attribute_name(location, model_attribute)
                     if wlst_attribute:
                         wlst_attributes.append(wlst_attribute)
-                except AliasException, ae:
+                except AliasException:
                     continue
         return wlst_attributes
 
@@ -634,6 +657,66 @@ def convert_to_absolute_path(relative_to, file_name):
     if not StringUtils.isEmpty(relative_to) and not StringUtils.isEmpty(file_name):
         file_name = os.path.join(relative_to, file_name)
     return file_name
+
+
+def _get_mbi_attribute_list():
+    attribute_list = []
+    for mbean_attribute_info in wlst_helper.get_mbi().getAttributes():
+        if _is_attribute(mbean_attribute_info):
+            attribute_list.append(mbean_attribute_info.getName())
+    return attribute_list
+
+
+def _is_attribute(attributes_info):
+    return _is_attribute_type(attributes_info) or _is_valid_reference(attributes_info)
+
+
+def _is_valid_reference(attribute_info):
+    # check again after all done to see whether need to use get deprecated
+    return _is_reference(attribute_info) and (
+        attribute_info.isWritable() or not _is_deprecated(attribute_info))
+
+
+def _is_reference(mbean_attribute_info):
+    return mbean_attribute_info.getDescriptor().getFieldValue('com.bea.relationship') == 'reference'
+
+
+def _is_deprecated(mbean_attribute_info):
+    deprecated_version = mbean_attribute_info.getDescriptor().getFieldValue('deprecated')
+    return deprecated_version is not None and deprecated_version != 'null' and len(deprecated_version) > 1
+
+
+def _is_containment(mbean_attribute_info):
+    return mbean_attribute_info.getDescriptor().getFieldValue('com.bea.relationship') == 'containment'
+
+
+def _is_attribute_type(attribute_info):
+    _method_name = '_is_attribute_type'
+    if not attribute_info.isWritable() and _is_deprecated(attribute_info):
+        _logger.finer('WLSDPLY-06143', attribute_info.getName(), wlst_helper.get_pwd(),
+                       class_name=_class_name, method_name=_method_name)
+    return attribute_info.getDescriptor().getFieldValue(
+        'descriptorType') == 'Attribute' and attribute_info.getDescriptor().getFieldValue(
+        'com.bea.relationship') is None and (attribute_info.isWritable() or not _is_deprecated(attribute_info))
+
+
+def _massage_online_folders(lsc_folders):
+    _method_name = '_massage_online_folders'
+    location = wlst_helper.get_pwd()
+    folder_list = []
+    mbi_folder_list = []
+    for mbean_attribute_info in wlst_helper.get_mbi().getAttributes():
+        if _is_containment(mbean_attribute_info):
+            mbi_folder_list.append(mbean_attribute_info.getName())
+    for lsc_folder in lsc_folders:
+        if lsc_folder in mbi_folder_list:
+            folder_list.append(lsc_folder)
+        else:
+            _logger.finer('WLSDPLY-06144', lsc_folder, location, class_name=_class_name, method_name=_method_name)
+    if len(folder_list) != len(mbi_folder_list):
+        _logger.fine('WLSDPLY-06145', folder_list, location, mbi_folder_list, class_name=_class_name,
+                     method_name=_method_name)
+    return folder_list
 
 
 def get_discover_logger_name():

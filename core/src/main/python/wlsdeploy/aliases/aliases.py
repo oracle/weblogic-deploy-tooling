@@ -423,7 +423,7 @@ class Aliases(object):
 
         return wlst_attribute_name, wlst_attribute_value
 
-    def get_wlst_attribute_name(self, location, model_attribute_name):
+    def get_wlst_attribute_name(self, location, model_attribute_name, check_read_only=True):
         """
         Returns the WLST attribute name and value for the specified model attribute name and value.
 
@@ -431,6 +431,7 @@ class Aliases(object):
         is the default value for model_attribute_name.
         :param location:
         :param model_attribute_name:
+        :param check_read_only: Defaults to True. If false, return name even if alias definition is read only
         :return: the WLST attribute name or None, if it is not relevant
         :raises: AliasException: if an error occurs due to a bad location or bad alias data
         """
@@ -440,7 +441,8 @@ class Aliases(object):
                               class_name=self._class_name, method_name=_method_name)
         wlst_attribute_name = None
         alias_attr_dict = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
-        if alias_attr_dict is not None and not self.__is_model_attribute_read_only(location, alias_attr_dict):
+        if alias_attr_dict is not None and (not check_read_only or not
+                                            self.__is_model_attribute_read_only(location, alias_attr_dict)):
             if WLST_NAME in alias_attr_dict:
                 wlst_attribute_name = alias_attr_dict[WLST_NAME]
             else:
@@ -908,13 +910,14 @@ class Aliases(object):
                              result={model_attribute_name: model_attribute_value})
         return model_attribute_name, model_attribute_value
 
-    def get_model_attribute_name(self, location, wlst_attribute_name):
+    def get_model_attribute_name(self, location, wlst_attribute_name, check_read_only=True):
         """
         Returns the model attribute name for the specified WLST attribute name and value. If the model attribute name
         is not valid for the version or the attribute is marked as read-only, return None
 
         :param location: the location
         :param wlst_attribute_name: the WLST attribute name
+        :param check_read_only: Defaults to True. If False, return the WLST attribute name even if read only
         :return: matching model attribute name
         :raises: AliasException: if an error occurs
         """
@@ -925,7 +928,8 @@ class Aliases(object):
         model_attribute_name = None
 
         attribute_info = self._alias_entries.get_alias_attribute_entry_by_wlst_name(location, wlst_attribute_name)
-        if attribute_info is not None and not self.__is_model_attribute_read_only(location, attribute_info):
+        if attribute_info is not None and \
+                (not check_read_only or not self.__is_model_attribute_read_only(location, attribute_info)):
             model_attribute_name = attribute_info[MODEL_NAME]
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name,
