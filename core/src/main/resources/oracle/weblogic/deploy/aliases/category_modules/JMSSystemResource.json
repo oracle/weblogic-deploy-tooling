@@ -101,8 +101,7 @@
                                           "wlst_type": "SecurityParams",
                                           "folders": {},
                                           "attributes": {
-                                                "AttachJMSXUserId": [ {"version": "[10,)",          "wlst_mode": "online",  "wlst_name": "AttachJMSXUserId", "wlst_path": "WP001", "value": {"default": "false"                 }, "wlst_type": "boolean", "get_method": "GET" } ,
-                                                                      {"version": "[12.2.1.1,)",    "wlst_mode": "offline", "wlst_name": "AttachJMSXUserId", "wlst_path": "WP001", "value": {"default": "false"                 }, "wlst_type": "boolean"  } ],
+                                                "AttachJMSXUserId": [ {"version": "[10,)",          "wlst_mode": "both",  "wlst_name": "AttachJMSXUserId", "wlst_path": "WP001", "value": {"default": "false"                 }, "wlst_type": "boolean", "get_method": "${LSA:GET}" } ],
                                                 "SecurityPolicy":   [ {"version": "[12.2.1.1,)",    "wlst_mode": "both",    "wlst_name": "SecurityPolicy",   "wlst_path": "WP001", "value": {"default": "${None:ThreadBased}"   }, "wlst_type": "string",  "get_method": "${LSA:GET}" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
