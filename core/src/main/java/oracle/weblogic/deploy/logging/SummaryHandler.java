@@ -17,6 +17,7 @@ import java.util.logging.MemoryHandler;
 
 import oracle.weblogic.deploy.util.WLSDeployContext;
 import oracle.weblogic.deploy.util.WLSDeployExit;
+import oracle.weblogic.deploy.util.WebLogicDeployToolingVersion;
 
 
 /**
@@ -135,7 +136,7 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
 
     void summaryHead(Handler handler) {
         handler.publish(getLogRecord("WLSDPLY-21003", context.getProgramName(),
-                context.getVersion(), context.getWlstMode()));
+                WebLogicDeployToolingVersion.getVersion(), context.getVersion(), context.getWlstMode()));
     }
 
     void summaryTail(Handler handler) {
