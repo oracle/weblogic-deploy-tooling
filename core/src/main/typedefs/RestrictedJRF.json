@@ -4,10 +4,17 @@
     "name": "RestrictedJRF",
     "description": "Restricted JRF type domain definitions",
     "versions": {
-        "12.2.1": "RJRF_12CR2"
+        "12.2.1": "RJRF_12CR2",
+        "19.1":   "RJRF_19CR1"
     },
     "definitions": {
         "RJRF_12CR2": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [ "Oracle Enterprise Manager-Restricted JRF" ],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR" ],
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS"]
+        },
+        "RJRF_19CR1": {
             "baseTemplate": "Basic WebLogic Server Domain",
             "extensionTemplates": [ "Oracle Enterprise Manager-Restricted JRF" ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR" ],
