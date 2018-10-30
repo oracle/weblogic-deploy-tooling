@@ -91,7 +91,13 @@ class DomainCreator(Creator):
             self._domain_name = self._topology[DOMAIN_NAME]
         else:
             self._domain_name = DEFAULT_WLS_DOMAIN_NAME
-        self._domain_home = os.path.join(self.model_context.get_domain_parent_dir(), self._domain_name)
+
+        # if domain home specified on command line, set it here, otherwise append domain name to domain parent
+        model_domain_home = self.model_context.get_domain_home()
+        if model_domain_home:
+            self._domain_home = model_domain_home
+        else:
+            self._domain_home = os.path.join(self.model_context.get_domain_parent_dir(), self._domain_name)
 
         if ADMIN_SERVER_NAME in self._topology:
             self._admin_server_name = self._topology[ADMIN_SERVER_NAME]
@@ -712,7 +718,11 @@ class DomainCreator(Creator):
             self.logger.fine('WLSDPLY-12225', model_helper.get_model_domain_info_key(), APP_DIR, app_dir,
                              class_name=self.__class_name, method_name=_method_name)
         else:
-            app_dir = os.path.join(self.model_context.get_domain_parent_dir(), 'applications')
+            app_parent = self.model_context.get_domain_parent_dir()
+            if not app_parent:
+                app_parent = os.path.dirname(self.model_context.get_domain_home())
+
+            app_dir = os.path.join(app_parent, 'applications')
             self.logger.fine('WLSDPLY-12226', model_helper.get_model_domain_info_key(), APP_DIR, app_dir,
                              class_name=self.__class_name, method_name=_method_name)
 
@@ -729,6 +739,9 @@ class DomainCreator(Creator):
         self.__default_domain_name = self.wlst_helper.get(NAME)
         if self.__default_domain_name is None or len(self.__default_domain_name) == 0:
             self.__default_domain_name = DEFAULT_WLS_DOMAIN_NAME
+
+        # set this option, in case domain name is different from domain directory name
+        self.wlst_helper.set_option_if_needed('DomainName', self._domain_name)
 
         if self._domain_name != self.__default_domain_name:
             #

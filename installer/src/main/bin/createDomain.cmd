@@ -323,7 +323,7 @@ GOTO exit_script
 ECHO.
 ECHO Usage: %~nx0 [-help] [-use_encryption] [-run_rcu]
 ECHO              -oracle_home ^<oracle-home^>
-ECHO              -domain_parent ^<domain-parent^>
+ECHO              [-domain_parent ^<domain-parent^> ^| -domain_home ^<domain-home^>]
 ECHO              -domain_type ^<domain-type^>
 ECHO              [-java_home ^<java-home^>]
 ECHO              [-archive_file ^<archive-file^>]
@@ -337,7 +337,13 @@ ECHO.
 ECHO     where:
 ECHO         oracle-home     - the existing Oracle Home directory for the domain.
 ECHO.
-ECHO         domain-parent   - the directory where the domain should be created.
+ECHO         domain-parent   - the parent directory where the domain should be created.
+ECHO                           The domain name from the model will be appended to this
+ECHO                           location to become the domain home.
+ECHO.
+ECHO         domain-home     - the full directory where the domain should be created.
+ECHO                           This is used in cases where the domain name is different
+ECHO                           from the domain home directory name.
 ECHO.
 ECHO         domain-type     - the type of domain (e.g., WLS, JRF).  This controls
 ECHO                           the domain templates and template resource targeting.
