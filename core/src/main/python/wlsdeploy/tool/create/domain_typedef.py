@@ -197,6 +197,7 @@ class DomainTypedef(object):
 
         wls_helper = WebLogicHelper(self._logger)
         wls_version = wls_helper.get_actual_weblogic_version()
+        self._logger.fine('WLSDPLY-12310', wls_version, class_name=self.__class_name, method_name=_method_name)
 
         result = None
         if wls_version in versions_dict:

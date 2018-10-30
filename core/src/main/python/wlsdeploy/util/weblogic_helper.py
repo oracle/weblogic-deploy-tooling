@@ -241,7 +241,9 @@ class WebLogicHelper(object):
         periods = version_number.count('.')
         result = None
         if periods > 0:
-            result = string_utils.rsplit(version_number, '.', 1)[0]
+            rsplit = string_utils.rsplit(version_number, '.', 1)
+            if len(rsplit) > 0:
+                result = rsplit[0]
         return result
 
     def encrypt(self, plain_text, domain_directory):

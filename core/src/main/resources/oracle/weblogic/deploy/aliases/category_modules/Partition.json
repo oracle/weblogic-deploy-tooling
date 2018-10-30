@@ -171,10 +171,11 @@
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
-                                "Notes":                   [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": { "default": "None"         }, "wlst_type": "string"     } ],
-                                "PasswordEncrypted":       [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "PasswordEncrypted",       "wlst_path": "WP001", "value": { "default": "None"         }, "wlst_type": "password",  "get_method": "GET" } ],
-                                "RemoteJNDIName":          [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "value": { "default": "No-Override"  }, "wlst_type": "string"     } ],
-                                "Username":                [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Username",                "wlst_path": "WP001", "value": { "default": "No-Override"  }, "wlst_type": "credential" } ]
+                                "Notes":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": { "default": "None"                 }, "wlst_type": "string"     } ],
+                                "PasswordEncrypted":       [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "PasswordEncrypted",       "wlst_path": "WP001", "value": { "default": "None"                 }, "wlst_type": "password",  "get_method": "GET" } ],
+                                "RemoteJNDIName":          [ {"version": "[12.2.1,12.2.1.4)", "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "value": { "default": "No-Override"          }, "wlst_type": "string"     } ,
+                                                             {"version": "[12.2.1.4,)",       "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "value": { "default": "None"                 }, "wlst_type": "string"     } ],
+                                "Username":                [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Username",                "wlst_path": "WP001", "value": { "default": "No-Override"          }, "wlst_type": "credential" } ]
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
@@ -187,8 +188,9 @@
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
-                                "Notes":                   [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": { "default": "None"         }, "wlst_type": "string"  } ],
-                                "RemoteJNDIName":          [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "value": { "default": "No-Override"  }, "wlst_type": "string"  } ]
+                                "Notes":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": { "default": "None"                 }, "wlst_type": "string"  } ],
+                                "RemoteJNDIName":          [ {"version": "[12.2.1,12.2.1.4)", "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "value": { "default": "No-Override"          }, "wlst_type": "string"  } ,
+                                                             {"version": "[12.2.1.4,)",       "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "value": { "default": "None"                 }, "wlst_type": "string"  } ]
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
