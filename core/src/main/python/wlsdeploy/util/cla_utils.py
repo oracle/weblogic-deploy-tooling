@@ -4,6 +4,7 @@ The Universal Permissive License (UPL), Version 1.0
 
 Module that handles command-line argument parsing and common validation.
 """
+import os
 import java.io.File as JFile
 import java.lang.IllegalArgumentException as JIllegalArgumentException
 import java.net.URI as JURI
@@ -94,11 +95,12 @@ class CommandLineArgUtil(object):
         self._optional_result = {}
         return
 
-    def process_args(self, args):
+    def process_args(self, args, for_domain_create=False):
         """
         This method parses the command-line arguments and returns dictionaries of the required and optional args.
 
         :param args: sys.argv
+        :param for_domain_create: true if validating for domain creation
         :return: the required and optional argument dictionaries
         :raises CLAException: if argument processing encounters a usage or validation exception
         """
@@ -147,7 +149,10 @@ class CommandLineArgUtil(object):
             elif self.is_domain_home_key(key):
                 idx += 1
                 if idx < args_len:
-                    full_path = self._validate_domain_home_arg(args[idx])
+                    if for_domain_create:
+                        full_path = self._validate_domain_home_arg_for_create(args[idx])
+                    else:
+                        full_path = self._validate_domain_home_arg(args[idx])
                     self._add_arg(key, full_path, True)
                 else:
                     ex = self._get_out_of_args_exception(key)
@@ -450,8 +455,7 @@ class CommandLineArgUtil(object):
         return self.DOMAIN_HOME_SWITCH == key
 
     #
-    # The domain home arg is only used by discover and deploy so it must be a valid domain home.
-    # The create domain operation should use the domain parent arg.
+    # The domain home arg used by discover and deploy must be a valid domain home.
     #
     def _validate_domain_home_arg(self, value):
         method_name = '_validate_domain_home_arg'
@@ -476,6 +480,24 @@ class CommandLineArgUtil(object):
             raise ex
 
         return dh.getAbsolutePath()
+
+    #
+    # The domain home arg used by create must be the child of a valid, writable directory.
+    #
+    def _validate_domain_home_arg_for_create(self, value):
+        method_name = '_validate_domain_home_arg_for_create'
+
+        try:
+            parent_dir = os.path.dirname(value)
+            JFileUtils.validateWritableDirectory(parent_dir)
+        except JIllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01606', value, iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+
+        home_dir = JFile(value)
+        return home_dir.getAbsolutePath()
 
     def get_domain_parent_key(self):
         return self.DOMAIN_PARENT_SWITCH

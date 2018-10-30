@@ -53,12 +53,13 @@ __tmp_model_dir = None
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_PARENT_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH
 ]
 
 __optional_arguments = [
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
+    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
+    CommandLineArgUtil.DOMAIN_PARENT_SWITCH,
     CommandLineArgUtil.JAVA_HOME_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.RUN_RCU_SWITCH,
@@ -79,10 +80,11 @@ def __process_args(args):
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
-    required_arg_map, optional_arg_map = cla_util.process_args(args)
+    required_arg_map, optional_arg_map = cla_util.process_args(args, True)
 
     __verify_required_args_present(required_arg_map)
     __process_java_home_arg(optional_arg_map)
+    __process_domain_location_args(optional_arg_map)
     __process_model_args(optional_arg_map)
 
     #
@@ -138,6 +140,29 @@ def __process_java_home_arg(optional_arg_map):
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         optional_arg_map[CommandLineArgUtil.JAVA_HOME_SWITCH] = java_home.getAbsolutePath()
+    return
+
+
+def __process_domain_location_args(optional_arg_map):
+    """
+    Verify that either the domain_home or domain_parent was specified, and not both.
+    Their values were already checked in the process_args call.
+    :param optional_arg_map: the optional arguments map
+    :raises CLAException: if the arguments are invalid or an error occurs extracting the model from the archive
+    """
+    _method_name = '__process_domain_location_args'
+    global __tmp_model_dir
+
+    has_home = CommandLineArgUtil.DOMAIN_HOME_SWITCH in optional_arg_map
+    has_parent = CommandLineArgUtil.DOMAIN_PARENT_SWITCH in optional_arg_map
+
+    if (has_home and has_parent) or (not has_home and not has_parent):
+        ex = exception_helper.create_cla_exception('WLSDPLY-20025', _program_name,
+                                                   CommandLineArgUtil.DOMAIN_PARENT_SWITCH,
+                                                   CommandLineArgUtil.DOMAIN_HOME_SWITCH)
+        ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
     return
 
 
