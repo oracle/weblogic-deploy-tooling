@@ -1,49 +1,32 @@
 domainInfo:
-    AdminUserName: '@@PROP:username@@'
-    AdminPassword: '@@PROP:password@@'
-    ServerStartMode: prod
+    AdminUserName: '@@FILE:/u01/oracle/properties/adminuser.properties@@'
+    AdminPassword: '@@FILE:/u01/oracle/properties/adminpass.properties@@'
+    ServerStartMode: '@@PROP:PRODUCTION_MODE_ENABLED@@'
 topology:
     Name: '@@PROP:DOMAIN_NAME@@'
-    AdminServerName: AdminServer
+    AdminServerName: '@@PROP:ADMIN_NAME@@'
+    DebugPort
     Cluster:
-        mycluster:
+        '@@PROP:CLUSTER_NAME@@':
+            ClusterType: '@@PROP:CLUSTER_TYPE@@PROP'
             ClientCertProxyEnabled: true
             ClusterMessagingMode: unicast
             DynamicServers:
                 ServerTemplate: template1
                 CalculatedListenPorts: false
-                ServerNamePrefix: 'ms-'
+                ServerNamePrefix: '@@PROP:MANAGED_SERVER_NAME_BASE@@'
                 DynamicClusterSize: 2
                 MaxDynamicClusterSize: 8
     Server:
         AdminServer:
-            Machine: machine1
             ListenPort: '@@PROP:ADMIN_PORT@@'
     ServerTemplate:
         template1:
-            Machine: machine1
-            ListenPort: 9001
-    Machine:
-        machine1:
-            Notes: The only machine
-            NodeManager:
-                NMType: SSL
-                ListenPort: 5556
-                Notes: The only node manager
-    SecurityConfiguration:
-        NodeManagerUsername: '@@PROP:NM_USER@@'
-        NodeManagerPasswordEncrypted: '@@PROP:NM_PASSWORD@@'
-    JMX:
-        InvocationTimeoutSeconds: 40
-        Notes: JMX notes
-        ManagedServerNotificationsEnabled: true
-    JTA:
-        MaxTransactions: 4
-        Notes: JTA notes
+            ListenPort: '@@PROP:MS_PORT@@'
 resources:
     JDBCSystemResource:
         Generic1:
-            Target: mycluster
+            Target: '@@PROP:CLUSTER_NAME@@'
             JdbcResource:
                 JDBCDataSourceParams:
                     JNDIName: [ jdbc/generic1, jdbc/special1 ]
@@ -67,7 +50,7 @@ appDeployments:
         # Quote needed because of hyphen in string
         'simple-app':
             SourcePath: 'wlsdeploy/applications/simple-app.war'
-            Target: mycluster
+            Target: '@@PROP:CLUSTER_NAME@@'
             ModuleType: war
             StagingMode: nostage
             PlanStagingMode: nostage
