@@ -19,13 +19,14 @@
 #      $ sudo docker build \
 #            --build-arg WDT_MODEL=simple-topology.yaml \
 #            --build-arg WDT_ARCHIVE=archive.zip \
+#            --build-arg WDT_VARIABLE=simple-topology.properties \
 #            --force-rm=true \
 #            -t 12213-domain-wdt .
 #
 # Pull base image
 # ---------------
 # FROM store/oracle/weblogic:12.2.1.3
-FROM oracle/weblogic:12.2.1.3-developer
+FROM store/oracle/weblogic:12.2.1.3-dev
 
 # Maintainer
 # ----------
@@ -35,75 +36,96 @@ ARG WDT_MODEL
 ARG WDT_ARCHIVE
 ARG WDT_VARIABLE
 
-# WLS Configuration
+# WLS Configuration - oracle home and domain home
+# The boot.properties will be created under the DOMAIN_HOME when the AdminServer container is run 
 # ---------------------------
 ENV ORACLE_HOME=/u01/oracle \
     PROPERTIES_FILE_DIR="${ORACLE_HOME}/properties" \
-    SCRIPT_FILE=${ORACLE_HOME}/createAndStartWLSDomain.sh \
     DOMAIN_HOME_PARENT=${ORACLE_HOME}/user_projects/domains \
-    DOMAIN_HOME="${DOMAIN_HOME_PARENT}/${DOMAIN_NAME}-base_domain}" \
-    PATH=$PATH:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${DOMAIN_HOME}/bin:${ORACLE_HOME}
-
+    PATH=$PATH:${ORACLE_HOME}/oracle_common/common/bin:${ORACLE_HOME}/wlserver/common/bin:${ORACLE_HOME}
+    
 # WDT install and WDT user files
-# COPY
 # ------------------------------------------------------------
-ENV COPY_PROPERTIES="poperties/docker_build" \
-    INSTALL_HOME="/u01" \
+ENV COPY_PROPERTIES="properties/docker_build" \
+    WDT_HOME="/u01" \
+    SCRIPT_HOME="${ORACLE_HOME}" \
     WDT_MODEL="$WDT_MODEL" \
     WDT_ARCHIVE="$WDT_ARCHIVE" \
-    WDT_VARIABLE="WDT_VARIABLE"
+    WDT_VARIABLE="$WDT_VARIABLE"
 
-# Add files required to build this image
-COPY container-scripts/* ${INSTALL_HOME}
-COPY weblogic-deploy.zip ${INSTALL_HOME}
+# Add files required to build this image and run a container from the image
+COPY container-scripts/* ${SCRIPT_HOME}/
+COPY weblogic-deploy.zip ${WDT_HOME}
 
+# Create the properties file directory and the domain home parent with the correct permissions / owner. 
+# Unzip and install the WDT image.
+# Export variable file values into the environment
 USER root
-RUN chmod +xw ${INSTALL_HOME}/*.sh && \
-    mkdir +xwr ${PROPERTIES_FILE_DIR} && \
-    chown -R oracle:oracle ${PROPERTIES_FILE_DIR} && \
+RUN chmod +xw ${SCRIPT_HOME}/*.sh && \ 
+    mkdir -p +xwr ${PROPERTIES_FILE_DIR} && \
     mkdir -p $DOMAIN_HOME_PARENT && \
-    chown -R oracle:oracle $DOMAIN_HOME_PARENT && \
-    chmod -R a+xwr $DOMAIN_HOME_PARENT
+    chmod -R a+xwr $DOMAIN_HOME_PARENT && \
+    cd ${WDT_HOME} && \
+    $JAVA_HOME/bin/jar xf ./weblogic-deploy.zip && \
+    rm weblogic-deploy.zip && \
+    chmod +xw weblogic-deploy/bin/*.sh && \
+    chmod -R +xw weblogic-deploy/lib/python  
+
+# Copy the WDT model, archive file, variable file and credential secrets to the property file directory.
+# These files will be removed after the image is built.
+# Be sure to build with --force-rm to eliminate this container layer
 
 COPY ${WDT_MODEL} ${WDT_ARCHIVE} ${WDT_VARIABLE} ${COPY_PROPERTIES}/*.properties ${PROPERTIES_FILE_DIR}/
+         
+# Create the domain home in the docker image.
+#
+# The create domain tool creates a domain at the DOMAIN_HOME location
+# The domain name is set using the value in the model / variable files 
+# The domain name can be different from the DOMAIN_HOME domain folder name.
 
-# export domain and server specific variables into environment
-RUN /bin/sh ${INSTALL_HOME}/setEnv.sh
+ENV WDT_HOME=$WDT_HOME/weblogic-deploy 
 
-# Default values - these values will be replaced by the values in the properties file
-# The DOMAIN_NAME in the variable file can be different than the DOMAIN NAME in the DOMAIN_HOME
-ENV DOMAIN_NAME="${DOMAIN_NAME:-base-domain}" \
-    ADMIN_HOST="${ADMIN_HOST:-wlsadmin}" \
-    ADMIN_PORT="${ADMIN_PORT:-7001}" \
-    MS_PORT="${MS_PORT:-8001}" \
-    DEBUG_PORT="${DEBUG_PORT:-8453}" \
-    DOMAIN_HOME="${DOMAIN_PARENT}\${DOMAIN
-    PATH=${PATH}:
-
-# Run the WDT createDomain to create the domain home in the image
-RUN cd ${INSTALL_HOME} && \
-    $JAVA_HOME/bin/jar xf ${INSTALL_HOME_BASE}/weblogic-deploy.zip && \
-    chmod +xw ${INSTALL_HOME_BASE}/weblogic-deploy/bin/*.sh && \
-    chmod -R +xw ${INSTALL_HOME_BASE}/weblogic-deploy/lib/python && \
-    if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-archive_file ${INSTALL_HOME_BASE}/$WDT_ARCHIVE"; fi && \
-    if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file ${INSTALL_HOME_BASE}/$WDT_ARCHIVE"; fi && \
-    if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file ${INSTALL_HOME_BASE}/$WDT_VARIABLE"; fi && \
-    /u01/weblogic-deploy/bin/createDomain.sh \
-        -oracle_home $ORACLE_HOME \
+# Set WORKDIR for @@PWD@@ global token in model file
+WORKDIR $ORACLE_HOME
+RUN chmod -R +xwr ${PROPERTIES_FILE_DIR} && \
+    PROPERTIES_FILE=$PROPERTIES_FILE_DIR/$WDT_VARIABLE && \ 
+    . ${SCRIPT_HOME}/setEnv.sh && \
+    DOMAIN_HOME=${DOMAIN_HOME_PARENT}/${DOMAIN_NAME} && \
+    export DOMAIN_HOME && \
+    if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file $PROPERTIES_FILE_DIR/$WDT_MODEL"; fi && \
+    if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file $PROPERTIES_FILE_DIR/$WDT_ARCHIVE"; fi && \
+    if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file $PROPERTIES_FILE"; fi && \ 
+    ${WDT_HOME}/bin/createDomain.sh \
+        -oracle_home ${ORACLE_HOME} \
         -java_home ${JAVA_HOME} \
         -domain_home ${DOMAIN_HOME} \
         -domain_type WLS \
-        $VARIABLE_OPT \
+        $VARIABLE_OPT  \
         $MODEL_OPT \
         $ARCHIVE_OPT && \
-    rm ${PROPERTIES_FILE_DIR}/*
+    chown -R oracle:oracle ${DOMAIN_HOME_PARENT} && \
+    rm -rf ${PROPERTIES_FILE_DIR} 
 
-VOLUME $PRE_DOMAIN_HOME
-# Expose Node Manager default port, and also default for admin and managed server
+# Set the ENV variables needed for runing container.
+# If these variables are not in the variable file and not set on the build or run, set a default value.
+# If not using a variable file, then make sure these ENV values match those in the model.
+ENV ADMIN_HOST="${ADMIN_HOST:-wlsadmin}" \
+    ADMIN_PORT="${ADMIN_PORT:-7001}" \
+    MS_NAME="${MS_NAME}" \
+    MS_PORT="${MS_PORT:-8001}" \
+    DEBUG_PORT="${DEBUG_PORT:-8453}" \
+    DOMAIN_NAME="`awk '{print $1}' $PROPERTIES_FILE | grep ^DOMAIN_NAME= | cut -d "=" -f2`" \
+    DOMAIN_HOME="$DOMAIN_HOME_PARENT/$DOMAIN_NAME" \
+    WDT_HOME="${WDT_HOME}/weblogic-deploy" \
+    PATH=$PATH:$DOMAIN_HOME/bin
+    
+VOLUME $DOMAIN_HOME
+
+# Expose admin server, managed server port and domain debug port
 EXPOSE $ADMIN_PORT $MS_PORT $DEBUG_PORT
 
-USER oracle
-WORKDIR $ORACLE_HOME
-
 # Define default command to start bash.
-CMD ["${ORACLE_HOME}/startWLSDomain.sh"]
+WORKDIR $SCRIPT_HOME
+USER oracle
+
+CMD ["./startWLSDomain.sh"]

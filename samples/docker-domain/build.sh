@@ -6,6 +6,7 @@
 #
 docker build \
     --build-arg WDT_MODEL=simple-topology.yaml \
+    --build-arg WDT_VARIABLE=simple-topology.properties \
     --build-arg WDT_ARCHIVE=archive.zip \
-    -t 12213-domain-wdt .
+    -t 12213-domain-wdt-test .
 

@@ -1,50 +1,48 @@
 domainInfo:
-    AdminUserName: '@@FILE:/u01/oracle/properties/adminuser.properties@@'
-    AdminPassword: '@@FILE:/u01/oracle/properties/adminpass.properties@@'
-    ServerStartMode: '@@PROP:PRODUCTION_MODE_ENABLED@@'
+    AdminUserName: '@@FILE:@@PWD@@/properties/adminuser.properties@@'
+    AdminPassword: '@@FILE:@@PWD@@/properties/adminpass.properties@@'
+    ServerStartMode: '@@PROP:SERVER_START_MODE@@'
 topology:
     Name: '@@PROP:DOMAIN_NAME@@'
     AdminServerName: '@@PROP:ADMIN_NAME@@'
-    DebugPort
+    ProductionModeEnabled: '@@PROP:PRODUCTION_MODE_ENABLED@@'
     Cluster:
         '@@PROP:CLUSTER_NAME@@':
-            ClusterType: '@@PROP:CLUSTER_TYPE@@PROP'
             ClientCertProxyEnabled: true
-            ClusterMessagingMode: unicast
             DynamicServers:
                 ServerTemplate: template1
                 CalculatedListenPorts: false
                 ServerNamePrefix: '@@PROP:MANAGED_SERVER_NAME_BASE@@'
-                DynamicClusterSize: 2
-                MaxDynamicClusterSize: 8
+                DynamicClusterSize: '@@PROP:CONFIGURED_MANAGED_SERVER_COUNT@@'
+                MaxDynamicClusterSize: '@@PROP:CONFIGURED_MANAGED_SERVER_COUNT@@'
     Server:
-        AdminServer:
+        '@@PROP:ADMIN_NAME@@':
             ListenPort: '@@PROP:ADMIN_PORT@@'
     ServerTemplate:
         template1:
             ListenPort: '@@PROP:MS_PORT@@'
 resources:
     JDBCSystemResource:
-        Generic1:
+        '@@PROP:dsname@@':
             Target: '@@PROP:CLUSTER_NAME@@'
             JdbcResource:
                 JDBCDataSourceParams:
-                    JNDIName: [ jdbc/generic1, jdbc/special1 ]
-                    GlobalTransactionsProtocol: TwoPhaseCommit
+                    JNDIName: [ '@@PROP:dsjndiname@@' ]
+                    GlobalTransactionsProtocol: None
                 JDBCDriverParams:
-                    DriverName: oracle.jdbc.xa.client.OracleXADataSource
-                    URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=slc05til.us.oracle.com)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
+                    DriverName: '@@PROP:dsdriver@@'
+                    URL: '@@PROP:dsurl@@'
                     PasswordEncrypted: '@@PROP:DB_PASSWORD@@'
+                    UseXaDataSourceInterface: false
                     Properties:
+                        '@@PROP:dsname@@':
+                            Value: '@@PROP:dsdbname@@'
                         user:
-                            Value: '@@PROP:DB_USER@@'
-                        oracle.net.CONNECT_TIMEOUT:
-                            Value: 5000
-                        oracle.jdbc.ReadTimeout:
-                            Value: 30000
+                            Value: '@@PROP:DB_USER@@'                           
                 JDBCConnectionPoolParams:
-                    InitialCapacity: 0
-                    MaxCapacity: 15
+                    InitialCapacity: '@@PROP:dsinitalcapacity@@'
+                    MaxCapacity: '@@PROP:dsmaxcapacity@@'
+                    TestTableName: '@@PROP:dstestquery@@'
 appDeployments:
     Application:
         # Quote needed because of hyphen in string

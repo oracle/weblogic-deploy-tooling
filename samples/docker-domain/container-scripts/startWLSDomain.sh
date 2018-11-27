@@ -6,15 +6,9 @@
 #
 # Start the Domain.
 
-PROPERTIES_FILE=/u01/oracle/properties/domain.properties
+PROPERTIES_FILE=/u01/oracle/properties/security.properties
 if [ ! -e "$PROPERTIES_FILE" ]; then
     echo "A properties file with the username and password needs to be supplied."
-    exit
-fi
-
-DOMAIN_NAME=`awk '{print $1}' $PROPERTIES_FILE | grep ^DOMAIN_NAME= | cut -d "=" -f2`
-if [ -z "$DOMAIN_NAME" ]; then
-    echo "The domain name is blank.  The domain name must be set in the properties file."
     exit
 fi
 
@@ -29,9 +23,6 @@ if [ -z "$PASS" ]; then
     echo "The domain password is blank.  The Admin password must be set in the properties file."
     exit
 fi
-
-#Define DOMAIN_HOME
-export DOMAIN_HOME=/u01/oracle/user_projects/domains/$DOMAIN_NAME
 
 mkdir -p ${DOMAIN_HOME}/servers/AdminServer/security/
 echo "username=${USER}" >> $DOMAIN_HOME/servers/AdminServer/security/boot.properties
