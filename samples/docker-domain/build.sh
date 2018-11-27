@@ -4,7 +4,11 @@
 #
 #Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
+. container-scripts/setEnv.sh ./simple-topology.properties
+
+
 docker build \
+    $BUILD_ARG \
     --build-arg WDT_MODEL=simple-topology.yaml \
     --build-arg WDT_VARIABLE=simple-topology.properties \
     --build-arg WDT_ARCHIVE=archive.zip \
