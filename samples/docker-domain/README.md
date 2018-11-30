@@ -33,18 +33,66 @@ This sample deploys a simple, one-page web application contained in a ZIP archiv
 
     $ ./build-archive.sh
 
-To build this sample, run:
+The sample requires the Admin Host, Admin Port and Admin Name. It also requires the Managed Server port and the domain Debug 
+  Port. The ports will be EXPOSED through Docker The other arguments are persisted in the image to be used when running a
+  container. If an attribute is not provided as a --build-arg on the build command, the following defaults are set.
+
+CUSTOM_ADMIN_NAME = admin-server
+ The value is persisted to the image as ADMIN_NAME
+
+CUSTOM_ADMIN_HOST = wlsadmin
+ The value is persisted to the image as ADMIN_HOST
+
+CUSTOM_ADMIN_PORT = 7001
+ The value is persisted to the image as ADMIN_PORT
+
+CUSTOM_MANAGED_SERVER_PORT = 8001
+ The value is persisted to the image as MANAGED_SERVER_PORT
+
+CUSTOM_DEBUG_PORT = 8453
+ The value is persisted to the image as DEBUG_PORT
+
+CUSTOM_DOMAIN_NAME = base_domain
+ The value is persisted to the image as DEBUG_NAME
+
+To build this sample taking the defaults, run:
 
     $ docker build \
           --build-arg WDT_MODEL=simple-topology.yaml \
           --build-arg WDT_ARCHIVE=archive.zip \
-          --build-arg WDT_VARIABLE=container-scripts/domain.properties \
+          --build-arg WDT_VARIABLE=properties/docker-build/domain.properties \
           --force-rm=true \
           -t 12213-domain-wdt .
 
 This will use the model, variable and archive files in the sample directory.
 
-The Admin Server and each Managed Server are run in containers from this build image. The admin server credentials, required for running the admin server or a managed server, are provided in a properties file. This sample contains a credentials properties file in the properties/docker_run directory, which can be mounted into a volume on the container image. It is the responsibility of the user to mange the properties file in this mounted container volume.
+This sample provides a script which will read the model variable file and parse the domain, admin and managed server information
+  into a string of --build-arg statements. This build arg string is exported as environment variable BUILD_ARG.
+  The sample script specifically parses the sample variable file. Use it as an example to parse a custom variable file. 
+  This will insure that the values docker exposes and persists in the image are the same values configured in the domain.
+
+To parse the sample variable file and build the sample, run:
+
+     $ container-scripts/setEnv.sh properties/docker-build/domain.properties 
+
+     $ docker build \
+          $BUILD_ARG \
+          --build-arg WDT_MODEL=simple-topology.yaml \
+          --build-arg WDT_ARCHIVE=archive.zip \
+          --build-arg WDT_VARIABLE=properties/docker-build/domain.properties \
+          --force-rm=true \
+          -t 12213-domain-wdt .
+
+This sample provides a Derby Data Source that is targeted to the Managed Server cluster. The Derby database is created
+  in the Admin Server container when the container is run. To turn off the database create, set DERBY_FLAG="false" in the 
+  runtime security.properties used on the docker run statement.
+
+The Admin Server and each Managed Server are run in containers from this build image. In this sample, the admin server
+  credentials, required for running both the admin server and a managed server, are provided on the docker run command in
+  a properties file. The sample properties file also sets the JAVA_OPTS for the running Admin or Managed server. The 
+  properties file also contains the DERBY_FLAG to control the Derby database create. Mount the properties/docker-run directory
+  to the container. This directory contains the properties file security.properties. It is the responsibility of
+  the user to manage this volume, and the security.properties, in the container.
 
 To start the containerized Administration Server, run:
 
@@ -52,11 +100,11 @@ To start the containerized Administration Server, run:
 
 To start a containerized Managed Server (ms-1) to self-register with the Administration Server above, run:
 
-    $ docker run -d --name ms-1 --link wlsadmin:wlsadmin -p 9001:9001 -v <sample-directory>/properties/docker_run:/u01/oracle/properties -e MS_NAME=ms-1 12213-domain-wdt startManagedServer.sh
+    $ docker run -d --name ms-1 --link wlsadmin:wlsadmin -p 9001:9001 -v <sample-directory>/properties/docker_run:/u01/oracle/properties -e MANAGED_SERVER_NAME=managed-server-1 12213-domain-wdt startManagedServer.sh
 
 To start an additional Managed Server (in this example ms-2), run:
 
-    $ docker run -d --name ms-2 --link wlsadmin:wlsadmin -p 9002:9001 -v <sample-directory>/properties/docker_run/:/u01/oracle/properties -e MS_NAME=ms-2 12213-domain-wdt startManagedServer.sh
+    $ docker run -d --name ms-2 --link wlsadmin:wlsadmin -p 9002:9001 -v <sample-directory>/properties/docker_run/:/u01/oracle/properties -e MANAGED_SERVER_NAME=managed-server-2 12213-domain-wdt startManagedServer.sh
 
 The above scenario from this sample will give you a WebLogic domain with a dynamic cluster set up on a single host environment.
 

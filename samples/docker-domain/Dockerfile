@@ -1,4 +1,4 @@
-#Copyright (c) 2014-2018 Oracle and/or its affiliates. All rights reserved.
+#Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
 #
 #Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
@@ -11,19 +11,21 @@
 #
 # HOW TO BUILD THIS IMAGE
 # -----------------------
-# Put all downloaded files in the same directory as this Dockerfile
+
 # Build the deployment archive file using the build-archive.sh script.
 #      $ ./build-archive.sh
 #
 # Run:
 #      $ sudo docker build \
-#            --build-arg ADMIN_HOST=wlsadmin
-#            --build-arg ADMIN_PORT=7001
-#            --build-arg MS_PORT=8001
-#            --build-arg DOMAIN_NAME=base_domain
+#            --build-arg CUSTOM_ADMIN_HOST=wlsadmin \
+#            --build-arg CUSTOM_ADMIN_PORT=7001 \
+#            --build-arg CUSTOM_ADMIN_NAME=7001 \
+#            --build-arg CUSTOM_MANAGED_SERVER_PORT=8001 \
+#            --build-arg CUSTOM_DOMAIN_NAME=base_domain \
+#            --build-arg CUSTOM_DEBUG_PORT=8453 \
 #            --build-arg WDT_MODEL=simple-topology.yaml \
 #            --build-arg WDT_ARCHIVE=archive.zip \
-#            --build-arg WDT_VARIABLE=domain.properties \
+#            --build-arg WDT_VARIABLE=properties/docker-build/domain.properties \
 #            --force-rm=true \
 #            -t 12213-domain-wdt .
 #
@@ -34,7 +36,7 @@
 # The sample model replaces the attributes with tokens that are resolved fromn values in the
 # corresponding property file domain.properties. The container-scripts/setEnv.sh script
 # demonstrates parsing the variable file to build a string of --build-args that can
-# be passed on the docker builds command.
+# be passed on the docker build command.
 #
 # Pull base image
 # ---------------
@@ -83,8 +85,7 @@ COPY weblogic-deploy.zip ${WDT_HOME}
 COPY container-scripts/* ${SCRIPT_HOME}/
 
 # Create the properties file directory and the domain home parent with the correct permissions / owner. 
-# Unzip and install the WDT image.
-# Export variable file values into the environment
+# Unzip and install the WDT image and change the permissions / owner.
 USER root
 RUN chmod +xw $SCRIPT_HOME/*.sh && \ 
     chown -R oracle:oracle ${SCRIPT_HOME} && \
@@ -143,5 +144,5 @@ EXPOSE $ADMIN_PORT $MANAGED_SERVER_PORT $DEBUG_PORT
 
 WORKDIR $DOMAIN_HOME
 
-# Define default command to start bash.
+# Define default command to start Admin Server in a container.
 CMD ["/u01/oracle/startAdminServer.sh"]
