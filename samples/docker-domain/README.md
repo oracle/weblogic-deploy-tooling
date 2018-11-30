@@ -38,7 +38,7 @@ To build this sample, run:
     $ docker build \
           --build-arg WDT_MODEL=simple-topology.yaml \
           --build-arg WDT_ARCHIVE=archive.zip \
-          --build-arg WDT_VARIABLE=simple-topology.properties \
+          --build-arg WDT_VARIABLE=container-scripts/domain.properties \
           --force-rm=true \
           -t 12213-domain-wdt .
 

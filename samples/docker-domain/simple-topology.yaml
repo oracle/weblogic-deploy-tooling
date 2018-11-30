@@ -1,6 +1,6 @@
 domainInfo:
-    AdminUserName: '@@FILE:@@PWD@@/properties/adminuser.properties@@'
-    AdminPassword: '@@FILE:@@PWD@@/properties/adminpass.properties@@'
+    AdminUserName: '@@FILE:/u01/oracle/properties/adminuser.properties@@'
+    AdminPassword: '@@FILE:/u01/oracle/properties/adminpass.properties@@'
     ServerStartMode: '@@PROP:SERVER_START_MODE@@'
 topology:
     Name: '@@PROP:DOMAIN_NAME@@'
@@ -18,9 +18,15 @@ topology:
     Server:
         '@@PROP:ADMIN_NAME@@':
             ListenPort: '@@PROP:ADMIN_PORT@@'
+            NetworkAccessPoint:
+                T3Channel:
+                    ListenAddress: None
+                    ListenPort: '@@PROP:T3_CHANNEL_PORT@@'
+                    PublicAddress: '@@PROP:T3_PUBLIC_ADDRESS'
+                    PublicPort: '@@PROP:T3_CHANNEL_PORT@@'
     ServerTemplate:
         template1:
-            ListenPort: '@@PROP:MS_PORT@@'
+            ListenPort: '@@PROP:MANAGED_SERVER_PORT@@'
 resources:
     JDBCSystemResource:
         '@@PROP:dsname@@':
@@ -32,13 +38,13 @@ resources:
                 JDBCDriverParams:
                     DriverName: '@@PROP:dsdriver@@'
                     URL: '@@PROP:dsurl@@'
-                    PasswordEncrypted: '@@PROP:DB_PASSWORD@@'
+                    PasswordEncrypted: '@@PROP:dbpassword@@'
                     UseXaDataSourceInterface: false
                     Properties:
-                        '@@PROP:dsname@@':
+                        databaseName:
                             Value: '@@PROP:dsdbname@@'
                         user:
-                            Value: '@@PROP:DB_USER@@'                           
+                            Value: '@@PROP:dbusername@@'                           
                 JDBCConnectionPoolParams:
                     InitialCapacity: '@@PROP:dsinitalcapacity@@'
                     MaxCapacity: '@@PROP:dsmaxcapacity@@'
