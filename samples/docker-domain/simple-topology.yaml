@@ -22,7 +22,7 @@ topology:
                 T3Channel:
                     ListenAddress: None
                     ListenPort: '@@PROP:T3_CHANNEL_PORT@@'
-                    PublicAddress: '@@PROP:T3_PUBLIC_ADDRESS'
+                    PublicAddress: '@@PROP:T3_PUBLIC_ADDRESS@@'
                     PublicPort: '@@PROP:T3_CHANNEL_PORT@@'
     ServerTemplate:
         template1:
@@ -30,10 +30,10 @@ topology:
 resources:
     JDBCSystemResource:
         '@@PROP:dsname@@':
-            Target: '@@PROP:CLUSTER_NAME@@'
+            Target: '@@PROP:CLUSTER_ADMIN@@'
             JdbcResource:
                 JDBCDataSourceParams:
-                    JNDIName: [ '@@PROP:dsjndiname@@' ]
+                    JNDIName: '@@PROP:dsjndiname@@'
                     GlobalTransactionsProtocol: None
                 JDBCDriverParams:
                     DriverName: '@@PROP:dsdriver@@'
