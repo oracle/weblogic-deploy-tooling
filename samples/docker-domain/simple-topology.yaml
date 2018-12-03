@@ -27,28 +27,6 @@ topology:
     ServerTemplate:
         template1:
             ListenPort: '@@PROP:MANAGED_SERVER_PORT@@'
-resources:
-    JDBCSystemResource:
-        '@@PROP:dsname@@':
-            Target: '@@PROP:CLUSTER_ADMIN@@'
-            JdbcResource:
-                JDBCDataSourceParams:
-                    JNDIName: '@@PROP:dsjndiname@@'
-                    GlobalTransactionsProtocol: None
-                JDBCDriverParams:
-                    DriverName: '@@PROP:dsdriver@@'
-                    URL: '@@PROP:dsurl@@'
-                    PasswordEncrypted: '@@PROP:dbpassword@@'
-                    UseXaDataSourceInterface: false
-                    Properties:
-                        databaseName:
-                            Value: '@@PROP:dsdbname@@'
-                        user:
-                            Value: '@@PROP:dbusername@@'                           
-                JDBCConnectionPoolParams:
-                    InitialCapacity: '@@PROP:dsinitalcapacity@@'
-                    MaxCapacity: '@@PROP:dsmaxcapacity@@'
-                    TestTableName: '@@PROP:dstestquery@@'
 appDeployments:
     Application:
         # Quote needed because of hyphen in string
