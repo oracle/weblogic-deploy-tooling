@@ -12,10 +12,15 @@ This sample includes a basic WDT model, `simple-topology.yaml`, that describes t
 
 Another option is to use the WDT `discoverDomain` tool to create a model. This process is also described in the WDT project's README file. A user can use the tool to analyze an existing domain, and create a model based on its configuration. The user may choose to customize the model before using it to create a new Docker image.
 
-The sample model file includes variable tokens that are replaced with values from the provided 'simple-topology.properties'. The properties files can be created and modified using a text editor. The property file must contain the values that the Dockerfile sets as ENV variables to expose ports
- and run a server in a docker container.
+The sample model is accompanied by a properties file whose values can be changed to customize a domain. The model's variable tokens are replaced with values from 'simple-topology.properties' when building the docker image. The properties files can be created and modified using a text editor. Select variables in the properties file are used by the Dockerfile during the build to persist ENV variables and expose ports in the image.
  
-The admin server credentials in the sample model contain file tokens that reference special property files. A special property file must contain only one property value pair. The sample includes the credentials secrets property files in the properties/docker_build directory. The files can be created and modified using a text editor; one file must contain the admin password and one file must contain the admin user. See the README file for more information on using property and file tokens in the WDT model.
+Care should be taken to secure the credentials that are present in the model. The ADMIN credential attributes in the sample model have a file token referencing a special property file. Each special property file must only contain a single property and can be created and modified using a text editor. The sample includes the files adminuser.properties and the adminpass.properties in the properties/docker_build directory.
+
+See the README file for more information on using property and file tokens in the WDT model.
+
+The ADMIN credentials are necessary to start the Admin or Managed Server in a docker container. The sample provides security.properties in the properties/docker-run directory. This file provides the admin credentials and additional properties used to customize the Weblogic Server start.
+
+Note: Oracle recommends that the adminpass.properties, adminuser.properties and security.properties files be deleted or secured after the image is built and the WebLogic Server are started so that the user name and password are not inadvertently exposed.
 
 Domain creation may require the deployment of applications and libraries. This is accomplished by creating a ZIP archive with a specific structure, then referencing those items in the model. This sample creates and deploys a simple ZIP archive containing a small application WAR. That archive is built in the sample directory prior to creating the Docker image.
 
@@ -34,7 +39,7 @@ This sample deploys a simple, one-page web application contained in a ZIP archiv
     $ ./build-archive.sh
 
 The sample requires the Admin Host, Admin Port and Admin Name. It also requires the Managed Server port and the domain Debug 
-  Port. The ports will be EXPOSED through Docker The other arguments are persisted in the image to be used when running a
+  Port. The ports will be EXPOSED through Docker. The other arguments are persisted in the image to be used when running a
   container. If an attribute is not provided as a --build-arg on the build command, the following defaults are set.
 
 CUSTOM_ADMIN_NAME = admin-server
@@ -53,7 +58,7 @@ CUSTOM_DEBUG_PORT = 8453
  The value is persisted to the image as DEBUG_PORT
 
 CUSTOM_DOMAIN_NAME = base_domain
- The value is persisted to the image as DEBUG_NAME
+ The value is persisted to the image as DOMAIN_NAME
 
 To build this sample taking the defaults, run:
 
@@ -87,12 +92,10 @@ This sample provides a Derby Data Source that is targeted to the Managed Server 
   in the Admin Server container when the container is run. To turn off the database create, set DERBY_FLAG="false" in the 
   runtime security.properties used on the docker run statement.
 
-The Admin Server and each Managed Server are run in containers from this build image. In this sample, the admin server
-  credentials, required for running both the admin server and a managed server, are provided on the docker run command in
-  a properties file. The sample properties file also sets the JAVA_OPTS for the running Admin or Managed server. The 
-  properties file also contains the DERBY_FLAG to control the Derby database create. Mount the properties/docker-run directory
-  to the container. This directory contains the properties file security.properties. It is the responsibility of
-  the user to manage this volume, and the security.properties, in the container.
+The Admin Server and each Managed Server are run in containers from this build image. In the sample, the securities.properties file
+  is provided on the docker run command. In addition to the credentials and DERBY_FLAG, the file contains the JAVA_OPTS for the      
+  running Admin or Managed server. Mount the properties/docker-run directory to the container so that file can be accessed by the
+  server start script. It is the responsibility of the user to manage this volume, and the security.properties, in the container.
 
 To start the containerized Administration Server, run:
 
