@@ -1,27 +1,42 @@
 #!/bin/bash
 #
-#Copyright (c) 2014-2018 Oracle and/or its affiliates. All rights reserved.
+#Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
 #
 #Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
-# Start the Domain.
+# Start a Domain Managed Server.
 
-PROPERTIES_FILE=/u01/oracle/properties/domain.properties
+PROPERTIES_FILE=${PROPERTIES_FILE_DIR}/security.properties
 if [ ! -e "$PROPERTIES_FILE" ]; then
-    echo "A properties file with variable definitions needs to be supplied."
+    echo "A security.properties file with variable definitions needs to be supplied."
     exit
 fi
 
-DOMAIN_NAME=`awk '{print $1}' $PROPERTIES_FILE | grep ^DOMAIN_NAME= | cut -d "=" -f2`
-if [ -z "$DOMAIN_NAME" ]; then
-    echo "The domain name is blank.  The domain name must be set in the properties file."
+JAVA_OPTIONS=`awk '{print $1}' $PROPERTIES_FILE | grep ^JAVA_OPTIONS= | cut -d "=" -f2`
+if [ -z "$JAVA_OPTIONS" ]; then
+    JAVA_OPTIONS="-Dweblogic.StdoutDebugEnabled=false"
+fi
+
+export MS_HOME="${DOMAIN_HOME}/servers/${MANAGED_SERVER_NAME}"
+export MS_SECURITY="${MS_HOME}/security"
+export MS_LOGS="${MS_HOME}/logs"
+
+if [ -f ${MS_LOGS}/${MANAGED_SERVER_NAME}.log ]; then
     exit
 fi
+
+# Wait for the domain Admin Server to become available
+${SCRIPT_HOME}/waitForAdminServer.sh
+
+echo "Managed Server Name: ${MANAGED_SERVER_NAME}"
+echo "Managed Server Home: ${MS_HOME}"
+echo "Managed Server Security: ${MS_SECURITY}"
+echo "Managed Server Logs: ${MS_LOGS}"
 
 USER=`awk '{print $1}' $PROPERTIES_FILE | grep ^username= | cut -d "=" -f2`
 if [ -z "$USER" ]; then
     echo "The admin username is blank.  The admin username must be set in the properties file."
-    exit
+    exit 
 fi
 
 PASS=`awk '{print $1}' $PROPERTIES_FILE | grep ^password= | cut -d "=" -f2`
@@ -30,29 +45,17 @@ if [ -z "$PASS" ]; then
     exit
 fi
 
-ADMIN_HOST=`awk '{print $1}' $PROPERTIES_FILE | grep ^ADMIN_HOST= | cut -d "=" -f2`
-if [ -z "$ADMIN_HOST" ]; then
-    echo "The admin host is blank.  The admin host must be set in the properties file."
-    exit
-fi
+mkdir -p ${MS_SECURITY}
+echo username=$USER > ${MS_SECURITY}/boot.properties
+echo password=$PASS >> ${MS_SECURITY}/boot.properties
 
-ADMIN_PORT=`awk '{print $1}' $PROPERTIES_FILE | grep ^ADMIN_PORT= | cut -d "=" -f2`
-if [ -z "$ADMIN_PORT" ]; then
-    echo "The admin port is blank.  The admin port must be set in the properties file."
-    exit
-fi
+# Start Managed Server 
+${DOMAIN_HOME}/bin/setDomainEnv.sh
+echo 'Start Managed Server: ${MANAGED_SERVER_NAME}'
+${DOMAIN_HOME}/bin/startManagedWebLogic.sh ${MANAGED_SERVER_NAME} http://${ADMIN_HOST}:${ADMIN_PORT}
 
-#Define DOMAIN_HOME
-export DOMAIN_HOME=/u01/oracle/user_projects/domains/$DOMAIN_NAME
-
-mkdir -p $DOMAIN_HOME/servers/$MS_NAME/security
-echo username=$USER > $DOMAIN_HOME/servers/$MS_NAME/security/boot.properties
-echo password=$PASS >> $DOMAIN_HOME/servers/$MS_NAME/security/boot.properties
-
-# Start Managed Server and tail the logs
-${DOMAIN_HOME}/bin/startManagedWebLogic.sh $MS_NAME http://$ADMIN_HOST:$ADMIN_PORT
-touch ${DOMAIN_HOME}/servers/$MS_NAME/logs/${MS_NAME}.log
-tail -f ${DOMAIN_HOME}/servers/$MS_NAME/logs/${MS_NAME}.log &
+# Tail Managed Server Log
+tail -f ${MS_LOGS}/${MANAGED_SERVER_NAME}.log &
 
 childPID=$!
 wait $childPID
