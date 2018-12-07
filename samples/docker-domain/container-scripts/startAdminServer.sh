@@ -21,15 +21,12 @@ fi
 export ${JAVA_OPTIONS}
 echo "Java Options: ${JAVA_OPTIONS}"
 
-echo "I am here"
 # Define start of Derby Database
-echo "start derby"
 CUSTOM_DERBY_FLAG=`awk '{print $1}' $PROPERTIES_FILE | grep ^DERBY_FLAG= | cut -d "=" -f2`
 if [ -n "${CUSTOM_DERBY_FLAG}" ]; then
-    echo got a derby flag from prop
     DERBY_FLAG="${CUSTOM_DERBY_FLAG}"
 fi
-echo found the dervby
+ 
 export ${DERBY_FLAG}
 echo "Start Derby: ${DERBY_FLAG}"
 
