@@ -18,7 +18,7 @@ Care should be taken to secure the credentials that are present in the model. Th
 
 See the README file for more information on using property and file tokens in the WDT model.
 
-The ADMIN credentials are necessary to start the Admin or Managed Server in a docker container. The sample provides security.properties in the properties/docker-run directory. This file provides the admin credentials and additional properties used to customize the Weblogic Server start.
+The ADMIN credentials are necessary to start the Admin or Managed Server in a docker container. The sample provides security.properties in the properties/docker-run directory. This file contains the admin credentials and additional properties used to customize the Weblogic Server start.
 
 Note: Oracle recommends that the adminpass.properties, adminuser.properties and security.properties files be deleted or secured after the image is built and the WebLogic Server are started so that the user name and password are not inadvertently exposed.
 
