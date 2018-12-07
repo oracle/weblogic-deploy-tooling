@@ -33,7 +33,7 @@
 # are set to default values. (The values shown in the build statement). 
 #
 # You must insure that the build arguments align with the values in the model. 
-# The sample model replaces the attributes with tokens that are resolved fromn values in the
+# The sample model replaces the attributes with tokens that are resolved from values in the
 # corresponding property file domain.properties. The container-scripts/setEnv.sh script
 # demonstrates parsing the variable file to build a string of --build-args that can
 # be passed on the docker build command.
