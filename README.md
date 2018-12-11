@@ -1091,7 +1091,7 @@ def filter_model(model):
 			print 'SecurityConfiguration not in the model'
 ```
 
-Model filters are configured by creating a model.filters.json file in the WLSDEPLOY_HOME/lib directory. This file has separate sections for filters to be applied for specific tools. Filters in the "deploy" section are also applied for the Update Domain Tool.
+Model filters are configured by creating a model_filters.json file in the WLSDEPLOY_HOME/lib directory. This file has separate sections for filters to be applied for specific tools.
  
 This example deploys two filters for the Create Domain Tool: fix-password.py and no-mail.py, and one filter for the Discover Domain tool.
 
@@ -1105,6 +1105,8 @@ This example deploys two filters for the Create Domain Tool: fix-password.py and
   ],
   "discover": [
     { "name": "noMail", "path": "/home/user/no-mail.py" }
+  ],
+  "update": [
   ]
 }
 ```
