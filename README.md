@@ -1072,7 +1072,7 @@ A custom injector for the admin server SSL listen port is:
 }
 ```
 
-### Model Filters
+## Model Filters
 
 WebLogic Deploy Tooling supports the use of model filters to manipulate the domain model. The Create Domain, Update Domain, and Deploy Applications Tools apply filters to the model after it is read, before it is validated and applied to the domain. The Discover Domain Tool applies filters to the model after it has been discovered, before the model is validated and written.
 
