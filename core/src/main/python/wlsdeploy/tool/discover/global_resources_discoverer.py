@@ -82,13 +82,17 @@ class GlobalResourcesDiscoverer(Discoverer):
         startup_classes = self._find_names_in_folder(location)
         if startup_classes is not None:
             _logger.info('WLSDPLY-06442', len(startup_classes), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._alias_helper.get_name_token(location)
             for startup_class in startup_classes:
-                _logger.info('WLSDPLY-06443', startup_class, class_name=_class_name, method_name=_method_name)
-                result[startup_class] = OrderedDict()
-                location.add_name_token(name_token, startup_class)
-                self._populate_model_parameters(result[startup_class], location)
-                location.remove_name_token(name_token)
+                if typedef.is_system_startup_class(startup_class):
+                    _logger.info('WLSDPLY-06447', startup_class, class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06443', startup_class, class_name=_class_name, method_name=_method_name)
+                    result[startup_class] = OrderedDict()
+                    location.add_name_token(name_token, startup_class)
+                    self._populate_model_parameters(result[startup_class], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
@@ -107,13 +111,17 @@ class GlobalResourcesDiscoverer(Discoverer):
         shutdown_classes = self._find_names_in_folder(location)
         if shutdown_classes is not None:
             _logger.info('WLSDPLY-06445', len(shutdown_classes), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._alias_helper.get_name_token(location)
             for shutdown_class in shutdown_classes:
-                _logger.info('WLSDPLY-06446', shutdown_class, class_name=_class_name, method_name=_method_name)
-                result[shutdown_class] = OrderedDict()
-                location.add_name_token(name_token, shutdown_class)
-                self._populate_model_parameters(result[shutdown_class], location)
-                location.remove_name_token(name_token)
+                if typedef.is_system_shutdown_class(shutdown_class):
+                    _logger.info('WLSDPLY-06448', shutdown_class, class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06446', shutdown_class, class_name=_class_name, method_name=_method_name)
+                    result[shutdown_class] = OrderedDict()
+                    location.add_name_token(name_token, shutdown_class)
+                    self._populate_model_parameters(result[shutdown_class], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result

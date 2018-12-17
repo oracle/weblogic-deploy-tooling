@@ -24,6 +24,9 @@ class DomainTypedef(object):
     __domain_typedefs_location = os.path.join(os.environ.get('WLSDEPLOY_HOME'), 'lib', 'typedefs')
     __domain_typedef_extension = '.json'
 
+    __wild_card_suffix = '%%'
+    __wild_card_suffix_len = len(__wild_card_suffix)
+
     def __init__(self, program_name, domain_type):
         """
         The DomainTypedef constructor.
@@ -61,6 +64,12 @@ class DomainTypedef(object):
         self._paths_resolved = False
         self._model_context = None
         self._version_typedef_name = None
+
+        if 'system-elements' in self._domain_typedefs_dict:
+            self._system_elements = self._domain_typedefs_dict['system-elements']
+        else:
+            self._system_elements = {}
+
         return
 
     def set_model_context(self, model_context):
@@ -109,6 +118,39 @@ class DomainTypedef(object):
         # No need to resolve the paths and we need this to work prior to
         # resolution for create.py argument processing.
         return list(self._domain_typedef['rcuSchemas'])
+
+    def is_system_app(self, name):
+        return self._is_system_name(name, 'apps')
+
+    def is_system_shared_library(self, name):
+        return self._is_system_name(name, 'shared-libraries')
+
+    def is_system_datasource(self, name):
+        return self._is_system_name(name, 'datasources')
+
+    def is_system_coherence_cluster(self, name):
+        return self._is_system_name(name, 'coherence-clusters')
+
+    def is_system_wldf(self, name):
+        return self._is_system_name(name, 'wldf')
+
+    def is_system_startup_class(self, name):
+        return self._is_system_name(name, 'startup-classes')
+
+    def is_system_shutdown_class(self, name):
+        return self._is_system_name(name, 'shutdown-classes')
+
+    def _is_system_name(self, name, key):
+        if key in self._system_elements:
+            system_names = self._system_elements[key]
+            for system_name in system_names:
+                if system_name.endswith(self.__wild_card_suffix):
+                    prefix = system_name[0:0 - self.__wild_card_suffix_len]
+                    if name.startswith(prefix):
+                        return True
+                elif system_name == name:
+                    return True
+        return False
 
     def __resolve_paths(self):
         """

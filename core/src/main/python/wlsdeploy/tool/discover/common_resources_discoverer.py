@@ -83,21 +83,25 @@ class CommonResourcesDiscoverer(Discoverer):
         datasources = self._find_names_in_folder(location)
         if datasources is not None:
             _logger.info('WLSDPLY-06340', len(datasources), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._alias_helper.get_name_token(location)
             for datasource in datasources:
-                _logger.info('WLSDPLY-06341', datasource, class_name=_class_name, method_name=_method_name)
-                result[datasource] = OrderedDict()
-                location.add_name_token(name_token, datasource)
-                self._populate_model_parameters(result[datasource], location)
+                if typedef.is_system_datasource(datasource):
+                    _logger.info('WLSDPLY-06361', datasource, class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06341', datasource, class_name=_class_name, method_name=_method_name)
+                    result[datasource] = OrderedDict()
+                    location.add_name_token(name_token, datasource)
+                    self._populate_model_parameters(result[datasource], location)
 
-                location.append_location(model_second_folder)
-                if self.wlst_cd(self._alias_helper.get_wlst_attributes_path(location), location):
-                    result[datasource][model_second_folder] = OrderedDict()
-                    resource_result = result[datasource][model_second_folder]
-                    self._populate_model_parameters(resource_result, location)
-                    self._discover_subfolders(resource_result, location)
-                    location.remove_name_token(name_token)
-                    location.pop_location()
+                    location.append_location(model_second_folder)
+                    if self.wlst_cd(self._alias_helper.get_wlst_attributes_path(location), location):
+                        result[datasource][model_second_folder] = OrderedDict()
+                        resource_result = result[datasource][model_second_folder]
+                        self._populate_model_parameters(resource_result, location)
+                        self._discover_subfolders(resource_result, location)
+                        location.remove_name_token(name_token)
+                        location.pop_location()
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
@@ -297,14 +301,18 @@ class CommonResourcesDiscoverer(Discoverer):
         wldf_resources = self._find_names_in_folder(location)
         if wldf_resources is not None:
             _logger.info('WLSDPLY-06357', len(wldf_resources), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._alias_helper.get_name_token(location)
             for wldf_resource in wldf_resources:
-                _logger.info('WLSDPLY-06358', wldf_resource, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, wldf_resource)
-                result[wldf_resource] = OrderedDict()
-                self._populate_model_parameters(result[wldf_resource], location)
-                self._discover_subfolders(result[wldf_resource], location)
-                location.remove_name_token(name_token)
+                if typedef.is_system_wldf(wldf_resource):
+                    _logger.info('WLSDPLY-06362', wldf_resource, class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06358', wldf_resource, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, wldf_resource)
+                    result[wldf_resource] = OrderedDict()
+                    self._populate_model_parameters(result[wldf_resource], location)
+                    self._discover_subfolders(result[wldf_resource], location)
+                    location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
 

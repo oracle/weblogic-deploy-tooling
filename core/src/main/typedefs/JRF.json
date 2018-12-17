@@ -63,5 +63,88 @@
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
             "rcuSchemas": [ "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
         }
+    },
+    "system-elements": {
+        "apps": [
+            "opss-rest",
+            "state-management-provider-memory-rar",
+            "DMS Application%%",
+            "coherence-transaction-rar",
+            "em"
+        ],
+        "coherence-clusters": [
+            "defaultCoherenceCluster"
+        ],
+        "datasources": [
+            "WLSSchemaDataSource",
+            "LocalSvcTblDataSource",
+            "opss-data-source",
+            "opss-audit-viewDS",
+            "opss-audit-DBDS",
+            "mds-owsm"
+        ],
+        "shared-libraries": [
+            "adf.oracle.domain%%",
+            "adf.oracle.domain.webapp%%",
+            "adf.oracle.businesseditor%%",
+            "em_common%%",
+            "em_core_ppc_pojo_jar",
+            "em_error%%",
+            "em_sdkcore_ppc_public_pojo_jar",
+            "emas",
+            "emagentsdk_jar%%",
+            "emagentsdkimpl_jar%%",
+            "emagentsdkimplpriv_jar%%",
+            "emcore",
+            "emcore_jar",
+            "emcoresdk_jar%%",
+            "emcoreintsdk_jar%%",
+            "emcoresdkimpl_jar%%",
+            "emcorecommon_jar",
+            "emcoreconsole_jar",
+            "emcorepbs_jar",
+            "emcoreclient_jar",
+            "jsf%%",
+            "jstl%%",
+            "log4j_jar%%",
+            "odl.clickhistory%%",
+            "odl.clickhistory.webapp%%",
+            "ohw-rcf%%",
+            "ohw-uix%%",
+            "oracle.adf.dconfigbeans%%",
+            "oracle.adf.management%%",
+            "oracle.adf.desktopintegration.model%%",
+            "oracle.adf.desktopintegration%%",
+            "oracle.bi.jbips%%",
+            "oracle.bi.composer%%",
+            "oracle.bi.adf.model.slib%%",
+            "oracle.bi.adf.view.slib%%",
+            "oracle.bi.adf.webcenter.slib%%",
+            "oracle.dconfig-infra%%",
+            "oracle.jrf.system.filter",
+            "oracle.jsp.next%%",
+            "oracle.pwdgen%%",
+            "oracle.sdp.client%%",
+            "oracle.webcenter.composer%%",
+            "oracle.webcenter.skin%%",
+            "oracle.wsm.seedpolicies%%",
+            "orai18n-adf%%",
+            "owasp.esapi%%",
+            "UIX%%"
+        ],
+        "shutdown-classes": [
+            "DMSShutdown"
+        ],
+        "startup-classes": [
+            "WSM Startup Class",
+            "Web Services Startup Class",
+            "JRF Startup Class",
+            "ODL-Startup",
+            "DMS-Startup",
+            "AWT Application Context Startup Class"
+        ],
+        "wldf": [
+            "Module-FMWDFW"
+        ]
     }
 }
