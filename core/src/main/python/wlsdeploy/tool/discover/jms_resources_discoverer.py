@@ -65,7 +65,8 @@ class JmsResourcesDiscoverer(Discoverer):
             name_token = self._alias_helper.get_name_token(location)
             for jms_server in jms_servers:
                 if typedef.is_system_jms_server(jms_server):
-                    _logger.info('WLSDPLY-06490', jms_server, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06490', typedef.get_domain_type(), jms_server, class_name=_class_name,
+                                 method_name=_method_name)
                 else:
                     _logger.info('WLSDPLY-06471', jms_server, class_name=_class_name, method_name=_method_name)
                     location.add_name_token(name_token, jms_server)
@@ -169,7 +170,8 @@ class JmsResourcesDiscoverer(Discoverer):
             name_token = self._alias_helper.get_name_token(location)
             for jms_resource in jms_resources:
                 if typedef.is_system_jms(jms_resource):
-                    _logger.info('WLSDPLY-06491', jms_resource, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06491', typedef.get_domain_type(), jms_resource, class_name=_class_name,
+                                 method_name=_method_name)
                 else:
                     _logger.info('WLSDPLY-06479', jms_resource, class_name=_class_name, method_name=_method_name)
                     result[jms_resource] = OrderedDict()

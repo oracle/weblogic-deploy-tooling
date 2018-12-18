@@ -87,7 +87,8 @@ class CommonResourcesDiscoverer(Discoverer):
             name_token = self._alias_helper.get_name_token(location)
             for datasource in datasources:
                 if typedef.is_system_datasource(datasource):
-                    _logger.info('WLSDPLY-06361', datasource, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06361', typedef.get_domain_type(), datasource, class_name=_class_name,
+                                 method_name=_method_name)
                 else:
                     _logger.info('WLSDPLY-06341', datasource, class_name=_class_name, method_name=_method_name)
                     result[datasource] = OrderedDict()
@@ -175,7 +176,8 @@ class CommonResourcesDiscoverer(Discoverer):
             name_token = self._alias_helper.get_name_token(location)
             for file_store in file_stores:
                 if typedef.is_system_file_store(file_store):
-                    _logger.info('WLSDPLY-06363', file_store, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06363', typedef.get_domain_type(), file_store, class_name=_class_name,
+                                 method_name=_method_name)
                 else:
                     _logger.info('WLSDPLY-06347', file_store, class_name=_class_name, method_name=_method_name)
                     result[file_store] = OrderedDict()
@@ -309,7 +311,8 @@ class CommonResourcesDiscoverer(Discoverer):
             name_token = self._alias_helper.get_name_token(location)
             for wldf_resource in wldf_resources:
                 if typedef.is_system_wldf(wldf_resource):
-                    _logger.info('WLSDPLY-06362', wldf_resource, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06362', typedef.get_domain_type(), wldf_resource, class_name=_class_name,
+                                 method_name=_method_name)
                 else:
                     _logger.info('WLSDPLY-06358', wldf_resource, class_name=_class_name, method_name=_method_name)
                     location.add_name_token(name_token, wldf_resource)

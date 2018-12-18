@@ -86,7 +86,8 @@ class GlobalResourcesDiscoverer(Discoverer):
             name_token = self._alias_helper.get_name_token(location)
             for startup_class in startup_classes:
                 if typedef.is_system_startup_class(startup_class):
-                    _logger.info('WLSDPLY-06447', startup_class, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06447', typedef.get_domain_type(), startup_class, class_name=_class_name,
+                                 method_name=_method_name)
                 else:
                     _logger.info('WLSDPLY-06443', startup_class, class_name=_class_name, method_name=_method_name)
                     result[startup_class] = OrderedDict()
@@ -115,7 +116,8 @@ class GlobalResourcesDiscoverer(Discoverer):
             name_token = self._alias_helper.get_name_token(location)
             for shutdown_class in shutdown_classes:
                 if typedef.is_system_shutdown_class(shutdown_class):
-                    _logger.info('WLSDPLY-06448', shutdown_class, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06448', typedef.get_domain_type(), shutdown_class, class_name=_class_name,
+                                 method_name=_method_name)
                 else:
                     _logger.info('WLSDPLY-06446', shutdown_class, class_name=_class_name, method_name=_method_name)
                     result[shutdown_class] = OrderedDict()

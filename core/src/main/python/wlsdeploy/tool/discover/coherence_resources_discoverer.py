@@ -78,7 +78,8 @@ class CoherenceResourcesDiscoverer(Discoverer):
             name_token = self._alias_helper.get_name_token(location)
             for coherence_cluster in coherence_clusters:
                 if typedef.is_system_coherence_cluster(coherence_cluster):
-                    _logger.info('WLSDPLY-06322', coherence_cluster, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06322', typedef.get_domain_type(), coherence_cluster, class_name=_class_name,
+                                 method_name=_method_name)
                 else:
                     _logger.info('WLSDPLY-06312', coherence_cluster, class_name=_class_name, method_name=_method_name)
                     location.add_name_token(name_token, coherence_cluster)
