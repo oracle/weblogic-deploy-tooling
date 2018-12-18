@@ -61,14 +61,18 @@ class JmsResourcesDiscoverer(Discoverer):
         jms_servers = self._find_names_in_folder(location)
         if jms_servers is not None:
             _logger.info('WLSDPLY-06470', len(jms_servers), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._alias_helper.get_name_token(location)
             for jms_server in jms_servers:
-                _logger.info('WLSDPLY-06471', jms_server, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, jms_server)
-                result[jms_server] = OrderedDict()
-                self._populate_model_parameters(result[jms_server], location)
-                self._discover_subfolders(result[jms_server], location)
-                location.remove_name_token(name_token)
+                if typedef.is_system_jms_server(jms_server):
+                    _logger.info('WLSDPLY-06490', jms_server, class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06471', jms_server, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, jms_server)
+                    result[jms_server] = OrderedDict()
+                    self._populate_model_parameters(result[jms_server], location)
+                    self._discover_subfolders(result[jms_server], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
@@ -161,17 +165,21 @@ class JmsResourcesDiscoverer(Discoverer):
         jms_resources = self._find_names_in_folder(location)
         if jms_resources is not None:
             _logger.info('WLSDPLY-06478', len(jms_resources), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._alias_helper.get_name_token(location)
             for jms_resource in jms_resources:
-                _logger.info('WLSDPLY-06479', jms_resource, class_name=_class_name, method_name=_method_name)
-                result[jms_resource] = OrderedDict()
-                location.add_name_token(name_token, jms_resource)
-                self._populate_model_parameters(result[jms_resource], location)
-                model_subfolder_name, subfolder_result = self._get_subdeployments(location)
-                discoverer.add_to_model_if_not_empty(result[jms_resource], model_subfolder_name, subfolder_result)
-                model_subfolder_name, subfolder_result = self._get_jms_resources(location)
-                discoverer.add_to_model_if_not_empty(result[jms_resource], model_subfolder_name, subfolder_result)
-                location.remove_name_token(name_token)
+                if typedef.is_system_jms(jms_resource):
+                    _logger.info('WLSDPLY-06491', jms_resource, class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06479', jms_resource, class_name=_class_name, method_name=_method_name)
+                    result[jms_resource] = OrderedDict()
+                    location.add_name_token(name_token, jms_resource)
+                    self._populate_model_parameters(result[jms_resource], location)
+                    model_subfolder_name, subfolder_result = self._get_subdeployments(location)
+                    discoverer.add_to_model_if_not_empty(result[jms_resource], model_subfolder_name, subfolder_result)
+                    model_subfolder_name, subfolder_result = self._get_jms_resources(location)
+                    discoverer.add_to_model_if_not_empty(result[jms_resource], model_subfolder_name, subfolder_result)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result

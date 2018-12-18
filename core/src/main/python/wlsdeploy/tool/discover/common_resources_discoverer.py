@@ -171,14 +171,18 @@ class CommonResourcesDiscoverer(Discoverer):
         file_stores = self._find_names_in_folder(location)
         if file_stores is not None:
             _logger.info('WLSDPLY-06346', len(file_stores), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._alias_helper.get_name_token(location)
             for file_store in file_stores:
-                _logger.info('WLSDPLY-06347', file_store, class_name=_class_name, method_name=_method_name)
-                result[file_store] = OrderedDict()
-                location.add_name_token(name_token, file_store)
-                self._populate_model_parameters(result[file_store], location)
-                self.archive_file_store_directory(file_store, result[file_store])
-                location.remove_name_token(name_token)
+                if typedef.is_system_file_store(file_store):
+                    _logger.info('WLSDPLY-06363', file_store, class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06347', file_store, class_name=_class_name, method_name=_method_name)
+                    result[file_store] = OrderedDict()
+                    location.add_name_token(name_token, file_store)
+                    self._populate_model_parameters(result[file_store], location)
+                    self.archive_file_store_directory(file_store, result[file_store])
+                    location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 

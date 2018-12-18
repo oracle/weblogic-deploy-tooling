@@ -120,27 +120,92 @@ class DomainTypedef(object):
         return list(self._domain_typedef['rcuSchemas'])
 
     def is_system_app(self, name):
+        """
+        Determine if the specified name matches a WLS system application.
+        :param name: the name to be checked
+        :return: True if the name matches a system application, False otherwise
+        """
         return self._is_system_name(name, 'apps')
 
-    def is_system_shared_library(self, name):
-        return self._is_system_name(name, 'shared-libraries')
-
-    def is_system_datasource(self, name):
-        return self._is_system_name(name, 'datasources')
-
     def is_system_coherence_cluster(self, name):
+        """
+        Determine if the specified name matches a WLS system Coherence cluster.
+        :param name: the name to be checked
+        :return: True if the name matches a system Coherence cluster, False otherwise
+        """
         return self._is_system_name(name, 'coherence-clusters')
 
-    def is_system_wldf(self, name):
-        return self._is_system_name(name, 'wldf')
+    def is_system_datasource(self, name):
+        """
+        Determine if the specified name matches a WLS system datasource.
+        :param name: the name to be checked
+        :return: True if the name matches a system datasource, False otherwise
+        """
+        return self._is_system_name(name, 'datasources')
 
-    def is_system_startup_class(self, name):
-        return self._is_system_name(name, 'startup-classes')
+    def is_system_file_store(self, name):
+        """
+        Determine if the specified name matches a WLS system file store.
+        :param name: the name to be checked
+        :return: True if the name matches a system file store, False otherwise
+        """
+        return self._is_system_name(name, 'file-stores')
+
+    def is_system_jms(self, name):
+        """
+        Determine if the specified name matches a WLS system JMS resource.
+        :param name: the name to be checked
+        :return: True if the name matches a system JMS resource, False otherwise
+        """
+        return self._is_system_name(name, 'jms')
+
+    def is_system_jms_server(self, name):
+        """
+        Determine if the specified name matches a WLS system JMS server.
+        :param name: the name to be checked
+        :return: True if the name matches a system JMS server, False otherwise
+        """
+        return self._is_system_name(name, 'jms-servers')
+
+    def is_system_shared_library(self, name):
+        """
+        Determine if the specified name matches a WLS system shared library.
+        :param name: the name to be checked
+        :return: True if the name matches a system shared library, False otherwise
+        """
+        return self._is_system_name(name, 'shared-libraries')
 
     def is_system_shutdown_class(self, name):
+        """
+        Determine if the specified name matches a WLS system shutdown class.
+        :param name: the name to be checked
+        :return: True if the name matches a system shutdown class, False otherwise
+        """
         return self._is_system_name(name, 'shutdown-classes')
 
+    def is_system_startup_class(self, name):
+        """
+        Determine if the specified name matches a WLS system startup class.
+        :param name: the name to be checked
+        :return: True if the name matches a system startup class, False otherwise
+        """
+        return self._is_system_name(name, 'startup-classes')
+
+    def is_system_wldf(self, name):
+        """
+        Determine if the specified name matches a WLS system WLDF resource.
+        :param name: the name to be checked
+        :return: True if the name matches a system WLDF resource, False otherwise
+        """
+        return self._is_system_name(name, 'wldf')
+
     def _is_system_name(self, name, key):
+        """
+        Determine if the specified name matches a WLS name of the specified type key.
+        :param name: the name to be checked
+        :param key: the key of the type to be checked against
+        :return: True if the name matches a system name, False otherwise
+        """
         if key in self._system_elements:
             system_names = self._system_elements[key]
             for system_name in system_names:
