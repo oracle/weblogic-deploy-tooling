@@ -64,15 +64,19 @@ class DeploymentsDiscoverer(Discoverer):
         libraries = self._find_names_in_folder(location)
         if libraries:
             _logger.info('WLSDPLY-06381', len(libraries), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._alias_helper.get_name_token(location)
             for library in libraries:
-                _logger.info('WLSDPLY-06382', library, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, library)
-                result[library] = OrderedDict()
-                self._populate_model_parameters(result[library], location)
-                self._add_shared_libraries_to_archive(library, result[library])
-                self._discover_subfolders(result[library], location)
-                location.remove_name_token(name_token)
+                if typedef.is_system_shared_library(library):
+                    _logger.info('WLSDPLY-06401', library, class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06382', library, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, library)
+                    result[library] = OrderedDict()
+                    self._populate_model_parameters(result[library], location)
+                    self._add_shared_libraries_to_archive(library, result[library])
+                    self._discover_subfolders(result[library], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -185,15 +189,20 @@ class DeploymentsDiscoverer(Discoverer):
         applications = self._find_names_in_folder(location)
         if applications:
             _logger.info('WLSDPLY-06391', len(applications), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._alias_helper.get_name_token(location)
             for application in applications:
-                _logger.info('WLSDPLY-06392', application, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, application)
-                result[application] = OrderedDict()
-                self._populate_model_parameters(result[application], location)
-                self._add_application_to_archive(application, result[application])
-                self._discover_subfolders(result[application], location)
-                location.remove_name_token(name_token)
+                if typedef.is_system_app(application):
+                    _logger.info('WLSDPLY-06400', application, class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06392', application, class_name=_class_name, method_name=_method_name)
+                    print("  application: " + str(application) + ": " + str(typedef.is_system_app(application)))
+                    location.add_name_token(name_token, application)
+                    result[application] = OrderedDict()
+                    self._populate_model_parameters(result[application], location)
+                    self._add_application_to_archive(application, result[application])
+                    self._discover_subfolders(result[application], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result

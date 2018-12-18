@@ -74,17 +74,21 @@ class CoherenceResourcesDiscoverer(Discoverer):
         coherence_clusters = self._find_names_in_folder(location)
         if coherence_clusters is not None:
             _logger.info('WLSDPLY-06311', len(coherence_clusters), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._alias_helper.get_name_token(location)
             for coherence_cluster in coherence_clusters:
-                _logger.info('WLSDPLY-06312', coherence_cluster, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, coherence_cluster)
-                result[coherence_cluster] = OrderedDict()
-                self._populate_model_parameters(result[coherence_cluster], location)
-                model_subfolder_name, subfolder_result = self.get_coherence_cache_config(location)
-                discoverer.add_to_model_if_not_empty(result[coherence_cluster], model_subfolder_name, subfolder_result)
-                model_subfolder_name, subfolder_result = self.get_coherence_resource(location)
-                discoverer.add_to_model_if_not_empty(result[coherence_cluster], model_subfolder_name, subfolder_result)
-                location.remove_name_token(name_token)
+                if typedef.is_system_coherence_cluster(coherence_cluster):
+                    _logger.info('WLSDPLY-06322', coherence_cluster, class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06312', coherence_cluster, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, coherence_cluster)
+                    result[coherence_cluster] = OrderedDict()
+                    self._populate_model_parameters(result[coherence_cluster], location)
+                    model_subfolder_name, subfolder_result = self.get_coherence_cache_config(location)
+                    discoverer.add_to_model_if_not_empty(result[coherence_cluster], model_subfolder_name, subfolder_result)
+                    model_subfolder_name, subfolder_result = self.get_coherence_resource(location)
+                    discoverer.add_to_model_if_not_empty(result[coherence_cluster], model_subfolder_name, subfolder_result)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
