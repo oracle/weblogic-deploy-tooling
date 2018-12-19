@@ -83,6 +83,13 @@ class DomainTypedef(object):
             self.__resolve_paths()
         return
 
+    def get_domain_type(self):
+        """
+        Get the name of the domain type, such as "WLS".
+        :return: the name of the domain type
+        """
+        return self._domain_type
+
     def get_base_template(self):
         """
         Get the base template to use when create the domain.

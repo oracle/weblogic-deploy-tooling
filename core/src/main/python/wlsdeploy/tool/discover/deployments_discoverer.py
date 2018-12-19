@@ -68,7 +68,8 @@ class DeploymentsDiscoverer(Discoverer):
             name_token = self._alias_helper.get_name_token(location)
             for library in libraries:
                 if typedef.is_system_shared_library(library):
-                    _logger.info('WLSDPLY-06401', library, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06401', typedef.get_domain_type(), library, class_name=_class_name,
+                                 method_name=_method_name)
                 else:
                     _logger.info('WLSDPLY-06382', library, class_name=_class_name, method_name=_method_name)
                     location.add_name_token(name_token, library)
@@ -193,10 +194,10 @@ class DeploymentsDiscoverer(Discoverer):
             name_token = self._alias_helper.get_name_token(location)
             for application in applications:
                 if typedef.is_system_app(application):
-                    _logger.info('WLSDPLY-06400', application, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06400', typedef.get_domain_type(), application, class_name=_class_name,
+                                 method_name=_method_name)
                 else:
                     _logger.info('WLSDPLY-06392', application, class_name=_class_name, method_name=_method_name)
-                    print("  application: " + str(application) + ": " + str(typedef.is_system_app(application)))
                     location.add_name_token(name_token, application)
                     result[application] = OrderedDict()
                     self._populate_model_parameters(result[application], location)
