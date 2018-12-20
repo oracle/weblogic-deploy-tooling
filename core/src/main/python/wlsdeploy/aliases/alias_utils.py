@@ -56,7 +56,7 @@ from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 _class_name = 'alias_utils'
 _logger = PlatformLogger('wlsdeploy.aliases')
 _server_start_location_folder_path = '/Server/ServerStart'
-_server_start_argument_attribute_name = 'Argument'
+_server_start_argument_attribute_name = 'Arguments'
 _windows_path_regex = re.compile(r'^[a-zA-Z]:[\\/].*')
 
 
@@ -162,8 +162,8 @@ def merge_server_start_argument_values(model_args, existing_args):
         result = model_args
     else:
         new_args = JVMArguments(_logger, model_args)
-        old_args = JVMArguments(_logger, existing_args)
-        merged_args = old_args.merge_jvm_arguments(new_args)
+        merged_args = JVMArguments(_logger, existing_args)
+        merged_args.merge_jvm_arguments(new_args)
         result = merged_args.get_arguments_string()
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
