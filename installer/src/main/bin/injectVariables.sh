@@ -19,7 +19,7 @@
 # of the arguments are passed down to the underlying python program:
 #
 #     - -oracle_home        The directory of the existing Oracle Home to use.
-#                           This directory must exist and it is the caller^'s
+#                           This directory must exist and it is the caller's
 #                           responsibility to verify that it does. This
 #                           argument is required.
 #
@@ -53,15 +53,15 @@ usage() {
   echo ""
   echo "Usage: $1 [-help]"
   echo "          -oracle_home <oracle-home>"
-  ecgi "          -model_file ^<model-file^> | -archive_file ^<archive-file^>"
-  echo "          [-variable_injector_file ^<variable-injector-file^>]"
-  echo "          [-variable_keywords_file ^<variable-keywords-file^>]"
-  echo "          [-variable_properties_file ^<variable-file^>]""
+  echo "          -model_file <model-file> | -archive_file <archive-file>"
+  echo "          [-variable_injector_file <variable-injector-file>]"
+  echo "          [-variable_keywords_file <variable-keywords-file>]"
+  echo "          [-variable_properties_file <variable-file>]"
   echo "          [-domain_type <domain-type>]"
   echo "          [-wlst_path <wlst-path>]"
   echo ""
   echo "    where:"
-  echo "        oracle-home     - the existing Oracle Home directory for the domain"
+  echo "         oracle-home     - the existing Oracle Home directory for the domain"
   echo ""
   echo "         model-file      - the location of the model file in which variables will be injected."
   echo "                           If not specified, the tool will look for the model"
@@ -87,11 +87,11 @@ usage() {
   echo "                           based on the model file or archive file name and location."
   echo "                           If the variable file exists, new variable values will be appended to the file."
   echo ""
-  echo "        domain-type     - the type of domain (e.g., WLS, JRF)."
-  echo "                          Used to locate wlst.cmd if wlst-path not specified"
+  echo "         domain-type     - the type of domain (e.g., WLS, JRF)."
+  echo "                           Used to locate wlst.cmd if wlst-path not specified"
   echo ""
-  echo "        wlst-path       - the Oracle Home subdirectory of the wlst.cmd"
-  echo "                          script to use (e.g., ^<ORACLE_HOME^>/soa)"
+  echo "         wlst-path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "                           script to use (e.g., <ORACLE_HOME>/soa)"
   echo ""
 }
 
