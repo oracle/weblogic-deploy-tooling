@@ -206,9 +206,10 @@ IF DEFINED DOMAIN_TYPE (
     SET USE_JRF_WLST=TRUE
     GOTO domain_type_recognized
   )
-  ECHO Domain type %DOMAIN_TYPE% not recognized by shell script...assuming JRF is required
-  SET USE_JRF_WLST=TRUE
 )
+
+ECHO Domain type "%DOMAIN_TYPE%" not recognized by shell script... assuming JRF is required
+SET USE_JRF_WLST=TRUE
 
 :domain_type_recognized
 IF "%USE_JRF_WLST%" == "TRUE" (
