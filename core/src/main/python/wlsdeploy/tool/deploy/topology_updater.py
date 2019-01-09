@@ -109,4 +109,5 @@ class TopologyUpdater(Deployer):
             else:
                 self._add_model_elements(key, nodes, location)
 
+        if key in folder_list:
             folder_list.remove(key)
