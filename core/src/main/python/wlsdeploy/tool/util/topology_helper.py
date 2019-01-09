@@ -72,16 +72,18 @@ class TopologyHelper(object):
         _method_name = 'create_placeholder_server_templates'
         original_location = self.wlst_helper.get_pwd()
         template_location = LocationContext().append_location(SERVER_TEMPLATE)
-        existing_names = deployer_utils.get_existing_object_list(template_location, self.alias_helper)
 
-        template_nodes = dictionary_utils.get_dictionary_element(topology, SERVER_TEMPLATE)
-        for template_name in template_nodes:
-            if template_name not in existing_names:
-                self.logger.info('WLSDPLY-19400', template_name, class_name=self.__class_name,
-                                 method_name=_method_name)
+        if self.alias_helper.get_wlst_mbean_type(template_location) is not None:
+            existing_names = deployer_utils.get_existing_object_list(template_location, self.alias_helper)
 
-                template_token = self.alias_helper.get_name_token(template_location)
-                template_location.add_name_token(template_token, template_name)
-                deployer_utils.create_and_cd(template_location, existing_names, self.alias_helper)
+            template_nodes = dictionary_utils.get_dictionary_element(topology, SERVER_TEMPLATE)
+            for template_name in template_nodes:
+                if template_name not in existing_names:
+                    self.logger.info('WLSDPLY-19400', template_name, class_name=self.__class_name,
+                                     method_name=_method_name)
+
+                    template_token = self.alias_helper.get_name_token(template_location)
+                    template_location.add_name_token(template_token, template_name)
+                    deployer_utils.create_and_cd(template_location, existing_names, self.alias_helper)
 
         self.wlst_helper.cd(original_location)
