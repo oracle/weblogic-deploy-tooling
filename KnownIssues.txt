@@ -1,0 +1,13 @@
+The following list are known issues. The issue may contain a work-around or an associated Issue number.
+
+ISSUE:
+   The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1 domain.
+   The discover tool navigates through the domain MBeans using wlst to determine which MBeans are present in a
+   domain. When it tests an MBean that is not present, the erroneous message is logged by Weblogic WLST.
+   There is no 12.2.1 PSU available to address this WLST problem. It is resolved in 12.2.1.1.
+
+ACTION:
+   Ignore the following messages logged during discover of a 12.2.1 domain.
+
+   ####<Jan 14, 2019 1:14:21 PM> <SEVERE> <CommandExceptionHandler> <handleException> <> <Error: cd() failed.>
+   ####<Jan 14, 2019 1:14:21 PM> <SEVERE> <CommandExceptionHandler> <handleException> <> <Error: ls() failed.>
