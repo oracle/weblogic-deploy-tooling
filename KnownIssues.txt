@@ -11,3 +11,12 @@ ACTION:
 
    ####<Jan 14, 2019 1:14:21 PM> <SEVERE> <CommandExceptionHandler> <handleException> <> <Error: cd() failed.>
    ####<Jan 14, 2019 1:14:21 PM> <SEVERE> <CommandExceptionHandler> <handleException> <> <Error: ls() failed.>
+
+
+ISSUE:
+   The createDomain tool cannot create 11g JRF domains. The tool will issue error messages in the log, and
+   terminate the create process. The discoverDomain tool can discover 11g JRF domains, and those domains can be
+   configured with the updateDomain and deploy tools.
+
+ACTION:
+   Do not use the createDomain tool for 11g JRF domains. This functionality may be available in a future release.
