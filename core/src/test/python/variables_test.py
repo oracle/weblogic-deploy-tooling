@@ -85,7 +85,7 @@ class VariablesTestCase(unittest.TestCase):
 
     def testFileVariableWithConstant(self):
         model = {'domainInfo': {'AdminUserName': '@@FILE:@@ORACLE_HOME@@/' + self._file_variable_name + '@@'}}
-        variables.substitute(model, {'variable_dir': self._resources_dir}, self.model_context)
+        variables.substitute(model, {}, self.model_context)
         self.assertEqual(model['domainInfo']['AdminUserName'], 'file-variable-value')
 
     def testFileVariableNotFound(self):
