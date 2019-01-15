@@ -542,7 +542,9 @@ public class PlatformLogger {
         while (e.hasMoreElements()) {
             String loggerName = e.nextElement();
             Logger logger = manager.getLogger(loggerName);
-            topList.add(logger);
+            if(logger != null) {
+                topList.add(logger);
+            }
         }
         return topList;
     }
