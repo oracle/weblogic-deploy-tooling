@@ -222,16 +222,17 @@ class Validator(object):
         if self._model_file_name is not None:
             self._logger.info('WLSDPLY-05003', self._model_file_name, class_name=_class_name, method_name=_method_name)
 
-        if variables_file_name is not None:
-            self._logger.info('WLSDPLY-05004', variables_file_name, class_name=_class_name, method_name=_method_name)
-            try:
+        try:
+            if variables_file_name is not None:
+                self._logger.info('WLSDPLY-05004', variables_file_name, class_name=_class_name, method_name=_method_name)
                 self._variable_properties = variables.load_variables(variables_file_name)
-                variables.substitute(model_dict, self._variable_properties)
-            except VariableException, ve:
-                ex = exception_helper.create_validate_exception('WLSDPLY-20004', 'validateModel',
-                                                                ve.getLocalizedMessage(), error=ve)
-                self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
+
+            variables.substitute(model_dict, self._variable_properties, self._model_context)
+        except VariableException, ve:
+            ex = exception_helper.create_validate_exception('WLSDPLY-20004', 'validateModel',
+                                                            ve.getLocalizedMessage(), error=ve)
+            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
         if archive_file_name is not None:
             self._logger.info('WLSDPLY-05005', archive_file_name, class_name=_class_name, method_name=_method_name)
