@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 
 These constants are internal to the aliases module and should not be used, as they are not part of the public API.
@@ -14,6 +14,7 @@ DEFAULT = 'default'
 DEFAULT_NAME_VALUE = 'default_name_value'
 FLATTENED_FOLDER_DATA = 'flattened_folder_data'
 FOLDERS = 'folders'
+FOLDER_PARAMS = 'folder_params'
 GET_MBEAN_TYPE = 'get_mbean_type'
 GET_METHOD = 'get_method'
 MERGE = 'merge'

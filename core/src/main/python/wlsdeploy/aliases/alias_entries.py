@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import copy
@@ -26,6 +26,7 @@ from wlsdeploy.aliases.alias_constants import CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import CONTAINS
 from wlsdeploy.aliases.alias_constants import DEFAULT_NAME_VALUE
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
+from wlsdeploy.aliases.alias_constants import FOLDER_PARAMS
 from wlsdeploy.aliases.alias_constants import FOLDERS
 from wlsdeploy.aliases.alias_constants import GET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import GET_METHOD
@@ -590,7 +591,7 @@ class AliasEntries(object):
             path = location.get_folder_path()
 
             err_location = LocationContext(location)
-            if  not err_location.is_empty():
+            if not err_location.is_empty():
                 folder_name = err_location.pop_location()
                 code, message = self.is_valid_model_folder_name_for_location(err_location, folder_name)
                 if code == ValidationCodes.VERSION_INVALID:
@@ -790,7 +791,7 @@ class AliasEntries(object):
             folder_dict = self.__get_dictionary_for_location(sub_location, False)
             if folder_dict is None:
                 if UNRESOLVED_FOLDERS_MAP in self._category_dict and \
-                    model_folder_name in self._category_dict[UNRESOLVED_FOLDERS_MAP]:
+                        model_folder_name in self._category_dict[UNRESOLVED_FOLDERS_MAP]:
                     result = ValidationCodes.VERSION_INVALID
                     valid_version_range = self._category_dict[UNRESOLVED_FOLDERS_MAP][model_folder_name]
                 else:
@@ -1091,42 +1092,8 @@ class AliasEntries(object):
         #
         # First, determine if this dictionary is even relevant to the current WLS version.
         #
-        if VERSION in alias_dict:
-            dict_version_range = alias_dict[VERSION]
-            try:
-                _logger.finer('WLSDPLY-08123', path_name, dict_version_range,
-                              self._wls_helper.get_actual_weblogic_version(),
-                              class_name=_class_name, method_name=_method_name)
-                if not self.__version_in_range(dict_version_range):
-                    _logger.finer('WLSDPLY-08124', path_name, dict_version_range,
-                                  self._wls_helper.get_actual_weblogic_version(),
-                                  class_name=_class_name, method_name=_method_name)
-                    if UNRESOLVED_FOLDERS_MAP not in parent_dict:
-                        parent_dict[UNRESOLVED_FOLDERS_MAP] = dict()
-                    alias_dict_folder_name = alias_utils.compute_folder_name_from_path(path_name)
-                    parent_dict[UNRESOLVED_FOLDERS_MAP][alias_dict_folder_name] = dict_version_range
-                    return None
-                else:
-                    _logger.finer('WLSDPLY-08125', path_name, dict_version_range,
-                                  self._wls_helper.get_actual_weblogic_version(),
-                                  class_name=_class_name, method_name=_method_name)
-            except VersionException, ve:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08126', path_name, dict_version_range,
-                                                             ve.getLocalizedMessage(), error=ve)
-                _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-
-        if WLST_MODE in alias_dict:
-            dict_wlst_mode = alias_dict[WLST_MODE]
-            mode =  WlstModes.from_value(self._wlst_mode)
-            if not self.__wlst_mode_matches(dict_wlst_mode):
-                _logger.finer('WLSDPLY-08132', path_name, dict_wlst_mode, mode, class_name=_class_name,
-                              method_name=_method_name)
-                if UNRESOLVED_FOLDERS_MAP not in parent_dict:
-                    parent_dict[UNRESOLVED_FOLDERS_MAP] = dict()
-                alias_dict_folder_name = alias_utils.compute_folder_name_from_path(path_name)
-                parent_dict[UNRESOLVED_FOLDERS_MAP][alias_dict_folder_name] = mode
-                return None
+        if not self.__use_alias_dict(path_name, alias_dict, parent_dict):
+            return None
 
         result = dict()
         if FOLDERS in alias_dict:
@@ -1226,6 +1193,89 @@ class AliasEntries(object):
             result[WLST_SKIP_NAMES] = wlst_skip_attrs
 
         return result
+
+    def __is_version(self, path_name, alias_dict):
+        _method_name = '__is_version'
+        is_version = True
+        dict_version_range = alias_utils.get_dictionary_version(alias_dict)
+        if dict_version_range:
+            try:
+                _logger.finer('WLSDPLY-08123', path_name, dict_version_range,
+                              self._wls_helper.get_actual_weblogic_version(),
+                              class_name=_class_name, method_name=_method_name)
+                is_version = self.__version_in_range(dict_version_range)
+
+            except VersionException, ve:
+                ex = exception_helper.create_alias_exception('WLSDPLY-08126', path_name, dict_version_range,
+                                                             ve.getLocalizedMessage(), error=ve)
+                _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+        else:
+            dict_version_range = 'All'
+
+        if is_version:
+            _logger.finer('WLSDPLY-08125', path_name, dict_version_range,
+                          self._wls_helper.get_actual_weblogic_version(),
+                          class_name=_class_name, method_name=_method_name)
+
+        return is_version
+
+    def __is_wlst_mode(self, path_name, alias_dict):
+        _method_name = '__is_wlst_mode'
+        is_mode = True
+        mode = WlstModes.from_value(self._wlst_mode)
+        dict_wlst_mode = alias_utils.get_dictionary_mode(alias_dict)
+        if dict_wlst_mode:
+            if not self.__wlst_mode_matches(dict_wlst_mode):
+                _logger.finer('WLSDPLY-08132', path_name, dict_wlst_mode, mode, class_name=_class_name,
+                              method_name=_method_name)
+                is_mode = False
+        else:
+            dict_wlst_mode = 'Both'
+
+        if is_mode:
+            _logger.finer('WLSDPLY-08133', path_name, dict_wlst_mode, class_name=_class_name,
+                          method_name=_method_name)
+        return is_mode
+
+    def __test_dictionary(self, path_name, alias_dict):
+        return self.__is_version(path_name, alias_dict) and self.__is_wlst_mode(path_name, alias_dict)
+
+    def __use_alias_dict(self, path_name, alias_dict, parent_dict):
+        self.__resolve_folder_params(path_name, alias_dict)
+        if not self.__is_version(path_name, alias_dict):
+            _add_to_unresolved_folders(path_name, parent_dict, alias_utils.get_dictionary_version(alias_dict))
+            return False
+        if not self.__is_wlst_mode(path_name, alias_dict):
+            _add_to_unresolved_folders(path_name, parent_dict, alias_utils.get_dictionary_version(alias_dict))
+            return False
+
+        return True
+
+    def __resolve_folder_params(self, path_name, alias_dict):
+        """
+        This is a folder that has different parameters based on version / offline.
+        Search through the folder params and find the correct set of parameters. Add
+        this set of parameters to the alias_dict directly and remove the folder_params array.
+        :param alias_dict:
+        :return:
+        """
+        _method_name = '__resolve_folder_params'
+        if FOLDER_PARAMS in alias_dict:
+            folder_params = alias_dict[FOLDER_PARAMS]
+
+            if not isinstance(folder_params, list):
+                ex = exception_helper.create_alias_exception('WLSDPLY-08134', path_name, class_name=_class_name,
+                                                             method_name=_method_name)
+                _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+
+            for folder_set in folder_params:
+                if self.__test_dictionary(path_name, folder_set):
+                    _logger.finer('WLSDPLY-08135', path_name, class_name=_class_name, method_name=_method_name)
+                    for key, value in folder_set.iteritems():
+                        alias_dict[key] = value
+                    break
 
     def __resolve_attribute_by_wlst_context(self, path_name, attr_name, attrs_dict):
         """
@@ -1436,3 +1486,10 @@ class AliasEntries(object):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=tokenized_path)
         return tokenized_path
+
+
+def _add_to_unresolved_folders(path_name, parent_dict, unresolved):
+    if UNRESOLVED_FOLDERS_MAP not in parent_dict:
+        parent_dict[UNRESOLVED_FOLDERS_MAP] = dict()
+    alias_dict_folder_name = alias_utils.compute_folder_name_from_path(path_name)
+    parent_dict[UNRESOLVED_FOLDERS_MAP][alias_dict_folder_name] = unresolved
