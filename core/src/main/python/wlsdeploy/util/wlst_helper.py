@@ -837,7 +837,7 @@ def deploy_application(application_name, *args, **kwargs):
     try:
         result = wlst.deploy(application_name, *args, **kwargs)
     except wlst.WLSTException, e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00068', application_name, args, kwargs,
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00058', application_name, args, kwargs,
                                                        _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
