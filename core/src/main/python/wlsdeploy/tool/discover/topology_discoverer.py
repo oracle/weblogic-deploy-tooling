@@ -578,7 +578,7 @@ class TopologyDiscoverer(Discoverer):
 
     def _add_keystore_file_to_archive(self, model_name, model_value, location):
         """
-        Add the Server custom trust or identity keystore file to the archive.
+        Add the custom trust or identity keystore file to the archive.
         :param model_name: attribute name in the model
         :param model_value: converted model value for the attribute
         :param location: context containing the current location information
@@ -591,18 +591,60 @@ class TopologyDiscoverer(Discoverer):
             server_name = self._get_server_name_from_location(location)
             archive_file = self._model_context.get_archive_file()
             file_path = self._convert_path(model_value)
-            _logger.finer('WLSDPLY-06623', file_path, server_name, class_name=_class_name, method_name=_method_name)
-            try:
-                new_name = archive_file.addServerKeyStoreFile(server_name, File(file_path))
-            except IllegalArgumentException, iae:
-                _logger.warning('WLSDPLY-06624', server_name, file_path, iae.getLocalizedMessage(),
-                                class_name=_class_name, method_name=_method_name)
-            except WLSDeployArchiveIOException, wioe:
-                de = exception_helper.create_discover_exception('WLSDPLY-06625', server_name, file_path,
-                                                                wioe.getLocalizedMessage())
-                _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-                raise de
+            if server_name:
+                new_name = self._add_server_keystore_file_to_archive(server_name, archive_file, file_path)
+            else:
+                new_name = self._add_node_manager_keystore_file_to_archive(archive_file, file_path)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
+        return new_name
+
+    def _add_server_keystore_file_to_archive(self, server_name, archive_file, file_path):
+        """
+        Add the Server custom trust or identity keystore file to the archive.
+        :param server_name: attribute name in the model
+        :param archive_file: converted model value for the attribute
+        :param file_path: context containing the current location information
+        :return: modified location and name for the model keystore file
+        """
+        _method_name = '_add_server_keystore_file_to_archive'
+        _logger.entering(server_name, archive_file, file_path, class_name=_class_name, method_name=_method_name)
+        _logger.finer('WLSDPLY-06623', file_path, server_name, class_name=_class_name, method_name=_method_name)
+        new_name = None
+
+        try:
+            new_name = archive_file.addServerKeyStoreFile(server_name, File(file_path))
+        except IllegalArgumentException, iae:
+            _logger.warning('WLSDPLY-06624', server_name, file_path, iae.getLocalizedMessage(),
+                            class_name=_class_name, method_name=_method_name)
+        except WLSDeployArchiveIOException, wioe:
+            de = exception_helper.create_discover_exception('WLSDPLY-06625', server_name, file_path,
+                                                            wioe.getLocalizedMessage())
+            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+            raise de
+        return new_name
+
+    def _add_node_manager_keystore_file_to_archive(self, archive_file, file_path):
+        """
+        Add the node manager custom trust or identity keystore file to the archive.
+        :param archive_file: converted model value for the attribute
+        :param file_path: context containing the current location information
+        :return: modified location and name for the model keystore file
+        """
+        _method_name = '_add_node_manager_keystore_file_to_archive'
+        _logger.entering(archive_file, file_path, class_name=_class_name, method_name=_method_name)
+        _logger.finer('WLSDPLY-06636', file_path, class_name=_class_name, method_name=_method_name)
+        new_name = None
+
+        try:
+            new_name = archive_file.addNodeManagerKeyStoreFile(File(file_path))
+        except IllegalArgumentException, iae:
+            _logger.warning('WLSDPLY-06637', file_path, iae.getLocalizedMessage(), class_name=_class_name,
+                            method_name=_method_name)
+        except WLSDeployArchiveIOException, wioe:
+            de = exception_helper.create_discover_exception('WLSDPLY-06638', file_path, wioe.getLocalizedMessage())
+            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+            raise de
         return new_name
 
     def _get_server_name_from_location(self, location):

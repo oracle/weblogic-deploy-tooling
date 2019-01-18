@@ -25,6 +25,7 @@ _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
 _variable_pattern = re.compile("\\$\\{[\w.-]+\\}")
 _file_variable_pattern = re.compile("@@FILE:[\w.\\\/:-]+@@")
 _property_pattern = re.compile("@@PROP:[\w.-]+@@")
+_file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
 
 
 def load_variables(file_path):
@@ -126,20 +127,22 @@ def get_variable_names(text):
     return names
 
 
-def substitute(dictionary, variables):
+def substitute(dictionary, variables, model_context):
     """
     Substitute fields in the specified dictionary with variable values.
     :param dictionary: the dictionary in which to substitute variables
     :param variables: a dictionary of variables for substitution
+    :param model_context: used to resolve variables in file paths
     """
-    _process_node(dictionary, variables)
+    _process_node(dictionary, variables, model_context)
 
 
-def _process_node(nodes, variables):
+def _process_node(nodes, variables, model_context):
     """
     Process variables in the node.
     :param nodes: the dictionary to process
     :param variables: the variables to use
+    :param model_context: used to resolve variables in file paths
     """
     # iterate over copy to avoid concurrent change for add/delete
     if type(nodes) is OrderedDict:
@@ -150,22 +153,23 @@ def _process_node(nodes, variables):
         value = nodes[key]
 
         # if the key changes with substitution, remove old key and map value to new key
-        new_key = _substitute(key, variables)
+        new_key = _substitute(key, variables, model_context)
         if new_key is not key:
             nodes.pop(key)
             nodes[new_key] = value
 
         if isinstance(value, dict):
-            _process_node(value, variables)
+            _process_node(value, variables, model_context)
         elif type(value) is str:
-            nodes[key] = _substitute(value, variables)
+            nodes[key] = _substitute(value, variables, model_context)
 
 
-def _substitute(text, variables):
+def _substitute(text, variables, model_context):
     """
     Substitute the variable placeholders with the variable value.
     :param text: the text to process for variable placeholders
     :param variables: the variables to use
+    :param model_context: used to resolve variables in file paths
     :return: the replaced text
     """
     method_name = '_substitute'
@@ -185,6 +189,8 @@ def _substitute(text, variables):
 
     # skip lookups for text with no @@
     if '@@' in text:
+
+        # do properties first, to cover the case @@FILE:/dir/@@PROP:name@@.txt@@
         tokens = _property_pattern.findall(text)
         if tokens:
             for token in tokens:
@@ -201,6 +207,15 @@ def _substitute(text, variables):
         if tokens:
             for token in tokens:
                 path = token[7:-2]
+                value = _read_value_from_file(path)
+                text = text.replace(token, value)
+
+        # special case for @@FILE:@@ORACLE_HOME@@/dir/name.txt@@
+        tokens = _file_nested_variable_pattern.findall(text)
+        if tokens:
+            for token in tokens:
+                path = token[7:-2]
+                path = model_context.replace_token_string(path)
                 value = _read_value_from_file(path)
                 text = text.replace(token, value)
 
