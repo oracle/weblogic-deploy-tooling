@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
 package oracle.weblogic.deploy.util;
@@ -50,6 +50,26 @@ public final class FileUtils {
      */
     public static InputStream getResourceAsStream(String fileName) {
         return FileUtils.class.getClassLoader().getResourceAsStream(fileName);
+    }
+
+    /**
+     * Get the specified file as an InputStream. This method will first
+     * resolve the name to an absolute path and then get the InputStream
+     *
+     * @param fileName of the file to get
+     * @return the InputStream, or null if it was not found.
+     *
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
+    public static InputStream getFileAsStream(String fileName) throws IOException {
+        File file = validateExistingFile(fileName);
+        InputStream inputStream = null;
+        if (file != null) {
+            inputStream = new FileInputStream(getCanonicalFile(file));
+        }
+        return inputStream;
     }
 
     /**

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import copy
@@ -31,21 +31,21 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.alias_constants import COMMA_DELIMITED_STRING
 from wlsdeploy.aliases.alias_constants import DELIMITED_STRING
-from wlsdeploy.aliases.alias_constants import DICTIONARY
 from wlsdeploy.aliases.alias_constants import JARRAY
 from wlsdeploy.aliases.alias_constants import JAVA_LANG_BOOLEAN
 from wlsdeploy.aliases.alias_constants import LIST
 from wlsdeploy.aliases.alias_constants import LONG
 from wlsdeploy.aliases.alias_constants import PATH_SEPARATOR_DELIMITED_STRING
-from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_FOLDER_PATHS
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_MBEAN_NAME_MAP
 from wlsdeploy.aliases.alias_constants import SEMI_COLON_DELIMITED_STRING
 from wlsdeploy.aliases.alias_constants import SPACE_DELIMITED_STRING
+from wlsdeploy.aliases.alias_constants import VERSION
 from wlsdeploy.aliases.alias_constants import WLST_ATTRIBUTES_PATH
 from wlsdeploy.aliases.alias_constants import WLST_CREATE_PATH
 from wlsdeploy.aliases.alias_constants import WLST_LIST_PATH
+from wlsdeploy.aliases.alias_constants import WLST_MODE
 from wlsdeploy.aliases.alias_constants import WLST_PATH
 from wlsdeploy.aliases.alias_constants import WLST_PATHS
 from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
@@ -805,6 +805,29 @@ def get_security_provider_model_folder_name(mbean_name):
         result = SECURITY_PROVIDER_MBEAN_NAME_MAP[mbean_name]
     return result
 
+
+def get_dictionary_version(alias_dict):
+    """
+    Return the version in the alias dictionary, if present. Not present
+    means all versions. The alias dictionary can represent a folder or an attribute.
+    :param alias_dict: in which to find the version
+    :return: alias_dict VERSION or None if not present
+    """
+    if VERSION in alias_dict:
+       return alias_dict[VERSION]
+    return None
+
+
+def get_dictionary_mode(alias_dict):
+    """
+    Return the wlst mode in the alias dictionary, if present. Not present means both offline
+    and online. The alias dictionary can represent a folder or an attribute.
+    :param alias_dict: in which to find the wlst mode
+    :return: alias_dict mode or None if not present
+    """
+    if WLST_MODE in alias_dict:
+        return alias_dict[WLST_MODE]
+    return None
 
 ###############################################################################
 #                              Private functions                              #

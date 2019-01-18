@@ -1,7 +1,9 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+import copy
+import os
 import pprint
 import unittest
 
@@ -20,6 +22,7 @@ from wlsdeploy.aliases.alias_constants import CONTAINS
 from wlsdeploy.aliases.alias_constants import DEFAULT
 from wlsdeploy.aliases.alias_constants import DEFAULT_NAME_VALUE
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
+from wlsdeploy.aliases.alias_constants import FOLDER_PARAMS
 from wlsdeploy.aliases.alias_constants import FOLDERS
 from wlsdeploy.aliases.alias_constants import GET
 from wlsdeploy.aliases.alias_constants import GET_MBEAN_TYPE
@@ -48,6 +51,11 @@ from wlsdeploy.aliases.alias_constants import WLST_TYPE
 
 
 class ListTestCase(unittest.TestCase):
+    _resources_dir = '../../test-classes/'
+    _test_json_files = [
+        'Test'
+    ]
+    _test_category_file_map = dict()
 
     _required_category_folder_keys = [
         'copyright',
@@ -67,6 +75,7 @@ class ListTestCase(unittest.TestCase):
         CONTAINS,
         DEFAULT_NAME_VALUE,
         FLATTENED_FOLDER_DATA,
+        FOLDER_PARAMS,
         VERSION,
         WLST_CREATE_PATH,
         WLST_LIST_PATH,
@@ -121,6 +130,9 @@ class ListTestCase(unittest.TestCase):
         self.alias_entries = AliasEntries(wls_version='12.2.1.3')
         self.online_alias_entries = AliasEntries(wls_version='12.2.1.3', wlst_mode=WlstModes.ONLINE)
         self.category_file_map = self.alias_entries._unit_test_only_get_category_map_files()
+        for testfile in self._test_json_files:
+            category_file_path = os.path.join(self._resources_dir, '%s.json' % testfile)
+            self._test_category_file_map[testfile] = category_file_path
 
     def testForJsonFileTypos(self):
         category_results = dict()
@@ -132,10 +144,25 @@ class ListTestCase(unittest.TestCase):
         message = pprint.pformat(category_results)
         self.assertEqual(len(category_results), 0, message)
 
+    def testTestFilesForJsonFileTypos(self):
+        category_results = dict()
+        for category_name, category_file_path in self._test_category_file_map.iteritems():
+            category_dict = self._load_test_category_file(category_file_path)
+            results = self._scan_category_dict_for_unknown_fields(category_name, category_dict)
+            if len(results) > 0:
+                category_results[category_name] = results
+        message = pprint.pformat(category_results)
+        self.assertEqual(len(category_results), 0, message)
+
     def _load_category_file(self, category_file_path):
         category_input_stream = FileUtils.getResourceAsStream(category_file_path)
         self.assertNotEquals(category_input_stream, None)
+        json_translator = JsonStreamTranslator(category_file_path, category_input_stream)
+        return json_translator.parse()
 
+    def _load_test_category_file(self, category_file_path):
+        category_input_stream = FileUtils.getFileAsStream(category_file_path)
+        self.assertNotEquals(category_input_stream, None)
         json_translator = JsonStreamTranslator(category_file_path, category_input_stream)
         return json_translator.parse()
 
@@ -277,7 +304,6 @@ class ListTestCase(unittest.TestCase):
             result.append(self._get_invalid_dictionary_type_message(folder_name, WLST_PATHS, attribute_value))
         return result
 
-
     def _verify_folder_wlst_type_attribute_type(self, folder_name, attribute_value):
         result = []
         if type(attribute_value) is not str:
@@ -335,6 +361,31 @@ class ListTestCase(unittest.TestCase):
                 new_folder_name = folder_name + '/' + FLATTENED_FOLDER_DATA
                 result.append(self._get_invalid_string_type_message(new_folder_name, NAME_VALUE,
                                                                      attribute_value[NAME_VALUE]))
+        return result
+
+    def _verify_folder_folder_params_attribute_value(self, folder_name, attribute_value):
+        result = []
+        if type(attribute_value) is not list or (len(attribute_value) > 0 and
+                                                 type(attribute_value[0]) is not dict):
+            result.append(self._get_invalid_list_of_dict_type_message(folder_name, FOLDER_PARAMS,
+                                                                      attribute_value))
+        else:
+            folder_params = copy.deepcopy(attribute_value)
+            for folder_param in folder_params:
+                if VERSION not in folder_param:
+                    result.append(self._get_missing_required_attribute_key_message(folder_name,
+                                                                                   VERSION, FOLDER_PARAMS))
+                for folder in folder_param:
+                    if folder in self._required_folder_keys:
+                        verify_function_name = '_verify_folder_%s_attribute_type' % folder
+                        verify_function = getattr(self, verify_function_name)
+                        result.extend(verify_function(folder_name, folder_param[folder]))
+                    elif folder in self._optional_folder_keys:
+                        verify_function_name = '_verify_folder_%s_attribute_value' % folder
+                        verify_function = getattr(self, verify_function_name)
+                        result.extend(verify_function(folder_name, folder_param[folder]))
+                    else:
+                        result.append(self._get_unknown_folder_key_message(folder_name, folder))
         return result
 
     def _verify_folder_version_attribute_value(self, folder_name, attribute_value):
@@ -627,6 +678,10 @@ class ListTestCase(unittest.TestCase):
 
     def _get_invalid_list_type_message(self, folder_name, attribute_name, attribute_value):
         return 'Folder at path %s has %s attribute that is expected to be a list but is a %s instead' % \
+               (folder_name, attribute_name, str(type(attribute_value)))
+
+    def _get_invalid_list_of_dict_type_message(self, folder_name, attribute_name, attribute_value):
+        return 'Folder at path %s has %s attribute that is expected to be a list of dict but is a %s instead' % \
                (folder_name, attribute_name, str(type(attribute_value)))
 
     def _get_invalid_string_type_message(self, folder_name, attribute_name, attribute_value):
