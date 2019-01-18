@@ -1254,9 +1254,11 @@ class AliasEntries(object):
 
     def __resolve_folder_params(self, path_name, alias_dict):
         """
-        This is a folder that has different parameters based on version / offline.
-        Search through the folder params and find the correct set of parameters. Add
-        this set of parameters to the alias_dict directly and remove the folder_params array.
+        The folder params has a two-fold purpose. To identify valid version / wlst mode
+        combinations (all version / wlst mode combinations must be represented). And to
+        contain folder parameters that are different depending on the combination. Once
+        a folder parameter version has been selected, then all the folder parameters in the
+        valid entry are added to the alias_dict dictionary parameters.
         :param alias_dict:
         :return:
         """
@@ -1270,12 +1272,15 @@ class AliasEntries(object):
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
-            for folder_set in folder_params:
-                if self.__test_dictionary(path_name, folder_set):
-                    _logger.finer('WLSDPLY-08135', path_name, class_name=_class_name, method_name=_method_name)
-                    for key, value in folder_set.iteritems():
-                        alias_dict[key] = value
-                    break
+            if folder_params:
+                add_entry = folder_params[0]
+                for folder_set in folder_params:
+                    if self.__test_dictionary(path_name, folder_set):
+                        _logger.finer('WLSDPLY-08135', path_name, class_name=_class_name, method_name=_method_name)
+                        add_entry = folder_set
+                        break
+                for key, value in add_entry.iteritems():
+                    alias_dict[key] = value
 
     def __resolve_attribute_by_wlst_context(self, path_name, attr_name, attrs_dict):
         """

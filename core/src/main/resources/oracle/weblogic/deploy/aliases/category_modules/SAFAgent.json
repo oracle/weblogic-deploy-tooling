@@ -1,10 +1,16 @@
 {
-    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.",
     "license": "The Universal Permissive License (UPL), Version 1.0",
     "wlst_type": "SAFAgent${:s}",
     "child_folders_type": "multiple",
     "folders": {
         "JmssafMessageLogFile": {
+            "folder_params": [{
+                "version": "[10,12.2.1)",
+                "wlst_mode": "online"
+            }, {
+                "version": "[12.2.1,)"
+            }],
             "folders": {},
             "attributes": {
                 "BufferSizeKb":         [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "BufferSize${Kb:KB}",   "wlst_path": "WP001", "value": {"default": 8                                 }, "wlst_type": "integer" } ],

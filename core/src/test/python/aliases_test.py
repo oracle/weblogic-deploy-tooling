@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from org.python.modules import jarray
@@ -597,6 +597,24 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(mbean_type, None, 'expected DynamicServers type to be null')
         mbean_type = new_aliases.get_wlst_mbean_type(location)
         self.assertNotEqual(mbean_type, None, 'expected DynamicServers type not to be null')
+        return
+
+    def testVersionFilteredFoldersWithFolderParams(self):
+        old_wls_version = '10.3.6'
+        new_wls_version = '12.2.1.3'
+
+        old_aliases = Aliases(self.model_context, WlstModes.OFFLINE, old_wls_version)
+        new_aliases = Aliases(self.model_context, WlstModes.OFFLINE, new_wls_version)
+        location = LocationContext()
+        location.append_location(FOLDERS.SAF_AGENT)
+        name_token = old_aliases.get_name_token(location)
+        location.add_name_token(name_token, 'SafAgent')
+        location.append_location(FOLDERS.SAF_MESSAGE_LOG_FILE)
+        mbean_type = old_aliases.get_wlst_mbean_type(location)
+        self.assertEqual(mbean_type, None, 'expected SAF Agent Message Log type to be null')
+        mbean_type = new_aliases.get_wlst_mbean_type(location)
+        self.assertNotEqual(mbean_type, None, 'expected SAF Agent Message Log  not to be null')
+
         return
 
     def testDomainAttributeMethods(self):
