@@ -75,6 +75,11 @@ public class WLSDeployArchive {
     public static final String ARCHIVE_COHERENCE_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/coherence";
 
     /**
+     * The subdirectory where node manager files are stored and extracted (such as keystore file).
+     */
+    public static final String ARCHIVE_NODE_MANAGER_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/nodeManager";
+
+    /**
      * The subdirectory to which the scripts are extracted.
      */
     public static final String ARCHIVE_SCRIPTS_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/scripts";
@@ -863,6 +868,25 @@ public class WLSDeployArchive {
 
         validateNonEmptyString(fileStoreName, "fileStoreName", METHOD);
         String newName = addEmptyDirectoryToZip(ARCHIVE_FILE_STORE_TARGET_DIR, fileStoreName);
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Add a Node Manager Identity Key Store file to the node manager directory in the archive.
+     *
+     * @param keystoreFile the file to add
+     * @return the new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
+     * @throws IllegalArgumentException if the file does not exist
+     */
+    public String addNodeManagerKeyStoreFile(File keystoreFile) throws WLSDeployArchiveIOException {
+        final String METHOD = "addNodeManagerKeyStoreFile";
+
+        LOGGER.entering(CLASS, METHOD, keystoreFile);
+
+        validateExistingFile(keystoreFile, "keyStoreFile", getArchiveFileName(), METHOD);
+        String newName = addItemToZip(ARCHIVE_NODE_MANAGER_TARGET_DIR, keystoreFile);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }

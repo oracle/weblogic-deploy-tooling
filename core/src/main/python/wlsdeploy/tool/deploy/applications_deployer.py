@@ -387,6 +387,9 @@ class ApplicationsDeployer(Deployer):
         _method_name = '__get_library_references'
 
         self.logger.entering(str(base_location), class_name=self._class_name, method_name=_method_name)
+        # In 12.1.3 and older release this internal library is accidentally exposed in libraryruntimes mbean
+
+        internal_skip_list = ['bea_wls_async_response']
 
         location = LocationContext(base_location).append_location(LIBRARY)
         token_name = self.alias_helper.get_name_token(location)
@@ -403,6 +406,8 @@ class ApplicationsDeployer(Deployer):
             libs = self.wlst_helper.get_existing_object_list(library_runtime_path)
 
             for lib in libs:
+                if lib in internal_skip_list:
+                    continue
                 self.wlst_helper.domain_runtime()
                 self.wlst_helper.cd(library_runtime_path + lib)
                 runtime_attributes = self.wlst_helper.lsa()

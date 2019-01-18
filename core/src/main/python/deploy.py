@@ -448,7 +448,7 @@ def main(args):
         variable_map = {}
         if model_context.get_variable_file():
             variable_map = variables.load_variables(model_context.get_variable_file())
-        variables.substitute(model_dictionary, variable_map)
+        variables.substitute(model_dictionary, variable_map, model_context)
     except VariableException, ex:
         __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
