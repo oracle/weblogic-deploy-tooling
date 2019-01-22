@@ -13,7 +13,6 @@ from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.aliases import TypeUtils
 
 from wlsdeploy.aliases.aliases import Aliases
-from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.location_context import LocationContext
 import wlsdeploy.aliases.model_constants as FOLDERS
 from wlsdeploy.aliases.validation_codes import ValidationCodes
@@ -1321,6 +1320,37 @@ class AliasesTestCase(unittest.TestCase):
 
         actual_attr, actual_value = self.aliases.get_wlst_attribute_name_and_value(location, actual_attr, actual_value)
         self.assertEqual(wlst_list, actual_value)
+
+    def testSecurityProviderGetMethod(self):
+        old_wls_version = '10.3.6'
+        new_wls_version = '12.2.1.3'
+
+        old_aliases_offline = Aliases(self.model_context, WlstModes.OFFLINE, old_wls_version)
+        old_aliases_online = Aliases(self.model_context, WlstModes.ONLINE, old_wls_version)
+        new_aliases = Aliases(self.model_context, WlstModes.OFFLINE, new_wls_version)
+
+        location = LocationContext()
+        location.append_location(FOLDERS.SECURITY_CONFIGURATION)
+        location.add_name_token(old_aliases_offline.get_name_token(location), 'mydomain')
+        location.append_location(FOLDERS.REALM)
+        location.add_name_token(old_aliases_offline.get_name_token(location), 'myrealm')
+        location.append_location(FOLDERS.AUTHENTICATION_PROVIDER)
+
+        getter_method = old_aliases_offline.get_folder_names_method(location)
+
+        version_string = str(old_aliases_offline.get_version()) + ' ' + old_aliases_offline.get_mode_string()
+        self.assertNotEqual(getter_method, None, 'expected Authenticator getter method for ' + version_string)
+
+        version_string = str(old_aliases_online.get_version()) + ' ' + old_aliases_online.get_mode_string()
+        self.assertNotEqual(getter_method, None, 'expected Authenticator getter method to be null for ' +
+                            version_string)
+
+        version_string = str(new_aliases.get_version()) + ' ' + new_aliases.get_mode_string()
+        getter_method = new_aliases.get_folder_names_method(location)
+        self.assertEqual(getter_method, None, 'expected Authenticator getter method to be null for ' + version_string)
+
+        return
+
 
 if __name__ == '__main__':
     unittest.main()

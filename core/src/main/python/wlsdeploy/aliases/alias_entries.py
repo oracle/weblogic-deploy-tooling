@@ -429,6 +429,21 @@ class AliasEntries(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
 
+    def get_folder_get_method_for_location(self, location):
+        """
+        Return the value of the folder get_method attribute if present.
+        :param location: current location context of the folder
+        :return: String value, or None if not present
+        """
+        _method_name = 'get_folder_get_method_for_location'
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        folder_dict = self.__get_dictionary_for_location(location, False)
+        get_method = None
+        if folder_dict is not None and GET_METHOD in folder_dict and len(folder_dict[GET_METHOD]) > 0:
+            get_method = folder_dict[GET_METHOD]
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=get_method)
+        return get_method
+
     def is_location_child_folder_type(self, location, child_folders_type):
         """
         Does the location folder have the specified child_folders_type?
@@ -1092,6 +1107,7 @@ class AliasEntries(object):
         #
         # First, determine if this dictionary is even relevant to the current WLS version.
         #
+        self.__resolve_folder_params(path_name, alias_dict)
         if not self.__use_alias_dict(path_name, alias_dict, parent_dict):
             return None
 
@@ -1121,6 +1137,9 @@ class AliasEntries(object):
 
         if DEFAULT_NAME_VALUE in alias_dict:
             result[DEFAULT_NAME_VALUE] = self._resolve_curly_braces(alias_dict[DEFAULT_NAME_VALUE])
+
+        if GET_METHOD in alias_dict:
+            result[GET_METHOD] = self._resolve_curly_braces(alias_dict[GET_METHOD])
 
         if WLST_PATHS in alias_dict:
             wlst_paths = alias_dict[WLST_PATHS]
@@ -1242,7 +1261,7 @@ class AliasEntries(object):
         return self.__is_version(path_name, alias_dict) and self.__is_wlst_mode(path_name, alias_dict)
 
     def __use_alias_dict(self, path_name, alias_dict, parent_dict):
-        self.__resolve_folder_params(path_name, alias_dict)
+
         if not self.__is_version(path_name, alias_dict):
             _add_to_unresolved_folders(path_name, parent_dict, alias_utils.get_dictionary_version(alias_dict))
             return False
@@ -1259,6 +1278,9 @@ class AliasEntries(object):
         contain folder parameters that are different depending on the combination. Once
         a folder parameter version has been selected, then all the folder parameters in the
         valid entry are added to the alias_dict dictionary parameters.
+
+        Do not add attributes or folders from the folder_params to the folder. These are not allowed.
+        Resolve the folder params curly braces
         :param alias_dict:
         :return:
         """
@@ -1280,7 +1302,11 @@ class AliasEntries(object):
                         add_entry = folder_set
                         break
                 for key, value in add_entry.iteritems():
-                    alias_dict[key] = value
+                    if key not in [ ATTRIBUTES, FOLDERS ]:
+                        alias_dict[key] = value
+                    else:
+                        _logger.fine('WLSDPLY-08136', path_name, value, class_name=_class_name,
+                                     method_name=_method_name)
 
     def __resolve_attribute_by_wlst_context(self, path_name, attr_name, attrs_dict):
         """

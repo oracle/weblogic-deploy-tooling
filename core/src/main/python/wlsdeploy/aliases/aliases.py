@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from java.lang import String
@@ -35,7 +35,9 @@ from wlsdeploy.aliases.alias_constants import LIST
 from wlsdeploy.aliases.alias_constants import LSA
 from wlsdeploy.aliases.alias_constants import MBEAN
 from wlsdeploy.aliases.alias_constants import MERGE
+from wlsdeploy.aliases.alias_constants import METHOD
 from wlsdeploy.aliases.alias_constants import MODEL_NAME
+from wlsdeploy.aliases.alias_constants import NAMES
 from wlsdeploy.aliases.alias_constants import PASSWORD
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
@@ -92,6 +94,13 @@ class Aliases(object):
         :return: WlstModes.ONLINE or WlstModes.OFFLINE
         """
         return self._wlst_mode
+
+    def get_version(self):
+        """
+        Get the version instance
+        :return: version of this aliases instance
+        """
+        return self._wls_version
 
     def get_model_top_level_folder_names(self):
         """
@@ -250,6 +259,24 @@ class Aliases(object):
         """
         return self._alias_entries.is_location_child_folder_type(location,
                                                                  ChildFoldersTypes.MULTIPLE_WITH_TYPE_SUBFOLDER)
+
+    def get_folder_names_method(self, location):
+        """
+        Return the method_name from the folder get_method attribute.
+        None if not present for the folder. The get_method must start
+        with "NAMES." or None is returned. The "NAMES." prefix is
+        stripped from the method name. The NAMES method returns a
+        list of mbean names at the current location.
+        :param location: current location context
+        :return: method name if NAMES method is defined for the folder
+        """
+        names_method = None
+        get_method = self._alias_entries.get_folder_get_method_for_location(location)
+        method_type = NAMES + '.'
+        if get_method and get_method.startswith(method_type):
+            names_method = get_method[len(method_type):]
+
+        return names_method
 
     def supports_single_mbean_instance(self, location):
         """
@@ -500,6 +527,34 @@ class Aliases(object):
 
         return wlst_attribute_names
 
+    def get_wlst_method_required_attribute_names(self, location):
+        """
+        Get the list of attribute names that have special methods that will get the attribute
+        value using wlst.
+        :param location: the location
+        :return: map[string=string]: the map of attribute names and the get method to invoke
+        :raises: AliasException: if an error occurs due to a bad location or bad alias data
+        """
+        _method_name = 'get_wlst_method_required_attribute_names'
+
+        wlst_attribute_names = dict()
+
+        module_folder = self._alias_entries.get_dictionary_for_location(location)
+
+        if ATTRIBUTES not in module_folder:
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        for key, value in module_folder[ATTRIBUTES].iteritems():
+            if GET_METHOD in value and value[GET_METHOD].startswith(METHOD):
+                get_method_value_components = value[GET_METHOD].split('.')
+                if len(get_method_value_components) == 2:
+                    attr_get_method_name = get_method_value_components[1]
+                    wlst_attribute_names[value[WLST_NAME]] = attr_get_method_name
+
+        return wlst_attribute_names
+
     def get_wlst_get_returns_mbean_attribute_names_and_types(self, location):
         """
         Get the dictionary of attribute names and types that have their get_mbean_type specified.
@@ -507,7 +562,7 @@ class Aliases(object):
         :return: dictionary: a dictionary with the attribute names as keys and the MBean types as values
         :raises: AliasException: if an error occurs due to a bad location or bad alias data
         """
-        _method_name = 'get_wlst_get_required_attribute_names'
+        _method_name = 'get_wlst_get_returns_mbean_attribute_names_and_types'
 
         wlst_attribute_names = dict()
 

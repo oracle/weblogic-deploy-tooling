@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.",
     "license": "The Universal Permissive License (UPL), Version 1.0",
     "wlst_type": "SecurityConfiguration",
     "folders": {
@@ -71,6 +71,12 @@
             "child_folders_type": "multiple",
             "folders": {
                 "Adjudicator" : {
+                    "folder_params": [{
+                        "version": "[10,12.1.1]",
+                        "get_method": "${NAMES.get_valid_provider_name_list:}"
+                    }, {
+                        "version": "[12.1.2,)"
+                    }],
                     "wlst_type" : "Adjudicator",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
@@ -86,7 +92,6 @@
                             "wlst_paths": {
                                 "WP001": "/SecurityConfiguration/%DOMAIN%/Realm${:s}/%REALM%/Adjudicator/%PROVIDER%"
                             }
-
                         }
                     },
                     "attributes" : { },
@@ -96,6 +101,12 @@
                     }
                 },
                 "Auditor" : {
+                    "folder_params": [{
+                        "version": "[10,12.1.1]",
+                        "get_method": "${NAMES.get_valid_provider_name_list:}"
+                    }, {
+                        "version": "[12.1.2,)"
+                    }],
                     "wlst_type" : "Auditor",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
@@ -133,6 +144,12 @@
                     }
                 },
                 "AuthenticationProvider" : {
+                    "folder_params": [{
+                        "version": "[10,12.1.1]",
+                        "get_method": "${NAMES.get_valid_provider_name_list:}"
+                    }, {
+                        "version": "[12.1.2,)"
+                    }],
                     "wlst_type" : "AuthenticationProvider${:s}",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders": {
@@ -899,6 +916,12 @@
                     }
                 },
                 "Authorizer" : {
+                    "folder_params": [{
+                        "version": "[10,12.1.1]",
+                        "get_method": "${NAMES.get_valid_provider_name_list:}"
+                    }, {
+                        "version": "[12.1.2,)"
+                    }],
                     "wlst_type" : "Authorizer${:s}",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
@@ -936,6 +959,12 @@
                     }
                 },
                 "CertPathProvider" : {
+                    "folder_params": [{
+                        "version": "[10,12.1.1]",
+                        "get_method": "${NAMES.get_valid_provider_name_list:}"
+                    }, {
+                        "version": "[12.1.2,)"
+                    }],
                     "wlst_type" : "CertPathProvider${:s}",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
@@ -971,6 +1000,12 @@
                     }
                 },
                 "CredentialMapper" : {
+                    "folder_params": [{
+                        "version": "[10,12.1.1]",
+                        "get_method": "${NAMES.get_valid_provider_name_list:}"
+                    }, {
+                        "version": "[12.1.2,)"
+                    }],
                     "wlst_type" : "CredentialMapper${:s}",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
@@ -1058,6 +1093,12 @@
                     }
                 },
                 "PasswordValidator" : {
+                    "folder_params": [{
+                        "version": "[10,12.1.1]",
+                        "get_method": "${NAMES.get_valid_provider_name_list:}"
+                    }, {
+                        "version": "[12.1.2,)"
+                    }],
                     "wlst_type" : "PasswordValidator${:s}",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {

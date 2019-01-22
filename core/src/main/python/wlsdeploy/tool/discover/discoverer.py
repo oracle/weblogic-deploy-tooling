@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
@@ -16,6 +16,8 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.attribute_getter import AttributeGetter
+from wlsdeploy.tool.util.mbean_getter import MBeanGetter
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import path_utils
@@ -50,6 +52,7 @@ class Discoverer(object):
         self._att_handler_map = OrderedDict()
         self._wls_version = WebLogicHelper(_logger).get_actual_weblogic_version()
         self._wlst_helper = WlstHelper(_logger, ExceptionType.DISCOVER)
+        self._mbean_getter = MBeanGetter(self._aliases, ExceptionType.DISCOVER, _logger)
 
     # methods for use only by the subclasses
 
@@ -174,11 +177,27 @@ class Discoverer(object):
     def _get_required_attributes(self, location):
         """
         Use get for all online attributes, and use the attribute names in the
-        :param location:
-        :return:
+        :param location: current location context
+        :return: list of attributes that require wlst.get
         """
         _method_name = '_get_required_attributes'
         attributes = []
+        try:
+            attributes = self._alias_helper.get_wlst_get_required_attribute_names(location)
+        except DiscoverException, de:
+            name = location.get_model_folders()[-1]
+            _logger.warning('WLSDPLY-06109', name, location.get_folder_path(), de.getLocalizedMessage(),
+                            class_name=_class_name, method_name=_method_name)
+        return attributes
+
+    def _method_required_attributes(self, location):
+        """
+        Use a special method to get the online attribute.
+        :param location: current location context
+        :return: map of attributes that require special processing via a method
+        """
+        _method_name = '_method_required_attributes'
+        attributes = dict()
         try:
             attributes = self._alias_helper.get_wlst_get_required_attribute_names(location)
         except DiscoverException, de:
@@ -239,7 +258,14 @@ class Discoverer(object):
             _logger.finest('WLSDPLY-06111', folder_path, class_name=_class_name, method_name=_method_name)
             if wlst_helper.path_exists(folder_path):
                 self.wlst_cd(folder_path, location)
-                names = self._wlst_helper.lsc()
+                getter_method = self._alias_helper.get_folder_names_method(location)
+                if getter_method:
+                    _logger.finer('WLSDPLY-06149', getter_method, location.get_folder_path(), class_name=_class_name,
+                                  method_name=_method_name)
+                    names = self._call_method_to_get_mbean_names(location, getter_method)
+                else:
+                    names = self._wlst_helper.lsc()
+                _logger.finest('WLSDPLY-06146', names, location, class_name=_class_name, method_name=_method_name)
         return names
 
     def _find_singleton_name_in_folder(self, location):
@@ -268,6 +294,7 @@ class Discoverer(object):
             return self._find_subfolders_offline(location)
         else:
             return self._find_subfolders_online(location)
+
     def _find_subfolders_offline(self, location):
         """
         Find the subfolders of the current location.
@@ -360,6 +387,7 @@ class Discoverer(object):
         names = self._find_names_in_folder(location)
         if names is not None:
             for name in names:
+                _logger.fine('Checking folder name {0}', name)
                 location.add_name_token(name_token, name)
                 artificial = self._get_artificial_type(location)
                 if artificial is None:
@@ -613,6 +641,22 @@ class Discoverer(object):
                     continue
         return wlst_attributes
 
+    def _call_method_to_get_mbean_names(self, location, getter_method):
+        _method_name = '_call_method_to_get_mbean_names'
+        mbean_names = []
+        if getter_method is not None:
+            try:
+                _logger.finest('WLSDPLY-12124', getter_method, location.get_folder_path(),
+                               class_name=_class_name, method_name=_method_name)
+                get_method = getattr(self._mbean_getter, getter_method)
+                mbean_names = get_method(location)
+            except AttributeError, ae:
+                ex = exception_helper.create_create_exception('WLSDPLY-12125', getter_method, location.get_folder_path()
+                                                              , error=ae)
+                _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+        return mbean_names
+
     def wlst_cd(self, path, location):
         """
         Change to the directory specified in the path. If the wlst.cd() fails, assume something is wrong with the
@@ -630,6 +674,22 @@ class Discoverer(object):
             _logger.warning('WLSDPLY-06140', path, str(location), pe.getLocalizedMessage(), class_name=_class_name,
                             method_name=_method_name)
         return result
+
+    def call_get_names_method(self, location, wlst_method):
+        _method_name = 'call_get_method'
+        _logger.entering(str(location), wlst_method, class_name=_class_name, method_name=_method_name)
+        try:
+            _logger.fine('WLSDPLY-06147', wlst_method, self._alias_helper.get_model_folder_path(location),
+                         class_name=_class_name, method_name=_method_name)
+            get_method = getattr(self._mbean_getter, wlst_method)
+            mbean_names = get_method(location)
+        except AttributeError, ae:
+            ex = exception_helper.create_create_exception('WLSDPLY-06148', wlst_method,
+                                                          self._alias_helper.get_model_folder_path(location), error=ae)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=mbean_names)
+        return mbean_names
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):

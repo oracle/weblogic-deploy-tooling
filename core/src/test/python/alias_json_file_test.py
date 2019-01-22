@@ -29,7 +29,9 @@ from wlsdeploy.aliases.alias_constants import GET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import GET_METHOD
 from wlsdeploy.aliases.alias_constants import LSA
 from wlsdeploy.aliases.alias_constants import MERGE
+from wlsdeploy.aliases.alias_constants import METHOD
 from wlsdeploy.aliases.alias_constants import NAME_VALUE
+from wlsdeploy.aliases.alias_constants import NAMES
 from wlsdeploy.aliases.alias_constants import NONE
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
@@ -49,6 +51,8 @@ from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 
+from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.tool.util.mbean_getter import MBeanGetter
 
 class ListTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes/'
@@ -76,6 +80,7 @@ class ListTestCase(unittest.TestCase):
         DEFAULT_NAME_VALUE,
         FLATTENED_FOLDER_DATA,
         FOLDER_PARAMS,
+        GET_METHOD,
         VERSION,
         WLST_CREATE_PATH,
         WLST_LIST_PATH,
@@ -105,6 +110,10 @@ class ListTestCase(unittest.TestCase):
         WLST_READ_TYPE
     ]
 
+    _valid_getter_method_types = [
+        NAMES
+    ]
+
     _known_child_folders_type_values = list()
     for value in ChildFoldersTypes.values():
         _known_child_folders_type_values.append(value.lower())
@@ -126,6 +135,11 @@ class ListTestCase(unittest.TestCase):
         'online'
     ]
 
+    _folder_attributes_invalid_in_folder_params = [
+        ATTRIBUTES,
+        FOLDERS
+    ]
+
     def setUp(self):
         self.alias_entries = AliasEntries(wls_version='12.2.1.3')
         self.online_alias_entries = AliasEntries(wls_version='12.2.1.3', wlst_mode=WlstModes.ONLINE)
@@ -133,6 +147,7 @@ class ListTestCase(unittest.TestCase):
         for testfile in self._test_json_files:
             category_file_path = os.path.join(self._resources_dir, '%s.json' % testfile)
             self._test_category_file_map[testfile] = category_file_path
+
 
     def testForJsonFileTypos(self):
         category_results = dict()
@@ -370,22 +385,27 @@ class ListTestCase(unittest.TestCase):
             result.append(self._get_invalid_list_of_dict_type_message(folder_name, FOLDER_PARAMS,
                                                                       attribute_value))
         else:
+            # Make sure version is in each folder param
             folder_params = copy.deepcopy(attribute_value)
             for folder_param in folder_params:
                 if VERSION not in folder_param:
-                    result.append(self._get_missing_required_attribute_key_message(folder_name,
+                    result.extend(self._get_missing_required_attribute_key_message(folder_name,
                                                                                    VERSION, FOLDER_PARAMS))
-                for folder in folder_param:
-                    if folder in self._required_folder_keys:
-                        verify_function_name = '_verify_folder_%s_attribute_type' % folder
+
+                for key in folder_param:
+                    if key in self._folder_attributes_invalid_in_folder_params:
+                        result.append(self._get_invalid_folder_param_attribute(folder_name, key))
+                    elif key == VERSION:
+                        result.extend(self._verify_folder_version_attribute_value(folder_name, folder_param[VERSION]))
+                    elif key == WLST_MODE:
+                        result.extend(self._verify_folder_wlst_mode_attribute_value(folder_name, folder_param[key]))
+                    elif key in self._required_folder_keys or key in self._optional_attribute_keys:
+                        verify_function_name = '_verify_folder_%s_attribute_type' % key
                         verify_function = getattr(self, verify_function_name)
-                        result.extend(verify_function(folder_name, folder_param[folder]))
-                    elif folder in self._optional_folder_keys:
-                        verify_function_name = '_verify_folder_%s_attribute_value' % folder
-                        verify_function = getattr(self, verify_function_name)
-                        result.extend(verify_function(folder_name, folder_param[folder]))
+                        result.extend(verify_function(folder_name, folder_param[key]))
                     else:
-                        result.append(self._get_unknown_folder_key_message(folder_name, folder))
+                        result.append(self._get_unknown_folder_key_message(folder_name, key))
+
         return result
 
     def _verify_folder_version_attribute_value(self, folder_name, attribute_value):
@@ -397,14 +417,12 @@ class ListTestCase(unittest.TestCase):
     def _verify_folder_wlst_mode_attribute_value(self, folder_name, attribute_value):
         result = []
         if type(attribute_value) is not str:
-            message = self._get_invalid_attribute_string_type_message(folder_name, folder_name,
-                                                                      WLST_MODE, attribute_value)
-            result.append(message)
+            result.append(self._get_invalid_attribute_string_type_message(folder_name, folder_name,
+                                                                      WLST_MODE, attribute_value))
         else:
             # curly braces not allowed in wlst_mode
             if attribute_value not in self._known_wlst_mode_attribute_values:
-                message = self._get_invalid_wlst_mode_message(folder_name, attribute_value)
-                result.append(message)
+                result.append(self._get_invalid_wlst_mode_message(folder_name, attribute_value))
         return result
 
     def _verify_folder_wlst_create_path_attribute_value(self, folder_name, attribute_value):
@@ -423,6 +441,36 @@ class ListTestCase(unittest.TestCase):
         result = []
         if type(attribute_value) is not str:
             result.append(self._get_invalid_string_type_message(folder_name, WLST_SUBFOLDERS_PATH, attribute_value))
+        return result
+
+    def _verify_folder_get_method_attribute_type(self, folder_name, attribute_value):
+        result = []
+        if type(attribute_value) is not str:
+            result.append(self._get_invalid_string_type_message(folder_name, GET_METHOD, attribute_value))
+        else:
+            result.extend(self._verify_folder_method_value(folder_name, attribute_value, self.alias_entries))
+            result.extend(self._verify_folder_method_value(folder_name, attribute_value, self.online_alias_entries))
+        return result
+
+    def _verify_folder_method_value(self, folder_name, method_name, aliases):
+        result = []
+        resolved_attribute = aliases._resolve_curly_braces(method_name)
+        if resolved_attribute:
+            get_method_value_components = resolved_attribute.split('.')
+            method_type = None
+            invoker = None
+            if len(get_method_value_components) == 2:
+                method_type = get_method_value_components[0]
+                invoker = get_method_value_components[1]
+            if method_type is None or method_type not in self._valid_getter_method_types:
+                result.append(self._get_invalid_folder_method_message(folder_name, resolved_attribute, method_type))
+
+            instance = MBeanGetter(aliases, ExceptionType.ALIAS)
+            try:
+                getattr(instance, invoker)
+            except AttributeError:
+                result.append(self._folder_method_not_found_message(folder_name, invoker, instance.get_class_name()))
+
         return result
 
     ###########################################################################
@@ -633,7 +681,6 @@ class ListTestCase(unittest.TestCase):
 
         return result
 
-
     def _process_constrained_value_value(self, folder_name, attribute_name, alias_attribute_name,
                                          alias_attribute_value, constrained_values, wlst_mode, empty_allowed=True):
         result = []
@@ -671,6 +718,18 @@ class ListTestCase(unittest.TestCase):
     def _get_missing_required_attribute_key_message(self, folder_name, attribute_name, key):
         return 'Folder at path %s with defined attribute %s is missing the required key %s' % \
                (folder_name, attribute_name, key)
+
+    def _get_invalid_folder_method_message(self, folder_name, method_name, method_type):
+        text = 'Folder at path %s has getter method %s and the type %s is not a known folder getter method type'
+        return text % (folder_name, method_name, method_type)
+
+    def _folder_method_not_found_message(self, folder_name, method_name, method_class_name):
+        text = 'Folder at path %s has a folder getter method %s that was not found in the getter class %s'
+        return text % (folder_name, method_name, method_class_name)
+
+    def _get_invalid_folder_param_attribute(self, folder_name, attribute_name):
+        text = 'Folder parameter at path %s contains an invalid folder param folder attribute %s'
+        return text % (folder_name, attribute_name)
 
     def _get_invalid_dictionary_type_message(self, folder_name, attribute_name, attribute_value):
         return 'Folder at path %s has %s attribute that is expected to be a dictionary but is a %s instead' % \
