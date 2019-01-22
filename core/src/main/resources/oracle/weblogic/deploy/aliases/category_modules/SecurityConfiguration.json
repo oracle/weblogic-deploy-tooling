@@ -1158,6 +1158,12 @@
                     }
                 },
                 "RoleMapper" : {
+                    "folder_params": [{
+                        "version": "[10,12.1.1]",
+                        "get_method": "${NAMES.get_valid_provider_name_list:}"
+                    }, {
+                        "version": "[12.1.2,)"
+                    }],
                     "wlst_type" : "RoleMapper${:s}",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
