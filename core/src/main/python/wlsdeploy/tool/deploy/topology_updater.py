@@ -81,6 +81,9 @@ class TopologyUpdater(Deployer):
         # avoid circular references between clusters and server templates
         self._topology_helper.create_placeholder_server_templates(self._topology)
 
+        # create placeholders for JDBC resources that may be referenced in cluster definition.
+        self._topology_helper.create_placeholder_jdbc_resources(self._resources)
+
         self._process_section(self._topology, folder_list, CLUSTER, location)
         self._process_section(self._topology, folder_list, SERVER_TEMPLATE, location)
         self._process_section(self._topology, folder_list, SERVER, location)

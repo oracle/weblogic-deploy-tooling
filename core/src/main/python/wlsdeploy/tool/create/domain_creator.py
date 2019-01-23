@@ -557,28 +557,18 @@ class DomainCreator(Creator):
         _method_name = '__create_clusters_and_servers'
 
         self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+
         #
         # In order for source domain provisioning to work with dynamic clusters, we have to provision
         # the ServerTemplates.  There is a cyclical dependency between Server Template and Clusters so we
         # need for the ServerTemplates to exist before create clusters.  Once the clusters are provisioned,
         # then we can fully populate the ServerTemplates.
         #
-        server_template_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER_TEMPLATE)
-        if len(server_template_nodes) > 0 and self._is_type_valid(location, SERVER_TEMPLATE):
-            st_location = LocationContext(location).append_location(SERVER_TEMPLATE)
-            st_mbean_type = self.alias_helper.get_wlst_mbean_type(st_location)
-            st_create_path = self.alias_helper.get_wlst_create_path(st_location)
-            self.wlst_helper.cd(st_create_path)
+        self.topology_helper.create_placeholder_server_templates(self._topology)
 
-            st_token_name = self.alias_helper.get_name_token(st_location)
-            for server_template_name in server_template_nodes:
-                st_name = self.wlst_helper.get_quoted_name_for_wlst(server_template_name)
-                if st_token_name is not None:
-                    st_location.add_name_token(st_token_name, st_name)
-
-                st_mbean_name = self.alias_helper.get_wlst_mbean_name(st_location)
-                self.logger.info('WLSDPLY-12220', SERVER_TEMPLATE, st_mbean_name)
-                self.wlst_helper.create(st_mbean_name, st_mbean_type)
+        # create placeholders for JDBC resources that may be referenced in cluster definition.
+        resources_dict = self.model.get_model_resources()
+        self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
 
         cluster_nodes = dictionary_utils.get_dictionary_element(self._topology, CLUSTER)
         if len(cluster_nodes) > 0:
@@ -587,6 +577,7 @@ class DomainCreator(Creator):
         #
         # Now, fully populate the ServerTemplates, if any.
         #
+        server_template_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER_TEMPLATE)
         if len(server_template_nodes) > 0:
             self._create_named_mbeans(SERVER_TEMPLATE, server_template_nodes, location, log_created=True)
 
