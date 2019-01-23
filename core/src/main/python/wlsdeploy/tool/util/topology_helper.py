@@ -9,6 +9,7 @@ import wlsdeploy.util.dictionary_utils as dictionary_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import COHERENCE_CLUSTER_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.tool.util.alias_helper import AliasHelper
@@ -85,5 +86,30 @@ class TopologyHelper(object):
                     template_token = self.alias_helper.get_name_token(template_location)
                     template_location.add_name_token(template_token, template_name)
                     deployer_utils.create_and_cd(template_location, existing_names, self.alias_helper)
+
+        self.wlst_helper.cd(original_location)
+
+    def create_placeholder_jdbc_resources(self, resources):
+        """
+        Create a placeholder JDBC resource for each name in the resources section.
+        This is necessary because cluster attributes may reference JDBC resources.
+        :param resources: the resource model nodes
+        """
+        _method_name = 'create_placeholder_jdbc_resources'
+        original_location = self.wlst_helper.get_pwd()
+        resource_location = LocationContext().append_location(JDBC_SYSTEM_RESOURCE)
+
+        if self.alias_helper.get_wlst_mbean_type(resource_location) is not None:
+            existing_names = deployer_utils.get_existing_object_list(resource_location, self.alias_helper)
+
+            jdbc_nodes = dictionary_utils.get_dictionary_element(resources, JDBC_SYSTEM_RESOURCE)
+            for jdbc_name in jdbc_nodes:
+                if jdbc_name not in existing_names:
+                    self.logger.info('WLSDPLY-19401', jdbc_name, class_name=self.__class_name,
+                                     method_name=_method_name)
+
+                    jdbc_token = self.alias_helper.get_name_token(resource_location)
+                    resource_location.add_name_token(jdbc_token, jdbc_name)
+                    deployer_utils.create_and_cd(resource_location, existing_names, self.alias_helper)
 
         self.wlst_helper.cd(original_location)
