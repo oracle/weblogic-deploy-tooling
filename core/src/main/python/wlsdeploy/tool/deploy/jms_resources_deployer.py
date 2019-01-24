@@ -64,14 +64,6 @@ class JmsResourcesDeployer(Deployer):
         UNIFORM_DISTRIBUTED_TOPIC
     ]
 
-    quota_destination_type_names = [
-        QUEUE,
-        TEMPLATE,
-        TOPIC,
-        UNIFORM_DISTRIBUTED_QUEUE,
-        UNIFORM_DISTRIBUTED_TOPIC
-    ]
-
     def __init__(self, model, model_context, aliases, wlst_mode=WlstModes.OFFLINE):
         Deployer.__init__(self, model, model_context, aliases, wlst_mode)
 
