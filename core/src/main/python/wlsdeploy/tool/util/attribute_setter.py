@@ -45,6 +45,7 @@ from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PARTITION_WORK_MANAGER
 from wlsdeploy.aliases.model_constants import PERSISTENT_STORE
 from wlsdeploy.aliases.model_constants import QUEUE
+from wlsdeploy.aliases.model_constants import QUOTA
 from wlsdeploy.aliases.model_constants import REALM
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
@@ -412,6 +413,20 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if jms server mbean is not found.
         """
         mbean = self.__find_in_location(LocationContext(), JMS_SERVER, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_jms_quota_mbean(self, location, key, value, wlst_value):
+        """
+        For those entities, queues, template, topics, that take a single Quota mbean.
+        :param location: location to look for Quota mbean
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if quota mbean is not found.
+        """
+        resource_location = self.__get_parent_location(location, JMS_RESOURCE)
+        mbean = self.__find_in_location(resource_location, QUOTA, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
