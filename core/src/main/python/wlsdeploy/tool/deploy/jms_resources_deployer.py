@@ -290,36 +290,3 @@ class JmsResourcesDeployer(Deployer):
 
         self.wlst_helper.cd(original_location)
         return result
-
-    def _check_destination_quota(self, destination_nodes, location):
-        """
-        Check the destination nodes for a quota element, and create a placeholder quota if required.
-        :param destination_nodes: the destination nodes to be examined
-        :param location: the location of the destination parent
-        """
-        for name in destination_nodes:
-            child_nodes = dictionary_utils.get_dictionary_element(destination_nodes, name)
-            quota_name = dictionary_utils.get_element(child_nodes, QUOTA)
-            if quota_name is not None:
-                self._create_placeholder_jms_quota(quota_name, location)
-        return
-
-    def _create_placeholder_jms_quota(self, quota_name, resource_location):
-        """
-        :param template_name: the name of the template to be added
-        :param resource_location: the location where the template should be added
-        """
-        _method_name = '_create_placeholder_jms_quota'
-        original_location = self.wlst_helper.get_pwd()
-        quota_location = LocationContext(resource_location).append_location(QUOTA)
-        existing_names = deployer_utils.get_existing_object_list(quota_location, self.alias_helper)
-
-        if quota_name not in existing_names:
-            self.logger.info('WLSDPLY-09502', quota_name, class_name=self._class_name, method_name=_method_name)
-
-        quota_token = self.alias_helper.get_name_token(quota_location)
-        quota_location.add_name_token(quota_token, quota_name)
-        result = deployer_utils.create_and_cd(quota_location, existing_names, self.alias_helper)
-
-        self.wlst_helper.cd(original_location)
-        return result
