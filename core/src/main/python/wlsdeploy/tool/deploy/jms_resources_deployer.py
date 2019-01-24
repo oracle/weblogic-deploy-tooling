@@ -99,10 +99,6 @@ class JmsResourcesDeployer(Deployer):
 
         if type_name in self.template_destination_type_names:
             self._check_destination_template(model_nodes, location)
-
-        if type_name in self.quota_destination_type_names:
-            self._check_destination_quota(model_nodes, location)
-
             # continue with regular processing
 
         Deployer._add_named_elements(self, type_name, model_nodes, location)
