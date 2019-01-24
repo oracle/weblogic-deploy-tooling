@@ -246,7 +246,11 @@ class JVMArguments(object):
         _method_name = '__parse_args'
 
         if self.__raw_args is not None and len(self.__raw_args) > 0:
-            arguments = self.__raw_args.split()
+            if isinstance(self.__raw_args, list):
+                arguments = self.__raw_args
+            else:
+                arguments = self.__raw_args.split()
+
             for argument in arguments:
                 if self.__client_server_regex.match(argument):
                     self.__client_server_args.append(argument)
