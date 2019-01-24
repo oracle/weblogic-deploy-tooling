@@ -79,8 +79,6 @@ class JmsResourcesDeployer(Deployer):
         1) Group params require special handling.
         2) Destinations may require placeholder templates.
         """
-        _method_name = '_add_named_elements'
-        self.logger.entering(type_name, class_name=self._class_name, method_name=_method_name)
         if type_name == GROUP_PARAMS:
             self._add_group_params(model_nodes, location)
             return
