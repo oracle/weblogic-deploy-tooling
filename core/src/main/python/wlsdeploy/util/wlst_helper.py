@@ -14,6 +14,32 @@ _logger = PlatformLogger('wlsdeploy.wlst')
 _class_name = 'wlst_helper'
 
 
+def assign(source_type, source_name, target_type, target_name):
+    """
+    Assign target entity to source entity
+
+    :param source_type: source entity type
+    :param source_name: entity name
+    :param target_type: target type
+    :param target_name: target name
+    :raises: PyWLSTException: if a WLST error occurs
+    """
+
+    _method_name = 'assign'
+    _logger.finest('WLSDPLY-00001', source_type, source_name, target_type, target_name, class_name=_class_name,
+                   method_name=_method_name)
+
+    try:
+        wlst.assign(source_type, source_name, target_type, target_name)
+    except (wlst.WLSTException, offlineWLSTException), e:
+        raise exception_helper.create_pywlst_exception('WLSDPLY-00002', source_type, source_name, target_type,
+                                                       target_name, _get_exception_mode(e),
+                                                       _format_exception(e), error=e)
+    _logger.finest('WLSDPLY-00003', source_type, source_name, target_type, target_name, class_name=_class_name,
+                   method_name=_method_name)
+    return
+
+
 def cd(path):
     """
     Change location to the provided path.
