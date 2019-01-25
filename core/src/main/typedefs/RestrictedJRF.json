@@ -5,20 +5,107 @@
     "description": "Restricted JRF type domain definitions",
     "versions": {
         "12.2.1": "RJRF_12CR2",
+        "12.2.1.3": "RJRF_12213",
         "19.1":   "RJRF_19CR1"
     },
     "definitions": {
         "RJRF_12CR2": {
             "baseTemplate": "Basic WebLogic Server Domain",
-            "extensionTemplates": [ "Oracle Enterprise Manager-Restricted JRF" ],
-            "serverGroupsToTarget": [ "JRF-MAN-SVR" ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS"]
+            "extensionTemplates": [ "Oracle Restricted JRF", "Oracle Enterprise Manager-Restricted JRF" ],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR"],
+            "rcuSchemas": [ ]
+        },
+        "RJRF_12213": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [ "Oracle Restricted JRF",  "Oracle Enterprise Manager-Restricted JRF" ],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR" ],
+            "rcuSchemas": [ ]
         },
         "RJRF_19CR1": {
             "baseTemplate": "Basic WebLogic Server Domain",
-            "extensionTemplates": [ "Oracle Enterprise Manager-Restricted JRF" ],
-            "serverGroupsToTarget": [ "JRF-MAN-SVR" ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS"]
+            "extensionTemplates": [ "Oracle Restricted JRF",  "Oracle Enterprise Manager-Restricted JRF"],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR" ],
+            "rcuSchemas": [ ]
         }
+    },
+    "system-elements": {
+        "apps": [
+            "coherence-transaction-rar",
+            "DMS Application%%",
+            "em",
+            "opss-rest",
+            "state-management-provider-memory-rar",
+            "wsil-wls",
+            "wsm-pm"
+        ],
+        "coherence-clusters": [
+            "defaultCoherenceCluster"
+        ],
+        "shared-libraries": [
+            "adf.oracle.businesseditor%%",
+            "adf.oracle.domain%%",
+            "adf.oracle.domain.webapp%%",
+            "em_common%%",
+            "em_core_ppc_pojo_jar",
+            "em_error%%",
+            "em_sdkcore_ppc_public_pojo_jar",
+            "emagentsdk_jar%%",
+            "emagentsdkimpl_jar%%",
+            "emagentsdkimplpriv_jar%%",
+            "emas",
+            "emcore",
+            "emcore_jar",
+            "emcoreclient_jar",
+            "emcorecommon_jar",
+            "emcoreconsole_jar",
+            "emcoreintsdk_jar%%",
+            "emcorepbs_jar",
+            "emcoresdk_jar%%",
+            "emcoresdkimpl_jar%%",
+            "jsf%%",
+            "jstl%%",
+            "log4j_jar%%",
+            "odl.clickhistory%%",
+            "odl.clickhistory.webapp%%",
+            "ohw-rcf%%",
+            "ohw-uix%%",
+            "oracle.adf.dconfigbeans%%",
+            "oracle.adf.desktopintegration%%",
+            "oracle.adf.desktopintegration.model%%",
+            "oracle.adf.management%%",
+            "oracle.bi.adf.model.slib%%",
+            "oracle.bi.adf.view.slib%%",
+            "oracle.bi.adf.webcenter.slib%%",
+            "oracle.bi.composer%%",
+            "oracle.bi.jbips%%",
+            "oracle.dconfig-infra%%",
+            "oracle.jrf.system.filter",
+            "oracle.jsp.next%%",
+            "oracle.pwdgen%%",
+            "oracle.sdp.client%%",
+            "oracle.sdp.messaging%%",
+            "oracle.webcenter.composer%%",
+            "oracle.webcenter.skin%%",
+            "oracle.wsm.console%%",
+            "oracle.wsm.idmrest%%",
+            "oracle.wsm.seedpolicies%%",
+            "orai18n-adf%%",
+            "owasp.esapi%%",
+            "UIX%%"
+        ],
+        "shutdown-classes": [
+            "DMSShutdown"
+        ],
+        "startup-classes": [
+            "WSM Startup Class",
+            "Web Services Startup Class",
+            "JRF Startup Class",
+            "ODL-Startup",
+            "DMS-Startup",
+            "AWT Application Context Startup Class"
+        ],
+        "wldf": [
+            "Module-FMWDFW"
+        ]
     }
 }
