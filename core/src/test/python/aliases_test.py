@@ -13,7 +13,6 @@ from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.aliases import TypeUtils
 
 from wlsdeploy.aliases.aliases import Aliases
-from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.location_context import LocationContext
 import wlsdeploy.aliases.model_constants as FOLDERS
 from wlsdeploy.aliases.validation_codes import ValidationCodes
@@ -1321,6 +1320,21 @@ class AliasesTestCase(unittest.TestCase):
 
         actual_attr, actual_value = self.aliases.get_wlst_attribute_name_and_value(location, actual_attr, actual_value)
         self.assertEqual(wlst_list, actual_value)
+
+    # server start args can be a list in the model, merge values and become a string for WLST
+    def testServerStartArgs(self):
+        location = LocationContext().append_location(FOLDERS.SERVER)
+        location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
+        location = location.append_location(FOLDERS.SERVER_START)
+        location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
+        attribute = FOLDERS.ARGUMENTS
+        value = ['-Dxyz=123,456,789']
+        existing_value = '-Dxyz=123,555,789'
+
+        dummy_attr, wlst_value = self.aliases.get_wlst_attribute_name_and_value(location, attribute, value,
+                                                                                existing_value)
+        self.assertEqual('-Dxyz=123,456,789', wlst_value)
+
 
 if __name__ == '__main__':
     unittest.main()
