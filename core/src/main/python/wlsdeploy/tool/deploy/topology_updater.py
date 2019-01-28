@@ -1,9 +1,10 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import SECURITY
@@ -62,6 +63,7 @@ class TopologyUpdater(Deployer):
         """
         Deploy resource model elements at the domain level, including multi-tenant elements.
         """
+        _method_name = 'update'
         domain_token = deployer_utils.get_domain_token(self.alias_helper)
         location = LocationContext()
         location.add_name_token(domain_token, self.model_context.get_domain_name())
@@ -74,6 +76,9 @@ class TopologyUpdater(Deployer):
 
         self._security_provider_creator.create_security_configuration(location)
         folder_list.remove(SECURITY_CONFIGURATION)
+
+        # set the domain attributes
+        self._set_domain_attributes()
 
         self._process_section(self._topology, folder_list, MACHINE, location)
         self._process_section(self._topology, folder_list, UNIX_MACHINE, location)
@@ -114,3 +119,15 @@ class TopologyUpdater(Deployer):
 
         if key in folder_list:
             folder_list.remove(key)
+
+    def _set_domain_attributes(self):
+        _method_name = '_set_domain_attributes'
+        self.logger.fine('WLSDPLY-09700', self.model_context.get_domain_name(), class_name=self._class_name,
+                         method_name=_method_name)
+        attrib_dict = dictionary_utils.get_dictionary_attributes(self._topology)
+        if DOMAIN_NAME in attrib_dict:
+            del attrib_dict[DOMAIN_NAME]
+        location = LocationContext()
+        attribute_path = self.alias_helper.get_wlst_attributes_path(location)
+        self.wlst_helper.cd(attribute_path)
+        self.set_attributes(location, attrib_dict)

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import java.util.Properties as JProperties
@@ -24,6 +24,20 @@ def get_dictionary_element(dictionary, element_name):
         result = dict()
 
     return result
+
+
+def get_dictionary_attributes(dictionary):
+    """
+    Get the attributes and skip the dictionary attributes from the dictionary.
+    :param dictionary: to return the skimmed down attribute list
+    :return: list of attributes
+    """
+    result_list = OrderedDict()
+    if dictionary:
+        for key, value in dictionary.iteritems():
+            if not isinstance(value, dict):
+                result_list[key] = value
+    return result_list
 
 
 def is_empty_dictionary_element(dictionary, element_name):
