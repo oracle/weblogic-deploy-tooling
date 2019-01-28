@@ -59,6 +59,14 @@ class TopologyUpdater(Deployer):
 
         Deployer._add_named_elements(self, type_name, model_nodes, location)
 
+    # Override
+    def _add_model_elements(self, type_name, model_nodes, location):
+        Deployer._add_model_elements(self, type_name, model_nodes, location)
+
+        # check for file paths that need to be qualified
+        self._topology_helper.qualify_nm_properties(type_name, model_nodes, location, self.model_context,
+                                                    self.attribute_setter)
+
     def update(self):
         """
         Deploy resource model elements at the domain level, including multi-tenant elements.

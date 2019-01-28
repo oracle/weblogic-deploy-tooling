@@ -165,6 +165,14 @@ class DomainCreator(Creator):
 
         Creator._create_named_mbeans(self, type_name, model_nodes, base_location, log_created=log_created)
 
+    # Override
+    def _create_mbean(self, type_name, model_nodes, base_location, log_created=False):
+        Creator._create_mbean(self, type_name, model_nodes, base_location, log_created)
+
+        # check for file paths that need to be qualified
+        self.topology_helper.qualify_nm_properties(type_name, model_nodes, base_location, self.model_context,
+                                                   self.attribute_setter)
+
     def __run_rcu(self):
         """
         The method that runs RCU to drop and then create the schemas.
