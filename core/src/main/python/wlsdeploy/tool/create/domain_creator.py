@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
@@ -164,6 +164,14 @@ class DomainCreator(Creator):
         # continue with regular processing
 
         Creator._create_named_mbeans(self, type_name, model_nodes, base_location, log_created=log_created)
+
+    # Override
+    def _create_mbean(self, type_name, model_nodes, base_location, log_created=False):
+        Creator._create_mbean(self, type_name, model_nodes, base_location, log_created)
+
+        # check for file paths that need to be qualified
+        self.topology_helper.qualify_nm_properties(type_name, model_nodes, base_location, self.model_context,
+                                                   self.attribute_setter)
 
     def __run_rcu(self):
         """

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -57,6 +57,14 @@ class TopologyUpdater(Deployer):
         # continue with regular processing
 
         Deployer._add_named_elements(self, type_name, model_nodes, location)
+
+    # Override
+    def _add_model_elements(self, type_name, model_nodes, location):
+        Deployer._add_model_elements(self, type_name, model_nodes, location)
+
+        # check for file paths that need to be qualified
+        self._topology_helper.qualify_nm_properties(type_name, model_nodes, location, self.model_context,
+                                                    self.attribute_setter)
 
     def update(self):
         """

@@ -1,15 +1,18 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 
 import wlsdeploy.tool.deploy.deployer_utils as deployer_utils
 import wlsdeploy.util.dictionary_utils as dictionary_utils
+from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import COHERENCE_CLUSTER_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import CUSTOM_IDENTITY_KEYSTORE_FILE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.tool.util.alias_helper import AliasHelper
@@ -113,3 +116,20 @@ class TopologyHelper(object):
                     deployer_utils.create_and_cd(resource_location, existing_names, self.alias_helper)
 
         self.wlst_helper.cd(original_location)
+
+    def qualify_nm_properties(self, type_name, model_nodes, base_location, model_context, attribute_setter):
+        """
+        For the NM properties MBean, update the keystore file path to be fully qualified with the domain directory.
+        :param type_name: the type name of the MBean to be checked
+        :param model_nodes: the model nodes of the MBean to be checked
+        :param base_location: the parent location of the MBean
+        :param model_context: the model context of the tool
+        :param attribute_setter: the attribute setter to be used for update
+        """
+        if type_name == NM_PROPERTIES:
+            location = LocationContext(base_location).append_location(type_name)
+            keystore_file = dictionary_utils.get_element(model_nodes, CUSTOM_IDENTITY_KEYSTORE_FILE)
+            if keystore_file and WLSDeployArchive.isPathIntoArchive(keystore_file):
+                value = model_context.get_domain_home() + "/" + keystore_file
+                attribute_setter.set_attribute(location, CUSTOM_IDENTITY_KEYSTORE_FILE, value)
+
