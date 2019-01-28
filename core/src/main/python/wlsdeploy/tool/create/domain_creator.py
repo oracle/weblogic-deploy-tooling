@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
@@ -146,7 +146,7 @@ class DomainCreator(Creator):
         self.__run_rcu()
         self.__fail_mt_1221_domain_creation()
         self.__create_domain()
-        self.__deploy_resources_and_apps()
+        self.__deploy()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -249,20 +249,28 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
+    def __deploy(self):
+        """
+        Update the domain with domain attributes, resources and deployments.
+        :raises: CreateException: if an error occurs while reading or updating the domain.
+        """
+        self.model_context.set_domain_home(self._domain_home)
+        self.wlst_helper.read_domain(self._domain_home)
+        self.__set_domain_attributes()
+        self.__deploy_resources_and_apps()
+        self.wlst_helper.update_domain()
+        self.wlst_helper.close_domain()
+        return
+
     def __deploy_resources_and_apps(self):
         """
         Deploy the resources and applications.
-        :raises: CreateException: if an error occurs while reading or updating the domain.
         :raises: DeployException: if an error occurs while deploy the resources or applications
         """
         _method_name = '__deploy_resources_and_apps'
 
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        self.model_context.set_domain_home(self._domain_home)
-        self.wlst_helper.read_domain(self._domain_home)
         model_deployer.deploy_resources_and_apps_for_create(self.model, self.model_context, self.aliases)
-        self.wlst_helper.update_domain()
-        self.wlst_helper.close_domain()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -383,6 +391,7 @@ class DomainCreator(Creator):
         location.add_name_token(domain_name_token, self._domain_name)
 
         self.__set_core_domain_params()
+
         self.__create_security_folder(location)
         topology_folder_list.remove(SECURITY)
 
@@ -408,6 +417,7 @@ class DomainCreator(Creator):
         topology_folder_list.remove(MIGRATABLE_TARGET)
 
         self.__create_other_domain_artifacts(location, topology_folder_list)
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -810,4 +820,20 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
         else:
             self._admin_server_name = self.__default_admin_server_name
+        return
+
+    def __set_domain_attributes(self):
+        """
+        Set the Domain attributes, which are in the top folder
+        :param location: current location context
+        """
+        _method_name = '__set_domain_attributes'
+        self.logger.finer('WLSDPLY-12231', self._domain_name, class_name=self.__class_name, method_name=_method_name)
+        attrib_dict = dictionary_utils.get_dictionary_attributes(self.model.get_model_topology())
+        if DOMAIN_NAME in attrib_dict:
+            del attrib_dict[DOMAIN_NAME]
+        location = LocationContext()
+        attribute_path = self.alias_helper.get_wlst_attributes_path(location)
+        self.wlst_helper.cd(attribute_path)
+        self._set_attributes(location, attrib_dict)
         return
