@@ -312,15 +312,17 @@ class AttributeSetter(object):
 
     def set_cluster_mbean(self, location, key, value, wlst_value):
         """
-        Set the Cluster MBean.
+        assign the Cluster MBean.
         :param location: the location
         :param key: the attribute name
         :param value: the string value
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if the cluster is not found
         """
-        mbean = self.__find_in_location(LocationContext(), CLUSTER, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+
+        entity_type, entity_name = self.__alias_helper.get_model_type_and_name(location)
+
+        self.__wlst_helper.assign(entity_type, entity_name, key, value)
         return
 
     def set_coherence_cluster_mbean(self, location, key, value, wlst_value):
