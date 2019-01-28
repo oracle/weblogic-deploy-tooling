@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from java.io import File
@@ -306,9 +306,11 @@ class TopologyDiscoverer(Discoverer):
         model_top_folder_name = model_constants.JTA
         result = OrderedDict()
         location = LocationContext(self._base_location)
-        if self._subfolder_exists(model_top_folder_name, location):
+        location.append_location(model_top_folder_name)
+        name = self._find_singleton_name_in_folder(location)
+        if name is not None:
             _logger.info('WLSDPLY-06614', class_name=_class_name, method_name=_method_name)
-            location.append_location(model_top_folder_name)
+            location.add_name_token(self._alias_helper.get_name_token(location), name)
             self._populate_model_parameters(result, location)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_top_folder_name, result

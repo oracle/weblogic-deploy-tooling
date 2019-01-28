@@ -1335,6 +1335,15 @@ class AliasesTestCase(unittest.TestCase):
                                                                                 existing_value)
         self.assertEqual('-Dxyz=123,456,789', wlst_value)
 
+    def testGetJTA(self):
+        location = LocationContext()
+        location.append_location(FOLDERS.JTA)
+        location.add_name_token('DOMAIN', 'mydomain')
+        offline_path = self.aliases.get_wlst_mbean_name(location)
+        self.assertEqual('NO_NAME_0', offline_path)
+        online_path = self.online_aliases.get_wlst_mbean_name(location)
+        self.assertEqual('mydomain', online_path)
+
 
 if __name__ == '__main__':
     unittest.main()
