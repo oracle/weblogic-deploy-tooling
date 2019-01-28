@@ -63,7 +63,6 @@ class TopologyUpdater(Deployer):
         """
         Deploy resource model elements at the domain level, including multi-tenant elements.
         """
-        _method_name = 'update'
         domain_token = deployer_utils.get_domain_token(self.alias_helper)
         location = LocationContext()
         location.add_name_token(domain_token, self.model_context.get_domain_name())
