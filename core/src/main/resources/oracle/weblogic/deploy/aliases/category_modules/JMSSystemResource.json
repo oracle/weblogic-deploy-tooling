@@ -577,7 +577,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Template${:s}/%TEMPLATE%/GroupParams/%FOLDERNAME%"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Template${:s}/%TEMPLATE%/GroupParams/${NO_NAME_0:%FOLDERNAME%}"
                                           }
                                     },
                                     "MessageLoggingParams": {
