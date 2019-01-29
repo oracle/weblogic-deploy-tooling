@@ -215,7 +215,7 @@ IF DEFINED DOMAIN_TYPE (
   )
 )
 
-ECHO Wrong domain type specified "%DOMAIN_TYPE%": valid values are "WLS|JRF|RestrictedJRF"
+ECHO Wrong domain type specified "%DOMAIN_TYPE%": valid value is "WLS|JRF|RestrictedJRF"
 SET  RETURN_CODE=98
 GOTO exit_script
 

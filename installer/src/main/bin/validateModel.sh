@@ -242,7 +242,7 @@ else
     elif [ "${DOMAIN_TYPE}" = "JRF" ]; then
         USE_JRF_WLST=TRUE
     else
-        echo "Wrong domain type specified ${DOMAIN_TYPE}: valid values are WLS|JRF|RestrictedJRF"
+        echo "Wrong domain type specified ${DOMAIN_TYPE}: valid value is WLS|JRF|RestrictedJRF"
         exit 98
     fi
 
