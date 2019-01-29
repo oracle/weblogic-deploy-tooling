@@ -176,6 +176,12 @@ while [[ $# > 1 ]]; do
     shift # past arg or value
 done
 
+# default DOMAIN_TYPE
+
+if [ -z "${DOMAIN_TYPE}" ]; then
+    DOMAIN_TYPE="WLS"
+fi
+
 #
 # Check for values of required arguments for this script to continue.
 # The underlying WLST script has other required arguments.
@@ -217,7 +223,8 @@ else
     elif [ "${DOMAIN_TYPE}" = "JRF" ]; then
         USE_JRF_WLST=TRUE
     else
-        echo "Domain type ${DOMAIN_TYPE} not recognized by shell script...assuming JRF is required"
+        echo "Wrong domain type specified ${DOMAIN_TYPE}: valid values are WLS|JRF|RestrictedJRF"
+        exit 98
     fi
 
     if [ "${USE_JRF_WLST}" = "TRUE" ]; then

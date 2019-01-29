@@ -149,7 +149,6 @@ fi
 
 SCRIPT_ARGS="$*"
 MIN_JDK_VERSION=7
-
 #
 # Find the args required to determine the WLST script to run
 #
@@ -182,6 +181,14 @@ while [[ $# > 1 ]]; do
     esac
     shift # past arg or value
 done
+
+
+# default DOMAIN_TYPE
+
+if [ -z "${DOMAIN_TYPE}" ]; then
+    DOMAIN_TYPE="WLS"
+fi
+
 
 #
 # Validate the JVM version based on whether or not the user asked us to use encryption
@@ -234,6 +241,7 @@ else
     #
     WLST=""
     USE_JRF_WLST=FALSE
+
     if [ "${DOMAIN_TYPE}" = "WLS" ]; then
         USE_JRF_WLST=FALSE
     elif [ "${DOMAIN_TYPE}" = "RestrictedJRF" ]; then
@@ -241,7 +249,8 @@ else
     elif [ "${DOMAIN_TYPE}" = "JRF" ]; then
         USE_JRF_WLST=TRUE
     else
-        echo "Domain type ${DOMAIN_TYPE} not recognized by shell script...assuming JRF is required"
+        echo "Wrong domain type specified ${DOMAIN_TYPE}: valid values are WLS|JRF|RestrictedJRF"
+        exit 98
     fi
 
     if [ "${USE_JRF_WLST}" = "TRUE" ]; then
