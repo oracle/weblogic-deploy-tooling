@@ -158,6 +158,29 @@ class ApplicationsDeployer(Deployer):
 
             application = \
                 copy.deepcopy(dictionary_utils.get_dictionary_element(applications, application_name))
+
+            app_source_path = dictionary_utils.get_element(application, SOURCE_PATH)
+            if string_utils.is_empty(app_source_path):
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09302', application_name, SOURCE_PATH)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+            if deployer_utils.is_path_into_archive(app_source_path):
+                if self.archive_helper is not None:
+                    self.archive_helper.extract_file(app_source_path)
+                else:
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-09303', application_name)
+                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+                full_source_path = File(File(self.model_context.get_domain_home()), app_source_path).getAbsolutePath()
+            else:
+                full_source_path = File(self.model_context.replace_token_string(app_source_path)).getAbsolutePath()
+
+            print 'DEBUG before: ' + application_name
+            application_name = \
+                self.__get_deployable_library_versioned_name(full_source_path, application_name)
+
+            print 'DEBUG after: ' + application_name
             quoted_application_name = self.wlst_helper.get_quoted_name_for_wlst(application_name)
             application_location.add_name_token(application_token, quoted_application_name)
 
@@ -732,9 +755,9 @@ class ApplicationsDeployer(Deployer):
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-        if options is not None and 'libraryModule' in options and string_utils.to_boolean(options['libraryModule']):
-            computed_name = self.__get_deployable_library_versioned_name(source_path, application_name)
-            application_name = computed_name
+        # if options is not None and 'libraryModule' in options and string_utils.to_boolean(options['libraryModule']):
+        computed_name = self.__get_deployable_library_versioned_name(source_path, application_name)
+        application_name = computed_name
 
         # build the dictionary of named arguments to pass to the deploy_application method
         args = list()
