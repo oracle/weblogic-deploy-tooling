@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
@@ -1103,9 +1103,20 @@ def _get_wlst_mode():
     return result
 
 
-def get_mbi():
+def get_mbi(path=None):
     """
-    Get the MBeanInfo for the current MBean location.
+    Get the MBeanInfo for the current or specifiec MBean location.
+    :param path: optionally specify path to check
     :return: javax.management.modelmbean.ModelMBeanInfo instance for the current location
     """
-    return wlst.getMBI()
+    current_path = None
+    if path is not None:
+        current_path = get_pwd()
+        cd(path)
+
+    result = wlst.getMBI()
+
+    if current_path is not None:
+        cd(current_path)
+
+    return result
