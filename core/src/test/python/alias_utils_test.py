@@ -108,6 +108,14 @@ class ListTestCase(unittest.TestCase):
         self.assertEqual(actual, expected)
         return
 
+    def testDelimitedListToList(self):
+        value = 'one;two;three'
+        actual = alias_utils.convert_from_type("invalid", value, preferred='list', delimiter=';')
+        expected = ['one', 'two', 'three']
+        lists_equal, message = self.__lists_are_equal(actual, expected)
+        self.assertEqual(lists_equal, True, message)
+        return
+
     def __lists_are_equal(self, actual, expected):
         if actual is None and expected is None:
             return True, 'ok'
