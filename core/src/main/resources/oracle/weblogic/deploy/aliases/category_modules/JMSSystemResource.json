@@ -421,7 +421,7 @@
                                                       },
                                                       "wlst_attributes_path": "WP001",
                                                       "wlst_paths": {
-                                                            "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFQueue${:s}/%SAFQUEUE%/MessageLoggingParams/${NO_NAME_0:%SAFIMPORTEDDESTINATION%}"
+                                                            "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFQueue${:s}/%SAFQUEUE%/MessageLoggingParams/${NO_NAME_0:%SAFQUEUE%}"
                                                       }
                                                 }
                                           },
@@ -455,7 +455,7 @@
                                                       },
                                                       "wlst_attributes_path": "WP001",
                                                       "wlst_paths": {
-                                                            "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFTopic${:s}/%SAFTOPIC%/MessageLoggingParams/${NO_NAME_0:%SAFIMPORTEDDESTINATION%}"
+                                                            "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFTopic${:s}/%SAFTOPIC%/MessageLoggingParams/${NO_NAME_0:%SAFTOPIC%}"
                                                       }
                                                 }
                                           },
