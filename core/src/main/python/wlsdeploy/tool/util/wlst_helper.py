@@ -35,8 +35,8 @@ class WlstHelper(object):
         try:
             wlst_helper.assign(source_type, source_name, target_type, target_name)
         except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19100',
-                                                   source_type, source_name, target_type, target_name,
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19143',
+                                                   target_type, target_name, source_type, source_name,
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
