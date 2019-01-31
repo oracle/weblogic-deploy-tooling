@@ -150,7 +150,7 @@ IF NOT "%~1" == "" (
 )
 
 @rem Default domain type if not specified
-IF "%DOMAIN_TYPE%"=="" SET DOMAIN_TYPE="WLS"
+IF "%DOMAIN_TYPE%"=="" SET DOMAIN_TYPE=WLS
 
 @rem
 @rem Validate the JVM version based on whether or not the user asked us to use encryption
