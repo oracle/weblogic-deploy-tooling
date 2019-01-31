@@ -52,7 +52,6 @@ from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.aliases.model_constants import ARGUMENTS
-from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_START
 
@@ -683,13 +682,10 @@ def convert_from_type(data_type, value, preferred=None, delimiter=None):
     elif value is not None and isinstance(value, ObjectName):
         new_value = value.getKeyProperty('Name')
     else:
-        new_value = _jconvert_to_type(data_type, value, delimiter)
-
+        model_type = data_type
         if preferred:
-            # now put it into the preferred model type, but the model delimiter should ALWAYS be the
-            # model default delimiter
-            delimiter = MODEL_LIST_DELIMITER
-            new_value = _jconvert_to_type(preferred, new_value, delimiter)
+            model_type = preferred
+        new_value = _jconvert_to_type(model_type, value, delimiter)
 
     return new_value
 
