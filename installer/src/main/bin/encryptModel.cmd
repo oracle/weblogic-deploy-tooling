@@ -166,6 +166,10 @@ IF NOT "%~1" == "" (
   GOTO arg_loop
 )
 
+
+@rem Default domain type if not specified
+IF "%DOMAIN_TYPE%"=="" SET DOMAIN_TYPE=WLS
+
 @rem
 @rem Check for values of required arguments for this script to continue.
 @rem The underlying WLST script has other required arguments.
@@ -217,8 +221,9 @@ IF DEFINED DOMAIN_TYPE (
   )
 )
 
-ECHO Domain type "%DOMAIN_TYPE%" not recognized by shell script... assuming JRF is required
-SET USE_JRF_WLST=TRUE
+ECHO Wrong domain type specified "%DOMAIN_TYPE%": valid value is "WLS|JRF|RestrictedJRF"
+SET  RETURN_CODE=98
+GOTO exit_script
 
 :domain_type_recognized
 IF "%USE_JRF_WLST%" == "TRUE" (

@@ -4,22 +4,31 @@ The Universal Permissive License (UPL), Version 1.0
 """
 import copy
 import javaos as os
-from sets import Set
-
+from java.io import ByteArrayOutputStream
 from java.io import File
-from java.io import IOException
 from java.io import FileNotFoundException
-from java.util.zip import ZipException
+from java.io import IOException
+from java.lang import IllegalStateException
 from java.security import NoSuchAlgorithmException
 from java.util.jar import JarFile
-from java.util.jar import Manifest
-from java.lang import IllegalStateException
-from java.io import ByteArrayOutputStream
-
-import oracle.weblogic.deploy.util.FileUtils as FileUtils
-import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
-
+from java.util.zip import ZipException
+from sets import Set
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import ABSOLUTE_SOURCE_PATH
+from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
+from wlsdeploy.aliases.model_constants import DEPLOYMENT_ORDER
+from wlsdeploy.aliases.model_constants import LIBRARY
+from wlsdeploy.aliases.model_constants import PARTITION
+from wlsdeploy.aliases.model_constants import PLAN_PATH
+from wlsdeploy.aliases.model_constants import PLAN_STAGE_MODE
+from wlsdeploy.aliases.model_constants import RESOURCES
+from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
+from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
+from wlsdeploy.aliases.model_constants import SECURITY_DD_MODEL
+from wlsdeploy.aliases.model_constants import SOURCE_PATH
+from wlsdeploy.aliases.model_constants import TARGET
+from wlsdeploy.aliases.model_constants import TARGETS
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.deploy import deployer_utils
@@ -27,21 +36,8 @@ from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import string_utils
 
-from wlsdeploy.aliases.model_constants import ABSOLUTE_SOURCE_PATH
-from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
-from wlsdeploy.aliases.model_constants import APPLICATION
-from wlsdeploy.aliases.model_constants import DEPLOYMENT_ORDER
-from wlsdeploy.aliases.model_constants import LIBRARY
-from wlsdeploy.aliases.model_constants import PARTITION
-from wlsdeploy.aliases.model_constants import PLAN_PATH
-from wlsdeploy.aliases.model_constants import PLAN_STAGE_MODE
-from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
-from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
-from wlsdeploy.aliases.model_constants import RESOURCES
-from wlsdeploy.aliases.model_constants import SECURITY_DD_MODEL
-from wlsdeploy.aliases.model_constants import SOURCE_PATH
-from wlsdeploy.aliases.model_constants import TARGET
-from wlsdeploy.aliases.model_constants import TARGETS
+import oracle.weblogic.deploy.util.FileUtils as FileUtils
+import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 
 
 class ApplicationsDeployer(Deployer):
@@ -158,6 +154,27 @@ class ApplicationsDeployer(Deployer):
 
             application = \
                 copy.deepcopy(dictionary_utils.get_dictionary_element(applications, application_name))
+
+            app_source_path = dictionary_utils.get_element(application, SOURCE_PATH)
+            if string_utils.is_empty(app_source_path):
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09302', application_name, SOURCE_PATH)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+            if deployer_utils.is_path_into_archive(app_source_path):
+                if self.archive_helper is not None:
+                    self.archive_helper.extract_file(app_source_path)
+                else:
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-09303', application_name)
+                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+                full_source_path = File(File(self.model_context.get_domain_home()), app_source_path).getAbsolutePath()
+            else:
+                full_source_path = File(self.model_context.replace_token_string(app_source_path)).getAbsolutePath()
+
+            application_name = \
+                self.__get_deployable_library_versioned_name(full_source_path, application_name)
+
             quoted_application_name = self.wlst_helper.get_quoted_name_for_wlst(application_name)
             application_location.add_name_token(application_token, quoted_application_name)
 
@@ -732,9 +749,9 @@ class ApplicationsDeployer(Deployer):
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-        if options is not None and 'libraryModule' in options and string_utils.to_boolean(options['libraryModule']):
-            computed_name = self.__get_deployable_library_versioned_name(source_path, application_name)
-            application_name = computed_name
+        # if options is not None and 'libraryModule' in options and string_utils.to_boolean(options['libraryModule']):
+        computed_name = self.__get_deployable_library_versioned_name(source_path, application_name)
+        application_name = computed_name
 
         # build the dictionary of named arguments to pass to the deploy_application method
         args = list()

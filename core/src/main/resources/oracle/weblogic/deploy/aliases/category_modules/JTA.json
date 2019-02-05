@@ -1,7 +1,9 @@
 {
-    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.",
     "license": "The Universal Permissive License (UPL), Version 1.0",
     "wlst_type": "JTA",
+    "child_folders_type": "single_unpredictable",
+    "default_name_value": "${NO_NAME_0:%DOMAIN%}",
     "folders": {},
     "attributes": {
         "AbandonTimeoutSeconds":                      [ {"version": "[10,)",       "wlst_mode": "both",   "wlst_name": "AbandonTimeoutSeconds",                        "wlst_path": "WP001", "value": {"default": 86400                     }, "wlst_type": "integer"         } ],
@@ -46,6 +48,6 @@
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
-        "WP001": "/JTA/%DOMAIN%"
+        "WP001": "/JTA/%JTA%"
     }
 }

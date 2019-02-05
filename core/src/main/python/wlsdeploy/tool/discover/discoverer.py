@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
@@ -143,7 +143,7 @@ class Discoverer(object):
         path = self._alias_helper.get_wlst_attributes_path(location)
         try:
             lsa_attributes = wlst_helper.lsa(path)
-            mbi_attributes = _get_mbi_attribute_list()
+            mbi_attributes = _get_mbi_attribute_list(path)
             if mbi_attributes:
                 for lsa_attribute_name in lsa_attributes:
                     if lsa_attribute_name in lsa_attributes and lsa_attribute_name not in mbi_attributes:
@@ -659,9 +659,9 @@ def convert_to_absolute_path(relative_to, file_name):
     return file_name
 
 
-def _get_mbi_attribute_list():
+def _get_mbi_attribute_list(path):
     attribute_list = []
-    for mbean_attribute_info in wlst_helper.get_mbi().getAttributes():
+    for mbean_attribute_info in wlst_helper.get_mbi(path).getAttributes():
         if _is_attribute(mbean_attribute_info):
             attribute_list.append(mbean_attribute_info.getName())
     return attribute_list
@@ -705,7 +705,7 @@ def _massage_online_folders(lsc_folders):
     location = wlst_helper.get_pwd()
     folder_list = []
     mbi_folder_list = []
-    for mbean_attribute_info in wlst_helper.get_mbi().getAttributes():
+    for mbean_attribute_info in wlst_helper.get_mbi(location).getAttributes():
         if _is_containment(mbean_attribute_info):
             mbi_folder_list.append(mbean_attribute_info.getName())
     for lsc_folder in lsc_folders:

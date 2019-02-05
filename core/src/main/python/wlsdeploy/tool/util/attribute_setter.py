@@ -312,7 +312,20 @@ class AttributeSetter(object):
 
     def set_cluster_mbean(self, location, key, value, wlst_value):
         """
-        assign the Cluster MBean.
+        Set the Cluster MBean.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if the cluster is not found
+        """
+        mbean = self.__find_in_location(LocationContext(), CLUSTER, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_server_cluster_mbean(self, location, key, value, wlst_value):
+        """
+        assign the Cluster MBean to a server.
         :param location: the location
         :param key: the attribute name
         :param value: the string value
