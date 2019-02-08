@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import java.lang.Exception as JException
@@ -74,6 +74,20 @@ class WebLogicHelper(object):
         """
         return self.is_weblogic_version_or_above('12.2.1')
 
+    def is_database_defaults_supported(self):
+        """
+        Is setDatabaseDefaults() supported by the version of JRF?
+        :return: true if use the method to prime the JRF database defaults
+        """
+        return self.is_weblogic_version_or_above('12.1.2')
+
+    def is_set_server_groups_supported(self):
+        """
+        Is setServerGroups() supported by the version of WLST?
+        :return: true if the setServerGroups() is supported
+        """
+        return self.is_weblogic_version_or_above('12.1.2')
+
     def is_dynamic_clusters_supported(self):
         """
         Is dynamic clusters supported in this version of WLS?
@@ -109,7 +123,9 @@ class WebLogicHelper(object):
         Get the JRF DataSource name for the service table schema.
         :return: the JRF DataSource name
         """
-        return 'LocalSvcTblDataSource'
+        if self.is_weblogic_version_or_above('12.1.2'):
+            return 'LocalSvcTblDataSource'
+        return 'mds-owsm'
 
     def get_default_admin_username(self):
         """

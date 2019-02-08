@@ -1,10 +1,11 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from oracle.weblogic.deploy.util import PyWLSTException
 
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.util import wlst_extended
 from wlsdeploy.util import wlst_helper
 
 
@@ -37,6 +38,25 @@ class WlstHelper(object):
         except PyWLSTException, pwe:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19143',
                                                    target_type, target_name, source_type, source_name,
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+    def apply_jrf(self, jrf_target, domain_home, should_update=False):
+        """
+        For those installs that require populating the JRF server group information to the managed servers
+        :param jrf_target: The entity to which to target the JRF applications and services
+        :param domain_home: The domain home directory
+        :param should_update: If True the applyJRF will update the domain after apply
+        :raises: Exception specific to tool type
+        """
+        _method_name = 'apply_jrf'
+
+        try:
+            wlst_extended.apply_jrf(jrf_target, domain_home, should_update)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00071',
+                                                   jrf_target, domain_home,
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
