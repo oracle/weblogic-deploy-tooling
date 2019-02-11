@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 
 The main module for the WLSDeploy tool to create empty domains.
@@ -193,8 +193,15 @@ def __process_model_args(optional_arg_map):
         try:
             archive_file = WLSDeployArchive(archive_file_name)
             __tmp_model_dir = FileUtils.createTempDirectory(_program_name)
-            tmp_model_file = \
-                FileUtils.fixupFileSeparatorsForJython(archive_file.extractModel(__tmp_model_dir).getAbsolutePath())
+            tmp_model_raw_file = archive_file.extractModel(__tmp_model_dir)
+            if not tmp_model_raw_file:
+                ex = exception_helper.create_cla_exception('WLSDPLY-20026', _program_name, archive_file_name,
+                                                           CommandLineArgUtil.MODEL_FILE_SWITCH)
+                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+
+            tmp_model_file = FileUtils.fixupFileSeparatorsForJython(tmp_model_raw_file.getAbsolutePath())
         except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
             ex = exception_helper.create_cla_exception('WLSDPLY-20010', _program_name, archive_file_name,
                                                        archex.getLocalizedMessage(), error=archex)
