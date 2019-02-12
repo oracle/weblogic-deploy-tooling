@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.",
     "license": "The Universal Permissive License (UPL), Version 1.0",
     "name": "JRF",
     "description": "JRF type domain definitions",
@@ -20,7 +20,7 @@
                 "@@ORACLE_HOME@@/oracle_common/common/templates/applications/oracle.wsmpm_template_11.1.1.jar",
                 "@@ORACLE_HOME@@/oracle_common/common/templates/applications/oracle.em_11_1_1_0_0_template.jar"
             ],
-            "serverGroupsToTarget" : [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
+            "serverGroupsToTarget" : [ ],
             "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
         },
         "JRF_1212" : {

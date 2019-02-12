@@ -107,8 +107,11 @@ class TopologyUpdater(Deployer):
         for folder_name in remaining:
             self._process_section(self._topology, folder_list, folder_name, location)
 
-        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-        self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        if self.wls_helper.is_set_server_groups_supported():
+            server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+            self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        else:
+            self.target_helper.target_jrf_groups_to_clusters_servers(self.model_context.get_domain_name())
 
         # files referenced in attributes are extracted as attributes are processed
 

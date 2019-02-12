@@ -335,16 +335,13 @@ class DomainCreator(Creator):
         if self.wls_helper.is_set_server_groups_supported():
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
             self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+            self.wlst_helper.update_domain()
         else:
-            # need to update this before can target it
-            # might want to replace this later with
-            # self.wlst_helper.update_domain()
-            # self.wlst_helper.close_domain()
-            # # we might want to replace this later to extend a domain in update
-            # self.wlst_helper.read_domain(domain_home)
+            # Update the domain to apply the extension templates.
+            self.wlst_helper.update_domain()
             self.target_helper.target_jrf_groups_to_clusters_servers(domain_home)
 
-
+        self.wlst_helper.close_domain()
         self.logger.info('WLSDPLY-12209', self._domain_name,
                          class_name=self.__class_name, method_name=_method_name)
 
@@ -718,7 +715,7 @@ class DomainCreator(Creator):
                                        JDBC_DRIVER_PARAMS_PROPERTIES, DRIVER_PARAMS_USER_PROPERTY)
 
         self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
-        if self._domain_typedef.is_get_database_defaults():
+        if self.wls_helper.is_database_defaults_supported():
             self.wlst_helper.get_database_defaults()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)

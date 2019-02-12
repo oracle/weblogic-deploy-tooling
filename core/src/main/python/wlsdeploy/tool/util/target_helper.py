@@ -64,8 +64,6 @@ class TargetHelper(object):
 
         # Get the clusters and and their members
         cluster_map = self.get_clusters_and_members_map()
-        self.wlst_helper.update_domain()
-        self.wlst_helper.close_domain()
 
         # Get the clusters and and their members
         for cluster_name, cluster_servers in cluster_map.iteritems():
@@ -153,9 +151,7 @@ class TargetHelper(object):
                 server_name = self.wlst_helper.get_quoted_name_for_wlst(server_names[0])
                 self.wlst_helper.set_server_groups(server_name, server_groups_to_target)
 
-        # might want to replace this later with
-        self.wlst_helper.update_domain()
-        self.wlst_helper.close_domain()
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
