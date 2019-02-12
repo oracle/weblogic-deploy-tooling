@@ -702,11 +702,11 @@ class ApplicationsDeployer(Deployer):
                 resource_group_template_name, resource_group_name, partition_name = \
                     self.__get_mt_names_from_location(location)
 
-                self.__deploy_app_online(app_name, src_path, targets, plan=plan_file,
+                new_app_name = self.__deploy_app_online(app_name, src_path, targets, plan=plan_file,
                                          partition=partition_name, resource_group=resource_group_name,
                                          resource_group_template=resource_group_template_name, options=options)
                 location.remove_name_token(token_name)
-                deployed_applist.append(app_name)
+                deployed_applist.append(new_app_name)
         return
 
     def __get_mt_names_from_location(self, app_location):
@@ -778,7 +778,7 @@ class ApplicationsDeployer(Deployer):
         self.logger.fine('WLSDPLY-09320', application_name, kwargs,
                          class_name=self._class_name, method_name=_method_name)
         self.wlst_helper.deploy_application(application_name, *args, **kwargs)
-        return
+        return application_name
 
     def __extract_file_from_archive(self, path):
         if path is not None and deployer_utils.is_path_into_archive(path):
@@ -812,6 +812,13 @@ class ApplicationsDeployer(Deployer):
                 manifest = bao.toString('UTF-8')
                 tokens = manifest.split()
 
+            # this is specific to application not shared library, so just returns it
+
+            if 'Weblogic-Application-Version:' in tokens:
+                weblogic_appname_index = tokens.index('Weblogic-Application-Version:')
+                versioned_name = old_name_tuple[self._EXTENSION_INDEX] + '#' + tokens[weblogic_appname_index+1]
+                return versioned_name
+
             if 'Extension-Name:' in tokens:
                 extension_index = tokens.index('Extension-Name:')
                 if len(tokens) > extension_index:
@@ -842,6 +849,9 @@ class ApplicationsDeployer(Deployer):
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09323', model_name, source_path, tokens)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
+
+
+
             self.logger.info('WLSDPLY-09324', model_name, versioned_name,
                              class_name=self._class_name, method_name=_method_name)
         except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
