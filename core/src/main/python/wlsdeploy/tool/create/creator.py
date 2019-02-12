@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 
@@ -12,6 +12,7 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
+from wlsdeploy.tool.util.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model import Model
@@ -29,12 +30,15 @@ class Creator(object):
 
         self.logger = logger
         self.aliases = aliases
+        self._exception_type = exception_type
         self.alias_helper = AliasHelper(self.aliases, self.logger, exception_type)
         self.wlst_helper = WlstHelper(self.logger, exception_type)
         self.model = Model(model)
         self.model_context = model_context
         self.wls_helper = WebLogicHelper(self.logger)
         self.attribute_setter = AttributeSetter(self.aliases, self.logger, exception_type)
+        self.custom_folder_helper = CustomFolderHelper(self.aliases, self.logger, exception_type)
+
         # Must be initialized by the subclass since only it has
         # the knowledge required to compute the domain name.
         self.archive_helper = None
@@ -179,27 +183,39 @@ class Creator(object):
         create_path = self.alias_helper.get_wlst_create_path(location)
         list_path = self.alias_helper.get_wlst_list_path(location)
         existing_folder_names = self._get_existing_folders(list_path)
+        known_providers = self.alias_helper.get_model_subfolder_names(location)
+        allow_custom = str(self.alias_helper.is_custom_folder_allowed(location))
+
         for model_name in model_nodes:
+            model_node = model_nodes[model_name]
+
+            if model_node is None:
+                # The node is empty so nothing to do... move to the next named node.
+                continue
+
+            if len(model_node) != 1:
+                # there should be exactly one type folder under the name folder
+                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-12117', type_name, model_name,
+                                                       len(model_node))
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+            # custom providers require special processing, they are not described in alias framework
+            if allow_custom and (model_name not in known_providers):
+                self.custom_folder_helper.update_security_folder(location, model_name, model_node)
+                continue
+
+            # for a known provider, process using aliases
             prov_location = LocationContext(location)
             name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
             if token_name is not None:
                 prov_location.add_name_token(token_name, name)
 
             wlst_base_provider_type, wlst_name = self.alias_helper.get_wlst_mbean_type_and_name(prov_location)
-            model_node = model_nodes[model_name]
-            if model_node is not None:
-                if len(model_node) == 1:
-                    model_type_subfolder_name = list(model_node.keys())[0]
-                    prov_location.append_location(model_type_subfolder_name)
-                    wlst_type = self.alias_helper.get_wlst_mbean_type(prov_location)
-                else:
-                    ex = exception_helper.create_create_exception('WLSDPLY-12117', type_name,
-                                                                  model_name, len(model_node))
-                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                    raise ex
-            else:
-                # The node is empty so nothing to do...move to the next named node.
-                continue
+
+            model_type_subfolder_name = list(model_node.keys())[0]
+            prov_location.append_location(model_type_subfolder_name)
+            wlst_type = self.alias_helper.get_wlst_mbean_type(prov_location)
 
             if wlst_name not in existing_folder_names:
                 if log_created:

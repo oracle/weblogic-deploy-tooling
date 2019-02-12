@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 
@@ -35,10 +35,7 @@ from wlsdeploy.aliases.model_constants import ROLE_MAPPER
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.deploy import deployer_utils
-from wlsdeploy.tool.util.alias_helper import AliasHelper
-from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class SecurityProviderCreator(Creator):
@@ -50,11 +47,6 @@ class SecurityProviderCreator(Creator):
 
     def __init__(self, model_dictionary, model_context, aliases, exception_type, logger):
         Creator.__init__(self, model_dictionary, model_context, aliases, exception_type, logger)
-
-        self.logger = logger
-        self.alias_helper = AliasHelper(aliases, self.logger, exception_type)
-        self.wlst_helper = WlstHelper(self.logger, exception_type)
-        self.wls_helper = WebLogicHelper(self.logger)
 
         self._topology = self.model.get_model_topology()
 
