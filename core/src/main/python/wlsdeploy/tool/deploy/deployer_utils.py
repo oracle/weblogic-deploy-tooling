@@ -284,15 +284,7 @@ def get_library_name_components(name, wlst_mode=WlstModes.OFFLINE):
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     elif len(items) == 1:
-        #
-        # In WLST online mode, WLST will go figure out the right name for us so we can just use the existing name.
-        #
-        if wlst_mode == WlstModes.ONLINE:
-            _logger.exiting(class_name=_class_name, method_name=_method_name, result=name)
-            return name
-        else:
-            # Otherwise, no spec version specified so nothing to add to name_tuple
-            pass
+        pass
     else:
         ex = exception_helper.create_deploy_exception('WLSDPLY-09107', name, len(items) - 1)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
