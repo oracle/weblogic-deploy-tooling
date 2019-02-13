@@ -200,9 +200,13 @@ class Creator(object):
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
+            model_type_subfolder_name = list(model_node.keys())[0]
+            child_nodes = dictionary_utils.get_dictionary_element(model_node, model_type_subfolder_name)
+
             # custom providers require special processing, they are not described in alias framework
-            if allow_custom and (model_name not in known_providers):
-                self.custom_folder_helper.update_security_folder(location, model_name, model_node)
+            if allow_custom and (model_type_subfolder_name not in known_providers):
+                self.custom_folder_helper.update_security_folder(base_location, type_name, model_type_subfolder_name,
+                                                                 model_name, child_nodes)
                 continue
 
             # for a known provider, process using aliases
@@ -213,7 +217,6 @@ class Creator(object):
 
             wlst_base_provider_type, wlst_name = self.alias_helper.get_wlst_mbean_type_and_name(prov_location)
 
-            model_type_subfolder_name = list(model_node.keys())[0]
             prov_location.append_location(model_type_subfolder_name)
             wlst_type = self.alias_helper.get_wlst_mbean_type(prov_location)
 
@@ -237,7 +240,6 @@ class Creator(object):
             attribute_path = self.alias_helper.get_wlst_attributes_path(prov_location)
             self.wlst_helper.cd(attribute_path)
 
-            child_nodes = dictionary_utils.get_dictionary_element(model_node, model_type_subfolder_name)
             self.logger.finest('WLSDPLY-12111', self.alias_helper.get_model_folder_path(prov_location),
                                self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
             self._set_attributes(prov_location, child_nodes)

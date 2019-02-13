@@ -20,17 +20,26 @@ class CustomFolderHelper(object):
         self.alias_helper = AliasHelper(aliases, self.logger, self.exception_type)
         self.wlst_helper = WlstHelper(self.logger, self.exception_type)
 
-    def update_security_folder(self, location, model_name, model_nodes):
+    def update_security_folder(self, location, model_category, model_type, model_name, model_nodes):
         """
         Update the specified security model nodes in WLST.
-        :param location: the location of the folder's parent
-        :param model_name: the model name of the folder to be updated
-        :param model_nodes: a child model nodes of the folder to be updated
+        :param location: the location for the provider
+        :param model_category: the model category of the provider to be updated
+        :param model_type: the model type of the provider to be updated
+        :param model_name: the model name of the provider to be updated
+        :param model_nodes: a child model nodes of the provider to be updated
         :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'update_security_folder'
 
-        self.logger.entering(str(location), model_name, class_name=self.__class_name, method_name=_method_name)
+        location_path = self.alias_helper.get_model_folder_path(location)
+        self.logger.entering(location_path, model_type, model_name,
+                             class_name=self.__class_name, method_name=_method_name)
 
-        self.logger.info('WLSDPLY-12124', model_name, self.alias_helper.get_model_folder_path(location),
+        self.logger.info('WLSDPLY-12124', model_category, model_name, model_type, location_path,
                          class_name=self.__class_name, method_name=_method_name)
+
+        # create the MBean using the model name, model_type, category
+
+        # wlst.create(model_name, model_type, category)
+        # wlst.create('RAK-SAML', 'SAMLAuthenticator', 'AuthenticationProvider')
