@@ -1,10 +1,11 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import java.lang.Exception as JException
 import java.lang.String as JString
 
+import weblogic.management.provider.ManagementServiceClient as ManagementServiceClient
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
 import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
 import weblogic.version as version_helper
@@ -208,6 +209,15 @@ class WebLogicHelper(object):
             idx += 1
 
         return result
+
+    def get_bean_info_for_interface(self, interface_name):
+        """
+        Returns the MBean information for the specified MBean interface.
+        :param interface_name: the class name of the interface to be checked
+        :return: the bean info access object for the specified interface
+        """
+        bean_access = ManagementServiceClient.getBeanInfoAccess()
+        return bean_access.getBeanInfoForInterface(interface_name, False, '9.0.0.0')
 
     # We need to pad the actual version number for comparison purposes so
     # that is is never shorter than the specified version.  Otherwise,
