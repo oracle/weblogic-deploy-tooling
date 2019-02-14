@@ -3,14 +3,14 @@
 Many organizations are using WebLogic Server, with or without other Oracle Fusion Middleware components, to run their enterprise applications.  As more and more organizations move toward Continuous Delivery of their applications, the importance of automated testing grows.  Automating WebLogic Server domain creation and application deployment with hand-coded WLST scripts is challenging.  After those scripts exist for a project, they must be maintained as the project evolves.  The motivation for the Oracle WebLogic Server Deploy Tooling project is to remove the need for most users to write WLST scripts for routine domain creation and application deployment tasks.  Instead, the project team can write a declarative, metadata model describing the domain and applications (with their dependent resources), and use one or more of the single-purpose tools provided that perform domain lifecycle operations based on the content of the model.  The goal is to make it easy to stand up environments and perform domain lifecycle operations in a repeatable fashion based on a metadata model that can be treated as source and evolve as the project evolves.
 
 ## Table of Contents
-1. [Features](#features-of-the-oracle-weblogic-server-deploy-tooling)
+- [Features](#features-of-the-oracle-weblogic-server-deploy-tooling)
     - [Create Domain Tool](site/create.md)
     - [Update Domain Tool](site/update.md)
     - [Deploy Applications Tool](site/deploy.md)
     - [Discover Domain Tool](site/discover.md)
     - [Encrypt Model Tool](site/encrypt.md)
     - [Validate Model Tool](site/validate.md)
-2. [The Model](#the-metadata-model)
+- [The Model](#the-metadata-model)
     - [Top-Level Sections](#top-level-model-sections)
     - [Simple Example](#simple-example)
     - [Model Names](#model-names)
@@ -18,7 +18,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Modeling Security Providers](#modeling-security-providers)
     - [Variable Injection](site/variable_injection.md)
     - [Model Filters](site/tool_filters.md)
-3. [Downloading and Installing](#downloading-and-installing-the-software)
+- [Downloading and Installing](#downloading-and-installing-the-software)
 
 ## Features of the Oracle WebLogic Server Deploy Tooling
 
