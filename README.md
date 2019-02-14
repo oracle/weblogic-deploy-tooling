@@ -14,6 +14,8 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Top-Level Sections](#top-level-model-sections)
     - [Simple Example](#simple-example)
     - [Modeling Security Providers](#modeling-security-providers)
+    - [Variable Injection](site/variable_injection.md)
+    - [Model Filters](site/tool_filters.md)
 3. [Downloading and Installing](#downloading-and-installing-the-software)
 
 ## Features of the Oracle WebLogic Server Deploy Tooling
