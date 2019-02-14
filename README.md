@@ -13,6 +13,8 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
 2. [The Model](#the-metadata-model)
     - [Top-Level Sections](#top-level-model-sections)
     - [Simple Example](#simple-example)
+    - [Model Names](#model-names)
+    - [Model Semantics](#model-semantics)
     - [Modeling Security Providers](#modeling-security-providers)
     - [Variable Injection](site/variable_injection.md)
     - [Model Filters](site/tool_filters.md)
@@ -141,7 +143,7 @@ Users can create further directory structures underneath the above locations to 
 
 One final note is that the framework is written in such a way to allow the model to be extended for use by other tools.  Adding other top-level sections to the model is supported and the existing tooling and framework will simply ignore them, if present.  For example, it would be possible to add a `soaComposites` section to the model where SOA composite applications are described, and a location within the archive file where those binaries can be stored, so that a tool that understands SOA composites and how to deploy them could be run against the same model and archive files.
 
-### Model Names
+#### Model Names
 
 The WebLogic Deploy Tooling handles names of WebLogic Server configuration artifacts in a very prescribed way.  To understand how names are handled, users first need a basic understanding of WLST offline naming.  In WLST offline, there are two general categories of configuration artifacts:
 
@@ -174,7 +176,7 @@ topology:
 
 As the example above shows, the `SecurityConfiguration` element has no named sub-element, as there is with `JDBCSystemResource`, even though the WLST path to the `SecurityConfiguration` attributes is `/SecurityConfiguration/<domain-name>`.  The WebLogic Deploy Tooling has built-in rules and a knowledge base that controls how these names are handled so that it can complete the configuration of these artifacts.  As with the previous class of configuration artifact, the folder almost always contains a ` Name` attribute that, in WLST, could be used to change the name.  As with the previous class of artifact, the WebLogic Deploy Tooling does not support the use of the `Name` attribute in these folders and any attempt to set the `Name` attribute will not be honored.  In general, the only model location that uses the `Name` attribute is the top-level topology section, because this maps to where WLST stores the domain name.
 
-### Model Semantics
+#### Model Semantics
 
 When modeling configuration attributes that can have multiple values, the WebLogic Deploy Tooling tries to make this as painless as possible.  For example, the `Target` attribute on resources can have zero or more clusters and/or servers specified.  When specifying the value of such list attributes, the user has freedom to specify them as a list or as a comma-delimited string (comma is the only recognized delimiter for lists).  For attributes where the values can legally contain commas, the items must be specified as a list.  Examples of each are shown below.
 
@@ -212,7 +214,7 @@ In the example above, the `Target` attribute is specified three different ways, 
 
 One of the primary goals of the WebLogic Deploy Tooling is to support a sparse model where the user can specify just the configuration needed for a particular situation.  What this implies varies somewhat between the tools but, in general, this implies that the tools are using an additive model.  That is, the tools add to what is already there in the existing domain or domain templates (when creating a new domain) rather than making the domain conform exactly to the specified model.  Where it makes sense, a similar, additive approach is taken when setting the value of multi-valued attributes.  For example, if the model specified the cluster `mycluster` as the target for an artifact, the tooling will add `mycluster` to any existing list of targets for the artifact.  While the development team has tried to mark attributes that do not make sense to merge accordingly in our knowledge base, this behavior can be disabled on an attribute-by-attribute basis, by adding an additional annotation in the knowledge base data files.  The development team is already thinking about how to handle situations that require a non-additive, converge-to-the-model approach, and how that might be supported, but this still remains a wish list item.  Users with these requirements should raise an issue for this support.
 
-##### Modeling Security Providers
+#### Modeling Security Providers
 One place where the semantics are different is for WebLogic security providers.  Because provider ordering is important, and to make sure that the ordering is correctly set in the newly created domain, the Create Domain Tool will look for security providers of each base type (for example, Authentication Providers, Credential Mappers, and such) to see if any are included in the model.  If so, the tool will make sure that  the providers only listed for a type are present in the resulting domain so that the providers are created in the necessary order.  For example, if the model specified an `LDAPAuthenticator` and an `LDAPX509IdentityAsserter` similar to what is shown below, the `DefaultAuthenticator` and `DefaultIdentityAsserters` will be deleted.  If no providers for a base type are listed in the model, then the default providers will be left untouched.
 
 ```$yaml
