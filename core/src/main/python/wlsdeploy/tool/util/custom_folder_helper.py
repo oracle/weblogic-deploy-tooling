@@ -2,9 +2,10 @@
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-from java.lang import IllegalArgumentException, IllegalAccessException
+from java.lang import IllegalArgumentException
+from java.lang import IllegalAccessException
 from java.lang.reflect import InvocationTargetException
-from oracle.weblogic.deploy.util import ConvertUtils
+from oracle.weblogic.deploy.util import CustomBeanUtils
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
@@ -104,21 +105,15 @@ class CustomFolderHelper(object):
 
             property_type = parameter_types[0]
 
-            # convert the model value to the target type
-
-            set_value = ConvertUtils.convertValue(model_value, property_type)
-            if set_value is None:
-                ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12131', str(model_value),
-                                                       str(property_type), model_key)
-                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-
-            # call the setter with the target value
+            # convert the model value to the target type and call the setter with the target value.
+            # these are done together in Java to avoid automatic Jython type conversions.
 
             try:
-                method.invoke(provider_mbean, [set_value])
+                CustomBeanUtils.callMethod(provider_mbean, method, property_type, model_value)
+
+            # failure converting value or calling method
             except (IllegalAccessException, IllegalArgumentException, InvocationTargetException), ex:
-                ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12132', str(method),
-                                                       str(set_value), ex.getLocalizedMessage(), error=ex)
+                ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12131', method,
+                                                       str(model_value), ex.getLocalizedMessage(), error=ex)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
 package oracle.weblogic.deploy.aliases;
@@ -32,7 +32,7 @@ public final class TypeUtils {
     private static final String CLASS = TypeUtils.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.util");
 
-    private static final String DEFAULT_STRING_LIST_DELIMITOR = ",";
+    public static final String DEFAULT_STRING_LIST_DELIMITER = ",";
 
     private TypeUtils() {
         // hide the constructor for this utility class
@@ -76,7 +76,7 @@ public final class TypeUtils {
                 delimiter = File.pathSeparator;
                 break;
             default:
-                delimiter = DEFAULT_STRING_LIST_DELIMITOR;
+                delimiter = DEFAULT_STRING_LIST_DELIMITER;
         }
         return convertToType(targetTypeName, value, delimiter);
     }
@@ -154,7 +154,7 @@ public final class TypeUtils {
      *                        the conversion.
      */
     public static Object convertToType(Class<?> targetType, Object value) throws AliasException {
-        return convertToType(targetType, value, DEFAULT_STRING_LIST_DELIMITOR);
+        return convertToType(targetType, value, DEFAULT_STRING_LIST_DELIMITER);
     }
 
     /**
@@ -231,7 +231,7 @@ public final class TypeUtils {
         return result;
     }
 
-    private static String convertToBoolean(String strValue) {
+    public static String convertToBoolean(String strValue) {
         String result;
         switch (strValue.toLowerCase(Locale.ENGLISH)) {
             case "1":
@@ -246,7 +246,7 @@ public final class TypeUtils {
         return result;
     }
 
-    private static Character convertToCharacter(String strValue) {
+    public static Character convertToCharacter(String strValue) {
         Character result = null;
         if (strValue.length() > 0) {
             result = strValue.charAt(0);
