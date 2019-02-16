@@ -33,6 +33,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.domain_typedef import DomainTypedef
+from wlsdeploy.tool.create.domain_typedef import UPDATE_DOMAIN
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.deploy.topology_updater import TopologyUpdater
@@ -50,7 +51,7 @@ from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
-_program_name = 'updateDomain'
+_program_name = UPDATE_DOMAIN
 _class_name = 'update'
 __logger = PlatformLogger('wlsdeploy.update')
 __wls_helper = WebLogicHelper(__logger)

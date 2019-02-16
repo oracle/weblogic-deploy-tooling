@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
@@ -13,6 +13,9 @@ from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+
+CREATE_DOMAIN = 'createDomain'
+UPDATE_DOMAIN = 'updateDomain'
 
 
 class DomainTypedef(object):
@@ -38,6 +41,7 @@ class DomainTypedef(object):
         self._logger = PlatformLogger('wlsdeploy.create')
         self._program_name = program_name
         self._domain_type = domain_type
+        self.wls_helper = WebLogicHelper(self._logger)
 
         self._domain_typedef_filename = \
             os.path.join(self.__domain_typedefs_location, domain_type + self.__domain_typedef_extension)
@@ -206,6 +210,16 @@ class DomainTypedef(object):
         """
         return self._is_system_name(name, 'wldf')
 
+    def configure_realm_is_supported_by_tool(self, realm):
+        """
+        Determine if the realm can be configured. Currently, update domain does not support configuration of any
+        realm.
+        #param realm_name: can the tool configure this realm
+        :return: True if the security realm can be configured
+        """
+        # self.wls_helper.get_default_security_realm_name() == realm_name
+        return self._program_name != UPDATE_DOMAIN
+
     def _is_system_name(self, name, key):
         """
         Determine if the specified name matches a WLS name of the specified type key.
@@ -272,12 +286,12 @@ class DomainTypedef(object):
         """
         _method_name = '__get_version_typedef'
 
-        if not 'versions' in self._domain_typedefs_dict:
+        if 'versions' not in self._domain_typedefs_dict:
             ex = exception_helper.create_create_exception('WLSDPLY-12304', self._domain_type,
                                                           self._domain_typedef_filename)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
-        elif not 'definitions' in self._domain_typedefs_dict:
+        elif 'definitions' not in self._domain_typedefs_dict:
             ex = exception_helper.create_create_exception('WLSDPLY-12305', self._domain_type,
                                                           self._domain_typedef_filename)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
@@ -309,15 +323,14 @@ class DomainTypedef(object):
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-        wls_helper = WebLogicHelper(self._logger)
-        wls_version = wls_helper.get_actual_weblogic_version()
+        wls_version = self.wls_helper.get_actual_weblogic_version()
         self._logger.fine('WLSDPLY-12310', wls_version, class_name=self.__class_name, method_name=_method_name)
 
         result = None
         if wls_version in versions_dict:
             result = versions_dict[wls_version]
         else:
-            new_version = wls_helper.get_next_higher_order_version_number(wls_version)
+            new_version = self.wls_helper.get_next_higher_order_version_number(wls_version)
             while new_version is not None:
                 if new_version in versions_dict:
                     result = versions_dict[new_version]
@@ -325,7 +338,7 @@ class DomainTypedef(object):
                                        new_version, wls_version, class_name=self.__class_name, method_name=_method_name)
                     break
                 else:
-                    new_version = wls_helper.get_next_higher_order_version_number(new_version)
+                    new_version = self.wls_helper.get_next_higher_order_version_number(new_version)
 
             if result is None:
                 ex = exception_helper.create_create_exception('WLSDPLY-12309', self._domain_type,

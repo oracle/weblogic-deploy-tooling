@@ -1,8 +1,7 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-import warnings
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ACTIVE_TYPE
@@ -39,11 +38,32 @@ from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import dictionary_utils
 
 
-class SecurityProviderCreator(Creator):
+class SecurityProviderHandler(Creator):
     """
-    This class has been deprecated. There is no way to successfully handle the AuthenticationProviders in
-    offline wlst for the default security realm in 11g. You cannot change the names of both providers in
-    the AuthenticationProvider during create domain which uses offline wlst.
+    The class that handles the default authentication providers, custom authentication providers and
+    reordering of the active realm.
+
+    This release of weblogic deploy tool handles security providers as outlined below:
+
+    Custom Security Providers are supported in 12c releases only.
+
+    The create domain tool will properly handle the configuration of the default security realm installed by the
+    weblogic template. If there is a realm in the model, but not the default realm, the default realm will be
+    removed. If there is a default realm in the model, the providers will be removed and re-added as dictated by
+    the model. If there is no realm in the model, the default realm security providers will be removed and re-added
+    in the well known order. This is done after the weblogic template has been applied and the domain written to
+    the domain home in early versions, and before any extension template is applied for all versions.
+
+    The update domain tool will not update the security configuration or realm.
+
+    1. The weblogic template in 11g installs default security providers with no name. In offline
+       wlst, the names are represented as 'Provider'. There is no way to successfully fix the providers except to
+       manually delete and re-add the default providers in the default realm.
+    2. The 11g release does not support custom security providers in offline wlst.
+    3. In 11g, the security realm must be configured after the domain home is created with the write, or the
+       configuration will not be persisted to the domain configuration file.
+    4. Offline wlst in 11g and 12c does not support reorder of the security providers with the set statement.
+
     """
     __class_name = 'SecurityProviderHelper'
 
@@ -51,14 +71,12 @@ class SecurityProviderCreator(Creator):
         Creator.__init__(self, model_dictionary, model_context, aliases, exception_type, logger)
 
         self._topology = self.model.get_model_topology()
-        warnings.warn('Deprecated class. Use SecurityProviderHelper instead', DeprecationWarning)
-        return
-
+        self._domain_typedef = self.model_context.get_domain_typedef()
         #
         # Creating domains with the wls.jar template is busted for pre-12.1.2 domains with regards to the
         # names of the default authentication providers (both the DefaultAuthenticator and the
-        # DefaultIdentityAsserter names are 'Provider', making it impossible to work with in WLST.  If
-        # the WLS version is earlier than fix this as part of domain creation...
+        # DefaultIdentityAsserter names are 'Provider', making it impossible to work with in WLST.
+        # In earlier releases, fixed the names and moved on. However, that
         #
         self.__fix_default_authentication_provider_names = \
             self.wls_helper.do_default_authentication_provider_names_need_fixing()
@@ -94,45 +112,67 @@ class SecurityProviderCreator(Creator):
 
         self.logger.entering(str(base_location), class_name=self.__class_name, method_name=_method_name)
         location = self.__get_default_realm_location()
-        if security_configuration_dict is None or len(security_configuration_dict) == 0:
-            if self.__fix_default_authentication_provider_names:
-                self.__handle_default_authentication_providers(location)
+        if security_configuration_dict is None or len(security_configuration_dict) == 0\
+                or REALM not in security_configuration_dict or len(security_configuration_dict[REALM]) ==0:
             self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
             return
 
-        if REALM in security_configuration_dict and 'myrealm' in security_configuration_dict[REALM]:
-            myrealm = security_configuration_dict[REALM]['myrealm']
-            if ADJUDICATOR in myrealm:
-                adj_providers = myrealm[ADJUDICATOR]
-                self.__handle_default_adjudicators(location, adj_providers)
-            if AUDITOR in myrealm:
-                audit_providers = myrealm[AUDITOR]
-                self.__handle_default_auditors(location, audit_providers)
-            if AUTHENTICATION_PROVIDER in myrealm:
-                atn_providers = myrealm[AUTHENTICATION_PROVIDER]
-                self.__handle_default_authentication_providers(location, atn_providers)
-            elif self.__fix_default_authentication_provider_names:
-                self.__handle_default_authentication_providers(location)
-            if AUTHORIZER in myrealm:
-                atz_providers = myrealm[AUTHORIZER]
-                self.__handle_default_authorizers(location, atz_providers)
-            if CERT_PATH_PROVIDER in myrealm:
-                cert_path_providers = myrealm[CERT_PATH_PROVIDER]
-                self.__handle_default_cert_path_providers(location, cert_path_providers)
-            if CREDENTIAL_MAPPER in myrealm:
-                credential_mapping_providers = myrealm[CREDENTIAL_MAPPER]
-                self.__handle_default_credential_mappers(location, credential_mapping_providers)
-            if PASSWORD_VALIDATOR in myrealm:
-                password_validation_providers = myrealm[PASSWORD_VALIDATOR]
-                self.__handle_default_password_validators(location, password_validation_providers)
-            if ROLE_MAPPER in myrealm:
-                role_mapping_providers = myrealm[ROLE_MAPPER]
-                self.__handle_default_role_mappers(location, role_mapping_providers)
-        elif self.__fix_default_authentication_provider_names:
-            self.__handle_default_authentication_providers(location)
+
+        security_realms_dict = security_configuration_dict[REALM]
+        # provider_type_has_problem_default_provider_name
+        location = LocationContext(base_location)
+        location.append_location(REALM)
+        for realm_name in security_realms_dict:
+            if not self._domain_typedef.configure_realm_is_supported_by_tool(realm_name):
+                # do I warn or raise an exception ?
+                pass
+            else:
+                pass
+        pass
+            else:
+                realm_dict = security_realms_dict[realm_name]
+                token_name = self.alias_helper.get_name_token(location)
+                location.add_name_token(token_name, realm_name)
+                if realm_dict == None or len(realm_dict) == 0:
+                    # remove the realm and warn and continue
+                else:
+                    # reorg the providers here
+                    # go through the types, get the list delete and then re-add from the model
+                    if ADJUDICATOR in realm_dict:
+                        adj_providers = realm_dict[ADJUDICATOR]
+                        self._add_reorder_providers(realm_name, location, adj_providers)
+                    if AUDITOR in realm_dict:
+                        audit_providers = realm_dict[AUDITOR]
+                        self._add_reorder_providers(realm_name, location, audit_providers)
+                    if AUTHENTICATION_PROVIDER in realm_dict:
+                        atn_providers = realm_dict[AUTHENTICATION_PROVIDER]
+                        self._add_reorder_providers(realm_name, location, atn_providers)
+                    if AUTHORIZER in realm_dict:
+                        atz_providers = realm_dict[AUTHORIZER]
+                        self._add_reorder_providers(realm_name, location, atz_providers)
+                    if CERT_PATH_PROVIDER in realm_dict:
+                        cert_path_providers = realm_dict[CERT_PATH_PROVIDER]
+                        self._add_reorder_providers(realm_name, location, cert_path_providers)
+                    if CREDENTIAL_MAPPER in realm_dict:
+                        credential_mapping_providers = realm_dict[CREDENTIAL_MAPPER]
+                        self._add_reorder_providers(realm_name, location, credential_mapping_providers)
+                    if PASSWORD_VALIDATOR in realm_dict:
+                        password_validation_providers = realm_dict[PASSWORD_VALIDATOR]
+                        self._add_reorder_providers(realm_name, location, password_validation_providers)
+                    if ROLE_MAPPER in realm_dict:
+                        role_mapping_providers = realm_dict[ROLE_MAPPER]
+                        self._add_reorder_providers(realm_name, location, role_mapping_providers)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    def _add_reorder_providers(self, realm_name, location, provider_dictionary):
+        if not self._domain_typedef.configure_realm_is_supported_by_tool(realm_name):
+        # do I warn or raise an exception ?
+            pass
+        else:
+            pass
+        pass
 
     def __get_default_realm_location(self):
         """

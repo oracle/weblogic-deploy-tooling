@@ -41,6 +41,19 @@ class WlstHelper(object):
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
+
+    def reorder_provider(self, provider_type, provider_map, wlst_path):
+        """
+        Retrieve the list of security providers at the provided path and
+        :param provider_type: MBean Type of the Security Provider, i.e. AuthenticationProvider
+        :param provider_map: Map of mbean names and corresponding mbean type
+        :param wlst_path: Location of the realm where the Mbeans will be reordered.
+        :return: Map of provider name and corresponding mbean object
+        """
+        _method_name = 'reorder_provider'
+
+
+
     def cd(self, wlst_path):
         """
         Change WLST directories to the specified path
