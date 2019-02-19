@@ -49,7 +49,7 @@ from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create.creator import Creator
-from wlsdeploy.tool.create.security_provider_handler import SecurityProviderHandler
+from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
@@ -80,7 +80,7 @@ class DomainCreator(Creator):
             raise ex
 
         self.topology_helper = TopologyHelper(self.aliases, ExceptionType.CREATE, self.logger)
-        self.security_provider_creator = SecurityProviderHandler(model_dictionary, model_context, aliases,
+        self.security_provider_creator = SecurityProviderCreator(model_dictionary, model_context, aliases,
                                                                  ExceptionType.CREATE, self.logger)
 
         self._domain_typedef = self.model_context.get_domain_typedef()
@@ -248,13 +248,6 @@ class DomainCreator(Creator):
             self.__create_base_domain(self._domain_home)
             self.__extend_domain(self._domain_home)
 
-        # SecurityConfiguration is special since the subfolder name does not change when you change the domain name.
-        # It only changes once the domain is written and re-read...
-        location = LocationContext()
-        domain_name_token = self.alias_helper.get_name_token(location)
-        security_config_location = LocationContext().add_name_token(domain_name_token, self._domain_name)
-        self.security_provider_creator.create_security_configuration(security_config_location)
-
         if len(self.files_to_extract_from_archive) > 0:
             for file_to_extract in self.files_to_extract_from_archive:
                 self.archive_helper.extract_file(file_to_extract)
@@ -272,6 +265,7 @@ class DomainCreator(Creator):
         self.model_context.set_domain_home(self._domain_home)
         self.wlst_helper.read_domain(self._domain_home)
         self.__set_domain_attributes()
+        self._configure_security_configuration()
         self.__deploy_resources_and_apps()
         self.wlst_helper.update_domain()
         self.wlst_helper.close_domain()
@@ -835,8 +829,7 @@ class DomainCreator(Creator):
 
     def __set_domain_attributes(self):
         """
-        Set the Domain attributes, which are in the top folder
-        :param location: current location context
+        Set the Domain attributes
         """
         _method_name = '__set_domain_attributes'
         self.logger.finer('WLSDPLY-12231', self._domain_name, class_name=self.__class_name, method_name=_method_name)
@@ -847,4 +840,21 @@ class DomainCreator(Creator):
         attribute_path = self.alias_helper.get_wlst_attributes_path(location)
         self.wlst_helper.cd(attribute_path)
         self._set_attributes(location, attrib_dict)
+        return
+
+    def _configure_security_configuration(self):
+        """
+        Configure the SecurityConfiguration MBean and its Realm sub-folder. In 11g, the SecurityConfiguration MBean
+        is not persisted to the domain config until the domain is first written.
+        :return:
+        """
+        _method_name = '_configure_security_configuration'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        # SecurityConfiguration is special since the subfolder name does not change when you change the domain name.
+        # It only changes once the domain is written and re-read...
+        location = LocationContext()
+        domain_name_token = self.alias_helper.get_name_token(location)
+        security_config_location = LocationContext().add_name_token(domain_name_token, self._domain_name)
+        self.security_provider_creator.create_security_configuration(security_config_location)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

@@ -210,11 +210,11 @@ class DomainTypedef(object):
         """
         return self._is_system_name(name, 'wldf')
 
-    def configure_security_configuration_is_supported_by_tool(self):
+    def is_security_configuration_supported(self):
         """
         Determine if the security configuration can be configured. Currently, update domain does not
-        support configuration of any providers within a realm. Potentially safest to not touch security
-        configuration at all in order to not set values conducive to the realms (like active realm)
+        support configuration of the SecurityConfiguration, and 11g create domain does not support
+        configuration of the SecurityConfiguration
 
         :return: True if the security realm can be configured
         """

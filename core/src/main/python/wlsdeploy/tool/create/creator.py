@@ -180,15 +180,17 @@ class Creator(object):
         location = LocationContext(base_location).append_location(type_name)
         self._process_flattened_folder(location)
 
+        # For create, delete the existing nodes, and re-add in order found in model in iterative code below
+        self._delete_existing_providers(location)
+
         token_name = self.alias_helper.get_name_token(location)
         create_path = self.alias_helper.get_wlst_create_path(location)
         list_path = self.alias_helper.get_wlst_list_path(location)
         existing_folder_names = self._get_existing_folders(list_path)
         known_providers = self.alias_helper.get_model_subfolder_names(location)
         allow_custom = str(self.alias_helper.is_custom_folder_allowed(location))
-
-        # For create, delete the existing nodes, and re-add in order found in model in iterative code below
-        self._delete_existing_providers(location)
+        self.logger.finer('create path {0}, list_path {1}, existing folders {2}', create_path, list_path,
+                          str(existing_folder_names))
 
         for model_name in model_nodes:
             model_node = model_nodes[model_name]
@@ -477,11 +479,12 @@ class Creator(object):
         :param location: current context of the location pointing at the provider mbean
         """
         _method_name = '_delete_existing_providers'
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
 
         list_path = self.alias_helper.get_wlst_list_path(location)
+        self.logger.finer('Look for providers at location {0}', list_path)
         existing_folder_names = self._get_existing_folders(list_path)
-        wlst_base_provider_type, wlst_name = self.alias_helper.get_wlst_mbean_type_and_name(location)
+        wlst_base_provider_type = self.alias_helper.get_wlst_mbean_type(location)
         if len(existing_folder_names) == 0:
             self.logger.finer('No default providers installed for {0} at {1}', wlst_base_provider_type, list_path)
         else:
