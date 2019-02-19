@@ -1,6 +1,6 @@
 ## The Update Domain Tool
 
-The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode.  The update tool will add or re-configure elements from the `topology` section of the model, and deploy applications and resources from the `resources` and `appDeployments` sections, as described in the Deploy Applications tool.
+The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode.  The update tool will add or re-configure elements from the `topology` section of the model, and deploy applications and resources from the `resources` and `appDeployments` sections, as described in the Deploy Applications Tool.
 
 The Update Domain Tool will only add or update elements in the specified model. It will not attempt to remove any missing elements that were present in a previous model.
 
@@ -14,7 +14,7 @@ In WLST online mode, simply add the information on how to connect to the WebLogi
 
 As usual, the tool will prompt for the password (it can also be supplied by piping it to standard input of the tool).
 
-Unlike the Create Domain Tool, the full domain home directory is specified, rather than the domain's parent directory, since the domain has already been established.
+Unlike the Create Domain Tool, the full domain home directory is specified, rather than the domain's parent directory, because the domain has already been established.
 
 The Update Domain Tool will not attempt to recreate or add schemas for the RCU database, for domain types that use RCU.
 
@@ -23,4 +23,3 @@ When running the tool in WLST online mode, the update operation may require serv
 - `101` - The domain needs to be restarted and the Update Domain Tool needs to be re-invoked with the same arguments.
 - `102` - The servers impacted by the update operation need to be restarted, in a rolling fashion, starting with the Administration Server, if applicable.
 - `103` - The entire domain needs to be restarted.
-
