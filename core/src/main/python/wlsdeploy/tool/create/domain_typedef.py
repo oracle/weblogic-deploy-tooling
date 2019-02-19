@@ -210,14 +210,14 @@ class DomainTypedef(object):
         """
         return self._is_system_name(name, 'wldf')
 
-    def configure_realm_is_supported_by_tool(self, realm):
+    def configure_security_configuration_is_supported_by_tool(self):
         """
-        Determine if the realm can be configured. Currently, update domain does not support configuration of any
-        realm.
-        #param realm_name: can the tool configure this realm
+        Determine if the security configuration can be configured. Currently, update domain does not
+        support configuration of any providers within a realm. Potentially safest to not touch security
+        configuration at all in order to not set values conducive to the realms (like active realm)
+
         :return: True if the security realm can be configured
         """
-        # self.wls_helper.get_default_security_realm_name() == realm_name
         return self._program_name != UPDATE_DOMAIN
 
     def _is_system_name(self, name, key):

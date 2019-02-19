@@ -6,6 +6,7 @@ The Universal Permissive License (UPL), Version 1.0
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -186,9 +187,14 @@ class Creator(object):
         known_providers = self.alias_helper.get_model_subfolder_names(location)
         allow_custom = str(self.alias_helper.is_custom_folder_allowed(location))
 
+        # For create, delete the existing nodes, and re-add in order found in model in iterative code below
+        self._delete_existing_providers(location)
+
         for model_name in model_nodes:
             model_node = model_nodes[model_name]
 
+            # Need to create the node first ?
+            self.logger.fine('Adding the provider {0} at location {1}', model_name, str(location))
             if model_node is None:
                 # The node is empty so nothing to do... move to the next named node.
                 continue
@@ -383,6 +389,7 @@ class Creator(object):
 
         for key in model_nodes:
             if key in model_subfolder_names:
+
                 subfolder_nodes = model_nodes[key]
                 if len(subfolder_nodes) != 0:
                     sub_location = LocationContext(location).append_location(key)
@@ -441,6 +448,50 @@ class Creator(object):
             existing_folders = self._get_existing_folders(create_path)
             if mbean_type not in existing_folders:
                 self.wlst_helper.create(mbean_name, mbean_type)
+        return
+
+    def _delete_existing_providers(self, location):
+        """
+        The security realms providers in the model are processed as merge to the model. Each realm provider
+        section must be complete and true to the resulting domain. Any existing provider not found in the
+        model will be removed, and any provider in the model but not in the domain will be added. The resulting
+        provider list will be ordered as listed in the model.
+
+        For create, the default realm and default providers have been added by the weblogic base template and any
+        extension templates. They have default values. These providers will be removed from the domain. During
+        the normal iteration through the provider list, the providers, if in the model, will be re-added in model
+        order. Any attributes in the model that are not the default value are then applied to the the new provider.
+
+        By deleting all providers and re-adding from the model, we are both merging to the model and ordering the
+        providers. In offline wlst, the set<providertype>Providers(<provider_object_list>, which reorders existing
+        providers, does not work. Deleting the providers and re-adding also has the added benefit of fixing the 11g
+        problem where the providers have no name. They are returned with the name 'Provider'. In the authentication
+        provider, there are two default providers, and just setting the name does not work. When we re-add we re-add
+        with the correct name. And the DefaultAuthenticationProvider successfully re-adds with the correct default
+        identity asserter.
+
+        This release does not support updating the provider list. Because this means that the realms cannot be
+        configured accurately, the security configuration is not configured. It is in the original configuration
+        applied by the templates.
+
+        :param location: current context of the location pointing at the provider mbean
+        """
+        _method_name = '_delete_existing_providers'
+        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+
+        list_path = self.alias_helper.get_wlst_list_path(location)
+        existing_folder_names = self._get_existing_folders(list_path)
+        wlst_base_provider_type, wlst_name = self.alias_helper.get_wlst_mbean_type_and_name(location)
+        if len(existing_folder_names) == 0:
+            self.logger.finer('No default providers installed for {0} at {1}', wlst_base_provider_type, list_path)
+        else:
+            create_path = self.alias_helper.get_wlst_create_path(location)
+            self.wlst_helper.cd(create_path)
+            for existing_folder_name in existing_folder_names:
+                self.wlst_helper.delete(existing_folder_name, wlst_base_provider_type)
+                self.logger.finer('Removed default provider {0} from provider {1} at location {2}',
+                                  existing_folder_name, wlst_base_provider_type, create_path)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
     def _get_existing_folders(self, wlst_path):
