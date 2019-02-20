@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from oracle.weblogic.deploy.util import PyWLSTException
@@ -40,19 +40,6 @@ class WlstHelper(object):
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
-
-
-    def reorder_provider(self, provider_type, provider_map, wlst_path):
-        """
-        Retrieve the list of security providers at the provided path and
-        :param provider_type: MBean Type of the Security Provider, i.e. AuthenticationProvider
-        :param provider_map: Map of mbean names and corresponding mbean type
-        :param wlst_path: Location of the realm where the Mbeans will be reordered.
-        :return: Map of provider name and corresponding mbean object
-        """
-        _method_name = 'reorder_provider'
-
-
 
     def cd(self, wlst_path):
         """
@@ -172,7 +159,7 @@ class WlstHelper(object):
         try:
             wlst_helper.delete(wlst_name, wlst_type)
         except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19103', wlst_type, wlst_name,
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19135', wlst_type, wlst_name,
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex

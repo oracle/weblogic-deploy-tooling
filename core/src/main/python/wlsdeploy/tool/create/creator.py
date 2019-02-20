@@ -4,6 +4,7 @@ The Universal Permissive License (UPL), Version 1.0
 """
 
 from oracle.weblogic.deploy.util import WLSDeployArchive
+from oracle.weblogic.deploy.exception import BundleAwareException
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.validation_codes import ValidationCodes
@@ -179,7 +180,7 @@ class Creator(object):
 
         self.logger.entering(type_name, str(base_location), log_created,
                              class_name=self.__class_name, method_name=_method_name)
-        if model_nodes is None or len(model_nodes) == 0 or not self._is_type_valid(base_location, type_name):
+        if not self._is_type_valid(base_location, type_name):
             return
 
         location = LocationContext(base_location).append_location(type_name)
@@ -188,20 +189,19 @@ class Creator(object):
         # For create, delete the existing nodes, and re-add in order found in model in iterative code below
         self._delete_existing_providers(location)
 
+        if model_nodes is None or len(model_nodes) == 0:
+            return
+
         token_name = self.alias_helper.get_name_token(location)
         create_path = self.alias_helper.get_wlst_create_path(location)
         list_path = self.alias_helper.get_wlst_list_path(location)
         existing_folder_names = self._get_existing_folders(list_path)
         known_providers = self.alias_helper.get_model_subfolder_names(location)
         allow_custom = str(self.alias_helper.is_custom_folder_allowed(location))
-        self.logger.finer('create path {0}, list_path {1}, existing folders {2}', create_path, list_path,
-                          str(existing_folder_names))
 
         for model_name in model_nodes:
             model_node = model_nodes[model_name]
 
-            # Need to create the node first ?
-            self.logger.fine('Adding the provider {0} at location {1}', model_name, str(location))
             if model_node is None:
                 # The node is empty so nothing to do... move to the next named node.
                 continue
@@ -391,23 +391,22 @@ class Creator(object):
         """
         _method_name = '_create_subfolders'
 
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
         model_subfolder_names = self.alias_helper.get_model_subfolder_names(location)
-
         for key in model_nodes:
             if key in model_subfolder_names:
-
                 subfolder_nodes = model_nodes[key]
-                if len(subfolder_nodes) != 0:
-                    sub_location = LocationContext(location).append_location(key)
+                sub_location = LocationContext(location).append_location(key)
+                # both create and update are merge to model so will process a subfolder with an empty node
+                if self.alias_helper.requires_artificial_type_subfolder_handling(sub_location):
+                    self.logger.finest('WLSDPLY-12116', key, str(sub_location), subfolder_nodes,
+                                       class_name=self.__class_name, method_name=_method_name)
+                    self._create_security_provider_mbeans(key, subfolder_nodes, location)
+                elif len(subfolder_nodes) != 0:
                     if self.alias_helper.supports_multiple_mbean_instances(sub_location):
                         self.logger.finest('WLSDPLY-12109', key, str(sub_location), subfolder_nodes,
                                            class_name=self.__class_name, method_name=_method_name)
                         self._create_named_mbeans(key, subfolder_nodes, location)
-                    elif self.alias_helper.requires_artificial_type_subfolder_handling(sub_location):
-                        self.logger.finest('WLSDPLY-12116', key, str(sub_location), subfolder_nodes,
-                                           class_name=self.__class_name, method_name=_method_name)
-                        self._create_security_provider_mbeans(key, subfolder_nodes, location)
                     elif self.alias_helper.is_artificial_type_folder(sub_location):
                         ex = exception_helper.create_create_exception('WLSDPLY-12120', str(sub_location),
                                                                       key, str(location))
@@ -417,6 +416,7 @@ class Creator(object):
                         self.logger.finest('WLSDPLY-12110', key, str(sub_location), subfolder_nodes,
                                            class_name=self.__class_name, method_name=_method_name)
                         self._create_mbean(key, subfolder_nodes, location)
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -487,18 +487,27 @@ class Creator(object):
         self.logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
 
         list_path = self.alias_helper.get_wlst_list_path(location)
-        self.logger.finer('Look for providers at location {0}', list_path)
         existing_folder_names = self._get_existing_folders(list_path)
         wlst_base_provider_type = self.alias_helper.get_wlst_mbean_type(location)
         if len(existing_folder_names) == 0:
-            self.logger.finer('No default providers installed for {0} at {1}', wlst_base_provider_type, list_path)
+            self.logger.finer('WLSDPLY-12136', wlst_base_provider_type, list_path, class_name=self.__class_name,
+                              method_name=_method_name)
         else:
             create_path = self.alias_helper.get_wlst_create_path(location)
             self.wlst_helper.cd(create_path)
             for existing_folder_name in existing_folder_names:
-                self.wlst_helper.delete(existing_folder_name, wlst_base_provider_type)
-                self.logger.finer('Removed default provider {0} from provider {1} at location {2}',
-                                  existing_folder_name, wlst_base_provider_type, create_path)
+                try:
+                    self.wlst_helper.delete(existing_folder_name, wlst_base_provider_type)
+                    self.logger.finer('WLSDPLY-12135', existing_folder_name, wlst_base_provider_type, create_path,
+                                      class_name=self.__class_name, method_name=_method_name)
+                except BundleAwareException, bae:
+                    ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-12134', existing_folder_name,
+                                                           self.wls_helper.get_weblogic_version(),
+                                                           wlst_base_provider_type, bae.getLocalizedMessage(),
+                                                           error=bae)
+                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                    raise ex
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
