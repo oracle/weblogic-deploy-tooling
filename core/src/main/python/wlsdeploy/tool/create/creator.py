@@ -174,7 +174,7 @@ class Creator(object):
 
         self.logger.entering(type_name, str(base_location), log_created,
                              class_name=self.__class_name, method_name=_method_name)
-        if model_nodes is None or len(model_nodes) == 0 or not self._is_type_valid(base_location, type_name):
+        if not self._is_type_valid(base_location, type_name):
             return
 
         location = LocationContext(base_location).append_location(type_name)
@@ -182,6 +182,9 @@ class Creator(object):
 
         # For create, delete the existing nodes, and re-add in order found in model in iterative code below
         self._delete_existing_providers(location)
+
+        if model_nodes is None or len(model_nodes) == 0:
+            return
 
         token_name = self.alias_helper.get_name_token(location)
         create_path = self.alias_helper.get_wlst_create_path(location)
@@ -382,23 +385,22 @@ class Creator(object):
         """
         _method_name = '_create_subfolders'
 
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
         model_subfolder_names = self.alias_helper.get_model_subfolder_names(location)
-
         for key in model_nodes:
             if key in model_subfolder_names:
-
                 subfolder_nodes = model_nodes[key]
-                if len(subfolder_nodes) != 0:
-                    sub_location = LocationContext(location).append_location(key)
+                sub_location = LocationContext(location).append_location(key)
+                # both create and update are merge to model so will process a subfolder with an empty node
+                if self.alias_helper.requires_artificial_type_subfolder_handling(sub_location):
+                    self.logger.finest('WLSDPLY-12116', key, str(sub_location), subfolder_nodes,
+                                       class_name=self.__class_name, method_name=_method_name)
+                    self._create_security_provider_mbeans(key, subfolder_nodes, location)
+                elif len(subfolder_nodes) != 0:
                     if self.alias_helper.supports_multiple_mbean_instances(sub_location):
                         self.logger.finest('WLSDPLY-12109', key, str(sub_location), subfolder_nodes,
                                            class_name=self.__class_name, method_name=_method_name)
                         self._create_named_mbeans(key, subfolder_nodes, location)
-                    elif self.alias_helper.requires_artificial_type_subfolder_handling(sub_location):
-                        self.logger.finest('WLSDPLY-12116', key, str(sub_location), subfolder_nodes,
-                                           class_name=self.__class_name, method_name=_method_name)
-                        self._create_security_provider_mbeans(key, subfolder_nodes, location)
                     elif self.alias_helper.is_artificial_type_folder(sub_location):
                         ex = exception_helper.create_create_exception('WLSDPLY-12120', str(sub_location),
                                                                       key, str(location))
@@ -408,6 +410,7 @@ class Creator(object):
                         self.logger.finest('WLSDPLY-12110', key, str(sub_location), subfolder_nodes,
                                            class_name=self.__class_name, method_name=_method_name)
                         self._create_mbean(key, subfolder_nodes, location)
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
