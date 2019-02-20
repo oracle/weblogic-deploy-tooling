@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 
 The entry point for the discoverDomain tool.
@@ -20,7 +20,6 @@ from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
-from oracle.weblogic.deploy.util import WLSDeployExit
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
@@ -72,7 +71,8 @@ __optional_arguments = [
     CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH,
     CommandLineArgUtil.ADMIN_URL_SWITCH,
     CommandLineArgUtil.ADMIN_USER_SWITCH,
-    CommandLineArgUtil.ADMIN_PASS_SWITCH
+    CommandLineArgUtil.ADMIN_PASS_SWITCH,
+    CommandLineArgUtil.TARGET_MODE_SWITCH
 ]
 
 
@@ -153,6 +153,7 @@ def __process_online_args(optional_arg_map):
             optional_arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH] = String(password)
 
         mode = WlstModes.ONLINE
+        optional_arg_map[CommandLineArgUtil.TARGET_MODE_SWITCH] = 'online'
     return mode
 
 
