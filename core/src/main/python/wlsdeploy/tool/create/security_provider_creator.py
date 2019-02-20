@@ -26,8 +26,7 @@ class SecurityProviderCreator(Creator):
 
     Configuration of the security realms is not supported in 11g -
     Default providers in 11g have no name. Offline wlst returns 'Provider' as each provider name instead.
-    The offline wlst will lose its way if you attempt to remove the MBean named provider, or if you rename
-    the provider and attempt to rename the new provider and most of the time you can add
+    By deleting and re-adding, the providers are added with the appropriate name field.
 
     In recap, the issues found for realms are as follows. These issues are handled in this release.
     1. The weblogic template in 11g installs default security providers with no name. In offline
@@ -36,8 +35,8 @@ class SecurityProviderCreator(Creator):
     2. The 11g release does not support custom security providers in offline wlst.
     3. In 11g, the security realm must be configured after the domain home is created with the write, or the
        configuration will not be persisted to the domain configuration file.
-    4. Offline wlst in 11g does not support rename and delete of security providers
     4. Offline wlst in 11g and 12c does not support reorder of the security providers with the set statement.
+    5. All 11g and 12c versions less than 12.2.1.2 cannot perform a delete on an Adjudicator object.
 
     The SecurityConfiguration is added if it does not exist. The default realm is added if it does not exist.
     If it is not an 11g target domain, then configure the realms with merge to model with the providers
@@ -80,7 +79,7 @@ class SecurityProviderCreator(Creator):
 
         # This will leave 11g asis with the default security realm for the current release. No configuration
         # will be done to the 11g default security realm.
-        if len(security_configuration_nodes) > 0 and self._configure_security_configuration():
+        if len(security_configuration_nodes) > 0: # and self._configure_security_configuration():
             self._create_mbean(SECURITY_CONFIGURATION, security_configuration_nodes, location, log_created=True)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -139,8 +138,7 @@ class SecurityProviderCreator(Creator):
         _method_name = '_configure_security_configuration'
         if not self.wls_helper.is_configure_security_configuration_supported():
             # Do we bypass or end the update ?
-            self.logger.warning('Unable to configure the SecurityConfiguration in the target domain release {0}'
-                                ' using weblogic-deploy {1}', self.wls_helper.get_weblogic_version(),
+            self.logger.warning('WLSDPLY-12232', self.wls_helper.get_weblogic_version(),
                                 WDTVersion.getVersion(), class_name=self.__class_name, method_name=_method_name)
             return False
         return True
