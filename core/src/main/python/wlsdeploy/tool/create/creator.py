@@ -193,8 +193,6 @@ class Creator(object):
         for model_name in model_nodes:
             model_node = model_nodes[model_name]
 
-            # Need to create the node first ?
-            self.logger.fine('Adding the provider {0} at location {1}', model_name, str(location))
             if model_node is None:
                 # The node is empty so nothing to do... move to the next named node.
                 continue
