@@ -193,6 +193,8 @@ class Creator(object):
         for model_name in model_nodes:
             model_node = model_nodes[model_name]
 
+            # Need to create the node first ?
+            self.logger.fine('Adding the provider {0} at location {1}', model_name, str(location))
             if model_node is None:
                 # The node is empty so nothing to do... move to the next named node.
                 continue
@@ -478,19 +480,19 @@ class Creator(object):
         self.logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
 
         list_path = self.alias_helper.get_wlst_list_path(location)
-        self.logger.finer('Look for providers at location {0}', list_path)
         existing_folder_names = self._get_existing_folders(list_path)
         wlst_base_provider_type = self.alias_helper.get_wlst_mbean_type(location)
         if len(existing_folder_names) == 0:
-            self.logger.finer('No default providers installed for {0} at {1}', wlst_base_provider_type, list_path)
+            self.logger.finer('WLSDPLY-12136', wlst_base_provider_type, list_path, class_name=self.__class_name,
+                              method_name=_method_name)
         else:
             create_path = self.alias_helper.get_wlst_create_path(location)
             self.wlst_helper.cd(create_path)
             for existing_folder_name in existing_folder_names:
                 try:
                     self.wlst_helper.delete(existing_folder_name, wlst_base_provider_type)
-                    self.logger.finer('Removed default provider {0} from provider {1} at location {2}',
-                                      existing_folder_name, wlst_base_provider_type, create_path)
+                    self.logger.finer('WLSDPLY-12135', existing_folder_name, wlst_base_provider_type, create_path,
+                                      class_name=self.__class_name, method_name=_method_name)
                 except BundleAwareException, bae:
                     ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-12134', existing_folder_name,
                                                            self.wls_helper.get_weblogic_version(),
