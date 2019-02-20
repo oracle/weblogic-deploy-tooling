@@ -180,7 +180,7 @@ As the example above shows, the `SecurityConfiguration` element has no named sub
 
 When modeling configuration attributes that can have multiple values, the WebLogic Deploy Tooling tries to make this as painless as possible.  For example, the `Target` attribute on resources can have zero or more clusters and/or servers specified.  When specifying the value of such list attributes, the user has freedom to specify them as a list or as a comma-delimited string (comma is the only recognized delimiter for lists).  For attributes where the values can legally contain commas, the items must be specified as a list.  Examples of each are shown below.
 
-```$yaml
+```yaml
 resources:
     JDBCSystemResource:
         MyStringDataSource:
@@ -217,7 +217,7 @@ One of the primary goals of the WebLogic Deploy Tooling is to support a sparse m
 #### Modeling Security Providers
 One place where the semantics are different is for WebLogic security providers.  Because provider ordering is important, and to make sure that the ordering is correctly set in the newly created domain, the Create Domain Tool will look for security providers of each base type (for example, Authentication Providers, Credential Mappers, and such) to see if any are included in the model.  If so, the tool will make sure that  the providers only listed for a type are present in the resulting domain so that the providers are created in the necessary order.  For example, if the model specified an `LDAPAuthenticator` and an `LDAPX509IdentityAsserter` similar to what is shown below, the `DefaultAuthenticator` and `DefaultIdentityAsserters` will be deleted.  If no providers for a base type are listed in the model, then the default providers will be left untouched.
 
-```$yaml
+```yaml
 topology:
     SecurityConfiguration:
         Realm:
@@ -259,7 +259,7 @@ topology:
 
 To keep the `DefaultAuthenticator` and `DefaultIdentityAsserter`, simply add the default names and types in the correct positions in the model's `AuthenticationProvider` list.  If desired, settings on the default providers can be changed, as shown below.
 
-```$yaml
+```yaml
 topology:
     SecurityConfiguration:
         Realm:

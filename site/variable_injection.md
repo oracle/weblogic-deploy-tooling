@@ -35,7 +35,7 @@ Here is an example of a `model_variable_injector.json` file using the PORT keywo
 
 Below is a model snippet that shows injected variables in the port attributes.
 
-```$yaml
+```yaml
 
 topology:
     Name: soa_domain
@@ -143,7 +143,7 @@ The following is an example of how to effectively use the `regexp` directive lis
 
 In the model, we expect to find a URL like the following:
 
-```$yaml
+```yaml
     JDBCSystemResource:
         Database1:
             JdbcResource:
