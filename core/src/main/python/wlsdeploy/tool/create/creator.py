@@ -4,9 +4,9 @@ The Universal Permissive License (UPL), Version 1.0
 """
 
 from oracle.weblogic.deploy.util import WLSDeployArchive
+from oracle.weblogic.deploy.exception import BundleAwareException
 
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -189,8 +189,6 @@ class Creator(object):
         existing_folder_names = self._get_existing_folders(list_path)
         known_providers = self.alias_helper.get_model_subfolder_names(location)
         allow_custom = str(self.alias_helper.is_custom_folder_allowed(location))
-        self.logger.finer('create path {0}, list_path {1}, existing folders {2}', create_path, list_path,
-                          str(existing_folder_names))
 
         for model_name in model_nodes:
             model_node = model_nodes[model_name]
@@ -491,9 +489,18 @@ class Creator(object):
             create_path = self.alias_helper.get_wlst_create_path(location)
             self.wlst_helper.cd(create_path)
             for existing_folder_name in existing_folder_names:
-                self.wlst_helper.delete(existing_folder_name, wlst_base_provider_type)
-                self.logger.finer('Removed default provider {0} from provider {1} at location {2}',
-                                  existing_folder_name, wlst_base_provider_type, create_path)
+                try:
+                    self.wlst_helper.delete(existing_folder_name, wlst_base_provider_type)
+                    self.logger.finer('Removed default provider {0} from provider {1} at location {2}',
+                                      existing_folder_name, wlst_base_provider_type, create_path)
+                except BundleAwareException, bae:
+                    ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-12134', existing_folder_name,
+                                                           self.wls_helper.get_weblogic_version(),
+                                                           wlst_base_provider_type, bae.getLocalizedMessage(),
+                                                           error=bae)
+                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                    raise ex
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
