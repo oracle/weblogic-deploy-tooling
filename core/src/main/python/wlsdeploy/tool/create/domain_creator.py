@@ -50,6 +50,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
@@ -853,7 +854,7 @@ class DomainCreator(Creator):
         # SecurityConfiguration is special since the subfolder name does not change when you change the domain name.
         # It only changes once the domain is written and re-read...
         location = LocationContext()
-        domain_name_token = self.alias_helper.get_name_token(location)
+        domain_name_token = deployer_utils.get_domain_token(self.alias_helper)
         security_config_location = LocationContext().add_name_token(domain_name_token, self._domain_name)
         self.security_provider_creator.create_security_configuration(security_config_location)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
