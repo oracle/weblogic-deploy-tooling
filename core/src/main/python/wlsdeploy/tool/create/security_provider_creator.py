@@ -4,38 +4,12 @@ The Universal Permissive License (UPL), Version 1.0
 """
 
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import ACTIVE_TYPE
-from wlsdeploy.aliases.model_constants import ADJUDICATOR
-from wlsdeploy.aliases.model_constants import AUDITOR
-from wlsdeploy.aliases.model_constants import AUTHENTICATION_PROVIDER
-from wlsdeploy.aliases.model_constants import AUTHORIZER
-from wlsdeploy.aliases.model_constants import CERT_PATH_PROVIDER
-from wlsdeploy.aliases.model_constants import CREDENTIAL_MAPPER
-from wlsdeploy.aliases.model_constants import DEFAULT_ADJUDICATOR_NAME
-from wlsdeploy.aliases.model_constants import DEFAULT_ADJUDICATOR_TYPE
-from wlsdeploy.aliases.model_constants import DEFAULT_AUDITOR_NAME
-from wlsdeploy.aliases.model_constants import DEFAULT_AUDITOR_TYPE
-from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR_NAME
-from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR_TYPE
-from wlsdeploy.aliases.model_constants import DEFAULT_AUTHORIZER_NAME
-from wlsdeploy.aliases.model_constants import DEFAULT_AUTHORIZER_TYPE
-from wlsdeploy.aliases.model_constants import DEFAULT_CERT_PATH_PROVIDER_NAME
-from wlsdeploy.aliases.model_constants import DEFAULT_CERT_PATH_PROVIDER_TYPE
-from wlsdeploy.aliases.model_constants import DEFAULT_CREDENTIAL_MAPPER_NAME
-from wlsdeploy.aliases.model_constants import DEFAULT_CREDENTIAL_MAPPER_TYPE
-from wlsdeploy.aliases.model_constants import DEFAULT_IDENTITY_ASSERTER_NAME
-from wlsdeploy.aliases.model_constants import DEFAULT_IDENTITY_ASSERTER_TYPE
-from wlsdeploy.aliases.model_constants import DEFAULT_PASSWORD_VALIDATOR_NAME
-from wlsdeploy.aliases.model_constants import DEFAULT_PASSWORD_VALIDATOR_TYPE
-from wlsdeploy.aliases.model_constants import DEFAULT_ROLE_MAPPER_NAME
-from wlsdeploy.aliases.model_constants import DEFAULT_ROLE_MAPPER_TYPE
-from wlsdeploy.aliases.model_constants import PASSWORD_VALIDATOR
 from wlsdeploy.aliases.model_constants import REALM
-from wlsdeploy.aliases.model_constants import ROLE_MAPPER
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import dictionary_utils
+import oracle.weblogic.deploy.util.WebLogicDeployToolingVersion as WDTVersion
 
 
 class SecurityProviderCreator(Creator):
@@ -45,15 +19,15 @@ class SecurityProviderCreator(Creator):
 
     This release of weblogic deploy tool handles security providers as outlined below:
 
-    The update domain tool will not configure the SecurityConfiguration MBean.
+    The update domain tool expects the security realm providers in the model to describe all non-default values of the
+    existing domain realms.
 
     Custom Security Providers are supported in 12c releases only.
 
+    Configuration of the security realms is not supported in 11g -
     Default providers in 11g have no name. Offline wlst returns 'Provider' as each provider name instead.
     The offline wlst will lose its way if you attempt to remove the MBean named provider, or if you rename
     the provider and attempt to rename the new provider and most of the time you can add
-
-    The SecurityConfiguration is added if it does not exist. The default realm is added if it does not exist.
 
     In recap, the issues found for realms are as follows. These issues are handled in this release.
     1. The weblogic template in 11g installs default security providers with no name. In offline
@@ -65,6 +39,8 @@ class SecurityProviderCreator(Creator):
     4. Offline wlst in 11g does not support rename and delete of security providers
     4. Offline wlst in 11g and 12c does not support reorder of the security providers with the set statement.
 
+    The SecurityConfiguration is added if it does not exist. The default realm is added if it does not exist.
+    If it is not an 11g target domain, then configure the realms with merge to model with the providers
     """
     __class_name = 'SecurityProviderHelper'
 
@@ -102,35 +78,10 @@ class SecurityProviderCreator(Creator):
             mbean_type, mbean_name = self.alias_helper.get_wlst_mbean_type_and_name(config_location)
             self.wlst_helper.create(mbean_name, mbean_type)
 
-        self.__handle_default_security_providers()
-        # This will leave 11g with the 'Provider' names. If future update is allowed, the update should handle
-        # the 'Provider' if update is merge to model. Else, put code here to delete and re-add if in create and
-        # no security configuration found in model.
+        # This will leave 11g asis with the default security realm for the current release. No configuration
+        # will be done to the 11g default security realm.
         if len(security_configuration_nodes) > 0 and self._configure_security_configuration():
             self._create_mbean(SECURITY_CONFIGURATION, security_configuration_nodes, location, log_created=True)
-
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
-
-    def __handle_default_security_providers(self):
-        _method_name = '__handle_default_security_providers'
-
-        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        location, default_realm_name = self.__get_default_realm_location()
-        #
-        # Creating domains with the wls.jar template is busted for 11g domains with regards to the
-        # names of the default authentication providers (both the DefaultAuthenticator and the
-        # DefaultIdentityAsserter names are 'Provider', making it impossible to work with in WLST.
-        if self.wls_helper.do_default_authentication_provider_names_need_fixing():
-            # put a log here
-            self._handle_default_provider(_get_default_adjudicators(), ADJUDICATOR, location)
-            self._handle_default_provider(_get_default_auditors(), AUDITOR, location)
-            self._handle_default_provider(_get_default_authentication_providers(), AUTHENTICATION_PROVIDER, location)
-            self._handle_default_provider(_get_default_authorizers(), AUTHORIZER, location)
-            self._handle_default_provider(_get_default_cert_path_providers(), CERT_PATH_PROVIDER, location)
-            self._handle_default_provider(_get_default_credential_mappers(), CREDENTIAL_MAPPER, location)
-            self._handle_default_provider(_get_default_password_validators(), PASSWORD_VALIDATOR, location)
-            self._handle_default_provider(_get_default_role_mappers(), ROLE_MAPPER, location)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -185,53 +136,11 @@ class SecurityProviderCreator(Creator):
         For this release, the update tool will not configure the security realm.
         :return: True if can configure the SecurityConfiguration mbean
         """
-        if not self._domain_typedef.is_security_configuration_supported():
+        _method_name = '_configure_security_configuration'
+        if not self.wls_helper.is_configure_security_configuration_supported():
             # Do we bypass or end the update ?
-            self.logger.warning('Unable to process SecurityConfiguration in update mode.')
+            self.logger.warning('Unable to configure the SecurityConfiguration in the target domain release {0}'
+                                ' using weblogic-deploy {1}', self.wls_helper.get_weblogic_version(),
+                                WDTVersion.getVersion(), class_name=self.__class_name, method_name=_method_name)
             return False
         return True
-
-    def _handle_default_provider(self, default_list, base_provider, base_location):
-        location = LocationContext(base_location)
-        location.append_location(base_provider)
-        list_path = self.alias_helper.get_wlst_list_path(location)
-        existing_folder_names = self._get_existing_folders(list_path)
-        if len(existing_folder_names) > 0 and 'Provider' in existing_folder_names:
-            create_path = self.alias_helper.get_wlst_create_path(location)
-            self.wlst_helper.cd(create_path)
-            for provider, provider_type in default_list.iteritems():
-                self.wlst_helper.create(provider, provider_type, base_provider)
-        return
-
-
-def _get_default_adjudicators():
-    return {DEFAULT_ADJUDICATOR_NAME: DEFAULT_ADJUDICATOR_TYPE}
-
-
-def _get_default_auditors():
-    return {DEFAULT_AUDITOR_NAME: DEFAULT_AUDITOR_TYPE}
-
-
-def _get_default_authentication_providers():
-    return {DEFAULT_AUTHENTICATOR_NAME: DEFAULT_AUTHENTICATOR_TYPE,
-            DEFAULT_IDENTITY_ASSERTER_NAME: DEFAULT_IDENTITY_ASSERTER_TYPE}
-
-
-def _get_default_authorizers():
-    return {DEFAULT_AUTHORIZER_NAME: DEFAULT_AUTHORIZER_TYPE}
-
-
-def _get_default_cert_path_providers():
-    return {DEFAULT_CERT_PATH_PROVIDER_NAME: DEFAULT_CERT_PATH_PROVIDER_TYPE}
-
-
-def _get_default_credential_mappers():
-    return {DEFAULT_CREDENTIAL_MAPPER_NAME: DEFAULT_CREDENTIAL_MAPPER_TYPE}
-
-
-def _get_default_password_validators():
-    return {DEFAULT_PASSWORD_VALIDATOR_NAME: DEFAULT_PASSWORD_VALIDATOR_TYPE}
-
-
-def _get_default_role_mappers():
-    return {DEFAULT_ROLE_MAPPER_NAME: DEFAULT_ROLE_MAPPER_TYPE}

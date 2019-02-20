@@ -155,6 +155,14 @@ class WebLogicHelper(object):
             result = True
         return result
 
+    def is_configure_security_configuration_supported(self):
+        """
+        In the current release, configuring the SecurityConfiguration is not supported in 11g. There is
+        no successful way to remove or reorder providers in the default realm. Will be investigated further.
+        :return: True if can configure the security configuration with the model
+        """
+        return self.is_weblogic_version_or_above('12.1.2')
+
     # This method should be deleted once all of the old code is converted to the new model.
     def get_wlst_exception_content(self, message):
         """
