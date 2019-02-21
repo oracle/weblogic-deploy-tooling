@@ -9,7 +9,6 @@ from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import dictionary_utils
-import oracle.weblogic.deploy.util.WebLogicDeployToolingVersion as WDTVersion
 
 
 class SecurityProviderCreator(Creator):
@@ -126,17 +125,3 @@ class SecurityProviderCreator(Creator):
             wlst_attribute_path = self.alias_helper.get_wlst_attributes_path(location)
             self.wlst_helper.cd(wlst_attribute_path)
         return location, default_security_realm_name
-
-    def _configure_security_configuration(self):
-        """
-        Keep this method in case we need to configure non-support.
-        
-        :return: True if can configure the SecurityConfiguration mbean
-        """
-        _method_name = '_configure_security_configuration'
-        if not self.wls_helper.is_configure_security_configuration_supported():
-            # Do we bypass or end the update ?
-            self.logger.warning('WLSDPLY-12232', self.wls_helper.get_weblogic_version(),
-                                WDTVersion.getVersion(), class_name=self.__class_name, method_name=_method_name)
-            return False
-        return True

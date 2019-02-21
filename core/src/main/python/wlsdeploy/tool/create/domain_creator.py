@@ -121,15 +121,6 @@ class DomainCreator(Creator):
                                           self.logger)
 
         #
-        # Creating domains with the wls.jar template is busted for pre-12.1.2 domains with regards to the
-        # names of the default authentication providers (both the DefaultAuthenticator and the
-        # DefaultIdentityAsserter names are 'Provider', making it impossible to work with in WLST.  If
-        # the WLS version is earlier than fix this as part of domain creation...
-        #
-        self.__fix_default_authentication_provider_names = \
-            self.wls_helper.do_default_authentication_provider_names_need_fixing()
-
-        #
         # This list gets modified as the domain is being created so do use this list for anything else...
         #
         self.__topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()

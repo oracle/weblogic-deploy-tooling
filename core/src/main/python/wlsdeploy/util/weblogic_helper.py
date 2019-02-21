@@ -65,19 +65,6 @@ class WebLogicHelper(object):
         """
         return self.is_weblogic_version_or_above('12.2.1.1') or not self.is_weblogic_version_or_above('12.2.1')
 
-    def do_default_authentication_provider_names_need_fixing(self):
-        return not self.is_weblogic_version_or_above('12.1.2')
-
-    def provider_type_has_problem_default_provider_name(self, provider_name_list):
-        """
-        The 11g default providers installed with the weblogic template have no name. In online wlst, the correct
-        default name is stored in the mbean when it is instantiated. In offline wlst, the name 'Provider' is
-        returned. Return True if the 'Provider' string is found in the security provider name list,
-        :param provider_name_list: list of the provider names for a security provider type
-        :return: True if an invalid name was found in the provider_name_list
-        """
-        return self.do_default_authentication_provider_names_need_fixing() and 'Provider' in provider_name_list
-
     def is_select_template_supported(self):
         """
         Is selectTemplate() supported in this version of WLST?
@@ -142,26 +129,6 @@ class WebLogicHelper(object):
         :return: the default security realm name
         """
         return 'myrealm'
-
-    def requires_security_provider_rename_in_offline_mode(self):
-        """
-        In older versions of WLST offline, creating security providers required the full
-        provider class name.
-        :return: whether or not the full provider class name is required in WLST offline
-        """
-        if self.is_weblogic_version_or_above('12.1.2'):
-            result = False
-        else:
-            result = True
-        return result
-
-    def is_configure_security_configuration_supported(self):
-        """
-        In the current release, configuring the SecurityConfiguration is not supported in 11g. There is
-        no successful way to remove or reorder providers in the default realm. Will be investigated further.
-        :return: True if can configure the security configuration with the model
-        """
-        return self.is_weblogic_version_or_above('12.1.2')
 
     # This method should be deleted once all of the old code is converted to the new model.
     def get_wlst_exception_content(self, message):
