@@ -31,9 +31,9 @@ class CustomFolderHelper(object):
         """
         Update the specified security model nodes in WLST.
         :param location: the location for the provider
-        :param model_category: the model category of the provider to be updated
-        :param model_type: the model type of the provider to be updated
-        :param model_name: the model name of the provider to be updated
+        :param model_category: the model category of the provider to be updated, such as AuthenticationProvider
+        :param model_type: the model type of the provider to be updated, such as 'custom.my.CustomIdentityAsserter'
+        :param model_name: the model name of the provider to be updated, such as 'My custom IdentityAsserter'
         :param model_nodes: a child model nodes of the provider to be updated
         :raises: BundleAwareException of the specified type: if an error occurs
         """
@@ -49,13 +49,14 @@ class CustomFolderHelper(object):
         create_path = self.alias_helper.get_wlst_subfolders_path(location)
         self.wlst_helper.cd(create_path)
 
-        # TODO for updateDomain: check for existing provider, just cd if present
-
         # create the MBean using the model name, model_type, category
 
-        self.wlst_helper.create(model_name, model_type, model_category)
+        location.append_location(model_category)
+        mbean_category = self.alias_helper.get_wlst_mbean_type(location)
 
-        provider_path = create_path + '/' + model_category + '/' + model_name
+        self.wlst_helper.create(model_name, model_type, mbean_category)
+
+        provider_path = create_path + '/' + mbean_category + '/' + model_name
         provider_mbean = self.wlst_helper.cd(provider_path)
 
         interface_name = model_type + 'MBean'
