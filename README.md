@@ -16,6 +16,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Model Names](#model-names)
     - [Model Semantics](#model-semantics)
     - [Modeling Security Providers](#modeling-security-providers)
+        - [Custom Security Providers](#custom-security-providers)
     - [Variable Injection](site/variable_injection.md)
     - [Model Filters](site/tool_filters.md)
 - [Downloading and Installing](#downloading-and-installing-the-software)
@@ -215,9 +216,9 @@ In the example above, the `Target` attribute is specified three different ways, 
 One of the primary goals of the WebLogic Deploy Tooling is to support a sparse model where the user can specify just the configuration needed for a particular situation.  What this implies varies somewhat between the tools but, in general, this implies that the tools are using an additive model.  That is, the tools add to what is already there in the existing domain or domain templates (when creating a new domain) rather than making the domain conform exactly to the specified model.  Where it makes sense, a similar, additive approach is taken when setting the value of multi-valued attributes.  For example, if the model specified the cluster `mycluster` as the target for an artifact, the tooling will add `mycluster` to any existing list of targets for the artifact.  While the development team has tried to mark attributes that do not make sense to merge accordingly in our knowledge base, this behavior can be disabled on an attribute-by-attribute basis, by adding an additional annotation in the knowledge base data files.  The development team is already thinking about how to handle situations that require a non-additive, converge-to-the-model approach, and how that might be supported, but this still remains a wish list item.  Users with these requirements should raise an issue for this support.
 
 #### Modeling Security Providers
-WebLogic Server Security Configuration requires special handling and causes the need for the model semantics to differ from other folders.  Because provider ordering is important, and to make sure that the ordering is correctly set in the newly created domain, the Create Domain Tool and Update Domain Tool require all providers be specified in the model for any provider type that will be created or altered.  For example, if you want to change one of the providers in the provider type AuthenticationProvider, your model must specify all of the AuthenticationProvider providers and any non-default attributes for those providers.  In order to apply security providers, these tools will delete all providers from the target domain for those provider types specificed in the model before adding the providers from the model to the target domain. Provider types that are omitted from the model will be unchanged.  Example provider types are Adjudicator, AuthenticationProvider, Authorizer, CertPathProvider, CredentialMapper, PasswordValidator, and RoleMapper.
+WebLogic Server security configuration requires special handling and causes the need for the model semantics to differ from other folders.  Because provider ordering is important, and to make sure that the ordering is correctly set in the newly created domain, the Create Domain Tool and Update Domain Tool require that all providers be specified in the model for any provider type that will be created or altered.  For example, if you want to change one of the providers in the provider type `AuthenticationProvider`, your model must specify all of the `AuthenticationProvider` providers and any non-default attributes for those providers.  In order to apply security providers, these tools will delete all providers from the target domain for those provider types specificed in the model before adding the providers from the model to the target domain. Provider types that are omitted from the model will be unchanged.  Example provider types are `Adjudicator`, `AuthenticationProvider`, `Authorizer`, `CertPathProvider`, `CredentialMapper`, `PasswordValidator`, and `RoleMapper`.
 
-For example, if the model specified an `LDAPAuthenticator` and an `LDAPX509IdentityAsserter` similar to what is shown below, the `DefaultAuthenticator` and `DefaultIdentityAsserter` would be deleted.  In this example, other provider types like RoleMapper and CredentialMapper are not specified and would be left untouched by the tools.   
+For example, if the model specified an `LDAPAuthenticator` and an `LDAPX509IdentityAsserter` similar to what is shown below, the `DefaultAuthenticator` and `DefaultIdentityAsserter` would be deleted.  In this example, other provider types like `RoleMapper` and `CredentialMapper` are not specified and would be left untouched by the tools.   
 
 ```yaml
 topology:
@@ -259,7 +260,7 @@ topology:
                             SSLEnabled: true
 ```    
 
-In order to keep the `DefaultAuthenticator` and `DefaultIdentityAsserter` while changing/adding providers, they must be specified in the model with any non-default attributes as shown in the example below.  Keep in mind, the ordering of providers in the model will be the order the providers are set in the WebLogic Security Configuration.
+In order to keep the `DefaultAuthenticator` and `DefaultIdentityAsserter` while changing/adding providers, they must be specified in the model with any non-default attributes as shown in the example below.  Keep in mind, the ordering of providers in the model will be the order the providers are set in the WebLogic security configuration.
 
 ```yaml
 topology:
@@ -305,6 +306,22 @@ topology:
                     DefaultIdentityAsserter:
                         DefaultIdentityAsserter:
 
+```
+
+#####Custom Security Providers
+
+**NOTE:** Creating and updating domains with custom security providers is limited to WebLogic version 12.1.2 and newer.
+
+Prior to using this tooling to create or update a domain with a custom security provider, there are several prerequisites.  First, WebLogic Server requires the custom MBean JAR to be in the Oracle Home directory before it can be configured, WLSERVER/server/lib/mbeantypes.  Second, WebLogic Scripting Tool, WLST, requires that the schema JAR be placed in the Oracle Home directory before WLST offline can be used to configure it, ORACLEHOME/oracle_common/lib/schematypes.  Generating an MBean JAR documentation can be found in the WebLogic Server [documentation](https://docs.oracle.com/middleware/12213/wls/DEVSP/generate_mbeantype.htm#DEVSP617).  Generating the schema JAR can be done with the prepareCustomProvider script provided in the WebLogic Server installation.
+
+The format for a custom security provider is slightly different than for a built-in provider in that the custom provider must supply the class name of the provider in the model between the provider name and the attributes for the provider.  In the custom `CredentialMapper` example below, note the location in the model of 'examples.security.providers.SampleCredentialMapper':
+
+```yaml
+        CredentialMapper:
+            'Sample CredentialMapper':
+                'examples.security.providers.SampleCredentialMapper':
+                    UserNameMapperClassName: 'examples.security.providers.CredentialMapperProviderImpl'
+                    CredentialMappingDeploymentEnabled: true:
 ```
 
 ## Downloading and Installing the Software
