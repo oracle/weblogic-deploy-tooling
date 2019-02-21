@@ -97,7 +97,7 @@ topology:
 
 Prior to using this tooling to create or update a domain with a custom security provider, there are several prerequisites.  First, WebLogic Server requires the custom MBean JAR to be in the Oracle Home directory before it can be configured, WLSERVER/server/lib/mbeantypes.  Second, WebLogic Scripting Tool, WLST, requires that the schema JAR be placed in the Oracle Home directory before WLST offline can be used to configure it, ORACLEHOME/oracle_common/lib/schematypes.  Generating an MBean JAR documentation can be found in the WebLogic Server [documentation](https://docs.oracle.com/middleware/12213/wls/DEVSP/generate_mbeantype.htm#DEVSP617).  Generating the schema JAR can be done with the prepareCustomProvider script provided in the WebLogic Server installation.
 
-The format for a custom security provider is slightly different than for a built-in provider in that the custom provider must supply the package name of the provider in the model between the provider name and the attributes for the provider.  In the custom `CredentialMapper` example below, note the location in the model of 'examples.security.providers.SampleCredentialMapper':
+The format for a custom security provider is slightly different from a built-in provider in that the custom provider must supply the fully-qualified name of the class for the provider in the model between the provider name and the attributes for that provider.  Note that the generated Impl suffix is ommitted from the name. In the custom `CredentialMapper` example below, note the location in the model of 'examples.security.providers.SampleCredentialMapper':
 
 ```yaml
         CredentialMapper:
