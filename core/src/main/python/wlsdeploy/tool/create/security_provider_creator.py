@@ -54,10 +54,11 @@ class SecurityProviderCreator(Creator):
     def create_security_configuration(self, location):
         """
         Create the /SecurityConfiguration folder objects, if any.
-        Update is calling this method. The SecurityConfiguration should already be configured by create domain, but
+        
+        The SecurityConfiguration should already be configured by create domain, but
         allow the method to create the default security configuration with the default realm if for some reason
-        it does not exit. Then bypass any configuration of the update from the model. The update tool does not
-        support configuration of the SecurityConfiguration in this release.
+        it does not exist.  
+        
         :param location: the location to use
         :raises: BundleAwareException of the specified type: if an error occurs
         """
@@ -67,19 +68,15 @@ class SecurityProviderCreator(Creator):
         security_configuration_nodes = dictionary_utils.get_dictionary_element(self._topology, SECURITY_CONFIGURATION)
 
         # in WLS 11g, the SecurityConfiguration mbean is not created until the domain is written.
-        # This is called after the domain is written, but check to make sure the mbean exists.
-        # if missing, we will create it to initialize realm and default security providers.
-        # This release does not support configuring 11g security providers beyond making sure the default
-        # realm exists.
+        # This is called after the domain is written, but check to make sure the mbean does exist.
+        # It missing it will be created to initialize the default realm and security providers.
         config_location = LocationContext(location).append_location(SECURITY_CONFIGURATION)
         existing_names = deployer_utils.get_existing_object_list(config_location, self.alias_helper)
         if len(existing_names) == 0:
             mbean_type, mbean_name = self.alias_helper.get_wlst_mbean_type_and_name(config_location)
             self.wlst_helper.create(mbean_name, mbean_type)
 
-        # This will leave 11g asis with the default security realm for the current release. No configuration
-        # will be done to the 11g default security realm.
-        if len(security_configuration_nodes) > 0: # and self._configure_security_configuration():
+        if len(security_configuration_nodes) > 0:
             self._create_mbean(SECURITY_CONFIGURATION, security_configuration_nodes, location, log_created=True)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -132,7 +129,8 @@ class SecurityProviderCreator(Creator):
 
     def _configure_security_configuration(self):
         """
-        For this release, the update tool will not configure the security realm.
+        Keep this method in case we need to configure non-support.
+        
         :return: True if can configure the SecurityConfiguration mbean
         """
         _method_name = '_configure_security_configuration'
