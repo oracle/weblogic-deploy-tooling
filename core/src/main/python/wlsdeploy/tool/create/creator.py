@@ -401,7 +401,7 @@ class Creator(object):
                 if self.alias_helper.requires_artificial_type_subfolder_handling(sub_location):
                     self.logger.finest('WLSDPLY-12116', key, str(sub_location), subfolder_nodes,
                                        class_name=self.__class_name, method_name=_method_name)
-                    self._create_security_provider_mbeans(key, subfolder_nodes, location)
+                    self._create_security_provider_mbeans(key, subfolder_nodes, location, True)
                 elif len(subfolder_nodes) != 0:
                     if self.alias_helper.supports_multiple_mbean_instances(sub_location):
                         self.logger.finest('WLSDPLY-12109', key, str(sub_location), subfolder_nodes,
@@ -497,9 +497,9 @@ class Creator(object):
             self.wlst_helper.cd(create_path)
             for existing_folder_name in existing_folder_names:
                 try:
+                    self.logger.info('WLSDPLY-12135', existing_folder_name, wlst_base_provider_type, create_path,
+                                     class_name=self.__class_name, method_name=_method_name)
                     self.wlst_helper.delete(existing_folder_name, wlst_base_provider_type)
-                    self.logger.finer('WLSDPLY-12135', existing_folder_name, wlst_base_provider_type, create_path,
-                                      class_name=self.__class_name, method_name=_method_name)
                 except BundleAwareException, bae:
                     ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-12134', existing_folder_name,
                                                            self.wls_helper.get_weblogic_version(),
