@@ -308,7 +308,7 @@ topology:
 
 ```
 
-#####Custom Security Providers
+##### Custom Security Providers
 
 **NOTE:** Creating and updating domains with custom security providers is limited to WebLogic version 12.1.2 and newer.
 
