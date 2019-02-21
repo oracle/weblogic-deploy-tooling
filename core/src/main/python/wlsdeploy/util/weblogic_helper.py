@@ -144,6 +144,13 @@ class WebLogicHelper(object):
             result = True
         return result
 
+    def is_version_in_12c(self):
+        """
+        Is the weblogic version a 12c version?
+        :return: True if the version is 12c
+        """
+        return self.is_weblogic_version_or_above('12.1.2')
+
     # This method should be deleted once all of the old code is converted to the new model.
     def get_wlst_exception_content(self, message):
         """
@@ -209,6 +216,8 @@ class WebLogicHelper(object):
 
         return result
 
+    def is_security_configuration_special_handling_required(self, location):
+        return self.alias_helper.requires_artificial_type_subfolder_handling
     # We need to pad the actual version number for comparison purposes so
     # that is is never shorter than the specified version.  Otherwise,
     # actual version 12.2.1 will be considered to be equal to 12.2.1.1

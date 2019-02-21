@@ -35,9 +35,7 @@ from wlsdeploy.aliases.alias_constants import LIST
 from wlsdeploy.aliases.alias_constants import LSA
 from wlsdeploy.aliases.alias_constants import MBEAN
 from wlsdeploy.aliases.alias_constants import MERGE
-from wlsdeploy.aliases.alias_constants import METHOD
 from wlsdeploy.aliases.alias_constants import MODEL_NAME
-from wlsdeploy.aliases.alias_constants import NAMES
 from wlsdeploy.aliases.alias_constants import PASSWORD
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
@@ -259,24 +257,6 @@ class Aliases(object):
         """
         return self._alias_entries.is_location_child_folder_type(location,
                                                                  ChildFoldersTypes.MULTIPLE_WITH_TYPE_SUBFOLDER)
-
-    def get_folder_names_method(self, location):
-        """
-        Return the method_name from the folder get_method attribute.
-        None if not present for the folder. The get_method must start
-        with "NAMES." or None is returned. The "NAMES." prefix is
-        stripped from the method name. The NAMES method returns a
-        list of mbean names at the current location.
-        :param location: current location context
-        :return: method name if NAMES method is defined for the folder
-        """
-        names_method = None
-        get_method = self._alias_entries.get_folder_get_method_for_location(location)
-        method_type = NAMES + '.'
-        if get_method and get_method.startswith(method_type):
-            names_method = get_method[len(method_type):]
-
-        return names_method
 
     def supports_single_mbean_instance(self, location):
         """

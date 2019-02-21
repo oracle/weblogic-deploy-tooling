@@ -16,8 +16,6 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.attribute_getter import AttributeGetter
-from wlsdeploy.tool.util.mbean_getter import MBeanGetter
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import path_utils
@@ -50,9 +48,9 @@ class Discoverer(object):
             self._aliases = Aliases(self._model_context, wlst_mode=self._wlst_mode)
         self._alias_helper = AliasHelper(self._aliases, _logger, ExceptionType.DISCOVER)
         self._att_handler_map = OrderedDict()
-        self._wls_version = WebLogicHelper(_logger).get_actual_weblogic_version()
+        self._weblogic_helper = WebLogicHelper(_logger)
+        self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
         self._wlst_helper = WlstHelper(_logger, ExceptionType.DISCOVER)
-        self._mbean_getter = MBeanGetter(self._aliases, ExceptionType.DISCOVER, _logger)
 
     # methods for use only by the subclasses
 
@@ -103,7 +101,7 @@ class Discoverer(object):
                                                                                                 wlst_value)
                 except AliasException, de:
                     _logger.info('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
+                                 class_name=_class_name, method_name=_method_name)
                     continue
 
                 attr_dict[model_param] = wlst_value
@@ -170,7 +168,7 @@ class Discoverer(object):
         try:
             if self._aliases.get_model_attribute_name(location, wlst_name):
                 attribute = True
-        except AliasException, ae:
+        except AliasException:
             pass
         return attribute
 
@@ -182,22 +180,6 @@ class Discoverer(object):
         """
         _method_name = '_get_required_attributes'
         attributes = []
-        try:
-            attributes = self._alias_helper.get_wlst_get_required_attribute_names(location)
-        except DiscoverException, de:
-            name = location.get_model_folders()[-1]
-            _logger.warning('WLSDPLY-06109', name, location.get_folder_path(), de.getLocalizedMessage(),
-                            class_name=_class_name, method_name=_method_name)
-        return attributes
-
-    def _method_required_attributes(self, location):
-        """
-        Use a special method to get the online attribute.
-        :param location: current location context
-        :return: map of attributes that require special processing via a method
-        """
-        _method_name = '_method_required_attributes'
-        attributes = dict()
         try:
             attributes = self._alias_helper.get_wlst_get_required_attribute_names(location)
         except DiscoverException, de:
@@ -258,13 +240,7 @@ class Discoverer(object):
             _logger.finest('WLSDPLY-06111', folder_path, class_name=_class_name, method_name=_method_name)
             if wlst_helper.path_exists(folder_path):
                 self.wlst_cd(folder_path, location)
-                getter_method = self._alias_helper.get_folder_names_method(location)
-                if getter_method:
-                    _logger.finer('WLSDPLY-06149', getter_method, location.get_folder_path(), class_name=_class_name,
-                                  method_name=_method_name)
-                    names = self._call_method_to_get_mbean_names(location, getter_method)
-                else:
-                    names = self._wlst_helper.lsc()
+                names = self._wlst_helper.lsc()
                 _logger.finest('WLSDPLY-06146', names, location, class_name=_class_name, method_name=_method_name)
         return names
 
@@ -387,19 +363,19 @@ class Discoverer(object):
         names = self._find_names_in_folder(location)
         if names is not None:
             for name in names:
-                _logger.fine('Checking folder name {0}', name)
-                location.add_name_token(name_token, name)
+                massaged = self._inspect_artificial_folder_name(name, location)
+                location.add_name_token(name_token, massaged)
                 artificial = self._get_artificial_type(location)
                 if artificial is None:
                     _logger.warning('WLSDPLY-06123', self._alias_helper.get_model_folder_path(location),
                                     class_name=_class_name, method_name=_method_name)
                 else:
-                    _logger.finer('WLSDPLY-06120', artificial, name, model_subfolder_name, class_name=_class_name,
+                    _logger.finer('WLSDPLY-06120', artificial, massaged, model_subfolder_name, class_name=_class_name,
                                   method_name=_method_name)
                     location.append_location(artificial)
-                    subfolder_result[name] = OrderedDict()
-                    subfolder_result[name][artificial] = OrderedDict()
-                    self._populate_model_parameters(subfolder_result[name][artificial], location)
+                    subfolder_result[massaged] = OrderedDict()
+                    subfolder_result[massaged][artificial] = OrderedDict()
+                    self._populate_model_parameters(subfolder_result[massaged][artificial], location)
                     location.pop_location()
                 location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=subfolder_result)
@@ -439,12 +415,13 @@ class Discoverer(object):
         """
         Discover the subfolder indicated by the model subfolder name. Append the model subfolder to the
         current location context, and pop that location before return
-        :param result: dictionary to store the discovered information
+        :param model_subfolder_name: Name of the model subfolder
         :param location: context containing the current subfolder information
         :return: discovered dictionary
         """
         _method_name = '_discover_subfolder'
-        _logger.entering(model_subfolder_name, class_name=_class_name, method_name=_method_name)
+        _logger.entering(model_subfolder_name, location.get_folder_path(), class_name=_class_name,
+                         method_name=_method_name)
         location.append_location(model_subfolder_name)
         _logger.finer('WLSDPLY-06115', model_subfolder_name, self._alias_helper.get_model_folder_path(location),
                       class_name=_class_name, method_name=_method_name)
@@ -641,22 +618,6 @@ class Discoverer(object):
                     continue
         return wlst_attributes
 
-    def _call_method_to_get_mbean_names(self, location, getter_method):
-        _method_name = '_call_method_to_get_mbean_names'
-        mbean_names = []
-        if getter_method is not None:
-            try:
-                _logger.finest('WLSDPLY-12124', getter_method, location.get_folder_path(),
-                               class_name=_class_name, method_name=_method_name)
-                get_method = getattr(self._mbean_getter, getter_method)
-                mbean_names = get_method(location)
-            except AttributeError, ae:
-                ex = exception_helper.create_create_exception('WLSDPLY-12125', getter_method, location.get_folder_path()
-                                                              , error=ae)
-                _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-        return mbean_names
-
     def wlst_cd(self, path, location):
         """
         Change to the directory specified in the path. If the wlst.cd() fails, assume something is wrong with the
@@ -675,21 +636,23 @@ class Discoverer(object):
                             method_name=_method_name)
         return result
 
-    def call_get_names_method(self, location, wlst_method):
-        _method_name = 'call_get_method'
-        _logger.entering(str(location), wlst_method, class_name=_class_name, method_name=_method_name)
-        try:
-            _logger.fine('WLSDPLY-06147', wlst_method, self._alias_helper.get_model_folder_path(location),
-                         class_name=_class_name, method_name=_method_name)
-            get_method = getattr(self._mbean_getter, wlst_method)
-            mbean_names = get_method(location)
-        except AttributeError, ae:
-            ex = exception_helper.create_create_exception('WLSDPLY-06148', wlst_method,
-                                                          self._alias_helper.get_model_folder_path(location), error=ae)
-            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=mbean_names)
-        return mbean_names
+    def _inspect_artificial_folder_name(self, folder_name, location):
+        """
+        Perform any special handling for the folder or folder names.
+        :param location: current context of location
+        :return: Original name or processed name value
+        """
+        return self._inspect_security_folder_name(folder_name, location)
+
+    def _inspect_security_folder_name(self, folder_name, location):
+        # This is so clunky. My alias definition change was rejected.
+        if (not self._weblogic_helper.is_version_in_12c()) and self._wlst_mode == WlstModes.OFFLINE and \
+                'SecurityConfiguration' in location.get_folder_path() and 'Provider' == folder_name:
+            raise exception_helper.create_discover_exception('WLSDPLY-06201', folder_name, location.get_folder_path())
+        _logger.info('version {0} mode {1} folder {2} provider {3}', not self._weblogic_helper.is_version_in_12c(),
+                     self._wlst_mode == WlstModes.OFFLINE, 'SecurityConfiguration' in location.get_folder_path(),
+                     'Provider' == folder_name)
+        return folder_name
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
@@ -700,7 +663,8 @@ def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
     :param entry_value: to add to dictionary
     :return: True if the value was not empty and added to the dictionary
     """
-    if entry_value:
+    _logger.info('name {0} and value {1}', entry_name, entry_value)
+    if entry_value and len(entry_value):
         dictionary[entry_name] = entry_value
         return True
     return False
@@ -754,7 +718,7 @@ def _is_attribute_type(attribute_info):
     _method_name = '_is_attribute_type'
     if not attribute_info.isWritable() and _is_deprecated(attribute_info):
         _logger.finer('WLSDPLY-06143', attribute_info.getName(), wlst_helper.get_pwd(),
-                       class_name=_class_name, method_name=_method_name)
+                      class_name=_class_name, method_name=_method_name)
     return attribute_info.getDescriptor().getFieldValue(
         'descriptorType') == 'Attribute' and attribute_info.getDescriptor().getFieldValue(
         'com.bea.relationship') is None and (attribute_info.isWritable() or not _is_deprecated(attribute_info))

@@ -18,7 +18,6 @@ FOLDER_PARAMS = 'folder_params'
 GET_MBEAN_TYPE = 'get_mbean_type'
 GET_METHOD = 'get_method'
 MERGE = 'merge'
-METHOD = 'METHOD'
 MODEL_NAME = 'model_name'
 NAME_VALUE = 'name_value'
 PASSWORD_TOKEN = "--FIX ME--"
@@ -60,7 +59,6 @@ ChildFoldersTypes = Enum(['MULTIPLE', 'MULTIPLE_WITH_TYPE_SUBFOLDER', 'NONE', 'S
 GET = 'GET'
 LSA = 'LSA'
 NONE = 'NONE'
-NAMES = 'NAMES'
 
 # set_method values
 MBEAN = 'MBEAN'

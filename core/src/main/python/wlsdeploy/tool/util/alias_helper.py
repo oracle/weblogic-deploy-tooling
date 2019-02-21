@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from oracle.weblogic.deploy.aliases import AliasException
@@ -610,25 +610,6 @@ class AliasHelper(object):
             raise ex
         return result
 
-    def get_wlst_method_required_attribute_names(self, location):
-        """
-        Get the list of attribute names that require special processing via a method
-        :param location: the location
-        :return: dict[string=string]: the dictionary of attribute names and the attribute's method
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'get_wlst_method_required_attribute_names'
-
-        try:
-            result = self.__aliases.get_wlst_method_required_attribute_names(location)
-        except AliasException, ae:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19034',
-                                                   location.get_current_model_folder(), location.get_folder_path(),
-                                                   ae.getLocalizedMessage(), error=ae)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return result
-
     def get_model_subfolder_name(self, location, wlst_name):
         """
         Get the model folder name for the WLST subfolder name at the specified location.
@@ -706,24 +687,6 @@ class AliasHelper(object):
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return result
-
-    def get_folder_names_method(self, location):
-        """
-        Get the method for retrieving the folder names for the folder at the current location
-        :param location: current location context
-        :return: method name or None if not present for the folder
-        """
-        _method_name = 'get_folder_names_method'
-
-        try:
-            getter_method = self.__aliases.get_folder_names_method(location)
-        except AliasException, ae:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19035',
-                                                   location.get_model_folders()[-1], location.get_folder_path(),
-                                                       ae.getLocalizedMessage(), error=ae)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return getter_method
 
     ###########################################################################
     #                          Convenience Methods                            #

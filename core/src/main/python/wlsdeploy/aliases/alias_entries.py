@@ -429,21 +429,6 @@ class AliasEntries(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
 
-    def get_folder_get_method_for_location(self, location):
-        """
-        Return the value of the folder get_method attribute if present.
-        :param location: current location context of the folder
-        :return: String value, or None if not present
-        """
-        _method_name = 'get_folder_get_method_for_location'
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
-        folder_dict = self.__get_dictionary_for_location(location, False)
-        get_method = None
-        if folder_dict is not None and GET_METHOD in folder_dict and len(folder_dict[GET_METHOD]) > 0:
-            get_method = folder_dict[GET_METHOD]
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=get_method)
-        return get_method
-
     def is_location_child_folder_type(self, location, child_folders_type):
         """
         Does the location folder have the specified child_folders_type?
@@ -1137,9 +1122,6 @@ class AliasEntries(object):
 
         if DEFAULT_NAME_VALUE in alias_dict:
             result[DEFAULT_NAME_VALUE] = self._resolve_curly_braces(alias_dict[DEFAULT_NAME_VALUE])
-
-        if GET_METHOD in alias_dict:
-            result[GET_METHOD] = self._resolve_curly_braces(alias_dict[GET_METHOD])
 
         if WLST_PATHS in alias_dict:
             wlst_paths = alias_dict[WLST_PATHS]
