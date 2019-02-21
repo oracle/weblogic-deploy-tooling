@@ -318,7 +318,7 @@ class Aliases(object):
         """
         Get the flattened WLST folder name.
         :param location: the location
-        :return: the flattened  folder name
+        :return: the flattened folder name
         :raises: AliasException: if an error occurs due to a bad location or bad alias data
         """
         return self._alias_entries.get_wlst_flattened_name_for_location(location)
