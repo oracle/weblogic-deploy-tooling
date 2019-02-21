@@ -33,6 +33,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.domain_creator import DomainCreator
 from wlsdeploy.tool.create.domain_typedef import DomainTypedef
+from wlsdeploy.tool.create.domain_typedef import CREATE_DOMAIN
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import getcreds
@@ -44,7 +45,8 @@ from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
-_program_name = 'createDomain'
+_program_name = CREATE_DOMAIN
+
 _class_name = 'create'
 __logger = PlatformLogger('wlsdeploy.create')
 __wlst_mode = WlstModes.OFFLINE

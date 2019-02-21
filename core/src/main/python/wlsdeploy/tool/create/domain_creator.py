@@ -50,6 +50,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
@@ -118,15 +119,6 @@ class DomainCreator(Creator):
 
         self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, ExceptionType.CREATE,
                                           self.logger)
-
-        #
-        # Creating domains with the wls.jar template is busted for pre-12.1.2 domains with regards to the
-        # names of the default authentication providers (both the DefaultAuthenticator and the
-        # DefaultIdentityAsserter names are 'Provider', making it impossible to work with in WLST.  If
-        # the WLS version is earlier than fix this as part of domain creation...
-        #
-        self.__fix_default_authentication_provider_names = \
-            self.wls_helper.do_default_authentication_provider_names_need_fixing()
 
         #
         # This list gets modified as the domain is being created so do use this list for anything else...
@@ -265,6 +257,7 @@ class DomainCreator(Creator):
         self.model_context.set_domain_home(self._domain_home)
         self.wlst_helper.read_domain(self._domain_home)
         self.__set_domain_attributes()
+        self._configure_security_configuration()
         self.__deploy_resources_and_apps()
         self.wlst_helper.update_domain()
         self.wlst_helper.close_domain()
@@ -403,10 +396,6 @@ class DomainCreator(Creator):
         self.__create_security_folder(location)
         topology_folder_list.remove(SECURITY)
 
-        # SecurityConfiguration is special since the subfolder name does not change when you change the domain name.
-        # It only changes once the domain is written and re-read...
-        security_config_location = LocationContext().add_name_token(domain_name_token, self.__default_domain_name)
-        self.security_provider_creator.create_security_configuration(security_config_location)
         topology_folder_list.remove(SECURITY_CONFIGURATION)
 
         self.__create_mbeans_used_by_topology_mbeans(location, topology_folder_list)
@@ -832,8 +821,7 @@ class DomainCreator(Creator):
 
     def __set_domain_attributes(self):
         """
-        Set the Domain attributes, which are in the top folder
-        :param location: current location context
+        Set the Domain attributes
         """
         _method_name = '__set_domain_attributes'
         self.logger.finer('WLSDPLY-12231', self._domain_name, class_name=self.__class_name, method_name=_method_name)
@@ -844,4 +832,21 @@ class DomainCreator(Creator):
         attribute_path = self.alias_helper.get_wlst_attributes_path(location)
         self.wlst_helper.cd(attribute_path)
         self._set_attributes(location, attrib_dict)
+        return
+
+    def _configure_security_configuration(self):
+        """
+        Configure the SecurityConfiguration MBean and its Realm sub-folder. In 11g, the SecurityConfiguration MBean
+        is not persisted to the domain config until the domain is first written.
+        :return:
+        """
+        _method_name = '_configure_security_configuration'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        # SecurityConfiguration is special since the subfolder name does not change when you change the domain name.
+        # It only changes once the domain is written and re-read...
+        location = LocationContext()
+        domain_name_token = deployer_utils.get_domain_token(self.alias_helper)
+        security_config_location = LocationContext().add_name_token(domain_name_token, self._domain_name)
+        self.security_provider_creator.create_security_configuration(security_config_location)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

@@ -167,7 +167,7 @@ def create(name, folder, base_provider_type=None):
                 result = wlst.create(name, folder, base_provider_type)
     except (wlst.WLSTException, offlineWLSTException), e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00017', name, folder, base_provider_type,
-                                                       _get_exception_mode(e), _format_exception(e), error=e)
+                                                       _get_exception_mode(e), _format_exception(e), get_pwd(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.finest('WLSDPLY-00018', name, folder, base_provider_type, result,
@@ -423,14 +423,20 @@ def get_cmo():
     _method_name = 'get_cmo'
     _logger.entering(class_name=_class_name, method_name=_method_name)
 
-    try:
-        wlst.updateCmo()
-    except (wlst.WLSTException, offlineWLSTException), e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00036', get_pwd(), _get_exception_mode(e),
-                                                       _format_exception(e), error=e)
-        _logger.throwing(class_name=_class_name, method_name='get_cmo', error=pwe)
-        raise pwe
-    _logger.exiting(class_name=_class_name, method_name=_method_name, result=wlst.cmo)
+    if wlst.connected == 'true':
+        if wlst.cmo is None:
+            pwe = exception_helper.create_pywlst_exception('WLSDPLY-00070')
+            _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+            raise pwe
+    else:
+        try:
+            wlst.updateCmo()
+        except (wlst.WLSTException, offlineWLSTException), e:
+            pwe = exception_helper.create_pywlst_exception('WLSDPLY-00036', get_pwd(), _get_exception_mode(e),
+                                                           _format_exception(e), error=e)
+            _logger.throwing(class_name=_class_name, method_name='get_cmo', error=pwe)
+            raise pwe
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=wlst.cmo)
     return wlst.cmo
 
 
