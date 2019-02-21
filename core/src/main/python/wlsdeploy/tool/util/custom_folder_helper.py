@@ -52,11 +52,13 @@ class CustomFolderHelper(object):
         # create the MBean using the model name, model_type, category
 
         location.append_location(model_category)
-        mbean_category = self.alias_helper.get_wlst_mbean_type(location)
+        token = self.alias_helper.get_name_token(location)
+        location.add_name_token(token, model_name)
 
+        mbean_category = self.alias_helper.get_wlst_mbean_type(location)
         self.wlst_helper.create(model_name, model_type, mbean_category)
 
-        provider_path = create_path + '/' + mbean_category + '/' + model_name
+        provider_path = self.alias_helper.get_wlst_attributes_path(location)
         provider_mbean = self.wlst_helper.cd(provider_path)
 
         interface_name = model_type + 'MBean'
