@@ -24,7 +24,6 @@ class SecurityProviderCreator(Creator):
 
     Custom Security Providers are supported in 12c releases only.
 
-    Configuration of the security realms is not supported in 11g -
     Default providers in 11g have no name. Offline wlst returns 'Provider' as each provider name instead.
     By deleting and re-adding, the providers are added with the appropriate name field.
 
@@ -39,7 +38,8 @@ class SecurityProviderCreator(Creator):
     5. All 11g and 12c versions less than 12.2.1.2 cannot perform a delete on an Adjudicator object.
 
     The SecurityConfiguration is added if it does not exist. The default realm is added if it does not exist.
-    If it is not an 11g target domain, then configure the realms with merge to model with the providers
+    If the model provides a user defined realm, the default realm is not removed. 
+    
     """
     __class_name = 'SecurityProviderHelper'
 

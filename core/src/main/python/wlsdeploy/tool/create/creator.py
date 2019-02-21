@@ -19,7 +19,7 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
-
+ 
 
 class Creator(object):
     """
@@ -462,7 +462,10 @@ class Creator(object):
         The security realms providers in the model are processed as merge to the model. Each realm provider
         section must be complete and true to the resulting domain. Any existing provider not found in the
         model will be removed, and any provider in the model but not in the domain will be added. The resulting
-        provider list will be ordered as listed in the model.
+        provider list will be ordered as listed in the model. If the provider type (i.e. AuthenticationProvider)
+        is not in the model, it is assumed no configuration or ordering is needed, and the provider is skipped.
+        If the provider type is in the model, but there is no MBean entry under the provider, then it is 
+        assumed that all providers for that provider type must be removed.
 
         For create, the default realm and default providers have been added by the weblogic base template and any
         extension templates. They have default values. These providers will be removed from the domain. During
@@ -477,9 +480,8 @@ class Creator(object):
         with the correct name. And the DefaultAuthenticationProvider successfully re-adds with the correct default
         identity asserter.
 
-        This release does not support updating the provider list. Because this means that the realms cannot be
-        configured accurately, the security configuration is not configured. It is in the original configuration
-        applied by the templates.
+        This release also supports updating the security configuration realms in both offline and online mode. This
+        release requires a complete list of providers as described in the first paragraph.
 
         :param location: current context of the location pointing at the provider mbean
         """
