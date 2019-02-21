@@ -229,19 +229,19 @@ class Creator(object):
 
             if wlst_name not in existing_folder_names:
                 if log_created:
-                    self.logger.info('WLSDPLY-12118', type_name, model_type_subfolder_name, name,
+                    self.logger.info('WLSDPLY-12118', type_name, model_type_subfolder_name, name, create_path,
                                      class_name=self.__class_name, method_name=_method_name)
                 else:
-                    self.logger.fine('WLSDPLY-12118', type_name, model_type_subfolder_name, name,
+                    self.logger.fine('WLSDPLY-12118', type_name, model_type_subfolder_name, name, create_path,
                                      class_name=self.__class_name, method_name=_method_name)
                 self.wlst_helper.cd(create_path)
                 self.wlst_helper.create(wlst_name, wlst_type, wlst_base_provider_type)
             else:
                 if log_created:
-                    self.logger.info('WLSDPLY-12119', type_name, model_type_subfolder_name, name,
+                    self.logger.info('WLSDPLY-12119', type_name, model_type_subfolder_name, name, create_path,
                                      class_name=self.__class_name, method_name=_method_name)
                 else:
-                    self.logger.fine('WLSDPLY-12119', type_name, model_type_subfolder_name, name,
+                    self.logger.fine('WLSDPLY-12119', type_name, model_type_subfolder_name, name, create_path,
                                      class_name=self.__class_name, method_name=_method_name)
 
             attribute_path = self.alias_helper.get_wlst_attributes_path(prov_location)

@@ -622,6 +622,8 @@ class AttributeSetter(object):
                 log_value = '<masked>'
             self.__logger.info('WLSDPLY-20012', key, log_value, class_name=self._class_name, method_name=_method_name)
         else:
+            attrib_path = self.__alias_helper.get_wlst_attributes_path(location)
+            self.__wlst_helper.cd(attrib_path)
             self.__wlst_helper.set_with_cmo(wlst_attr_name, wlst_attr_value, masked=masked)
         return
 
