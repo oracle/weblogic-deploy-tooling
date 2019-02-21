@@ -135,6 +135,11 @@ public final class CustomBeanUtils {
             }
         }
 
+        // This block of code is similar to the conversion in TypeUtils.convertToType(), but with some differences.
+        // Custom MBeans only allow a subset of the data types of full alias conversion, and the Java types have to
+        // be strictly maintained to be passed the the reflected set methods. In addition, convertToType() does not
+        // convert arrays to the proper data type, so that is handled at a more granular level in this class.
+
         Object result;
 
         try {
