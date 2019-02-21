@@ -20,7 +20,6 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
-from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 
 _class_name = "deployer_utils"
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy.utils')
@@ -157,9 +156,7 @@ def get_domain_token(alias_helper):
     Returns the domain token required by some root-level WLST elements.
     :return: the domain token
     """
-    # determine the domain token by checking security configuration
-    security_location = LocationContext().append_location(SECURITY_CONFIGURATION)
-    return alias_helper.get_name_token(security_location)
+    return "DOMAIN"
 
 
 def is_in_resource_group_or_template(location):

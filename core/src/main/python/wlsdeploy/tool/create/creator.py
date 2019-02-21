@@ -11,6 +11,7 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.tool.util.custom_folder_helper import CustomFolderHelper
@@ -134,6 +135,11 @@ class Creator(object):
 
         token_name = self.alias_helper.get_name_token(location)
         if token_name is not None:
+            if self.alias_helper.requires_unpredictable_single_name_handling(location):
+                existing_subfolder_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
+                if len(existing_subfolder_names) > 0:
+                    mbean_name = existing_subfolder_names[0]
+
             location.add_name_token(token_name, mbean_name)
 
         self._process_flattened_folder(location)

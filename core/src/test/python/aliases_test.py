@@ -888,7 +888,9 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testGetWlstAttributeJavaBoolean(self):
-        location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION, DOMAIN='mydomain')
+        location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'my-domain')
         location.append_location(FOLDERS.REALM, REALM="myrealm").\
             append_location(FOLDERS.AUTHENTICATION_PROVIDER, PROVIDER='myprovider').\
             append_location(FOLDERS.ACTIVE_DIRECTORY_AUTHENTICATOR)
