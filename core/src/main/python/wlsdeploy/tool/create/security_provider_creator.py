@@ -16,7 +16,7 @@ class SecurityProviderCreator(Creator):
     The class that handles the default authentication providers, custom authentication providers and
     reordering of the active realm.
 
-    This release of weblogic deploy tool handles security providers as outlined below:
+    The weblogic deploy tool handles security providers as outlined below:
 
     The update domain tool expects the security realm providers in the model to describe all non-default values of the
     existing domain realms.
