@@ -26,3 +26,4 @@ release.properties
 .mvn/maven.config
 **/*$py.class
 **/*.pyc
+**/.DS_Store

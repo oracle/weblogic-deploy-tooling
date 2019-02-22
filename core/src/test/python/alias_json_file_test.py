@@ -49,6 +49,8 @@ from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 
+from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 
 class ListTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes/'
@@ -506,18 +508,33 @@ class ListTestCase(unittest.TestCase):
                                                                       SET_METHOD, alias_attribute_value)
             result.append(message)
         else:
-            offline_value = self.alias_entries._resolve_curly_braces(alias_attribute_value)
-            if len(offline_value) > 0 and not offline_value.startswith('MBEAN'):
+            result.extend(self._verify_attribute_set_method(folder_name, attribute_name, WlstModes.OFFLINE,
+                                                            alias_attribute_value, self.alias_entries))
+            result.extend(self._verify_attribute_set_method(folder_name, attribute_name, WlstModes.ONLINE,
+                                                            alias_attribute_value, self.online_alias_entries))
+        return result
+
+    def _verify_attribute_set_method(self, folder_name, attribute_name, wlst_mode, attribute_value, aliases):
+        result = []
+        resolved_attribute = aliases._resolve_curly_braces(attribute_value)
+        if resolved_attribute:
+            if not resolved_attribute.startswith('MBEAN'):
                 message = self._get_invalid_alias_attribute_value_message(folder_name, attribute_name, SET_METHOD,
-                                                                          'offline', offline_value,
+                                                                          WlstModes.from_value(wlst_mode),
+                                                                          resolved_attribute,
                                                                           'it does not start with MBEAN')
                 result.append(message)
-            online_value = self.alias_entries._resolve_curly_braces(alias_attribute_value)
-            if offline_value != online_value and len(online_value) > 0 and not online_value.startswith('MBEAN'):
-                message = self._get_invalid_alias_attribute_value_message(folder_name, attribute_name, SET_METHOD,
-                                                                          'online', online_value,
-                                                                          'it does not start with MBEAN')
-                result.append(message)
+            else:
+                set_method_value_components = resolved_attribute.split('.')
+                if len(set_method_value_components) == 2:
+                    invoker = set_method_value_components[1]
+
+                    instance = AttributeSetter(aliases, None, ExceptionType.ALIAS, wlst_mode)
+                    try:
+                        getattr(instance, invoker)
+                    except AttributeError:
+                        result.append(self.set_method_not_found_message(folder_name, attribute_name,
+                                                                        WlstModes.from_value(wlst_mode), invoker))
         return result
 
     def _verify_attribute_uses_path_tokens_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
@@ -764,3 +781,8 @@ class ListTestCase(unittest.TestCase):
         text = 'Folder at path %s has a defined attribute %s with alias attribute %s whose ' \
                '%s value %s was not valid because %s'
         return text % (folder_name, attribute_name, alias_attribute_name, wlst_mode, alias_attribute_value, cause)
+
+    def set_method_not_found_message(self, folder_name, attribute_name, wlst_mode, alias_attribute_value):
+        text = 'Folder at path %s has a %s defined attribute %s whose set_method %s was not found in the' \
+               ' attribute setter class'
+        return text % (folder_name, attribute_name, wlst_mode, alias_attribute_value)

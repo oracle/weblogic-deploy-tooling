@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
@@ -12,6 +12,32 @@ from oracle.weblogic.deploy.util import PyWLSTException
 
 _logger = PlatformLogger('wlsdeploy.wlst')
 _class_name = 'wlst_helper'
+
+
+def assign(source_type, source_name, target_type, target_name):
+    """
+    Assign target entity to source entity
+
+    :param source_type: source entity type
+    :param source_name: entity name
+    :param target_type: target type
+    :param target_name: target name
+    :raises: PyWLSTException: if a WLST error occurs
+    """
+
+    _method_name = 'assign'
+    _logger.finest('WLSDPLY-00001', source_type, source_name, target_type, target_name, class_name=_class_name,
+                   method_name=_method_name)
+
+    try:
+        wlst.assign(source_type, source_name, target_type, target_name)
+    except (wlst.WLSTException, offlineWLSTException), e:
+        raise exception_helper.create_pywlst_exception('WLSDPLY-00002', source_type, source_name, target_type,
+                                                       target_name, _get_exception_mode(e),
+                                                       _format_exception(e), error=e)
+    _logger.finest('WLSDPLY-00003', source_type, source_name, target_type, target_name, class_name=_class_name,
+                   method_name=_method_name)
+    return
 
 
 def cd(path):
@@ -141,7 +167,7 @@ def create(name, folder, base_provider_type=None):
                 result = wlst.create(name, folder, base_provider_type)
     except (wlst.WLSTException, offlineWLSTException), e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00017', name, folder, base_provider_type,
-                                                       _get_exception_mode(e), _format_exception(e), error=e)
+                                                       _get_exception_mode(e), _format_exception(e), get_pwd(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.finest('WLSDPLY-00018', name, folder, base_provider_type, result,
@@ -397,14 +423,20 @@ def get_cmo():
     _method_name = 'get_cmo'
     _logger.entering(class_name=_class_name, method_name=_method_name)
 
-    try:
-        wlst.updateCmo()
-    except (wlst.WLSTException, offlineWLSTException), e:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00036', get_pwd(), _get_exception_mode(e),
-                                                       _format_exception(e), error=e)
-        _logger.throwing(class_name=_class_name, method_name='get_cmo', error=pwe)
-        raise pwe
-    _logger.exiting(class_name=_class_name, method_name=_method_name, result=wlst.cmo)
+    if wlst.connected == 'true':
+        if wlst.cmo is None:
+            pwe = exception_helper.create_pywlst_exception('WLSDPLY-00070')
+            _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+            raise pwe
+    else:
+        try:
+            wlst.updateCmo()
+        except (wlst.WLSTException, offlineWLSTException), e:
+            pwe = exception_helper.create_pywlst_exception('WLSDPLY-00036', get_pwd(), _get_exception_mode(e),
+                                                           _format_exception(e), error=e)
+            _logger.throwing(class_name=_class_name, method_name='get_cmo', error=pwe)
+            raise pwe
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=wlst.cmo)
     return wlst.cmo
 
 
@@ -1077,9 +1109,20 @@ def _get_wlst_mode():
     return result
 
 
-def get_mbi():
+def get_mbi(path=None):
     """
-    Get the MBeanInfo for the current MBean location.
+    Get the MBeanInfo for the current or specifiec MBean location.
+    :param path: optionally specify path to check
     :return: javax.management.modelmbean.ModelMBeanInfo instance for the current location
     """
-    return wlst.getMBI()
+    current_path = None
+    if path is not None:
+        current_path = get_pwd()
+        cd(path)
+
+    result = wlst.getMBI()
+
+    if current_path is not None:
+        cd(current_path)
+
+    return result

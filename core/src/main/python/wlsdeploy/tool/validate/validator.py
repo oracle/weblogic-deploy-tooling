@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import os
@@ -670,6 +670,9 @@ class Validator(object):
                                                                   model_folder_path,
                                                                   validation_location,
                                                                   validation_result)
+            elif self._alias_helper.is_custom_folder_allowed(validation_location):
+                # custom folders are not validated, just log this and continue
+                self._logger.info('WLSDPLY-05037', model_folder_path)
             else:
                 # At this point we know that key IS NOT a valid attribute or folder, meaning
                 # that given the location object, it is NOT:

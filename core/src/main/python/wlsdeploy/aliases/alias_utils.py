@@ -51,12 +51,14 @@ from wlsdeploy.aliases.alias_constants import WLST_PATHS
 from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
-from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
+from wlsdeploy.aliases.model_constants import ARGUMENTS
+from wlsdeploy.aliases.model_constants import SERVER
+from wlsdeploy.aliases.model_constants import SERVER_START
 
 _class_name = 'alias_utils'
 _logger = PlatformLogger('wlsdeploy.aliases')
-_server_start_location_folder_path = '/Server/ServerStart'
-_server_start_argument_attribute_name = 'Arguments'
+_server_start_location_folder_path = '/' + SERVER + '/' + SERVER_START
+_server_start_argument_attribute_name = ARGUMENTS
 _windows_path_regex = re.compile(r'^[a-zA-Z]:[\\/].*')
 
 
@@ -149,7 +151,7 @@ def merge_model_and_existing_properties(model_props, existing_props, string_prop
 def merge_server_start_argument_values(model_args, existing_args):
     """
     Merge the two arguments strings.
-    :param model_args: the new string from the model
+    :param model_args: the new string or list from the model
     :param existing_args: the old string (e.g., from WLST)
     :return: the resulting merged string
     """
@@ -159,7 +161,8 @@ def merge_server_start_argument_values(model_args, existing_args):
     if model_args is None or len(model_args) == 0:
         result = existing_args
     elif existing_args is None or len(existing_args) == 0:
-        result = model_args
+        new_args = JVMArguments(_logger, model_args)
+        result = new_args.get_arguments_string()
     else:
         new_args = JVMArguments(_logger, model_args)
         merged_args = JVMArguments(_logger, existing_args)
@@ -679,13 +682,10 @@ def convert_from_type(data_type, value, preferred=None, delimiter=None):
     elif value is not None and isinstance(value, ObjectName):
         new_value = value.getKeyProperty('Name')
     else:
-        new_value = _jconvert_to_type(data_type, value, delimiter)
-
+        model_type = data_type
         if preferred:
-            # now put it into the preferred model type, but the model delimiter should ALWAYS be the
-            # model default delimiter
-            delimiter = MODEL_LIST_DELIMITER
-            new_value = _jconvert_to_type(preferred, new_value, delimiter)
+            model_type = preferred
+        new_value = _jconvert_to_type(model_type, value, delimiter)
 
     return new_value
 

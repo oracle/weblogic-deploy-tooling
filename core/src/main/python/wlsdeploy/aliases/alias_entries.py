@@ -198,11 +198,6 @@ class AliasEntries(object):
             self._wls_helper = WebLogicHelper(_logger, wls_version)
             self._wls_version = wls_version
 
-        if self._wlst_mode == WlstModes.OFFLINE:
-            self._requires_security_provider_rename = \
-                self._wls_helper.requires_security_provider_rename_in_offline_mode()
-        else:
-            self._requires_security_provider_rename = False
         return
 
     def get_dictionary_for_location(self, location, resolve=True):
@@ -664,9 +659,6 @@ class AliasEntries(object):
             wlst_type = None
         elif WLST_TYPE in folder_dict:
             wlst_type = folder_dict[WLST_TYPE]
-            if self._requires_security_provider_rename and alias_utils.is_security_provider_location(location) and \
-                    wlst_type in SECURITY_PROVIDER_NAME_MAP:
-                wlst_type = SECURITY_PROVIDER_NAME_MAP[wlst_type]
         else:
             ex = exception_helper.create_alias_exception('WLSDPLY-08106', location.get_folder_path(), WLST_TYPE)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
@@ -50,6 +50,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
@@ -120,15 +121,6 @@ class DomainCreator(Creator):
                                           self.logger)
 
         #
-        # Creating domains with the wls.jar template is busted for pre-12.1.2 domains with regards to the
-        # names of the default authentication providers (both the DefaultAuthenticator and the
-        # DefaultIdentityAsserter names are 'Provider', making it impossible to work with in WLST.  If
-        # the WLS version is earlier than fix this as part of domain creation...
-        #
-        self.__fix_default_authentication_provider_names = \
-            self.wls_helper.do_default_authentication_provider_names_need_fixing()
-
-        #
         # This list gets modified as the domain is being created so do use this list for anything else...
         #
         self.__topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
@@ -146,7 +138,7 @@ class DomainCreator(Creator):
         self.__run_rcu()
         self.__fail_mt_1221_domain_creation()
         self.__create_domain()
-        self.__deploy_resources_and_apps()
+        self.__deploy()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -164,6 +156,14 @@ class DomainCreator(Creator):
         # continue with regular processing
 
         Creator._create_named_mbeans(self, type_name, model_nodes, base_location, log_created=log_created)
+
+    # Override
+    def _create_mbean(self, type_name, model_nodes, base_location, log_created=False):
+        Creator._create_mbean(self, type_name, model_nodes, base_location, log_created)
+
+        # check for file paths that need to be qualified
+        self.topology_helper.qualify_nm_properties(type_name, model_nodes, base_location, self.model_context,
+                                                   self.attribute_setter)
 
     def __run_rcu(self):
         """
@@ -249,20 +249,29 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
+    def __deploy(self):
+        """
+        Update the domain with domain attributes, resources and deployments.
+        :raises: CreateException: if an error occurs while reading or updating the domain.
+        """
+        self.model_context.set_domain_home(self._domain_home)
+        self.wlst_helper.read_domain(self._domain_home)
+        self.__set_domain_attributes()
+        self._configure_security_configuration()
+        self.__deploy_resources_and_apps()
+        self.wlst_helper.update_domain()
+        self.wlst_helper.close_domain()
+        return
+
     def __deploy_resources_and_apps(self):
         """
         Deploy the resources and applications.
-        :raises: CreateException: if an error occurs while reading or updating the domain.
         :raises: DeployException: if an error occurs while deploy the resources or applications
         """
         _method_name = '__deploy_resources_and_apps'
 
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        self.model_context.set_domain_home(self._domain_home)
-        self.wlst_helper.read_domain(self._domain_home)
         model_deployer.deploy_resources_and_apps_for_create(self.model, self.model_context, self.aliases)
-        self.wlst_helper.update_domain()
-        self.wlst_helper.close_domain()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -383,13 +392,10 @@ class DomainCreator(Creator):
         location.add_name_token(domain_name_token, self._domain_name)
 
         self.__set_core_domain_params()
+
         self.__create_security_folder(location)
         topology_folder_list.remove(SECURITY)
 
-        # SecurityConfiguration is special since the subfolder name does not change when you change the domain name.
-        # It only changes once the domain is written and re-read...
-        security_config_location = LocationContext().add_name_token(domain_name_token, self.__default_domain_name)
-        self.security_provider_creator.create_security_configuration(security_config_location)
         topology_folder_list.remove(SECURITY_CONFIGURATION)
 
         self.__create_mbeans_used_by_topology_mbeans(location, topology_folder_list)
@@ -408,6 +414,7 @@ class DomainCreator(Creator):
         topology_folder_list.remove(MIGRATABLE_TARGET)
 
         self.__create_other_domain_artifacts(location, topology_folder_list)
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -557,28 +564,18 @@ class DomainCreator(Creator):
         _method_name = '__create_clusters_and_servers'
 
         self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+
         #
         # In order for source domain provisioning to work with dynamic clusters, we have to provision
         # the ServerTemplates.  There is a cyclical dependency between Server Template and Clusters so we
         # need for the ServerTemplates to exist before create clusters.  Once the clusters are provisioned,
         # then we can fully populate the ServerTemplates.
         #
-        server_template_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER_TEMPLATE)
-        if len(server_template_nodes) > 0 and self._is_type_valid(location, SERVER_TEMPLATE):
-            st_location = LocationContext(location).append_location(SERVER_TEMPLATE)
-            st_mbean_type = self.alias_helper.get_wlst_mbean_type(st_location)
-            st_create_path = self.alias_helper.get_wlst_create_path(st_location)
-            self.wlst_helper.cd(st_create_path)
+        self.topology_helper.create_placeholder_server_templates(self._topology)
 
-            st_token_name = self.alias_helper.get_name_token(st_location)
-            for server_template_name in server_template_nodes:
-                st_name = self.wlst_helper.get_quoted_name_for_wlst(server_template_name)
-                if st_token_name is not None:
-                    st_location.add_name_token(st_token_name, st_name)
-
-                st_mbean_name = self.alias_helper.get_wlst_mbean_name(st_location)
-                self.logger.info('WLSDPLY-12220', SERVER_TEMPLATE, st_mbean_name)
-                self.wlst_helper.create(st_mbean_name, st_mbean_type)
+        # create placeholders for JDBC resources that may be referenced in cluster definition.
+        resources_dict = self.model.get_model_resources()
+        self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
 
         cluster_nodes = dictionary_utils.get_dictionary_element(self._topology, CLUSTER)
         if len(cluster_nodes) > 0:
@@ -587,6 +584,7 @@ class DomainCreator(Creator):
         #
         # Now, fully populate the ServerTemplates, if any.
         #
+        server_template_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER_TEMPLATE)
         if len(server_template_nodes) > 0:
             self._create_named_mbeans(SERVER_TEMPLATE, server_template_nodes, location, log_created=True)
 
@@ -819,4 +817,36 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
         else:
             self._admin_server_name = self.__default_admin_server_name
+        return
+
+    def __set_domain_attributes(self):
+        """
+        Set the Domain attributes
+        """
+        _method_name = '__set_domain_attributes'
+        self.logger.finer('WLSDPLY-12231', self._domain_name, class_name=self.__class_name, method_name=_method_name)
+        attrib_dict = dictionary_utils.get_dictionary_attributes(self.model.get_model_topology())
+        if DOMAIN_NAME in attrib_dict:
+            del attrib_dict[DOMAIN_NAME]
+        location = LocationContext()
+        attribute_path = self.alias_helper.get_wlst_attributes_path(location)
+        self.wlst_helper.cd(attribute_path)
+        self._set_attributes(location, attrib_dict)
+        return
+
+    def _configure_security_configuration(self):
+        """
+        Configure the SecurityConfiguration MBean and its Realm sub-folder. In 11g, the SecurityConfiguration MBean
+        is not persisted to the domain config until the domain is first written.
+        :return:
+        """
+        _method_name = '_configure_security_configuration'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        # SecurityConfiguration is special since the subfolder name does not change when you change the domain name.
+        # It only changes once the domain is written and re-read...
+        location = LocationContext()
+        domain_name_token = deployer_utils.get_domain_token(self.alias_helper)
+        security_config_location = LocationContext().add_name_token(domain_name_token, self._domain_name)
+        self.security_provider_creator.create_security_configuration(security_config_location)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

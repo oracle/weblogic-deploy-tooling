@@ -321,10 +321,14 @@ class JmsResourcesDiscoverer(Discoverer):
                                     class_name=_class_name, method_name=_method_name)
                 else:
                     group_param_name = attributes[wlst_subdeployment]
-                    _logger.finer('WLSDPLY-06487', group_param_name, self._alias_helper.get_model_folder_path(location),
-                                  class_name=_class_name, method_name=_method_name)
-                    subfolder_result[group_param_name] = OrderedDict()
-                    self._populate_model_parameters(subfolder_result[group_param_name], location)
+                    if group_param_name is None:
+                        _logger.warning('WLSDPLY-06486', folder_name, self._alias_helper.get_model_folder_path(location),
+                                        class_name=_class_name, method_name=_method_name)
+                    else:
+                        _logger.finer('WLSDPLY-06487', group_param_name, self._alias_helper.get_model_folder_path(location),
+                                      class_name=_class_name, method_name=_method_name)
+                        subfolder_result[group_param_name] = OrderedDict()
+                        self._populate_model_parameters(subfolder_result[group_param_name], location)
                 location.remove_name_token(name_token)
         location.pop_location()
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=subfolder_result)

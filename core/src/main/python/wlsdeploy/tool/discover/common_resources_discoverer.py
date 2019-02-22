@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from java.io import File
@@ -57,6 +57,8 @@ class CommonResourcesDiscoverer(Discoverer):
         model_folder_name, folder_result = self.get_file_stores()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_jdbc_stores()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self.get_path_services()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         JmsResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, wlst_mode=self._wlst_mode,
                                aliases=self._aliases).discover()
@@ -289,7 +291,7 @@ class CommonResourcesDiscoverer(Discoverer):
                 result[path_service] = OrderedDict()
                 location.add_name_token(name_token, path_service)
                 self._populate_model_parameters(result[path_service], location)
-                location.remove_name_token(name_token.PATHSERVICE)
+                location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 

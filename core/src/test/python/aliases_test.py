@@ -888,7 +888,9 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testGetWlstAttributeJavaBoolean(self):
-        location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION, DOMAIN='mydomain')
+        location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'my-domain')
         location.append_location(FOLDERS.REALM, REALM="myrealm").\
             append_location(FOLDERS.AUTHENTICATION_PROVIDER, PROVIDER='myprovider').\
             append_location(FOLDERS.ACTIVE_DIRECTORY_AUTHENTICATOR)
@@ -1320,6 +1322,29 @@ class AliasesTestCase(unittest.TestCase):
 
         actual_attr, actual_value = self.aliases.get_wlst_attribute_name_and_value(location, actual_attr, actual_value)
         self.assertEqual(wlst_list, actual_value)
+
+    # server start args can be a list in the model, merge values and become a string for WLST
+    def testServerStartArgs(self):
+        location = LocationContext().append_location(FOLDERS.SERVER)
+        location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
+        location = location.append_location(FOLDERS.SERVER_START)
+        location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
+        attribute = FOLDERS.ARGUMENTS
+        value = ['-Dxyz=123,456,789']
+        existing_value = '-Dxyz=123,555,789'
+
+        dummy_attr, wlst_value = self.aliases.get_wlst_attribute_name_and_value(location, attribute, value,
+                                                                                existing_value)
+        self.assertEqual('-Dxyz=123,456,789', wlst_value)
+
+    def testGetJTA(self):
+        location = LocationContext()
+        location.append_location(FOLDERS.JTA)
+        location.add_name_token('DOMAIN', 'mydomain')
+        offline_path = self.aliases.get_wlst_mbean_name(location)
+        self.assertEqual('NO_NAME_0', offline_path)
+        online_path = self.online_aliases.get_wlst_mbean_name(location)
+        self.assertEqual('mydomain', online_path)
 
 
 if __name__ == '__main__':

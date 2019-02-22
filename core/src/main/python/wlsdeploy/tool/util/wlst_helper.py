@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from oracle.weblogic.deploy.util import PyWLSTException
@@ -19,6 +19,27 @@ class WlstHelper(object):
         self.__logger = logger
         self.__exception_type = exception_type
         return
+
+    def assign(self, source_type, source_name, target_type, target_name):
+        """
+        Assign target entity to source entity
+        :param source_type: source entity type
+        :param source_name: entity name
+        :param target_type: target type
+        :param target_name: target name
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+
+        _method_name = 'assign'
+
+        try:
+            wlst_helper.assign(source_type, source_name, target_type, target_name)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19143',
+                                                   target_type, target_name, source_type, source_name,
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
 
     def cd(self, wlst_path):
         """
@@ -138,7 +159,7 @@ class WlstHelper(object):
         try:
             wlst_helper.delete(wlst_name, wlst_type)
         except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19103', wlst_type, wlst_name,
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19135', wlst_type, wlst_name,
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex

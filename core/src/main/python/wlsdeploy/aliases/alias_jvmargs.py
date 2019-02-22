@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import copy
@@ -246,7 +246,11 @@ class JVMArguments(object):
         _method_name = '__parse_args'
 
         if self.__raw_args is not None and len(self.__raw_args) > 0:
-            arguments = self.__raw_args.split()
+            if isinstance(self.__raw_args, list):
+                arguments = self.__raw_args
+            else:
+                arguments = self.__raw_args.split()
+
             for argument in arguments:
                 if self.__client_server_regex.match(argument):
                     self.__client_server_args.append(argument)

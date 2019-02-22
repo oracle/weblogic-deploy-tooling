@@ -45,6 +45,7 @@ from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PARTITION_WORK_MANAGER
 from wlsdeploy.aliases.model_constants import PERSISTENT_STORE
 from wlsdeploy.aliases.model_constants import QUEUE
+from wlsdeploy.aliases.model_constants import QUOTA
 from wlsdeploy.aliases.model_constants import REALM
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
@@ -322,6 +323,21 @@ class AttributeSetter(object):
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
+    def set_server_cluster_mbean(self, location, key, value, wlst_value):
+        """
+        assign the Cluster MBean to a server.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if the cluster is not found
+        """
+
+        entity_type, entity_name = self.__alias_helper.get_model_type_and_name(location)
+
+        self.__wlst_helper.assign(entity_type, entity_name, key, value)
+        return
+
     def set_coherence_cluster_mbean(self, location, key, value, wlst_value):
         """
         Set the Log Filter MBean.
@@ -412,6 +428,20 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if jms server mbean is not found.
         """
         mbean = self.__find_in_location(LocationContext(), JMS_SERVER, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_jms_quota_mbean(self, location, key, value, wlst_value):
+        """
+        For those entities, queues, template, topics, that take a single Quota mbean.
+        :param location: location to look for Quota mbean
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if quota mbean is not found.
+        """
+        resource_location = self.__get_parent_location(location, JMS_RESOURCE)
+        mbean = self.__find_in_location(resource_location, QUOTA, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
@@ -592,6 +622,8 @@ class AttributeSetter(object):
                 log_value = '<masked>'
             self.__logger.info('WLSDPLY-20012', key, log_value, class_name=self._class_name, method_name=_method_name)
         else:
+            attrib_path = self.__alias_helper.get_wlst_attributes_path(location)
+            self.__wlst_helper.cd(attrib_path)
             self.__wlst_helper.set_with_cmo(wlst_attr_name, wlst_attr_value, masked=masked)
         return
 

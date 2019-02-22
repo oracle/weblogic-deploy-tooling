@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from oracle.weblogic.deploy.aliases import AliasException
@@ -270,6 +270,24 @@ class AliasHelper(object):
             result = self.__aliases.is_artificial_type_folder(location)
         except AliasException, ae:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19026', str(location),
+                                                   ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def is_custom_folder_allowed(self, location):
+        """
+        Returns true if the specified location allows custom, user-defined folder types.
+        :param location: the location to be checked
+        :return: True, if the location allows custom folder types, False otherwise
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'is_custom_folder_allowed'
+
+        try:
+            result = self.__aliases.is_custom_folder_allowed(location)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19035', str(location),
                                                    ae.getLocalizedMessage(), error=ae)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
