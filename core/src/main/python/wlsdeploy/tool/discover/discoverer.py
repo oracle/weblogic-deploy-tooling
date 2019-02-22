@@ -663,7 +663,6 @@ def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
     :param entry_value: to add to dictionary
     :return: True if the value was not empty and added to the dictionary
     """
-    _logger.info('name {0} and value {1}', entry_name, entry_value)
     if entry_value and len(entry_value):
         dictionary[entry_name] = entry_value
         return True
