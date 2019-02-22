@@ -94,13 +94,6 @@ class Aliases(object):
         """
         return self._wlst_mode
 
-    def get_version(self):
-        """
-        Get the version instance
-        :return: version of this aliases instance
-        """
-        return self._wls_version
-
     def get_model_top_level_folder_names(self):
         """
         Returns a list of the recognized top-level model folders corresponding to the known WLST top-level folders.
@@ -285,6 +278,18 @@ class Aliases(object):
         This will need to be refined if new custom types are added, or additional distinctions are required.
         :param location: the location to be checked
         :return: True if the location allows custom folder types, False otherwise
+        :raises: AliasException: if an error occurs while getting the folder for the location
+        """
+        return self._alias_entries.is_location_child_folder_type(location,
+                                                                 ChildFoldersTypes.MULTIPLE_WITH_TYPE_SUBFOLDER)
+
+    def is_security_provider_type(self, location):
+        """
+        Returns true if the specified location is a security provider type, such as AuthenticationProvider.
+        This currently corresponds to all MULTIPLE_WITH_TYPE_SUBFOLDER entries.
+        This will need to be refined if new custom types are added, or additional distinctions are required.
+        :param location: the location to be checked
+        :return: True if the location is a security provider type, False otherwise
         :raises: AliasException: if an error occurs while getting the folder for the location
         """
         return self._alias_entries.is_location_child_folder_type(location,

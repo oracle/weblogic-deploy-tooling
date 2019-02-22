@@ -645,12 +645,15 @@ class Discoverer(object):
         return self._inspect_security_folder_name(folder_name, location)
 
     def _inspect_security_folder_name(self, folder_name, location):
-        # This is so clunky. My alias definition change was rejected.
+        # This is clunky - Some security providers in 11g offline have the name "Provider", and cannot be discovered.
+        # If found, log and throw an exception here, and the SecurityConfiguration will be omitted from the model.
+
         if (not self._weblogic_helper.is_version_in_12c()) and self._wlst_mode == WlstModes.OFFLINE and \
-                'SecurityConfiguration' in location.get_folder_path() and 'Provider' == folder_name:
+                self._alias_helper.is_security_provider_type(location) and 'Provider' == folder_name:
             raise exception_helper.create_discover_exception('WLSDPLY-06201', folder_name, location.get_folder_path())
-        _logger.info('version {0} mode {1} folder {2} provider {3}', not self._weblogic_helper.is_version_in_12c(),
-                     self._wlst_mode == WlstModes.OFFLINE, 'SecurityConfiguration' in location.get_folder_path(),
+
+        _logger.fine('version {0} mode {1} type? {2} provider {3}', not self._weblogic_helper.is_version_in_12c(),
+                     self._wlst_mode == WlstModes.OFFLINE, self._alias_helper.is_security_provider_type(location),
                      'Provider' == folder_name)
         return folder_name
 
