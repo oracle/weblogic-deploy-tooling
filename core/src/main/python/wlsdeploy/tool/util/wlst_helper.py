@@ -179,7 +179,7 @@ class WlstHelper(object):
         try:
             wlst_helper.delete(wlst_name, wlst_type)
         except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19103', wlst_type, wlst_name,
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19135', wlst_type, wlst_name,
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex

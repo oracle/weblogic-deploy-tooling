@@ -5,6 +5,7 @@ The Universal Permissive License (UPL), Version 1.0
 import java.lang.Exception as JException
 import java.lang.String as JString
 
+import weblogic.management.provider.ManagementServiceClient as ManagementServiceClient
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
 import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
 import weblogic.version as version_helper
@@ -63,9 +64,6 @@ class WebLogicHelper(object):
         :return: true if MT offline provisioning is supported; false otherwise
         """
         return self.is_weblogic_version_or_above('12.2.1.1') or not self.is_weblogic_version_or_above('12.2.1')
-
-    def do_default_authentication_provider_names_need_fixing(self):
-        return not self.is_weblogic_version_or_above('12.1.2')
 
     def is_select_template_supported(self):
         """
@@ -148,18 +146,6 @@ class WebLogicHelper(object):
         """
         return 'myrealm'
 
-    def requires_security_provider_rename_in_offline_mode(self):
-        """
-        In older versions of WLST offline, creating security providers required the full
-        provider class name.
-        :return: whether or not the full provider class name is required in WLST offline
-        """
-        if self.is_weblogic_version_or_above('12.1.2'):
-            result = False
-        else:
-            result = True
-        return result
-
     # This method should be deleted once all of the old code is converted to the new model.
     def get_wlst_exception_content(self, message):
         """
@@ -224,6 +210,15 @@ class WebLogicHelper(object):
             idx += 1
 
         return result
+
+    def get_bean_info_for_interface(self, interface_name):
+        """
+        Returns the MBean information for the specified MBean interface.
+        :param interface_name: the class name of the interface to be checked
+        :return: the bean info access object for the specified interface
+        """
+        bean_access = ManagementServiceClient.getBeanInfoAccess()
+        return bean_access.getBeanInfoForInterface(interface_name, False, '9.0.0.0')
 
     # We need to pad the actual version number for comparison purposes so
     # that is is never shorter than the specified version.  Otherwise,

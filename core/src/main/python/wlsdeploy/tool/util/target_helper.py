@@ -67,14 +67,14 @@ class TargetHelper(object):
 
         # Get the clusters and and their members
         for cluster_name, cluster_servers in cluster_map.iteritems():
-            self.logger.info('WLSDPLY-12232', 'Cluster', cluster_name, class_name=self.__class_name,
+            self.logger.info('WLSDPLY-12233', 'Cluster', cluster_name, class_name=self.__class_name,
                              method_name=_method_name)
             self.wlst_helper.apply_jrf(cluster_name, domain_home, should_update=True)
             for member in cluster_servers:
                 if member in server_names:
                     server_names.remove(member)
         for ms_name in server_names:
-            self.logger.info('WLSDPLY-12232', 'Managed Server', ms_name, class_name=self.__class_name,
+            self.logger.info('WLSDPLY-12233', 'Managed Server', ms_name, class_name=self.__class_name,
                              method_name=_method_name)
             self.wlst_helper.apply_jrf(ms_name, domain_home, should_update=True)
 

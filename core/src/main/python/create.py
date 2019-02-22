@@ -33,6 +33,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.domain_creator import DomainCreator
 from wlsdeploy.tool.create.domain_typedef import DomainTypedef
+from wlsdeploy.tool.create.domain_typedef import CREATE_DOMAIN
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import getcreds
@@ -47,7 +48,8 @@ from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 wlst_extended.wlst_functions = globals()
 
-_program_name = 'createDomain'
+_program_name = CREATE_DOMAIN
+
 _class_name = 'create'
 __logger = PlatformLogger('wlsdeploy.create')
 __wlst_mode = WlstModes.OFFLINE
@@ -196,8 +198,15 @@ def __process_model_args(optional_arg_map):
         try:
             archive_file = WLSDeployArchive(archive_file_name)
             __tmp_model_dir = FileUtils.createTempDirectory(_program_name)
-            tmp_model_file = \
-                FileUtils.fixupFileSeparatorsForJython(archive_file.extractModel(__tmp_model_dir).getAbsolutePath())
+            tmp_model_raw_file = archive_file.extractModel(__tmp_model_dir)
+            if not tmp_model_raw_file:
+                ex = exception_helper.create_cla_exception('WLSDPLY-20026', _program_name, archive_file_name,
+                                                           CommandLineArgUtil.MODEL_FILE_SWITCH)
+                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+
+            tmp_model_file = FileUtils.fixupFileSeparatorsForJython(tmp_model_raw_file.getAbsolutePath())
         except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
             ex = exception_helper.create_cla_exception('WLSDPLY-20010', _program_name, archive_file_name,
                                                        archex.getLocalizedMessage(), error=archex)

@@ -26,7 +26,7 @@ def apply_jrf(jrf_target, domain_dir, should_update=False):
     """
     global applyJRF
     _method_name = 'apply_jrf'
-    _logger.finest('WLSDPLY-00070', jrf_target, domain_dir, class_name=_class_name, method_name=_method_name)
+    _logger.finest('WLSDPLY-00073', jrf_target, domain_dir, class_name=_class_name, method_name=_method_name)
     applyJRF = _load_global('applyJRF')
     try:
         applyJRF(jrf_target, domainDir=domain_dir, shouldUpdateDomain=should_update)

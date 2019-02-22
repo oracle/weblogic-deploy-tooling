@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 
 The entry point for the updateDomain tool.
@@ -33,6 +33,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.domain_typedef import DomainTypedef
+from wlsdeploy.tool.create.domain_typedef import UPDATE_DOMAIN
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.deploy.topology_updater import TopologyUpdater
@@ -50,7 +51,7 @@ from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
-_program_name = 'updateDomain'
+_program_name = UPDATE_DOMAIN
 _class_name = 'update'
 __logger = PlatformLogger('wlsdeploy.update')
 __wls_helper = WebLogicHelper(__logger)
@@ -183,8 +184,15 @@ def __process_model_args(optional_arg_map):
         try:
             archive_file = WLSDeployArchive(archive_file_name)
             __tmp_model_dir = FileUtils.createTempDirectory(_program_name)
-            model_file_name = \
-                FileUtils.fixupFileSeparatorsForJython(archive_file.extractModel(__tmp_model_dir).getAbsolutePath())
+            tmp_model_raw_file = archive_file.extractModel(__tmp_model_dir)
+            if not tmp_model_raw_file:
+                ex = exception_helper.create_cla_exception('WLSDPLY-20026', _program_name, archive_file_name,
+                                                           CommandLineArgUtil.MODEL_FILE_SWITCH)
+                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+
+            model_file_name = FileUtils.fixupFileSeparatorsForJython(tmp_model_raw_file.getAbsolutePath())
         except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
             ex = exception_helper.create_cla_exception('WLSDPLY-20010', _program_name, archive_file_name,
                                                        archex.getLocalizedMessage(), error=archex)

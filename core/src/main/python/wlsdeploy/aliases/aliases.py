@@ -271,6 +271,18 @@ class Aliases(object):
         """
         return self._alias_entries.is_location_child_folder_type(location, ChildFoldersTypes.NONE)
 
+    def is_custom_folder_allowed(self, location):
+        """
+        Returns true if the specified location allows custom, user-defined folder types.
+        This currently corresponds to all MULTIPLE_WITH_TYPE_SUBFOLDER entries.
+        This will need to be refined if new custom types are added, or additional distinctions are required.
+        :param location: the location to be checked
+        :return: True if the location allows custom folder types, False otherwise
+        :raises: AliasException: if an error occurs while getting the folder for the location
+        """
+        return self._alias_entries.is_location_child_folder_type(location,
+                                                                 ChildFoldersTypes.MULTIPLE_WITH_TYPE_SUBFOLDER)
+
     ###########################################################################
     #                     WLST Folder create-related methods                  #
     ###########################################################################
