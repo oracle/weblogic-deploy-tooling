@@ -90,71 +90,76 @@ class TargetHelper(object):
         _method_name = '__target_server_groups_to_servers'
 
         self.logger.entering(server_groups_to_target, class_name=self.__class_name, method_name=_method_name)
-        if len(server_groups_to_target) > 0:
-            location = LocationContext()
-            root_path = self.alias_helper.get_wlst_attributes_path(location)
-            self.wlst_helper.cd(root_path)
+        if len(server_groups_to_target) == 0:
+            return
 
-            # We need to get the effective list of servers for the domain.  Since any servers
-            # referenced in the model have already been created but the templates may have
-            # defined new servers not listed in the model, get the list from WLST.
-            server_names = self.get_existing_server_names()
+        location = LocationContext()
+        root_path = self.alias_helper.get_wlst_attributes_path(location)
+        self.wlst_helper.cd(root_path)
 
-            # Get the clusters and and their members
-            cluster_map = self.get_clusters_and_members_map()
+        # We need to get the effective list of servers for the domain.  Since any servers
+        # referenced in the model have already been created but the templates may have
+        # defined new servers not listed in the model, get the list from WLST.
+        server_names = self._get_existing_server_names()
 
-            location = LocationContext()
-            root_path = self.alias_helper.get_wlst_attributes_path(location)
-            self.wlst_helper.cd(root_path)
+        # Get the clusters and and their members
+        cluster_map = self._get_clusters_and_members_map()
 
-            # We need to get the effective list of servers for the domain.  Since any servers
-            # referenced in the model have already been created but the templates may have
-            # defined new servers not listed in the model, get the list from WLST.
-            server_names = self.get_existing_server_names()
-
-            # Get the clusters and and their members
-            cluster_map = self.get_clusters_and_members_map()
-
-            # Get any limits that may have been defined in the model
-            domain_info = self.model.get_model_domain_info()
+        # Get any limits that may have been defined in the model
+        domain_info = self.model.get_model_domain_info()
+        server_group_targeting_limits = \
+            dictionary_utils.get_dictionary_element(domain_info, SERVER_GROUP_TARGETING_LIMITS)
+        if len(server_group_targeting_limits) > 0:
             server_group_targeting_limits = \
-                dictionary_utils.get_dictionary_element(domain_info, SERVER_GROUP_TARGETING_LIMITS)
-            if len(server_group_targeting_limits) > 0:
-                server_group_targeting_limits = \
-                    self._get_server_group_targeting_limits(server_group_targeting_limits, cluster_map)
+                self._get_server_group_targeting_limits(server_group_targeting_limits, cluster_map)
 
-            # Get the map of server names to server groups to target
-            server_to_server_groups_map =\
-                self._get_server_to_server_groups_map(self._admin_server_name,
-                                                      server_names,
-                                                      server_groups_to_target,
-                                                      server_group_targeting_limits)  # type: dict
+        # Get the map of server names to server groups to target
+        server_to_server_groups_map =\
+            self._get_server_to_server_groups_map(self._admin_server_name,
+                                                  server_names,
+                                                  server_groups_to_target,
+                                                  server_group_targeting_limits)  # type: dict
 
-            if len(server_names) > 1:
-                for server, server_groups in server_to_server_groups_map.iteritems():
-                    if len(server_groups) > 0:
-                        server_name = self.wlst_helper.get_quoted_name_for_wlst(server)
-                        self.logger.info('WLSDPLY-12224', str(server_groups), server_name,
-                                         class_name=self.__class_name, method_name=_method_name)
-                        self.wlst_helper.set_server_groups(server_name, server_groups)
+        if len(server_names) > 1:
+            for server, server_groups in server_to_server_groups_map.iteritems():
+                if len(server_groups) > 0:
+                    server_name = self.wlst_helper.get_quoted_name_for_wlst(server)
+                    self.logger.info('WLSDPLY-12224', str(server_groups), server_name,
+                                     class_name=self.__class_name, method_name=_method_name)
+                    self.wlst_helper.set_server_groups(server_name, server_groups)
 
-            elif len(server_group_targeting_limits) == 0:
-                #
-                # Domain has no managed servers and there were not targeting limits specified to target
-                # server groups to the admin server so make sure that the server groups are targeted to
-                # the admin server.
-                #
-                # This is really a best effort attempt.  It works for JRF domains but it is certainly possible
-                # that it may cause problems with other custom domain types.  Of course, creating a domain with
-                # no managed servers is not a primary use case of this tool so do it and hope for the best...
-                #
-                server_name = self.wlst_helper.get_quoted_name_for_wlst(server_names[0])
-                self.wlst_helper.set_server_groups(server_name, server_groups_to_target)
+        elif len(server_group_targeting_limits) == 0:
+            #
+            # Domain has no managed servers and there were not targeting limits specified to target
+            # server groups to the admin server so make sure that the server groups are targeted to
+            # the admin server.
+            #
+            # This is really a best effort attempt.  It works for JRF domains but it is certainly possible
+            # that it may cause problems with other custom domain types.  Of course, creating a domain with
+            # no managed servers is not a primary use case of this tool so do it and hope for the best...
+            #
+            server_name = self.wlst_helper.get_quoted_name_for_wlst(server_names[0])
+            self.wlst_helper.set_server_groups(server_name, server_groups_to_target)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def get_clusters_and_members_map(self):
+    def _get_existing_server_names(self):
+        """
+        Get the list of server names from WLST.
+        :return: the list of server names
+        :raises: BundleAwareException of the specified type: is an error occurs reading from the aliases or WLST
+        """
+        _method_name = '_get_existing_server_names'
+
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        server_location = LocationContext().append_location(SERVER)
+        server_list_path = self.alias_helper.get_wlst_list_path(server_location)
+        result = self.wlst_helper.get_existing_object_list(server_list_path)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def _get_clusters_and_members_map(self):
         """
         Get a map keyed by cluster name with values that are a list of member server names
         :return: the cluster name to member server names map
