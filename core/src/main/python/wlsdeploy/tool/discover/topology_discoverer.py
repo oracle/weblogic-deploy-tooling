@@ -5,6 +5,7 @@ The Universal Permissive License (UPL), Version 1.0
 from java.io import File
 from java.lang import IllegalArgumentException
 
+from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import StringUtils
@@ -289,8 +290,14 @@ class TopologyDiscoverer(Discoverer):
         security_configuration = self._find_singleton_name_in_folder(location)
         if security_configuration is not None:
             _logger.info('WLSDPLY-06622', class_name=_class_name, method_name=_method_name)
+            location.add_name_token(self._alias_helper.get_name_token(location), security_configuration)
             self._populate_model_parameters(result, location)
-            self._discover_subfolders(result, location)
+            try:
+                self._discover_subfolders(result, location)
+            except DiscoverException, de:
+                _logger.warning('WLSDPLY-06200', self._wls_version, de.getLocalizedMessage(),
+                                 class_name=_class_name, method_name=_method_name)
+                result = OrderedDict()
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_top_folder_name, result
 

@@ -1084,6 +1084,7 @@ class AliasEntries(object):
         #
         # First, determine if this dictionary is even relevant to the current WLS version.
         #
+        self.__resolve_folder_params(path_name, alias_dict)
         if not self.__use_alias_dict(path_name, alias_dict, parent_dict):
             return None
 
@@ -1234,7 +1235,7 @@ class AliasEntries(object):
         return self.__is_version(path_name, alias_dict) and self.__is_wlst_mode(path_name, alias_dict)
 
     def __use_alias_dict(self, path_name, alias_dict, parent_dict):
-        self.__resolve_folder_params(path_name, alias_dict)
+
         if not self.__is_version(path_name, alias_dict):
             _add_to_unresolved_folders(path_name, parent_dict, alias_utils.get_dictionary_version(alias_dict))
             return False
@@ -1251,6 +1252,9 @@ class AliasEntries(object):
         contain folder parameters that are different depending on the combination. Once
         a folder parameter version has been selected, then all the folder parameters in the
         valid entry are added to the alias_dict dictionary parameters.
+
+        Do not add attributes or folders from the folder_params to the folder. These are not allowed.
+        Resolve the folder params curly braces
         :param alias_dict:
         :return:
         """
@@ -1272,7 +1276,11 @@ class AliasEntries(object):
                         add_entry = folder_set
                         break
                 for key, value in add_entry.iteritems():
-                    alias_dict[key] = value
+                    if key not in [ ATTRIBUTES, FOLDERS ]:
+                        alias_dict[key] = value
+                    else:
+                        _logger.fine('WLSDPLY-08136', path_name, value, class_name=_class_name,
+                                     method_name=_method_name)
 
     def __resolve_attribute_by_wlst_context(self, path_name, attr_name, attrs_dict):
         """

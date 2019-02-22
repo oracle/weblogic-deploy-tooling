@@ -128,6 +128,11 @@ class ListTestCase(unittest.TestCase):
         'online'
     ]
 
+    _folder_attributes_invalid_in_folder_params = [
+        ATTRIBUTES,
+        FOLDERS
+    ]
+
     def setUp(self):
         self.alias_entries = AliasEntries(wls_version='12.2.1.3')
         self.online_alias_entries = AliasEntries(wls_version='12.2.1.3', wlst_mode=WlstModes.ONLINE)
@@ -372,22 +377,27 @@ class ListTestCase(unittest.TestCase):
             result.append(self._get_invalid_list_of_dict_type_message(folder_name, FOLDER_PARAMS,
                                                                       attribute_value))
         else:
+            # Make sure version is in each folder param
             folder_params = copy.deepcopy(attribute_value)
             for folder_param in folder_params:
                 if VERSION not in folder_param:
-                    result.append(self._get_missing_required_attribute_key_message(folder_name,
+                    result.extend(self._get_missing_required_attribute_key_message(folder_name,
                                                                                    VERSION, FOLDER_PARAMS))
-                for folder in folder_param:
-                    if folder in self._required_folder_keys:
-                        verify_function_name = '_verify_folder_%s_attribute_type' % folder
+
+                for key in folder_param:
+                    if key in self._folder_attributes_invalid_in_folder_params:
+                        result.append(self._get_invalid_folder_param_attribute(folder_name, key))
+                    elif key == VERSION:
+                        result.extend(self._verify_folder_version_attribute_value(folder_name, folder_param[VERSION]))
+                    elif key == WLST_MODE:
+                        result.extend(self._verify_folder_wlst_mode_attribute_value(folder_name, folder_param[key]))
+                    elif key in self._required_folder_keys:
+                        verify_function_name = '_verify_folder_%s_attribute_type' % key
                         verify_function = getattr(self, verify_function_name)
-                        result.extend(verify_function(folder_name, folder_param[folder]))
-                    elif folder in self._optional_folder_keys:
-                        verify_function_name = '_verify_folder_%s_attribute_value' % folder
-                        verify_function = getattr(self, verify_function_name)
-                        result.extend(verify_function(folder_name, folder_param[folder]))
+                        result.extend(verify_function(folder_name, folder_param[key]))
                     else:
-                        result.append(self._get_unknown_folder_key_message(folder_name, folder))
+                        result.append(self._get_unknown_folder_key_message(folder_name, key))
+
         return result
 
     def _verify_folder_version_attribute_value(self, folder_name, attribute_value):
@@ -688,6 +698,10 @@ class ListTestCase(unittest.TestCase):
     def _get_missing_required_attribute_key_message(self, folder_name, attribute_name, key):
         return 'Folder at path %s with defined attribute %s is missing the required key %s' % \
                (folder_name, attribute_name, key)
+
+    def _get_invalid_folder_param_attribute(self, folder_name, attribute_name):
+        text = 'Folder parameter at path %s contains an invalid folder param folder attribute %s'
+        return text % (folder_name, attribute_name)
 
     def _get_invalid_dictionary_type_message(self, folder_name, attribute_name, attribute_value):
         return 'Folder at path %s has %s attribute that is expected to be a dictionary but is a %s instead' % \

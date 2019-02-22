@@ -130,6 +130,13 @@ class WebLogicHelper(object):
         """
         return 'myrealm'
 
+    def is_version_in_12c(self):
+        """
+        Is the weblogic version a 12c version?
+        :return: True if the version is 12c
+        """
+        return self.is_weblogic_version_or_above('12.1.2')
+
     # This method should be deleted once all of the old code is converted to the new model.
     def get_wlst_exception_content(self, message):
         """

@@ -88,7 +88,6 @@
                             "wlst_paths": {
                                 "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/Adjudicator/%PROVIDER%"
                             }
-
                         }
                     },
                     "attributes" : { },

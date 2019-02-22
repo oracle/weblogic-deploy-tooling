@@ -283,6 +283,18 @@ class Aliases(object):
         return self._alias_entries.is_location_child_folder_type(location,
                                                                  ChildFoldersTypes.MULTIPLE_WITH_TYPE_SUBFOLDER)
 
+    def is_security_provider_type(self, location):
+        """
+        Returns true if the specified location is a security provider type, such as AuthenticationProvider.
+        This currently corresponds to all MULTIPLE_WITH_TYPE_SUBFOLDER entries.
+        This will need to be refined if new custom types are added, or additional distinctions are required.
+        :param location: the location to be checked
+        :return: True if the location is a security provider type, False otherwise
+        :raises: AliasException: if an error occurs while getting the folder for the location
+        """
+        return self._alias_entries.is_location_child_folder_type(location,
+                                                                 ChildFoldersTypes.MULTIPLE_WITH_TYPE_SUBFOLDER)
+
     ###########################################################################
     #                     WLST Folder create-related methods                  #
     ###########################################################################
@@ -383,7 +395,8 @@ class Aliases(object):
             else:
                 wlst_attribute_name = attribute_info[WLST_NAME]
 
-            if self._model_context and USES_PATH_TOKENS in attribute_info and string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
+            if self._model_context and USES_PATH_TOKENS in attribute_info and \
+                    string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
                 model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
 
             data_type = attribute_info[WLST_TYPE]
@@ -524,7 +537,7 @@ class Aliases(object):
         :return: dictionary: a dictionary with the attribute names as keys and the MBean types as values
         :raises: AliasException: if an error occurs due to a bad location or bad alias data
         """
-        _method_name = 'get_wlst_get_required_attribute_names'
+        _method_name = 'get_wlst_get_returns_mbean_attribute_names_and_types'
 
         wlst_attribute_names = dict()
 

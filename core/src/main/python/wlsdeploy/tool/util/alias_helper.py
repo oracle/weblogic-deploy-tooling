@@ -293,6 +293,24 @@ class AliasHelper(object):
             raise ex
         return result
 
+    def is_security_provider_type(self, location):
+        """
+        Returns true if the specified location is a security provider type.
+        :param location: the location to be checked
+        :return: True, if the location is a security provider type, False otherwise
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'is_security_provider_type'
+
+        try:
+            result = self.__aliases.is_security_provider_type(location)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19036', str(location),
+                                                   ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
     def get_wlst_mbean_name(self, location):
         """
         Get the MBean name to use to create it for the specified location.
