@@ -390,7 +390,8 @@ class Aliases(object):
             else:
                 wlst_attribute_name = attribute_info[WLST_NAME]
 
-            if self._model_context and USES_PATH_TOKENS in attribute_info and string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
+            if self._model_context and USES_PATH_TOKENS in attribute_info and \
+                    string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
                 model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
 
             data_type = attribute_info[WLST_TYPE]
@@ -521,34 +522,6 @@ class Aliases(object):
         for key, value in module_folder[ATTRIBUTES].iteritems():
             if GET_METHOD in value and value[GET_METHOD] == LSA:
                 wlst_attribute_names.append(value[WLST_NAME])
-
-        return wlst_attribute_names
-
-    def get_wlst_method_required_attribute_names(self, location):
-        """
-        Get the list of attribute names that have special methods that will get the attribute
-        value using wlst.
-        :param location: the location
-        :return: map[string=string]: the map of attribute names and the get method to invoke
-        :raises: AliasException: if an error occurs due to a bad location or bad alias data
-        """
-        _method_name = 'get_wlst_method_required_attribute_names'
-
-        wlst_attribute_names = dict()
-
-        module_folder = self._alias_entries.get_dictionary_for_location(location)
-
-        if ATTRIBUTES not in module_folder:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
-            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
-
-        for key, value in module_folder[ATTRIBUTES].iteritems():
-            if GET_METHOD in value and value[GET_METHOD].startswith(METHOD):
-                get_method_value_components = value[GET_METHOD].split('.')
-                if len(get_method_value_components) == 2:
-                    attr_get_method_name = get_method_value_components[1]
-                    wlst_attribute_names[value[WLST_NAME]] = attr_get_method_name
 
         return wlst_attribute_names
 
