@@ -880,6 +880,14 @@ class WlstHelper(object):
             raise ex
         return
 
+    def is_connected(self):
+        """
+        Determine if the wlst session is currently connected to the admin server.
+        :return: True if connected
+        """
+        print 'IAMINCONNECED 999999999999999999999999999999999999999'
+        return wlst_helper.is_connected()
+
     def custom(self):
         """
         Change to the custom MBean tree.

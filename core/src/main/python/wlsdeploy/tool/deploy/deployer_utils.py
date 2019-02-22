@@ -308,3 +308,25 @@ def get_file_hash(file_name):
         raise ex
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
+
+
+def save_changes(model_context):
+    if _wlst_helper.is_connected():
+        print '****** online I am'
+        _wlst_helper.save()
+        _wlst_helper.activate()
+        _wlst_helper.disconnect()
+    else:
+        print '******* offline I am'
+        _wlst_helper.update_domain()
+
+
+def read_again(model_context):
+    if _wlst_helper.is_connected():
+        _wlst_helper.connect( model_context.get_admin_user(), model_context.get_admin_password(),
+                              model_context.get_admin_url())
+        _wlst_helper.edit()
+        _wlst_helper.start_edit()
+    else:
+        _wlst_helper.close_domain()
+        _wlst_helper.read_domain(model_context.get_domain_home())

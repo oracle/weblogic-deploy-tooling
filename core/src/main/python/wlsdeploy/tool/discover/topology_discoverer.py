@@ -289,6 +289,7 @@ class TopologyDiscoverer(Discoverer):
         security_configuration = self._find_singleton_name_in_folder(location)
         if security_configuration is not None:
             _logger.info('WLSDPLY-06622', class_name=_class_name, method_name=_method_name)
+            location.add_name_token(self._alias_helper.get_name_token(location), security_configuration)
             self._populate_model_parameters(result, location)
             self._discover_subfolders(result, location)
         _logger.exiting(class_name=_class_name, method_name=_method_name)

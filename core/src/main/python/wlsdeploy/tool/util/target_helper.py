@@ -38,7 +38,7 @@ class TargetHelper(object):
         else:
             self._admin_server_name = DEFAULT_ADMIN_SERVER_NAME
 
-    def target_jrf_groups_to_clusters_servers(self, domain_home):
+    def target_jrf_groups_to_clusters_servers(self, domain_home, should_update=True):
         """
         Use the apply_jrf only for those versions of wlst that do not have server groups.
         This assigns the JRF resources to all managed servers. If the managed server is in a
@@ -69,19 +69,19 @@ class TargetHelper(object):
         for cluster_name, cluster_servers in cluster_map.iteritems():
             self.logger.info('WLSDPLY-12233', 'Cluster', cluster_name, class_name=self.__class_name,
                              method_name=_method_name)
-            self.wlst_helper.apply_jrf(cluster_name, domain_home, should_update=True)
+            self.wlst_helper.apply_jrf(cluster_name, domain_home, should_update=should_update)
             for member in cluster_servers:
                 if member in server_names:
                     server_names.remove(member)
         for ms_name in server_names:
             self.logger.info('WLSDPLY-12233', 'Managed Server', ms_name, class_name=self.__class_name,
                              method_name=_method_name)
-            self.wlst_helper.apply_jrf(ms_name, domain_home, should_update=True)
+            self.wlst_helper.apply_jrf(ms_name, domain_home, should_update=should_update)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def target_server_groups_to_servers(self, domain_home, server_groups_to_target):
+    def target_server_groups_to_servers(self, server_groups_to_target):
         """
         Target the server groups to the servers.
         :param server_groups_to_target: the list of server groups to target
@@ -150,7 +150,6 @@ class TargetHelper(object):
                 #
                 server_name = self.wlst_helper.get_quoted_name_for_wlst(server_names[0])
                 self.wlst_helper.set_server_groups(server_name, server_groups_to_target)
-
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
