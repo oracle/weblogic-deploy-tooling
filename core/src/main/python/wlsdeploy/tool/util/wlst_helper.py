@@ -885,7 +885,6 @@ class WlstHelper(object):
         Determine if the wlst session is currently connected to the admin server.
         :return: True if connected
         """
-        print 'IAMINCONNECED 999999999999999999999999999999999999999'
         return wlst_helper.is_connected()
 
     def custom(self):

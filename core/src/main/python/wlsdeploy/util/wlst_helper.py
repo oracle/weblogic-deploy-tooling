@@ -442,10 +442,9 @@ def get_cmo():
 
 def is_connected():
     """
-    Determine if wlst is currently conntected to the admin server - from the WlstContext
+    Determine if wlst is currently connected to the admin server - from the WlstContext
     :return: Return True if currently connected
     """
-    print '******* wlst connected ', wlst.connected
     return wlst.connected == 'true'
 
 

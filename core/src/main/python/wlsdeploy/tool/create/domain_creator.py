@@ -314,7 +314,6 @@ class DomainCreator(Creator):
 
         self.logger.info('WLSDPLY-12207', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
-        # we might want to replace this later to extend a domain in update
         self.wlst_helper.read_domain(domain_home)
         self.__set_app_dir()
 
@@ -690,12 +689,12 @@ class DomainCreator(Creator):
 
         location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
         token_name = self.alias_helper.get_name_token(location)
+
         if token_name is not None:
             location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
 
         stb_user = self.wls_helper.get_stb_user_name(rcu_prefix)
         self.logger.fine('WLSDPLY-12222', stb_user, class_name=self.__class_name, method_name=_method_name)
-        #
         wlst_path = self.alias_helper.get_wlst_attributes_path(location)
         self.wlst_helper.cd(wlst_path)
         wlst_name, wlst_value = \
