@@ -63,7 +63,7 @@ class TargetHelper(object):
             server_names.remove(admin_server_name)
 
         # Get the clusters and and their members
-        cluster_map = self.get_clusters_and_members_map()
+        cluster_map = self._get_clusters_and_members_map()
 
         # Get the clusters and and their members
         for cluster_name, cluster_servers in cluster_map.iteritems():
