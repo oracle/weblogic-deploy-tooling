@@ -316,7 +316,7 @@ echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
 PY_SCRIPTS_PATH=${WLSDEPLOY_HOME}/lib/python
 echo "${WLST} ${PY_SCRIPTS_PATH}/create.py ${SCRIPT_ARGS}"
 
-"${WLST}" "${PY_SCRIPTS_PATH}/create.py" ${SCRIPT_ARGS}
+eval "${WLST}" "${PY_SCRIPTS_PATH}/create.py" ${SCRIPT_ARGS}
 
 RETURN_CODE=$?
 if [ ${RETURN_CODE} -eq 100 ]; then

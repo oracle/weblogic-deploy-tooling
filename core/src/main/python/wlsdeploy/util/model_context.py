@@ -51,6 +51,7 @@ class ModelContext(object):
         self._rcu_prefix = None
         self._rcu_sys_pass = None
         self._rcu_schema_pass = None
+        self._rcu_properties_file = None
         self._encryption_passphrase = None
         self._encrypt_manual = False
         self._encrypt_one_pass = None
@@ -125,6 +126,9 @@ class ModelContext(object):
 
         if CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH in arg_map:
             self._rcu_schema_pass = arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH]
+
+        if CommandLineArgUtil.RCU_PROPERTIES_FILE_SWITCH in arg_map:
+            self._rcu_properties_file = arg_map[CommandLineArgUtil.RCU_PROPERTIES_FILE_SWITCH]
 
         if CommandLineArgUtil.DOMAIN_TYPEDEF in arg_map:
             self._domain_typedef = arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF]
@@ -357,6 +361,14 @@ class ModelContext(object):
         :return: the RCU schema users' password
         """
         return self._rcu_schema_pass
+
+    def get_rcu_properties_file(self):
+        """
+        Get the RCU properties file
+        :return: the RCU properties file path
+        """
+        return self._rcu_properties_file
+
 
     def get_encryption_passphrase(self):
         """

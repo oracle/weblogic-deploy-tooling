@@ -62,10 +62,12 @@ class CommandLineArgUtil(object):
     ATTRIBUTES_ONLY_SWITCH     = '-attributes_only'
     FOLDERS_ONLY_SWITCH        = '-folders_only'
     RECURSIVE_SWITCH           = '-recursive'
+    RCU_PROPERTIES_FILE_SWITCH = '-rcu_properties_file'
     # overrides for the variable injector
     VARIABLE_INJECTOR_FILE_SWITCH   = '-variable_injector_file'
     VARIABLE_KEYWORDS_FILE_SWITCH   = '-variable_keywords_file'
     VARIABLE_PROPERTIES_FILE_SWITCH = '-variable_properties_file'
+
     # a slot to stash the parsed domain typedef dictionary
     DOMAIN_TYPEDEF             = 'domain_typedef'
     # a slot to stash the archive file object
@@ -123,6 +125,7 @@ class CommandLineArgUtil(object):
         idx = 1
         while idx < args_len:
             key = args[idx]
+            print "KEY Is " + key
             self._logger.fine('WLSDPLY-01600', key, class_name=self._class_name, method_name=method_name)
             if self.is_help_key(key):
                 ex = exception_helper.create_cla_exception('Dummy Key')
@@ -368,6 +371,17 @@ class CommandLineArgUtil(object):
                     ex = self._get_out_of_args_exception(key)
                     self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
                     raise ex
+            elif self.is_rcu_properties_file_key(key):
+                print 'FOUND IT'
+                idx += 1
+                if idx < args_len:
+                    full_path = self._validate_rcu_properties_file_arg(args[idx])
+                    self._add_arg(key, full_path, True)
+                else:
+                    ex = self._get_out_of_args_exception(key)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
+
             else:
                 ex = exception_helper.create_cla_exception('WLSDPLY-01601', self._program_name, key)
                 ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
@@ -957,6 +971,10 @@ class CommandLineArgUtil(object):
     def is_variable_properties_file_key(self, key):
         return self.VARIABLE_PROPERTIES_FILE_SWITCH == key
 
+    def is_rcu_properties_file_key(self, key):
+        print 'CHECKING NEW PROPS ' + key
+        return self.RCU_PROPERTIES_FILE_SWITCH == key
+
     def _validate_variable_properties_file_arg(self, value):
         method_name = '_validate_variable_properties_file_arg'
 
@@ -968,6 +986,18 @@ class CommandLineArgUtil(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return variables.getAbsolutePath()
+
+    def _validate_rcu_properties_file_arg(self, value):
+        method_name = '_validate_rcu_properties_file_arg'
+
+        try:
+            rcu_properties = JFileUtils.validateFileName(value)
+        except JIllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01620', value, iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return rcu_properties.getAbsolutePath()
 
     ###########################################################################
     # Helper methods                                                          #
