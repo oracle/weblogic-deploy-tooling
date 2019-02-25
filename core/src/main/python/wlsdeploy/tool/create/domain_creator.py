@@ -28,6 +28,9 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SERVER_DN_MATCH_
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SSL_VERSION
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_FAN_ENABLED
+from wlsdeploy.aliases.model_constants import ATP_RCU_PREFIX
+from wlsdeploy.aliases.model_constants import ATP_RCU_SCHEMA_PASSWORD
+from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
@@ -694,18 +697,15 @@ class DomainCreator(Creator):
             try:
                 rcu_properties_map = variables.load_variables(props_file)
 
-                print rcu_properties_map
-                print '------'
-
                 # parse the tnsnames.ora file and retrieve the connection string
                 tns_admin = rcu_properties_map[DRIVER_PARAMS_NET_TNS_ADMIN]
                 tns_names = variables.load_variables( tns_admin + os.sep +
                                                       'tnsnames.ora')
 
-                rcu_database = tns_names[rcu_properties_map['tns.entry']]
+                rcu_database = tns_names[rcu_properties_map[ATP_TNS_ENTRY]]
 
-                rcu_prefix = rcu_properties_map['rcu_prefix']
-                rcu_schema_pwd = rcu_properties_map['rcu_schema_password']
+                rcu_prefix = rcu_properties_map[ATP_RCU_PREFIX]
+                rcu_schema_pwd = rcu_properties_map[ATP_RCU_SCHEMA_PASSWORD]
 
                 keystore_pwd = rcu_properties_map[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY]
                 truststore_pwd = rcu_properties_map[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY]
