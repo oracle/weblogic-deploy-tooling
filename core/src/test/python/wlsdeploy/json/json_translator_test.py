@@ -10,7 +10,7 @@ from oracle.weblogic.deploy.json import JsonStreamTranslator
 
 class JsonTranslatorTest(unittest.TestCase):
 
-    def disabled_testEscapeBackslash(self):
+    def testEscapeBackslash(self):
         # JSON "xy\\.z" should become String "xy\.z"
         text = "{ \"abc\": \"xy\\\\.z\" }"
         stream = ByteArrayInputStream(text.encode('utf-8'))
