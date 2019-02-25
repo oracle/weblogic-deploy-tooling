@@ -125,7 +125,6 @@ class CommandLineArgUtil(object):
         idx = 1
         while idx < args_len:
             key = args[idx]
-            print "KEY Is " + key
             self._logger.fine('WLSDPLY-01600', key, class_name=self._class_name, method_name=method_name)
             if self.is_help_key(key):
                 ex = exception_helper.create_cla_exception('Dummy Key')
@@ -372,7 +371,6 @@ class CommandLineArgUtil(object):
                     self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
                     raise ex
             elif self.is_rcu_properties_file_key(key):
-                print 'FOUND IT'
                 idx += 1
                 if idx < args_len:
                     full_path = self._validate_rcu_properties_file_arg(args[idx])
@@ -972,7 +970,6 @@ class CommandLineArgUtil(object):
         return self.VARIABLE_PROPERTIES_FILE_SWITCH == key
 
     def is_rcu_properties_file_key(self, key):
-        print 'CHECKING NEW PROPS ' + key
         return self.RCU_PROPERTIES_FILE_SWITCH == key
 
     def _validate_variable_properties_file_arg(self, value):

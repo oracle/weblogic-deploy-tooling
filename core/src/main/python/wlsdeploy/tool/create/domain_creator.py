@@ -712,9 +712,6 @@ class DomainCreator(Creator):
 
                 # Need to set for the connection proeprty for each datasource
 
-                print 'conn ' + str(rcu_database)
-                print 'prefix ' + str(rcu_prefix)
-                print 'pawws ' + str(rcu_schema_pwd)
                 fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
 
                 location = LocationContext()
@@ -782,7 +779,6 @@ class DomainCreator(Creator):
                     self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true')
                     self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin)
                     self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false')
-                    print 'UPDATED ALL PROPERTIES '
 
             except VariableException, ex:
                 self.logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
