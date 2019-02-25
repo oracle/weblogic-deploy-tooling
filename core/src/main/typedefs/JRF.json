@@ -83,8 +83,8 @@
             "^em$",
             "^FMW Welcome Page Application.*",
             "^opss-rest$",
-            "^state-management-provider-memory-rar$",
-            "^wsil-wls$",
+            "^state-management-provider-memory-rar.*",
+            "^wsil-wls.*",
             "^wsm-pm$"
         ],
         "coherence-clusters": [
