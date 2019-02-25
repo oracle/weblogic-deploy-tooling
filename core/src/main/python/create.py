@@ -74,7 +74,8 @@ __optional_arguments = [
     CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
-    CommandLineArgUtil.PASSPHRASE_SWITCH
+    CommandLineArgUtil.PASSPHRASE_SWITCH,
+    CommandLineArgUtil.RCU_PROPERTIES_FILE_SWITCH
 ]
 
 
@@ -86,11 +87,12 @@ def __process_args(args):
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     required_arg_map, optional_arg_map = cla_util.process_args(args, True)
-
+    print 'PASSED 1'
     __verify_required_args_present(required_arg_map)
     __process_java_home_arg(optional_arg_map)
     __process_domain_location_args(optional_arg_map)
     __process_model_args(optional_arg_map)
+    print 'PASSED 2'
 
     #
     # Verify that the domain type is a known type and load its typedef.
@@ -272,6 +274,8 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                 ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
+        elif CommandLineArgUtil.RCU_PROPERTIES_FILE_SWITCH in optional_arg_map:
+            pass
         else:
             ex = exception_helper.create_cla_exception('WLSDPLY-12408', domain_type, rcu_schema_count,
                                                        CommandLineArgUtil.RCU_DB_SWITCH,
@@ -380,6 +384,9 @@ def main(args):
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+
+
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     validate_model(model, model_context, aliases)

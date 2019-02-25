@@ -17,6 +17,18 @@ from wlsdeploy.aliases.model_constants import DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DRIVER_NAME
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
+
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_kEYSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SSL_VERSION
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_FAN_ENABLED
+
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
@@ -46,6 +58,7 @@ from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
+from wlsdeploy.util import variables
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create.creator import Creator
@@ -58,6 +71,7 @@ from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model as model_helper
+from oracle.weblogic.deploy.util import VariableException
 
 
 class DomainCreator(Creator):
@@ -194,6 +208,7 @@ class DomainCreator(Creator):
         rcu_prefix = self.model_context.get_rcu_prefix()
         rcu_sys_pass = self.model_context.get_rcu_sys_pass()
         rcu_schema_pass = self.model_context.get_rcu_schema_pass()
+
 
         runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas)
         runner.runRcu(rcu_sys_pass, rcu_schema_pass)
@@ -642,6 +657,20 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
+    def __set_atp_connection_property(self, root_location, propery_name, property_value):
+        token_name = self.alias_helper.get_name_token(root_location)
+        if token_name is not None:
+            root_location.add_name_token(token_name, propery_name)
+
+        wlst_name, wlst_value = \
+            self.alias_helper.get_wlst_attribute_name_and_value(root_location, DRIVER_PARAMS_PROPERTY_VALUE,
+                                                                property_value )
+        self.wlst_helper.set_if_needed(wlst_name, wlst_value,
+                                       JDBC_DRIVER_PARAMS_PROPERTIES, propery_name)
+
+        root_location.remove_name_token(propery_name)
+
+
     def __configure_fmw_infra_database(self):
         """
         Configure the FMW Infrastructure DataSources.
@@ -650,61 +679,167 @@ class DomainCreator(Creator):
         _method_name = '__configure_fmw_infra_database'
 
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        rcu_database = self.model_context.get_rcu_database()
-        if rcu_database is None:
-            return
 
-        # No need to validate since these were validated at the entry point...
-        rcu_prefix = self.model_context.get_rcu_prefix()
-        rcu_schema_pwd = self.model_context.get_rcu_schema_pass()
+        # For ATP databases :  we need to set all the property for each datasource
+        # load atp connection properties from properties file
+        #
+        props_file = self.model_context.get_rcu_properties_file()
+        if props_file:
+            try:
+                rcu_properties_map = variables.load_variables(props_file)
 
-        fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
-        self.logger.fine('WLSDPLY-12221', fmw_database, class_name=self.__class_name, method_name=_method_name)
+                print rcu_properties_map
+                print '------'
 
-        location = LocationContext()
-        location.append_location(JDBC_SYSTEM_RESOURCE)
-        token_name = self.alias_helper.get_name_token(location)
-        svc_table_ds_name = self.wls_helper.get_jrf_service_table_datasource_name()
-        if token_name is not None:
-            location.add_name_token(token_name, svc_table_ds_name)
+                # parse the tnsnames.ora file and retrieve the connection string
+                tns_admin = rcu_properties_map[DRIVER_PARAMS_NET_TNS_ADMIN]
+                tns_names = variables.load_variables( tns_admin + os.sep +
+                                                      'tnsnames.ora')
 
-        location.append_location(JDBC_RESOURCE)
-        location.append_location(JDBC_DRIVER_PARAMS)
-        wlst_path = self.alias_helper.get_wlst_attributes_path(location)
-        self.wlst_helper.cd(wlst_path)
+                rcu_database = tns_names[rcu_properties_map['tns.entry']]
 
-        svc_table_driver_name = self.wls_helper.get_stb_data_source_jdbc_driver_name()
-        wlst_name, wlst_value = \
-            self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_NAME, svc_table_driver_name)
-        self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name)
+                rcu_prefix = rcu_properties_map['rcu_prefix']
+                rcu_schema_pwd = rcu_properties_map['rcu_schema_password']
 
-        wlst_name, wlst_value = \
-            self.alias_helper.get_wlst_attribute_name_and_value(location, URL, fmw_database)
-        self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name)
+                keystore_pwd = rcu_properties_map[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY]
+                truststore_pwd = rcu_properties_map[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY]
 
-        wlst_name, wlst_value = \
-            self.alias_helper.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
-                                                                rcu_schema_pwd, masked=True)
-        self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name, masked=True)
+                # Need to set for the connection proeprty for each datasource
 
-        location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
-        token_name = self.alias_helper.get_name_token(location)
+                print 'conn ' + str(rcu_database)
+                print 'prefix ' + str(rcu_prefix)
+                print 'pawws ' + str(rcu_schema_pwd)
+                fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
 
-        if token_name is not None:
-            location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
+                location = LocationContext()
+                location.append_location(JDBC_SYSTEM_RESOURCE)
+                token_name = self.alias_helper.get_name_token(location)
 
-        stb_user = self.wls_helper.get_stb_user_name(rcu_prefix)
-        self.logger.fine('WLSDPLY-12222', stb_user, class_name=self.__class_name, method_name=_method_name)
-        wlst_path = self.alias_helper.get_wlst_attributes_path(location)
-        self.wlst_helper.cd(wlst_path)
-        wlst_name, wlst_value = \
-            self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE, stb_user)
-        self.wlst_helper.set_if_needed(wlst_name, wlst_value,
-                                       JDBC_DRIVER_PARAMS_PROPERTIES, DRIVER_PARAMS_USER_PROPERTY)
+                folder_path = self.alias_helper.get_wlst_list_path(location)
+                self.wlst_helper.cd(folder_path)
+                ds_names = self.wlst_helper.lsc()
+                print ds_names
 
-        self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
-        if self.wls_helper.is_database_defaults_supported():
-            self.wlst_helper.get_database_defaults()
+                for ds_name in ds_names:
+                    location = LocationContext()
+                    location.append_location(JDBC_SYSTEM_RESOURCE)
+                    token_name = self.alias_helper.get_name_token(location)
+                    location.add_name_token(token_name, ds_name)
+
+
+                    location.append_location(JDBC_RESOURCE)
+                    location.append_location(JDBC_DRIVER_PARAMS)
+                    wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+                    self.wlst_helper.cd(wlst_path)
+
+                    wlst_name, wlst_value = \
+                        self.alias_helper.get_wlst_attribute_name_and_value(location, URL, fmw_database)
+                    self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, ds_name)
+
+                    wlst_name, wlst_value = \
+                        self.alias_helper.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
+                                                                            rcu_schema_pwd, masked=True)
+
+                    self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, ds_name, masked=True)
+
+
+                    location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+                    token_name = self.alias_helper.get_name_token(location)
+                    if token_name is not None:
+                        location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
+
+                    wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+                    self.wlst_helper.cd(wlst_path)
+                    orig_user = self.wlst_helper.get('Value')
+                    stb_user = orig_user.replace('DEV', rcu_prefix)
+                    wlst_name, wlst_value = \
+                        self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE, stb_user)
+                    self.wlst_helper.set_if_needed(wlst_name, wlst_value,
+                                                   JDBC_DRIVER_PARAMS_PROPERTIES, DRIVER_PARAMS_USER_PROPERTY)
+
+                    # need to set other properties
+
+                    location.remove_name_token(DRIVER_PARAMS_USER_PROPERTY)
+
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_kEYSTORE_PROPERTY, tns_admin + os.sep
+                                                       + 'keystore.jks')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY,
+                                                       'JKS')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd)
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, tns_admin + os.sep
+                                                       + 'truststore.jks')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
+                                                       'JKS')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
+
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_SSL_VERSION, '1.2')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin)
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false')
+                    print 'UPDATED ALL PROPERTIES '
+
+            except VariableException, ex:
+                self.logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
+                                   class_name=_class_name, method_name=_method_name)
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+        else:
+            rcu_database = self.model_context.get_rcu_database()
+            if rcu_database is None:
+                return
+
+            rcu_prefix = self.model_context.get_rcu_prefix()
+            rcu_schema_pwd = self.model_context.get_rcu_schema_pass()
+
+            fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
+            self.logger.fine('WLSDPLY-12221', fmw_database, class_name=self.__class_name, method_name=_method_name)
+
+            location = LocationContext()
+            location.append_location(JDBC_SYSTEM_RESOURCE)
+            token_name = self.alias_helper.get_name_token(location)
+            svc_table_ds_name = self.wls_helper.get_jrf_service_table_datasource_name()
+            if token_name is not None:
+                location.add_name_token(token_name, svc_table_ds_name)
+
+            location.append_location(JDBC_RESOURCE)
+            location.append_location(JDBC_DRIVER_PARAMS)
+            wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+            self.wlst_helper.cd(wlst_path)
+
+            svc_table_driver_name = self.wls_helper.get_stb_data_source_jdbc_driver_name()
+            wlst_name, wlst_value = \
+                self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_NAME, svc_table_driver_name)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name)
+
+            wlst_name, wlst_value = \
+                self.alias_helper.get_wlst_attribute_name_and_value(location, URL, fmw_database)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name)
+
+            wlst_name, wlst_value = \
+                self.alias_helper.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
+                                                                    rcu_schema_pwd, masked=True)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name, masked=True)
+
+            location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+            token_name = self.alias_helper.get_name_token(location)
+
+            if token_name is not None:
+                location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
+
+            stb_user = self.wls_helper.get_stb_user_name(rcu_prefix)
+            self.logger.fine('WLSDPLY-12222', stb_user, class_name=self.__class_name, method_name=_method_name)
+            wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+            self.wlst_helper.cd(wlst_path)
+            wlst_name, wlst_value = \
+                self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE, stb_user)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value,
+                                           JDBC_DRIVER_PARAMS_PROPERTIES, DRIVER_PARAMS_USER_PROPERTY)
+
+            self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
+            if self.wls_helper.is_database_defaults_supported():
+                self.wlst_helper.get_database_defaults()
+
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
