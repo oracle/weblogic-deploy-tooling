@@ -716,12 +716,10 @@ class DomainCreator(Creator):
 
                 location = LocationContext()
                 location.append_location(JDBC_SYSTEM_RESOURCE)
-                token_name = self.alias_helper.get_name_token(location)
 
                 folder_path = self.alias_helper.get_wlst_list_path(location)
                 self.wlst_helper.cd(folder_path)
                 ds_names = self.wlst_helper.lsc()
-                print ds_names
 
                 for ds_name in ds_names:
                     location = LocationContext()
@@ -745,7 +743,6 @@ class DomainCreator(Creator):
 
                     self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, ds_name, masked=True)
 
-
                     location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
                     token_name = self.alias_helper.get_name_token(location)
                     if token_name is not None:
@@ -756,7 +753,8 @@ class DomainCreator(Creator):
                     orig_user = self.wlst_helper.get('Value')
                     stb_user = orig_user.replace('DEV', rcu_prefix)
                     wlst_name, wlst_value = \
-                        self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE, stb_user)
+                        self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE,
+                                                                            stb_user)
                     self.wlst_helper.set_if_needed(wlst_name, wlst_value,
                                                    JDBC_DRIVER_PARAMS_PROPERTIES, DRIVER_PARAMS_USER_PROPERTY)
 
@@ -793,9 +791,6 @@ class DomainCreator(Creator):
 
             rcu_prefix = self.model_context.get_rcu_prefix()
             rcu_schema_pwd = self.model_context.get_rcu_schema_pass()
-
-
-
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
             self.logger.fine('WLSDPLY-12221', fmw_database, class_name=self.__class_name, method_name=_method_name)
 
