@@ -169,6 +169,7 @@
             "^JMX Framework Startup Class$",
             "^JOC-Startup$",
             "^JPS Startup Class$",
+            "^JPS Startup Post-Activation Class$",
             "^WSM Startup Class$",
             "^Web Services Startup Class$",
             "^JRF Startup Class$",
