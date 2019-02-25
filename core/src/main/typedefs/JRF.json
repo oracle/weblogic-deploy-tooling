@@ -91,13 +91,13 @@
             "^defaultCoherenceCluster$"
         ],
         "datasources": [
-            "^LocalSvcTblDataSource$",
-            "^mds-owsm$",
-            "^opss-audit-DBDS$",
-            "^opss-audit-viewDS$",
-            "^opss-data-source$",
-            "^opss-ds$",
-            "^WLSSchemaDataSource$"
+            ".*LocalSvcTblDataSource$",
+            ".*mds-owsm$",
+            ".*opss-audit-DBDS$",
+            ".*opss-audit-viewDS$",
+            ".*opss-data-source$",
+            ".*opss-ds$",
+            ".*WLSSchemaDataSource$"
         ],
         "file-stores": [
             "^JRFWSAsyncFileStore$",
