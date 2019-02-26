@@ -24,9 +24,9 @@ class AliasPasswordTestCase(unittest.TestCase):
     _wlst_password_name = "Password"
     _wlst_password_encrypted_name = "PasswordEncrypted"
 
-    _passphrase = 'do a deer'
+    _passphrase = 'RE a drop of golden sun'
     _password = 'welcome1'
-    _encrypted_password = '{AES}YVhmeU1jMFVqVGhhSzFrYnJRQzdQdS8zMG1heVlrSUk6WDNjbmUxWDVxZ0dFMjRaNDpoYmpVeTFZZzBEST0='
+    _encrypted_password = '{AES}UC9rZld3blZFUnMraW12cHkydmtmdmpSZmNNMWVHajA6VERPYlJoeWxXU09IaHVrQzpBeWsrd2ZacVkyVT0='
     _encrypted_password_bytes = jarray.array(_encrypted_password, 'b')
 
     def setUp(self):
