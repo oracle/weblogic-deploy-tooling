@@ -71,7 +71,7 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
      */
     @Override
     public void enterPair(JSONParser.PairContext ctx) {
-        String name = unquoteEmbeddedQuotes(StringUtils.stripQuotes(ctx.STRING().getText()));
+        String name = resolveEscapeSequences(StringUtils.stripQuotes(ctx.STRING().getText()));
         currentPairName.push(name);
     }
 
@@ -169,7 +169,7 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
      */
     @Override
     public void enterJsonString(JSONParser.JsonStringContext ctx) {
-        String cleanString = unquoteEmbeddedQuotes(StringUtils.stripQuotes(ctx.STRING().getText()));
+        String cleanString = resolveEscapeSequences(StringUtils.stripQuotes(ctx.STRING().getText()));
         currentScalarValue = new PyString(cleanString);
         currentValueType.push(ValueType.SCALAR);
     }
@@ -347,10 +347,17 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
         }
     }
 
-    private static String unquoteEmbeddedQuotes(String text) {
+    private static String resolveEscapeSequences(String text) {
         String result = text;
         if (!StringUtils.isEmpty(text)) {
-            result = text.replace("\\\"", "\"");
+            result = text.replace("\\\"", "\"");    // \" -> "
+            result = result.replace("\\\\", "\\");  // \\ -> \
+            result = result.replace("\\b", "\b");   // \b -> backspace
+            result = result.replace("\\f", "\f");   // \f -> form feed
+            result = result.replace("\\n", "\n");   // \n -> new line
+            result = result.replace("\\r", "\r");   // \r -> carriage return
+            result = result.replace("\\t", "\t");   // \t -> tab
+            result = result.replace("\\/", "/");    // \/ -> /
         }
         return result;
     }

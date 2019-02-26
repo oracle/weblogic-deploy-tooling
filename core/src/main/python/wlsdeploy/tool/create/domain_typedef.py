@@ -3,6 +3,7 @@ Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
+import re
 
 from java.lang import IllegalArgumentException
 
@@ -230,12 +231,10 @@ class DomainTypedef(object):
         if key in self._system_elements:
             system_names = self._system_elements[key]
             for system_name in system_names:
-                if system_name.endswith(self.__wild_card_suffix):
-                    prefix = system_name[0:0 - self.__wild_card_suffix_len]
-                    if name.startswith(prefix):
-                        return True
-                elif system_name == name:
+                matched = re.match(system_name, name)
+                if matched is not None:
                     return True
+
         return False
 
     def __resolve_paths(self):
