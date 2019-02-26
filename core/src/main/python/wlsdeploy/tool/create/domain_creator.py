@@ -30,6 +30,8 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_FAN_ENABLED
 from wlsdeploy.aliases.model_constants import ATP_RCU_PREFIX
 from wlsdeploy.aliases.model_constants import ATP_RCU_SCHEMA_PASSWORD
+from wlsdeploy.aliases.model_constants import ATP_ADMIN_PASSWORD
+
 from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
@@ -215,14 +217,45 @@ class DomainCreator(Creator):
         domain_type = self.model_context.get_domain_type()
         oracle_home = self.model_context.get_oracle_home()
         java_home = self.model_context.get_java_home()
-        rcu_db = self.model_context.get_rcu_database()
-        rcu_prefix = self.model_context.get_rcu_prefix()
-        rcu_sys_pass = self.model_context.get_rcu_sys_pass()
-        rcu_schema_pass = self.model_context.get_rcu_schema_pass()
+
+        props_file = self.model_context.get_rcu_properties_file()
+        if props_file:
+            try:
+                rcu_properties_map = variables.load_variables(props_file)
+                # parse the tnsnames.ora file and retrieve the connection string
+                tns_admin = rcu_properties_map[DRIVER_PARAMS_NET_TNS_ADMIN]
+                tns_names = variables.load_variables( tns_admin + os.sep +
+                                                      'tnsnames.ora')
+
+                rcu_db = tns_names[rcu_properties_map[ATP_TNS_ENTRY]]
+
+                rcu_prefix = rcu_properties_map[ATP_RCU_PREFIX]
+                rcu_schema_pass = rcu_properties_map[ATP_RCU_SCHEMA_PASSWORD]
+                rcu_sys_pass = rcu_properties_map[ATP_ADMIN_PASSWORD]
+
+                keystore_pwd = rcu_properties_map[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY]
+                truststore_pwd = rcu_properties_map[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY]
+
+                # Need to set for the connection proeprty for each datasource
+
+                runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas)
+                runner.runRcu(rcu_sys_pass, rcu_schema_pass)
 
 
-        runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas)
-        runner.runRcu(rcu_sys_pass, rcu_schema_pass)
+            except VariableException, ex:
+                self.logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
+                                   class_name=_class_name, method_name=_method_name)
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+        else:
+            rcu_db = self.model_context.get_rcu_database()
+            rcu_prefix = self.model_context.get_rcu_prefix()
+            rcu_sys_pass = self.model_context.get_rcu_sys_pass()
+            rcu_schema_pass = self.model_context.get_rcu_schema_pass()
+
+            runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas)
+            runner.runRcu(rcu_sys_pass, rcu_schema_pass)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

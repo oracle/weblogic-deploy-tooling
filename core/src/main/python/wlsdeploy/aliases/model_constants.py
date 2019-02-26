@@ -286,6 +286,7 @@ DRIVER_PARAMS_NET_TNS_ADMIN = 'oracle.net.tns_admin'
 DRIVER_PARAMS_NET_FAN_ENABLED = 'oracle.jdbc.fanEnabled'
 ATP_RCU_PREFIX='rcu_prefix'
 ATP_RCU_SCHEMA_PASSWORD='rcu_schema_password'
+ATP_ADMIN_PASSWORD='rcu_admin_password'
 ATP_TNS_ENTRY='tns.entry'
 
 ENABLED = 'Enabled'
