@@ -13,6 +13,7 @@ from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 
 
@@ -23,12 +24,13 @@ class AliasPasswordTestCase(unittest.TestCase):
     _wlst_password_name = "Password"
     _wlst_password_encrypted_name = "PasswordEncrypted"
 
+    _passphrase = 'do a deer'
     _password = 'welcome1'
-    _encrypted_password = '{AES}BR5Lw+UuwM4ZmFcTu2GX5C2w0Jcr6E30uhZvhoyXjYU='
+    _encrypted_password = '{AES}YVhmeU1jMFVqVGhhSzFrYnJRQzdQdS8zMG1heVlrSUk6WDNjbmUxWDVxZ0dFMjRaNDpoYmpVeTFZZzBEST0='
     _encrypted_password_bytes = jarray.array(_encrypted_password, 'b')
 
     def setUp(self):
-        model_context = ModelContext("test", {})
+        model_context = ModelContext("test", {CommandLineArgUtil.PASSPHRASE_SWITCH: self._passphrase})
         self.aliases = Aliases(model_context, wlst_mode=WlstModes.OFFLINE, wls_version=self._wls_version)
         self.online_aliases = Aliases(model_context, wlst_mode=WlstModes.ONLINE, wls_version=self._wls_version)
 
