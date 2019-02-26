@@ -19,6 +19,9 @@ import oracle.weblogic.deploy.util.ScriptRunner;
 import oracle.weblogic.deploy.util.ScriptRunnerException;
 import oracle.weblogic.deploy.util.StringUtils;
 
+import org.python.core.PyDictionary;
+import org.python.core.PyString;
+
 /**
  * This class does all the work to drop and recreate the RCU schemas besed on the domain type definition.
  */
@@ -44,7 +47,13 @@ public class RCURunner {
     private static final String DB_ROLE = "SYSDBA";
     private static final String SCHEMA_PREFIX_SWITCH = "-schemaPrefix";
     private static final String COMPONENT_SWITCH = "-component";
+    private static final String TABLESPACE_SWITCH = "-tablespace";
+    private static final String TEMPTABLESPACE_SWITCH = "-tempTablespace";
     private static final String READ_STDIN_SWITCH = "-f";
+    private static final String USE_SSL_SWITCH = "-useSSL";
+    private static final String SERVER_DN_SWITCH = "-serverDN";
+    private static final String SSLARGS = "-sslArgs";
+
     private static final String SERVICE_TABLE_COMPONENT = "STB";
     private static final String WLS_COMPONENT = "WLS";
     private static final String WLS_RUNTIME_COMPONENT = "WLS_RUNTIME";
@@ -61,6 +70,7 @@ public class RCURunner {
     private String rcuDb;
     private String rcuPrefix;
     private List<String> rcuSchemas;
+    private boolean ATP_DB = false;
 
     /**
      * The constructor.
@@ -86,6 +96,53 @@ public class RCURunner {
             this.rcuSchemas.remove(SERVICE_TABLE_COMPONENT);
         }
     }
+
+    /**
+     * The constructor.
+     *
+     * @param domainType the domain type
+     * @param oracleHome the ORACLE_HOME location
+     * @param javaHome   the JAVA_HOME location
+     * @throws CreateException if a parameter validation error occurs
+     */
+    public RCURunner(String domainType, String oracleHome, String javaHome, PyDictionary rcuProperties)
+        throws CreateException {
+
+
+        String tnsAdmin = rcuProperties.get(new PyString("oracle.net.tns_admin")).toString();
+        String keyStorePassword = rcuProperties.get(new PyString("javax.net.ssl.keyStorePassword")).toString();
+        String trustStorePassword = rcuProperties.get(new PyString("javax.net.ssl.trustStorePassword")).toString();
+
+        StringBuffer sslArgs = new StringBuffer();
+        sslArgs.append("oracle.net.tns_admin=");
+        sslArgs.append(tnsAdmin);
+        sslArgs.append(",oracle.net.ssl_version=1.2");
+        sslArgs.append(",javax.net.ssl.trustStore=");
+        sslArgs.append(tnsAdmin + "/truststore.jks");
+        sslArgs.append("javax.net.ssl.trustStoreType=JKS");
+        sslArgs.append(",javax.net.ssl.trustStorePassword=");
+        sslArgs.append(trustStorePassword);
+        sslArgs.append(",javax.net.ssl.keyStore=");
+        sslArgs.append(tnsAdmin + "/keystore.jks");
+        sslArgs.append(",javax.net.ssl.keyStoreType=JKS");
+        sslArgs.append(",javax.net.ssl.keyStorePassword=");
+        sslArgs.append(keyStorePassword);
+        sslArgs.append(",oracle.jdbc.fanEnabled=false");
+        sslArgs.append(",oracle.net.ssl_server_dn_match=true");
+
+        ATP_DB = true;
+
+        this.oracleHome = validateExistingDirectory(oracleHome, "ORACLE_HOME");
+        this.javaHome = validateExistingDirectory(javaHome, "JAVA_HOME");
+        this.rcuDb = rcuProperties.get(new PyString("tns.entry")).toString();
+        this.rcuPrefix = rcuProperties.get(new PyString("rcu_prefix")).toString();
+        this.rcuSchemas = validateNonEmptyListOfStrings(rcuSchemas, "rcu_schema_list");
+        if (this.rcuSchemas.contains(SERVICE_TABLE_COMPONENT)) {
+            LOGGER.warning("WLSDPLY-12000", CLASS, domainType, SERVICE_TABLE_COMPONENT);
+            this.rcuSchemas.remove(SERVICE_TABLE_COMPONENT);
+        }
+    }
+
 
     /**
      * Run RCU to drop and recreate the RCU schemas.
@@ -146,9 +203,19 @@ public class RCURunner {
     // Private helper methods                                                //
     ///////////////////////////////////////////////////////////////////////////
 
+    private void addATPEnv(Map<String, String> env) {
+        if (ATP_DB) {
+            env.put("RCU_SSL_MODE", "true");
+            env.put("SKIP_CONNECTSTRING_VALIDATION", "true");
+            env.put("RCU_SKIP_PRE_REQS", "ALL");
+        }
+    }
+
+
     private Map<String, String> getRcuDropEnv() {
         Map<String, String> env = new HashMap<>(1);
         env.put("JAVA_HOME", this.javaHome.getAbsolutePath());
+        addATPEnv(env);
         return env;
     }
 
@@ -203,6 +270,12 @@ public class RCURunner {
         for (String rcuSchema : rcuSchemas) {
             createArgs.add(COMPONENT_SWITCH);
             createArgs.add(rcuSchema);
+            if (ATP_DB) {
+                createArgs.add(TABLESPACE_SWITCH);
+                createArgs.add("DATA");
+                createArgs.add(TEMPTABLESPACE_SWITCH);
+                createArgs.add("TEMP");
+            }
         }
         createArgs.add(READ_STDIN_SWITCH);
 
