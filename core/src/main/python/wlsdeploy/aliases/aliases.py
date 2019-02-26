@@ -1154,6 +1154,8 @@ class Aliases(object):
         else:
             passphrase = self._model_context.get_encryption_passphrase()
             rtnval = EncryptionUtils.decryptString(text, String(passphrase).toCharArray())
+            if rtnval:
+                rtnval = String.valueOf(rtnval)
 
         return rtnval
 
