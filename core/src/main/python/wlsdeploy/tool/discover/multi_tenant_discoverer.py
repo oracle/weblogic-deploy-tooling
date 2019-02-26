@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -97,9 +97,9 @@ class MultiTenantDiscoverer(Discoverer):
                              class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, resource_group)
                 result[resource_group] = self._discover_single_folder(location)
-                CommonResourcesDiscoverer(self._model_context, result[resource_group], base_location,
+                CommonResourcesDiscoverer(self._model_context, result[resource_group], location,
                                           wlst_mode=self._wlst_mode, aliases=self._aliases).discover()
-                DeploymentsDiscoverer(self._model_context, result[resource_group], base_location,
+                DeploymentsDiscoverer(self._model_context, result[resource_group], location,
                                       wlst_mode=self._wlst_mode, aliases=self._aliases).discover()
                 location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
