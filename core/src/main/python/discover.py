@@ -47,11 +47,14 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import tool_exit
+from wlsdeploy.util import wlst_extended
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+
+wlst_extended.wlst_functions = globals()
 
 _program_name = 'discoverDomain'
 _class_name = 'discover'

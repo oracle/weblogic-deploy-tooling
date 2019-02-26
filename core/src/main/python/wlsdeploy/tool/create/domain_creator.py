@@ -324,13 +324,18 @@ class DomainCreator(Creator):
 
         self.__configure_fmw_infra_database()
 
-        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-        self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        if self.wls_helper.is_set_server_groups_supported():
+            server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+            self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+            self.wlst_helper.update_domain()
+        else:
+            # Update the domain to apply the extension templates.
+            self.wlst_helper.update_domain()
+            self.target_helper.target_jrf_groups_to_clusters_servers(domain_home)
 
+        self.wlst_helper.close_domain()
         self.logger.info('WLSDPLY-12209', self._domain_name,
                          class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.update_domain()
-        self.wlst_helper.close_domain()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -684,12 +689,12 @@ class DomainCreator(Creator):
 
         location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
         token_name = self.alias_helper.get_name_token(location)
+
         if token_name is not None:
             location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
 
         stb_user = self.wls_helper.get_stb_user_name(rcu_prefix)
         self.logger.fine('WLSDPLY-12222', stb_user, class_name=self.__class_name, method_name=_method_name)
-
         wlst_path = self.alias_helper.get_wlst_attributes_path(location)
         self.wlst_helper.cd(wlst_path)
         wlst_name, wlst_value = \
@@ -698,7 +703,8 @@ class DomainCreator(Creator):
                                        JDBC_DRIVER_PARAMS_PROPERTIES, DRIVER_PARAMS_USER_PROPERTY)
 
         self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.get_database_defaults()
+        if self.wls_helper.is_database_defaults_supported():
+            self.wlst_helper.get_database_defaults()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

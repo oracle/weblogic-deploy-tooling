@@ -44,12 +44,14 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
+from wlsdeploy.util import wlst_extended
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
+wlst_extended.wlst_functions = globals()
 
 _program_name = UPDATE_DOMAIN
 _class_name = 'update'
@@ -93,6 +95,7 @@ def __process_args(args):
     __verify_required_args_present(required_arg_map)
     __process_model_args(optional_arg_map)
     __wlst_mode = __process_online_args(optional_arg_map)
+
     __process_encryption_args(optional_arg_map)
 
     domain_type = dictionary_utils.get_element(optional_arg_map, CommandLineArgUtil.DOMAIN_TYPE_SWITCH)

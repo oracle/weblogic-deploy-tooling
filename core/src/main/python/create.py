@@ -39,11 +39,14 @@ from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
+from wlsdeploy.util import wlst_extended
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+
+wlst_extended.wlst_functions = globals()
 
 _program_name = CREATE_DOMAIN
 

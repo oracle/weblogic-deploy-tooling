@@ -423,7 +423,7 @@ def get_cmo():
     _method_name = 'get_cmo'
     _logger.entering(class_name=_class_name, method_name=_method_name)
 
-    if wlst.connected == 'true':
+    if is_connected():
         if wlst.cmo is None:
             pwe = exception_helper.create_pywlst_exception('WLSDPLY-00070')
             _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
@@ -438,6 +438,14 @@ def get_cmo():
             raise pwe
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=wlst.cmo)
     return wlst.cmo
+
+
+def is_connected():
+    """
+    Determine if wlst is currently connected to the admin server - from the WlstContext
+    :return: Return True if currently connected
+    """
+    return wlst.connected == 'true'
 
 
 def get_mbean_for_wlst_path(path):
