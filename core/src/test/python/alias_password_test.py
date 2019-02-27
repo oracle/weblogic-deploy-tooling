@@ -30,7 +30,8 @@ class AliasPasswordTestCase(unittest.TestCase):
     _encrypted_password_bytes = jarray.array(_encrypted_password, 'b')
 
     def setUp(self):
-        model_context = ModelContext("test", {CommandLineArgUtil.PASSPHRASE_SWITCH: self._passphrase})
+        model_context = ModelContext("test", {CommandLineArgUtil.USE_ENCRYPTION_SWITCH: 'true',
+                                              CommandLineArgUtil.PASSPHRASE_SWITCH: self._passphrase})
         self.aliases = Aliases(model_context, wlst_mode=WlstModes.OFFLINE, wls_version=self._wls_version)
         self.online_aliases = Aliases(model_context, wlst_mode=WlstModes.ONLINE, wls_version=self._wls_version)
 
@@ -72,6 +73,7 @@ class AliasPasswordTestCase(unittest.TestCase):
         wlst_name, wlst_value = \
             self.aliases.get_wlst_attribute_name_and_value(self.location, PASSWORD_ENCRYPTED, self._encrypted_password)
         self.assertEqual(wlst_name, self._wlst_password_encrypted_name)
+        self.assertEqual(wlst_value, self._password)
 
         # using unencrypted password
         wlst_name, wlst_value = \
@@ -87,6 +89,7 @@ class AliasPasswordTestCase(unittest.TestCase):
             self.online_aliases.get_wlst_attribute_name_and_value(self.location, PASSWORD_ENCRYPTED,
                                                                   self._encrypted_password)
         self.assertEqual(wlst_name, self._wlst_password_encrypted_name)
+        self.assertEqual(wlst_value, self._password)
 
         # using unencrypted password
         wlst_name, wlst_value = \
