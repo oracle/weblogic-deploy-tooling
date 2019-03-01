@@ -7,6 +7,7 @@ import unittest
 from wlsdeploy.aliases.alias_jvmargs import JVMArguments
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
+
 class JVMArgumentsTestCase(unittest.TestCase):
 
     _logger = PlatformLogger('wlsdeploy.aliases')
@@ -29,3 +30,12 @@ class JVMArgumentsTestCase(unittest.TestCase):
         existing_args.merge_jvm_arguments(model_args)
         actual = existing_args.get_arguments_string()
         self.assertEqual(actual, expected)
+
+    def testExArgs(self):
+        # verify size keys in lower/upper case.
+        # these are in correct order, so result should match exactly.
+        model = '-Xms1024m -Xmx4096M -Xa=1024k -Xb=4096K -Xc=1024g -Xd=4096G'
+
+        model_args = JVMArguments(self._logger, model)
+        result = model_args.get_arguments_string()
+        self.assertEqual(result, model)

@@ -18,14 +18,14 @@ class JVMArguments(object):
 
     _class_name = 'JVMArguments'
     __client_server_regex = re.compile('-client|-server')
-    __x_args_size_regex = re.compile('(-X(ms|mx|ss|mn) ?)([0-9]+[kmg]? ?)')
+    __x_args_size_regex = re.compile('(-X(ms|mx|ss|mn) ?)([0-9]+[kmgKMG]? ?)')
     __x_args_value_regex = re.compile('(-X[a-zS]+(/[ap])? ?):([\S]+ ?)')
-    __x_args_other_regex = re.compile('(-X[a-z]+ ?)(=([0-9]+[kmg]? ?))?')
+    __x_args_other_regex = re.compile('(-X[a-z]+ ?)(=([0-9]+[kmgKMG]? ?))?')
     __xx_args_switch_regex = re.compile('-XX:([+-] ?)([a-zA-Z0-9]+ ?)')
     __xx_args_value_regex = re.compile('-XX:([a-zA-Z0-9]+ ?)=([\S]+ ?)')
     __sys_props_regex = re.compile('-D([a-zA-Z0-9-_.]+ ?)(=([\S]+ ?))?')
 
-    __size_regex = re.compile('([0-9]+ ?)([kmg]? ?)')
+    __size_regex = re.compile('([0-9]+ ?)([kmgKMG]? ?)')
     __k_multiplier = 1024
     __m_multiplier = 1024 * 1024
     __g_multiplier = 1024 * 1024 * 1024
@@ -588,11 +588,11 @@ class JVMArguments(object):
         """
         if multiplier is None:
             result = 1
-        elif multiplier == 'k':
+        elif multiplier in ['k', 'K']:
             result = self.__k_multiplier
-        elif multiplier == 'm':
+        elif multiplier in ['m', 'M']:
             result = self.__m_multiplier
-        elif multiplier == 'g':
+        elif multiplier in ['g', 'G']:
             result = self.__g_multiplier
         else:
             result = 0
