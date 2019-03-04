@@ -4,7 +4,6 @@ The Universal Permissive License (UPL), Version 1.0
 """
 
 from oracle.weblogic.deploy.util import WLSDeployArchive
-from oracle.weblogic.deploy.exception import BundleAwareException
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.validation_codes import ValidationCodes
@@ -166,97 +165,56 @@ class Creator(object):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def _create_security_provider_mbeans(self, type_name, model_nodes, base_location, log_created=False):
+    def _create_named_subtype_mbeans(self, type_name, model_nodes, base_location, log_created=False):
         """
-        Create the specified security provider MBean types that support multiple instances but use an
-        artificial type subfolder in the specified location.
+        Create the specified type of MBeans that support multiple instances, and require an artificial subtype
+        layer after each name.
+        There is no default behavior for this method. Sub-classes (currently only SecurityProviderCreator) will
+        implement specialized behavior.
         :param type_name: the model folder type
         :param model_nodes: the model dictionary of the specified model folder type
         :param base_location: the base location object to use to create the MBeans
         :param log_created: whether or not to log created at INFO level, by default it is logged at the FINE level
         :raises: CreateException: if an error occurs
         """
-        _method_name = '_create_security_provider_mbeans'
+        return
 
-        self.logger.entering(type_name, str(base_location), log_created,
-                             class_name=self.__class_name, method_name=_method_name)
-        if not self._is_type_valid(base_location, type_name):
-            return
+    def _create_subfolders(self, location, model_nodes):
+        """
+        Create the child MBean folders at the specified location.
+        :param location: the location
+        :param model_nodes: the model dictionary
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '_create_subfolders'
 
-        location = LocationContext(base_location).append_location(type_name)
-        self._process_flattened_folder(location)
+        self.logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
+        model_subfolder_names = self.alias_helper.get_model_subfolder_names(location)
+        for key in model_nodes:
+            if key in model_subfolder_names:
+                subfolder_nodes = model_nodes[key]
+                # don't check for empty subfolder nodes here, some create methods allow them
 
-        # For create, delete the existing nodes, and re-add in order found in model in iterative code below
-        self._delete_existing_providers(location)
+                sub_location = LocationContext(location).append_location(key)
 
-        if model_nodes is None or len(model_nodes) == 0:
-            return
-
-        token_name = self.alias_helper.get_name_token(location)
-        create_path = self.alias_helper.get_wlst_create_path(location)
-        list_path = self.alias_helper.get_wlst_list_path(location)
-        existing_folder_names = self._get_existing_folders(list_path)
-        known_providers = self.alias_helper.get_model_subfolder_names(location)
-        allow_custom = str(self.alias_helper.is_custom_folder_allowed(location))
-
-        for model_name in model_nodes:
-            model_node = model_nodes[model_name]
-
-            if model_node is None:
-                # The node is empty so nothing to do... move to the next named node.
-                continue
-
-            if len(model_node) != 1:
-                # there should be exactly one type folder under the name folder
-                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-12117', type_name, model_name,
-                                                       len(model_node))
-                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-
-            model_type_subfolder_name = list(model_node.keys())[0]
-            child_nodes = dictionary_utils.get_dictionary_element(model_node, model_type_subfolder_name)
-
-            # custom providers require special processing, they are not described in alias framework
-            if allow_custom and (model_type_subfolder_name not in known_providers):
-                self.custom_folder_helper.update_security_folder(base_location, type_name, model_type_subfolder_name,
-                                                                 model_name, child_nodes)
-                continue
-
-            # for a known provider, process using aliases
-            prov_location = LocationContext(location)
-            name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
-            if token_name is not None:
-                prov_location.add_name_token(token_name, name)
-
-            wlst_base_provider_type, wlst_name = self.alias_helper.get_wlst_mbean_type_and_name(prov_location)
-
-            prov_location.append_location(model_type_subfolder_name)
-            wlst_type = self.alias_helper.get_wlst_mbean_type(prov_location)
-
-            if wlst_name not in existing_folder_names:
-                if log_created:
-                    self.logger.info('WLSDPLY-12118', type_name, model_type_subfolder_name, name, create_path,
-                                     class_name=self.__class_name, method_name=_method_name)
+                if self.alias_helper.requires_artificial_type_subfolder_handling(sub_location):
+                    self.logger.finest('WLSDPLY-12116', key, str(sub_location), subfolder_nodes,
+                                       class_name=self.__class_name, method_name=_method_name)
+                    self._create_named_subtype_mbeans(key, subfolder_nodes, location, True)
+                elif self.alias_helper.supports_multiple_mbean_instances(sub_location):
+                    self.logger.finest('WLSDPLY-12109', key, str(sub_location), subfolder_nodes,
+                                       class_name=self.__class_name, method_name=_method_name)
+                    self._create_named_mbeans(key, subfolder_nodes, location)
+                elif self.alias_helper.is_artificial_type_folder(sub_location):
+                    # these should have been handled inside create_named_subtype_mbeans
+                    ex = exception_helper.create_create_exception('WLSDPLY-12120', str(sub_location),
+                                                                  key, str(location))
+                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                    raise ex
                 else:
-                    self.logger.fine('WLSDPLY-12118', type_name, model_type_subfolder_name, name, create_path,
-                                     class_name=self.__class_name, method_name=_method_name)
-                self.wlst_helper.cd(create_path)
-                self.wlst_helper.create(wlst_name, wlst_type, wlst_base_provider_type)
-            else:
-                if log_created:
-                    self.logger.info('WLSDPLY-12119', type_name, model_type_subfolder_name, name, create_path,
-                                     class_name=self.__class_name, method_name=_method_name)
-                else:
-                    self.logger.fine('WLSDPLY-12119', type_name, model_type_subfolder_name, name, create_path,
-                                     class_name=self.__class_name, method_name=_method_name)
-
-            attribute_path = self.alias_helper.get_wlst_attributes_path(prov_location)
-            self.wlst_helper.cd(attribute_path)
-
-            self.logger.finest('WLSDPLY-12111', self.alias_helper.get_model_folder_path(prov_location),
-                               self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
-            self._set_attributes(prov_location, child_nodes)
-            self._create_subfolders(prov_location, child_nodes)
+                    self.logger.finest('WLSDPLY-12110', key, str(sub_location), subfolder_nodes,
+                                       class_name=self.__class_name, method_name=_method_name)
+                    self._create_mbean(key, subfolder_nodes, location)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -382,44 +340,6 @@ class Creator(object):
             self.wlst_helper.set(wlst_name, wlst_value, masked=masked)
         return
 
-    def _create_subfolders(self, location, model_nodes):
-        """
-        Create the child MBean folders at the specified location.
-        :param location: the location
-        :param model_nodes: the model dictionary
-        :raises: CreateException: if an error occurs
-        """
-        _method_name = '_create_subfolders'
-
-        self.logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
-        model_subfolder_names = self.alias_helper.get_model_subfolder_names(location)
-        for key in model_nodes:
-            if key in model_subfolder_names:
-                subfolder_nodes = model_nodes[key]
-                sub_location = LocationContext(location).append_location(key)
-                # both create and update are merge to model so will process a subfolder with an empty node
-                if self.alias_helper.requires_artificial_type_subfolder_handling(sub_location):
-                    self.logger.finest('WLSDPLY-12116', key, str(sub_location), subfolder_nodes,
-                                       class_name=self.__class_name, method_name=_method_name)
-                    self._create_security_provider_mbeans(key, subfolder_nodes, location, True)
-                elif len(subfolder_nodes) != 0:
-                    if self.alias_helper.supports_multiple_mbean_instances(sub_location):
-                        self.logger.finest('WLSDPLY-12109', key, str(sub_location), subfolder_nodes,
-                                           class_name=self.__class_name, method_name=_method_name)
-                        self._create_named_mbeans(key, subfolder_nodes, location)
-                    elif self.alias_helper.is_artificial_type_folder(sub_location):
-                        ex = exception_helper.create_create_exception('WLSDPLY-12120', str(sub_location),
-                                                                      key, str(location))
-                        self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                        raise ex
-                    else:
-                        self.logger.finest('WLSDPLY-12110', key, str(sub_location), subfolder_nodes,
-                                           class_name=self.__class_name, method_name=_method_name)
-                        self._create_mbean(key, subfolder_nodes, location)
-
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
-
     def _is_type_valid(self, location, type_name):
         """
         Verify that the specified location in valid for the current WLS version.
@@ -455,62 +375,6 @@ class Creator(object):
             existing_folders = self._get_existing_folders(create_path)
             if mbean_type not in existing_folders:
                 self.wlst_helper.create(mbean_name, mbean_type)
-        return
-
-    def _delete_existing_providers(self, location):
-        """
-        The security realms providers in the model are processed as merge to the model. Each realm provider
-        section must be complete and true to the resulting domain. Any existing provider not found in the
-        model will be removed, and any provider in the model but not in the domain will be added. The resulting
-        provider list will be ordered as listed in the model. If the provider type (i.e. AuthenticationProvider)
-        is not in the model, it is assumed no configuration or ordering is needed, and the provider is skipped.
-        If the provider type is in the model, but there is no MBean entry under the provider, then it is 
-        assumed that all providers for that provider type must be removed.
-
-        For create, the default realm and default providers have been added by the weblogic base template and any
-        extension templates. They have default values. These providers will be removed from the domain. During
-        the normal iteration through the provider list, the providers, if in the model, will be re-added in model
-        order. Any attributes in the model that are not the default value are then applied to the the new provider.
-
-        By deleting all providers and re-adding from the model, we are both merging to the model and ordering the
-        providers. In offline wlst, the set<providertype>Providers(<provider_object_list>, which reorders existing
-        providers, does not work. Deleting the providers and re-adding also has the added benefit of fixing the 11g
-        problem where the providers have no name. They are returned with the name 'Provider'. In the authentication
-        provider, there are two default providers, and just setting the name does not work. When we re-add we re-add
-        with the correct name. And the DefaultAuthenticationProvider successfully re-adds with the correct default
-        identity asserter.
-
-        This release also supports updating the security configuration realms in both offline and online mode. This
-        release requires a complete list of providers as described in the first paragraph.
-
-        :param location: current context of the location pointing at the provider mbean
-        """
-        _method_name = '_delete_existing_providers'
-        self.logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
-
-        list_path = self.alias_helper.get_wlst_list_path(location)
-        existing_folder_names = self._get_existing_folders(list_path)
-        wlst_base_provider_type = self.alias_helper.get_wlst_mbean_type(location)
-        if len(existing_folder_names) == 0:
-            self.logger.finer('WLSDPLY-12136', wlst_base_provider_type, list_path, class_name=self.__class_name,
-                              method_name=_method_name)
-        else:
-            create_path = self.alias_helper.get_wlst_create_path(location)
-            self.wlst_helper.cd(create_path)
-            for existing_folder_name in existing_folder_names:
-                try:
-                    self.logger.info('WLSDPLY-12135', existing_folder_name, wlst_base_provider_type, create_path,
-                                     class_name=self.__class_name, method_name=_method_name)
-                    self.wlst_helper.delete(existing_folder_name, wlst_base_provider_type)
-                except BundleAwareException, bae:
-                    ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-12134', existing_folder_name,
-                                                           self.wls_helper.get_weblogic_version(),
-                                                           wlst_base_provider_type, bae.getLocalizedMessage(),
-                                                           error=bae)
-                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                    raise ex
-
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
     def _get_existing_folders(self, wlst_path):
