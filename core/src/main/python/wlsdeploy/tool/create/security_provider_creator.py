@@ -295,4 +295,3 @@ class SecurityProviderCreator(Creator):
             return False
 
         return True
-
