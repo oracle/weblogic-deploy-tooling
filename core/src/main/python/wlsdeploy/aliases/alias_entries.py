@@ -178,7 +178,8 @@ class AliasEntries(object):
         # be targeted.  The ServerGroup must appear in the domain typedef definition.  If
         # the ServerGroup is not listed in this map, it will be targeted to all managed
         # servers in the domain.
-        'ServerGroupTargetingLimits': 'dict'
+        'ServerGroupTargetingLimits': 'dict',
+        'ATPDbInfo' : 'dict'
     }
 
     __domain_name_token = 'DOMAIN'
