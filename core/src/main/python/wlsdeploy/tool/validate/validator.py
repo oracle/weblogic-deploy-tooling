@@ -672,7 +672,8 @@ class Validator(object):
                                                                   validation_result)
             elif self._alias_helper.is_custom_folder_allowed(validation_location):
                 # custom folders are not validated, just log this and continue
-                self._logger.info('WLSDPLY-05037', model_folder_path)
+                self._logger.info('WLSDPLY-05037', model_folder_path,
+                                  class_name=_class_name, method_name=_method_name)
             else:
                 # At this point we know that key IS NOT a valid attribute or folder, meaning
                 # that given the location object, it is NOT:
