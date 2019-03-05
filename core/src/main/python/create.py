@@ -6,12 +6,20 @@ The main module for the WLSDeploy tool to create empty domains.
 """
 import javaos as os
 import sys
+
 from xml.dom.minidom import parse
 
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from java.lang import String
+from java.io import File
+from java.io import FileInputStream
+from java.io import FileOutputStream
+from java.util.zip import ZipInputStream
+import jarray
+
+
 
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
@@ -29,6 +37,7 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 # imports from local packages start here
 
 from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -88,6 +97,7 @@ def __process_args(args):
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     required_arg_map, optional_arg_map = cla_util.process_args(args, True)
+
     __verify_required_args_present(required_arg_map)
     __process_java_home_arg(optional_arg_map)
     __process_domain_location_args(optional_arg_map)
@@ -382,6 +392,33 @@ def set_property(DOMTree, prop, name, value):
     prop.appendChild(newline)
 
 
+def unzip_atp_wallet(wallet_file, location):
+
+    if not os.path.exists(location):
+        os.mkdir(location)
+
+    buffer = jarray.zeros(1024, "b")
+    fis = FileInputStream(wallet_file)
+    zis = ZipInputStream(fis)
+    ze = zis.getNextEntry()
+    while ze:
+        fileName = ze.getName()
+        newFile = File(location + File.separator + fileName)
+        File(newFile.getParent()).mkdirs()
+        fos = FileOutputStream(newFile)
+        len = zis.read(buffer)
+        while len > 0:
+            fos.write(buffer, 0, len)
+            len = zis.read(buffer)
+
+        fos.close()
+        zis.closeEntry()
+        ze = zis.getNextEntry()
+    zis.closeEntry()
+    zis.close()
+    fis.close()
+
+
 def main(args):
     """
     The entry point for the create domain tool.
@@ -399,9 +436,6 @@ def main(args):
 
     try:
         model_context = __process_args(args)
-        if model_context.get_atp_properties_file():
-            current_wlst_properties = os.environ.get('WLST_PROPERTIES')
-            os.environ['oracle.net.fanEnabled'] = 'false'
     except CLAException, ex:
         exit_code = ex.getExitCode()
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
@@ -413,6 +447,10 @@ def main(args):
     model_file = model_context.get_model_file()
     try:
         model = FileToPython(model_file, True).parse()
+        if model_context.get_atp_properties_file():
+            os.environ['oracle.net.fanEnabled'] = 'false'
+            unzip_atp_wallet(model_context.get_atp_properties_file(), model[model_constants.DOMAIN_INFO][
+                model_constants.ATP_DB_INFO][model_constants.DRIVER_PARAMS_NET_TNS_ADMIN])
     except TranslateException, te:
         __logger.severe('WLSDPLY-20009', _program_name, model_file, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
@@ -430,9 +468,6 @@ def main(args):
         __clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-
-
-
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     validate_model(model, model_context, aliases)
 
@@ -443,17 +478,21 @@ def main(args):
     try:
         creator = DomainCreator(model, model_context, aliases)
         creator.create()
-        atp_props_path = model_context.get_atp_properties_file()
 
-        if atp_props_path:
-            rcu_properties_map = variables.load_variables(atp_props_path)
-            atp_creds_path = rcu_properties_map['oracle.net.tns_admin']
+        if model_context.get_atp_properties_file():
+            #print model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO]
+            tns_admin = model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO][
+                model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]
+            keystore_password = model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO][
+                model_constants.DRIVER_PARAMS_KEYSTOREPWD_PROPERTY]
+
+            truststore_password = model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO][
+                model_constants.DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY]
+
             jsp_config = model_context.get_domain_home() + '/config/fmwconfig/jps-config.xml'
             jsp_config_jse = model_context.get_domain_home() + '/config/fmwconfig/jps-config-jse.xml'
-            set_ssl_properties(jsp_config, atp_creds_path, rcu_properties_map['javax.net.ssl.keyStorePassword'],
-                               rcu_properties_map['javax.net.ssl.trustStorePassword'])
-            set_ssl_properties(jsp_config_jse, atp_creds_path, rcu_properties_map['javax.net.ssl.keyStorePassword'],
-                               rcu_properties_map['javax.net.ssl.trustStorePassword'])
+            set_ssl_properties(jsp_config, tns_admin, keystore_password, truststore_password)
+            set_ssl_properties(jsp_config_jse, tns_admin, keystore_password, truststore_password)
 
     except (IOException | CreateException), ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,

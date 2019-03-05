@@ -6,6 +6,7 @@ The Universal Permissive License (UPL), Version 1.0
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 
 from wlsdeploy.aliases.model_constants import DOMAIN_LIBRARIES
+from wlsdeploy.aliases.model_constants import ATP_DB_INFO
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
@@ -42,7 +43,7 @@ class LibraryHelper(object):
         domain_info_dict = self.model.get_model_domain_info()
         if DOMAIN_LIBRARIES not in domain_info_dict or len(domain_info_dict[DOMAIN_LIBRARIES]) == 0:
             self.logger.info('WLSDPLY-12213', class_name=self.__class_name, method_name=_method_name)
-        else:
+        elif DOMAIN_LIBRARIES in domain_info_dict:
             domain_libs = dictionary_utils.get_dictionary_element(domain_info_dict, DOMAIN_LIBRARIES)
             if self.archive_helper is None:
                 ex = exception_helper.create_create_exception('WLSDPLY-12214', domain_libs)
