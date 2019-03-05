@@ -3,6 +3,7 @@ Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
+import re
 from oracle.weblogic.deploy.create import RCURunner
 
 from wlsdeploy.aliases.location_context import LocationContext
@@ -210,33 +211,20 @@ class DomainCreator(Creator):
         oracle_home = self.model_context.get_oracle_home()
         java_home = self.model_context.get_java_home()
 
-        props_file = self.model_context.get_rcu_properties_file()
+        props_file = self.model_context.get_atp_properties_file()
+
         if props_file:
             try:
                 rcu_properties_map = variables.load_variables(props_file)
-                # parse the tnsnames.ora file and retrieve the connection string
-                tns_admin = rcu_properties_map[DRIVER_PARAMS_NET_TNS_ADMIN]
-                tns_names = variables.load_variables( tns_admin + os.sep +
-                                                      'tnsnames.ora')
 
-                rcu_db = tns_names[rcu_properties_map[ATP_TNS_ENTRY]]
-
-                rcu_prefix = rcu_properties_map[ATP_RCU_PREFIX]
                 rcu_schema_pass = rcu_properties_map[ATP_RCU_SCHEMA_PASSWORD]
                 rcu_sys_pass = rcu_properties_map[ATP_ADMIN_PASSWORD]
 
-                keystore_pwd = rcu_properties_map[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY]
-                truststore_pwd = rcu_properties_map[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY]
-
-                # Need to set for the connection proeprty for each datasource
-
-                runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas)
+                runner = RCURunner(domain_type, oracle_home, java_home, rcu_schemas, rcu_properties_map)
                 runner.runRcu(rcu_sys_pass, rcu_schema_pass)
-
-
             except VariableException, ex:
-                self.logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
-                                   class_name=_class_name, method_name=_method_name)
+                self.logger.severe('WLSDPLY-20004', __program_name, ex.getLocalizedMessage(), error=ex,
+                                   class_name=__class_name, method_name=_method_name)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
@@ -694,17 +682,84 @@ class DomainCreator(Creator):
         return
 
     def __set_atp_connection_property(self, root_location, propery_name, property_value):
+
+
+        create_path = self.alias_helper.get_wlst_create_path(root_location)
+
+        self.wlst_helper.cd(create_path)
+
         token_name = self.alias_helper.get_name_token(root_location)
+
         if token_name is not None:
             root_location.add_name_token(token_name, propery_name)
+
+
+        mbean_name = self.alias_helper.get_wlst_mbean_name(root_location)
+        mbean_type = self.alias_helper.get_wlst_mbean_type(root_location)
+
+
+        self.wlst_helper.create(mbean_name, mbean_type)
+
+        wlst_path = self.alias_helper.get_wlst_attributes_path(root_location)
+
+        self.wlst_helper.cd(wlst_path)
 
         wlst_name, wlst_value = \
             self.alias_helper.get_wlst_attribute_name_and_value(root_location, DRIVER_PARAMS_PROPERTY_VALUE,
                                                                 property_value )
-        self.wlst_helper.set_if_needed(wlst_name, wlst_value,
-                                       JDBC_DRIVER_PARAMS_PROPERTIES, propery_name)
+        self.wlst_helper.set(wlst_name, wlst_value)
 
         root_location.remove_name_token(propery_name)
+
+    def _get_atp_connect_string(self, tnsnames_ora_path, tns_sid_name):
+
+
+        try:
+            f = open(tnsnames_ora_path, "r+")
+            try:
+                text = f.read()
+            finally:
+                f.close()
+            # The regex below looks for the <dbName>_<level><whitespaces>=<whitespaces> and grabs the
+            # tnsConnectString from the current and the next line as tnsnames.ora file has the connect string
+            # being printed on 2 lines.
+            pattern = tns_sid_name + '\s*=\s*([(].*\n.*)'
+            match = re.search(pattern, text)
+            if match:
+                str = match.group(1)
+                tnsConnectString=str.replace('\r','').replace('\n','')
+                str = self._format_connect_string(tnsConnectString)
+                return str
+        except:
+            pass
+
+        return None
+
+    def _format_connect_string(self, connect_string):
+        """
+        Formats connect string for ATP DB by removing unwanted whitespaces.
+        Input:
+            (description= (address=(protocol=tcps)(port=1522)(host=adb-preprod.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=uq7p1eavz8qlvts_watsh01_medium.atp.oraclecloud.com))(security=(ssl_server_cert_dn= "CN=adwc-preprod.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US")) )
+        Output Parts:
+            1.      (description=(address=(protocol=tcps)(port=1522)(host=adb-preprod.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=uq7p1eavz8qlvts_watsh01_medium.atp.oraclecloud.com))(security=(
+            2.      ssl_server_cert_dn=
+            3.      "CN=adwc-preprod.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US"
+            4.      )))
+        :param connect_string:
+        :return:
+        """
+        pattern = "(.*)(ssl_server_cert_dn=)\s*(\".*\")(.*)"
+        match = re.search(pattern, connect_string)
+
+        if match:
+            part1 = match.group(1).replace(' ','')
+            part2 = match.group(2).replace(' ', '')
+            # We don't want to remove the spaces from serverDN part.
+            part3 = match.group(3)
+            part4 = match.group(4).replace(' ', '')
+            connect_string = "%s%s%s%s" % (part1, part2, part3, part4)
+
+        return connect_string
 
 
     def __configure_fmw_infra_database(self):
@@ -719,17 +774,16 @@ class DomainCreator(Creator):
         # For ATP databases :  we need to set all the property for each datasource
         # load atp connection properties from properties file
         #
-        props_file = self.model_context.get_rcu_properties_file()
+        props_file = self.model_context.get_atp_properties_file()
         if props_file:
             try:
                 rcu_properties_map = variables.load_variables(props_file)
 
                 # parse the tnsnames.ora file and retrieve the connection string
                 tns_admin = rcu_properties_map[DRIVER_PARAMS_NET_TNS_ADMIN]
-                tns_names = variables.load_variables( tns_admin + os.sep +
-                                                      'tnsnames.ora')
 
-                rcu_database = tns_names[rcu_properties_map[ATP_TNS_ENTRY]]
+                rcu_database = self._get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora', rcu_properties_map[
+                    ATP_TNS_ENTRY])
 
                 rcu_prefix = rcu_properties_map[ATP_RCU_PREFIX]
                 rcu_schema_pwd = rcu_properties_map[ATP_RCU_SCHEMA_PASSWORD]
@@ -740,6 +794,7 @@ class DomainCreator(Creator):
                 # Need to set for the connection proeprty for each datasource
 
                 fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
+
 
                 location = LocationContext()
                 location.append_location(JDBC_SYSTEM_RESOURCE)
@@ -767,7 +822,6 @@ class DomainCreator(Creator):
                     wlst_name, wlst_value = \
                         self.alias_helper.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
                                                                             rcu_schema_pwd, masked=True)
-
                     self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, ds_name, masked=True)
 
                     location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)

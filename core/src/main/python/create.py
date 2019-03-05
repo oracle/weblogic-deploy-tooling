@@ -6,6 +6,7 @@ The main module for the WLSDeploy tool to create empty domains.
 """
 import javaos as os
 import sys
+from xml.dom.minidom import parse
 
 from java.io import IOException
 from java.lang import IllegalArgumentException
@@ -75,7 +76,7 @@ __optional_arguments = [
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
-    CommandLineArgUtil.RCU_PROPERTIES_FILE_SWITCH
+    CommandLineArgUtil.ATP_PROPERTIES_FILE_SWITCH
 ]
 
 
@@ -272,7 +273,7 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                 ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
-        elif CommandLineArgUtil.RCU_PROPERTIES_FILE_SWITCH in optional_arg_map:
+        elif CommandLineArgUtil.ATP_PROPERTIES_FILE_SWITCH in optional_arg_map:
             pass
         else:
             ex = exception_helper.create_cla_exception('WLSDPLY-12408', domain_type, rcu_schema_count,
@@ -337,6 +338,49 @@ def validate_model(model_dictionary, model_context, aliases):
         __clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
+def set_ssl_properties(xmlDoc, atp_creds_path, keystore_password, truststore_password):
+    '''
+    Add SSL config properties to the specified XML document.
+    :param xmlDoc:                  The XML document
+    :param db_keystore_password:    The DB keystore/truststore password (assumed to be same)
+    :return: void
+    '''
+    DOMTree = parse(xmlDoc)
+    collection = DOMTree.documentElement
+    props = collection.getElementsByTagName("propertySet")
+
+    for prop in props:
+        if prop.getAttribute('name') == 'props.db.1':
+            set_property(DOMTree, prop, 'javax.net.ssl.trustStoreType', 'JKS')
+            set_property(DOMTree, prop, 'javax.net.ssl.trustStore', atp_creds_path + '/truststore.jks')
+            set_property(DOMTree, prop, 'oracle.net.tns_admin', atp_creds_path)
+            set_property(DOMTree, prop, 'javax.net.ssl.keyStoreType', 'JKS')
+            set_property(DOMTree, prop, 'javax.net.ssl.keyStore', atp_creds_path + '/keystore.jks')
+            set_property(DOMTree, prop, 'javax.net.ssl.keyStorePassword', keystore_password)
+            set_property(DOMTree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
+            set_property(DOMTree, prop, 'oracle.net.ssl_server_dn_match', 'true')
+            set_property(DOMTree, prop, 'oracle.net.ssl_version', '1.2')
+            # Persist the changes in the xml file
+            file_handle = open(xmlDoc,"w")
+            DOMTree.writexml(file_handle)
+            file_handle.close()
+
+def set_property(DOMTree, prop, name, value):
+    '''
+    Sets the property child element under prop parent node.
+    :param DOMTree: The DOM document handle
+    :param prop:    The propertySet parent handle
+    :param name:    The property name
+    :param value:   The property value
+    :return: void
+    '''
+    property = DOMTree.createElement('property')
+    property.setAttribute("name", name)
+    property.setAttribute("value", value)
+    prop.appendChild(property)
+    newline = DOMTree.createTextNode('\n')
+    prop.appendChild(newline)
+
 
 def main(args):
     """
@@ -355,6 +399,9 @@ def main(args):
 
     try:
         model_context = __process_args(args)
+        if model_context.get_atp_properties_file():
+            current_wlst_properties = os.environ.get('WLST_PROPERTIES')
+            os.environ['oracle.net.fanEnabled'] = 'false'
     except CLAException, ex:
         exit_code = ex.getExitCode()
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
@@ -396,7 +443,19 @@ def main(args):
     try:
         creator = DomainCreator(model, model_context, aliases)
         creator.create()
-    except CreateException, ex:
+        atp_props_path = model_context.get_atp_properties_file()
+
+        if atp_props_path:
+            rcu_properties_map = variables.load_variables(atp_props_path)
+            atp_creds_path = rcu_properties_map['oracle.net.tns_admin']
+            jsp_config = model_context.get_domain_home() + '/config/fmwconfig/jps-config.xml'
+            jsp_config_jse = model_context.get_domain_home() + '/config/fmwconfig/jps-config-jse.xml'
+            set_ssl_properties(jsp_config, atp_creds_path, rcu_properties_map['javax.net.ssl.keyStorePassword'],
+                               rcu_properties_map['javax.net.ssl.trustStorePassword'])
+            set_ssl_properties(jsp_config_jse, atp_creds_path, rcu_properties_map['javax.net.ssl.keyStorePassword'],
+                               rcu_properties_map['javax.net.ssl.trustStorePassword'])
+
+    except (IOException | CreateException), ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
