@@ -35,6 +35,7 @@ from wlsdeploy.aliases.alias_constants import JARRAY
 from wlsdeploy.aliases.alias_constants import JAVA_LANG_BOOLEAN
 from wlsdeploy.aliases.alias_constants import LIST
 from wlsdeploy.aliases.alias_constants import LONG
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.alias_constants import PATH_SEPARATOR_DELIMITED_STRING
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_FOLDER_PATHS
@@ -663,12 +664,12 @@ def get_number_of_directories_to_strip(desired_path_type, actual_path_type):
 
 def convert_from_type(data_type, value, preferred=None, delimiter=None):
     """
-    Convert from wlst type
-    :param data_type: type of data
-    :param value: value of data
-    :param preferred: how it should be represented
-    :param delimiter: for representation
-    :return: converted type
+    Convert WLST value to model representation type
+    :param data_type: the target data type for the model
+    :param value: value to be converted
+    :param preferred: the preferred data type to be represented in the model (optional)
+    :param delimiter: the delimiter for parsing the WLST representation of the data value (optional)
+    :return: converted value
     """
 
     _method_name = 'convert_from_type'
@@ -835,6 +836,14 @@ def get_dictionary_mode(alias_dict):
 
 
 def _jconvert_to_type(data_type, value, delimiter):
+    """
+    Convert WLST value to model representation type.
+    Assumes that empty values and password data types have been converted elsewhere.
+    :param data_type: the target data type for the model
+    :param value: value to be converted
+    :param delimiter: the delimiter for parsing the WLST representation of the data value (optional)
+    :return: converted value
+    """
     _method_name = '_jconvert_to_type'
     try:
         converted = TypeUtils.convertToType(data_type, value, delimiter)
@@ -857,15 +866,11 @@ def _jconvert_to_type(data_type, value, delimiter):
         elif data_type in (COMMA_DELIMITED_STRING, DELIMITED_STRING, SEMI_COLON_DELIMITED_STRING,
                            SPACE_DELIMITED_STRING, PATH_SEPARATOR_DELIMITED_STRING):
             #
-            # This code intentionally ignores the delimiter value passed in and computes it from the data type.
-            # This is required to handle the special case where the value we read from WLST might have a
-            # different delimiter than the model value.  In this use case, the value passed into the method
-            # is the WLST value delimiter and the data_type is the preferred_model_type, so we compute the
-            # model delimiter from the data_type directly.
+            # Data type value may be the wlst_type, wlst_read_type, or the preferred_model_type from the alias
+            # definition. For any of these, the representation in the model should be comma-separated string.
             #
-            delimiter = compute_delimiter_from_data_type(data_type, converted)
-            if delimiter and converted:
-                converted = delimiter.join(converted)
+            if converted:
+                converted = MODEL_LIST_DELIMITER.join(converted)
     except TypeError, te:
         ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter, str(te))
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
