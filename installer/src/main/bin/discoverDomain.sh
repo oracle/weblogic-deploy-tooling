@@ -123,8 +123,8 @@ case "${JVM_OUTPUT}" in
     ;;
 esac
 
-JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F "\"" '{ print $2 }'`
-JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F "." '{ print $2 }'`
+JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
+JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
 
 if [ ${JVM_VERSION} -lt 7 ]; then
   echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
