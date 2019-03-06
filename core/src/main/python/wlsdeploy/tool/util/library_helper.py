@@ -6,7 +6,7 @@ The Universal Permissive License (UPL), Version 1.0
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 
 from wlsdeploy.aliases.model_constants import DOMAIN_LIBRARIES
-from wlsdeploy.aliases.model_constants import ATP_DB_INFO
+from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper

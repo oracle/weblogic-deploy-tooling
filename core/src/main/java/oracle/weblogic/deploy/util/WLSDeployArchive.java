@@ -28,6 +28,12 @@ public class WLSDeployArchive {
 
     public static final String WLSDPLY_ARCHIVE_BINARY_DIR = "wlsdeploy";
 
+
+    /**
+     * Top-level archive subdirectory where the atp wallet is stored
+     */
+    public static final String ARCHIVE_ATP_WALLET_PATH = "atpwallet";
+
     /**
      * Top-level archive subdirectory where the model is stored and the subdirectory to which it will be extracted.
      */
@@ -38,6 +44,7 @@ public class WLSDeployArchive {
      * they will be extracted.
      */
     public static final String ARCHIVE_APPS_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/applications";
+
 
     /**
      * Top-level archive subdirectory where the shared libraries are stored and the subdirectory to
@@ -129,7 +136,8 @@ public class WLSDeployArchive {
         LOGGER.entering(CLASS, METHOD, path);
         boolean result = false;
         if (!StringUtils.isEmpty(path)) {
-            result = path.startsWith(WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP);
+            result =
+                path.startsWith(WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP) || path.startsWith(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
         }
         LOGGER.exiting(CLASS, METHOD, result);
         return result;
@@ -362,7 +370,6 @@ public class WLSDeployArchive {
     public String extractFile(String path, File extractToLocation, boolean stripLeadingPathDirectories)
         throws WLSDeployArchiveIOException {
         final String METHOD = "extractFile";
-
         LOGGER.entering(CLASS, METHOD, path, extractToLocation, stripLeadingPathDirectories);
         validateNonEmptyString(path, "path", METHOD);
         validateExistingDirectory(extractToLocation, "extractToLocation", getArchiveFileName(), METHOD);
@@ -502,6 +509,25 @@ public class WLSDeployArchive {
         result.remove(ARCHIVE_APPS_TARGET_DIR + ZIP_SEP);
         LOGGER.exiting(CLASS, METHOD, result);
         return result;
+    }
+
+    /**
+     * Get the path of the ATP wallet in the archive.
+     *
+     * @return path of the ATP wallet
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive
+     */
+    public String getATPWallet() throws WLSDeployArchiveIOException {
+        final String METHOD = "getATPWallet";
+
+        LOGGER.entering(CLASS, METHOD);
+        List<String> result = getZipFile().listZipEntries(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+        LOGGER.exiting(CLASS, METHOD, result);
+        if (result.size()>0) {
+            return result.get(0);
+        } else {
+            return null;
+        }
     }
 
     /**
