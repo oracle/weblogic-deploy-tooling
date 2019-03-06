@@ -14,12 +14,11 @@ from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from java.lang import String
 from java.io import File
+from java.nio.file import Files
 from java.io import FileInputStream
 from java.io import FileOutputStream
 from java.util.zip import ZipInputStream
 import jarray
-
-
 
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
@@ -278,15 +277,15 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                 ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
-        elif CommandLineArgUtil.ATP_PROPERTIES_FILE_SWITCH in optional_arg_map:
-            pass
-        else:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12408', domain_type, rcu_schema_count,
-                                                       CommandLineArgUtil.RCU_DB_SWITCH,
-                                                       CommandLineArgUtil.RCU_PREFIX_SWITCH)
-            ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
+        # elif CommandLineArgUtil.ATP_PROPERTIES_FILE_SWITCH in optional_arg_map:
+        #     pass
+        # else:
+        #     ex = exception_helper.create_cla_exception('WLSDPLY-12408', domain_type, rcu_schema_count,
+        #                                                CommandLineArgUtil.RCU_DB_SWITCH,
+        #                                                CommandLineArgUtil.RCU_PREFIX_SWITCH)
+        #     ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
+        #     __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        #     raise ex
     return
 
 
@@ -414,6 +413,51 @@ def unzip_atp_wallet(wallet_file, location):
     fis.close()
 
 
+def validateRCUArgsAndModel(model_context, model):
+    has_atp = 0
+    if model_constants.RCU_DB_INFO in model[model_constants.DOMAIN_INFO]:
+        # extract the wallet first
+        has_atp = 1
+        has_tns_admin = model_constants.DRIVER_PARAMS_NET_TNS_ADMIN in model[model_constants.DOMAIN_INFO][
+            model_constants.RCU_DB_INFO]
+        if model_context.get_archive_file_name():
+            # if it does not have the oracle.net.tns_admin specified, then extract to
+            if not has_tns_admin:
+                archive_file = WLSDeployArchive(model_context.get_archive_file_name())
+                atp_path = archive_file.getATPWallet()
+                if atp_path and model[model_constants.TOPOLOGY]['Name']:
+                    domain_path = model_context.get_domain_parent_dir() + os.sep + model[model_constants.TOPOLOGY][
+                        'Name']
+                    extract_path = domain_path +  os.sep + 'atpwallet'
+                    extract_dir = File(extract_path)
+                    extract_dir.mkdirs()
+                    wallet_zip = archive_file.extractFile(atp_path, File(domain_path))
+                    unzip_atp_wallet(wallet_zip, extract_path)
+                    os.remove(wallet_zip)
+                    # update the model to add the tns_admin
+                    model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
+                        model_constants.DRIVER_PARAMS_NET_TNS_ADMIN] = extract_path
+                else:
+                    __logger.severe('WLSDPLY-12411', error=None,
+                                    class_name=_class_name, method_name="validateRCUArgsAndModel")
+                    __clean_up_temp_files()
+                    tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        elif not has_tns_admin:
+            __logger.severe('WLSDPLY-12411',  error=None,
+                            class_name=_class_name, method_name="validateRCUArgsAndModel")
+            __clean_up_temp_files()
+            tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    if not has_atp and model_context.get_domain_type() not in ['WLS', 'RestrictedJRF']:
+        if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
+            __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
+                            CommandLineArgUtil.RCU_PREFIX_SWITCH)
+            __clean_up_temp_files()
+            tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    return has_atp
+
+
 def main(args):
     """
     The entry point for the create domain tool.
@@ -442,10 +486,8 @@ def main(args):
     model_file = model_context.get_model_file()
     try:
         model = FileToPython(model_file, True).parse()
-        if model_context.get_atp_properties_file():
-            os.environ['oracle.net.fanEnabled'] = 'false'
-            unzip_atp_wallet(model_context.get_atp_properties_file(), model[model_constants.DOMAIN_INFO][
-                model_constants.ATP_DB_INFO][model_constants.DRIVER_PARAMS_NET_TNS_ADMIN])
+        # if model_context.get_archive_file():
+        #     os.environ['oracle.net.fanEnabled'] = 'false'
     except TranslateException, te:
         __logger.severe('WLSDPLY-20009', _program_name, model_file, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
@@ -471,17 +513,19 @@ def main(args):
         validate_model(model, model_context, aliases)
 
     try:
+
+        has_atp = validateRCUArgsAndModel(model_context, model)
         creator = DomainCreator(model, model_context, aliases)
         creator.create()
 
-        if model_context.get_atp_properties_file():
+        if has_atp:
             #print model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO]
-            tns_admin = model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO][
+            tns_admin = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
                 model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]
-            keystore_password = model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO][
+            keystore_password = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
                 model_constants.DRIVER_PARAMS_KEYSTOREPWD_PROPERTY]
 
-            truststore_password = model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO][
+            truststore_password = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
                 model_constants.DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY]
 
             jsp_config = model_context.get_domain_home() + '/config/fmwconfig/jps-config.xml'
