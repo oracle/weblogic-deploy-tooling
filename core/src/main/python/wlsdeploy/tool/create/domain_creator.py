@@ -3,7 +3,6 @@ Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
-import re
 from oracle.weblogic.deploy.create import RCURunner
 
 from wlsdeploy.aliases.location_context import LocationContext
@@ -65,7 +64,6 @@ from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
-from wlsdeploy.util import variables
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create.creator import Creator
@@ -78,7 +76,7 @@ from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model as model_helper
-from oracle.weblogic.deploy.util import VariableException
+from wlsdeploy.tool.create import atp_helper
 
 
 class DomainCreator(Creator):
@@ -711,55 +709,55 @@ class DomainCreator(Creator):
 
         root_location.remove_name_token(propery_name)
 
-    def _get_atp_connect_string(self, tnsnames_ora_path, tns_sid_name):
-
-
-        try:
-            f = open(tnsnames_ora_path, "r+")
-            try:
-                text = f.read()
-            finally:
-                f.close()
-            # The regex below looks for the <dbName>_<level><whitespaces>=<whitespaces> and grabs the
-            # tnsConnectString from the current and the next line as tnsnames.ora file has the connect string
-            # being printed on 2 lines.
-            pattern = tns_sid_name + '\s*=\s*([(].*\n.*)'
-            match = re.search(pattern, text)
-            if match:
-                str = match.group(1)
-                tnsConnectString=str.replace('\r','').replace('\n','')
-                str = self._format_connect_string(tnsConnectString)
-                return str
-        except:
-            pass
-
-        return None
-
-    def _format_connect_string(self, connect_string):
-        """
-        Formats connect string for ATP DB by removing unwanted whitespaces.
-        Input:
-            (description= (address=(protocol=tcps)(port=1522)(host=adb-preprod.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=uq7p1eavz8qlvts_watsh01_medium.atp.oraclecloud.com))(security=(ssl_server_cert_dn= "CN=adwc-preprod.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US")) )
-        Output Parts:
-            1.      (description=(address=(protocol=tcps)(port=1522)(host=adb-preprod.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=uq7p1eavz8qlvts_watsh01_medium.atp.oraclecloud.com))(security=(
-            2.      ssl_server_cert_dn=
-            3.      "CN=adwc-preprod.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US"
-            4.      )))
-        :param connect_string:
-        :return:
-        """
-        pattern = "(.*)(ssl_server_cert_dn=)\s*(\".*\")(.*)"
-        match = re.search(pattern, connect_string)
-
-        if match:
-            part1 = match.group(1).replace(' ','')
-            part2 = match.group(2).replace(' ', '')
-            # We don't want to remove the spaces from serverDN part.
-            part3 = match.group(3)
-            part4 = match.group(4).replace(' ', '')
-            connect_string = "%s%s%s%s" % (part1, part2, part3, part4)
-
-        return connect_string
+    # def _get_atp_connect_string(self, tnsnames_ora_path, tns_sid_name):
+    #
+    #
+    #     try:
+    #         f = open(tnsnames_ora_path, "r+")
+    #         try:
+    #             text = f.read()
+    #         finally:
+    #             f.close()
+    #         # The regex below looks for the <dbName>_<level><whitespaces>=<whitespaces> and grabs the
+    #         # tnsConnectString from the current and the next line as tnsnames.ora file has the connect string
+    #         # being printed on 2 lines.
+    #         pattern = tns_sid_name + '\s*=\s*([(].*\n.*)'
+    #         match = re.search(pattern, text)
+    #         if match:
+    #             str = match.group(1)
+    #             tnsConnectString=str.replace('\r','').replace('\n','')
+    #             str = self._format_connect_string(tnsConnectString)
+    #             return str
+    #     except:
+    #         pass
+    #
+    #     return None
+    #
+    # def _format_connect_string(self, connect_string):
+    #     """
+    #     Formats connect string for ATP DB by removing unwanted whitespaces.
+    #     Input:
+    #         (description= (address=(protocol=tcps)(port=1522)(host=adb-preprod.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=uq7p1eavz8qlvts_watsh01_medium.atp.oraclecloud.com))(security=(ssl_server_cert_dn= "CN=adwc-preprod.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US")) )
+    #     Output Parts:
+    #         1.      (description=(address=(protocol=tcps)(port=1522)(host=adb-preprod.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=uq7p1eavz8qlvts_watsh01_medium.atp.oraclecloud.com))(security=(
+    #         2.      ssl_server_cert_dn=
+    #         3.      "CN=adwc-preprod.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US"
+    #         4.      )))
+    #     :param connect_string:
+    #     :return:
+    #     """
+    #     pattern = "(.*)(ssl_server_cert_dn=)\s*(\".*\")(.*)"
+    #     match = re.search(pattern, connect_string)
+    #
+    #     if match:
+    #         part1 = match.group(1).replace(' ','')
+    #         part2 = match.group(2).replace(' ', '')
+    #         # We don't want to remove the spaces from serverDN part.
+    #         part3 = match.group(3)
+    #         part4 = match.group(4).replace(' ', '')
+    #         connect_string = "%s%s%s%s" % (part1, part2, part3, part4)
+    #
+    #     return connect_string
 
     def __configure_fmw_infra_database(self):
         """
@@ -784,7 +782,8 @@ class DomainCreator(Creator):
                 has_atp = 1
                 # parse the tnsnames.ora file and retrieve the connection string
                 tns_admin = rcu_properties_map[DRIVER_PARAMS_NET_TNS_ADMIN]
-                rcu_database = self._get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora', rcu_properties_map[
+                rcu_database = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
+                                                                 rcu_properties_map[
                     ATP_TNS_ENTRY])
 
                 rcu_prefix = rcu_properties_map[RCU_PREFIX]

@@ -7,18 +7,12 @@ The main module for the WLSDeploy tool to create empty domains.
 import javaos as os
 import sys
 
-from xml.dom.minidom import parse
 
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from java.lang import String
 from java.io import File
-from java.nio.file import Files
-from java.io import FileInputStream
-from java.io import FileOutputStream
-from java.util.zip import ZipInputStream
-import jarray
 
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
@@ -54,6 +48,7 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+from wlsdeploy.tool.create import atp_helper
 
 wlst_extended.wlst_functions = globals()
 
@@ -282,15 +277,9 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                 ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
-        # elif CommandLineArgUtil.ATP_PROPERTIES_FILE_SWITCH in optional_arg_map:
-        #     pass
-        # else:
-        #     ex = exception_helper.create_cla_exception('WLSDPLY-12408', domain_type, rcu_schema_count,
-        #                                                CommandLineArgUtil.RCU_DB_SWITCH,
-        #                                                CommandLineArgUtil.RCU_PREFIX_SWITCH)
-        #     ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
-        #     __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        #     raise ex
+
+        # Delay the checking later for rcu related parameters
+
     return
 
 
@@ -347,86 +336,22 @@ def validate_model(model_dictionary, model_context, aliases):
         __clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-def set_ssl_properties(xmlDoc, atp_creds_path, keystore_password, truststore_password):
-    '''
-    Add SSL config properties to the specified XML document.
-    :param xmlDoc:                  The XML document
-    :param db_keystore_password:    The DB keystore/truststore password (assumed to be same)
-    :return: void
-    '''
-    DOMTree = parse(xmlDoc)
-    collection = DOMTree.documentElement
-    props = collection.getElementsByTagName("propertySet")
-
-    for prop in props:
-        if prop.getAttribute('name') == 'props.db.1':
-            set_property(DOMTree, prop, 'javax.net.ssl.trustStoreType', 'JKS')
-            set_property(DOMTree, prop, 'javax.net.ssl.trustStore', atp_creds_path + '/truststore.jks')
-            set_property(DOMTree, prop, 'oracle.net.tns_admin', atp_creds_path)
-            set_property(DOMTree, prop, 'javax.net.ssl.keyStoreType', 'JKS')
-            set_property(DOMTree, prop, 'javax.net.ssl.keyStore', atp_creds_path + '/keystore.jks')
-            set_property(DOMTree, prop, 'javax.net.ssl.keyStorePassword', keystore_password)
-            set_property(DOMTree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
-            set_property(DOMTree, prop, 'oracle.net.ssl_server_dn_match', 'true')
-            set_property(DOMTree, prop, 'oracle.net.ssl_version', '1.2')
-            # Persist the changes in the xml file
-            file_handle = open(xmlDoc,"w")
-            DOMTree.writexml(file_handle)
-            file_handle.close()
-
-def set_property(DOMTree, prop, name, value):
-    '''
-    Sets the property child element under prop parent node.
-    :param DOMTree: The DOM document handle
-    :param prop:    The propertySet parent handle
-    :param name:    The property name
-    :param value:   The property value
-    :return: void
-    '''
-    property = DOMTree.createElement('property')
-    property.setAttribute("name", name)
-    property.setAttribute("value", value)
-    prop.appendChild(property)
-    newline = DOMTree.createTextNode('\n')
-    prop.appendChild(newline)
-
-
-def unzip_atp_wallet(wallet_file, location):
-
-    if not os.path.exists(location):
-        os.mkdir(location)
-
-    buffer = jarray.zeros(1024, "b")
-    fis = FileInputStream(wallet_file)
-    zis = ZipInputStream(fis)
-    ze = zis.getNextEntry()
-    while ze:
-        fileName = ze.getName()
-        newFile = File(location + File.separator + fileName)
-        File(newFile.getParent()).mkdirs()
-        fos = FileOutputStream(newFile)
-        len = zis.read(buffer)
-        while len > 0:
-            fos.write(buffer, 0, len)
-            len = zis.read(buffer)
-
-        fos.close()
-        zis.closeEntry()
-        ze = zis.getNextEntry()
-    zis.closeEntry()
-    zis.close()
-    fis.close()
-
 
 def validateRCUArgsAndModel(model_context, model):
     has_atpdbinfo = 0
     domain_info = model[model_constants.DOMAIN_INFO]
     if model_constants.RCU_DB_INFO in domain_info:
-        has_tns_admin = model_constants.DRIVER_PARAMS_NET_TNS_ADMIN in domain_info[
-            model_constants.RCU_DB_INFO]
-        has_regular_db = model_constants.RCU_DB_CONN in domain_info[model_constants.RCU_DB_INFO]
+        rcu_db_info = domain_info[model_constants.RCU_DB_INFO]
+        has_tns_admin = atp_helper.has_tns_admin(rcu_db_info)
 
-        if model_constants.ATP_TNS_ENTRY in domain_info[model_constants.RCU_DB_INFO]:
+        # has_tns_admin = model_constants.DRIVER_PARAMS_NET_TNS_ADMIN in domain_info[
+        #     model_constants.RCU_DB_INFO]
+        # has_regular_db = model_constants.RCU_DB_CONN in domain_info[model_constants.RCU_DB_INFO]
+
+        has_regular_db = atp_helper.is_regular_db(rcu_db_info)
+
+        # if model_constants.ATP_TNS_ENTRY in domain_info[model_constants.RCU_DB_INFO]:
+        if atp_helper.has_atpdbinfo(rcu_db_info):
             has_atpdbinfo = 1
 
         if model_context.get_archive_file_name() and not has_regular_db:
@@ -436,16 +361,9 @@ def validateRCUArgsAndModel(model_context, model):
             if not has_tns_admin:
                 # extract the wallet first
                 archive_file = WLSDeployArchive(model_context.get_archive_file_name())
-                atp_path = archive_file.getATPWallet()
-                if atp_path and model[model_constants.TOPOLOGY]['Name']:
-                    domain_path = model_context.get_domain_parent_dir() + os.sep + model[model_constants.TOPOLOGY][
-                        'Name']
-                    extract_path = domain_path +  os.sep + 'atpwallet'
-                    extract_dir = File(extract_path)
-                    extract_dir.mkdirs()
-                    wallet_zip = archive_file.extractFile(atp_path, File(domain_path))
-                    unzip_atp_wallet(wallet_zip, extract_path)
-                    os.remove(wallet_zip)
+                atp_wallet_zipentry = archive_file.getATPWallet()
+                if atp_wallet_zipentry and model[model_constants.TOPOLOGY]['Name']:
+                    extract_path = atp_helper.extract_walletzip(model, model_context, archive_file, atp_wallet_zipentry)
                     # update the model to add the tns_admin
                     model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
                         model_constants.DRIVER_PARAMS_NET_TNS_ADMIN] = extract_path
@@ -494,8 +412,6 @@ def main(args):
     model_file = model_context.get_model_file()
     try:
         model = FileToPython(model_file, True).parse()
-        # if model_context.get_archive_file():
-        #     os.environ['oracle.net.fanEnabled'] = 'false'
     except TranslateException, te:
         __logger.severe('WLSDPLY-20009', _program_name, model_file, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
@@ -519,7 +435,6 @@ def main(args):
     if filter_helper.apply_filters(model, "create"):
         # if any filters were applied, re-validate the model
         validate_model(model, model_context, aliases)
-
     try:
 
         has_atp = validateRCUArgsAndModel(model_context, model)
@@ -527,19 +442,7 @@ def main(args):
         creator.create()
 
         if has_atp:
-            #print model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO]
-            tns_admin = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-                model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]
-            keystore_password = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-                model_constants.DRIVER_PARAMS_KEYSTOREPWD_PROPERTY]
-
-            truststore_password = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-                model_constants.DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY]
-
-            jsp_config = model_context.get_domain_home() + '/config/fmwconfig/jps-config.xml'
-            jsp_config_jse = model_context.get_domain_home() + '/config/fmwconfig/jps-config-jse.xml'
-            set_ssl_properties(jsp_config, tns_admin, keystore_password, truststore_password)
-            set_ssl_properties(jsp_config_jse, tns_admin, keystore_password, truststore_password)
+            atp_helper.fix_jsp_config(model, model_context)
 
     except (IOException | CreateException), ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
