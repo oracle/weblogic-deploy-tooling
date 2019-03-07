@@ -779,9 +779,9 @@ class DomainCreator(Creator):
         # For ATP databases :  we need to set all the property for each datasource
         # load atp connection properties from properties file
         #
+        domain_info = self.model.get_model_domain_info()
 
-        if RCU_DB_INFO in self.model.get_model_domain_info():
-            domain_info = self.model.get_model_domain_info()
+        if RCU_DB_INFO in domain_info:
             rcu_properties_map = domain_info[RCU_DB_INFO]
             #rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
             # HANDLE ATP case
@@ -866,12 +866,17 @@ class DomainCreator(Creator):
                     self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false')
 
         if not has_atp:
-            rcu_database = self.model_context.get_rcu_database()
-            if rcu_database is None:
-                return
+            if RCU_DB_INFO in domain_info:
+                rcu_prefix = domain_info[RCU_DB_INFO][RCU_PREFIX]
+                rcu_database = domain_info[RCU_DB_INFO][RCU_DB_CONN]
+                rcu_schema_pwd = domain_info[RCU_DB_INFO][RCU_SCHEMA_PASSWORD]
+            else:
+                rcu_database = self.model_context.get_rcu_database()
+                if rcu_database is None:
+                    return
+                rcu_prefix = self.model_context.get_rcu_prefix()
+                rcu_schema_pwd = self.model_context.get_rcu_schema_pass()
 
-            rcu_prefix = self.model_context.get_rcu_prefix()
-            rcu_schema_pwd = self.model_context.get_rcu_schema_pass()
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
             self.logger.fine('WLSDPLY-12221', fmw_database, class_name=self.__class_name, method_name=_method_name)
 

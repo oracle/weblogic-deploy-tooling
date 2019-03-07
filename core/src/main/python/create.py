@@ -414,15 +414,22 @@ def unzip_atp_wallet(wallet_file, location):
 
 
 def validateRCUArgsAndModel(model_context, model):
-    has_atp = 0
-    if model_constants.RCU_DB_INFO in model[model_constants.DOMAIN_INFO]:
-        # extract the wallet first
-        has_atp = 1
-        has_tns_admin = model_constants.DRIVER_PARAMS_NET_TNS_ADMIN in model[model_constants.DOMAIN_INFO][
+    has_atpdbinfo = 0
+    domain_info = model[model_constants.DOMAIN_INFO]
+    if model_constants.RCU_DB_INFO in domain_info:
+        has_tns_admin = model_constants.DRIVER_PARAMS_NET_TNS_ADMIN in domain_info[
             model_constants.RCU_DB_INFO]
-        if model_context.get_archive_file_name():
-            # if it does not have the oracle.net.tns_admin specified, then extract to
+        has_regular_db = model_constants.RCU_DB_CONN in domain_info[model_constants.RCU_DB_INFO]
+
+        if model_constants.ATP_TNS_ENTRY in domain_info[model_constants.RCU_DB_INFO]:
+            has_atpdbinfo = 1
+
+        if model_context.get_archive_file_name() and not has_regular_db:
+            # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
+            # 2. If it is plain old regular oracle db, do nothing
+            # 3. If it deos not have tns_admin in the model, then the wallet must be in the archive
             if not has_tns_admin:
+                # extract the wallet first
                 archive_file = WLSDeployArchive(model_context.get_archive_file_name())
                 atp_path = archive_file.getATPWallet()
                 if atp_path and model[model_constants.TOPOLOGY]['Name']:
@@ -442,20 +449,16 @@ def validateRCUArgsAndModel(model_context, model):
                                     class_name=_class_name, method_name="validateRCUArgsAndModel")
                     __clean_up_temp_files()
                     tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-        elif not has_tns_admin:
-            __logger.severe('WLSDPLY-12411',  error=None,
-                            class_name=_class_name, method_name="validateRCUArgsAndModel")
-            __clean_up_temp_files()
-            tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    if not has_atp and model_context.get_domain_type() not in ['WLS', 'RestrictedJRF']:
-        if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
-            __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
+    else:
+        if model_context.get_domain_type() not in ['WLS', 'RestrictedJRF']:
+            if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
+                __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
                             CommandLineArgUtil.RCU_PREFIX_SWITCH)
-            __clean_up_temp_files()
-            tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+                __clean_up_temp_files()
+                tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    return has_atp
+    return has_atpdbinfo
 
 
 def main(args):
