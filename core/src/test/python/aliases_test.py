@@ -949,7 +949,7 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEquals(model_value, 'MyObjectName')
         return
 
-    def testSecurityProviderDiscovery(self):
+    def testJrfSecurityProviderDiscovery(self):
         location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION)
         token = self.aliases.get_name_token(location)
         location.add_name_token(token, 'my-domain')
@@ -959,8 +959,6 @@ class AliasesTestCase(unittest.TestCase):
         location.add_name_token(token, 'myrealm')
 
         location.append_location(FOLDERS.AUTHENTICATION_PROVIDER)
-        result = self.aliases.requires_artificial_type_subfolder_handling(location)
-        self.assertEqual(result, True)
 
         token = self.aliases.get_name_token(location)
         location.add_name_token(token, 'myprovider')

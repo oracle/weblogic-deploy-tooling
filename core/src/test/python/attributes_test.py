@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import unittest
@@ -65,6 +65,7 @@ class AttributesTestCase(unittest.TestCase):
     def _is_filtered_folder(self, name, location):
         result = False
 
+
         if name == 'Domain':
             result = True
         elif location.get_folder_path() == '/JDBCSystemResource/JdbcResource/JDBCDriverParams/Properties' and \
@@ -89,7 +90,8 @@ class AttributesTestCase(unittest.TestCase):
             result = True
         elif location.get_folder_path() == '/SecurityConfiguration/Realm/Auditor/DefaultAuditor':
             result = True
-
+        elif location.get_folder_path() == '/SecurityConfiguration/Realm/AuthenticationProvider/TrustServiceIdentityAsserter':
+            result = True
         return result
 
 if __name__ == '__main__':
