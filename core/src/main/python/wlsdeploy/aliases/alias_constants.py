@@ -163,7 +163,8 @@ AUTHENTICATION_PROVIDER_NAME_MAP = {
     'SQLAuthenticator': 'weblogic.security.providers.authentication.SQLAuthenticator',
     'VirtualUserAuthenticator': 'weblogic.security.providers.authentication.VirtualUserAuthenticator',
     'SAMLAuthenticator': 'weblogic.security.providers.saml.SAMLAuthenticator',
-    'SAMLIdentityAsserterV2': 'weblogic.security.providers.saml.SAMLIdentityAsserterV2'
+    'SAMLIdentityAsserterV2': 'weblogic.security.providers.saml.SAMLIdentityAsserterV2',
+    'TrustServiceIdentityAsserter': 'oracle.security.jps.wls.providers.trust.TrustServiceIdentityAsserter',
 }
 
 AUTHORIZATION_PROVIDER_NAME_MAP = {
