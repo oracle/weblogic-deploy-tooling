@@ -949,27 +949,6 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEquals(model_value, 'MyObjectName')
         return
 
-    def testSecurityProviderDiscovery(self):
-        location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION)
-        token = self.aliases.get_name_token(location)
-        location.add_name_token(token, 'my-domain')
-
-        location.append_location(FOLDERS.REALM)
-        token = self.aliases.get_name_token(location)
-        location.add_name_token(token, 'myrealm')
-
-        location.append_location(FOLDERS.AUTHENTICATION_PROVIDER)
-        result = self.aliases.requires_artificial_type_subfolder_handling(location)
-        self.assertEqual(result, True)
-
-        token = self.aliases.get_name_token(location)
-        location.add_name_token(token, 'myprovider')
-        result = \
-            self.aliases.get_model_subfolder_name(location,
-                                                 'oracle.security.jps.wls.providers.trust.TrustServiceIdentityAsserter')
-        self.assertEqual(result, 'SAMLAuthenticator')
-        return
-
     def testJrfSecurityProviderDiscovery(self):
         location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION)
         token = self.aliases.get_name_token(location)
