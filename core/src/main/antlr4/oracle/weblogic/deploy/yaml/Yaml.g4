@@ -280,7 +280,7 @@ fragment ID_START
 fragment ID_CONTINUE
     : ID_START
     | [0-9]
-    | [. ()]
+    | [. ()/]
     ;
 
 // to support variables in IDs that will need to be quoted because of the curly braces
@@ -292,7 +292,7 @@ fragment QUOTED_ID_START
 
 fragment QUOTED_ID_CONTINUE
     : ID_CONTINUE
-    | [@#\-(){}[\]:]
+    | [@#\-(){}[\]:/]
     ;
 
 fragment SQUOTED_STRING_CHARS

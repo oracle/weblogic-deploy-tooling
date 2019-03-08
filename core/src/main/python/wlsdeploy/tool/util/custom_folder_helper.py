@@ -7,6 +7,7 @@ from java.lang import IllegalAccessException
 from java.lang.reflect import InvocationTargetException
 from oracle.weblogic.deploy.util import CustomBeanUtils
 
+from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
@@ -27,41 +28,41 @@ class CustomFolderHelper(object):
         self.weblogic_helper = WebLogicHelper(self.logger)
         self.wlst_helper = WlstHelper(self.logger, self.exception_type)
 
-    def update_security_folder(self, location, model_category, model_type, model_name, model_nodes):
+    def update_security_folder(self, location, model_type, model_subtype, model_name, model_nodes):
         """
         Update the specified security model nodes in WLST.
         :param location: the location for the provider
-        :param model_category: the model category of the provider to be updated, such as AuthenticationProvider
-        :param model_type: the model type of the provider to be updated, such as 'custom.my.CustomIdentityAsserter'
-        :param model_name: the model name of the provider to be updated, such as 'My custom IdentityAsserter'
+        :param model_type: the type of the provider to be updated, such as AuthenticationProvider
+        :param model_subtype: the subtype of the provider to be updated, such as 'custom.my.CustomIdentityAsserter'
+        :param model_name: the name of the provider to be updated, such as 'My custom IdentityAsserter'
         :param model_nodes: a child model nodes of the provider to be updated
         :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'update_security_folder'
 
         location_path = self.alias_helper.get_model_folder_path(location)
-        self.logger.entering(location_path, model_type, model_name,
+        self.logger.entering(location_path, model_subtype, model_name,
                              class_name=self.__class_name, method_name=_method_name)
 
-        self.logger.info('WLSDPLY-12124', model_category, model_name, model_type, location_path,
+        self.logger.info('WLSDPLY-12124', model_type, model_name, model_subtype, location_path,
                          class_name=self.__class_name, method_name=_method_name)
 
         create_path = self.alias_helper.get_wlst_subfolders_path(location)
         self.wlst_helper.cd(create_path)
 
-        # create the MBean using the model name, model_type, category
+        # create the MBean using the model type, name, and subtype
 
-        location.append_location(model_category)
-        token = self.alias_helper.get_name_token(location)
-        location.add_name_token(token, model_name)
+        type_location = LocationContext(location).append_location(model_type)
+        token = self.alias_helper.get_name_token(type_location)
+        type_location.add_name_token(token, model_name)
 
-        mbean_category = self.alias_helper.get_wlst_mbean_type(location)
-        self.wlst_helper.create(model_name, model_type, mbean_category)
+        mbean_type = self.alias_helper.get_wlst_mbean_type(type_location)
+        self.wlst_helper.create(model_name, model_subtype, mbean_type)
 
-        provider_path = self.alias_helper.get_wlst_attributes_path(location)
+        provider_path = self.alias_helper.get_wlst_attributes_path(type_location)
         provider_mbean = self.wlst_helper.cd(provider_path)
 
-        interface_name = model_type + 'MBean'
+        interface_name = model_subtype + 'MBean'
         bean_info = self.weblogic_helper.get_bean_info_for_interface(interface_name)
         if bean_info is None:
             ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12125', interface_name)

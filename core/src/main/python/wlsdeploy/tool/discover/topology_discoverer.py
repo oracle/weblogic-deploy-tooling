@@ -13,6 +13,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -296,7 +297,7 @@ class TopologyDiscoverer(Discoverer):
                 self._discover_subfolders(result, location)
             except DiscoverException, de:
                 _logger.warning('WLSDPLY-06200', self._wls_version, de.getLocalizedMessage(),
-                                 class_name=_class_name, method_name=_method_name)
+                                class_name=_class_name, method_name=_method_name)
                 result = OrderedDict()
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_top_folder_name, result
@@ -532,18 +533,25 @@ class TopologyDiscoverer(Discoverer):
         _method_name = 'add_classpath_libraries_to_archive'
         server_name = self._get_server_name_from_location(location)
         _logger.entering(server_name, model_name, model_value, class_name=_class_name, method_name=_method_name)
+
         classpath_string = None
         if not StringUtils.isEmpty(model_value):
-            classpath_list = []
-            classpath_entries, separator = path_utils.split_classpath(model_value)
+            classpath = path_utils.fixup_path(model_value)
+
+            # model values are comma-separated
+            classpath_entries = classpath.split(MODEL_LIST_DELIMITER)
+
             if classpath_entries:
+                classpath_list = []
                 for classpath_entry in classpath_entries:
                     new_source_name = self._add_library(server_name, classpath_entry)
                     if new_source_name is not None:
                         classpath_list.append(new_source_name)
-                classpath_string = StringUtils.getStringFromList(classpath_list, separator)
+
+                classpath_string = StringUtils.getStringFromList(classpath_list, MODEL_LIST_DELIMITER)
                 _logger.fine('WLSDPLY-06617', server_name, classpath_string, class_name=_class_name,
                              method_name=_method_name)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=classpath_string)
         return classpath_string
 

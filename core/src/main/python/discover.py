@@ -289,8 +289,9 @@ def __connect_to_domain(model_context):
         try:
             wlst_helper.read_domain(model_context.get_domain_home())
         except PyWLSTException, wlst_ex:
+            wls_version = WebLogicHelper(__logger).get_actual_weblogic_version()
             ex = exception_helper.create_discover_exception('WLSDPLY-06002', model_context.get_domain_home(),
-                                                            wlst_ex.getLocalizedMessage(), error=wlst_ex)
+                                                            wls_version, wlst_ex.getLocalizedMessage(), error=wlst_ex)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 

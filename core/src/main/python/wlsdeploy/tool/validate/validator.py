@@ -672,7 +672,8 @@ class Validator(object):
                                                                   validation_result)
             elif self._alias_helper.is_custom_folder_allowed(validation_location):
                 # custom folders are not validated, just log this and continue
-                self._logger.info('WLSDPLY-05037', model_folder_path)
+                self._logger.info('WLSDPLY-05037', model_folder_path,
+                                  class_name=_class_name, method_name=_method_name)
             else:
                 # At this point we know that key IS NOT a valid attribute or folder, meaning
                 # that given the location object, it is NOT:
@@ -885,7 +886,7 @@ class Validator(object):
             if value_data_type == 'string' and model_constants.MODEL_LIST_DELIMITER in attribute_value:
                 attr_values = attribute_value.split(model_constants.MODEL_LIST_DELIMITER)
 
-            if value_data_type == 'string':
+            elif value_data_type == 'string':
                 attr_values.append(attribute_value)
 
             for item_path in attr_values:

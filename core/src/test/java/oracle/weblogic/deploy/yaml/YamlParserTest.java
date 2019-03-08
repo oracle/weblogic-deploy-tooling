@@ -22,11 +22,9 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.atn.PredictionMode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.python.core.PyObject;
 
 public class YamlParserTest extends YamlBaseListener {
     private static final boolean DEBUG = System.getProperty("DEBUG") != null;
@@ -467,6 +465,7 @@ public class YamlParserTest extends YamlBaseListener {
             text = nameCtx.NAME().getText();
             if (!StringUtils.isEmpty(text)) {
                 value = text.trim();
+                value = StringUtils.stripQuotes(value.toString());  // similar to AbstractYamlTranslator
             } else {
                 value = null;
             }

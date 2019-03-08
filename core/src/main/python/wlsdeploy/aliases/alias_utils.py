@@ -663,12 +663,12 @@ def get_number_of_directories_to_strip(desired_path_type, actual_path_type):
 
 def convert_from_type(data_type, value, preferred=None, delimiter=None):
     """
-    Convert from wlst type
-    :param data_type: type of data
-    :param value: value of data
-    :param preferred: how it should be represented
-    :param delimiter: for representation
-    :return: converted type
+    Convert WLST value to model representation type
+    :param data_type: the target data type for the model
+    :param value: value to be converted
+    :param preferred: the preferred data type to be represented in the model (optional)
+    :param delimiter: the delimiter for parsing the WLST representation of the data value (optional)
+    :return: converted value
     """
 
     _method_name = 'convert_from_type'
@@ -835,6 +835,14 @@ def get_dictionary_mode(alias_dict):
 
 
 def _jconvert_to_type(data_type, value, delimiter):
+    """
+    Convert WLST value to model representation type.
+    Assumes that empty values and password data types have been converted elsewhere.
+    :param data_type: the target data type for the model
+    :param value: value to be converted
+    :param delimiter: the delimiter for parsing the WLST representation of the data value (optional)
+    :return: converted value
+    """
     _method_name = '_jconvert_to_type'
     try:
         converted = TypeUtils.convertToType(data_type, value, delimiter)
