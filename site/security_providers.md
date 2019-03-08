@@ -90,6 +90,22 @@ topology:
                         DefaultIdentityAsserter:
 
 ```
+#### Trust Service Identity Asserter
+
+**NOTE:** The Trust Identity Asserter Security Provider is installed by JRF in 12c versions and newer.
+
+The JRF installed Trust Identity Asserter does not supply a schema file by default.  Before you can configure this asserter with WLST offline or WDT offline, you must first build the schema file using the `prepareCustomProvider` script.
+
+Here is an example of how to prepare and install a schema file from its MBean Jar File (MJF): 
+
+```bash
+export CONFIG_JVM_ARGS=-DSchemaTypeSystemName=TrustServiceIdentityAsserter
+
+ORACLE_HOME/oracle_common/common/bin/prepareCustomProvider.sh -mjf=ORACLE_HOME/oracle_common/modules/oracle.jps/jps-wls-trustprovider.jar -out ORACLE_HOME/oracle_common/lib/schematypes/jps-wls-trustprovider.schema.jar
+
+```
+For FMW versions 12.1.2 and 12.1.3, replace `oracle.jps` in the example path above with:
+oracle.jps_12.1.2, or oracle.jps_12.1.3, respectively.
 
 #### Custom Security Providers
 
