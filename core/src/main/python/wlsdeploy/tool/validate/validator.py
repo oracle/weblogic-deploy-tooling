@@ -886,7 +886,7 @@ class Validator(object):
             if value_data_type == 'string' and model_constants.MODEL_LIST_DELIMITER in attribute_value:
                 attr_values = attribute_value.split(model_constants.MODEL_LIST_DELIMITER)
 
-            if value_data_type == 'string':
+            elif value_data_type == 'string':
                 attr_values.append(attribute_value)
 
             for item_path in attr_values:
