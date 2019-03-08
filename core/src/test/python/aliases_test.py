@@ -964,6 +964,25 @@ class AliasesTestCase(unittest.TestCase):
 
         token = self.aliases.get_name_token(location)
         location.add_name_token(token, 'myprovider')
+        result = \
+            self.aliases.get_model_subfolder_name(location,
+                                                 'oracle.security.jps.wls.providers.trust.TrustServiceIdentityAsserter')
+        self.assertEqual(result, 'SAMLAuthenticator')
+        return
+
+    def testJrfSecurityProviderDiscovery(self):
+        location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'my-domain')
+
+        location.append_location(FOLDERS.REALM)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'myrealm')
+
+        location.append_location(FOLDERS.AUTHENTICATION_PROVIDER)
+
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'myprovider')
         result = self.aliases.get_model_subfolder_name(location,
                                                        'weblogic.security.providers.saml.SAMLAuthenticatorMBean')
         self.assertEqual(result, 'SAMLAuthenticator')
