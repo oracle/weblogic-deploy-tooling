@@ -35,7 +35,6 @@ from wlsdeploy.aliases.alias_constants import JARRAY
 from wlsdeploy.aliases.alias_constants import JAVA_LANG_BOOLEAN
 from wlsdeploy.aliases.alias_constants import LIST
 from wlsdeploy.aliases.alias_constants import LONG
-from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.alias_constants import PATH_SEPARATOR_DELIMITED_STRING
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_FOLDER_PATHS
@@ -866,11 +865,15 @@ def _jconvert_to_type(data_type, value, delimiter):
         elif data_type in (COMMA_DELIMITED_STRING, DELIMITED_STRING, SEMI_COLON_DELIMITED_STRING,
                            SPACE_DELIMITED_STRING, PATH_SEPARATOR_DELIMITED_STRING):
             #
-            # Data type value may be the wlst_type, wlst_read_type, or the preferred_model_type from the alias
-            # definition. For any of these, the representation in the model should be comma-separated string.
+            # This code intentionally ignores the delimiter value passed in and computes it from the data type.
+            # This is required to handle the special case where the value we read from WLST might have a
+            # different delimiter than the model value.  In this use case, the value passed into the method
+            # is the WLST value delimiter and the data_type is the preferred_model_type, so we compute the
+            # model delimiter from the data_type directly.
             #
-            if converted:
-                converted = MODEL_LIST_DELIMITER.join(converted)
+            delimiter = compute_delimiter_from_data_type(data_type, converted)
+            if delimiter and converted:
+                converted = delimiter.join(converted)
     except TypeError, te:
         ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter, str(te))
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
