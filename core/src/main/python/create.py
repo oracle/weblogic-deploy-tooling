@@ -364,7 +364,7 @@ def validateRCUArgsAndModel(model_context, model):
                     tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     else:
-        if model_context.get_domain_type() not in ['WLS', 'RestrictedJRF']:
+        if model_context.get_domain_typedef().required_rcu():
             if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
                 __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
                             CommandLineArgUtil.RCU_PREFIX_SWITCH)

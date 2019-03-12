@@ -99,10 +99,10 @@ public class RCURunner {
         this.rcuPrefix = validateNonEmptyString(rcuPrefix, "rcu_prefix");
         this.rcuSchemas = validateNonEmptyListOfStrings(rcuSchemas, "rcu_schema_list");
         this.rcuVariables = rcuVariables;
-        if (this.rcuSchemas.contains(SERVICE_TABLE_COMPONENT)) {
-            LOGGER.warning("WLSDPLY-12000", CLASS, domainType, SERVICE_TABLE_COMPONENT);
-            this.rcuSchemas.remove(SERVICE_TABLE_COMPONENT);
-        }
+//        if (this.rcuSchemas.contains(SERVICE_TABLE_COMPONENT)) {
+//            LOGGER.warning("WLSDPLY-12000", CLASS, domainType, SERVICE_TABLE_COMPONENT);
+//            this.rcuSchemas.remove(SERVICE_TABLE_COMPONENT);
+//        }
     }
 
     /**
@@ -152,10 +152,10 @@ public class RCURunner {
         this.atpTemporaryTablespace = rcuProperties.get(new PyString("atp.temp.tablespace")).toString();
         this.rcuVariables = rcuVariables;
 
-        if (!this.rcuSchemas.contains(SERVICE_TABLE_COMPONENT)) {
-            LOGGER.warning("WLSDPLY-12000", CLASS, domainType, SERVICE_TABLE_COMPONENT);
-            this.rcuSchemas.add(SERVICE_TABLE_COMPONENT);
-        }
+//        if (!this.rcuSchemas.contains(SERVICE_TABLE_COMPONENT)) {
+//            LOGGER.warning("WLSDPLY-12000", CLASS, domainType, SERVICE_TABLE_COMPONENT);
+//            this.rcuSchemas.add(SERVICE_TABLE_COMPONENT);
+//        }
     }
 
 
@@ -274,8 +274,8 @@ public class RCURunner {
             dropArgs.add(rcuSchema);
         }
         // Add STB to the drop list since it is never specified in the create list...
-        dropArgs.add(COMPONENT_SWITCH);
-        dropArgs.add(SERVICE_TABLE_COMPONENT);
+//        dropArgs.add(COMPONENT_SWITCH);
+//        dropArgs.add(SERVICE_TABLE_COMPONENT);
 
         dropArgs.add(READ_STDIN_SWITCH);
 

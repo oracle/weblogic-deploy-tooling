@@ -131,6 +131,15 @@ class DomainTypedef(object):
         # resolution for create.py argument processing.
         return list(self._domain_typedef['rcuSchemas'])
 
+    def required_rcu(self):
+        """
+        Test whether it requires RCU components.
+        :return: true if it requires rcu compoent
+        """
+        # No need to resolve the paths and we need this to work prior to
+        # resolution for create.py argument processing.
+        return 'rcuSchemas' in self._domain_typedef and len(self._domain_typedef['rcuSchemas']) > 0
+
     def is_system_app(self, name):
         """
         Determine if the specified name matches a WLS system application.
