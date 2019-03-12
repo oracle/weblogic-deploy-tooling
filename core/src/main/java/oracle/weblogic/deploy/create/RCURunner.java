@@ -22,6 +22,7 @@ import oracle.weblogic.deploy.util.StringUtils;
 import org.python.core.PyDictionary;
 import org.python.core.PyString;
 
+
 /**
  * This class does all the work to drop and recreate the RCU schemas besed on the domain type definition.
  */
@@ -49,6 +50,7 @@ public class RCURunner {
     private static final String COMPONENT_SWITCH = "-component";
     private static final String TABLESPACE_SWITCH = "-tablespace";
     private static final String TEMPTABLESPACE_SWITCH = "-tempTablespace";
+    private static final String RCU_VARIABLES_SWITCH =  "-variables";
     private static final String READ_STDIN_SWITCH = "-f";
     private static final String USE_SSL_SWITCH = "-useSSL";
     private static final String SERVER_DN_SWITCH = "-serverDN";
@@ -72,6 +74,10 @@ public class RCURunner {
     private List<String> rcuSchemas;
     private boolean ATP_DB = false;
     private String atpSSlArgs = null;
+    private String atpAdminUser = null;
+    private String atpDefaultTablespace = null;
+    private String atpTemporaryTablespace = null;
+    private String rcuVariables = null;
 
     /**
      * The constructor.
@@ -85,13 +91,14 @@ public class RCURunner {
      * @throws CreateException if a parameter validation error occurs
      */
     public RCURunner(String domainType, String oracleHome, String javaHome, String rcuDb, String rcuPrefix,
-        List<String> rcuSchemas) throws CreateException {
+        List<String> rcuSchemas, String rcuVariables) throws CreateException {
 
         this.oracleHome = validateExistingDirectory(oracleHome, "ORACLE_HOME");
         this.javaHome = validateExistingDirectory(javaHome, "JAVA_HOME");
         this.rcuDb = validateNonEmptyString(rcuDb, "rcu_db");
         this.rcuPrefix = validateNonEmptyString(rcuPrefix, "rcu_prefix");
         this.rcuSchemas = validateNonEmptyListOfStrings(rcuSchemas, "rcu_schema_list");
+        this.rcuVariables = rcuVariables;
         if (this.rcuSchemas.contains(SERVICE_TABLE_COMPONENT)) {
             LOGGER.warning("WLSDPLY-12000", CLASS, domainType, SERVICE_TABLE_COMPONENT);
             this.rcuSchemas.remove(SERVICE_TABLE_COMPONENT);
@@ -99,7 +106,7 @@ public class RCURunner {
     }
 
     /**
-     * The constructor.
+     * The constructor - used only by ATP database
      *
      * @param domainType the domain type
      * @param oracleHome the ORACLE_HOME location
@@ -107,7 +114,7 @@ public class RCURunner {
      * @throws CreateException if a parameter validation error occurs
      */
     public RCURunner(String domainType, String oracleHome, String javaHome, List<String> rcuSchemas,
-        PyDictionary rcuProperties)
+        PyDictionary rcuProperties, String rcuVariables)
         throws CreateException {
 
 
@@ -140,6 +147,11 @@ public class RCURunner {
         this.rcuDb = "jdbc:oracle:thin:@" + rcuProperties.get(new PyString("tns.entry")).toString();
         this.rcuPrefix = rcuProperties.get(new PyString("rcu_prefix")).toString();
         this.rcuSchemas = validateNonEmptyListOfStrings(rcuSchemas, "rcu_schema_list");
+        this.atpAdminUser = rcuProperties.get(new PyString("atp.admin.user")).toString();
+        this.atpDefaultTablespace = rcuProperties.get(new PyString("atp.default.tablespace")).toString();
+        this.atpTemporaryTablespace = rcuProperties.get(new PyString("atp.temp.tablespace")).toString();
+        this.rcuVariables = rcuVariables;
+
         if (!this.rcuSchemas.contains(SERVICE_TABLE_COMPONENT)) {
             LOGGER.warning("WLSDPLY-12000", CLASS, domainType, SERVICE_TABLE_COMPONENT);
             this.rcuSchemas.add(SERVICE_TABLE_COMPONENT);
@@ -240,7 +252,7 @@ public class RCURunner {
 
         if (ATP_DB) {
             dropArgs.add(DB_USER_SWITCH);
-            dropArgs.add("admin");
+            dropArgs.add(this.atpAdminUser);
             dropArgs.add(USE_SSL_SWITCH);
             dropArgs.add("true");
             dropArgs.add(SERVER_DN_SWITCH);
@@ -281,7 +293,7 @@ public class RCURunner {
         createArgs.add(rcuDb);
         if (ATP_DB) {
             createArgs.add(DB_USER_SWITCH);
-            createArgs.add("admin");
+            createArgs.add(this.atpAdminUser);
             createArgs.add(USE_SSL_SWITCH);
             createArgs.add("true");
             createArgs.add(SERVER_DN_SWITCH);
@@ -302,10 +314,14 @@ public class RCURunner {
             createArgs.add(rcuSchema);
             if (ATP_DB) {
                 createArgs.add(TABLESPACE_SWITCH);
-                createArgs.add("DATA");
+                createArgs.add(this.atpDefaultTablespace);
                 createArgs.add(TEMPTABLESPACE_SWITCH);
-                createArgs.add("TEMP");
+                createArgs.add(this.atpTemporaryTablespace);
             }
+        }
+        if (rcuVariables != null) {
+            createArgs.add(RCU_VARIABLES_SWITCH);
+            createArgs.add(this.rcuVariables);
         }
         createArgs.add(READ_STDIN_SWITCH);
 
