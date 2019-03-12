@@ -10,7 +10,10 @@ from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import APP_DIR
+from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
 from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
+from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
+from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
@@ -43,6 +46,7 @@ from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
+from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SECURITY
@@ -182,6 +186,26 @@ class DomainCreator(Creator):
         self.topology_helper.qualify_nm_properties(type_name, model_nodes, base_location, self.model_context,
                                                    self.attribute_setter)
 
+    def __validate_rcudbinfo_entries(self, rcu_dbinfo_properties, keys):
+        _method_name = '_validate_rcudbinfo_entries'
+        error = 0
+        last_error = None
+        for key in keys:
+            if key in rcu_dbinfo_properties:
+                if rcu_dbinfo_properties[key] is None:
+                    error = 1
+            else:
+                error = 1
+            if error:
+                last_error = key
+                break
+
+        if error:
+            ex = exception_helper.create_create_exception('WLSDPLY-12413', last_error, str(keys))
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+
     def __run_rcu(self):
         """
         The method that runs RCU to drop and then create the schemas.
@@ -211,18 +235,39 @@ class DomainCreator(Creator):
         if RCU_DB_INFO in self.model.get_model_domain_info():
             rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
 
-            if ATP_TNS_ENTRY in rcu_properties_map:
+            if atp_helper.has_atpdbinfo(rcu_properties_map):
+
+                # Need to validate they are non null
+
                 rcu_schema_pass = rcudbinfo_helper.get_rcu_schema_password(rcu_properties_map)
                 rcu_sys_pass = rcudbinfo_helper.get_admin_password(rcu_properties_map)
-                runner = RCURunner(domain_type, oracle_home, java_home, rcu_schemas, rcu_properties_map)
+
+                # Set it if it needs it
+                # The java RCURunner use it to construct the argument
+                # If we don't set it to non null then RCURunner will NPE
+
+                rcu_properties_map[ATP_ADMIN_USER] = rcudbinfo_helper.get_atp_admin_user(rcu_properties_map)
+                rcu_properties_map[ATP_TEMPORARY_TABLESPACE] = rcudbinfo_helper.get_atp_temporary_tablespace(rcu_properties_map)
+                rcu_properties_map[ATP_DEFAULT_TABLESPACE] = rcudbinfo_helper.get_atp_default_tablespace(rcu_properties_map)
+
+                self.__validate_rcudbinfo_entries(rcu_properties_map, [RCU_ADMIN_PASSWORD,
+                                                                                  RCU_ADMIN_PASSWORD,
+                                                                      ATP_TNS_ENTRY, RCU_PREFIX,
+                                                                      DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY,
+                                                                      DRIVER_PARAMS_KEYSTOREPWD_PROPERTY])
+
+                runner = RCURunner(domain_type, oracle_home, java_home, rcu_schemas, rcu_properties_map,
+                                   rcudbinfo_helper.get_rcu_variables(rcu_properties_map))
                 runner.runRcu(rcu_sys_pass, rcu_schema_pass)
             else:
                 rcu_db = rcudbinfo_helper.get_rcu_regular_db_conn(rcu_properties_map)
                 rcu_prefix = rcudbinfo_helper.get_rcu_prefix(rcu_properties_map)
                 rcu_sys_pass = rcudbinfo_helper.get_admin_password(rcu_properties_map)
                 rcu_schema_pass = rcudbinfo_helper.get_rcu_schema_password(rcu_properties_map)
-
-                runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas)
+                self.__validate_rcudbinfo_entries(rcu_properties_map, [RCU_PREFIX, RCU_SCHEMA_PASSWORD,
+                                                                      RCU_ADMIN_PASSWORD, RCU_DB_CONN])
+                runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
+                                   rcudbinfo_helper.get_rcu_variables(rcu_properties_map))
                 runner.runRcu(rcu_sys_pass, rcu_schema_pass)
         else:
             rcu_db = self.model_context.get_rcu_database()
@@ -230,7 +275,7 @@ class DomainCreator(Creator):
             rcu_sys_pass = self.model_context.get_rcu_sys_pass()
             rcu_schema_pass = self.model_context.get_rcu_schema_pass()
 
-            runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas)
+            runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas, None)
             runner.runRcu(rcu_sys_pass, rcu_schema_pass)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -726,7 +771,7 @@ class DomainCreator(Creator):
             rcu_properties_map = domain_info[RCU_DB_INFO]
             # HANDLE ATP case
 
-            if ATP_TNS_ENTRY in rcu_properties_map:
+            if atp_helper.has_atpdbinfo(rcu_properties_map):
                 has_atp = 1
                 # parse the tnsnames.ora file and retrieve the connection string
                 tns_admin = rcu_properties_map[DRIVER_PARAMS_NET_TNS_ADMIN]

@@ -164,11 +164,24 @@ def has_tns_admin(rcu_db_info):
 
 
 def has_atpdbinfo(rcu_db_info):
-    return model_constants.ATP_TNS_ENTRY in rcu_db_info
+    is_atp = 0
+    if model_constants.USE_ATP in rcu_db_info:
+        print
+        if rcu_db_info[model_constants.USE_ATP] == 'true' or rcu_db_info[model_constants.USE_ATP] == 1:
+            is_atp = 1
+    return is_atp
+    # return model_constants.USE_ATP in rcu_db_info
+    # return model_constants.ATP_TNS_ENTRY in rcu_db_info
 
 
 def is_regular_db(rcu_db_info):
-    return model_constants.RCU_DB_CONN in rcu_db_info
+    is_regular = 0
+    if model_constants.USE_ATP in rcu_db_info:
+        if rcu_db_info[model_constants.USE_ATP] is 'false' or rcu_db_info[model_constants.USE_ATP] is 0:
+            is_regular = 1
+    if model_constants.RCU_DB_CONN in rcu_db_info:
+        is_regular = 1
+    return is_regular
 
 
 def extract_walletzip(model, model_context, archive_file, atp_path):
