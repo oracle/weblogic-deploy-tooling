@@ -871,6 +871,7 @@ class DomainCreator(Creator):
             svc_table_ds_name = self.wls_helper.get_jrf_service_table_datasource_name()
             if token_name is not None:
                 location.add_name_token(token_name, svc_table_ds_name)
+<<<<<<< HEAD
 
             location.append_location(JDBC_RESOURCE)
             location.append_location(JDBC_DRIVER_PARAMS)
@@ -894,11 +895,36 @@ class DomainCreator(Creator):
             location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
             token_name = self.alias_helper.get_name_token(location)
 
+=======
+
+            location.append_location(JDBC_RESOURCE)
+            location.append_location(JDBC_DRIVER_PARAMS)
+            wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+            self.wlst_helper.cd(wlst_path)
+
+            svc_table_driver_name = self.wls_helper.get_stb_data_source_jdbc_driver_name()
+            wlst_name, wlst_value = \
+                self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_NAME, svc_table_driver_name)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name)
+
+            wlst_name, wlst_value = \
+                self.alias_helper.get_wlst_attribute_name_and_value(location, URL, fmw_database)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name)
+
+            wlst_name, wlst_value = \
+                self.alias_helper.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
+                                                                    rcu_schema_pwd, masked=True)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name, masked=True)
+
+            location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+            token_name = self.alias_helper.get_name_token(location)
+>>>>>>> origin/atptest
             if token_name is not None:
                 location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
 
             stb_user = self.wls_helper.get_stb_user_name(rcu_prefix)
             self.logger.fine('WLSDPLY-12222', stb_user, class_name=self.__class_name, method_name=_method_name)
+<<<<<<< HEAD
             wlst_path = self.alias_helper.get_wlst_attributes_path(location)
             self.wlst_helper.cd(wlst_path)
             wlst_name, wlst_value = \
@@ -910,6 +936,18 @@ class DomainCreator(Creator):
             if self.wls_helper.is_database_defaults_supported():
                 self.wlst_helper.get_database_defaults()
 
+=======
+
+            wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+            self.wlst_helper.cd(wlst_path)
+            wlst_name, wlst_value = \
+                self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE, stb_user)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value,
+                                           JDBC_DRIVER_PARAMS_PROPERTIES, DRIVER_PARAMS_USER_PROPERTY)
+
+            self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
+            self.wlst_helper.get_database_defaults()
+>>>>>>> origin/atptest
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
