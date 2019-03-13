@@ -722,7 +722,7 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __set_atp_connection_property(self, root_location, propery_name, property_value):
+    def __set_atp_connection_property(self, root_location, property_name, property_value):
 
 
         create_path = self.alias_helper.get_wlst_create_path(root_location)
@@ -732,7 +732,7 @@ class DomainCreator(Creator):
         token_name = self.alias_helper.get_name_token(root_location)
 
         if token_name is not None:
-            root_location.add_name_token(token_name, propery_name)
+            root_location.add_name_token(token_name, property_name)
 
 
         mbean_name = self.alias_helper.get_wlst_mbean_name(root_location)
@@ -750,7 +750,7 @@ class DomainCreator(Creator):
                                                                 property_value )
         self.wlst_helper.set(wlst_name, wlst_value)
 
-        root_location.remove_name_token(propery_name)
+        root_location.remove_name_token(property_name)
 
 
     def __configure_fmw_infra_database(self):

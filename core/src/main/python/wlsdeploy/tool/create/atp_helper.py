@@ -166,7 +166,6 @@ def has_tns_admin(rcu_db_info):
 def has_atpdbinfo(rcu_db_info):
     is_atp = 0
     if model_constants.USE_ATP in rcu_db_info:
-        print
         if rcu_db_info[model_constants.USE_ATP] == 'true' or rcu_db_info[model_constants.USE_ATP] == 1:
             is_atp = 1
     return is_atp

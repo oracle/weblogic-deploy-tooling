@@ -134,7 +134,7 @@ class DomainTypedef(object):
     def required_rcu(self):
         """
         Test whether it requires RCU components.
-        :return: true if it requires rcu compoent
+        :return: true if it requires rcu components
         """
         # No need to resolve the paths and we need this to work prior to
         # resolution for create.py argument processing.
