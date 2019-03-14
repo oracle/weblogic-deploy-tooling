@@ -6,6 +6,7 @@ The Universal Permissive License (UPL), Version 1.0
 from oracle.weblogic.deploy.exception import BundleAwareException
 
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import REALM
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.create.creator import Creator
@@ -185,6 +186,31 @@ class SecurityProviderCreator(Creator):
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    # Override
+    def _process_child_nodes(self, location, model_nodes):
+        """
+        Process the model nodes at the specified location.
+        Override default behavior to process security configuration and realm sub-folders before attributes.
+        Security configration attribute DefaultRealm needs to get the MBean of the referenced realm.
+        Realm attribute CertPathBuilder needs to get the MBean of the referenced certificate registry.
+        :param location: the location where the nodes should be processed
+        :param model_nodes: the model dictionary of the nodes to be processed
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '_process_child_nodes'
+
+        model_type, model_name = self.alias_helper.get_model_type_and_name(location)
+        if model_type in [SECURITY_CONFIGURATION, REALM]:
+            self.logger.finest('WLSDPLY-12143', self.alias_helper.get_model_folder_path(location),
+                               self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
+
+            self._create_subfolders(location, model_nodes)
+            self.wlst_helper.cd(self.alias_helper.get_wlst_attributes_path(location))
+            self._set_attributes(location, model_nodes)
+            return
+
+        Creator._process_child_nodes(self, location, model_nodes)
 
     def _delete_existing_providers(self, location):
         """

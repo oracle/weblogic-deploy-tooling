@@ -19,6 +19,7 @@ from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 from wlsdeploy.aliases.model_constants import CAPACITY
+from wlsdeploy.aliases.model_constants import CERT_PATH_PROVIDER
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import COHERENCE_CLUSTER_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import CONTEXT_REQUEST_CLASS
@@ -497,7 +498,7 @@ class AttributeSetter(object):
         self.set_attribute(location, key, targets_value, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
-    def set_partition_security_realm(self, location, key, value, wlst_value):
+    def set_security_realm_mbean(self, location, key, value, wlst_value):
         """
         Set the security realm MBean.
         :param location: the location
@@ -508,6 +509,20 @@ class AttributeSetter(object):
         """
         security_location = self.__get_domain_location(location).append_location(SECURITY_CONFIGURATION)
         mbean = self.__find_in_location(security_location, REALM, value, required=True)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_certificate_registry_mbean(self, location, key, value, wlst_value):
+        """
+        Set the certificate registry MBean.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if target is not found
+        """
+        realm_location = self.__get_parent_location(location, REALM)
+        mbean = self.__find_in_location(realm_location, CERT_PATH_PROVIDER, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
@@ -855,7 +870,8 @@ class AttributeSetter(object):
                 return self.__wlst_helper.get_mbean_for_wlst_path(path)
 
         if required:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19202', element_type, name)
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19210', element_type, name,
+                                                   self.__alias_helper.get_model_folder_path(location))
             self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
             raise ex
 
