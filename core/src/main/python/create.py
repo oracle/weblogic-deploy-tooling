@@ -6,21 +6,19 @@ The main module for the WLSDeploy tool to create empty domains.
 """
 import javaos as os
 import sys
-
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from java.lang import String
-
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
-from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
+from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
@@ -28,6 +26,7 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 # imports from local packages start here
 
 from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -45,6 +44,7 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+from wlsdeploy.tool.create import atp_helper
 
 wlst_extended.wlst_functions = globals()
 
@@ -74,7 +74,7 @@ __optional_arguments = [
     CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
-    CommandLineArgUtil.PASSPHRASE_SWITCH
+    CommandLineArgUtil.PASSPHRASE_SWITCH,
 ]
 
 
@@ -86,7 +86,6 @@ def __process_args(args):
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     required_arg_map, optional_arg_map = cla_util.process_args(args, True)
-
     __verify_required_args_present(required_arg_map)
     __process_java_home_arg(optional_arg_map)
     __process_domain_location_args(optional_arg_map)
@@ -272,13 +271,9 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                 ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
-        else:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12408', domain_type, rcu_schema_count,
-                                                       CommandLineArgUtil.RCU_DB_SWITCH,
-                                                       CommandLineArgUtil.RCU_PREFIX_SWITCH)
-            ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
+
+        # Delay the checking later for rcu related parameters
+
     return
 
 
@@ -336,6 +331,46 @@ def validate_model(model_dictionary, model_context, aliases):
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
 
+def validateRCUArgsAndModel(model_context, model):
+    has_atpdbinfo = 0
+    domain_info = model[model_constants.DOMAIN_INFO]
+    if model_constants.RCU_DB_INFO in domain_info:
+        rcu_db_info = domain_info[model_constants.RCU_DB_INFO]
+        has_tns_admin = atp_helper.has_tns_admin(rcu_db_info)
+        has_regular_db = atp_helper.is_regular_db(rcu_db_info)
+        has_atpdbinfo = atp_helper.has_atpdbinfo(rcu_db_info)
+
+        if model_context.get_archive_file_name() and not has_regular_db:
+            os.environ['oracle.jdbc.fanEnabled'] = 'false'
+            # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
+            # 2. If it is plain old regular oracle db, do nothing
+            # 3. If it deos not have tns_admin in the model, then the wallet must be in the archive
+            if not has_tns_admin:
+                # extract the wallet first
+                archive_file = WLSDeployArchive(model_context.get_archive_file_name())
+                atp_wallet_zipentry = archive_file.getATPWallet()
+                if atp_wallet_zipentry and model[model_constants.TOPOLOGY]['Name']:
+                    extract_path = atp_helper.extract_walletzip(model, model_context, archive_file, atp_wallet_zipentry)
+                    # update the model to add the tns_admin
+                    model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
+                        model_constants.DRIVER_PARAMS_NET_TNS_ADMIN] = extract_path
+                else:
+                    __logger.severe('WLSDPLY-12411', error=None,
+                                    class_name=_class_name, method_name="validateRCUArgsAndModel")
+                    __clean_up_temp_files()
+                    tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    else:
+        if model_context.get_domain_typedef().required_rcu():
+            if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
+                __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
+                            CommandLineArgUtil.RCU_PREFIX_SWITCH)
+                __clean_up_temp_files()
+                tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    return has_atpdbinfo
+
+
 def main(args):
     """
     The entry point for the create domain tool.
@@ -387,11 +422,21 @@ def main(args):
     if filter_helper.apply_filters(model, "create"):
         # if any filters were applied, re-validate the model
         validate_model(model, model_context, aliases)
-
     try:
+
+        has_atp = validateRCUArgsAndModel(model_context, model)
         creator = DomainCreator(model, model_context, aliases)
         creator.create()
+
+        if has_atp:
+            atp_helper.fix_jsp_config(model, model_context)
     except CreateException, ex:
+        __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+        __clean_up_temp_files()
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    except IOException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()

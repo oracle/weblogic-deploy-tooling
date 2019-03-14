@@ -66,6 +66,7 @@ class CommandLineArgUtil(object):
     VARIABLE_INJECTOR_FILE_SWITCH   = '-variable_injector_file'
     VARIABLE_KEYWORDS_FILE_SWITCH   = '-variable_keywords_file'
     VARIABLE_PROPERTIES_FILE_SWITCH = '-variable_properties_file'
+
     # a slot to stash the parsed domain typedef dictionary
     DOMAIN_TYPEDEF             = 'domain_typedef'
     # a slot to stash the archive file object
@@ -968,6 +969,7 @@ class CommandLineArgUtil(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return variables.getAbsolutePath()
+
 
     ###########################################################################
     # Helper methods                                                          #

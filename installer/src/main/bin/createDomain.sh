@@ -158,7 +158,7 @@ esac
 #
 # Check to see if no args were given and print the usage message
 #
-if [[ $# = 0 ]]; then
+if [ "$#" -eq "0" ]; then
   usage `basename $0`
   exit 0
 fi
@@ -169,7 +169,7 @@ MIN_JDK_VERSION=7
 #
 # Find the args required to determine the WLST script to run
 #
-while [[ $# > 1 ]]; do
+while [ "$#" -gt "1" ]; do
     key="$1"
     case $key in
         -help)
@@ -316,7 +316,7 @@ echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
 PY_SCRIPTS_PATH=${WLSDEPLOY_HOME}/lib/python
 echo "${WLST} ${PY_SCRIPTS_PATH}/create.py ${SCRIPT_ARGS}"
 
-"${WLST}" "${PY_SCRIPTS_PATH}/create.py" ${SCRIPT_ARGS}
+eval "${WLST}" "${PY_SCRIPTS_PATH}/create.py" ${SCRIPT_ARGS}
 
 RETURN_CODE=$?
 if [ ${RETURN_CODE} -eq 100 ]; then
