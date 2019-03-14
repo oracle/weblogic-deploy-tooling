@@ -969,7 +969,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CertPathProvider/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CertPathProvider${:s}/%PROVIDER%"
                             }
                         },
                         "WebLogicCertPathProvider": {
@@ -981,14 +981,14 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CertPathProvider/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CertPathProvider${:s}/%PROVIDER%"
                             }
                         }
                     },
                     "attributes" : { },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CertPathProvider/%PROVIDER%"
+                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CertPathProvider${:s}/%PROVIDER%"
                     }
                 },
                 "CredentialMapper" : {
@@ -1197,7 +1197,7 @@
             "attributes" : {
                 "AuthMethods":                              [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "AuthMethods",                              "wlst_path": "WP001", "value": {"default": "None"                     }, "wlst_type": "string"  } ],
                 "AutoRestartOnNonDynamicChanges":           [ {"version": "[12.2.1,)",   "wlst_mode": "both", "wlst_name": "AutoRestartOnNonDynamicChanges",           "wlst_path": "WP001", "value": {"default": "false"                    }, "wlst_type": "boolean" } ],
-                "CertPathBuilder":                          [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "CertPathBuilder",                          "wlst_path": "WP001", "value": {"default": "WebLogicCertPathProvider" }, "wlst_type": "string"  } ],
+                "CertPathBuilder":                          [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "CertPathBuilder",                          "wlst_path": "WP001", "value": {"default": "WebLogicCertPathProvider" }, "wlst_type": "string", "set_method": "MBEAN.set_certificate_registry_mbean", "set_mbean_type": "weblogic.security.providers.pk.CertificateRegistryMBean"  } ],
                 "CombinedRoleMappingEnabled":               [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "CombinedRoleMappingEnabled",               "wlst_path": "WP001", "value": {"default": "true"                     }, "wlst_type": "boolean" } ],
                 "CompatibilityObjectName":                  [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "CompatibilityObjectName",                  "wlst_path": "WP001", "value": {"default": "None"                     }, "wlst_type": "string"  } ],
                 "DelegateMBeanAuthorization":               [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "DelegateMBeanAuthorization",               "wlst_path": "WP001", "value": {"default": "false"                    }, "wlst_type": "boolean" } ],
@@ -1260,7 +1260,7 @@
         "CredentialEncrypted":                   [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "CredentialEncrypted",                   "wlst_path": "WP001", "value": {"default": "None"    }, "wlst_type": "password",        "get_method": "GET"} ],
         "CredentialGenerated":                   [ {"version": "[10,)",       "wlst_mode": "online", "wlst_name": "CredentialGenerated",                 "wlst_path": "WP001", "value": {"default": "false"   }, "wlst_type": "boolean",         "get_method": "GET", "restart_required": "true"} ],
         "CrossDomainSecurityEnabled":            [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "CrossDomainSecurityEnabled",            "wlst_path": "WP001", "value": {"default": "false"   }, "wlst_type": "boolean"          } ],
-        "DefaultRealm":                          [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "DefaultRealm",                          "wlst_path": "WP001", "value": {"default": "myrealm" }, "wlst_type": "string",          "get_method": "${LSA:GET}", "set_method": "MBEAN.set_server_mbean", "set_mbean_type": "weblogic.management.configuration.SecurityMBean", "restart_required": "true" } ],
+        "DefaultRealm":                          [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "DefaultRealm",                          "wlst_path": "WP001", "value": {"default": "myrealm" }, "wlst_type": "string",          "get_method": "${LSA:GET}", "set_method": "MBEAN.set_security_realm_mbean", "set_mbean_type": "weblogic.management.configuration.SecurityMBean", "restart_required": "true" } ],
         "DefaultRealmInternal":                  [ {"version": "[10,)",       "wlst_mode": "offline", "wlst_name": "DefaultRealmInternal",               "wlst_path": "WP001", "value": {"default": "None"    }, "wlst_type": "string"           } ],
         "DowngradeUntrustedPrincipals":          [ {"version": "[10,12.2.1)", "wlst_mode": "both", "wlst_name": "DowngradeUntrustedPrincipals",          "wlst_path": "WP001", "value": {"default": "false"   }, "wlst_type": "boolean",         "restart_required": "true" } ,
                                                    {"version": "[12.2.1,)",   "wlst_mode": "both", "wlst_name": "DowngradeUntrustedPrincipals",          "wlst_path": "WP001", "value": {"default": "false"   }, "wlst_type": "boolean"          } ],
