@@ -341,7 +341,9 @@ def validateRCUArgsAndModel(model_context, model):
         has_atpdbinfo = atp_helper.has_atpdbinfo(rcu_db_info)
 
         if model_context.get_archive_file_name() and not has_regular_db:
-            #os.environ['oracle.jdbc.fanEnabled'] = 'false'
+            import java.lang.System as javasys
+            javasys.setProperty('oracle.jdbc.fanEnabled', 'false')
+
             # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
             # 2. If it is plain old regular oracle db, do nothing
             # 3. If it deos not have tns_admin in the model, then the wallet must be in the archive
