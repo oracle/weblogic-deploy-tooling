@@ -10,6 +10,7 @@ from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from java.lang import String
+from java.lang.System import System
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.util import CLAException
@@ -341,8 +342,7 @@ def validateRCUArgsAndModel(model_context, model):
         has_atpdbinfo = atp_helper.has_atpdbinfo(rcu_db_info)
 
         if model_context.get_archive_file_name() and not has_regular_db:
-            import java.lang.System as javasys
-            javasys.setProperty('oracle.jdbc.fanEnabled', 'false')
+            System.setProperty('oracle.jdbc.fanEnabled', 'false')
 
             # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
             # 2. If it is plain old regular oracle db, do nothing
