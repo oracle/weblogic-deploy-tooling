@@ -184,8 +184,12 @@ def is_regular_db(rcu_db_info):
 
 
 def extract_walletzip(model, model_context, archive_file, atp_path):
-    domain_path = model_context.get_domain_parent_dir() + os.sep + model[model_constants.TOPOLOGY][
-        'Name']
+    domain_parent = model_context.get_domain_parent_dir()
+    if domain_parent is None:
+        domain_path = model_context.get_domain_home()
+    else:
+        domain_path = domain_parent + os.sep + model[model_constants.TOPOLOGY][
+            'Name']
     extract_path = domain_path +  os.sep + 'atpwallet'
     extract_dir = File(extract_path)
     extract_dir.mkdirs()
