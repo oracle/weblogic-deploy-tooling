@@ -38,7 +38,7 @@ class Creator(object):
         self.model_context = model_context
         self.wls_helper = WebLogicHelper(self.logger)
         self.attribute_setter = AttributeSetter(self.aliases, self.logger, exception_type)
-        self.custom_folder_helper = CustomFolderHelper(self.aliases, self.logger, exception_type)
+        self.custom_folder_helper = CustomFolderHelper(self.aliases, self.logger, self.model_context, exception_type)
 
         # Must be initialized by the subclass since only it has
         # the knowledge required to compute the domain name.
