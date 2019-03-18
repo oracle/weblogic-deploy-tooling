@@ -775,7 +775,14 @@ public class WLSDeployZipFile {
     private File getNewOutputFile() throws WLSDeployArchiveIOException {
         final String METHOD = "getNewOutputFile";
 
-        String[] nameComponents = FileUtils.parseFileName(getFileName());
+        String fileName = getFileName();
+        if (fileName.contains(File.separator)) {
+            int lastSeparator = fileName.lastIndexOf(File.separator);
+            if (lastSeparator > 0)
+                fileName = fileName.substring(lastSeparator+1);
+        }
+
+        String[] nameComponents = FileUtils.parseFileName(fileName);
 
         File directory = getFile().getParentFile();
         File newOutputFile;
