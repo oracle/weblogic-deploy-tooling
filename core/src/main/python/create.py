@@ -10,7 +10,7 @@ from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from java.lang import String
-from java.lang.System import System
+from java.lang import System
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.util import CLAException
