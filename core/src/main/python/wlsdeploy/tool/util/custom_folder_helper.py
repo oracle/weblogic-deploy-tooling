@@ -20,9 +20,11 @@ class CustomFolderHelper(object):
     These require special handling, since they do not have alias definitions.
     """
     __class_name = 'CustomFolderHelper'
+    __cipher_text_prefixes = ["{AES}", "{AES-256}"]
 
-    def __init__(self, aliases, logger, exception_type):
+    def __init__(self, aliases, logger, model_context, exception_type):
         self.logger = logger
+        self.model_context = model_context
         self.exception_type = exception_type
         self.alias_helper = AliasHelper(aliases, self.logger, self.exception_type)
         self.weblogic_helper = WebLogicHelper(self.logger)
@@ -107,6 +109,13 @@ class CustomFolderHelper(object):
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
+            # if the property requires encryption, and the value is not encrypted,
+            # encrypt the value with domain encryption.
+
+            requires_encrypted = property_descriptor.getValue('encrypted')
+            if requires_encrypted and not self.is_encrypted(model_value) and isinstance(model_value, str):
+                model_value = self.weblogic_helper.encrypt(model_value, self.model_context.get_domain_home())
+
             property_type = parameter_types[0]
 
             # convert the model value to the target type and call the setter with the target value.
@@ -121,3 +130,9 @@ class CustomFolderHelper(object):
                                                        str(model_value), ex.getLocalizedMessage(), error=ex)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
+
+    def is_encrypted(self, text):
+        for prefix in self.__cipher_text_prefixes:
+            if text.startswith(prefix):
+                return True
+        return False
