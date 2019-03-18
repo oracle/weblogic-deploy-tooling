@@ -13,6 +13,7 @@ import weblogic.version as version_helper
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.util import string_utils
 
+
 class WebLogicHelper(object):
     """
     Helper functions for version-specific WebLogic operations.

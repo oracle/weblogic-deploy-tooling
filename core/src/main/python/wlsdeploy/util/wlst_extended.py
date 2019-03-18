@@ -3,6 +3,7 @@ Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
+import oracle.weblogic.deploy.util.StringUtils as StringUtils
 import wlstModule as wlst
 
 from wlsdeploy.exception import exception_helper
@@ -26,7 +27,8 @@ def apply_jrf(jrf_target, domain_dir, should_update=False):
     """
     global applyJRF
     _method_name = 'apply_jrf'
-    _logger.finest('WLSDPLY-00073', jrf_target, domain_dir, class_name=_class_name, method_name=_method_name)
+    _logger.finest('WLSDPLY-00073', jrf_target, domain_dir, StringUtils.stringForBoolean(should_update),
+                   class_name=_class_name, method_name=_method_name)
     applyJRF = _load_global('applyJRF')
     try:
         applyJRF(jrf_target, domainDir=domain_dir, shouldUpdateDomain=should_update)

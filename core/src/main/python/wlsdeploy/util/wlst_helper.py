@@ -816,6 +816,26 @@ def get_existing_object_list(wlst_objects_path):
     return result
 
 
+def subfolder_exists(wlst_objects_path, wlst_mbean_type):
+    """
+    Determine if the child exists in the current mbean.
+    :param wlst_objects_path: if not None, the wlst mbean attributes path. Current path if none
+    :param wlst_mbean_type: wlst child mbean to search for
+    :return: True if the child folder exists under the wlst mbean
+    """
+    _method_name = 'subfolder_exists'
+    child_folder_list = get_existing_object_list(wlst_objects_path)
+    if child_folder_list is not None and wlst_mbean_type in child_folder_list:
+        _logger.finest('WLSDPLY-00074', wlst_mbean_type, wlst_objects_path, class_name=_class_name,
+                       _method_name=_method_name)
+        exists=True
+    else:
+        _logger.finest('WLSDPLY-00075', wlst_mbean_type, wlst_objects_path, class_name=_class_name,
+                       method_name=_method_name)
+        exists = False
+    return exists
+
+
 def start_application(application_name, *args, **kwargs):
     """
     Start the application in the connected domain.
@@ -1134,3 +1154,50 @@ def get_mbi(path=None):
         cd(current_path)
 
     return result
+
+
+def save_and_close(wlst_online):
+    """
+    Call this if necessary to save changes and disconnect from the domain
+    midstream through the tool session. If online, and not connected, do
+    nothing.
+    This works for both offline and online edit sessions.
+    :param wlst_online: True if the tool is running in online mode
+    """
+    _method_name = 'save_and_close'
+    if wlst_online():
+        if is_connected():
+            _logger.fine('WLSDPLY-00076', class_name=_class_name, method_name=_method_name)
+            save()
+            activate()
+            disconnect()
+        else:
+            _logger.fine('WLSDPLY-00075', class_name=_class_name, method_name=_method_name)
+    else:
+        _logger.fine('WLSDPLY-00077', class_name=_class_name, method_name=_method_name)
+        update_domain()
+
+
+def reopen(wlst_online, admin_user=None, admin_pass=None, admin_url=None, domain_home=None):
+    """
+    Establish connection with the domain and start editing. This works for both online and offline wlst mode.
+    :param wlst_online: True if the tool is running in online mode
+    :param admin_user: admin userid to connect with
+    :param admin_pass: admin_password to connect with
+    :param admin_url: url of the admin server
+    :param domain_home: domain home of domain for offline mode
+    :param domain_home: directory and domain home path
+    """
+    _method_name = 'reopen'
+    if wlst_online():
+        if not is_connected():
+            _logger.fine('WLSDPLY-19148', class_name=_class_name, method_name=_method_name)
+            connect(admin_user, admin_pass, admin_url)
+            edit()
+            start_edit()
+        else:
+            _logger.fine('WLSDPLY-19147', class_name=_class_name, method_name=_method_name)
+    else:
+        _logger.fine('WLSDPLY-19149', class_name=_class_name, method_name=_method_name)
+        close_domain()
+        read_domain(domain_home)

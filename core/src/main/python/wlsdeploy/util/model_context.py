@@ -400,6 +400,20 @@ class ModelContext(object):
         """
         return self._wlst_mode
 
+    def is_wlst_online(self):
+        """
+        Determine if the tool was started using WLST online mode
+        :return: True if the tool is in online mode
+        """
+        return self._wlst_mode == WlstModes.ONLINE
+
+    def is_wlst_offline(self):
+        """
+        Determine if the tool was started using WLST offline mode
+        :return: True if the tool is in offline mode
+        """
+        return self._wlst_mode == WlstModes.OFFLINE
+
     def replace_tokens_in_path(self, attribute_name, resource_dict):
         """
         Replace any tokens in a path with the current values.

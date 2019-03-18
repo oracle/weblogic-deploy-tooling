@@ -42,16 +42,17 @@ class WlstHelper(object):
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-    def apply_jrf(self, jrf_target, domain_home, should_update=False):
+    def apply_jrf(self, jrf_target, model_context, should_update=False):
         """
         For those installs that require populating the JRF server group information to the managed servers
         :param jrf_target: The entity to which to target the JRF applications and services
-        :param domain_home: The domain home directory
+        :param model_context: The context containing the tool session information needed for the applyJRF
         :param should_update: If True the applyJRF will update the domain after apply
         :raises: Exception specific to tool type
         """
         _method_name = 'apply_jrf'
 
+        domain_home = model_context.get_domain_home()
         try:
             wlst_extended.apply_jrf(jrf_target, domain_home, should_update)
         except PyWLSTException, pwe:
@@ -278,6 +279,25 @@ class WlstHelper(object):
 
         try:
             result = wlst_helper.get_existing_object_list(wlst_path)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19108',
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
+    def subfolder_exists(self, wlst_mbean_type, wlst_path=None):
+        """
+        Determine if the child exists in the current mbean.
+        :param wlst_path: This will be the MBean attributes path, or current path in WLST session if Noe
+        :param wlst_mbean_type: WLST child MBean to search for
+        :return: True if the child folder exists for the MBean
+        """
+        _method_name = 'subfolder_exists'
+
+        # Exception not currently thrown.
+        try:
+            result = wlst_helper.subfolder_exists(wlst_path, wlst_mbean_type)
         except PyWLSTException, pwe:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19108',
                                                    pwe.getLocalizedMessage(), error=pwe)
@@ -902,3 +922,47 @@ class WlstHelper(object):
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return
+
+    def save_and_close(self, model_context):
+        """
+        Call this if necessary to save changes and disconnect from the domain in the middle of the session.
+        This works in both offline and online.
+        :param model_context: Contains information about the session, including the WlstMode
+        """
+        _method_name = 'save_and_close'
+        if model_context.is_wlst_online():
+            if wlst_helper.is_connected():
+                self.__logger.fine('WLSDPLY-19145', class_name=self.__class_name, method_name=_method_name)
+                wlst_helper.save()
+                wlst_helper.activate()
+                wlst_helper.disconnect()
+            else:
+                self.__logger.fine('WLSDPLY-19144', class_name=self.__class_name, method_name=_method_name)
+        else:
+            self.__logger.fine('WLSDPLY-19146', class_name=self.__class_name, method_name=_method_name)
+            wlst_helper.update_domain()
+
+    def reopen(self, model_context):
+        """
+        Establish connection with the domain and start editing in both online and offline wlst mode.
+        :param model_context: contains the information needed for the reopen, including the WlstMode
+        """
+        _method_name = 'reopen'
+        if model_context.is_wlst_online():
+            try:
+                wlst_helper.reopen(True, admin_user=model_context.get_admin_user(),
+                                   admin_password=model_context.get_admin_password(),
+                                   admin_url=model_context.get_admin_password())
+            except PyWLSTException, pwe:
+                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19144', 'Online',
+                                                       pwe.getLocalizedMessage(), error=pwe)
+                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+        else:
+            try:
+                wlst_helper.reopen(False, model_context.get_domain_home())
+            except PyWLSTException, pwe:
+                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19145', 'Offline',
+                                                       pwe.getLocalizedMessage(), error=pwe)
+                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex

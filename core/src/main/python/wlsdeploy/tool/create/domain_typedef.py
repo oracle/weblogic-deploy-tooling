@@ -95,6 +95,20 @@ class DomainTypedef(object):
         """
         return self._domain_type
 
+    def domain_type_is_jrf(self):
+        """
+        Determine if the tool is running with domain type JRF or RestrictedJRF.
+        :return : True if running with domain type JRF or RestrictedJRF.
+        """
+        return self.get_domain_type() == 'JRF' or self.get_domain_type() == 'RestrictedJRF'
+
+    def domain_type_has_jrf_resources(self):
+        """
+        Does the running domain type contain the JRF server group ?
+        :return:
+        """
+        return 'JRF-MAN-SVR' in self.get_server_groups_to_target()
+
     def get_base_template(self):
         """
         Get the base template to use when create the domain.
