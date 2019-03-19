@@ -366,7 +366,7 @@ def validateRCUArgsAndModel(model_context, model):
         if model_context.get_domain_typedef().required_rcu():
             if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
                 __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
-                            CommandLineArgUtil.RCU_PREFIX_SWITCH)
+                                CommandLineArgUtil.RCU_PREFIX_SWITCH)
                 __clean_up_temp_files()
                 tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
@@ -387,6 +387,8 @@ def main(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
     wlst_helper.silence()
+
+    exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
 
     try:
         model_context = __process_args(args)
@@ -450,7 +452,10 @@ def main(args):
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     __clean_up_temp_files()
+
+    tool_exit.end(model_context, exit_code)
     return
+
 
 if __name__ == "main":
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
