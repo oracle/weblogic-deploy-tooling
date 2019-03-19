@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
 package oracle.weblogic.deploy.util;
@@ -657,7 +657,7 @@ public class WLSDeployArchive {
     /**
      * Extract the specified domain library to the specified location (e.g., $DOMAIN_HOME/lib).
      *
-     * @param archivePath the name of the JAR to extract
+     * @param archivePath the path of the library within the archive
      * @param extractToLocation the location to write the file
      * @throws WLSDeployArchiveIOException if an IOException occurred while extracting or writing the file
      * @throws IllegalArgumentException if the file or directory passed in does not exist
@@ -669,11 +669,7 @@ public class WLSDeployArchive {
         validateNonEmptyString(archivePath, "archivePath", METHOD);
         validateExistingDirectory(extractToLocation, "extractToLocation", getArchiveFileName(), METHOD);
 
-        String libPath = archivePath;
-        if (!archivePath.startsWith(ARCHIVE_DOMLIB_TARGET_DIR)) {
-            libPath = ARCHIVE_DOMLIB_TARGET_DIR + ZIP_SEP + archivePath;
-        }
-        extractFileFromZip(libPath, ARCHIVE_DOMLIB_TARGET_DIR, "", extractToLocation);
+        extractFileFromZip(archivePath, ARCHIVE_DOMLIB_TARGET_DIR, "", extractToLocation);
         LOGGER.exiting(CLASS, METHOD);
     }
 

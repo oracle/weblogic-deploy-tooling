@@ -889,6 +889,10 @@ class Validator(object):
             elif value_data_type == 'string':
                 attr_values.append(attribute_value)
 
+            else:
+                # must be a list
+                attr_values.extend(attribute_value)
+
             for item_path in attr_values:
                 validation_result = self.__validate_single_path_in_archive(item_path.strip(), attribute_name,
                                                                            model_folder_path, validation_result)
