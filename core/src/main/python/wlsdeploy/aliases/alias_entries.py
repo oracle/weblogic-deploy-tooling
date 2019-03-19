@@ -112,6 +112,7 @@ class AliasEntries(object):
         'UnixMachine': 'UnixMachine',
         'VirtualHost': 'VirtualHost',
         'VirtualTarget': 'VirtualTarget',
+        'WebAppContainer': 'WebAppContainer',
         'WLDFSystemResource': 'WLDFSystemResource',
         'WSReliableDeliveryPolicy': 'WSReliableDeliveryPolicy',
         'XMLEntityCache': 'XMLEntityCache',
@@ -161,6 +162,7 @@ class AliasEntries(object):
         'SelfTuning',
         'ShutdownClass',
         'StartupClass',
+        'WebAppContainer',
         'WLDFSystemResource'
     ]
 
