@@ -8,6 +8,7 @@
         "GzipCompression" : {
             "wlst_type": "GzipCompression",
             "version": "[12.2.1.3,)",
+            "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders": {},
             "attributes": {
                 "DynamicallyCreated":                  [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",    "wlst_name": "DynamicallyCreated",                 "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "boolean"           } ],
@@ -19,7 +20,12 @@
                 "Notes":                               [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "string"            } ],
                 "Type":                                [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",    "wlst_name": "Type",                               "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "boolean"           } ],
                 "Tags":                                [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",    "wlst_name": "Tags",                               "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "string"            } ]
+            },
+            "wlst_attributes_path": "WP002",
+            "wlst_paths": {
+                "WP002": "/WebAppContainer/%WEBAPPCONTAINER%/GzipCompression/%WEBAPPCONTAINER%"
             }
+
 
         }
     },

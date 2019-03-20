@@ -146,6 +146,7 @@ class GlobalResourcesDiscoverer(Discoverer):
             _logger.info('WLSDPLY-06615', class_name=_class_name, method_name=_method_name)
             location.add_name_token(self._alias_helper.get_name_token(location), webapp_container)
             self._populate_model_parameters(result, location)
+            self._discover_subfolders(result, location)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
