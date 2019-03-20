@@ -553,7 +553,7 @@ class Discoverer(object):
         :return: true if in oracle home location
         """
         py_str = str(file_name)
-        return (not py_str.startswith(self._model_context.get_domain_home)) and \
+        return (not py_str.startswith(self._model_context.get_domain_home())) and \
             (py_str.startswith(self._model_context.get_oracle_home()) or
              py_str.startswith(self._model_context.get_wl_home()))
 
