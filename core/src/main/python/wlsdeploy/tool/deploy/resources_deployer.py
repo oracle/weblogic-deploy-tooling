@@ -71,6 +71,7 @@ class ResourcesDeployer(Deployer):
         wldf_deployer.add_wldf_modules(self._resources, location)
 
         common_deployer.add_coherence_clusters(self._resources, location)
+        common_deployer.add_webapp_container(self._resources, location)
         return
 
     def _add_startup_classes(self, location):
