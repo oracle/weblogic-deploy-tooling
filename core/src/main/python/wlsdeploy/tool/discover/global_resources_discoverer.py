@@ -2,6 +2,8 @@
 Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+import os
+from java.io import File
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
 from wlsdeploy.aliases import model_constants
@@ -147,7 +149,31 @@ class GlobalResourcesDiscoverer(Discoverer):
             location.add_name_token(self._alias_helper.get_name_token(location), webapp_container)
             self._populate_model_parameters(result, location)
             self._discover_subfolders(result, location)
+            new_name = self._add_mimemapping_file_to_archive(result)
+            if new_name:
+                result[model_constants.MIME_MAPPING_FILE] = new_name
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
+
+    def _add_mimemapping_file_to_archive(self, web_app_container):
+        _method_name = '_add_mimemapping_file_to_archive'
+        _logger.entering(web_app_container, class_name=_class_name, method_name=_method_name)
+        new_name = None
+        if web_app_container:
+            if model_constants.MIME_MAPPING_FILE in web_app_container:
+                model_value = web_app_container[model_constants.MIME_MAPPING_FILE]
+                file_path = self._convert_path(model_value)
+                if os.path.exists(file_path):
+                    # There is indeed a mime properties file
+                    # we need to change the different path in the model
+                    # and add file to the archive similar to apps
+                    archive_file = self._model_context.get_archive_file()
+                    base_name = os.path.basename(file_path)
+                    new_name = archive_file.ARCHIVE_CONFIG_TARGET_DIR + '/' + base_name
+                    archive_file.addMimeMappingFile(File(file_path))
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
+        return new_name
+
 

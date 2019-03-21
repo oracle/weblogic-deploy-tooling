@@ -30,6 +30,12 @@ public class WLSDeployArchive {
 
 
     /**
+     * Top-level archive subdirectory where the config
+     * will be extracted.
+     */
+    public static final String ARCHIVE_CONFIG_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/config";
+
+    /**
      * Top-level archive subdirectory where the atp wallet is stored
      */
     public static final String ARCHIVE_ATP_WALLET_PATH = "atpwallet";
@@ -813,6 +819,25 @@ public class WLSDeployArchive {
         validateNonEmptyString(serverName, "serverName", METHOD);
         validateExistingFile(keystoreFile, "keyStoreFile", getArchiveFileName(), METHOD);
         String newName = addItemToZip(ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP + serverName, keystoreFile);
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Add a WebAppContainer mime mapping file to the archive.
+     *
+     * @param mimeMappingFile the file to add
+     * @return the new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
+     * @throws IllegalArgumentException if the file does not exist or the clusterName is empty or null
+     */
+    public String addMimeMappingFile(File mimeMappingFile) throws WLSDeployArchiveIOException {
+        final String METHOD = "addMimeMappingFile";
+
+        LOGGER.entering(CLASS, METHOD, mimeMappingFile);
+
+        validateExistingFile(mimeMappingFile, "mimeMappingFile", getArchiveFileName(), METHOD);
+        String newName = addItemToZip(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP , mimeMappingFile);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
