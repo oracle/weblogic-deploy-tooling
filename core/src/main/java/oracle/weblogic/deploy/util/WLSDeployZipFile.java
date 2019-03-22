@@ -775,14 +775,6 @@ public class WLSDeployZipFile {
     private File getNewOutputFile() throws WLSDeployArchiveIOException {
         final String METHOD = "getNewOutputFile";
 
-        String fileName = getFileName();
-        if (fileName.contains(File.separator)) {
-            int lastSeparator = fileName.lastIndexOf(File.separator);
-            if (lastSeparator > 0)
-                fileName = fileName.substring(lastSeparator+1);
-        }
-
-        String[] nameComponents = FileUtils.parseFileName(fileName);
 
         File directory = getFile().getParentFile();
         File newOutputFile;
@@ -791,7 +783,18 @@ public class WLSDeployZipFile {
                 newOutputFile = getFile();
                 LOGGER.finest("WLSDPLY-01523", newOutputFile.getAbsolutePath());
             } else {
-                newOutputFile = File.createTempFile(nameComponents[0], DOT + nameComponents[1], directory);
+                // Is there a real case the the archive file with no extension ?
+                String fileName = getFileName();
+                if (fileName.contains(File.separator)) {
+                    int lastSeparator = fileName.lastIndexOf(File.separator);
+                    if (lastSeparator > 0)
+                        fileName = fileName.substring(lastSeparator+1);
+                }
+                String[] nameComponents = FileUtils.parseFileName(fileName);
+
+                // prefix shouldn't matter what we put here, but it has to be at least 3 characters
+
+                newOutputFile = File.createTempFile("wdt_temparchive", DOT + nameComponents[1], directory);
                 LOGGER.finest("WLSDPLY-01524", newOutputFile.getAbsolutePath());
             }
             LOGGER.finer("WLSDPLY-01525", getFileName(), newOutputFile.getAbsolutePath());

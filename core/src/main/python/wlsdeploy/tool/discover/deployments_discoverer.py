@@ -270,7 +270,7 @@ class DeploymentsDiscoverer(Discoverer):
             app_source_name = application_dict[model_constants.SOURCE_PATH]
             plan_path = application_dict[model_constants.PLAN_PATH]
             if plan_path:
-                _logger.info('WLSDPLY-06389', application_name, plan_path, class_name=_class_name,
+                _logger.info('WLSDPLY-06402', application_name, plan_path, class_name=_class_name,
                              method_name=_method_name)
                 plan_dir = None
                 if model_constants.PLAN_DIR in application_dict:
