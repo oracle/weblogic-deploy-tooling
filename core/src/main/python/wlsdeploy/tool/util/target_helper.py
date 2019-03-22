@@ -45,7 +45,7 @@ class TargetHelper(object):
 
     def target_jrf_groups_to_clusters_servers(self, should_update=True):
         """
-        Use the apply_jrf only for those versions of wlst that do not have server groups.
+        Call applyJRF to for those versions of wlst that cannot target servers to server groups.
         This assigns the JRF resources to all managed servers. If the managed server is in a
         cluster, this method assigns the JRF resources are assigned to the cluster. Else, if
         the managed server is stand-alone, the resources are assigned to the managed server.
@@ -179,7 +179,7 @@ class TargetHelper(object):
         dynamic_cluster_name_map = dict()
         for cluster_name in cluster_name_list:
             if cluster_name in server_group_targeting_limits and cluster_name not in dynamic_cluster_name_map:
-                self.logger.fine('WLSDPLY-12234', cluster_name, class_name=self.__class_name, method_name=_method_name)
+                self.logger.fine('WLSDPLY-12237', cluster_name, class_name=self.__class_name, method_name=_method_name)
                 dynamic_cluster_name_map[cluster_name] = server_group_targeting_limits[cluster_name]
 
         if len(dynamic_cluster_name_map) > 0:
@@ -188,7 +188,7 @@ class TargetHelper(object):
             if domain_typedef.domain_type_is_jrf():
                 self._target_jrf_resources(cluster_name_list)
             else:
-                ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12235',
+                ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12238',
                                                        domain_typedef.get_domain_type())
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex

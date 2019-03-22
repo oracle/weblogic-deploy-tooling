@@ -27,13 +27,13 @@ def apply_jrf(jrf_target, domain_dir, should_update=False):
     """
     global applyJRF
     _method_name = 'apply_jrf'
-    _logger.finest('WLSDPLY-00073', jrf_target, domain_dir, StringUtils.stringForBoolean(should_update),
-                   class_name=_class_name, method_name=_method_name)
+    bstring = StringUtils.stringForBoolean(should_update)
+    _logger.fine('WLSDPLY-00073', jrf_target, domain_dir, bstring, class_name=_class_name, method_name=_method_name)
     applyJRF = _load_global('applyJRF')
     try:
         applyJRF(jrf_target, domainDir=domain_dir, shouldUpdateDomain=should_update)
     except (wlst.WLSTException, offlineWLSTException, Exception), e:
-        raise exception_helper.create_pywlst_exception('WLSDPLY-00071', jrf_target, domain_dir,
+        raise exception_helper.create_pywlst_exception('WLSDPLY-00071', jrf_target, domain_dir, bstring,
                                                        _get_exception_mode(e),
                                                        _format_exception(e), error=e)
     return
