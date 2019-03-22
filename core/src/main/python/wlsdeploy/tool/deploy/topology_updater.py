@@ -98,6 +98,10 @@ class TopologyUpdater(Deployer):
 
         self._process_section(self._topology, folder_list, CLUSTER, location)
         self._process_section(self._topology, folder_list, SERVER_TEMPLATE, location)
+
+        # create placeholders for Servers that are in a cluster as /Server/JTAMigratableTarget
+        # can reference "other" servers
+        self._topology_helper.create_placeholder_servers_in_cluster(self._topology)
         self._process_section(self._topology, folder_list, SERVER, location)
 
         self._process_section(self._topology, folder_list, MIGRATABLE_TARGET, location)

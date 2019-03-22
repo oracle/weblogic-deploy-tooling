@@ -67,6 +67,33 @@ class TopologyHelper(object):
 
         self.wlst_helper.cd(original_location)
 
+    def create_placeholder_servers_in_cluster(self, topology):
+        """
+        Create a placeholder for servers that are in a cluster, as these are migratable entities that
+        can reference other servers in the cluster.
+        :param topology: The topology model nodes containing the full set of Servers to add for the create / update
+        """
+        _method_name = 'create_placeholder_servers_in_cluster'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        original_location = self.wlst_helper.get_pwd()
+        server_location = LocationContext().append_location(SERVER)
+
+        if self.alias_helper.get_wlst_mbean_type(server_location) is not None:
+            existing_names = deployer_utils.get_existing_object_list(server_location, self.alias_helper)
+
+            server_nodes = dictionary_utils.get_dictionary_element(topology, SERVER)
+            for server_name in server_nodes:
+                if server_name not in existing_names and self.is_clustered_server(server_name, server_nodes):
+                    self.logger.info('WLSDPLY-19402', server_name, class_name=self.__class_name,
+                                     method_name=_method_name)
+
+                    server_token = self.alias_helper.get_name_token(server_location)
+                    server_location.add_name_token(server_token, server_name)
+                    deployer_utils.create_and_cd(server_location, existing_names, self.alias_helper)
+
+        self.wlst_helper.cd(original_location)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
     def create_placeholder_server_templates(self, topology):
         """
         Create a placeholder server template for each name in the topology.
@@ -133,3 +160,14 @@ class TopologyHelper(object):
                 value = model_context.get_domain_home() + "/" + keystore_file
                 attribute_setter.set_attribute(location, CUSTOM_IDENTITY_KEYSTORE_FILE, value)
 
+    def is_clustered_server(self, server_name, servers_dictionary):
+        """
+        Return true if the server's Cluster attribute is set.
+        :param server_name: name of the server in the dictionary
+        :param servers_dictionary: model topology section of servers
+        :return: True if a clustered server
+        """
+        server_dictionary = dictionary_utils.get_dictionary_element(servers_dictionary, server_name)
+        if dictionary_utils.is_empty_dictionary_element(server_dictionary, CLUSTER):
+            return False
+        return True
