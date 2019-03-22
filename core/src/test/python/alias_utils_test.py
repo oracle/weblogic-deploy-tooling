@@ -110,7 +110,7 @@ class ListTestCase(unittest.TestCase):
 
     def testDelimitedListToList(self):
         value = 'one;two;three'
-        actual = alias_utils.convert_from_type("invalid", value, preferred='list', delimiter=';')
+        actual = alias_utils.convert_to_model_type("list", value, delimiter=';')
         expected = ['one', 'two', 'three']
         lists_equal, message = self.__lists_are_equal(actual, expected)
         self.assertEqual(lists_equal, True, message)
