@@ -18,11 +18,18 @@ class JVMArguments(object):
 
     _class_name = 'JVMArguments'
     __client_server_regex = re.compile('-client|-server')
+
+    # examples: -Xmx200m -Xms100K
     __x_args_size_regex = re.compile('(-X(ms|mx|ss|mn) ?)([0-9]+[kmgKMG]? ?)')
+
+    # example: -Xrunjdwp:transport=dt_socket,address=8888,server=y,suspend=y
     __x_args_value_regex = re.compile('(-X[a-zS]+(/[ap])? ?):([\S]+ ?)')
+
     __x_args_other_regex = re.compile('(-X[a-z]+ ?)(=([0-9]+[kmgKMG]? ?))?')
     __xx_args_switch_regex = re.compile('-XX:([+-] ?)([a-zA-Z0-9]+ ?)')
     __xx_args_value_regex = re.compile('-XX:([a-zA-Z0-9]+ ?)=([\S]+ ?)')
+
+    # examples: -Dabc -Dxyz=jkl,fdr,jdk -Drak=xyz
     __sys_props_regex = re.compile('-D([a-zA-Z0-9-_.]+ ?)(=([\S]+ ?))?')
 
     __size_regex = re.compile('([0-9]+ ?)([kmgKMG]? ?)')
@@ -256,6 +263,8 @@ class JVMArguments(object):
                     self.__client_server_args.append(argument)
                 elif self.__x_args_size_regex.match(argument):
                     self.__process_x_size_arg(argument)
+                elif self.__x_args_value_regex.match(argument):
+                    self.__process_x_value_arg(argument)
                 elif self.__x_args_other_regex.match(argument):
                     self.__process_x_other_arg(argument)
                 elif self.__xx_args_switch_regex.match(argument):
@@ -310,7 +319,7 @@ class JVMArguments(object):
         add it to the internal map.
         :param argument: the argument string
         """
-        _method_name = '__process_x_value_arg'
+        _method_name = '__process_x_other_arg'
 
         match = self.__x_args_other_regex.match(argument)
         xarg = match.group(1)
