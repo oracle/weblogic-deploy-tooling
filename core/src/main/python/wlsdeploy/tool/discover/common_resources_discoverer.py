@@ -247,7 +247,7 @@ class CommonResourcesDiscoverer(Discoverer):
         _logger.entering(jdbc_store_name, class_name=_class_name, method_name=_method_name)
         if model_constants.CREATE_TABLE_DDL_FILE in jdbc_store_dictionary:
             archive_file = self._model_context.get_archive_file()
-            file_name = jdbc_store_dictionary[model_constants.CREATE_TABLE_DDL_FILE]
+            file_name = self._convert_path(jdbc_store_dictionary[model_constants.CREATE_TABLE_DDL_FILE])
             _logger.info('WLSDPLY-06352', jdbc_store_name, file_name, class_name=_class_name, method_name=_method_name)
             try:
                 new_source_name = archive_file.addScript(File(file_name))
@@ -340,21 +340,22 @@ class CommonResourcesDiscoverer(Discoverer):
         _logger.entering(model_name, class_name=_class_name, method_name=_method_name)
         new_script_name = model_value
         if model_value is not None:
-            _logger.info('WLSDPLY-06359', model_value, self._alias_helper.get_model_folder_path(location),
+            file_name = self._convert_path(model_value)
+            _logger.info('WLSDPLY-06359', file_name, self._alias_helper.get_model_folder_path(location),
                          class_name=_class_name, method_name=_method_name)
             archive_file = self._model_context.get_archive_file()
             # Set model_value to None if unable to add it to archive file
             modified_name = None
             try:
-                modified_name = archive_file.addScript(File(model_value))
+                modified_name = archive_file.addScript(File(file_name))
             except IllegalArgumentException, iae:
-                _logger.warning('WLSDPLY-06360', self._alias_helper.get_model_folder_path(location), model_value,
+                _logger.warning('WLSDPLY-06360', self._alias_helper.get_model_folder_path(location), file_name,
                                 iae.getLocalizedMessage(), class_name=_class_name,
                                 method_name=_method_name)
             except WLSDeployArchiveIOException, wioe:
                 de = exception_helper.create_discover_exception('WLSDPLY-06354',
                                                                 self._alias_helper.get_model_folder_path(location),
-                                                                model_value, wioe.getLocalizedMessage())
+                                                                file, wioe.getLocalizedMessage())
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                 raise de
             new_script_name = modified_name

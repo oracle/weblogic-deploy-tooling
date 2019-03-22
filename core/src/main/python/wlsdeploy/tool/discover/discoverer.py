@@ -546,14 +546,16 @@ class Discoverer(object):
 
     def _is_oracle_home_file(self, file_name):
         """
-        Determine if the absolute file name starts with an oracle home.
+        Determine if the absolute file name starts with an oracle home. Disregard if the application is
+        located in the domain home.
 
         :param file_name: to check for oracle home or weblogic home
         :return: true if in oracle home location
         """
         py_str = str(file_name)
-        return py_str.startswith(self._model_context.get_oracle_home()) or py_str.startswith(
-            self._model_context.get_wl_home())
+        return (not py_str.startswith(self._model_context.get_domain_home())) and \
+            (py_str.startswith(self._model_context.get_oracle_home()) or
+             py_str.startswith(self._model_context.get_wl_home()))
 
     def _get_wlst_mode_string(self):
         """

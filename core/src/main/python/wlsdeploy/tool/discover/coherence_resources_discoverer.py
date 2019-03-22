@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from java.io import File
@@ -86,9 +86,11 @@ class CoherenceResourcesDiscoverer(Discoverer):
                     result[coherence_cluster] = OrderedDict()
                     self._populate_model_parameters(result[coherence_cluster], location)
                     model_subfolder_name, subfolder_result = self.get_coherence_cache_config(location)
-                    discoverer.add_to_model_if_not_empty(result[coherence_cluster], model_subfolder_name, subfolder_result)
+                    discoverer.add_to_model_if_not_empty(result[coherence_cluster], model_subfolder_name,
+                                                         subfolder_result)
                     model_subfolder_name, subfolder_result = self.get_coherence_resource(location)
-                    discoverer.add_to_model_if_not_empty(result[coherence_cluster], model_subfolder_name, subfolder_result)
+                    discoverer.add_to_model_if_not_empty(result[coherence_cluster], model_subfolder_name,
+                                                         subfolder_result)
                     location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -159,20 +161,21 @@ class CoherenceResourcesDiscoverer(Discoverer):
         new_name = model_value
         if model_value is not None:
             archive_file = self._model_context.get_archive_file()
+            file_name_path = self._convert_path(model_value)
             config_file = None
             try:
-                config_file = FileUtils.getCanonicalFile(File(model_value))
+                config_file = FileUtils.getCanonicalFile(File(file_name_path))
             except (IOException, SecurityException), se:
-                _logger.warning('WLSDPLY-06314', cluster_name, model_value, se.getLocalizedMessage(),
+                _logger.warning('WLSDPLY-06314', cluster_name, file_name_path, se.getLocalizedMessage(),
                                 class_name=_class_name, method_name=_method_name)
                 new_name = None
 
             if file is not None:
                 try:
                     new_name = archive_file.addCoherenceConfigFile(cluster_name, config_file)
-                    _logger.finer('WLSDPLY-06315', model_value, class_name=_class_name, method_name=_method_name)
+                    _logger.finer('WLSDPLY-06315', file_name_path, class_name=_class_name, method_name=_method_name)
                 except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
-                    _logger.warning('WLSDPLY-06316', cluster_name, model_value, wioe.getLocalizedMessage(),
+                    _logger.warning('WLSDPLY-06316', cluster_name, file_name_path, wioe.getLocalizedMessage(),
                                     class_name=_class_name, method_name=_method_name)
                     new_name = None
 
@@ -209,12 +212,13 @@ class CoherenceResourcesDiscoverer(Discoverer):
                                         class_name=_class_name, method_name=_method_name)
                         new_name = None
                 else:
+                    file_name = self._convert_path(model_value)
                     try:
-                        new_name = archive_file.addCoherenceConfigFile(cluster_name, File(model_value))
-                        _logger.info('WLSDPLY-06319', cluster_name, model_value, new_name, class_name=_class_name,
+                        new_name = archive_file.addCoherenceConfigFile(cluster_name, File(file_name))
+                        _logger.info('WLSDPLY-06319', cluster_name, file_name, new_name, class_name=_class_name,
                                      method_name=_method_name)
                     except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
-                        _logger.warning('WLSDPLY-06318', cluster_name, model_value, 'file', wioe.getLocalizedMessage())
+                        _logger.warning('WLSDPLY-06318', cluster_name, file_name, 'file', wioe.getLocalizedMessage())
                         new_name = None
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
