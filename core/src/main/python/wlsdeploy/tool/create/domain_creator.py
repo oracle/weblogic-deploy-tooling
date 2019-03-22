@@ -677,6 +677,8 @@ class DomainCreator(Creator):
         # Finally, create/update the servers.
         #
         server_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER)
+        # There may be a dependency to other servers when the server is in a cluster
+        self.topology_helper.create_placeholder_servers_in_cluster(self._topology)
         if len(server_nodes) > 0:
             self._create_named_mbeans(SERVER, server_nodes, location, log_created=True)
 

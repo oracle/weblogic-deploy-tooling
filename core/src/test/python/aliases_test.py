@@ -1344,6 +1344,18 @@ class AliasesTestCase(unittest.TestCase):
         online_path = self.online_aliases.get_wlst_mbean_name(location)
         self.assertEqual('mydomain', online_path)
 
+    def testJTAMigratableConstrainedCandidateServer(self):
+        model_value = [ 'MS-1', 'MS-2']
+        wlst_value_expected = 'MS-1,MS-2'
+        location = LocationContext()
+        location.append_location(FOLDERS.SERVER)
+        location.add_name_token(self.aliases.get_name_token(location), 'MS-1')
+        location.append_location(FOLDERS.JTA_MIGRATABLE_TARGET)
+        location.add_name_token(self.aliases.get_name_token(location), 'NO_NAME_0')
+        wlst_attribute, wlst_value = \
+            self.aliases.get_wlst_attribute_name_and_value(location, FOLDERS.CONSTRAINED_CANDIDATE_SERVER, model_value)
+        self.assertEquals(wlst_value_expected, wlst_value)
+
 
 if __name__ == '__main__':
     unittest.main()
