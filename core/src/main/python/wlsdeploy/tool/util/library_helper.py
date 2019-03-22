@@ -1,15 +1,18 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
-
-import wlsdeploy.util.dictionary_utils as dictionary_utils
+from java.io import File
+from oracle.weblogic.deploy.util import WLSDeployArchive
+from shutil import copy
 
 from wlsdeploy.aliases.model_constants import DOMAIN_LIBRARIES
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+
+import wlsdeploy.util.dictionary_utils as dictionary_utils
 
 
 class LibraryHelper(object):
@@ -42,7 +45,7 @@ class LibraryHelper(object):
         domain_info_dict = self.model.get_model_domain_info()
         if DOMAIN_LIBRARIES not in domain_info_dict or len(domain_info_dict[DOMAIN_LIBRARIES]) == 0:
             self.logger.info('WLSDPLY-12213', class_name=self.__class_name, method_name=_method_name)
-        else:
+        elif DOMAIN_LIBRARIES in domain_info_dict:
             domain_libs = dictionary_utils.get_dictionary_element(domain_info_dict, DOMAIN_LIBRARIES)
             if self.archive_helper is None:
                 ex = exception_helper.create_create_exception('WLSDPLY-12214', domain_libs)
@@ -50,9 +53,14 @@ class LibraryHelper(object):
                 raise ex
 
             for domain_lib in domain_libs:
-                self.logger.info('WLSDPLY-12215', domain_lib, self.domain_home,
-                                 class_name=self.__class_name, method_name=_method_name)
-                self.archive_helper.extract_domain_library(domain_lib)
+                if WLSDeployArchive.isPathIntoArchive(domain_lib):
+                    self.logger.info('WLSDPLY-12215', domain_lib, self.domain_home,
+                                     class_name=self.__class_name, method_name=_method_name)
+                    self.archive_helper.extract_domain_library(domain_lib)
+                else:
+                    self.logger.info('WLSDPLY-12235', domain_lib, self.domain_home,
+                                     class_name=self.__class_name, method_name=_method_name)
+                    self._copy_domain_library(domain_lib)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -77,3 +85,20 @@ class LibraryHelper(object):
                                  class_name=self.__class_name, method_name=_method_name)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    def _copy_domain_library(self, domain_lib):
+        """
+        Copy the specified domain library to the domain's lib directory.
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = '_copy_domain_library'
+
+        source_path = File(domain_lib).getAbsolutePath()
+        target_dir = File(self.domain_home, 'lib').getPath()
+
+        try:
+            copy(str(source_path), str(target_dir))
+        except IOError:
+            ex = exception_helper.create_create_exception('WLSDPLY-12234', source_path, target_dir)
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex

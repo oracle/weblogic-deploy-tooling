@@ -38,7 +38,7 @@ class Creator(object):
         self.model_context = model_context
         self.wls_helper = WebLogicHelper(self.logger)
         self.attribute_setter = AttributeSetter(self.aliases, self.logger, exception_type)
-        self.custom_folder_helper = CustomFolderHelper(self.aliases, self.logger, exception_type)
+        self.custom_folder_helper = CustomFolderHelper(self.aliases, self.logger, self.model_context, exception_type)
 
         # Must be initialized by the subclass since only it has
         # the knowledge required to compute the domain name.
@@ -96,10 +96,7 @@ class Creator(object):
                 self.wlst_helper.cd(attribute_path)
 
             child_nodes = dictionary_utils.get_dictionary_element(model_nodes, name)
-            self.logger.finest('WLSDPLY-12111', self.alias_helper.get_model_folder_path(location),
-                               self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
-            self._set_attributes(location, child_nodes)
-            self._create_subfolders(location, child_nodes)
+            self._process_child_nodes(location, child_nodes)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -158,10 +155,7 @@ class Creator(object):
             attribute_path = self.alias_helper.get_wlst_attributes_path(location)
             self.wlst_helper.cd(attribute_path)
 
-        self.logger.finest('WLSDPLY-12111', self.alias_helper.get_model_folder_path(location),
-                           self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
-        self._set_attributes(location, model_nodes)
-        self._create_subfolders(location, model_nodes)
+        self._process_child_nodes(location, model_nodes)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -218,6 +212,22 @@ class Creator(object):
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    def _process_child_nodes(self, location, model_nodes):
+        """
+        Process the model nodes at the specified location.
+        The default behavior is to process attributes, then sub-folders.
+        Sub-classes may override to reverse this order, or for other special processing.
+        :param location: the location where the nodes should be applied
+        :param model_nodes: the model dictionary of the nodes to be applied
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '_process_child_nodes'
+
+        self.logger.finest('WLSDPLY-12111', self.alias_helper.get_model_folder_path(location),
+                           self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
+        self._set_attributes(location, model_nodes)
+        self._create_subfolders(location, model_nodes)
 
     def _set_attributes(self, location, model_nodes):
         """

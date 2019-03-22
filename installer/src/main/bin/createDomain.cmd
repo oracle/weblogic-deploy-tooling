@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem createDomain.cmd
 @rem
-@rem Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+@rem Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 @rem The Universal Permissive License (UPL), Version 1.0
 @rem
 @rem     NAME
@@ -271,7 +271,8 @@ IF NOT EXIST "%WLST%" (
 )
 :found_wlst
 
-SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
+SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
+SET WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
 SET WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
 SET "WLST_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS% %WLST_PROPERTIES%"
 SET "WLST_PROPERTIES=%WLST_PROPERTIES% %WLSDEPLOY_PROPERTIES%"
@@ -281,6 +282,9 @@ IF NOT DEFINED WLSDEPLOY_LOG_PROPERTIES (
 )
 IF NOT DEFINED WLSDEPLOY_LOG_DIRECTORY (
   SET WLSDEPLOY_LOG_DIRECTORY=%WLSDEPLOY_HOME%\logs
+)
+IF NOT DEFINED WLSDEPLOY_LOG_HANDLERS (
+  SET WLSDEPLOY_LOG_HANDLERS=%WLSDEPLOY_LOG_HANDLER%
 )
 
 ECHO JAVA_HOME = %JAVA_HOME%

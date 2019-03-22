@@ -10,6 +10,7 @@ import oracle.weblogic.deploy.exception.ExceptionHelper;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -25,9 +26,10 @@ public final class CustomBeanUtils {
      * Invoke the specified set method on the MBean with the provided value, converted to the desired type.
      * The conversion and invocation are done together to avoid automatic Jython data conversion.
      *
-     * @param mbean the value to be converted
+     * @param mbean the MBean containing the value to be set
+     * @param method the method to be called on the specified MBean
      * @param propertyType the class representing the target type
-     * @param propertyValue the class representing the target type
+     * @param propertyValue the value to be converted and set
      * @throws IllegalAccessException if method invocation fails
      * @throws IllegalArgumentException if the data conversion or method invocation fails
      * @throws InvocationTargetException if method invocation fails
@@ -167,6 +169,9 @@ public final class CustomBeanUtils {
 
             } else if(dataType == Character.class) {
                 result = TypeUtils.convertToCharacter(textValue);
+
+            } else if(dataType == byte[].class) {
+                result = textValue.getBytes(StandardCharsets.UTF_8);
 
             } else {
                 String message = ExceptionHelper.getMessage("WLSDPLY-12132", dataType);

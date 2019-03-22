@@ -2,7 +2,7 @@
 # *****************************************************************************
 # createDomain.sh
 #
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 # The Universal Permissive License (UPL), Version 1.0
 #
 #     NAME
@@ -158,7 +158,7 @@ esac
 #
 # Check to see if no args were given and print the usage message
 #
-if [[ $# = 0 ]]; then
+if [ "$#" -eq "0" ]; then
   usage `basename $0`
   exit 0
 fi
@@ -169,7 +169,7 @@ MIN_JDK_VERSION=7
 #
 # Find the args required to determine the WLST script to run
 #
-while [[ $# > 1 ]]; do
+while [ "$#" -gt "1" ]; do
     key="$1"
     case $key in
         -help)
@@ -295,7 +295,8 @@ else
     fi
 fi
 
-LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
+LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
+WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
 WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
 WLST_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS} ${WLST_PROPERTIES} ${WLSDEPLOY_PROPERTIES}"
 export WLST_PROPERTIES
@@ -308,6 +309,10 @@ if [ "${WLSDEPLOY_LOG_DIRECTORY}" = "" ]; then
     WLSDEPLOY_LOG_DIRECTORY=${WLSDEPLOY_HOME}/logs; export WLSDEPLOY_LOG_DIRECTORY
 fi
 
+if [ "${WLSDEPLOY_LOG_HANDLERS}" == "" ]; then
+    WLSDEPLOY_LOG_HANDLERS=${WLSDEPLOY_LOG_HANDLER}; export WLSDEPLOY_LOG_HANDLERS
+fi
+
 echo "JAVA_HOME = ${JAVA_HOME}"
 echo "WLST_EXT_CLASSPATH = ${WLST_EXT_CLASSPATH}"
 echo "CLASSPATH = ${CLASSPATH}"
@@ -316,7 +321,7 @@ echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
 PY_SCRIPTS_PATH=${WLSDEPLOY_HOME}/lib/python
 echo "${WLST} ${PY_SCRIPTS_PATH}/create.py ${SCRIPT_ARGS}"
 
-"${WLST}" "${PY_SCRIPTS_PATH}/create.py" ${SCRIPT_ARGS}
+eval "${WLST}" "${PY_SCRIPTS_PATH}/create.py" ${SCRIPT_ARGS}
 
 RETURN_CODE=$?
 if [ ${RETURN_CODE} -eq 100 ]; then
