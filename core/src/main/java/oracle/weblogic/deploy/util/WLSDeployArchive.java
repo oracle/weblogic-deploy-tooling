@@ -1268,8 +1268,6 @@ public class WLSDeployArchive {
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
-        } else if (!file.isAbsolute()) {
-
         } else if (!file.exists()) {
             String message = ExceptionHelper.getMessage("WLSDPLY-01421", fileName, file);
             IllegalArgumentException iae = new IllegalArgumentException(message);

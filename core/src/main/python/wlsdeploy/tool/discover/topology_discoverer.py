@@ -573,10 +573,10 @@ class TopologyDiscoverer(Discoverer):
             _logger.info('WLSDPLY-06618', classpath_name, server_name, class_name=_class_name, method_name=_method_name)
             return_name = self._model_context.tokenize_path(classpath_name)
         else:
-            file_name_path = self._convert_path(classpath_name)
-            _logger.finer('WLSDPLY-06619', file_name_path, server_name, class_name=_class_name,
+            _logger.finer('WLSDPLY-06619', classpath_name, server_name, class_name=_class_name,
                           method_name=_method_name)
             archive_file = self._model_context.get_archive_file()
+            file_name_path = self._convert_path(classpath_name)
             new_source_name = None
             try:
                 new_source_name = archive_file.addClasspathLibrary(File(file_name_path))
