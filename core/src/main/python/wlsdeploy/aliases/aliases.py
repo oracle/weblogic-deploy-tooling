@@ -896,39 +896,43 @@ class Aliases(object):
             data_type, preferred_type, delimiter = \
                 alias_utils.compute_read_data_type_for_wlst_and_delimiter_from_attribute_info(attribute_info,
                                                                                               wlst_attribute_value)
+            model_type = data_type
+            if preferred_type:
+                model_type = preferred_type
 
-            converted_value = alias_utils.convert_from_type(data_type, wlst_attribute_value, delimiter=delimiter,
-                                                            preferred=preferred_type)
+            converted_value = alias_utils.convert_to_model_type(model_type, wlst_attribute_value, delimiter=delimiter)
+
             model_attribute_name = attribute_info[MODEL_NAME]
             default_value = attribute_info[VALUE][DEFAULT]
-            if preferred_type:
-                data_type = preferred_type
-                # never use anything but model default delimiter
-                delimiter = MODEL_LIST_DELIMITER
+
             #
             # The logic below to compare the str() representation of the converted value and the default value
             # only works for lists/maps if both the converted value and the default value are the same data type...
             #
-            if (data_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES) \
+            if (model_type in ALIAS_LIST_TYPES or model_type in ALIAS_MAP_TYPES) \
                     and not (default_value == '[]' or default_value == 'None'):
-                default_value = alias_utils.convert_to_type(data_type, default_value, delimiter=delimiter)
+                # always the model delimiter
+                default_value = alias_utils.convert_to_type(model_type, default_value, delimiter=MODEL_LIST_DELIMITER)
 
-            if data_type == 'password':
+            if model_type == 'password':
                 if string_utils.is_empty(wlst_attribute_value) or converted_value == default_value:
                     model_attribute_value = None
                 else:
                     model_attribute_value = PASSWORD_TOKEN
-            elif data_type == 'boolean':
+
+            elif model_type == 'boolean':
                 wlst_val = alias_utils.convert_boolean(converted_value)
                 default_val = alias_utils.convert_boolean(default_value)
                 if wlst_val == default_val:
                     model_attribute_value = None
                 else:
                     model_attribute_value = converted_value
-            elif (data_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES) and \
+
+            elif (model_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES) and \
                     (converted_value is None or len(converted_value) == 0):
                 if default_value == '[]' or default_value == 'None':
                     model_attribute_value = None
+
             elif str(converted_value) != str(default_value):
                 if _strings_are_empty(converted_value, default_value):
                     model_attribute_value = None
@@ -936,6 +940,7 @@ class Aliases(object):
                     model_attribute_value = converted_value
                     if self._model_context and USES_PATH_TOKENS in attribute_info:
                         model_attribute_value = self._model_context.tokenize_path(model_attribute_value)
+
         self._logger.exiting(class_name=self._class_name, method_name=_method_name,
                              result={model_attribute_name: model_attribute_value})
         return model_attribute_name, model_attribute_value
