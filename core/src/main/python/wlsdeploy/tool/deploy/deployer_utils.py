@@ -11,7 +11,6 @@ from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
-from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -24,34 +23,6 @@ from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 _class_name = "deployer_utils"
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy.utils')
 _wlst_helper = WlstHelper(_logger, ExceptionType.DEPLOY)
-
-
-def set_attribute(location, model_key, model_value, alias_helper, use_raw_value=False):
-    """
-    Set a single attribute to the specified value.
-    :param location: the location of the attribute to be set
-    :param model_key: the key of the attribute to be set
-    :param model_value: the value of the attribute to be set
-    :param alias_helper: the alias helper to use for name resolution
-    :param use_raw_value: apply passed value directly if true (example: mbean)
-    """
-    method_name = 'set_attribute'
-
-    if use_raw_value:
-        wlst_param = alias_helper.get_wlst_attribute_name(location, model_key)
-        wlst_value = model_value
-    else:
-        wlst_param, wlst_value = alias_helper.get_wlst_attribute_name_and_value(location, model_key, model_value)
-
-    if wlst_param is None:
-        _logger.info('WLSDPLY-20011', model_key, class_name=_class_name, method_name=method_name)
-        return
-
-    if wlst_value is None:
-        _logger.info('WLSDPLY-20012', model_key, str(model_value), class_name=_class_name, method_name=method_name)
-        return
-
-    _wlst_helper.set(wlst_param, wlst_value)
 
 
 def get_existing_object_list(location, alias_helper):
