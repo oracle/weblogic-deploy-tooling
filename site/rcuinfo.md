@@ -33,9 +33,13 @@ domainInfo:
         rcu_schema_password : xxxxx
         rcu_admin_password : xxxx
         rcu_db_conn_string : 'dbhost:1521/pdborcl'
-        
+```        
 Specifying RCU variables to the repository creation utility can now be included in the RCUDbInfo section with the key:
 
-rcu_variables : 'xxxx'
+```yaml
+domainInfo:
+    RCUDbInfo:
+    rcu_variables : 'xxxx'
+```    
         
         
