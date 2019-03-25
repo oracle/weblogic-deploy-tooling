@@ -5,14 +5,14 @@
     "child_folders_type": "multiple",
     "folders": {},
     "attributes": {
-        "AdditionalMigrationAttempts":         [ {"version": "[12,)",       "wlst_mode": "both",    "wlst_name": "AdditionalMigrationAttempts",        "wlst_path": "WP001", "value": {"default": 2        }, "wlst_type": "integer"    } ],
-        "ClassName":                           [ {"version": "[12,)",       "wlst_mode": "both",    "wlst_name": "ClassName",                          "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ],
-        "Cluster":                             [ {"version": "[12,)",       "wlst_mode": "both",    "wlst_name": "Cluster",                            "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ],
-        "ConstrainedCandidateServer":          [ {"version": "[12,)",       "wlst_mode": "both",    "wlst_name": "ConstrainedCandidateServer",         "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ],
-        "HostingServer":                       [ {"version": "[12,)",       "wlst_mode": "both",    "wlst_name": "HostingServer",                      "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ],
-        "MillisToSleepBetweenAttempts":        [ {"version": "[12,)",       "wlst_mode": "both",    "wlst_name": "MillisToSleepBetweenAttempts",       "wlst_path": "WP001", "value": {"default": 30000    }, "wlst_type": "long"       } ],
-        "UserPreferredServer":                 [ {"version": "[12,)",       "wlst_mode": "both",    "wlst_name": "UserPreferredServer",                "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ],
-        "Notes":                               [ {"version": "[12,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ]
+        "AdditionalMigrationAttempts":         [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AdditionalMigrationAttempts",        "wlst_path": "WP001", "value": {"default": 2        }, "wlst_type": "integer"    } ],
+        "ClassName":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClassName",                          "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ],
+        "Cluster":                             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Cluster",                            "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ],
+        "ConstrainedCandidateServer":          [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ConstrainedCandidateServer",         "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ],
+        "HostingServer":                       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "HostingServer",                      "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ],
+        "MillisToSleepBetweenAttempts":        [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MillisToSleepBetweenAttempts",       "wlst_path": "WP001", "value": {"default": 30000    }, "wlst_type": "long"       } ],
+        "UserPreferredServer":                 [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "UserPreferredServer",                "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ],
+        "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"     } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
