@@ -4,6 +4,7 @@ During creation or updating a domain. There is new section RCUDbInfo in the mode
 
 For example, in order to use Oracle Autonomous Transaction Processing Cloud Database for the JRF domain, specify the following information in the model:
 
+```yaml
 domainInfo:
     RCUDbInfo:
         useATP : 1
@@ -13,7 +14,7 @@ domainInfo:
         tns.alias : dbatp_tp
         javax.net.ssl.keyStorePassword : xxxx
         javax.net.ssl.trustStorePassword : xxxx
-        
+```           
 The database wallet can be included in the archive file under atpwallet/ structure
 
 atpwallet/Walletxyz.zip
