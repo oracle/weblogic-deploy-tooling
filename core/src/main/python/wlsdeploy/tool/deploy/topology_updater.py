@@ -114,7 +114,7 @@ class TopologyUpdater(Deployer):
         if self.wls_helper.is_set_server_groups_supported():
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
             self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-        else:
+        elif self._domain_typedef.domain_type_has_jrf_resources():
             deployer_utils.save_changes(self.model_context)
             self.target_helper.target_jrf_groups_to_clusters_servers(self.model_context.get_domain_home())
             deployer_utils.read_again(self.model_context)
