@@ -351,7 +351,9 @@ def validateRCUArgsAndModel(model_context, model):
                 if not has_tns_admin:
                     # extract the wallet first
                     archive_file = WLSDeployArchive(model_context.get_archive_file_name())
-                    atp_wallet_zipentry = archive_file.getATPWallet()
+                    atp_wallet_zipentry = None
+                    if archive_file:
+                        atp_wallet_zipentry = archive_file.getATPWallet()
                     if atp_wallet_zipentry and model[model_constants.TOPOLOGY]['Name']:
                         extract_path = atp_helper.extract_walletzip(model, model_context, archive_file, atp_wallet_zipentry)
                         # update the model to add the tns_admin
@@ -430,11 +432,20 @@ def main(args):
     try:
 
         has_atp = validateRCUArgsAndModel(model_context, model)
+        # check if there is an atpwallet and extract in the domain dir
+        # it is to support non JRF domain but user wants to use ATP database
+        if not has_atp:
+            archive_file = WLSDeployArchive(model_context.get_archive_file_name())
+            if archive_file:
+                atp_wallet_zipentry = archive_file.getATPWallet()
+                if atp_wallet_zipentry:
+                    atp_helper.extract_walletzip(model, model_context, archive_file, atp_wallet_zipentry)
+
         creator = DomainCreator(model, model_context, aliases)
         creator.create()
 
         if has_atp:
-            atp_helper.fix_jsp_config(model, model_context)
+            atp_helper.fix_jps_config(model, model_context)
     except CreateException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)

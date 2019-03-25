@@ -88,7 +88,7 @@ def unzip_atp_wallet(wallet_file, location):
     zis.close()
     fis.close()
 
-def fix_jsp_config(model, model_context):
+def fix_jps_config(model, model_context):
     #print model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO]
     tns_admin = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
         model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]
@@ -183,7 +183,7 @@ def is_regular_db(rcu_db_info):
     return is_regular
 
 
-def extract_walletzip(model, model_context, archive_file, atp_path):
+def extract_walletzip(model, model_context, archive_file, atp_zipentry):
     domain_parent = model_context.get_domain_parent_dir()
     if domain_parent is None:
         domain_path = model_context.get_domain_home()
@@ -193,7 +193,7 @@ def extract_walletzip(model, model_context, archive_file, atp_path):
     extract_path = domain_path +  os.sep + 'atpwallet'
     extract_dir = File(extract_path)
     extract_dir.mkdirs()
-    wallet_zip = archive_file.extractFile(atp_path, File(domain_path))
+    wallet_zip = archive_file.extractFile(atp_zipentry, File(domain_path))
     unzip_atp_wallet(wallet_zip, extract_path)
     os.remove(wallet_zip)
     return extract_path
