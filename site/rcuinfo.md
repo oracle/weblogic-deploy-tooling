@@ -25,6 +25,7 @@ with the ATP database.  For example:
 
 For non-ATP database, use the following example:
 
+```yaml
 domainInfo:
     RCUDbInfo:
         useATP : 0
