@@ -47,8 +47,10 @@ class GlobalResourcesDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, startups)
         model_top_folder_name, shutdowns = self.get_shutdown_classes()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, shutdowns)
-        model_top_folder_name, shutdowns = self.get_webapp_container()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, shutdowns)
+        model_top_folder_name, web_app_container = self.get_webapp_container()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, web_app_container)
+        model_top_folder_name, singleton_services = self.get_singleton_service()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, singleton_services)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
@@ -176,4 +178,27 @@ class GlobalResourcesDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
 
+    def get_singleton_service(self):
+        """
+        Discover the SingletonService global resource settings
+        :return: model name for the folder: dictionary containing the discovered SingletonService
+        """
+        _method_name = 'get_singleton_service'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.SINGLETON_SERVICE
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        singleton_services = self._find_names_in_folder(location)
+        if singleton_services is not None:
+            _logger.info('WLSDPLY-06445', len(singleton_services), class_name=_class_name, method_name=_method_name)
+            name_token = self._alias_helper.get_name_token(location)
+            for singleton_service in singleton_services:
+                _logger.info('WLSDPLY-06446', singleton_service, class_name=_class_name, method_name=_method_name)
+                result[singleton_service] = OrderedDict()
+                location.add_name_token(name_token, singleton_service)
+                self._populate_model_parameters(result[singleton_service], location)
+                location.remove_name_token(name_token)
 
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result

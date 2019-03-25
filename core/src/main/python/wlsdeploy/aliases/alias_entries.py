@@ -108,6 +108,7 @@ class AliasEntries(object):
         'Server': 'Server',
         'ServerTemplate': 'ServerTemplate',
         'ShutdownClass': 'ShutdownClass',
+        'SingletonService' : 'SingletonService',
         'StartupClass': 'StartupClass',
         'UnixMachine': 'UnixMachine',
         'VirtualHost': 'VirtualHost',
@@ -161,6 +162,7 @@ class AliasEntries(object):
         'SAFAgent',
         'SelfTuning',
         'ShutdownClass',
+        'SingletonService',
         'StartupClass',
         'WebAppContainer',
         'WLDFSystemResource'

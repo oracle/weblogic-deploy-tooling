@@ -16,6 +16,7 @@ from wlsdeploy.aliases.model_constants import SAF_AGENT
 from wlsdeploy.aliases.model_constants import SELF_TUNING
 from wlsdeploy.aliases.model_constants import WORK_MANAGER
 from wlsdeploy.aliases.model_constants import WEBAPP_CONTAINER
+from wlsdeploy.aliases.model_constants import SINGLETON_SERVICE
 from wlsdeploy.aliases.model_constants import MIME_MAPPING_FILE
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.tool.deploy.deployer import Deployer
@@ -182,5 +183,16 @@ class CommonResourcesDeployer(Deployer):
                     file_path = web_app_container[MIME_MAPPING_FILE]
                     if self.archive_helper.contains_file(file_path):
                         self.archive_helper.extract_file(file_path)
+
+        return
+
+    def add_singleton_service(self, parent_dict, location):
+        """
+        Deploy the singleton service in the dictionary at the specified location.
+        :param parent_dict: the dictionary possibly containing singleton service elements
+        :param location: the location to deploy the elements
+        """
+        singleton_services = dictionary_utils.get_dictionary_element(parent_dict, SINGLETON_SERVICE)
+        self._add_named_elements(SINGLETON_SERVICE, singleton_services, location)
 
         return
