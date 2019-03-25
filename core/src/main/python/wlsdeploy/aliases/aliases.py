@@ -43,7 +43,6 @@ from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
-from wlsdeploy.aliases.alias_constants import STRING
 from wlsdeploy.aliases.alias_constants import USES_PATH_TOKENS
 from wlsdeploy.aliases.alias_constants import VALUE
 from wlsdeploy.aliases.alias_constants import WLST_NAME
@@ -411,18 +410,11 @@ class Aliases(object):
                     raise ex
             else:
                 if data_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES:
-                    to_type = data_type
-
                     merge = True
                     if MERGE in attribute_info:
                         merge = alias_utils.convert_boolean(attribute_info[MERGE])
 
-                    if alias_utils.is_attribute_server_start_arguments(location, model_attribute_name):
-                        # convert to string, even if no existing value to merge
-                        merged_value = \
-                            alias_utils.merge_server_start_argument_values(model_attribute_value, existing_wlst_value)
-                        to_type = STRING
-                    elif merge and data_type in ALIAS_MAP_TYPES:
+                    if merge and data_type in ALIAS_MAP_TYPES:
                         model_val = TypeUtils.convertToType(PROPERTIES, model_attribute_value)
                         existing_val = TypeUtils.convertToType(PROPERTIES, existing_wlst_value)
                         merged_value = alias_utils.merge_model_and_existing_properties(model_val, existing_val)
@@ -442,10 +434,10 @@ class Aliases(object):
                         subtype = 'java.lang.String'
                         if SET_MBEAN_TYPE in attribute_info:
                             subtype = attribute_info[SET_MBEAN_TYPE]
-                        wlst_attribute_value = alias_utils.convert_to_type(to_type, merged_value, subtype=subtype,
+                        wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value, subtype=subtype,
                                                                            delimiter=MODEL_LIST_DELIMITER)
                     else:
-                        wlst_attribute_value = alias_utils.convert_to_type(to_type, merged_value,
+                        wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value,
                                                                            delimiter=MODEL_LIST_DELIMITER)
                 else:
                     wlst_attribute_value = alias_utils.convert_to_type(data_type, model_attribute_value,

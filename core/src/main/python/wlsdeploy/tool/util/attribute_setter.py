@@ -12,6 +12,7 @@ from javax.management import ObjectName
 
 from oracle.weblogic.deploy.aliases import TypeUtils
 
+from wlsdeploy.aliases.alias_jvmargs import JVMArguments
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -588,6 +589,29 @@ class AttributeSetter(object):
             raise ex
 
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_jvm_args(self, location, key, value, wlst_value):
+        """
+        Set the server start args string. The new arguments are merged and re-sorted with existing arguments.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if target is not found
+        """
+        if value is None or len(value) == 0:
+            result = value
+        elif wlst_value is None or len(wlst_value) == 0:
+            new_args = JVMArguments(self.__logger, value)
+            result = new_args.get_arguments_string()
+        else:
+            new_args = JVMArguments(self.__logger, value)
+            merged_args = JVMArguments(self.__logger, wlst_value)
+            merged_args.merge_jvm_arguments(new_args)
+            result = merged_args.get_arguments_string()
+
+        self.set_attribute(location, key, result, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
     #

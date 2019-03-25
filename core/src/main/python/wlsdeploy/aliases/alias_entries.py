@@ -108,10 +108,12 @@ class AliasEntries(object):
         'Server': 'Server',
         'ServerTemplate': 'ServerTemplate',
         'ShutdownClass': 'ShutdownClass',
+        'SingletonService' : 'SingletonService',
         'StartupClass': 'StartupClass',
         'UnixMachine': 'UnixMachine',
         'VirtualHost': 'VirtualHost',
         'VirtualTarget': 'VirtualTarget',
+        'WebAppContainer': 'WebAppContainer',
         'WLDFSystemResource': 'WLDFSystemResource',
         'WSReliableDeliveryPolicy': 'WSReliableDeliveryPolicy',
         'XMLEntityCache': 'XMLEntityCache',
@@ -160,7 +162,9 @@ class AliasEntries(object):
         'SAFAgent',
         'SelfTuning',
         'ShutdownClass',
+        'SingletonService',
         'StartupClass',
+        'WebAppContainer',
         'WLDFSystemResource'
     ]
 

@@ -24,7 +24,6 @@ from oracle.weblogic.deploy.aliases import VersionException
 from oracle.weblogic.deploy.aliases import VersionUtils
 
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
-from wlsdeploy.aliases.alias_jvmargs import JVMArguments
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
@@ -52,14 +51,9 @@ from wlsdeploy.aliases.alias_constants import WLST_PATHS
 from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
-from wlsdeploy.aliases.model_constants import ARGUMENTS
-from wlsdeploy.aliases.model_constants import SERVER
-from wlsdeploy.aliases.model_constants import SERVER_START
 
 _class_name = 'alias_utils'
 _logger = PlatformLogger('wlsdeploy.aliases')
-_server_start_location_folder_path = '/' + SERVER + '/' + SERVER_START
-_server_start_argument_attribute_name = ARGUMENTS
 _windows_path_regex = re.compile(r'^[a-zA-Z]:[\\/].*')
 
 
@@ -145,30 +139,6 @@ def merge_model_and_existing_properties(model_props, existing_props, string_prop
         else:
             result = existing_properties
 
-    _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
-    return result
-
-
-def merge_server_start_argument_values(model_args, existing_args):
-    """
-    Merge the two arguments strings.
-    :param model_args: the new string or list from the model
-    :param existing_args: the old string (e.g., from WLST)
-    :return: the resulting merged string
-    """
-    _method_name = 'merge_server_start_argument_values'
-
-    _logger.entering(model_args, existing_args, class_name=_class_name, method_name=_method_name)
-    if model_args is None or len(model_args) == 0:
-        result = existing_args
-    elif existing_args is None or len(existing_args) == 0:
-        new_args = JVMArguments(_logger, model_args)
-        result = new_args.get_arguments_string()
-    else:
-        new_args = JVMArguments(_logger, model_args)
-        merged_args = JVMArguments(_logger, existing_args)
-        merged_args.merge_jvm_arguments(new_args)
-        result = merged_args.get_arguments_string()
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
@@ -553,17 +523,6 @@ def convert_boolean(value):
             elif value.lower() == 'false':
                 result = False
     return result
-
-
-def is_attribute_server_start_arguments(location, model_attribute_name):
-    """
-    Is the location and attribute the Server/ServerStart folder's Argument attribute
-    :param location: location
-    :param model_attribute_name: attribute name
-    :return: True if so, False otherwise
-    """
-    return location.get_folder_path() == _server_start_location_folder_path and \
-           model_attribute_name == _server_start_argument_attribute_name
 
 
 def compute_delimiter_from_data_type(data_type, value):

@@ -938,7 +938,7 @@
             "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {},
             "attributes": {
-                "Arguments":          [ {"version": "[10,)",       "wlst_mode": "both",   "wlst_name": "Arguments",          "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "delimited_string[space]"           } ],
+                "Arguments":          [ {"version": "[10,)",       "wlst_mode": "both",   "wlst_name": "Arguments",          "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "delimited_string[space]",          "set_method": "MBEAN.set_jvm_args" } ],
                 "BeaHome":            [ {"version": "[10,)",       "wlst_mode": "both",   "wlst_name": "BeaHome",            "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string",                           "uses_path_tokens": "true"} ],
                 "BootProperties":     [ {"version": "[10,)",       "wlst_mode": "online", "wlst_name": "BootProperties",     "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "properties",                       "get_method": "GET", "preferred_model_type": "list", "access": "RO"} ],
                 "ClassPath":          [ {"version": "[10,)",       "wlst_mode": "both",   "wlst_name": "ClassPath",          "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "delimited_string[path_separator]", "preferred_model_type": "delimited_string", "uses_path_tokens": "true"} ],
