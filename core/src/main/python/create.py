@@ -436,7 +436,7 @@ def main(args):
         # it is to support non JRF domain but user wants to use ATP database
         archive_file_name = model_context.get_archive_file_name()
         if not has_atp and archive_file_name and os.path.exists(archive_file_name):
-            archive_file = WLSDeployArchive(model_context.get_archive_file_name())
+            archive_file = WLSDeployArchive(archive_file_name)
             if archive_file:
                 atp_wallet_zipentry = archive_file.getATPWallet()
                 if atp_wallet_zipentry:
