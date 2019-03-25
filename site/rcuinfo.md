@@ -1,6 +1,6 @@
 ## Specifying RCU connection information in the model
 
-During creation or updating a domain. There is new section RCUDbInfo in the model under domainInfo section for specifying RCU database connection information without using the command line options -rcu_database and -rcu_prefix.  This is created to support database where the connection string is more complicated and require extra options.
+During creation or updating a domain. There is new section RCUDbInfo in the model under domainInfo section for specifying RCU database connection information without using the command line options -rcu_database and -rcu_prefix.  This is created to support database where the connection string is more complicated and requires extra options.
 
 For example, in order to use Oracle Autonomous Transaction Processing Cloud Database for the JRF domain, specify the following information in the model:
 
@@ -40,7 +40,7 @@ Specifying RCU variables to the repository creation utility can now be included 
 ```yaml
 domainInfo:
     RCUDbInfo:
-    rcu_variables : 'xxxx'
+        rcu_variables : 'xxxx'
 ```    
         
         
