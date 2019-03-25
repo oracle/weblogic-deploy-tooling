@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import wlsdeploy.util.dictionary_utils as dictionary_utils
@@ -71,6 +71,7 @@ class ResourcesDeployer(Deployer):
         wldf_deployer.add_wldf_modules(self._resources, location)
 
         common_deployer.add_coherence_clusters(self._resources, location)
+        common_deployer.add_webapp_container(self._resources, location)
         return
 
     def _add_startup_classes(self, location):
