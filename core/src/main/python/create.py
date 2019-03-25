@@ -434,8 +434,9 @@ def main(args):
         has_atp = validateRCUArgsAndModel(model_context, model)
         # check if there is an atpwallet and extract in the domain dir
         # it is to support non JRF domain but user wants to use ATP database
-        if not has_atp:
-            archive_file = WLSDeployArchive(model_context.get_archive_file_name())
+        archive_file_name = model_context.get_archive_file_name()
+        if not has_atp and archive_file_name and os.path.exists(archive_file_name):
+            archive_file = WLSDeployArchive(archive_file_name)
             if archive_file:
                 atp_wallet_zipentry = archive_file.getATPWallet()
                 if atp_wallet_zipentry:
@@ -446,6 +447,12 @@ def main(args):
 
         if has_atp:
             atp_helper.fix_jps_config(model, model_context)
+    except WLSDeployArchiveIOException, ex:
+        __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+        __clean_up_temp_files()
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
     except CreateException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
