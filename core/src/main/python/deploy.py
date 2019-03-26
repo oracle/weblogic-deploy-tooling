@@ -232,6 +232,7 @@ def __process_online_args(optional_arg_map):
             optional_arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH] = String(password)
 
         mode = WlstModes.ONLINE
+        optional_arg_map[CommandLineArgUtil.TARGET_MODE_SWITCH] = 'online'
     return mode
 
 
@@ -435,6 +436,8 @@ def main(args):
 
     __wlst_helper.silence()
 
+    exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
+
     try:
         model_context = __process_args(args)
     except CLAException, ex:
@@ -482,6 +485,8 @@ def main(args):
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     __clean_up_temp_files()
+
+    tool_exit.end(model_context, exit_code)
     return
 
 
