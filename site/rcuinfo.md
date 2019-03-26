@@ -1,6 +1,6 @@
 ## Specifying RCU connection information in the model
 
-During creating or updating a domain, there is new section `RCUDbInfo` in the model, under the `domainInfo` section, for specifying RCU database connection information without using the command-line options `-rcu_database` and `-rcu_prefix`. Use this to support a database where the connection string is more complex and requires extra options.
+During creating or updating a domain, there is new section `RCUDbInfo` in the model, under the `domainInfo` section, for specifying RCU database connection information without using the command-line options `-rcu_db` and `-rcu_prefix`. Use this to support a database where the connection string is more complex and requires extra options.
 
 For example, in order to use the Oracle Autonomous Transaction Processing Cloud Database for the JRF domain, specify the following information in the model:
 
