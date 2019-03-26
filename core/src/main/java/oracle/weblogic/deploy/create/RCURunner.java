@@ -144,7 +144,7 @@ public class RCURunner {
 
         this.oracleHome = validateExistingDirectory(oracleHome, "ORACLE_HOME");
         this.javaHome = validateExistingDirectory(javaHome, "JAVA_HOME");
-        this.rcuDb = "jdbc:oracle:thin:@" + rcuProperties.get(new PyString("tns.entry")).toString();
+        this.rcuDb = "jdbc:oracle:thin:@" + rcuProperties.get(new PyString("tns.alias")).toString();
         this.rcuPrefix = rcuProperties.get(new PyString("rcu_prefix")).toString();
         this.rcuSchemas = validateNonEmptyListOfStrings(rcuSchemas, "rcu_schema_list");
         this.atpAdminUser = rcuProperties.get(new PyString("atp.admin.user")).toString();
