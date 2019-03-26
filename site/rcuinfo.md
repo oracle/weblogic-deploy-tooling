@@ -17,7 +17,6 @@ domainInfo:
 ```           
 The database wallet can be included in the archive file under atpwallet zipentry structure
 
-wlsdeploy/applications
 atpwallet/Walletxyz.zip
         
 Using Create Domain Tool with the `-run_rcu` flag will create the rcu schemas against the Oracle Autonomous Transaction Processing Cloud Database and configure the datasources in the JRF domain to use the database.  For example:
