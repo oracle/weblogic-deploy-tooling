@@ -1,6 +1,6 @@
 ## Specifying RCU connection information in the model
 
-During creating or updating a domain, there is new section RCUDbInfo in the model, under the domainInfo section, for specifying RCU database connection information without using the command-line options `-rcu_database` and `-rcu_prefix`. Use this to support a database where the connection string is more complex and requires extra options.
+During creating or updating a domain, there is new section `RCUDbInfo` in the model, under the `domainInfo` section, for specifying RCU database connection information without using the command-line options `-rcu_database` and `-rcu_prefix`. Use this to support a database where the connection string is more complex and requires extra options.
 
 For example, in order to use the Oracle Autonomous Transaction Processing Cloud Database for the JRF domain, specify the following information in the model:
 
@@ -15,11 +15,11 @@ domainInfo:
         javax.net.ssl.keyStorePassword : xxxx
         javax.net.ssl.trustStorePassword : xxxx
 ```           
-The database wallet can be included in the archive file under atpwallet zipentry structure
+The database wallet can be included in the archive file under `atpwallet` zipentry structure
 
-atpwallet/Walletxyz.zip
+`atpwallet/Walletxyz.zip`
         
-Using Create Domain Tool with the `-run_rcu` flag will create the rcu schemas against the Oracle Autonomous Transaction Processing Cloud Database and configure the datasources in the JRF domain to use the database.  For example:
+Using the Create Domain Tool with the `-run_rcu` flag will create the RCU schemas against the Oracle Autonomous Transaction Processing Cloud Database and configure the datasources in the JRF domain to use the database.  For example:
 
     weblogic-deploy/bin/updateDomain.sh -oracle_home /u01/wls12213 -domain_type JRF -domain_home /u01/data/domains/demodomain -archive_file DemoDomain.zip -run_rcu 
 
