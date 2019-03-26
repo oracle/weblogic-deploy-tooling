@@ -19,7 +19,7 @@ The Create Domain Tool understands three domain types: `WLS`, `RestrictedJRF`, a
 
 To have the Create Domain Tool run RCU, simply add the `-run_rcu` argument to the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!
 
-It is also possible to specify the connection information in the model instead of using the command line arguments.  This is especially easier for database that requires complex jdbc connection string and parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to [Specifying RCU connection information in the model](rcuinfo.md)
+It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex JDBC connection string and parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to [Specifying RCU connection information in the model](rcuinfo.md)
 
 The Create Domain Tool has an extensible domain type system.  The three built-in domain types (`WLS`, `RestrictedJRF`, and `JRF`) are defined in JSON files of the same name in the `WLSDEPLOY_HOME/lib/typedefs` directory.  For example, the `JRF` domain type is defined in the `WLSDEPLOY_HOME/lib/typedefs/JRF.json` file whose contents look like those shown below.
 
