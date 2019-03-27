@@ -363,10 +363,9 @@ ECHO         java-home       - the Java Home to use for the new domain.  If not
 ECHO                           specified, it defaults to the value of the JAVA_HOME
 ECHO                           environment variable.
 ECHO.
-ECHO         archive-file    - the path to the archive file to use.  Either the
-ECHO                           archive-file or the model-file is required.  If the
-ECHO                           model-file is specified, the archive-file will
-ECHO                           be ignored.
+ECHO         archive-file    - the path to the archive file to use.  If the -model_file
+ECHO                           argument is not specified, the model file in this archive
+ECHO                           will be used.
 ECHO.
 ECHO         model-file      - the location of the model file to use.
 ECHO.
