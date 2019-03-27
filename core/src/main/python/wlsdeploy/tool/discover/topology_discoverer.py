@@ -256,6 +256,8 @@ class TopologyDiscoverer(Discoverer):
         location = LocationContext(self._base_location)
         self._populate_model_parameters(self._dictionary, location)
 
+        model_folder_name, folder_result = self._get_admin_console()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_jta()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_jmx()
@@ -303,6 +305,25 @@ class TopologyDiscoverer(Discoverer):
         return model_top_folder_name, result
 
     # Private methods
+
+    def _get_admin_console(self):
+        """
+        Discover the domain level admin console configuration attributes.
+        :return: model name for JTA:dictionary containing the discovered JTA attributes
+        """
+        _method_name = '_get_admin_console'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.ADMIN_CONSOLE
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        name = self._find_singleton_name_in_folder(location)
+        if name is not None:
+            _logger.info('WLSDPLY-06613', class_name=_class_name, method_name=_method_name)
+            location.add_name_token(self._alias_helper.get_name_token(location), name)
+            self._populate_model_parameters(result, location)
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+        return model_top_folder_name, result
 
     def _get_jta(self):
         """
