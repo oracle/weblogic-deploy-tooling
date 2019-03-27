@@ -2,6 +2,7 @@
 Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+from com.oracle.cie.domain.script.jython import WLSTState as WLSTState
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
 import oracle.weblogic.deploy.util.StringUtils as StringUtils
 import wlstModule as wlst
@@ -16,26 +17,36 @@ wlst_functions = None
 applyJRF = None
 
 
-def apply_jrf(jrf_target, domain_dir, should_update=False):
+def apply_jrf(jrf_target, domain_home=None, should_update=False):
     """
     For installs that need to connect extension template server groups to servers
 
     :param jrf_target: entity (cluster, server) to target JRF applications and service
-    :param domain_dir: the domain home directory
+    :param domain_home: the domain home directory
     :param should_update: If true, update the domain - it will check if in online or offline mode
     :raises: PyWLSTException: if a WLST error occurs
     """
     global applyJRF
     _method_name = 'apply_jrf'
-    bstring = StringUtils.stringForBoolean(should_update)
-    _logger.fine('WLSDPLY-00073', jrf_target, domain_dir, bstring, class_name=_class_name, method_name=_method_name)
+    _logger.entering(jrf_target, domain_home, should_update, class_name=_class_name, method_name=_method_name)
+    _logger.fine('WLSDPLY-00073', jrf_target, domain_home, should_update, class_name=_class_name, method_name=_method_name)
     applyJRF = _load_global('applyJRF')
     try:
-        applyJRF(jrf_target, domainDir=domain_dir, shouldUpdateDomain=should_update)
+        readDomain = _load_global('readDomain')
+        readDomain(domain_home)
+        mycmo = _load_global('cmo')
+        print '***** ', mycmo
+
+        applyJRF(jrf_target, None, False)
+
+        updateDomain = _load_global('updateDomain')
+        closeDomain = _load_global('closeDomain')
+        updateDomain()
+        closeDomain()
     except (wlst.WLSTException, offlineWLSTException, Exception), e:
-        raise exception_helper.create_pywlst_exception('WLSDPLY-00071', jrf_target, domain_dir, bstring,
-                                                       _get_exception_mode(e),
+        raise exception_helper.create_pywlst_exception('WLSDPLY-00071', jrf_target, domain_home, should_update,
                                                        _format_exception(e), error=e)
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
 
 
@@ -44,9 +55,16 @@ def _load_global(global_name):
     member = None
     if wlst_functions is not None and global_name in wlst_functions:
         member = wlst_functions[global_name]
-    if member is None:
-        raise exception_helper.create_pywlst_exception('WLSDPLY-00072', class_name=_class_name,
-                                                       method_name=_method_name)
+    else:
+        print 'Member not found ', global_name
+        if wlst_functions is not None:
+            sorted=list()
+            for item in wlst_functions:
+                sorted.append(item)
+            sorted.sort()
+            for item in sorted:
+                print ' ** ', item
+        raise exception_helper.create_pywlst_exception('WLSDPLY-00072', global_name, _get_exception_mode(0))
     return member
 
 
@@ -71,6 +89,7 @@ def _format_exception(e):
     :param e: the exception
     :return: the formmated exception message
     """
+    print '********* ', type(e)
     if isinstance(e, offlineWLSTException):
         message = e.getLocalizedMessage()
         #

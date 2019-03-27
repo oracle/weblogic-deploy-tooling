@@ -40,6 +40,7 @@ class ModelContext(object):
         self._domain_typedef = None
         self._admin_url = None
         self._admin_user = None
+        self._admin_password = None
         self._archive_file_name = None
         self._archive_file = None
         self._model_file = None
@@ -255,7 +256,7 @@ class ModelContext(object):
         Get the admin password.
         :return: the admin password
         """
-        return self.admin_password
+        return self._admin_password
 
     def get_archive_file_name(self):
         """

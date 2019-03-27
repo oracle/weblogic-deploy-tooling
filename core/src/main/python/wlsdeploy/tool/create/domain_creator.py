@@ -451,13 +451,16 @@ class DomainCreator(Creator):
             self.__set_app_dir()
             self.__configure_fmw_infra_database()
 
-            server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-            self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.write_domain(domain_home)
         self.wlst_helper.close_template()
+
+        self.wlst_helper.read_domain(self._domain_home)
+        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+        self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        self.wlst_helper.close_domain()
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 

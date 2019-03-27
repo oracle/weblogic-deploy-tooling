@@ -52,12 +52,13 @@ class WlstHelper(object):
         """
         _method_name = 'apply_jrf'
 
-        domain_home = model_context.get_domain_home()
+        domain_home = None
+        if should_update:
+            domain_home = model_context.get_domain_home()
         try:
-            wlst_extended.apply_jrf(jrf_target, domain_home, should_update)
+            wlst_extended.apply_jrf(jrf_target, domain_home=domain_home, should_update=should_update)
         except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00071',
-                                                   jrf_target, domain_home,
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19146',
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -930,17 +931,16 @@ class WlstHelper(object):
         :param model_context: Contains information about the session, including the WlstMode
         """
         _method_name = 'save_and_close'
-        if model_context.is_wlst_online():
-            if wlst_helper.is_connected():
-                self.__logger.fine('WLSDPLY-19145', class_name=self.__class_name, method_name=_method_name)
-                wlst_helper.save()
-                wlst_helper.activate()
-                wlst_helper.disconnect()
+        try:
+            if model_context.is_wlst_online():
+                wlst_helper.save_and_close_online()
             else:
-                self.__logger.fine('WLSDPLY-19144', class_name=self.__class_name, method_name=_method_name)
-        else:
-            self.__logger.fine('WLSDPLY-19146', class_name=self.__class_name, method_name=_method_name)
-            wlst_helper.update_domain()
+                wlst_helper.save_and_close_offline()
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19144', pwe.getLocalizedMessage(),
+                                                   error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
 
     def reopen(self, model_context):
         """
@@ -948,21 +948,13 @@ class WlstHelper(object):
         :param model_context: contains the information needed for the reopen, including the WlstMode
         """
         _method_name = 'reopen'
-        if model_context.is_wlst_online():
-            try:
-                wlst_helper.reopen(True, admin_user=model_context.get_admin_user(),
-                                   admin_password=model_context.get_admin_password(),
-                                   admin_url=model_context.get_admin_password())
-            except PyWLSTException, pwe:
-                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19144', 'Online',
-                                                       pwe.getLocalizedMessage(), error=pwe)
-                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-        else:
-            try:
-                wlst_helper.reopen(False, model_context.get_domain_home())
-            except PyWLSTException, pwe:
-                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19145', 'Offline',
-                                                       pwe.getLocalizedMessage(), error=pwe)
-                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
+        try:
+            if model_context.is_wlst_online():
+                wlst_helper.reopen_online(model_context.get_admin_user(), model_context.get_admin_password(), model_context.get_admin_url())
+            else:
+                wlst_helper.reopen_offline(model_context.get_domain_home())
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19145',
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex

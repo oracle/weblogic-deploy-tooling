@@ -565,6 +565,7 @@ def read_domain(domain_home):
 
     try:
         wlst.readDomain(domain_home)
+        print '** wlst.readDomain(', domain_home, ')'
     except offlineWLSTException, e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00042', domain_home, e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
@@ -591,6 +592,7 @@ def write_domain(domain_home):
 
     try:
         wlst.writeDomain(domain_home)
+        print '** wlst.writeDomain(', domain_home, ')'
     except offlineWLSTException, e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00044', domain_home, e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
@@ -602,12 +604,14 @@ def update_domain():
     """
     Update the existing domain configuration with the edits made during the offline session.
     :raises: PyWLSTException: if a WLST error occurs
+    _method_name = 'update_domain'
     """
     _method_name = 'update_domain'
     _logger.entering(class_name=_class_name, method_name=_method_name)
 
     try:
         wlst.updateDomain()
+        print '** wlst.updateDomain()'
     except offlineWLSTException, e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00045', e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
@@ -625,6 +629,7 @@ def close_domain():
 
     try:
         wlst.closeDomain()
+        print '** wlst.closeDomain()'
     except offlineWLSTException, e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00046', e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
@@ -1156,48 +1161,60 @@ def get_mbi(path=None):
     return result
 
 
-def save_and_close(wlst_online):
+def save_and_close_online():
     """
     Call this if necessary to save changes and disconnect from the domain
-    midstream through the tool session. If online, and not connected, do
+    midstream through the tool session. If not connected, do
     nothing.
-    This works for both offline and online edit sessions.
-    :param wlst_online: True if the tool is running in online mode
     """
-    _method_name = 'save_and_close'
-    if wlst_online():
-        if is_connected():
-            _logger.fine('WLSDPLY-00076', class_name=_class_name, method_name=_method_name)
-            save()
-            activate()
-            disconnect()
-        else:
-            _logger.fine('WLSDPLY-00075', class_name=_class_name, method_name=_method_name)
-    else:
+    _method_name = 'save_and_close_online'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+    if is_connected():
         _logger.fine('WLSDPLY-00077', class_name=_class_name, method_name=_method_name)
-        update_domain()
-
-
-def reopen(wlst_online, admin_user=None, admin_pass=None, admin_url=None, domain_home=None):
-    """
-    Establish connection with the domain and start editing. This works for both online and offline wlst mode.
-    :param wlst_online: True if the tool is running in online mode
-    :param admin_user: admin userid to connect with
-    :param admin_pass: admin_password to connect with
-    :param admin_url: url of the admin server
-    :param domain_home: domain home of domain for offline mode
-    :param domain_home: directory and domain home path
-    """
-    _method_name = 'reopen'
-    if wlst_online():
-        if not is_connected():
-            _logger.fine('WLSDPLY-19148', class_name=_class_name, method_name=_method_name)
-            connect(admin_user, admin_pass, admin_url)
-            edit()
-            start_edit()
-        else:
-            _logger.fine('WLSDPLY-19147', class_name=_class_name, method_name=_method_name)
+        save()
+        activate()
+        disconnect()
     else:
-        _logger.fine('WLSDPLY-19149', class_name=_class_name, method_name=_method_name)
-        close_domain()
-        read_domain(domain_home)
+        _logger.fine('WLSDPLY-00076', class_name=_class_name, method_name=_method_name)
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def save_and_close_offline():
+    """
+    Update the domain to save any active changes and close the domain. For use in middle of tool session.
+    """
+    _method_name = 'save_and_close_offline'
+    _logger.fine('WLSDPLY-00078', class_name=_class_name, method_name=_method_name)
+    update_domain()
+    close_domain()
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def reopen_online(admin_user, admin_pass, admin_url):
+    """
+    Establish connection with the domain and start editing..
+    :param admin_user: admin userid
+    :param admin_pass: admin_password
+    :param admin_url: url of the admin server
+    """
+    _method_name = 'reopen_online'
+    _logger.entering(admin_user, admin_url, class_name=_class_name, method_name=_method_name)
+    if not is_connected():
+        _logger.fine('WLSDPLY-00080', class_name=_class_name, method_name=_method_name)
+        connect(admin_user, admin_pass, admin_url)
+        edit()
+        start_edit()
+    else:
+        _logger.fine('WLSDPLY-00079', class_name=_class_name, method_name=_method_name)
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def reopen_offline(domain_home):
+    """
+    Read the domain in offline.
+    :param domain_home:
+    """
+    _method_name = 'reopen_offline'
+    _logger.fine('WLSDPLY-00081', class_name=_class_name, method_name=_method_name)
+    read_domain(domain_home)
+    _logger.exiting(class_name=_class_name, method_name=_method_name)

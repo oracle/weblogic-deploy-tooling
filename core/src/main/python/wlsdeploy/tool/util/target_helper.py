@@ -187,6 +187,7 @@ class TargetHelper(object):
             # using this technique - or remove this technique and replace with the resource targeting
             if domain_typedef.domain_type_is_jrf():
                 self._target_jrf_resources(cluster_name_list)
+                #self.logger.info("Bypass adding jrf resources to {0}", str(cluster_name_list), class_name=self.__class_name, method_name=_method_name)
             else:
                 ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12238',
                                                        domain_typedef.get_domain_type())
