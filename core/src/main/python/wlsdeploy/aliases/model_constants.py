@@ -11,6 +11,7 @@ MODEL_LIST_DELIMITER = ','
 
 ACTIVE_DIRECTORY_AUTHENTICATOR = 'ActiveDirectoryAuthenticator'
 ADJUDICATOR = 'Adjudicator'
+ADMIN_CONSOLE = 'AdminConsole'
 ADMIN_PASSWORD = 'AdminPassword'
 ADMIN_SERVER_NAME = 'AdminServerName'
 ADMIN_USERNAME = 'AdminUserName'

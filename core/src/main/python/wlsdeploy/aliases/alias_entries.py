@@ -72,6 +72,7 @@ class AliasEntries(object):
     __domain_category = 'Domain'
 
     __model_categories_map = {
+        'AdminConsole': 'AdminConsole',
         'Application': 'AppDeployment',
         'Cluster': 'Cluster',
         'CoherenceClusterSystemResource': 'CoherenceClusterSystemResource',
@@ -121,6 +122,7 @@ class AliasEntries(object):
     }
 
     __topology_top_level_folders = [
+        'AdminConsole',
         'Cluster',
         'JMX',
         'JTA',
