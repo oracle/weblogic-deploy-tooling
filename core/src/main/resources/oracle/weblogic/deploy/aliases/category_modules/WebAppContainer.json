@@ -7,16 +7,16 @@
     "folders": {
         "GzipCompression" : {
             "wlst_type": "GzipCompression",
-            "version": "[12.2.1.3,)",
+            "version": "[12.2,)",
             "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders": {},
             "attributes": {
-                "DynamicallyCreated":                  [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",    "wlst_name": "DynamicallyCreated",                 "wlst_path": "WP002", "value": {"default": false    }, "wlst_type": "boolean"           } ],
-                "GzipCompressionContentType":          [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionContentType",         "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "${list:jarray}",  "wlst_read_type": "delimited_string[semicolon]", "get_method": "${LSA:GET}", "preferred_model_type": "list" } ],
-                "GzipCompressionEnabled":              [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionEnabled",             "wlst_path": "WP002", "value": {"default": false    }, "wlst_type": "boolean"           } ],
-                "GzipCompressionMinContentLength":     [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionMinContentLength",    "wlst_path": "WP002", "value": {"default": 2048     }, "wlst_type": "integer"           } ],
-                "Notes":                               [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "string"            } ]
+                "DynamicallyCreated":                  [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "DynamicallyCreated",                 "wlst_path": "WP002", "value": {"default": false    }, "wlst_type": "boolean"           } ],
+                "GzipCompressionContentType":          [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionContentType",         "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "${list:jarray}",  "wlst_read_type": "delimited_string[semicolon]", "get_method": "${LSA:GET}", "preferred_model_type": "list" } ],
+                "GzipCompressionEnabled":              [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionEnabled",             "wlst_path": "WP002", "value": {"default": false    }, "wlst_type": "boolean"           } ],
+                "GzipCompressionMinContentLength":     [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionMinContentLength",    "wlst_path": "WP002", "value": {"default": 2048     }, "wlst_type": "integer"           } ],
+                "Notes":                               [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "string"            } ]
             },
             "wlst_attributes_path": "WP002",
             "wlst_paths": {
@@ -39,7 +39,7 @@
         "MaxPostSize":                         [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MaxPostSize",                        "wlst_path": "WP001", "value": {"default": -1       }, "wlst_type": "integer"           } ],
         "MaxPostTimeSecs":                     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MaxPostTimeSecs",                    "wlst_path": "WP001", "value": {"default": -1       }, "wlst_type": "integer"           } ],
         "MaxRequestParamterCount":             [ {"version": "[10]",        "wlst_mode": "both",    "wlst_name": "MaxRequestParamterCount",           "wlst_path": "WP001", "value": {"default":  10000   }, "wlst_type": "integer"           } ],
-        "MaxRequestParameterCount":            [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "MaxRequestParameterCount",           "wlst_path": "WP001", "value": {"default":  10000   }, "wlst_type": "integer"           } ],
+        "MaxRequestParameterCount":            [ {"version": "[12.2,)",     "wlst_mode": "both",    "wlst_name": "MaxRequestParameterCount",           "wlst_path": "WP001", "value": {"default":  10000   }, "wlst_type": "integer"           } ],
         "MimeMappingFile":                     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MimeMappingFile",                    "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"            } ],
         "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"            } ],
         "OptimisticSerialization":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "OptimisticSerialization",            "wlst_path": "WP001", "value": {"default": false    }, "wlst_type": "boolean"           } ],
