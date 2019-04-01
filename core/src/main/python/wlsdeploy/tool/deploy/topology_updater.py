@@ -3,6 +3,7 @@ Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import ADMIN_CONSOLE
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import MACHINE
@@ -87,6 +88,7 @@ class TopologyUpdater(Deployer):
         # set the domain attributes
         self._set_domain_attributes()
 
+        self._process_section(self._topology, folder_list, ADMIN_CONSOLE, location)
         self._process_section(self._topology, folder_list, MACHINE, location)
         self._process_section(self._topology, folder_list, UNIX_MACHINE, location)
 
