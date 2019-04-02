@@ -35,6 +35,6 @@ The following list are known issues. The issue may contain a work-around or an a
    wm/SOAWorkManager
    
 **ACTION**:
-   Contact Oracle Support for the patches for bug number 25790276 for your weblogic release version before
-   running the tool.
+   Contact Oracle Support to obtain the patches for the bug number 25790276 for your weblogic release version 
+   before running the tool.
       
