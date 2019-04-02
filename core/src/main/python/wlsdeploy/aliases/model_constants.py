@@ -19,8 +19,8 @@ APP_DEPLOYMENTS = 'appDeployments'
 APP_DIR = 'AppDir'
 APPLICATION = 'Application'
 RCU_DB_INFO = 'RCUDbInfo'
-RCU_PREFIX= 'rcu_prefix'
-RCU_SCHEMA_PASSWORD= 'rcu_schema_password'
+RCU_PREFIX = 'rcu_prefix'
+RCU_SCHEMA_PASSWORD = 'rcu_schema_password'
 RCU_ADMIN_PASSWORD = 'rcu_admin_password'
 RCU_DB_CONN = 'rcu_db_conn_string'
 RCU_VARIABLES = 'rcu_variables'
@@ -223,7 +223,7 @@ SERVER_START = 'ServerStart'
 SERVER_START_MODE = 'ServerStartMode'
 SERVER_TEMPLATE = 'ServerTemplate'
 SHUTDOWN_CLASS = 'ShutdownClass'
-SINGLETON_SERVICE= 'SingletonService'
+SINGLETON_SERVICE = 'SingletonService'
 SMTP_NOTIFICATION = 'SMTPNotification'
 SNMP_NOTIFICATION = 'SNMPNotification'
 SOURCE_DESTINATION = 'SourceDestination'
@@ -348,4 +348,11 @@ KNOWN_TOPLEVEL_MODEL_SECTIONS = [
     TOPOLOGY,
     RESOURCES,
     APP_DEPLOYMENTS
+]
+
+# these domain attributes have special processing in create,
+# and should be skipped in regular attribute processing.
+CREATE_ONLY_DOMAIN_ATTRIBUTES = [
+    DOMAIN_NAME,
+    ADMIN_SERVER_NAME
 ]
