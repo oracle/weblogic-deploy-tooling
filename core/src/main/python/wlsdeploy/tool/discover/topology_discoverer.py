@@ -647,6 +647,7 @@ class TopologyDiscoverer(Discoverer):
         """
         _method_name = '_add_server_keystore_file_to_archive'
         _logger.entering(server_name, archive_file, file_path, class_name=_class_name, method_name=_method_name)
+        _logger.finer('WLSDPLY-06623', file_path, server_name, class_name=_class_name, method_name=_method_name)
         new_name = None
 
         try:
@@ -670,8 +671,9 @@ class TopologyDiscoverer(Discoverer):
         """
         _method_name = '_add_node_manager_keystore_file_to_archive'
         _logger.entering(archive_file, file_path, class_name=_class_name, method_name=_method_name)
-
+        _logger.finer('WLSDPLY-06636', file_path, class_name=_class_name, method_name=_method_name)
         new_name = None
+
         try:
             new_name = archive_file.addNodeManagerKeyStoreFile(File(file_path))
         except IllegalArgumentException, iae:
