@@ -650,7 +650,7 @@ class TopologyDiscoverer(Discoverer):
         _logger.finer('WLSDPLY-06623', file_path, server_name, class_name=_class_name, method_name=_method_name)
         new_name = None
 
-        full_file_path = self._convert_to_path(file_path)
+        full_file_path = self._convert_path(file_path)
         try:
             new_name = archive_file.addServerKeyStoreFile(server_name, File(full_file_path))
         except IllegalArgumentException, iae:
@@ -672,7 +672,7 @@ class TopologyDiscoverer(Discoverer):
         """
         _method_name = '_add_node_manager_keystore_file_to_archive'
         _logger.entering(archive_file, file_path, class_name=_class_name, method_name=_method_name)
-        full_file_path = self._convert_to_path(file_path)
+        full_file_path = self._convert_path(file_path)
         _logger.finer('WLSDPLY-06636', full_file_path, class_name=_class_name, method_name=_method_name)
 
         new_name = None
