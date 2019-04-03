@@ -15,7 +15,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Simple Example](#simple-example)
     - [Model Names](#model-names)
     - [Model Semantics](#model-semantics)
-    - [Admin Server Configuration](site/admin_server.md)
+    - [Administration Server Configuration](site/admin_server.md)
     - [Modeling Security Providers](site/security_providers.md)
         - [JRF Trust Service Identity Asserter](site/security_providers.md#trust-service-identity-asserter)
         - [Custom Security Providers](site/security_providers.md#custom-security-providers)
