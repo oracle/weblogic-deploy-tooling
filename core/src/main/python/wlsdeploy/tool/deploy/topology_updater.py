@@ -5,7 +5,7 @@ The Universal Permissive License (UPL), Version 1.0
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_CONSOLE
 from wlsdeploy.aliases.model_constants import CLUSTER
-from wlsdeploy.aliases.model_constants import DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import SECURITY
@@ -143,8 +143,12 @@ class TopologyUpdater(Deployer):
         self.logger.fine('WLSDPLY-09700', self.model_context.get_domain_name(), class_name=self._class_name,
                          method_name=_method_name)
         attrib_dict = dictionary_utils.get_dictionary_attributes(self._topology)
-        if DOMAIN_NAME in attrib_dict:
-            del attrib_dict[DOMAIN_NAME]
+
+        # skip any attributes that have special handling in create
+        for attribute in CREATE_ONLY_DOMAIN_ATTRIBUTES:
+            if attribute in attrib_dict:
+                del attrib_dict[attribute]
+
         location = LocationContext()
         attribute_path = self.alias_helper.get_wlst_attributes_path(location)
         self.wlst_helper.cd(attribute_path)
