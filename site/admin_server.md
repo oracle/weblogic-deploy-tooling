@@ -55,4 +55,4 @@ topology:
 
 The most common problem with this type of configuration is to mismatch the `AdminServerName` attribute with the name in the `Server` folder. This will change the name of the default Admin Server to the value of `AdminServerName`, and the folder under `Server` to be created as an additional managed server.
 
-For this type of configuration, the `AdminServerName` attribute is only applied with the Create Domain Tool, and is ignored by the Update Domain Tool.
+The name of the admin server cannot be changed after domain creation, so any changes to the `AdminServerName` attribute will be ignored by the Update Domain Tool.
