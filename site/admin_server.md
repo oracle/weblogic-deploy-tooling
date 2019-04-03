@@ -28,7 +28,7 @@ topology:
                 Enabled: true
 ```
 
-The most common problem with this type of configuration is to misspell the name of the folder under `Server`, when it should be `AdminServer`. This will result in the creation of an Administration Server with the default name, and an additional managed server with the misspelled name.
+The most common problem with this type of configuration is to misspell the name of the folder under `Server`, when it should be `AdminServer`. This will result in the creation of an Administration Server with the default name, and an additional Managed Server with the misspelled name.
 
 ### Configuring the Administration Server with a Different Name
 
@@ -53,6 +53,6 @@ topology:
                 Enabled: true
 ```
 
-The most common problem with this type of configuration is to mismatch the `AdminServerName` attribute with the name in the `Server` folder. This will change the name of the default Administration Server to the value of `AdminServerName`, and the folder under `Server` to be created as an additional managed server.
+The most common problem with this type of configuration is to mismatch the `AdminServerName` attribute with the name in the `Server` folder. This will change the name of the default Administration Server to the value of `AdminServerName`, and the folder under `Server` to be created as an additional Managed Server.
 
 The name of the Administration Server cannot be changed after domain creation, so any changes to the `AdminServerName` attribute will be ignored by the Update Domain Tool.
