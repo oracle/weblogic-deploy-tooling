@@ -31,10 +31,10 @@ The following list are known issues. The issue may contain a work-around or an a
     its sub-folders cannot be discovered : wlst.cd(/SelfTuning/NO_NAME_0/WorkManager/wm/SOAWorkManager) in 
     offline mode failed: com.oracle.cie.domain.script.ScriptException: No such element WorkManager named wm
 
-   The reason for this warning is because of the slash(s) in the object name. In this case the object name is 
+   The reason for this warning is because of the slash(es) in the object name. In this case the object name is 
    wm/SOAWorkManager
    
 **ACTION**:
-   Contact Oracle Support to obtain the patches for the bug number 25790276 for your weblogic release version 
+   Contact Oracle Support to obtain the patch for the bug number 25790276 for your weblogic version 
    before running the tool.
       
