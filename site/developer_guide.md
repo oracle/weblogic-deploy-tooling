@@ -85,7 +85,7 @@ This key element defines the name of the path expression used for navigating to 
 8. `child_folders_type`
 
 9. `wlst_paths`
-The dicitonary key defines the various `wlst_path` name in the attribute section.  It is used to define the full path to the attribute's parent folder.  In this example, the parent folder for `JDBCConnectionPoolParams` is:
+The dictionary key defines the various `wlst_path` name in the attribute section.  It is used to define the full path to the attribute's parent folder.  In this example, the parent folder for `JDBCConnectionPoolParams` is:
 
 "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCConnectionPoolParams/${NO_NAME_0:%DATASOURCE%}"
 
