@@ -71,7 +71,7 @@ For example, in `JDBCSystemResource.json`
 
 There are several special constructs within the python dictionary:
 
-1. `wlst_type`  
+1. `wlst_type` in folder level
 
 This key element uses expression expansion to derive the result of the folder name while navigating the mbean.
 `${x:y}` contains two parts within the curly braces.  The first part is for WLST offline and the second part is for WLST online.  In WLST offline, the name of the folder is JCBCSystemResource and in WLST online, the name is JDBCSystemResources
@@ -89,9 +89,9 @@ This key element defines the WLST mode is supported in this particular mbean att
 
 This key element defines the name of the mbean attribute
 
-5. `wlst_type`
+5. `wlst_type` in attribute level
 
-This key element defines the data type of the WLST mbean attribute. Valid values are integer, long, string, boolean and mbean type.
+This key element defines the data type of the WLST mbean attribute. Valid values are integer, long, string, boolean, jarray and mbean type.
 
 6. `get_method`
 
@@ -129,9 +129,37 @@ The %DATASOURCE% are token placeholder, where it will be replaced with the actua
 
 This key element defines the default value of the mbean attribute.
 
+There are cases, you can specify the methods to set the value in the alias. For example:
+
+```yaml
+                            "attributes": {
+                                    "Target": [ { 
+                                        "version": "[12.2.1,)",           
+                                        "wlst_mode": "offline", 
+                                        "wlst_name": "Target",                              
+                                        "wlst_path": "WP001", 
+                                        "value": {"default": "None"  }, 
+                                        "wlst_type": "delimited_string" 
+                                        }, {
+                                        "version": "[12.2.1,)",           
+                                        "wlst_mode": "online",  
+                                        "wlst_name": "Targets",                             
+                                        "wlst_path": "WP002", 
+                                        "value": {"default": "None"  }, 
+                                        "wlst_type": "jarray",          
+                                        "preferred_model_type": "delimited_string", 
+                                        "get_method": "GET", 
+                                        "set_method": "MBEAN.set_target_mbeans", 
+                                        "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+                            },
+```
+
 12. `set_method` (not shown in the example)
 
 13. `set_mbean_type` (not shown in the example)
+
+14. `prefered_model_type` (not show in the example)
+
 
 ## Typedefs Definition
 
