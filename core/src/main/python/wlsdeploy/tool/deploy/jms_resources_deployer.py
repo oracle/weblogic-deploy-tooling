@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
@@ -118,6 +118,9 @@ class JmsResourcesDeployer(Deployer):
         location = LocationContext(location).append_location(JMS_RESOURCE)
         if not self._check_location(location):
             return
+
+        # SAF imported destination may reference error handling, and vice versa
+        self.topology_helper.create_placeholder_named_elements(location, SAF_ERROR_HANDLING, resource_nodes)
 
         for element_name in self.resource_elements:
             model_nodes = dictionary_utils.get_dictionary_element(resource_nodes, element_name)

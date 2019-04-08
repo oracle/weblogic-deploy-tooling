@@ -56,6 +56,7 @@ from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESPONSE_TIME_REQUEST_CLASS
 from wlsdeploy.aliases.model_constants import REST_NOTIFICATION
 from wlsdeploy.aliases.model_constants import SAF_AGENT
+from wlsdeploy.aliases.model_constants import SAF_ERROR_HANDLING
 from wlsdeploy.aliases.model_constants import SAF_IMPORTED_DESTINATION
 from wlsdeploy.aliases.model_constants import SAF_QUEUE
 from wlsdeploy.aliases.model_constants import SAF_TOPIC
@@ -243,7 +244,7 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if SAF RemoteContext is not found
         """
         resource_location = self.__get_parent_location(location, JMS_RESOURCE)
-        mbean = self.__find_in_location(resource_location, SAF_REMOTE_CONTEXT, value)
+        mbean = self.__find_in_location(resource_location, SAF_REMOTE_CONTEXT, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
@@ -257,6 +258,20 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if destination is not found
         """
         mbean = self.__find_saf_destination_mbean(location, value)
+        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_saf_error_handling_mbean(self, location, key, value, wlst_value):
+        """
+        Set the SAF Error Handling MBean.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if destination is not found
+        """
+        resource_location = self.__get_parent_location(location, JMS_RESOURCE)
+        mbean = self.__find_in_location(resource_location, SAF_ERROR_HANDLING, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
