@@ -46,8 +46,20 @@ For example, in `JDBCSystemResource.json`
                     "wlst_type": "JDBCConnectionPoolParams",
                     "folders": {},
                     "attributes": {
-                        "CapacityIncrement":  [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "CapacityIncrement",                      "wlst_path": "WP001", "value": {"default": "${None:1}"          },  "wlst_type": "integer",       "get_method": "LSA"} ],
-                        "ConnectionCreationRetryFrequencySeconds": [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ConnectionCreationRetryFrequencySeconds","wlst_path": "WP001", "value": {"default": "${None:0}"          },  "wlst_type": "integer",       "get_method": "LSA"} ]
+                        "CapacityIncrement":  [ {"version": "[10,)",       
+                                                 "wlst_mode": "both",    
+                                                 "wlst_name": "CapacityIncrement",                                
+                                                 "wlst_path": "WP001", 
+                                                 "value": {"default": "${None:1}"},  
+                                                 "wlst_type": "integer",       
+                                                 "get_method": "LSA"} ],
+                        "ConnectionCreationRetryFrequencySeconds": [ {"version": "[10,)",     
+                                                                     "wlst_mode": "both",    
+                                                                     "wlst_name": "ConnectionCreationRetryFrequencySeconds",
+                                                                     "wlst_path": "WP001", 
+                                                                     "value": {"default": "${None:0}"},        
+                                                                     "wlst_type": "integer",      
+                                                                     "get_method": "LSA"} ]
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
@@ -60,31 +72,45 @@ For example, in `JDBCSystemResource.json`
 There are several special constructs within the python dictionary:
 
 1. `wlst_type`  
+
 This key element uses expression expansion to derive the result of the folder name while navigating the mbean.
 `${x:y}` contains two parts within the curly braces.  The first part is for WLST offline and the second part is for WLST online.  In WLST offline, the name of the folder is JCBCSystemResource and in WLST online, the name is JDBCSystemResources
 
 2. `version`
+
 This key element defines the version of supported for a particular mbean attribute.
 `"version": "[10,)"`  This mathematical notation describe the attribute is supported from weblogic version 10 and higher
 
 3. `wlst_mode`
+
 This key element defines the WLST mode is supported in this particular mbean attribute.
 
 4. `wlst_name`
+
 This key element defines the name of the mbean attribute
 
 5. `wlst_type`
-This key element defines the data type of the WLST mbean attribute. Valid values are integer, long, string, boolean...
+
+This key element defines the data type of the WLST mbean attribute. Valid values are integer, long, string, boolean and mbean type.
 
 6. `get_method`
+
 This key element defines which get_method should be used for retrieving the value the the mbean attribute.  Valid values are: 
 
+`GET`  use wlst get method to retrieve the value of the attribute
+`LSA`  use ls(type='a') to retrieve the value value of the attribute
+`NONE` do not retrieve the attribute value
+
 7. `wlst_path`
+
 This key element defines the name of the path expression used for navigating to the mbean attribute parent folder. The actual path expression is defined later in ` "wlst_paths": { } ` 
  
-8. `child_folders_type`
+8. `wlst_attributes_path`
 
-9. `wlst_paths`
+9. `child_folders_type`
+
+10. `wlst_paths`
+
 The dictionary key defines the various `wlst_path` name in the attribute section.  It is used to define the full path to the attribute's parent folder.  In this example, the parent folder for `JDBCConnectionPoolParams` is:
 
 "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCConnectionPoolParams/${NO_NAME_0:%DATASOURCE%}"
@@ -99,6 +125,9 @@ For WLST online use case, the full path will expand to:
 
 The %DATASOURCE% are token placeholder, where it will be replaced with the actual datasource name by the tool.
 
+11. `value`
+
+This key element defines the default value of the mbean attribute.
 
 ## Typedefs Definition
 
