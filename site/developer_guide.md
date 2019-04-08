@@ -129,7 +129,7 @@ The %DATASOURCE% are token placeholder, where it will be replaced with the actua
 
 This key element defines the default value of the mbean attribute.
 
-There are cases, you can specify the methods to set the value in the alias. For example:
+There are cases, you can specify the methods to set the value in the alias. For example, there are two definitions for the `Target` attribute, one for WLST offline and one for WLST online, the WLST online version has set_method, set_bean_type and preferred_model_type keys defined in the dictionary:
 
 ```yaml
                             "attributes": {
@@ -154,11 +154,11 @@ There are cases, you can specify the methods to set the value in the alias. For 
                             },
 ```
 
-12. `set_method` (not shown in the example)
+12. `set_method`
 
-13. `set_mbean_type` (not shown in the example)
+13. `set_mbean_type`
 
-14. `prefered_model_type` (not show in the example)
+14. `prefered_model_type`
 
 
 ## Typedefs Definition
