@@ -129,6 +129,10 @@ The %DATASOURCE% are token placeholder, where it will be replaced with the actua
 
 This key element defines the default value of the mbean attribute.
 
+12. `set_method` (not shown in the example)
+
+13. `set_mbean_type` (not shown in the example)
+
 ## Typedefs Definition
 
 ## Building WebLogic Deploy Tool
