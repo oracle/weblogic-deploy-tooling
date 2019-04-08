@@ -9,6 +9,12 @@
 
 ## PreRequisite
 
+You will need the following software installed in your local build environment
+
+1. Oracle WebLogic Server installation version 10.3.6 and above
+2. JDK version 8
+3. Maven 3 and above
+
 ## Project Structure
 
 ## Alias definition
