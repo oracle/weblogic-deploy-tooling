@@ -24,9 +24,9 @@ There are two modules in the project
 
 There is also a `sample` directory containing various samples
 
-## Alias definition
+## Alias Definition
 
-## Typedefs definition
+## Typedefs Definition
 
 ## Building WebLogic Deploy Tool
 
