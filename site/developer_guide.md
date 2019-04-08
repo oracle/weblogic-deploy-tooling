@@ -17,6 +17,13 @@ You will need the following software installed in your local build environment
 
 ## Project Structure
 
+There are two modules in the project
+
+1. `core`  This module contains all the source code 
+2. `installer` This module builds the final installer zip file
+
+There is also a `sample` directory containing various samples
+
 ## Alias definition
 
 ## Typedefs definition
