@@ -1,11 +1,19 @@
 # Developer Guide
 
 ## Table of Contents
--[PreRequisite]
--[Project Structure]
--[Alias files]
--[typedefs files]
--[Building WebLogic Deploy Tool]
+- [PreRequisite](#prerequisite)
+- [Project Structure](#project-structure)
+- [Alias definition](#alias-definition)
+- [Typedefs definition](#typedefs-definition)
+- [Building WebLogic Deploy Tool](#building-weblogic-deploy-tool)
+
+## PreRequisite
+
+## Project Structure
+
+## Alias definition
+
+## Typedefs definition
 
 ## Building WebLogic Deploy Tool
 
