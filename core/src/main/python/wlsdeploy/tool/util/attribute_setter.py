@@ -55,6 +55,7 @@ from wlsdeploy.aliases.model_constants import RESOURCE_MANAGEMENT
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESPONSE_TIME_REQUEST_CLASS
 from wlsdeploy.aliases.model_constants import REST_NOTIFICATION
+from wlsdeploy.aliases.model_constants import SAF_AGENT
 from wlsdeploy.aliases.model_constants import SAF_IMPORTED_DESTINATION
 from wlsdeploy.aliases.model_constants import SAF_QUEUE
 from wlsdeploy.aliases.model_constants import SAF_TOPIC
@@ -748,6 +749,9 @@ class AttributeSetter(object):
 
         if include_jms:
             mbean = self.__find_in_resource_group_or_domain(location, JMS_SERVER, target_name)
+            if mbean is not None:
+                return mbean
+            mbean = self.__find_in_resource_group_or_domain(location, SAF_AGENT, target_name)
             if mbean is not None:
                 return mbean
 
