@@ -161,7 +161,7 @@ There are cases, you can specify the methods to set the value in the alias. For 
 14. `prefered_model_type`
 
 
-## Typedefs Definition
+## TypeDefs Definition
 
 The Create Domain Tool has an extensible domain type system.  The three built-in domain types (`WLS`, `RestrictedJRF`, and `JRF`) are defined in JSON files of the same name in the `WLSDEPLOY_HOME/lib/typedefs` directory.  For example, the `JRF` domain type is defined in the `WLSDEPLOY_HOME/lib/typedefs/JRF.json` file whose contents look like those shown below.
 
