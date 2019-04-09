@@ -150,6 +150,16 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Determine if the specified path is in the classpath libraries folder.
+     * This includes the case where the specified path is the classpath libraries folder.
+     * @param path the path to be checked
+     * @return true if the specified path matches or is under the classpath libraries folder
+     */
+    public static boolean isClasspathEntry(String path) {
+        return path.startsWith(ARCHIVE_CPLIB_TARGET_DIR);
+    }
+
+    /**
      * Get the current file name for the JCSLifecycleArchive file.
      *
      * @return the file name
