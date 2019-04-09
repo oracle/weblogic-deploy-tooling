@@ -287,4 +287,6 @@ If you are not making changes and only interested in building the latest version
  
 This will build the entire project without running any unit test.
 
+The installer zip file built is under the `WLSDEPLOY_HOME/installer/target` directory
+
 
