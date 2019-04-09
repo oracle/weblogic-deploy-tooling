@@ -21,7 +21,7 @@ To have the Create Domain Tool run RCU, simply add the `-run_rcu` argument to th
 
 It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to [Specifying RCU connection information in the model](rcuinfo.md)
 
-The Create Domain Tool has an extensible domain type system, it is defined using python dictionary called typedefs.  See - [TypeDefs Definition](developer-guide.md#typedefs-definition).  The three built-in domain types (`WLS`, `RestrictedJRF`, and `JRF`) are defined in JSON files of the same name in the `WLSDEPLOY_HOME/lib/typedefs` directory.  For example, the `JRF` domain type is defined in the `WLSDEPLOY_HOME/lib/typedefs/JRF.json` file whose contents look like those shown below.
+The Create Domain Tool has an extensible domain type system, it is defined using python dictionary called typedefs.  See - [TypeDefs Definition](developer_guide.md#typedefs-definition).  The three built-in domain types (`WLS`, `RestrictedJRF`, and `JRF`) are defined in JSON files of the same name in the `WLSDEPLOY_HOME/lib/typedefs` directory.  For example, the `JRF` domain type is defined in the `WLSDEPLOY_HOME/lib/typedefs/JRF.json` file whose contents look like those shown below.
 
 ```json
 {
