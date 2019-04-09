@@ -28,7 +28,7 @@ There is also a `sample` directory containing various samples
 
 WebLogic Deploy Tool uses python dictionary called alias to help navigating the weblogic configuration mbean tree.  The alias definition helps to define the structure and data type of the configuration mbean. The folder and attribute names are the exact name of used by WLST. All the alias defintion reside in the directory:
 
-`/core/src/main/resources/oracle/weblogic/deploy/aliases/category_module`
+`$WLSDEPLOY_HOME/core/src/main/resources/oracle/weblogic/deploy/aliases/category_module`
 
 For example, in `JDBCSystemResource.json`
 
