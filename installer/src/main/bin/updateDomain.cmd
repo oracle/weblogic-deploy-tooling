@@ -229,36 +229,27 @@ SET  RETURN_CODE=98
 GOTO exit_script
 
 :domain_type_recognized
-IF "%USE_JRF_WLST%" == "TRUE" (
-    IF EXIST "%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd" (
+IF EXIST "%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd" (
+    SET WLST=%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd
+    SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+    GOTO found_wlst
+)
+IF EXIST "%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd" (
+    SET WLST=%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd
+    SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+    GOTO found_wlst
+)
+IF EXIST "%ORACLE_HOME%\wlserver\common\bin\wlst.cmd" (
+    IF EXIST "%ORACLE_HOME%\wlserver\.product.properties" (
+        @rem WLS 12.1.2 or WLS 12.1.3
+        SET WLST=%ORACLE_HOME%\wlserver\common\bin\wlst.cmd
+        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+    ) ELSE (
+        @rem WLS 12.2.1+
         SET WLST=%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd
-        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
         SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-        GOTO found_wlst
     )
-) ELSE (
-    IF EXIST "%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd" (
-        SET WLST=%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd
-        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-        GOTO found_wlst
-    )
-    IF EXIST "%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd" (
-        SET WLST=%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd
-        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-        GOTO found_wlst
-    )
-    IF EXIST "%ORACLE_HOME%\wlserver\common\bin\wlst.cmd" (
-        IF EXIST "%ORACLE_HOME%\wlserver\.product.properties" (
-            @rem WLS 12.1.2 or WLS 12.1.3
-            SET WLST=%ORACLE_HOME%\wlserver\common\bin\wlst.cmd
-            SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-        ) ELSE (
-            @rem WLS 12.2.1+
-            SET WLST=%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd
-            SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-        )
-        GOTO found_wlst
-    )
+    GOTO found_wlst
 )
 
 IF NOT EXIST "%WLST%" (
@@ -290,9 +281,9 @@ ECHO CLASSPATH = %CLASSPATH%
 ECHO WLST_PROPERTIES = %WLST_PROPERTIES%
 
 SET PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python
-ECHO %WLST% %PY_SCRIPTS_PATH%\update.py %*
+ECHO %WLST% %PY_SCRIPTS_PATH%\update.py %SCRIPT_ARGS%
 
-"%WLST%" "%PY_SCRIPTS_PATH%\update.py" %*
+"%WLST%" "%PY_SCRIPTS_PATH%\update.py" %SCRIPT_ARGS%
 
 SET RETURN_CODE=%ERRORLEVEL%
 IF "%RETURN_CODE%" == "103" (
