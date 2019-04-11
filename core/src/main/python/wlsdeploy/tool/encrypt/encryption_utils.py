@@ -76,7 +76,7 @@ class _ModelEncrypter(object):
             self._encrypt_nodes(location, resources_nodes, top_folder_names)
 
         if model.get_model_deployments_key() in model_dict:
-            top_folder_names = self.alias_helper.get_model_deployments_top_level_folder_names()
+            top_folder_names = self.alias_helper.get_model_app_deployments_top_level_folder_names()
             deployments_nodes = model_dict[model.get_model_deployments_key()]
             location = LocationContext()
             self._encrypt_nodes(location, deployments_nodes, top_folder_names)
