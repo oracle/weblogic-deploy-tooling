@@ -209,27 +209,7 @@ IF DEFINED WLST_PATH_DIR (
 @rem Find the location for wlst.cmd
 @rem
 SET WLST=
-SET USE_JRF_WLST=FALSE
-IF DEFINED DOMAIN_TYPE (
-  IF "%DOMAIN_TYPE%" == "WLS" (
-    SET USE_JRF_WLST=FALSE
-    GOTO domain_type_recognized
-  )
-  IF "%DOMAIN_TYPE%" == "RestrictedJRF" (
-    SET USE_JRF_WLST=TRUE
-    GOTO domain_type_recognized
-  )
-  IF "%DOMAIN_TYPE%" == "JRF" (
-    SET USE_JRF_WLST=TRUE
-    GOTO domain_type_recognized
-  )
-)
 
-ECHO Wrong domain type specified "%DOMAIN_TYPE%": valid value is "WLS|JRF|RestrictedJRF"
-SET  RETURN_CODE=98
-GOTO exit_script
-
-:domain_type_recognized
 IF EXIST "%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd" (
     SET WLST=%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd
     SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
