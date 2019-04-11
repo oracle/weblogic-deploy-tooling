@@ -149,8 +149,11 @@ IF NOT "%~1" == "" (
   GOTO arg_loop
 )
 
+SET SCRIPT_ARGS=%*
 @rem Default domain type if not specified
-IF "%DOMAIN_TYPE%"=="" SET DOMAIN_TYPE=WLS
+IF "%DOMAIN_TYPE%"=="" (
+    SET SCRIPT_ARGS=%SCRIPT_ARGS% -domain_type WLS
+)
 
 @rem
 @rem Validate the JVM version based on whether or not the user asked us to use encryption

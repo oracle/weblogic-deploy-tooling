@@ -160,8 +160,7 @@ IF NOT "%~1" == "" (
 SET SCRIPT_ARGS=%*
 @rem Default domain type if not specified
 IF "%DOMAIN_TYPE%"=="" (
-    SET DOMAIN_TYPE=WLS
-    SET SCRIPT_ARGS=%SCRIPT_ARGS% -domain_type %DOMAIN_TYPE%
+    SET SCRIPT_ARGS=%SCRIPT_ARGS% -domain_type WLS
 )
 @rem
 @rem Check for values of required arguments for this script to continue.
