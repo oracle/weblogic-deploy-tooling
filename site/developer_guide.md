@@ -26,7 +26,7 @@ There is also a `sample` directory containing various samples
 
 ## Alias Definition
 
-WebLogic Deploy Tool uses python dictionary called alias to help navigating the weblogic configuration mbean tree.  The alias definition helps to define the structure and data type of the configuration mbean. The folder and attribute names are the exact name of used by WLST. All the alias defintion reside in the directory:
+WebLogic Deploy Tool uses python dictionary called alias to help navigating the weblogic configuration mbean tree.  The alias definition helps to define the structure and data type of the configuration mbean. The folder and attribute names are the exact name of used by WLST. All the alias definition reside in the directory:
 
 `$WLSDEPLOY_HOME/core/src/main/resources/oracle/weblogic/deploy/aliases/category_module`
 
@@ -95,10 +95,10 @@ This key element defines the data type of the WLST mbean attribute. Valid values
 
 6. `get_method`
 
-This key element defines which get_method should be used for retrieving the value the the mbean attribute.  Valid values are: 
+This key element defines which get_method should be used for retrieving the value the mbean attribute.  Valid values are: 
 
 `GET`  use wlst get method to retrieve the value of the attribute
-`LSA`  use ls(type='a') to retrieve the value value of the attribute
+`LSA`  use ls(type='a') to retrieve the value of the attribute
 `NONE` do not retrieve the attribute value
 
 7. `wlst_path`
@@ -129,7 +129,7 @@ The %DATASOURCE% are token placeholder, where it will be replaced with the actua
 
 This key element defines the default value of the mbean attribute.
 
-There are cases, you can specify the methods to set the value in the alias. For example, there are two definitions for the `Target` attribute, one for WLST offline and one for WLST online, the WLST online version has set_method, set_bean_type and preferred_model_type keys defined in the dictionary:
+There are cases, you can specify the methods to set the value in the alias. For example, there are two definitions for the `Target` attribute, one for WLST offline and one for WLST online, the WLST online version has `set_method`, `set_bean_type` and `preferred_model_type` keys defined in the dictionary:
 
 ```yaml
                             "attributes": {
