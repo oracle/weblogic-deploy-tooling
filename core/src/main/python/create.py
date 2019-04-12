@@ -30,11 +30,14 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.domain_creator import DomainCreator
 from wlsdeploy.tool.create.domain_typedef import DomainTypedef
 from wlsdeploy.tool.create.domain_typedef import CREATE_DOMAIN
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_exit
@@ -424,6 +427,7 @@ def main(args):
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
+    alias_helper = AliasHelper(aliases, __logger, ExceptionType.CREATE)
     validate_model(model, model_context, aliases)
 
     if filter_helper.apply_filters(model, "create"):
@@ -446,7 +450,10 @@ def main(args):
         creator.create()
 
         if has_atp:
-            atp_helper.fix_jps_config(model, model_context)
+            rcu_properties_map = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
+            rcu_db_info = RcuDbInfo(alias_helper, rcu_properties_map)
+            atp_helper.fix_jps_config(rcu_db_info, model_context)
+
     except WLSDeployArchiveIOException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)

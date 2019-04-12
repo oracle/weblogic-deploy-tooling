@@ -88,15 +88,11 @@ def unzip_atp_wallet(wallet_file, location):
     zis.close()
     fis.close()
 
-def fix_jps_config(model, model_context):
-    #print model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO]
-    tns_admin = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-        model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]
-    keystore_password = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-        model_constants.DRIVER_PARAMS_KEYSTOREPWD_PROPERTY]
 
-    truststore_password = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-        model_constants.DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY]
+def fix_jps_config(rcu_db_info, model_context):
+    tns_admin = rcu_db_info.get_atp_tns_admin()
+    keystore_password = rcu_db_info.get_keystore_password()
+    truststore_password = rcu_db_info.get_truststore_password()
 
     jsp_config = model_context.get_domain_home() + '/config/fmwconfig/jps-config.xml'
     jsp_config_jse = model_context.get_domain_home() + '/config/fmwconfig/jps-config-jse.xml'

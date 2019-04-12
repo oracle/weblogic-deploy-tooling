@@ -69,7 +69,7 @@ from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
-from wlsdeploy.tool.create import rcudbinfo_helper
+from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.deploy import deployer_utils
@@ -206,7 +206,6 @@ class DomainCreator(Creator):
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-
     def __run_rcu(self):
         """
         The method that runs RCU to drop and then create the schemas.
@@ -235,40 +234,46 @@ class DomainCreator(Creator):
 
         if RCU_DB_INFO in self.model.get_model_domain_info():
             rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
+            rcu_db_info = RcuDbInfo(self.alias_helper, rcu_properties_map)
 
             if atp_helper.has_atpdbinfo(rcu_properties_map):
 
                 # Need to validate they are non null
+                rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
+                rcu_sys_pass = rcu_db_info.get_admin_password()
 
-                rcu_schema_pass = rcudbinfo_helper.get_rcu_schema_password(rcu_properties_map)
-                rcu_sys_pass = rcudbinfo_helper.get_admin_password(rcu_properties_map)
+                # make a copy of model's map to pass to RCURunner, since we will modify some values
+                rcu_runner_map = dict(rcu_properties_map)
+
+                # update password fields with decrypted passwords
+                rcu_runner_map[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY] = rcu_db_info.get_keystore_password()
+                rcu_runner_map[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY] = rcu_db_info.get_truststore_password()
 
                 # Set it if it needs it
                 # The java RCURunner use it to construct the argument
                 # If we don't set it to non null then RCURunner will NPE
+                rcu_runner_map[ATP_ADMIN_USER] = rcu_db_info.get_atp_admin_user()
+                rcu_runner_map[ATP_TEMPORARY_TABLESPACE] = rcu_db_info.get_atp_temporary_tablespace()
+                rcu_runner_map[ATP_DEFAULT_TABLESPACE] = rcu_db_info.get_atp_default_tablespace()
 
-                rcu_properties_map[ATP_ADMIN_USER] = rcudbinfo_helper.get_atp_admin_user(rcu_properties_map)
-                rcu_properties_map[ATP_TEMPORARY_TABLESPACE] = rcudbinfo_helper.get_atp_temporary_tablespace(rcu_properties_map)
-                rcu_properties_map[ATP_DEFAULT_TABLESPACE] = rcudbinfo_helper.get_atp_default_tablespace(rcu_properties_map)
+                self.__validate_rcudbinfo_entries(rcu_runner_map, [RCU_ADMIN_PASSWORD,
+                                                                   RCU_SCHEMA_PASSWORD,
+                                                                   ATP_TNS_ENTRY, RCU_PREFIX,
+                                                                   DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY,
+                                                                   DRIVER_PARAMS_KEYSTOREPWD_PROPERTY])
 
-                self.__validate_rcudbinfo_entries(rcu_properties_map, [RCU_ADMIN_PASSWORD,
-                                                                                  RCU_ADMIN_PASSWORD,
-                                                                      ATP_TNS_ENTRY, RCU_PREFIX,
-                                                                      DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY,
-                                                                      DRIVER_PARAMS_KEYSTOREPWD_PROPERTY])
-
-                runner = RCURunner(domain_type, oracle_home, java_home, rcu_schemas, rcu_properties_map,
-                                   rcudbinfo_helper.get_rcu_variables(rcu_properties_map))
+                runner = RCURunner(domain_type, oracle_home, java_home, rcu_schemas, rcu_runner_map,
+                                   rcu_db_info.get_rcu_variables())
                 runner.runRcu(rcu_sys_pass, rcu_schema_pass)
             else:
-                rcu_db = rcudbinfo_helper.get_rcu_regular_db_conn(rcu_properties_map)
-                rcu_prefix = rcudbinfo_helper.get_rcu_prefix(rcu_properties_map)
-                rcu_sys_pass = rcudbinfo_helper.get_admin_password(rcu_properties_map)
-                rcu_schema_pass = rcudbinfo_helper.get_rcu_schema_password(rcu_properties_map)
+                rcu_db = rcu_db_info.get_rcu_regular_db_conn()
+                rcu_prefix = rcu_db_info.get_rcu_prefix()
+                rcu_sys_pass = rcu_db_info.get_admin_password()
+                rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
                 self.__validate_rcudbinfo_entries(rcu_properties_map, [RCU_PREFIX, RCU_SCHEMA_PASSWORD,
-                                                                      RCU_ADMIN_PASSWORD, RCU_DB_CONN])
+                                                                       RCU_ADMIN_PASSWORD, RCU_DB_CONN])
                 runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
-                                   rcudbinfo_helper.get_rcu_variables(rcu_properties_map))
+                                   rcu_db_info.get_rcu_variables())
                 runner.runRcu(rcu_sys_pass, rcu_schema_pass)
         else:
             rcu_db = self.model_context.get_rcu_database()
@@ -726,8 +731,6 @@ class DomainCreator(Creator):
         return
 
     def __set_atp_connection_property(self, root_location, property_name, property_value):
-
-
         create_path = self.alias_helper.get_wlst_create_path(root_location)
 
         self.wlst_helper.cd(create_path)
@@ -737,10 +740,8 @@ class DomainCreator(Creator):
         if token_name is not None:
             root_location.add_name_token(token_name, property_name)
 
-
         mbean_name = self.alias_helper.get_wlst_mbean_name(root_location)
         mbean_type = self.alias_helper.get_wlst_mbean_type(root_location)
-
 
         self.wlst_helper.create(mbean_name, mbean_type)
 
@@ -750,11 +751,10 @@ class DomainCreator(Creator):
 
         wlst_name, wlst_value = \
             self.alias_helper.get_wlst_attribute_name_and_value(root_location, DRIVER_PARAMS_PROPERTY_VALUE,
-                                                                property_value )
+                                                                property_value)
         self.wlst_helper.set(wlst_name, wlst_value)
 
         root_location.remove_name_token(property_name)
-
 
     def __configure_fmw_infra_database(self):
         """
@@ -772,6 +772,8 @@ class DomainCreator(Creator):
 
         if RCU_DB_INFO in domain_info:
             rcu_properties_map = domain_info[RCU_DB_INFO]
+            rcu_db_info = RcuDbInfo(self.alias_helper, rcu_properties_map)
+
             # HANDLE ATP case
 
             if atp_helper.has_atpdbinfo(rcu_properties_map):
@@ -779,12 +781,12 @@ class DomainCreator(Creator):
                 # parse the tnsnames.ora file and retrieve the connection string
                 tns_admin = rcu_properties_map[DRIVER_PARAMS_NET_TNS_ADMIN]
                 rcu_database = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
-                                                                 rcudbinfo_helper.get_atp_entry(rcu_properties_map))
+                                                                 rcu_db_info.get_atp_entry())
 
-                rcu_prefix = rcudbinfo_helper.get_rcu_prefix(rcu_properties_map)
-                rcu_schema_pwd = rcudbinfo_helper.get_rcu_schema_password(rcu_properties_map)
-                keystore_pwd = rcudbinfo_helper.get_keystore_password(rcu_properties_map)
-                truststore_pwd = rcudbinfo_helper.get_truststore_password(rcu_properties_map)
+                rcu_prefix = rcu_db_info.get_rcu_prefix()
+                rcu_schema_pwd = rcu_db_info.get_rcu_schema_password()
+                keystore_pwd = rcu_db_info.get_keystore_password()
+                truststore_pwd = rcu_db_info.get_truststore_password()
 
                 # Need to set for the connection proeprty for each datasource
 
@@ -802,7 +804,6 @@ class DomainCreator(Creator):
                     location.append_location(JDBC_SYSTEM_RESOURCE)
                     token_name = self.alias_helper.get_name_token(location)
                     location.add_name_token(token_name, ds_name)
-
 
                     location.append_location(JDBC_RESOURCE)
                     location.append_location(JDBC_DRIVER_PARAMS)
@@ -855,9 +856,11 @@ class DomainCreator(Creator):
 
         if not has_atp:
             if RCU_DB_INFO in domain_info:
-                rcu_prefix = domain_info[RCU_DB_INFO][RCU_PREFIX]
-                rcu_database = domain_info[RCU_DB_INFO][RCU_DB_CONN]
-                rcu_schema_pwd = domain_info[RCU_DB_INFO][RCU_SCHEMA_PASSWORD]
+                rcu_properties_map = domain_info[RCU_DB_INFO]
+                rcu_db_info = RcuDbInfo(self.alias_helper, rcu_properties_map)
+                rcu_prefix = rcu_db_info.get_rcu_prefix()
+                rcu_database = rcu_db_info.get_rcu_regular_db_conn()
+                rcu_schema_pwd = rcu_db_info.get_rcu_schema_password()
             else:
                 rcu_database = self.model_context.get_rcu_database()
                 if rcu_database is None:
