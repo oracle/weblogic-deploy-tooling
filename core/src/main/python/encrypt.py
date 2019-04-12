@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 
 The main module for the WLSDeploy tool to encrypt passwords.
@@ -21,9 +21,13 @@ from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
 # imports from local packages start here
+from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.encrypt import encryption_utils
+from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import variables as variable_helper
 from wlsdeploy.util import wlst_helper
@@ -70,7 +74,7 @@ def __process_args(args):
     # Prompt for the password to encrypt if the -manual switch was specified
     #
     if CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH in optional_arg_map and \
-                    CommandLineArgUtil.ONE_PASS_SWITCH not in optional_arg_map:
+            CommandLineArgUtil.ONE_PASS_SWITCH not in optional_arg_map:
         try:
             pwd = getcreds.getpass('WLSDPLY-04200')
         except IOException, ioe:
@@ -100,6 +104,7 @@ def __verify_required_args_present(required_arg_map):
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     return
+
 
 def __validate_mode_args(optional_arg_map):
     """
@@ -179,10 +184,13 @@ def __encrypt_model_and_variables(model_context):
                             class_name=_class_name, method_name=_method_name)
             return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
 
+    aliases = Aliases(model_context, wlst_mode=WlstModes.OFFLINE)
+    alias_helper = AliasHelper(aliases, __logger, ExceptionType.ENCRYPTION)
+
     try:
         passphrase = model_context.get_encryption_passphrase()
         model_change_count, variable_change_count = \
-            encryption_utils.encrypt_model_dictionary(passphrase, model, variables)
+            encryption_utils.encrypt_model_dictionary(passphrase, model, alias_helper, variables)
     except EncryptionException, ee:
         __logger.severe('WLSDPLY-04208', _program_name, ee.getLocalizedMessage(), error=ee,
                         class_name=_class_name, method_name=_method_name)
@@ -267,6 +275,7 @@ def main(args):
     exit_code = _process_request(args)
     __logger.exiting(class_name=_class_name, method_name=_method_name, result=exit_code)
     sys.exit(exit_code)
+
 
 if __name__ == "main":
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)

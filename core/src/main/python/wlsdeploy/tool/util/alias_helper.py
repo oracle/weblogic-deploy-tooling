@@ -724,6 +724,24 @@ class AliasHelper(object):
             raise ex
         return result
 
+    def decrypt_password(self, text):
+        """
+        Encrypt the specified password if encryption is used and the password is encrypted.
+        :param text: the text to check and decrypt, if needed
+        :return: the clear text
+        :raises EncryptionException: if an error occurs while decrypting the password
+        """
+        _method_name = 'decrypt_password'
+
+        try:
+            result = self.__aliases.decrypt_password(text)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19037',
+                                                   ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
     ###########################################################################
     #                          Convenience Methods                            #
     ###########################################################################

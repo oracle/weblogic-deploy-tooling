@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import os
@@ -124,6 +124,13 @@ def get_variable_names(text):
         if tokens is not None:
             for token in tokens:
                 names.append(token[2:-1])
+
+    if '@@' in text:
+        tokens = _property_pattern.findall(text)
+        if tokens:
+            for token in tokens:
+                names.append(token[7:-2])
+
     return names
 
 

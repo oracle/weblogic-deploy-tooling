@@ -88,15 +88,11 @@ def unzip_atp_wallet(wallet_file, location):
     zis.close()
     fis.close()
 
-def fix_jps_config(model, model_context):
-    #print model[model_constants.DOMAIN_INFO][model_constants.ATP_DB_INFO]
-    tns_admin = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-        model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]
-    keystore_password = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-        model_constants.DRIVER_PARAMS_KEYSTOREPWD_PROPERTY]
 
-    truststore_password = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-        model_constants.DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY]
+def fix_jps_config(rcu_db_info, model_context):
+    tns_admin = rcu_db_info.get_atp_tns_admin()
+    keystore_password = rcu_db_info.get_keystore_password()
+    truststore_password = rcu_db_info.get_truststore_password()
 
     jsp_config = model_context.get_domain_home() + '/config/fmwconfig/jps-config.xml'
     jsp_config_jse = model_context.get_domain_home() + '/config/fmwconfig/jps-config-jse.xml'
@@ -154,33 +150,6 @@ def format_connect_string(connect_string):
         connect_string = "%s%s%s%s" % (part1, part2, part3, part4)
 
     return connect_string
-
-# has_tns_admin is used to find the extract location if it is already extracted by the user
-# its an optional field, so insufficient to determine whether it has atp
-
-
-def has_tns_admin(rcu_db_info):
-    return model_constants.DRIVER_PARAMS_NET_TNS_ADMIN in rcu_db_info
-
-
-def has_atpdbinfo(rcu_db_info):
-    is_atp = 0
-    if model_constants.USE_ATP in rcu_db_info:
-        if rcu_db_info[model_constants.USE_ATP] == 'true' or rcu_db_info[model_constants.USE_ATP] == 1:
-            is_atp = 1
-    return is_atp
-    # return model_constants.USE_ATP in rcu_db_info
-    # return model_constants.ATP_TNS_ENTRY in rcu_db_info
-
-
-def is_regular_db(rcu_db_info):
-    is_regular = 0
-    if model_constants.USE_ATP in rcu_db_info:
-        if rcu_db_info[model_constants.USE_ATP] is 'false' or rcu_db_info[model_constants.USE_ATP] is 0:
-            is_regular = 1
-    if model_constants.RCU_DB_CONN in rcu_db_info:
-        is_regular = 1
-    return is_regular
 
 
 def extract_walletzip(model, model_context, archive_file, atp_zipentry):
