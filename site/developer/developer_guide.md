@@ -7,7 +7,7 @@
 - [Typedefs definition](#typedefs-definition)
 - [Building WebLogic Deploy Tool](#building-weblogic-deploy-tool)
 
-## PreRequisite
+## Prerequisite
 
 You will need the following software installed in your local build environment
 
