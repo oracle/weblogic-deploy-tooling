@@ -335,15 +335,15 @@ def validate_model(model_dictionary, model_context, aliases):
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
 
-def validateRCUArgsAndModel(model_context, model):
+def validateRCUArgsAndModel(model_context, model, alias_helper):
     has_atpdbinfo = 0
     domain_info = model[model_constants.DOMAIN_INFO]
     if domain_info is not None:
         if model_constants.RCU_DB_INFO in domain_info:
-            rcu_db_info = domain_info[model_constants.RCU_DB_INFO]
-            has_tns_admin = atp_helper.has_tns_admin(rcu_db_info)
-            has_regular_db = atp_helper.is_regular_db(rcu_db_info)
-            has_atpdbinfo = atp_helper.has_atpdbinfo(rcu_db_info)
+            rcu_db_info = RcuDbInfo(alias_helper, domain_info[model_constants.RCU_DB_INFO])
+            has_tns_admin = rcu_db_info.has_tns_admin()
+            has_regular_db = rcu_db_info.is_regular_db()
+            has_atpdbinfo = rcu_db_info.has_atpdbinfo()
 
             if model_context.get_archive_file_name() and not has_regular_db:
                 System.setProperty('oracle.jdbc.fanEnabled', 'false')
@@ -435,7 +435,7 @@ def main(args):
         validate_model(model, model_context, aliases)
     try:
 
-        has_atp = validateRCUArgsAndModel(model_context, model)
+        has_atp = validateRCUArgsAndModel(model_context, model, alias_helper)
         # check if there is an atpwallet and extract in the domain dir
         # it is to support non JRF domain but user wants to use ATP database
         archive_file_name = model_context.get_archive_file_name()

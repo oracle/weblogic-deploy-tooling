@@ -236,7 +236,7 @@ class DomainCreator(Creator):
             rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
             rcu_db_info = RcuDbInfo(self.alias_helper, rcu_properties_map)
 
-            if atp_helper.has_atpdbinfo(rcu_properties_map):
+            if rcu_db_info.has_atpdbinfo():
 
                 # Need to validate they are non null
                 rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
@@ -771,15 +771,14 @@ class DomainCreator(Creator):
         domain_info = self.model.get_model_domain_info()
 
         if RCU_DB_INFO in domain_info:
-            rcu_properties_map = domain_info[RCU_DB_INFO]
-            rcu_db_info = RcuDbInfo(self.alias_helper, rcu_properties_map)
+            rcu_db_info = RcuDbInfo(self.alias_helper, domain_info[RCU_DB_INFO])
 
             # HANDLE ATP case
 
-            if atp_helper.has_atpdbinfo(rcu_properties_map):
+            if rcu_db_info.has_atpdbinfo():
                 has_atp = 1
                 # parse the tnsnames.ora file and retrieve the connection string
-                tns_admin = rcu_properties_map[DRIVER_PARAMS_NET_TNS_ADMIN]
+                tns_admin = rcu_db_info.get_atp_tns_admin()
                 rcu_database = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
                                                                  rcu_db_info.get_atp_entry())
 
@@ -856,8 +855,7 @@ class DomainCreator(Creator):
 
         if not has_atp:
             if RCU_DB_INFO in domain_info:
-                rcu_properties_map = domain_info[RCU_DB_INFO]
-                rcu_db_info = RcuDbInfo(self.alias_helper, rcu_properties_map)
+                rcu_db_info = RcuDbInfo(self.alias_helper, domain_info[RCU_DB_INFO])
                 rcu_prefix = rcu_db_info.get_rcu_prefix()
                 rcu_database = rcu_db_info.get_rcu_regular_db_conn()
                 rcu_schema_pwd = rcu_db_info.get_rcu_schema_password()
