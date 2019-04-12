@@ -21,7 +21,7 @@ To have the Create Domain Tool run RCU, simply add the `-run_rcu` argument to th
 
 It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to [Specifying RCU connection information in the model](rcuinfo.md)
 
-The Create Domain Tool has an extensible domain type system, it is defined using python dictionary called typedefs.  See - [TypeDefs Definition](site/developer/developer_guide.md#typedefs-definition) for details.  
+The Create Domain Tool has an extensible domain type system, it is defined using python dictionary called typedefs.  See - [TypeDefs Definition](developer/developer_guide.md#typedefs-definition) for details.  
 
 Then, use the `ServerGroupTargetingLimits` map in the `domainInfo` section to limit the targeting of the Web Services Manager, SOA, and OSB server groups to the `soa_cluster` or `osb_cluster`, as appropriate.  In the example below, notice that the `JRF-MAN-SVR` server group is not listed; therefore, it will use the default targeting and be targeted to all managed servers.  The value of each element in this section is a logical list of server and/or cluster names.  As shown in the example, the value for each server group can be specified as a list, a comma-separated string, or a single-valued string.  There is no semantic difference between listing a cluster's member server names versus using the cluster name; the example uses these simply to show what is possible.
 
