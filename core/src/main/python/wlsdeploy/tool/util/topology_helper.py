@@ -79,7 +79,6 @@ class TopologyHelper(object):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         original_location = self.wlst_helper.get_pwd()
         server_location = LocationContext().append_location(SERVER)
-        added_server = False
 
         if self.alias_helper.get_wlst_mbean_type(server_location) is not None:
             existing_names = deployer_utils.get_existing_object_list(server_location, self.alias_helper)
@@ -87,7 +86,6 @@ class TopologyHelper(object):
             server_nodes = dictionary_utils.get_dictionary_element(topology, SERVER)
             for server_name in server_nodes:
                 if server_name not in existing_names and self.is_clustered_server(server_name, server_nodes):
-                    added_server = True
                     self.logger.info('WLSDPLY-19402', server_name, class_name=self.__class_name,
                                      method_name=_method_name)
 
@@ -96,9 +94,7 @@ class TopologyHelper(object):
                     deployer_utils.create_and_cd(server_location, existing_names, self.alias_helper)
 
         self.wlst_helper.cd(original_location)
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name,
-                            result='added server is ' + StringUtils.stringForBoolean(added_server))
-        return added_server
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def create_placeholder_server_templates(self, topology):
         """

@@ -52,7 +52,7 @@ class TargetHelper(object):
         the applyJRF to automatically update the values
         """
         _method_name = 'target_jrf_groups_to_clusters_servers'
-        self.logger.entering(StringUtils.stringForBoolean(should_update), class_name=self.__class_name,
+        self.logger.entering(should_update, class_name=self.__class_name,
                              method_name=_method_name)
 
         location = LocationContext()

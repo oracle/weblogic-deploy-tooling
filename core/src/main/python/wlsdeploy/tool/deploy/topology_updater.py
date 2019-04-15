@@ -35,16 +35,17 @@ class TopologyUpdater(Deployer):
         Deployer.__init__(self, model, model_context, aliases, wlst_mode)
         self._topology = self.model.get_model_topology()
         self._resources = self.model.get_model_resources()
-        self._topology_helper = TopologyHelper(self.aliases, ExceptionType.DEPLOY, self.logger)
+        self._exception_type = ExceptionType.DEPLOY
+        self._topology_helper = TopologyHelper(self.aliases, self._exception_type, self.logger)
         self._domain_typedef = self.model_context.get_domain_typedef()
 
         self._security_provider_creator = SecurityProviderCreator(model.get_model(), model_context, aliases,
-                                                                  ExceptionType.DEPLOY, self.logger)
+                                                                  self._exception_type, self.logger)
 
         self.library_helper = LibraryHelper(self.model, self.model_context, self.aliases,
-                                            model_context.get_domain_home(), ExceptionType.DEPLOY, self.logger)
+                                            model_context.get_domain_home(), self._exception_type, self.logger)
 
-        self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, ExceptionType.DEPLOY,
+        self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, self._exception_type,
                                           self.logger)
 
     # Override
@@ -73,15 +74,13 @@ class TopologyUpdater(Deployer):
         """
         Deploy resource model elements at the domain level, including multi-tenant elements.
         """
-        existing_managed_servers, existing_configured_clusters = self._get_lists_with_issues()
-        domain_token = deployer_utils.get_domain_token(self.alias_helper)
-        location = LocationContext()
-        location.add_name_token(domain_token, self.model_context.get_domain_name())
-
         # For issue in setServerGroups in online mode (new configured clusters and stand-alone managed servers
         # will not have extension template resources targeted)
-        existing_servers = self.wlst_helper.get_existing_objects(LocationContext().append_location(SERVER))
-        existing_configured_clusters = list()
+        existing_managed_servers, existing_configured_clusters = self._get_lists_with_issues()
+        domain_token = deployer_utils.get_domain_token(self.alias_helper)
+
+        location = LocationContext()
+        location.add_name_token(domain_token, self.model_context.get_domain_name())
 
         # create a list, then remove each element as it is processed
         folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
@@ -110,8 +109,7 @@ class TopologyUpdater(Deployer):
 
         # create placeholders for Servers that are in a cluster as /Server/JTAMigratableTarget
         # can reference "other" servers
-        added_server = self._topology_helper.create_placeholder_servers_in_cluster(self._topology)
-        self._check_for_issue(added_server)
+        self._topology_helper.create_placeholder_servers_in_cluster(self._topology)
 
         self._process_section(self._topology, folder_list, SERVER, location)
 
@@ -138,7 +136,7 @@ class TopologyUpdater(Deployer):
                 self.target_helper.target_server_groups(server_assigns)
         elif self._domain_typedef.domain_type_has_jrf_resources():
             self.wlst_helper.save_and_close(self.model_context)
-            self.target_helper.target_jrf_groups_to_clusters_servers(self.model_context)
+            self.target_helper.target_jrf_groups_to_clusters_servers(self.model_context, should_update=False)
             self.wlst_helper.reopen(self.model_context)
 
         self.library_helper.install_domain_libraries()
@@ -169,15 +167,15 @@ class TopologyUpdater(Deployer):
         self.set_attributes(location, attrib_dict)
 
     def _has_issue_potential(self):
-        return self.model_context.is_wlst_online() and self.model_context.get_domain_typedef.has_extension_templates()
+        return self.model_context.is_wlst_online() and self.model_context.get_domain_typedef().has_extension_templates()
 
     def _check_for_issue(self, existing_list, new_list):
         _method_name = '_check_for_issue'
         if self._has_issue_potential() and \
-                        len(existing_list) != len(new_list):
+                len(existing_list) != len(new_list):
             for entity_name in new_list:
                 if entity_name not in existing_list:
-                    ex = exception_helper.create_create_exception('WLSDPLY-09701', self.__program_name)
+                    ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-09701')
                     self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                     raise ex
         return
@@ -190,11 +188,11 @@ class TopologyUpdater(Deployer):
             return list(), list()
 
         location = LocationContext().append_location(SERVER)
-        server_path = self.wlst_helper.get_wlst_list_path(location)
+        server_path = self.alias_helper.get_wlst_list_path(location)
         existing_managed_servers = list()
-        existing_servers = self.wlst_helper.get_existing_objects(server_path)
+        existing_servers = self.wlst_helper.get_existing_object_list(server_path)
         if existing_servers is not None:
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self.alias_helper.get_name_token(location)
             for server_name in existing_servers:
                 location.add_name_token(name_token, server_name)
                 wlst_path = self.alias_helper.get_wlst_attributes_path(location)
@@ -205,12 +203,12 @@ class TopologyUpdater(Deployer):
                     existing_managed_servers.append(server_name)
                 location.remove_name_token(name_token)
 
-        existing_configured_clusters = None
+        existing_configured_clusters = list()
         location = LocationContext().append_location(CLUSTER)
-        cluster_path = self.wlst_helper.get_wlst_list_path(location)
-        existing_clusters = self.wlst_helper.get_existing_objects(cluster_path)
+        cluster_path = self.alias_helper.get_wlst_list_path(location)
+        existing_clusters = self.wlst_helper.get_existing_object_list(cluster_path)
         if existing_clusters is not None:
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self.alias_helper.get_name_token(location)
             for cluster_name in existing_clusters:
                 location.add_name_token(name_token, cluster_name)
                 wlst_path = self.alias_helper.get_wlst_attributes_path(location)
