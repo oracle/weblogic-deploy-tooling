@@ -125,6 +125,14 @@ class DomainTypedef(object):
         self.__resolve_paths()
         return self._domain_typedef['baseTemplate']
 
+    def has_extension_templates(self):
+        """
+        Determine if the domain type has extension templates.
+        :return: True if the domain type will apply extension templates
+        """
+        ets = self.get_extension_templates()
+        return ets is not None and len(ets) > 0
+
     def get_extension_templates(self):
         """
         Get the list of extension templates to apply when create/extending the domain.

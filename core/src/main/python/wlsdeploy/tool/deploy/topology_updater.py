@@ -14,6 +14,7 @@ from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import UNIX_MACHINE
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.deploy import deployer_utils
@@ -72,9 +73,15 @@ class TopologyUpdater(Deployer):
         """
         Deploy resource model elements at the domain level, including multi-tenant elements.
         """
+        existing_managed_servers, existing_configured_clusters = self._get_lists_with_issues()
         domain_token = deployer_utils.get_domain_token(self.alias_helper)
         location = LocationContext()
         location.add_name_token(domain_token, self.model_context.get_domain_name())
+
+        # For issue in setServerGroups in online mode (new configured clusters and stand-alone managed servers
+        # will not have extension template resources targeted)
+        existing_servers = self.wlst_helper.get_existing_objects(LocationContext().append_location(SERVER))
+        existing_configured_clusters = list()
 
         # create a list, then remove each element as it is processed
         folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
@@ -103,10 +110,17 @@ class TopologyUpdater(Deployer):
 
         # create placeholders for Servers that are in a cluster as /Server/JTAMigratableTarget
         # can reference "other" servers
-        self._topology_helper.create_placeholder_servers_in_cluster(self._topology)
+        added_server = self._topology_helper.create_placeholder_servers_in_cluster(self._topology)
+        self._check_for_issue(added_server)
+
         self._process_section(self._topology, folder_list, SERVER, location)
 
         self._process_section(self._topology, folder_list, MIGRATABLE_TARGET, location)
+
+        new_managed_server_list, new_configured_cluster_list = self._get_lists_with_issues()
+
+        self._check_for_issue(existing_managed_servers, new_managed_server_list)
+        self._check_for_issue(existing_configured_clusters, new_configured_cluster_list)
 
         # process remaining top-level folders. copy list to avoid concurrent update in loop
         remaining = list(folder_list)
@@ -153,3 +167,60 @@ class TopologyUpdater(Deployer):
         attribute_path = self.alias_helper.get_wlst_attributes_path(location)
         self.wlst_helper.cd(attribute_path)
         self.set_attributes(location, attrib_dict)
+
+    def _has_issue_potential(self):
+        return self.model_context.is_wlst_online() and self.model_context.get_domain_typedef.has_extension_templates()
+
+    def _check_for_issue(self, existing_list, new_list):
+        _method_name = '_check_for_issue'
+        if self._has_issue_potential() and \
+                        len(existing_list) != len(new_list):
+            for entity_name in new_list:
+                if entity_name not in existing_list:
+                    ex = exception_helper.create_create_exception('WLSDPLY-09701', self.__program_name)
+                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                    raise ex
+        return
+
+    def _get_lists_with_issues(self):
+        _method_name = '_get_lists_with_issues'
+        self.logger.entering(class_name=self._class_name, method_name=_method_name)
+
+        if not self._has_issue_potential():
+            return list(), list()
+
+        location = LocationContext().append_location(SERVER)
+        server_path = self.wlst_helper.get_wlst_list_path(location)
+        existing_managed_servers = list()
+        existing_servers = self.wlst_helper.get_existing_objects(server_path)
+        if existing_servers is not None:
+            name_token = self._alias_helper.get_name_token(location)
+            for server_name in existing_servers:
+                location.add_name_token(name_token, server_name)
+                wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+                self.wlst_helper.cd(wlst_path)
+                cluster_attribute = self.alias_helper.get_wlst_attribute_name(location, CLUSTER)
+                cluster_value = self.wlst_helper.get(cluster_attribute)
+                if cluster_value is None:
+                    existing_managed_servers.append(server_name)
+                location.remove_name_token(name_token)
+
+        existing_configured_clusters = None
+        location = LocationContext().append_location(CLUSTER)
+        cluster_path = self.wlst_helper.get_wlst_list_path(location)
+        existing_clusters = self.wlst_helper.get_existing_objects(cluster_path)
+        if existing_clusters is not None:
+            name_token = self._alias_helper.get_name_token(location)
+            for cluster_name in existing_clusters:
+                location.add_name_token(name_token, cluster_name)
+                wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+                self.wlst_helper.cd(wlst_path)
+                ds_mbean = self.alias_helper.get_wlst_mbean_type(location)
+                if not self.wlst_helper.subfolder_exists(ds_mbean, self.alias_helper.get_wlst_subfolders_path(location)):
+                    existing_configured_clusters.append(cluster_name)
+                location.remove_name_token(name_token)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name,
+                            result='configured_clusters=' + str(existing_configured_clusters) +
+                                   ' managed servers=' + str(existing_managed_servers))
+        return existing_configured_clusters, existing_managed_servers

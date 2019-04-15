@@ -1284,9 +1284,7 @@ def save_and_close_offline():
     """
     _method_name = 'save_and_close_offline'
     _logger.entering(class_name=_class_name, method_name=_method_name)
-    print 'update domain'
     update_domain()
-    print 'close_domain() '
     close_domain()
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -1351,6 +1349,5 @@ def reopen_offline(domain_home):
     """
     _method_name = 'reopen_offline'
     _logger.fine('WLSDPLY-00081', class_name=_class_name, method_name=_method_name)
-    print 're-read domain in original context'
     read_domain(domain_home)
     _logger.exiting(class_name=_class_name, method_name=_method_name)

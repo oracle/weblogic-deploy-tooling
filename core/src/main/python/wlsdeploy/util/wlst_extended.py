@@ -4,7 +4,6 @@ The Universal Permissive License (UPL), Version 1.0
 """
 import com.oracle.cie.domain.script.jython.WLSTException as WLSTException
 import oracle.weblogic.deploy.util.StringUtils as StringUtils
-import com.oracle.cie.domain.script.jython.WLSTState as WLSTState
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -134,7 +133,6 @@ def __offline_session_start(jrf_targets, domain_home):
 def global_read_domain(domain_home):
     _method_name = 'global_read_domain'
     _logger.entering(class_name=_class_name, method_name=_method_name)
-    print 'read domain'
     readDomain = _load_global('readDomain')
     try:
         readDomain(domain_home)
@@ -208,7 +206,6 @@ def __offline_session_end(jrf_target):
 def global_update_domain():
     _method_name = 'global_update_domain'
     _logger.entering(class_name=_class_name, method_name=_method_name)
-    print 'update domain'
     updateDomain = _load_global('updateDomain')
     try:
         updateDomain()
@@ -219,7 +216,6 @@ def global_update_domain():
 
 def global_close_domain():
     _method_name = 'global_close_domain'
-    print 'close domain'
     _logger.entering(class_name=_class_name, method_name=_method_name)
 
     closeDomain = _load_global('closeDomain')
@@ -313,13 +309,6 @@ def have_unactivated_changes(cmgr):
 
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
-
-
-def __get_state():
-    global wlst_state
-    if wlst_state is None:
-        wlst_state = WLSTState.getInstance()
-    return wlst_state.getState()
 
 
 def _load_global(global_name):
