@@ -3,7 +3,8 @@ Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
-
+import oracle.weblogic.deploy.util.StringUtils as StringUtils
+import weblogic.management.mbeanservers.edit.ValidationException as ValidationException
 import wlstModule as wlst
 
 from wlsdeploy.exception import exception_helper
@@ -218,6 +219,7 @@ def set_server_groups(server, server_groups):
 
     :param server: the name of the new server
     :param server_groups: the list of template-defined server groups to target to the server
+    :param current_edit: if online and true, perform the update in the current edit session
     :raises: PyWLSTException: if a WLST error occurs
     """
     _method_name = 'set_server_groups'
@@ -565,7 +567,6 @@ def read_domain(domain_home):
 
     try:
         wlst.readDomain(domain_home)
-        print '** wlst.readDomain(', domain_home, ')'
     except offlineWLSTException, e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00042', domain_home, e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
@@ -592,7 +593,6 @@ def write_domain(domain_home):
 
     try:
         wlst.writeDomain(domain_home)
-        print '** wlst.writeDomain(', domain_home, ')'
     except offlineWLSTException, e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00044', domain_home, e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
@@ -611,7 +611,6 @@ def update_domain():
 
     try:
         wlst.updateDomain()
-        print '** wlst.updateDomain()'
     except offlineWLSTException, e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00045', e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
@@ -629,7 +628,6 @@ def close_domain():
 
     try:
         wlst.closeDomain()
-        print '** wlst.closeDomain()'
     except offlineWLSTException, e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00046', e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
@@ -963,15 +961,12 @@ def get_config_manager():
     :raises: PyWLSTException: if a WLST error occurs
     """
     _method_name = 'get_config_manager'
-    _logger.entering(class_name=_class_name, method_name=_method_name)
-
     try:
         result = wlst.getConfigManager()
     except wlst.WLSTException, e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00061', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
-    _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
 
@@ -995,6 +990,25 @@ def get_active_activation_tasks(cmgr):
     return result
 
 
+def is_editor(cmgr):
+    """
+    Determine if edit session is currently in progress, and if so, the WDT jvm is the current editor.
+    :param cmgr: current configuration manager
+    :return: True if edit session is in progress and editor is current WDT
+    """
+    _method_name = 'is_editor'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+
+    try:
+        result = cmgr.isEditor()
+    except wlst.WLSTException, e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00094', _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=StringUtils.stringForBoolean(result))
+    return result
+
+
 def get_current_editor(cmgr):
     """
     Return current editor
@@ -1003,7 +1017,6 @@ def get_current_editor(cmgr):
     :raises: PyWLSTException: if a WLST error occurs
     """
     _method_name = 'get_current_editor'
-    _logger.entering(cmgr, class_name=_class_name, method_name=_method_name)
 
     try:
         result = cmgr.getCurrentEditor()
@@ -1011,8 +1024,95 @@ def get_current_editor(cmgr):
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00063', _format_exception(e), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
-    _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
+
+
+def cm_save(cmgr):
+    """
+    Use the Configuration Manager to save the unsaved changes in online mode.
+    :param cmgr: Current Configuration Manager
+    :throws: PyWLSTException if unable to perform the online save
+    """
+    _method_name = 'cm_save'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+    try:
+        cmgr.save()
+    except (wlst.WLSTException, ValidationException), e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00090', _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def cm_activate(cmgr):
+    """
+    Use the configuration manager to activate the saved changes
+    :param cmgr: current configuration manager
+    :throws PyWLSTException: if in the wrong state to activate the changes
+    """
+    _method_name = 'cm_activate'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+    timeout = 300000L
+    try:
+        cmgr.activate(timeout)
+    except wlst.WLSTException, e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00091', _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def cm_start_edit(cmgr):
+    """
+    Use the configuration manager to start an edit session
+    :param cmgr: current configuration manager
+    :throws PyWLSTException: in wrong state to start an edit session
+    """
+    _method_name = 'cm_edit'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+
+    try:
+        cmgr.startEdit(0, -1, False)
+    except wlst.WLSTException, e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00093', _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def get_unsaved_changes(cmgr):
+    """
+    Return the current edit session unsaved changes
+    :param cmgr: current configuration manager
+    :return: unsaved changes as Change[]
+    """
+    _method_name = 'get_changes'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+    try:
+        changes = cmgr.getChanges()
+    except wlst.WLSTException, e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00092', _format_exception(e), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=len(changes))
+    return changes
+
+
+def have_unsaved_changes(cmgr):
+    """
+    Return true if the current edit session contains unsaved changes
+    :param cmgr: Current Configuration Manager of the connected
+    :throws PyWLSTException:
+    """
+    _method_name = 'have_unsaved_changes'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+
+    changes = get_unsaved_changes(cmgr)
+    unsaved = changes is not None and len(changes) > 0
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=StringUtils.stringForBoolean(unsaved))
+    return unsaved
 
 
 def have_unactivated_changes(cmgr):
@@ -1171,8 +1271,7 @@ def save_and_close_online():
     _logger.entering(class_name=_class_name, method_name=_method_name)
     if is_connected():
         _logger.fine('WLSDPLY-00077', class_name=_class_name, method_name=_method_name)
-        save()
-        activate()
+        save_and_activate_online()
         disconnect()
     else:
         _logger.fine('WLSDPLY-00076', class_name=_class_name, method_name=_method_name)
@@ -1184,9 +1283,42 @@ def save_and_close_offline():
     Update the domain to save any active changes and close the domain. For use in middle of tool session.
     """
     _method_name = 'save_and_close_offline'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+    print 'update domain'
+    update_domain()
+    print 'close_domain() '
+    close_domain()
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def save_and_activate_online():
+    """
+    Call this if necessary to save changes midstream through the tool session. If not connected, do
+    nothing.
+    """
+    _method_name = 'save_and_activate_online'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+    if is_connected():
+        _logger.fine('WLSDPLY-00077', class_name=_class_name, method_name=_method_name)
+        cmgr = get_config_manager()
+        # if is_editor(cmgr):
+        # The setServerGroups cmgr.reload() lost the saved and unactivated changes marker
+        # Don't even check for outstanding changes or saved but not activated. Just
+        # do this and hope for the best
+        save()
+        activate()
+    else:
+        _logger.fine('WLSDPLY-00076', class_name=_class_name, method_name=_method_name)
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def save_and_activate_offline():
+    """
+    Update the domain to save any active changes. For use in middle of tool session.
+    """
+    _method_name = 'save_and_close_offline'
     _logger.fine('WLSDPLY-00078', class_name=_class_name, method_name=_method_name)
     update_domain()
-    close_domain()
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
 
@@ -1202,10 +1334,13 @@ def reopen_online(admin_user, admin_pass, admin_url):
     if not is_connected():
         _logger.fine('WLSDPLY-00080', class_name=_class_name, method_name=_method_name)
         connect(admin_user, admin_pass, admin_url)
-        edit()
-        start_edit()
     else:
         _logger.fine('WLSDPLY-00079', class_name=_class_name, method_name=_method_name)
+
+    edit()
+    #cmgr = get_config_manager()
+    start_edit()
+
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
 
@@ -1216,5 +1351,6 @@ def reopen_offline(domain_home):
     """
     _method_name = 'reopen_offline'
     _logger.fine('WLSDPLY-00081', class_name=_class_name, method_name=_method_name)
+    print 're-read domain in original context'
     read_domain(domain_home)
     _logger.exiting(class_name=_class_name, method_name=_method_name)

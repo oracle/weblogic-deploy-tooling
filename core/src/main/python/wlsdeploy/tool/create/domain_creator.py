@@ -4,7 +4,6 @@ The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
 from oracle.weblogic.deploy.create import RCURunner
-
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
@@ -453,13 +452,15 @@ class DomainCreator(Creator):
 
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
+
+        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+        dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+
         self.wlst_helper.write_domain(domain_home)
         self.wlst_helper.close_template()
 
-        self.wlst_helper.read_domain(self._domain_home)
-        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-        self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-        self.wlst_helper.close_domain()
+        if dynamic_assigns is not None:
+            self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

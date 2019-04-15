@@ -86,7 +86,7 @@ class ModelContext(object):
             self._admin_user = arg_map[CommandLineArgUtil.ADMIN_USER_SWITCH]
 
         if CommandLineArgUtil.ADMIN_PASS_SWITCH in arg_map:
-            self.admin_password = arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH]
+            self._admin_password = arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH]
 
         if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in arg_map:
             self._archive_file_name = arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]

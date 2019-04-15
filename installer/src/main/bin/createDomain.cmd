@@ -243,6 +243,7 @@ IF "%USE_JRF_WLST%" == "TRUE" (
     IF EXIST "%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd" (
         SET WLST=%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd
         SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        SET WLST_PROPERTIES==-Xms32m -Xmx200m -XX:MaxPermSize=350m
         GOTO found_wlst
     )
     IF EXIST "%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd" (
