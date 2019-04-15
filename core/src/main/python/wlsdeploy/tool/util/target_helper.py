@@ -17,7 +17,6 @@ from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.tool.util import topology_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import string_utils
@@ -97,7 +96,7 @@ class TargetHelper(object):
 
         self.logger.entering(server_groups_to_target, class_name=self.__class_name, method_name=_method_name)
         if len(server_groups_to_target) == 0:
-            return
+            return None, None
 
         location = LocationContext()
         root_path = self.alias_helper.get_wlst_attributes_path(location)
@@ -136,13 +135,11 @@ class TargetHelper(object):
         self.logger.finer('WLSDPLY-12242', str(server_to_server_groups_map), class_name=self.__class_name,
                           method_name=_method_name)
 
+        final_assignment_map = dict()
         if len(server_names) > 0:
             for server, server_groups in server_to_server_groups_map.iteritems():
                 if server in server_names and len(server_groups) > 0:
-                    server_name = self.wlst_helper.get_quoted_name_for_wlst(server)
-                    self.logger.info('WLSDPLY-12224', str(server_groups), server_name,
-                                     class_name=self.__class_name, method_name=_method_name)
-                    self.wlst_helper.set_server_groups(server_name, server_groups)
+                    final_assignment_map[server] = server_groups
 
         elif len(server_names) == 0 and len(dynamic_cluster_names) == 0:
             #
@@ -154,8 +151,7 @@ class TargetHelper(object):
             # that it may cause problems with other custom domain types.  Of course, creating a domain with
             # no managed servers is not a primary use case of this tool so do it and hope for the best...
             #
-            server_name = self.wlst_helper.get_quoted_name_for_wlst(server_names[0])
-            self.wlst_helper.set_server_groups(server_name, server_groups_to_target)
+            final_assignment_map[server_names[0]] = server_groups_to_target
 
         # Target any dynamic clusters to the server group resources
         dynamic_cluster_assigns = None
@@ -166,7 +162,25 @@ class TargetHelper(object):
                     dynamic_cluster_assigns[name] = server_to_server_groups_map[name]
 
         self.logger.exiting(result=str(dynamic_cluster_assigns), class_name=self.__class_name, method_name=_method_name)
-        return dynamic_cluster_assigns
+        return final_assignment_map, dynamic_cluster_assigns
+
+    def target_server_groups(self, server_assigns):
+        """
+        Perform the targeting of the server groups to server from the list of assignments made in the
+        target helper assignment step. This is separate from creating the list of assignments in order
+        to control the state of the domain when the target is done.
+        :param server_assigns: map of server to server group
+        """
+        _method_name = 'target_server_groups'
+        self.logger.entering(str(server_assigns), class_name=self.__class_name, method_name=_method_name)
+
+        for server, server_groups in server_assigns.iteritems():
+            server_name = self.wlst_helper.get_quoted_name_for_wlst(server)
+            self.logger.info('WLSDPLY-12224', str(server_groups), server_name,
+                             class_name=self.__class_name, method_name=_method_name)
+            self.wlst_helper.set_server_groups(server_name, server_groups)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def target_server_groups_to_dynamic_clusters(self, dynamic_cluster_assigns):
         """
@@ -198,8 +212,17 @@ class TargetHelper(object):
     def _target_jrf_resources(self, dynamic_cluster_assigns):
         # Target the JRF resources directly using the applyJRF method.
         _method_name = '_target_jrf_resources'
-        self.logger.info('WLSDPLY-12236', str(dynamic_cluster_assigns), class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.apply_jrf_control_updates(dynamic_cluster_assigns, self.model_context)
+        names_only = list()
+        for name in dynamic_cluster_assigns:
+            names_only.append(name)
+        if self.model_context.is_wlst_online() and \
+                self.model_context.get_domain_typedef().domain_type_is_restricted_jrf():
+            self.logger.warning('WLSDPLY-12244', str(names_only), class_name=self.__class_name,
+                                _method_name=_method_name)
+        else:
+            self.logger.info('WLSDPLY-12236', str(names_only),
+                             class_name=self.__class_name, method_name=_method_name)
+            self.wlst_helper.apply_jrf_control_updates(names_only, self.model_context)
 
     def _get_existing_server_names(self):
         """

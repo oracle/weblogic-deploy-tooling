@@ -109,6 +109,13 @@ class DomainTypedef(object):
         """
         return 'JRF-MAN-SVR' in self.get_server_groups_to_target()
 
+    def domain_type_is_restricted_jrf(self):
+        """
+        A workaround for a bug with applyJRF in online with RestrictedJRF
+        :return:
+        """
+        return self.get_domain_type() == 'RestrictedJRF'
+
     def get_base_template(self):
         """
         Get the base template to use when create the domain.

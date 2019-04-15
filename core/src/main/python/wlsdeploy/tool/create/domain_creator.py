@@ -454,7 +454,9 @@ class DomainCreator(Creator):
                          class_name=self.__class_name, method_name=_method_name)
 
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-        dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        if server_assigns is not None:
+            self.target_helper.target_server_groups(server_assigns)
 
         self.wlst_helper.write_domain(domain_home)
         self.wlst_helper.close_template()

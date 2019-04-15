@@ -113,22 +113,19 @@ class TopologyUpdater(Deployer):
         for folder_name in remaining:
             self._process_section(self._topology, folder_list, folder_name, location)
 
-        dynamic_assigns = None
         if self.wls_helper.is_set_server_groups_supported():
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-            dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+            server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+            if dynamic_assigns is not None:
+                self.wlst_helper.save_and_close(self.model_context)
+                self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
+                self.wlst_helper.reopen(self.model_context)
+            if server_assigns is not None:
+                self.target_helper.target_server_groups(server_assigns)
         elif self._domain_typedef.domain_type_has_jrf_resources():
-            deployer_utils.save_changes(self.model_context)
-            # Don't apply JRF resources to domains for a domain type which does not include JRF
-            self.target_helper.target_jrf_groups_to_clusters_servers(self.model_context)
-            deployer_utils.read_again(self.model_context)
-
-        if dynamic_assigns is not None:
             self.wlst_helper.save_and_close(self.model_context)
-            self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
+            self.target_helper.target_jrf_groups_to_clusters_servers(self.model_context)
             self.wlst_helper.reopen(self.model_context)
-
-        # files referenced in attributes are extracted as attributes are processed
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
