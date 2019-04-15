@@ -200,7 +200,6 @@ done
 # default DOMAIN_TYPE
 
 if [ -z "${DOMAIN_TYPE}" ]; then
-    echo "WHY IT IS NOT SET"
     DOMAIN_TYPE="WLS"
     SCRIPT_ARGS="${SCRIPT_ARGS} -domain_type $DOMAIN_TYPE"
 fi
@@ -253,7 +252,11 @@ if [ "${WLST_PATH_DIR}" != "" ]; then
     WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
 else
     WLST=""
-    if [ -x ${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh ]; then
+    if [ -x ${ORACLE_HOME}/oracle_common/common/bin/wlst.sh ]; then
+        WLST=${ORACLE_HOME}/oracle_common/common/bin/wlst.sh
+        CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+        WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
+    elif [ -x ${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh ]; then
         WLST=${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh
         CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
     elif [ -x ${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh ]; then
@@ -262,9 +265,6 @@ else
     elif [ -x ${ORACLE_HOME}/wlserver/common/bin/wlst.sh -a -f ${ORACLE_HOME}/wlserver/.product.properties ]; then
         WLST=${ORACLE_HOME}/wlserver/common/bin/wlst.sh
         CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-    else
-        WLST=${ORACLE_HOME}/oracle_common/common/bin/wlst.sh
-        WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
     fi
 
 

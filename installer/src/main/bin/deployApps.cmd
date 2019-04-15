@@ -211,7 +211,12 @@ IF DEFINED WLST_PATH_DIR (
 @rem Find the location for wlst.cmd
 @rem
 SET WLST=
-
+IF EXIST "%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd" (
+    SET WLST=%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd
+    SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+    SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+    GOTO found_wlst
+)
 IF EXIST "%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd" (
     SET WLST=%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd
     SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
@@ -227,10 +232,6 @@ IF EXIST "%ORACLE_HOME%\wlserver\common\bin\wlst.cmd" (
         @rem WLS 12.1.2 or WLS 12.1.3
         SET WLST=%ORACLE_HOME%\wlserver\common\bin\wlst.cmd
         SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-    ) ELSE (
-        @rem WLS 12.2.1+
-        SET WLST=%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd
-        SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
     )
     GOTO found_wlst
 )
