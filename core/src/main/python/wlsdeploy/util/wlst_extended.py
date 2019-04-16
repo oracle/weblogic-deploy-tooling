@@ -25,9 +25,8 @@ def apply_jrf(jrf_target, domain_home=None, should_update=False):
     :raises: PyWLSTException: if a WLST error occurs
     """
     _method_name = 'apply_jrf'
-    _logger.entering(jrf_target, domain_home, StringUtils.toString(should_update),
-                     class_name=_class_name, method_name=_method_name)
-    _logger.fine('WLSDPLY-00073', jrf_target, domain_home, StringUtils.stringForBoolean(should_update),
+    _logger.entering(jrf_target, domain_home, should_update, class_name=_class_name, method_name=_method_name)
+    _logger.fine('WLSDPLY-00073', jrf_target, domain_home, should_update, 
                  class_name=_class_name, method_name=_method_name)
     applyJRF = _load_global('applyJRF')
     try:
@@ -54,24 +53,53 @@ def apply_jrf_global_updates(online, jrf_targets, admin_user=None, admin_pass=No
     _logger.entering(StringUtils.stringForBoolean(online), jrf_targets, domain_home,
                      class_name=_class_name, method_name=_method_name)
 
+    session_start(online, jrf_targets, admin_user, admin_pass, admin_url, domain_home)
+    for jrf_target in jrf_targets:
+        apply_jrf(jrf_target, domain_home, False)
+
+    session_end(online, jrf_targets)
+
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+    return
+
+def session_start(online, jrf_targets, admin_user, admin_pass, admin_url, domain_home):
+    """
+    Start the edit session in the global context
+    :param online: True if the tool session is in online mode
+    :param jrf_targets: the list target for the JRF resources
+    :param admin_user: admin user if online session
+    :param admin_pass: admin password if online session
+    :param admin_url: admin url if online session
+    :param domain_home: domain home if offline session
+    """
+    _method_name = 'session_start'
+    _logger.entering(online, jrf_targets, admin_user, admin_url, domain_home,
+                     class_name=_class_name, method_name=_method_name)
     if online:
         __online_session_start(jrf_targets, admin_user, admin_pass, admin_url)
     else:
         __offline_session_start(jrf_targets, domain_home)
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+    return
+    
 
-    for jrf_target in jrf_targets:
-        apply_jrf(jrf_target, domain_home, False)
-
+def session_end(online, jrf_targets):
+    """
+    End the edit session in the global context
+    :param online: True if the tool session is in online mode
+    :param jrf_targets: the list target for the JRF resources
+    """
+    _method_name = 'session_end'
+    _logger.entering(online, jrf_targets, class_name=_class_name, method_name=_method_name)
     if online:
         __online_session_end(jrf_targets)
     else:
         __offline_session_end(jrf_targets)
     _logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
-
-
+    
+            
 def __online_session_start(jrf_target, admin_user, admin_pass, admin_url):
-    _method_name = '__online_session_start'
+    _method_name = 'online_session_start'
     _logger.entering(jrf_target, admin_user, admin_url, class_name=_class_name, method_name=_method_name)
 
     global_connect(admin_user, admin_pass, admin_url)

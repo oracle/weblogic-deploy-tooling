@@ -408,8 +408,6 @@ class DomainCreator(Creator):
             self.target_helper.target_server_groups_to_servers(server_groups_to_target)
             self.wlst_helper.update_domain()
         elif self._domain_typedef.domain_type_has_jrf_resources():
-            # Update the domain to apply the extension templates.
-            self.wlst_helper.update_domain()
             self.target_helper.target_jrf_groups_to_clusters_servers(domain_home)
 
         self.wlst_helper.close_domain()
