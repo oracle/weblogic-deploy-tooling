@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
@@ -18,6 +18,7 @@ from wlsdeploy.tool.deploy import log_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
+from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -46,6 +47,7 @@ class Deployer(object):
         self.wls_helper = WebLogicHelper(self.logger)
         self.wlst_helper = WlstHelper(self.logger, ExceptionType.DEPLOY)
         self.attribute_setter = AttributeSetter(self.aliases, self.logger, ExceptionType.DEPLOY, wlst_mode=wlst_mode)
+        self.topology_helper = TopologyHelper(self.aliases, ExceptionType.DEPLOY, self.logger)
 
         self.archive_helper = None
         archive_file_name = self.model_context.get_archive_file_name()

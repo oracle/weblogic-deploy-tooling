@@ -226,7 +226,7 @@
         "Log": {
             "wlst_type": "Log",
             "child_folders_type": "single_unpredictable",
-            "default_name_value": "${NO_NAME_0:%SERVER%}",
+            "default_name_value": "%SERVER%",
             "folders": {},
             "attributes": {
                 "BufferSizeKb":                                  [ {"version": "[10,)",                "wlst_mode": "both",    "wlst_name": "BufferSize${Kb:KB}",                            "wlst_path": "WP001", "value": {"default": 8       }, "wlst_type": "integer"} ],

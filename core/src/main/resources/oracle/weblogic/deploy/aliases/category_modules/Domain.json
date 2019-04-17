@@ -5,7 +5,7 @@
     "folders": {},
     "attributes": {
         "Active":                                          [ {"version": "[10,)",             "wlst_mode": "offline", "wlst_name": "Active",                                           "wlst_path": "WP001", "value": {"default": "false"       }, "wlst_type": "boolean", "access": "RO"  } ],
-        "AdminServerName":                                 [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "AdminServerName",                                  "wlst_path": "WP001", "value": {"default": "None"        }, "wlst_type": "string",  "access": "RO"} ],
+        "AdminServerName":                                 [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "AdminServerName",                                  "wlst_path": "WP001", "value": {"default": "AdminServer" }, "wlst_type": "string"   } ],
         "AdministrationMBeanAuditingEnabled":              [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "AdministrationMBeanAuditingEnabled",               "wlst_path": "WP001", "value": {"default": "false"       }, "wlst_type": "boolean"  } ],
         "AdministrationPort":                              [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "AdministrationPort",                               "wlst_path": "WP001", "value": {"default": 9002          }, "wlst_type": "integer"  } ],
         "AdministrationPortEnabled":                       [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "AdministrationPortEnabled",                        "wlst_path": "WP001", "value": {"default": "false"       }, "wlst_type": "boolean"  } ],

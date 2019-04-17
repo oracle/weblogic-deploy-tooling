@@ -655,14 +655,13 @@ class TopologyDiscoverer(Discoverer):
         _logger.finer('WLSDPLY-06623', file_path, server_name, class_name=_class_name, method_name=_method_name)
         new_name = None
 
-        full_file_path = self._convert_to_path(file_path)
         try:
-            new_name = archive_file.addServerKeyStoreFile(server_name, File(full_file_path))
+            new_name = archive_file.addServerKeyStoreFile(server_name, File(file_path))
         except IllegalArgumentException, iae:
-            _logger.warning('WLSDPLY-06624', server_name, full_file_path, iae.getLocalizedMessage(),
+            _logger.warning('WLSDPLY-06624', server_name, file_path, iae.getLocalizedMessage(),
                             class_name=_class_name, method_name=_method_name)
         except WLSDeployArchiveIOException, wioe:
-            de = exception_helper.create_discover_exception('WLSDPLY-06625', server_name, full_file_path,
+            de = exception_helper.create_discover_exception('WLSDPLY-06625', server_name, file_path,
                                                             wioe.getLocalizedMessage())
             _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
             raise de
@@ -677,17 +676,16 @@ class TopologyDiscoverer(Discoverer):
         """
         _method_name = '_add_node_manager_keystore_file_to_archive'
         _logger.entering(archive_file, file_path, class_name=_class_name, method_name=_method_name)
-        full_file_path = self._convert_to_path(file_path)
-        _logger.finer('WLSDPLY-06636', full_file_path, class_name=_class_name, method_name=_method_name)
-
+        _logger.finer('WLSDPLY-06636', file_path, class_name=_class_name, method_name=_method_name)
         new_name = None
+
         try:
-            new_name = archive_file.addNodeManagerKeyStoreFile(File(full_file_path))
+            new_name = archive_file.addNodeManagerKeyStoreFile(File(file_path))
         except IllegalArgumentException, iae:
-            _logger.warning('WLSDPLY-06637', full_file_path, iae.getLocalizedMessage(), class_name=_class_name,
+            _logger.warning('WLSDPLY-06637', file_path, iae.getLocalizedMessage(), class_name=_class_name,
                             method_name=_method_name)
         except WLSDeployArchiveIOException, wioe:
-            de = exception_helper.create_discover_exception('WLSDPLY-06638', full_file_path, wioe.getLocalizedMessage())
+            de = exception_helper.create_discover_exception('WLSDPLY-06638', file_path, wioe.getLocalizedMessage())
             _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
             raise de
         return new_name

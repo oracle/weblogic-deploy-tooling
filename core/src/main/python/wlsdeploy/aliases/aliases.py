@@ -401,7 +401,7 @@ class Aliases(object):
             data_type = attribute_info[WLST_TYPE]
             if data_type == 'password':
                 try:
-                    wlst_attribute_value = self.__decrypt_password(model_attribute_value)
+                    wlst_attribute_value = self.decrypt_password(model_attribute_value)
                 except EncryptionException, ee:
                     ex = exception_helper.create_alias_exception('WLSDPLY-08402', model_attribute_name,
                                                                  location.get_folder_path(),
@@ -1130,21 +1130,15 @@ class Aliases(object):
         """
         return self._alias_entries.IGNORE_FOR_MODEL_LIST
 
-    ####################################################################################
-    #
-    # Private methods, private inner classes and static methods only, beyond here please
-    #
-    ####################################################################################
-
-    def __decrypt_password(self, text):
+    def decrypt_password(self, text):
         """
-        Internal method to determine if the provided password text needs to be decrypted
+        Encrypt the specified password if encryption is used and the password is encrypted.
         :param text: the text to check and decrypt, if needed
         :return: the clear text
         :raises EncryptionException: if an error occurs while decrypting the password
         """
         if text is None or len(str(text)) == 0 or \
-                (self._model_context and not self._model_context.is_using_encryption()) or\
+                (self._model_context and not self._model_context.is_using_encryption()) or \
                 not EncryptionUtils.isEncryptedString(text):
 
             rtnval = text
@@ -1155,6 +1149,12 @@ class Aliases(object):
                 rtnval = String.valueOf(rtnval)
 
         return rtnval
+
+    ####################################################################################
+    #
+    # Private methods, private inner classes and static methods only, beyond here please
+    #
+    ####################################################################################
 
     def __is_model_attribute_read_only(self, location, attribute_info):
         """

@@ -7,7 +7,7 @@ For example, in order to use the Oracle Autonomous Transaction Processing Cloud 
 ```yaml
 domainInfo:
     RCUDbInfo:
-        useATP : 1
+        useATP : true
         rcu_prefix : DEV
         rcu_schema_password : xxxxx
         rcu_admin_user : admin
@@ -28,7 +28,6 @@ For a non-ATP database, use the following example:
 ```yaml
 domainInfo:
     RCUDbInfo:
-        useATP : 0
         rcu_prefix : DEV
         rcu_schema_password : xxxxx
         rcu_admin_password : xxxx
@@ -41,5 +40,5 @@ domainInfo:
     RCUDbInfo:
         rcu_variables : 'xxxx'
 ```    
-        
-        
+
+**Note: Prior to release 0.23, the useATP flag only accepts values of 0, 1, 'true' or 'false'.**
