@@ -136,7 +136,7 @@ class TopologyUpdater(Deployer):
                 self.target_helper.target_server_groups(server_assigns)
         elif self._domain_typedef.domain_type_has_jrf_resources():
             self.wlst_helper.save_and_close(self.model_context)
-            self.target_helper.target_jrf_groups_to_clusters_servers(should_update=False)
+            self.target_helper.target_jrf_groups_to_clusters_servers(self.model_context, should_update=False)
             self.wlst_helper.reopen(self.model_context)
 
         self.library_helper.install_domain_libraries()
@@ -176,7 +176,7 @@ class TopologyUpdater(Deployer):
             for entity_name in new_list:
                 if entity_name not in existing_list:
                     ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-09701')
-                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                     raise ex
         return
 
