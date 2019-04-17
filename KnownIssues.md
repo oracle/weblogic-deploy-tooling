@@ -14,12 +14,11 @@ The following list are known issues. The issue may contain a work-around or an a
 
 
 **ISSUE**:
-   The createDomain tool cannot create 11g JRF domains. The tool will issue error messages in the log, and
-   terminate the create process. The discoverDomain tool can discover 11g JRF domains, and those domains can be
-   configured with the updateDomain and deploy tools.
+   The createDomain tool cannot run rcu for 11g JRF domains. The tool will issue error messages in the log, and
+   terminate the create process.
 
 **ACTION**:
-   Do not use the createDomain tool for 11g JRF domains. This functionality may be available in a future release.
+   Run RCU before executing createDomain for JRF domains
    
 **ISSUE**:
    The discoverDomain or createDomain tool cannot handle object name with slashes and finished with  
