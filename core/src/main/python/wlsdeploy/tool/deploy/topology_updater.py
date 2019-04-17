@@ -135,9 +135,7 @@ class TopologyUpdater(Deployer):
             if server_assigns is not None:
                 self.target_helper.target_server_groups(server_assigns)
         elif self._domain_typedef.domain_type_has_jrf_resources():
-            self.wlst_helper.save_and_close(self.model_context)
-            self.target_helper.target_jrf_groups_to_clusters_servers(self.model_context, should_update=False)
-            self.wlst_helper.reopen(self.model_context)
+            self.target_helper.target_jrf_groups_to_clusters_servers()
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
@@ -185,6 +183,7 @@ class TopologyUpdater(Deployer):
         self.logger.entering(class_name=self._class_name, method_name=_method_name)
 
         if not self._has_issue_potential():
+            self.logger.exiting(class_name=self._class_name, method_name=_method_name, result='No issue potential')
             return list(), list()
 
         location = LocationContext().append_location(SERVER)

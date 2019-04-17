@@ -53,9 +53,16 @@ class WlstHelper(object):
         """
         _method_name = 'apply_jrf'
 
+      
         try:
+            wlst_extended.session_start(model_context.is_wlst_online(), jrf_target, 
+                                        model_context.get_admin_user(),
+                                        model_context.get_admin_password(),
+                                        model_context.get_admin_url(),
+                                        model_context.get_domain_home())
             wlst_extended.apply_jrf(jrf_target, domain_home=model_context.get_domain_home(),
                                     should_update=should_update)
+            wlst_extended.session_end(model_context.is_wlst_online(), jrf_target)
         except PyWLSTException, pwe:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19146',
                                                    pwe.getLocalizedMessage(), error=pwe)
