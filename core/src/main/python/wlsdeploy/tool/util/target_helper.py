@@ -202,7 +202,7 @@ class TargetHelper(object):
         if len(dynamic_cluster_assigns) > 0:
             # TBD assign server group resources to cluster. The JRF resources could still be applied separately
             # using this technique - or remove this technique and replace with the resource targeting
-            if domain_typedef.domain_type_is_jrf():
+            if domain_typedef.has_jrf_resources():
                 self._target_jrf_resources(dynamic_cluster_assigns)
             else:
                 ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12238',
@@ -220,7 +220,7 @@ class TargetHelper(object):
         for name in dynamic_cluster_assigns:
             names_only.append(name)
         if self.model_context.is_wlst_online() and \
-                self.model_context.get_domain_typedef().domain_type_is_restricted_jrf():
+                self.model_context.get_domain_typedef().is_restricted_jrf_domain_type():
             self.logger.warning('WLSDPLY-12244', str(names_only), class_name=self.__class_name,
                                 _method_name=_method_name)
         else:

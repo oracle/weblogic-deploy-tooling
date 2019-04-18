@@ -187,6 +187,7 @@ done
 
 if [ -z "${DOMAIN_TYPE}" ]; then
     DOMAIN_TYPE="WLS"
+    SCRIPT_ARGS="${SCRIPT_ARGS} -domain_type $DOMAIN_TYPE"
 fi
 
 #
@@ -235,42 +236,20 @@ if [ "${WLST_PATH_DIR}" != "" ]; then
     CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
     WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
 else
-    #
-    # Find the location for wlst.sh
-    #
     WLST=""
-    USE_JRF_WLST=FALSE
-    if [ "${DOMAIN_TYPE}" = "WLS" ]; then
-        USE_JRF_WLST=FALSE
-    elif [ "${DOMAIN_TYPE}" = "RestrictedJRF" ]; then
-        USE_JRF_WLST=TRUE
-    elif [ "${DOMAIN_TYPE}" = "JRF" ]; then
-        USE_JRF_WLST=TRUE
-    else
-        echo "Wrong domain type specified ${DOMAIN_TYPE}: valid value is WLS|JRF|RestrictedJRF"
-        exit 98
-    fi
-
-    if [ "${USE_JRF_WLST}" = "TRUE" ]; then
-        if [ -x ${ORACLE_HOME}/oracle_common/common/bin/wlst.sh ]; then
-            WLST=${ORACLE_HOME}/oracle_common/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-            WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
-        fi
-    else
-        if [ -x ${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh ]; then
-            WLST=${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-        elif [ -x ${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh ]; then
-            WLST=${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-        elif [ -x ${ORACLE_HOME}/wlserver/common/bin/wlst.sh -a -f ${ORACLE_HOME}/wlserver/.product.properties ]; then
-            WLST=${ORACLE_HOME}/wlserver/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-        else
-            WLST=${ORACLE_HOME}/oracle_common/common/bin/wlst.sh
-            WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
-        fi
+    if [ -x ${ORACLE_HOME}/oracle_common/common/bin/wlst.sh ]; then
+        WLST=${ORACLE_HOME}/oracle_common/common/bin/wlst.sh
+        CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+        WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
+    elif [ -x ${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh ]; then
+        WLST=${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh
+        CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+    elif [ -x ${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh ]; then
+        WLST=${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh
+        CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+    elif [ -x ${ORACLE_HOME}/wlserver/common/bin/wlst.sh -a -f ${ORACLE_HOME}/wlserver/.product.properties ]; then
+        WLST=${ORACLE_HOME}/wlserver/common/bin/wlst.sh
+        CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
     fi
 
     if [ "${WLST}" = "" ]; then

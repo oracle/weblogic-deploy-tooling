@@ -76,7 +76,7 @@ class TopologyUpdater(Deployer):
         """
         # For issue in setServerGroups in online mode (new configured clusters and stand-alone managed servers
         # will not have extension template resources targeted)
-        existing_managed_servers, existing_configured_clusters = self._get_lists_with_issues()
+        existing_managed_servers, existing_configured_clusters = self._create_list_of_setservergroups_targets()
         domain_token = deployer_utils.get_domain_token(self.alias_helper)
 
         location = LocationContext()
@@ -115,10 +115,10 @@ class TopologyUpdater(Deployer):
 
         self._process_section(self._topology, folder_list, MIGRATABLE_TARGET, location)
 
-        new_managed_server_list, new_configured_cluster_list = self._get_lists_with_issues()
+        new_managed_server_list, new_configured_cluster_list = self._create_list_of_setservergroups_targets()
 
-        self._check_for_issue(existing_managed_servers, new_managed_server_list)
-        self._check_for_issue(existing_configured_clusters, new_configured_cluster_list)
+        self._check_for_online_setservergroups_issue(existing_managed_servers, new_managed_server_list)
+        self._check_for_online_setservergroups_issue(existing_configured_clusters, new_configured_cluster_list)
 
         # process remaining top-level folders. copy list to avoid concurrent update in loop
         remaining = list(folder_list)
@@ -127,14 +127,15 @@ class TopologyUpdater(Deployer):
 
         if self.wls_helper.is_set_server_groups_supported():
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-            server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+            server_assigns, dynamic_assigns = \
+                self.target_helper.target_server_groups_to_servers(server_groups_to_target)
             if dynamic_assigns is not None:
                 self.wlst_helper.save_and_close(self.model_context)
                 self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
                 self.wlst_helper.reopen(self.model_context)
             if server_assigns is not None:
                 self.target_helper.target_server_groups(server_assigns)
-        elif self._domain_typedef.domain_type_has_jrf_resources():
+        elif self._domain_typedef.is_jrf_domain_type():
             self.target_helper.target_jrf_groups_to_clusters_servers()
 
         self.library_helper.install_domain_libraries()
@@ -168,26 +169,31 @@ class TopologyUpdater(Deployer):
         self.wlst_helper.cd(attribute_path)
         self.set_attributes(location, attrib_dict)
 
-    def _has_issue_potential(self):
+    def is_online_with_ext_templates(self):
         return self.model_context.is_wlst_online() and self.model_context.get_domain_typedef().has_extension_templates()
 
-    def _check_for_issue(self, existing_list, new_list):
-        _method_name = '_check_for_issue'
-        if self._has_issue_potential() and \
-                len(existing_list) != len(new_list):
+    def _check_for_online_setservergroups_issue(self, existing_list, new_list):
+        _method_name = '_check_for_online_setservergroups_issue'
+        if len(existing_list) != len(new_list):
             for entity_name in new_list:
                 if entity_name not in existing_list:
-                    ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-09701')
-                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                    raise ex
+                    self.logger.warning('WLSDPLY-09701', entity_name,
+                                        class_name=self._class_name, method_name=_method_name)
         return
 
-    def _get_lists_with_issues(self):
-        _method_name = '_get_lists_with_issues'
+    def _create_list_of_setservergroups_targets(self):
+        """
+        If an update is executed in online WLST mode, return a list of all existing configured / mixed clusters and
+        stand-alone managed servers. This method will be invoked to create a list of existing, and a list of new
+        as added by the update tool. These lists will be compared to determine if they will encounter
+        the online WLST problem with setServerGroups. The setServerGroups will target template resources to the
+        new entities, but this targeting is not persisted to the config.xml.
+        """
+        _method_name = '_create_list_of_setservergroups_targets'
         self.logger.entering(class_name=self._class_name, method_name=_method_name)
 
-        if not self._has_issue_potential():
-            self.logger.exiting(class_name=self._class_name, method_name=_method_name, result='No issue potential')
+        if not self.is_online_with_ext_templates():
+            self.logger.exiting(class_name=self._class_name, method_name=_method_name)
             return list(), list()
 
         location = LocationContext().append_location(SERVER)
@@ -217,7 +223,8 @@ class TopologyUpdater(Deployer):
                 wlst_path = self.alias_helper.get_wlst_attributes_path(location)
                 self.wlst_helper.cd(wlst_path)
                 ds_mbean = self.alias_helper.get_wlst_mbean_type(location)
-                if not self.wlst_helper.subfolder_exists(ds_mbean, self.alias_helper.get_wlst_subfolders_path(location)):
+                if not self.wlst_helper.subfolder_exists(ds_mbean,
+                                                         self.alias_helper.get_wlst_subfolders_path(location)):
                     existing_configured_clusters.append(cluster_name)
                 location.remove_name_token(name_token)
 

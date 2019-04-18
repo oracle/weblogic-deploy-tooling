@@ -28,8 +28,8 @@ class DomainTypedef(object):
     __domain_typedefs_location = os.path.join(os.environ.get('WLSDEPLOY_HOME'), 'lib', 'typedefs')
     __domain_typedef_extension = '.json'
 
-    __wild_card_suffix = '%%'
-    __wild_card_suffix_len = len(__wild_card_suffix)
+    JRF_TEMPLATE_REGEX = "^(.*jrf_template[0-9._]*\\.jar)|(Oracle JRF WebServices Asynchronous services)$"
+    RESTRICTED_JRF_TEMPLATE_REGEX = "^(Oracle Restricted JRF)$"
 
     def __init__(self, program_name, domain_type):
         """
@@ -95,26 +95,33 @@ class DomainTypedef(object):
         """
         return self._domain_type
 
-    def domain_type_is_jrf(self):
+    def has_jrf_resources(self):
         """
-        Determine if the tool is running with domain type JRF or RestrictedJRF.
-        :return : True if running with domain type JRF or RestrictedJRF.
+        Determine if the domain type has domain resources from either the JRF or Restricted JRF templates.
+        :return: True if the domain type has resources from one of the JRF type
         """
-        return self.get_domain_type() == 'JRF' or self.get_domain_type() == 'RestrictedJRF'
+        return self.is_jrf_domain_type() or self.is_restricted_jrf_domain_type()
 
-    def domain_type_has_jrf_resources(self):
+    def is_jrf_domain_type(self):
         """
-        Does the running domain type contain the JRF server group ?
-        :return:
+        Determine if this is a JRF domain type by checking for the JRF extension template.
+        This returns False for the Restricted JRF domain type.
+        :return: True if the JRF template is present
         """
-        return 'JRF-MAN-SVR' in self.get_server_groups_to_target()
+        for template in self.get_extension_templates():
+            if re.match(self.JRF_TEMPLATE_REGEX, template):
+                return True
+        return False
 
-    def domain_type_is_restricted_jrf(self):
+    def is_restricted_jrf_domain_type(self):
         """
-        A workaround for a bug with applyJRF in online with RestrictedJRF
-        :return:
+        Determine if this domain type applies the Restricted JRF template.
+        :return: True if the Restricted JRF template is in the extension templates list
         """
-        return self.get_domain_type() == 'RestrictedJRF'
+        for template in self.get_extension_templates():
+            if re.match(self.RESTRICTED_JRF_TEMPLATE_REGEX, template):
+                return True
+            return False
 
     def get_base_template(self):
         """
