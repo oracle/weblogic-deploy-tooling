@@ -2,6 +2,10 @@
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+from com.sun.identity.agents.weblogic.v10 import AgentAuthenticatorMBeanImplBeanInfo
+from com.sun.identity.agents.weblogic.v10 import AgentAuthenticatorMBeanImpl
+from com.sun.identity.agents.weblogic.v10 import AgentAuthenticatorMBean
+from com.sun.identity.agents.weblogic.v10 import AgentAuthenticatorImpl
 from java.io import File
 from java.lang import IllegalArgumentException
 
@@ -46,6 +50,7 @@ class TopologyDiscoverer(Discoverer):
         self._add_att_handler(model_constants.CLASSPATH, self._add_classpath_libraries_to_archive)
         self._add_att_handler(model_constants.CUSTOM_IDENTITY_KEYSTORE_FILE, self._add_keystore_file_to_archive)
         self._add_att_handler(model_constants.CUSTOM_TRUST_KEYSTORE_FILE, self._add_keystore_file_to_archive)
+        self.agent_authenticator = AgentAuthenticatorImpl()
 
     def discover(self):
         """

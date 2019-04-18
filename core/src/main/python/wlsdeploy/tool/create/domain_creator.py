@@ -4,7 +4,6 @@ The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
 from oracle.weblogic.deploy.create import RCURunner
-
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
@@ -415,8 +414,6 @@ class DomainCreator(Creator):
             self.target_helper.target_server_groups_to_servers(server_groups_to_target)
             self.wlst_helper.update_domain()
         elif self._domain_typedef.is_jrf_domain_type():
-            # Update the domain to apply the extension templates.
-            self.wlst_helper.update_domain()
             self.target_helper.target_jrf_groups_to_clusters_servers(domain_home)
 
         self.wlst_helper.close_domain()
@@ -457,13 +454,20 @@ class DomainCreator(Creator):
             self.__set_app_dir()
             self.__configure_fmw_infra_database()
 
-            server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-            self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
+
+        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+        server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        if server_assigns is not None:
+            self.target_helper.target_server_groups(server_assigns)
+
         self.wlst_helper.write_domain(domain_home)
         self.wlst_helper.close_template()
+
+        if dynamic_assigns is not None:
+            self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 

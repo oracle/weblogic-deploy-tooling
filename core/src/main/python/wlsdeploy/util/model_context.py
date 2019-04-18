@@ -40,6 +40,7 @@ class ModelContext(object):
         self._domain_typedef = None
         self._admin_url = None
         self._admin_user = None
+        self._admin_password = None
         self._archive_file_name = None
         self._archive_file = None
         self._model_file = None
@@ -85,7 +86,7 @@ class ModelContext(object):
             self._admin_user = arg_map[CommandLineArgUtil.ADMIN_USER_SWITCH]
 
         if CommandLineArgUtil.ADMIN_PASS_SWITCH in arg_map:
-            self.admin_password = arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH]
+            self._admin_password = arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH]
 
         if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in arg_map:
             self._archive_file_name = arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
@@ -255,7 +256,7 @@ class ModelContext(object):
         Get the admin password.
         :return: the admin password
         """
-        return self.admin_password
+        return self._admin_password
 
     def get_archive_file_name(self):
         """
@@ -399,6 +400,20 @@ class ModelContext(object):
         :return: the target WLST mode
         """
         return self._wlst_mode
+
+    def is_wlst_online(self):
+        """
+        Determine if the tool was started using WLST online mode
+        :return: True if the tool is in online mode
+        """
+        return self._wlst_mode == WlstModes.ONLINE
+
+    def is_wlst_offline(self):
+        """
+        Determine if the tool was started using WLST offline mode
+        :return: True if the tool is in offline mode
+        """
+        return self._wlst_mode == WlstModes.OFFLINE
 
     def replace_tokens_in_path(self, attribute_name, resource_dict):
         """

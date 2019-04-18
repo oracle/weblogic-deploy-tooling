@@ -29,6 +29,7 @@ class DomainTypedef(object):
     __domain_typedef_extension = '.json'
 
     JRF_TEMPLATE_REGEX = "^(.*jrf_template[0-9._]*\\.jar)|(Oracle JRF WebServices Asynchronous services)$"
+    RESTRICTED_JRF_TEMPLATE_REGEX = "^(Oracle Restricted JRF)$"
 
     def __init__(self, program_name, domain_type):
         """
@@ -94,6 +95,13 @@ class DomainTypedef(object):
         """
         return self._domain_type
 
+    def has_jrf_resources(self):
+        """
+        Determine if the domain type has domain resources from either the JRF or Restricted JRF templates.
+        :return: True if the domain type has resources from one of the JRF type
+        """
+        return self.is_jrf_domain_type() or self.is_restricted_jrf_domain_type()
+
     def is_jrf_domain_type(self):
         """
         Determine if this is a JRF domain type by checking for the JRF extension template.
@@ -105,12 +113,15 @@ class DomainTypedef(object):
                 return True
         return False
 
-    def domain_type_has_jrf_resources(self):
+    def is_restricted_jrf_domain_type(self):
         """
-        Does the running domain type contain the JRF server group ?
-        :return:
+        Determine if this domain type applies the Restricted JRF template.
+        :return: True if the Restricted JRF template is in the extension templates list
         """
-        return 'JRF-MAN-SVR' in self.get_server_groups_to_target()
+        for template in self.get_extension_templates():
+            if re.match(self.RESTRICTED_JRF_TEMPLATE_REGEX, template):
+                return True
+            return False
 
     def get_base_template(self):
         """
@@ -120,6 +131,14 @@ class DomainTypedef(object):
         """
         self.__resolve_paths()
         return self._domain_typedef['baseTemplate']
+
+    def has_extension_templates(self):
+        """
+        Determine if the domain type has extension templates.
+        :return: True if the domain type will apply extension templates
+        """
+        ets = self.get_extension_templates()
+        return ets is not None and len(ets) > 0
 
     def get_extension_templates(self):
         """

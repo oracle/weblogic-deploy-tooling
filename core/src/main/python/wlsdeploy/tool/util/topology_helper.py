@@ -3,6 +3,8 @@ Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 
+import oracle.weblogic.deploy.util.StringUtils as StringUtils
+
 import wlsdeploy.tool.deploy.deployer_utils as deployer_utils
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 from oracle.weblogic.deploy.util import WLSDeployArchive
