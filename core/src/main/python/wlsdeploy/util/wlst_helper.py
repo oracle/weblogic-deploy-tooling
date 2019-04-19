@@ -219,7 +219,6 @@ def set_server_groups(server, server_groups):
 
     :param server: the name of the new server
     :param server_groups: the list of template-defined server groups to target to the server
-    :param current_edit: if online and true, perform the update in the current edit session
     :raises: PyWLSTException: if a WLST error occurs
     """
     _method_name = 'set_server_groups'
@@ -604,7 +603,6 @@ def update_domain():
     """
     Update the existing domain configuration with the edits made during the offline session.
     :raises: PyWLSTException: if a WLST error occurs
-    _method_name = 'update_domain'
     """
     _method_name = 'update_domain'
     _logger.entering(class_name=_class_name, method_name=_method_name)
@@ -831,7 +829,7 @@ def subfolder_exists(wlst_objects_path, wlst_mbean_type):
     if child_folder_list is not None and wlst_mbean_type in child_folder_list:
         _logger.finest('WLSDPLY-00074', wlst_mbean_type, wlst_objects_path, class_name=_class_name,
                        _method_name=_method_name)
-        exists=True
+        exists = True
     else:
         _logger.finest('WLSDPLY-00075', wlst_mbean_type, wlst_objects_path, class_name=_class_name,
                        method_name=_method_name)
@@ -1298,8 +1296,6 @@ def save_and_activate_online():
     _logger.entering(class_name=_class_name, method_name=_method_name)
     if is_connected():
         _logger.fine('WLSDPLY-00077', class_name=_class_name, method_name=_method_name)
-        cmgr = get_config_manager()
-        # if is_editor(cmgr):
         # The setServerGroups cmgr.reload() lost the saved and unactivated changes marker
         # Don't even check for outstanding changes or saved but not activated. Just
         # do this and hope for the best
@@ -1336,7 +1332,6 @@ def reopen_online(admin_user, admin_pass, admin_url):
         _logger.fine('WLSDPLY-00079', class_name=_class_name, method_name=_method_name)
 
     edit()
-    #cmgr = get_config_manager()
     start_edit()
 
     _logger.exiting(class_name=_class_name, method_name=_method_name)
