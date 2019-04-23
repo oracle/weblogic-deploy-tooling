@@ -15,24 +15,28 @@
         "WLS_11G": {
             "baseTemplate": "@@WL_HOME@@/common/templates/domains/wls.jar",
             "extensionTemplates": [ ],
+            "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
             "rcuSchemas": [ ]
         },
         "WLS_12CR1": {
             "baseTemplate": "@@WL_HOME@@/common/templates/wls/wls.jar",
             "extensionTemplates": [ ],
+            "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
             "rcuSchemas": [ ]
         },
         "WLS_12CR2": {
             "baseTemplate": "Basic WebLogic Server Domain",
             "extensionTemplates": [ ],
+            "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
             "rcuSchemas": [ ]
         },
         "WLS_19CR1": {
             "baseTemplate": "Basic WebLogic Server Domain",
             "extensionTemplates": [ ],
+            "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
             "rcuSchemas": [ ]
         }
