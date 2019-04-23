@@ -158,7 +158,7 @@ There are cases, you can specify the methods to set the value in the alias. For 
 
 13. `set_mbean_type`
 
-14. `prefered_model_type`
+14. `preferred_model_type`
 
 
 ## TypeDefs Definition
@@ -186,6 +186,7 @@ The Create Domain Tool has an extensible domain type system.  The three built-in
                 "@@ORACLE_HOME@@/oracle_common/common/templates/wls/oracle.wsmpm_template_12.1.2.jar",
                 "@@ORACLE_HOME@@/em/common/templates/wls/oracle.em_wls_template_12.1.2.jar"
             ],
+            "customExtensionTemplates": [ ],
             "serverGroupsToTarget" : [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
             "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
         },
@@ -197,6 +198,7 @@ The Create Domain Tool has an extensible domain type system.  The three built-in
                 "@@ORACLE_HOME@@/oracle_common/common/templates/wls/oracle.wsmpm_template_12.1.3.jar",
                 "@@ORACLE_HOME@@/em/common/templates/wls/oracle.em_wls_template_12.1.3.jar"
             ],
+            "customExtensionTemplates": [ ],
             "serverGroupsToTarget" : [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
             "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
         },
@@ -207,6 +209,7 @@ The Create Domain Tool has an extensible domain type system.  The three built-in
                 "Oracle WSM Policy Manager",
                 "Oracle Enterprise Manager"
             ],
+            "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
             "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
         },
@@ -217,6 +220,7 @@ The Create Domain Tool has an extensible domain type system.  The three built-in
                 "Oracle WSM Policy Manager",
                 "Oracle Enterprise Manager"
             ],
+            "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
             "rcuSchemas": [ "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
         }
@@ -268,6 +272,30 @@ To create more complex domains with clusters of different types, it is necessary
             ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR",  "SOA-MGD-SVRS",  "OSB-MGD-SVRS-COMBINED" ],
             "rcuSchemas": [ "STB", "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "UCSUMS", "SOAINFRA" ]
+        }
+    }
+}
+```
+
+The `customExtensionTemplates` attribute can be used to specify custom extension templates to be applied to the domain. These should be specified as absolute file paths, and can use tokens.  
+
+```json
+{
+    "name": "MyCustom",
+    "description": "My custom type domain definitions",
+    "versions": {
+        "12.2.1.3": "My_12213"
+    },
+    "definitions": {
+        "My_12213": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [ ],
+            "customExtensionTemplates": [
+                "/user/me/templates/my-template.jar",
+                "@@ORACLE_HOME@@/user_templates/other-template.jar"
+            ],
+            "serverGroupsToTarget": [ ],
+            "rcuSchemas": [ ]
         }
     }
 }
