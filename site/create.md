@@ -207,5 +207,31 @@ topology:
         NodeManagerPasswordEncrypted: welcome1
 ```
 
+The `customExtensionTemplates` attribute can be used to specify custom extension templates to be applied to the domain. These should be specified as absolute file paths, and can use tokens.  
+
+```json
+{
+    "name": "MyCustom",
+    "description": "My custom type domain definitions",
+    "versions": {
+        "12.2.1.3": "My_12213"
+    },
+    "definitions": {
+        "My_12213": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [ ],
+            "customExtensionTemplates": [
+                "/user/me/templates/my-template.jar",
+                "@@ORACLE_HOME@@/user_templates/other-template.jar"
+            ],
+            "serverGroupsToTarget": [ "MY-MAN-SVR" ],
+            "rcuSchemas": [ ]
+        }
+    }
+}
+```
+
+If there are any server groups in the custom template that should be targeted to managed servers, they should be specified in the `serverGroupsToTarget` attribute, similar to `MY_MAN_SVR` in the example above.
+
 One last note is that if the model or variables file contains encrypted passwords, add the `-use_encryption` flag to the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input.
 
