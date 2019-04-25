@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.",
     "license": "The Universal Permissive License (UPL), Version 1.0",
     "wlst_type": "Cluster${:s}",
     "child_folders_type": "multiple",
@@ -53,7 +53,8 @@
         "DatabaseLessLeasingBasis" : {
             "wlst_type": "DatabaseLessLeasingBasis",
             "version": "[10.3.6,)",
-            "child_folders_type": "single",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%CLUSTER%}",
             "folders": {},
             "attributes" : {
                 "FenceTimeout":             [ {"version": "[10.3.6,)", "wlst_mode": "both",   "wlst_name": "FenceTimeout",                   "wlst_path": "WP001", "value": {"default": 5       }, "wlst_type": "integer", "get_method": "${LSA:GET}" } ],
@@ -66,7 +67,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Cluster${:s}/%CLUSTER%/DatabaseLessLeasingBasis/${NO_NAME_0:%CLUSTER%}"
+                "WP001": "/Cluster${:s}/%CLUSTER%/${(DatabaseLessLeasingBasis):DatabaseLessLeasingBasis}/%DATABASELESSLEASINGBASIS%"
             }
         },
         "JTACluster" : {
