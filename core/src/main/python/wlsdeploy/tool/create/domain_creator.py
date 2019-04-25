@@ -394,7 +394,8 @@ class DomainCreator(Creator):
 
         self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
         extension_templates = self._domain_typedef.get_extension_templates()
-        if len(extension_templates) == 0:
+        custom_templates = self._domain_typedef.get_custom_extension_templates()
+        if (len(extension_templates) == 0) and (len(custom_templates) == 0):
             return
 
         self.logger.info('WLSDPLY-12207', self._domain_name, domain_home,
@@ -407,6 +408,11 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.add_template(extension_template)
 
+        for custom_template in custom_templates:
+            self.logger.info('WLSDPLY-12246', custom_template,
+                             class_name=self.__class_name, method_name=_method_name)
+            self.wlst_helper.add_template(custom_template)
+
         self.__configure_fmw_infra_database()
 
         if self.wls_helper.is_set_server_groups_supported():
@@ -415,6 +421,8 @@ class DomainCreator(Creator):
             self.wlst_helper.update_domain()
         elif self._domain_typedef.is_jrf_domain_type():
             self.target_helper.target_jrf_groups_to_clusters_servers(domain_home)
+        else:
+            self.wlst_helper.update_domain()
 
         self.wlst_helper.close_domain()
         self.logger.info('WLSDPLY-12209', self._domain_name,
@@ -443,6 +451,12 @@ class DomainCreator(Creator):
             self.logger.info('WLSDPLY-12211', extension_template,
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.select_template(extension_template)
+
+        custom_templates = self._domain_typedef.get_custom_extension_templates()
+        for custom_template in custom_templates:
+            self.logger.info('WLSDPLY-12245', custom_template,
+                             class_name=self.__class_name, method_name=_method_name)
+            self.wlst_helper.select_custom_template(custom_template)
 
         self.logger.info('WLSDPLY-12212', class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.load_templates()

@@ -149,6 +149,15 @@ class DomainTypedef(object):
         self.__resolve_paths()
         return list(self._domain_typedef['extensionTemplates'])
 
+    def get_custom_extension_templates(self):
+        """
+        Get the list of custom extension templates to apply when create/extending the domain.
+        :return: the list of custom extension templates, or an empty list if no extension templates are needed.
+        :raises: CreateException: if an error occurs resolving the paths
+        """
+        self.__resolve_paths()
+        return list(self._domain_typedef['customExtensionTemplates'])
+
     def get_server_groups_to_target(self):
         """
         Get the list of server groups to target to the managed servers in the domain.
@@ -312,6 +321,15 @@ class DomainTypedef(object):
                 self._domain_typedef['extensionTemplates'] = resolved_templates
             else:
                 self._domain_typedef['extensionTemplates'] = []
+
+            if 'customExtensionTemplates' in self._domain_typedef:
+                extension_templates = self._domain_typedef['customExtensionTemplates']
+                resolved_templates = []
+                for extension_template in extension_templates:
+                    resolved_templates.append(self._model_context.replace_token_string(extension_template))
+                self._domain_typedef['customExtensionTemplates'] = resolved_templates
+            else:
+                self._domain_typedef['customExtensionTemplates'] = []
 
             if 'serverGroupsToTarget' not in self._domain_typedef:
                 self._domain_typedef['serverGroupsToTarget'] = []

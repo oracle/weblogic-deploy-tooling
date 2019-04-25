@@ -538,6 +538,25 @@ def select_template(template):
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
 
+def select_custom_template(template):
+    """
+    Select an existing custom domain template or application template for create a domain. This is
+    available only in WebLogic 12c versions
+    :param template: to be selected and loaded into the current session
+    :raises: PyWLSTException: if a WLST error occurs
+    """
+    _method_name = 'select_custom_template'
+    _logger.entering(template, class_name=_class_name, method_name=_method_name)
+
+    try:
+        wlst.selectCustomTemplate(template)
+    except offlineWLSTException, e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00095', template, e.getLocalizedMessage(), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
 def load_templates():
     """
     Load all the selected templates.
