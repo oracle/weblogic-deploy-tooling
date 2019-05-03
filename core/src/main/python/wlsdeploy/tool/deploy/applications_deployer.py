@@ -215,6 +215,8 @@ class ApplicationsDeployer(Deployer):
         existing_libs = existing_lib_refs.keys()
         existing_apps = existing_app_refs.keys()
 
+        # stop the app if the referenced shared library is newer or
+        # if the source path changes
         stop_app_list = list()
         stop_and_undeploy_app_list = list()
         update_library_list = list()
@@ -372,7 +374,8 @@ class ApplicationsDeployer(Deployer):
 
         self.wlst_helper.server_config()
         self.wlst_helper.cd(wlst_list_path)
-        apps = self.wlst_helper.get_existing_object_list(APP_DEPLOYMENTS)
+        apps = self.wlst_helper.get_existing_object_list()
+
         self.wlst_helper.domain_runtime()
         #
         # Cannot use ApplicationRuntime since it includes datasources as ApplicationRuntimes
@@ -388,7 +391,12 @@ class ApplicationsDeployer(Deployer):
                 attributes_map = self.wlst_helper.lsa()
                 absolute_sourcepath = attributes_map['AbsoluteSourcePath']
                 absolute_planpath = attributes_map['AbsolutePlanPath']
+                if absolute_planpath is None:
+                    absolute_planpath = attributes_map['PlanPath']
+                if absolute_sourcepath is None:
+                    absolute_sourcepath = attributes_map['SourcePath']
                 deployment_order = attributes_map['DeploymentOrder']
+
                 app_hash = self.__get_file_hash(absolute_sourcepath)
                 if absolute_planpath is not None:
                     plan_hash = self.__get_file_hash(absolute_planpath)
@@ -569,6 +577,8 @@ class ApplicationsDeployer(Deployer):
         _method_name = '__get_file_hash'
 
         try:
+            if filename is None:
+                return None
             hash_value = FileUtils.computeHash(filename)
         except (IOException, NoSuchAlgorithmException), e:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09309', filename, e.getLocalizedMessage(), error=e)
@@ -632,6 +642,10 @@ class ApplicationsDeployer(Deployer):
         progress = self.wlst_helper.stop_application(application_name, partition=partition_name, timeout=timeout)
         while progress.isRunning():
             continue
+        if progress.isFailed():
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09327', application_name, progress.getMessage())
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
         return
 
     def __start_app(self, application_name, partition_name=None):

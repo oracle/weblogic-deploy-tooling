@@ -893,7 +893,7 @@ class WlstHelper(object):
         _method_name = 'redeploy_application'
 
         try:
-            result = wlst_helper.redeploy_application(application_name, args, kwargs)
+            result = wlst_helper.redeploy_application(application_name, *args, **kwargs)
         except PyWLSTException, pwe:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19138', application_name,
                                                    pwe.getLocalizedMessage(), error=pwe)
@@ -913,7 +913,7 @@ class WlstHelper(object):
         _method_name = 'undeploy_application'
 
         try:
-            result = wlst_helper.redeploy_application(application_name, args, kwargs)
+            result = wlst_helper.undeploy_application(application_name, *args, **kwargs)
         except PyWLSTException, pwe:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19141', application_name,
                                                    pwe.getLocalizedMessage(), error=pwe)
