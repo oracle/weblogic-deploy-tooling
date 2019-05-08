@@ -16,6 +16,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import path_utils
@@ -51,6 +52,7 @@ class Discoverer(object):
         self._weblogic_helper = WebLogicHelper(_logger)
         self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
         self._wlst_helper = WlstHelper(_logger, ExceptionType.DISCOVER)
+        self._mbean_utils = MBeanUtils(self._model_context, ExceptionType.DISCOVER)
 
     # methods for use only by the subclasses
 
@@ -69,50 +71,69 @@ class Discoverer(object):
         if not self.wlst_cd(wlst_path, location):
             return
 
-        wlst_params = self._get_attributes_for_current_location(location)
-        _logger.finest('WLSDPLY-06102', self._wlst_helper.get_pwd(), wlst_params, class_name=_class_name,
+        wlst_lsa_params = self._get_attributes_for_current_location(location)
+        _logger.finest('WLSDPLY-06102', self._wlst_helper.get_pwd(), wlst_lsa_params, class_name=_class_name,
                        method_name=_method_name)
         wlst_get_params = self._get_required_attributes(location)
         _logger.finest('WLSDPLY-06103', str(location), wlst_get_params,
                        class_name=_class_name, method_name=_method_name)
-        attr_dict = OrderedDict()
-        if wlst_params:
-            for wlst_param in wlst_params:
-                if wlst_param in wlst_get_params:
-                    _logger.finest('WLSDPLY-06104', wlst_param, class_name=_class_name, method_name=_method_name)
-                    try:
-                        wlst_value = wlst_helper.get(wlst_param)
-                    except PyWLSTException, pe:
-                        _logger.warning('WLSDPLY-06127', wlst_param, wlst_path,
-                                        pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
+        if wlst_lsa_params is not None:
+            for wlst_lsa_param in wlst_lsa_params:
+                if wlst_lsa_param in wlst_get_params:
+                    success, wlst_value = self._get_attribute_value_with_get(wlst_lsa_param, wlst_path)
+                    if not success:
                         continue
                 else:
-                    _logger.finer('WLSDPLY-06131', wlst_param, class_name=_class_name, method_name=_method_name)
-                    wlst_value = wlst_params[wlst_param]
+                    _logger.finer('WLSDPLY-06131', wlst_lsa_param, class_name=_class_name, method_name=_method_name)
+                    wlst_value = wlst_lsa_params[wlst_lsa_param]
+                self._add_to_dictionary(dictionary, location, wlst_lsa_param, wlst_value, wlst_path)
 
-                # if type(wlst_value) == str and len(wlst_value) == 0:
-                #     wlst_value = None
-
-                _logger.finer('WLSDPLY-06105', wlst_param, wlst_value, wlst_path, class_name=_class_name,
-                              method_name=_method_name)
-                try:
-                    model_param, model_value = self._aliases.get_model_attribute_name_and_value(location,
-                                                                                                wlst_param,
-                                                                                                wlst_value)
-                except AliasException, de:
-                    _logger.info('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
+        # These will come after the lsa / get params in the ordered dictionary
+        wlst_extra_params = self._get_additional_parameters(location)
+        _logger.finest('WLSDPLY-06149', str(location), wlst_extra_params,
+                       class_name=_class_name, method_name=_method_name)
+        if wlst_extra_params is not None:
+            for wlst_extra_param in wlst_extra_params:
+                if wlst_extra_param not in wlst_get_params:
+                    _logger.info('WLSDPLY-06148', wlst_extra_param, str(location),
                                  class_name=_class_name, method_name=_method_name)
-                    continue
+                success, wlst_value = self._get_attribute_value_with_get(wlst_extra_param, wlst_path)
+                if success:
+                    self._add_to_dictionary(dictionary, location, wlst_extra_param, wlst_value, wlst_path)
 
-                attr_dict[model_param] = wlst_value
-                model_value = self._check_attribute(model_param, model_value, location)
-                if model_value is not None:
-                    _logger.finer('WLSDPLY-06107', model_param, model_value, class_name=_class_name,
-                                  method_name=_method_name)
-                    dictionary[model_param] = model_value
-                elif model_param is None:
-                    _logger.finest('WLSDPLY-06108', model_param, class_name=_class_name, method_name=_method_name)
-        return attr_dict
+    def _get_attribute_value_with_get(self, wlst_get_param, wlst_path):
+        _method_name = '_get_attribute_value_with_get'
+        _logger.finest('WLSDPLY-06104', wlst_get_param, class_name=_class_name, method_name=_method_name)
+        success = False
+        wlst_value = None
+        try:
+            wlst_value = self._wlst_helper.get(wlst_get_param)
+            success = True
+        except DiscoverException, pe:
+            _logger.warning('WLSDPLY-06127', wlst_get_param, wlst_path, pe.getLocalizedMessage(),
+                            class_name=_class_name, method_name=_method_name)
+        return success, wlst_value
+
+    def _add_to_dictionary(self, dictionary, location, wlst_param, wlst_value, wlst_path):
+        _method_name = '_add_to_dictionary'
+        _logger.finer('WLSDPLY-06105', wlst_param, wlst_value, wlst_path, class_name=_class_name,
+                      method_name=_method_name)
+        try:
+            model_param, model_value = self._aliases.get_model_attribute_name_and_value(location,
+                                                                                        wlst_param,
+                                                                                        wlst_value)
+        except AliasException, de:
+            _logger.info('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
+                         class_name=_class_name, method_name=_method_name)
+            return
+
+        model_value = self._check_attribute(model_param, model_value, location)
+        if model_value is not None:
+            _logger.finer('WLSDPLY-06107', model_param, model_value, class_name=_class_name,
+                          method_name=_method_name)
+            dictionary[model_param] = model_value
+        elif model_param is None:
+            _logger.finest('WLSDPLY-06108', model_param, class_name=_class_name, method_name=_method_name)
 
     def _get_attributes_for_current_location(self, location):
         """
@@ -179,7 +200,7 @@ class Discoverer(object):
         :return: list of attributes that require wlst.get
         """
         _method_name = '_get_required_attributes'
-        attributes = []
+        attributes = list()
         try:
             attributes = self._alias_helper.get_wlst_get_required_attribute_names(location)
         except DiscoverException, de:
@@ -187,6 +208,20 @@ class Discoverer(object):
             _logger.warning('WLSDPLY-06109', name, location.get_folder_path(), de.getLocalizedMessage(),
                             class_name=_class_name, method_name=_method_name)
         return attributes
+
+    def _get_additional_parameters(self, location):
+        _method_name = '_get_additional_parameters'
+        other_attributes = list()
+        try:
+            other_attributes = self._mbean_utils.get_attributes_not_in_lsa_map(location)
+        except DiscoverException, de:
+            name = 'DomainConfig'
+            folders = location.get_model_folders()
+            if len(folders) > 0:
+                name = location.get_model_folders()[-1]
+            _logger.info('WLSDPLY-06150', name, location.get_folder_path(), de.getLocalizedMessage(),
+                         class_name=_class_name, method_name=_method_name)
+        return other_attributes
 
     def _mbean_names_exist(self, location):
         """

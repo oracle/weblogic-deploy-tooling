@@ -742,6 +742,16 @@ class AliasHelper(object):
             raise ex
         return result
 
+    def get_ignore_attribute_names(self):
+        """
+        Return the list of ignored attribute names - the attributes for all MBeans that are not discovered or set.
+        :return: list of MBean attribute names to ignore
+        """
+        _method_name = 'get_ignore_attribute_names'
+        result = self.__aliases.get_ignore_attribute_names()
+        self.__logger.finest('WLSDPLY-19038', result, class_name=self.__class_name, method_name=_method_name)
+        return result
+
     ###########################################################################
     #                          Convenience Methods                            #
     ###########################################################################
