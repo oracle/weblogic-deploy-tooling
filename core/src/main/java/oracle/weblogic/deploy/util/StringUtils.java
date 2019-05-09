@@ -147,4 +147,20 @@ public final class StringUtils {
         return listString.split(COMMA_SEPARATED_LIST_SPLITTER);
     }
 
+    /**
+     * Return a printable string representing the Boolean True or False value for the integer.
+     * @param value containing the integer value of a boolean
+     * @return String representation of the boolean integer
+     */
+    public static String stringForBoolean(int value) {
+        switch(value) {
+            case 0:
+                return Boolean.FALSE.toString();
+            case 1:
+                return Boolean.TRUE.toString();
+            default:
+                return "UNKNOWN";
+        }
+    }
+
 }

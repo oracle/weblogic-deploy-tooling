@@ -3,6 +3,8 @@ Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 
+import oracle.weblogic.deploy.util.StringUtils as StringUtils
+
 import wlsdeploy.tool.deploy.deployer_utils as deployer_utils
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 from oracle.weblogic.deploy.util import WLSDeployArchive
@@ -75,23 +77,7 @@ class TopologyHelper(object):
         """
         _method_name = 'create_placeholder_servers_in_cluster'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        original_location = self.wlst_helper.get_pwd()
-        server_location = LocationContext().append_location(SERVER)
-
-        if self.alias_helper.get_wlst_mbean_type(server_location) is not None:
-            existing_names = deployer_utils.get_existing_object_list(server_location, self.alias_helper)
-
-            server_nodes = dictionary_utils.get_dictionary_element(topology, SERVER)
-            for server_name in server_nodes:
-                if server_name not in existing_names and self.is_clustered_server(server_name, server_nodes):
-                    self.logger.info('WLSDPLY-19402', server_name, class_name=self.__class_name,
-                                     method_name=_method_name)
-
-                    server_token = self.alias_helper.get_name_token(server_location)
-                    server_location.add_name_token(server_token, server_name)
-                    deployer_utils.create_and_cd(server_location, existing_names, self.alias_helper)
-
-        self.wlst_helper.cd(original_location)
+        self.create_placeholder_named_elements(LocationContext(), SERVER, topology)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def create_placeholder_server_templates(self, topology):
@@ -100,24 +86,7 @@ class TopologyHelper(object):
         This is necessary because there is a circular dependency between clusters and server templates.
         :param topology: the topology model nodes
         """
-        _method_name = 'create_placeholder_server_templates'
-        original_location = self.wlst_helper.get_pwd()
-        template_location = LocationContext().append_location(SERVER_TEMPLATE)
-
-        if self.alias_helper.get_wlst_mbean_type(template_location) is not None:
-            existing_names = deployer_utils.get_existing_object_list(template_location, self.alias_helper)
-
-            template_nodes = dictionary_utils.get_dictionary_element(topology, SERVER_TEMPLATE)
-            for template_name in template_nodes:
-                if template_name not in existing_names:
-                    self.logger.info('WLSDPLY-19400', template_name, class_name=self.__class_name,
-                                     method_name=_method_name)
-
-                    template_token = self.alias_helper.get_name_token(template_location)
-                    template_location.add_name_token(template_token, template_name)
-                    deployer_utils.create_and_cd(template_location, existing_names, self.alias_helper)
-
-        self.wlst_helper.cd(original_location)
+        self.create_placeholder_named_elements(LocationContext(), SERVER_TEMPLATE, topology)
 
     def create_placeholder_jdbc_resources(self, resources):
         """
@@ -125,21 +94,31 @@ class TopologyHelper(object):
         This is necessary because cluster attributes may reference JDBC resources.
         :param resources: the resource model nodes
         """
-        _method_name = 'create_placeholder_jdbc_resources'
+        self.create_placeholder_named_elements(LocationContext(), JDBC_SYSTEM_RESOURCE, resources)
+
+    def create_placeholder_named_elements(self, location, model_type, model_nodes):
+        """
+        Create a placeholder entry for each element in the specified named element nodes.
+        This is necessary when there can be circular references with other elements.
+        :param location: the location for the nodes to be added
+        :param model_type: the type of the specified model nodes
+        :param model_nodes: the model nodes
+        """
+        _method_name = 'create_placeholder_named_elements'
         original_location = self.wlst_helper.get_pwd()
-        resource_location = LocationContext().append_location(JDBC_SYSTEM_RESOURCE)
+        resource_location = LocationContext(location).append_location(model_type)
 
         if self.alias_helper.get_wlst_mbean_type(resource_location) is not None:
             existing_names = deployer_utils.get_existing_object_list(resource_location, self.alias_helper)
 
-            jdbc_nodes = dictionary_utils.get_dictionary_element(resources, JDBC_SYSTEM_RESOURCE)
-            for jdbc_name in jdbc_nodes:
-                if jdbc_name not in existing_names:
-                    self.logger.info('WLSDPLY-19401', jdbc_name, class_name=self.__class_name,
+            name_nodes = dictionary_utils.get_dictionary_element(model_nodes, model_type)
+            for name in name_nodes:
+                if name not in existing_names:
+                    self.logger.info('WLSDPLY-19403', model_type, name, class_name=self.__class_name,
                                      method_name=_method_name)
 
-                    jdbc_token = self.alias_helper.get_name_token(resource_location)
-                    resource_location.add_name_token(jdbc_token, jdbc_name)
+                    token = self.alias_helper.get_name_token(resource_location)
+                    resource_location.add_name_token(token, name)
                     deployer_utils.create_and_cd(resource_location, existing_names, self.alias_helper)
 
         self.wlst_helper.cd(original_location)

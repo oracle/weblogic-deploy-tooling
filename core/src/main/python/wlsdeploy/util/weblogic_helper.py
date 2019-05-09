@@ -13,6 +13,7 @@ import weblogic.version as version_helper
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.util import string_utils
 
+
 class WebLogicHelper(object):
     """
     Helper functions for version-specific WebLogic operations.
@@ -114,7 +115,9 @@ class WebLogicHelper(object):
         :param rcu_prefix: the RCU prefix
         :return: the Service Table schema user name
         """
-        return rcu_prefix + '_STB'
+        if self.is_weblogic_version_or_above('12.1.2'):
+            return rcu_prefix + '_STB'
+        return rcu_prefix + '_MDS'
 
     def get_jrf_service_table_datasource_name(self):
         """

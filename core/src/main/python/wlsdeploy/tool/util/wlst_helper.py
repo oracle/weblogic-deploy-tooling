@@ -2,6 +2,7 @@
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+
 from oracle.weblogic.deploy.util import PyWLSTException
 
 from wlsdeploy.exception import exception_helper
@@ -42,24 +43,58 @@ class WlstHelper(object):
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-    def apply_jrf(self, jrf_target, domain_home, should_update=False):
+    def apply_jrf(self, jrf_target, model_context, should_update=False):
         """
         For those installs that require populating the JRF server group information to the managed servers
         :param jrf_target: The entity to which to target the JRF applications and services
-        :param domain_home: The domain home directory
+        :param model_context: The context containing the tool session information needed for the applyJRF
         :param should_update: If True the applyJRF will update the domain after apply
         :raises: Exception specific to tool type
         """
         _method_name = 'apply_jrf'
 
+      
         try:
-            wlst_extended.apply_jrf(jrf_target, domain_home, should_update)
+            wlst_extended.session_start(model_context.is_wlst_online(), jrf_target, 
+                                        model_context.get_admin_user(),
+                                        model_context.get_admin_password(),
+                                        model_context.get_admin_url(),
+                                        model_context.get_domain_home())
+            wlst_extended.apply_jrf(jrf_target, domain_home=model_context.get_domain_home(),
+                                    should_update=should_update)
+            wlst_extended.session_end(model_context.is_wlst_online(), jrf_target)
         except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00071',
-                                                   jrf_target, domain_home,
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19146',
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
+
+    def apply_jrf_control_updates(self, jrf_targets, model_context):
+        """
+        For those installs that require populating the JRF server group information to the managed servers. Control
+        the session updates within the global context. Save the updates in the current context.
+        :param jrf_targets: The list of entities to which to target the JRF applications and services
+        :param model_context: The context containing the tool session information needed for the applyJRF
+        :raises: Exception specific to tool type
+        """
+        _method_name = 'apply_jrf_control_updates'
+
+
+        try:
+            wlst_extended.apply_jrf_global_updates(model_context.is_wlst_online(),
+                                                   jrf_targets,
+                                                   admin_user=model_context.get_admin_user(),
+                                                   admin_pass=model_context.get_admin_password(),
+                                                   admin_url=model_context.get_admin_url(),
+                                                   domain_home=model_context.get_domain_home())
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19146',
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+
+        return
 
     def cd(self, wlst_path):
         """
@@ -285,6 +320,25 @@ class WlstHelper(object):
             raise ex
         return result
 
+    def subfolder_exists(self, wlst_mbean_type, wlst_path=None):
+        """
+        Determine if the child exists in the current mbean.
+        :param wlst_path: This will be the MBean attributes path, or current path in WLST session if Noe
+        :param wlst_mbean_type: WLST child MBean to search for
+        :return: True if the child folder exists for the MBean
+        """
+        _method_name = 'subfolder_exists'
+
+        # Exception not currently thrown.
+        try:
+            result = wlst_helper.subfolder_exists(wlst_path, wlst_mbean_type)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19108',
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return result
+
     def set_option_if_needed(self, option_name, option_value):
         """
         Set the WLST domain option to the provided value if the name and value are not None.
@@ -310,6 +364,7 @@ class WlstHelper(object):
 
         :param server_name: the server name
         :param server_groups_to_target: the list of server groups to target
+        :param current_edit: if True and online, perform the set in the current edit session
         :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'set_server_groups'
@@ -321,6 +376,7 @@ class WlstHelper(object):
                                                    server_groups_to_target, pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
+
         return
 
     def get_database_defaults(self):
@@ -443,6 +499,23 @@ class WlstHelper(object):
             wlst_helper.select_template(template_name)
         except PyWLSTException, pwe:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19117', template_name,
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return
+
+    def select_custom_template(self, template_name):
+        """
+        Select the custom template from the specified location.
+        :param template_name: the custom template to select
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'select_custom_template'
+
+        try:
+            wlst_helper.select_custom_template(template_name)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19148', template_name,
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -902,3 +975,57 @@ class WlstHelper(object):
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return
+
+    def save_and_close(self, model_context):
+        """
+        Call this if necessary to save changes and disconnect from the domain in the middle of the session.
+        This works in both offline and online.
+        :param model_context: Contains information about the session, including the WlstMode
+        """
+        _method_name = 'save_and_close'
+        try:
+            if model_context.is_wlst_online():
+                wlst_helper.save_and_close_online()
+            else:
+                wlst_helper.save_and_close_offline()
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19145', pwe.getLocalizedMessage(),
+                                                   error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+    def save_and_activate(self, model_context):
+        """
+        Call this if necessary to save and activate changes in the middle of the session.
+        This works in both offline and online.
+        :param model_context: Contains information about the session, including the WlstMode
+        """
+        _method_name = 'save_and_activate'
+        try:
+            if model_context.is_wlst_online():
+                wlst_helper.save_and_activate_online()
+            else:
+                wlst_helper.save_and_activate_offline()
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19147', pwe.getLocalizedMessage(),
+                                                   error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+    def reopen(self, model_context):
+        """
+        Establish connection with the domain and start editing in both online and offline wlst mode.
+        :param model_context: contains the information needed for the reopen, including the WlstMode
+        """
+        _method_name = 'reopen'
+        try:
+            if model_context.is_wlst_online():
+                wlst_helper.reopen_online(model_context.get_admin_user(), model_context.get_admin_password(),
+                                          model_context.get_admin_url())
+            else:
+                wlst_helper.reopen_offline(model_context.get_domain_home())
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19144',
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex

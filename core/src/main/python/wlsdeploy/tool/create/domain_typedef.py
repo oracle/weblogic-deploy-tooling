@@ -12,6 +12,7 @@ from oracle.weblogic.deploy.json import JsonException
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -28,8 +29,8 @@ class DomainTypedef(object):
     __domain_typedefs_location = os.path.join(os.environ.get('WLSDEPLOY_HOME'), 'lib', 'typedefs')
     __domain_typedef_extension = '.json'
 
-    __wild_card_suffix = '%%'
-    __wild_card_suffix_len = len(__wild_card_suffix)
+    JRF_TEMPLATE_REGEX = "^(.*jrf_template[0-9._]*\\.jar)|(Oracle JRF WebServices Asynchronous services)$"
+    RESTRICTED_JRF_TEMPLATE_REGEX = "^(Oracle Restricted JRF)$"
 
     def __init__(self, program_name, domain_type):
         """
@@ -70,6 +71,8 @@ class DomainTypedef(object):
         self._model_context = None
         self._version_typedef_name = None
 
+        self._targeting_type = self._resolve_targeting_type()
+
         if 'system-elements' in self._domain_typedefs_dict:
             self._system_elements = self._domain_typedefs_dict['system-elements']
         else:
@@ -95,19 +98,33 @@ class DomainTypedef(object):
         """
         return self._domain_type
 
-    def domain_type_is_jrf(self):
+    def has_jrf_resources(self):
         """
-        Determine if the tool is running with domain type JRF or RestrictedJRF.
-        :return : True if running with domain type JRF or RestrictedJRF.
+        Determine if the domain type has domain resources from either the JRF or Restricted JRF templates.
+        :return: True if the domain type has resources from one of the JRF type
         """
-        return self.get_domain_type() == 'JRF' or self.get_domain_type() == 'RestrictedJRF'
+        return self.is_jrf_domain_type() or self.is_restricted_jrf_domain_type()
 
-    def domain_type_has_jrf_resources(self):
+    def is_jrf_domain_type(self):
         """
-        Does the running domain type contain the JRF server group ?
-        :return:
+        Determine if this is a JRF domain type by checking for the JRF extension template.
+        This returns False for the Restricted JRF domain type.
+        :return: True if the JRF template is present
         """
-        return 'JRF-MAN-SVR' in self.get_server_groups_to_target()
+        for template in self.get_extension_templates():
+            if re.match(self.JRF_TEMPLATE_REGEX, template):
+                return True
+        return False
+
+    def is_restricted_jrf_domain_type(self):
+        """
+        Determine if this domain type applies the Restricted JRF template.
+        :return: True if the Restricted JRF template is in the extension templates list
+        """
+        for template in self.get_extension_templates():
+            if re.match(self.RESTRICTED_JRF_TEMPLATE_REGEX, template):
+                return True
+            return False
 
     def get_base_template(self):
         """
@@ -118,6 +135,14 @@ class DomainTypedef(object):
         self.__resolve_paths()
         return self._domain_typedef['baseTemplate']
 
+    def has_extension_templates(self):
+        """
+        Determine if the domain type has extension templates.
+        :return: True if the domain type will apply extension templates
+        """
+        ets = self.get_extension_templates()
+        return ets is not None and len(ets) > 0
+
     def get_extension_templates(self):
         """
         Get the list of extension templates to apply when create/extending the domain.
@@ -126,6 +151,15 @@ class DomainTypedef(object):
         """
         self.__resolve_paths()
         return list(self._domain_typedef['extensionTemplates'])
+
+    def get_custom_extension_templates(self):
+        """
+        Get the list of custom extension templates to apply when create/extending the domain.
+        :return: the list of custom extension templates, or an empty list if no extension templates are needed.
+        :raises: CreateException: if an error occurs resolving the paths
+        """
+        self.__resolve_paths()
+        return list(self._domain_typedef['customExtensionTemplates'])
 
     def get_server_groups_to_target(self):
         """
@@ -153,6 +187,13 @@ class DomainTypedef(object):
         # No need to resolve the paths and we need this to work prior to
         # resolution for create.py argument processing.
         return 'rcuSchemas' in self._domain_typedef and len(self._domain_typedef['rcuSchemas']) > 0
+
+    def get_targeting(self):
+        """
+        Get the targeting type for the domain, or None if not specified.
+        :return: the TargetingType enum value for the domain, or None
+        """
+        return self._targeting_type
 
     def is_system_app(self, name):
         """
@@ -291,6 +332,15 @@ class DomainTypedef(object):
             else:
                 self._domain_typedef['extensionTemplates'] = []
 
+            if 'customExtensionTemplates' in self._domain_typedef:
+                extension_templates = self._domain_typedef['customExtensionTemplates']
+                resolved_templates = []
+                for extension_template in extension_templates:
+                    resolved_templates.append(self._model_context.replace_token_string(extension_template))
+                self._domain_typedef['customExtensionTemplates'] = resolved_templates
+            else:
+                self._domain_typedef['customExtensionTemplates'] = []
+
             if 'serverGroupsToTarget' not in self._domain_typedef:
                 self._domain_typedef['serverGroupsToTarget'] = []
 
@@ -369,3 +419,32 @@ class DomainTypedef(object):
                 raise ex
         self._logger.exiting(self.__class_name, _method_name, result)
         return result
+
+    def _resolve_targeting_type(self):
+        """
+        Determine the targeting type based on the value in the definition.
+        Check for problems or incompatibilities.
+        :return: the matching TargetType enum value
+        :raises: ClaException: if there are problems or incompatibilities
+        """
+        _method_name = '_resolve_targeting_type'
+
+        if 'targeting' not in self._domain_typedef:
+            return None
+
+        targeting_text = self._domain_typedef['targeting']
+
+        # there are no valid targeting types for version 12c and up
+        if self.wls_helper.is_set_server_groups_supported():
+            ex = exception_helper.create_cla_exception('WLSDPLY-12311', targeting_text, self._domain_typedef_filename,
+                                                       self.wls_helper.get_weblogic_version())
+            self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        # if specified, targeting must be one of the known types
+        if targeting_text not in TargetingType:
+            ex = exception_helper.create_cla_exception('WLSDPLY-12312', targeting_text, self._domain_typedef_filename)
+            self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        return TargetingType[targeting_text]

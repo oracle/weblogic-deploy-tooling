@@ -10,15 +10,15 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.deploy import deployer_utils
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.tool.util.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
-from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
- 
+from wlsdeploy.tool.deploy import deployer_utils
+
 
 class Creator(object):
     """
@@ -307,27 +307,8 @@ class Creator(object):
         """
         _method_name = '_set_attribute'
 
-        if model_name in uses_path_tokens_names and WLSDeployArchive.isPathIntoArchive(model_value):
-            if self.archive_helper is not None:
-                if self.archive_helper.contains_file(model_value):
-                    #
-                    # We cannot extract the files until the domain directory exists
-                    # so add them to the list so that they can be extracted after
-                    # domain creation completes.
-                    #
-                    self.files_to_extract_from_archive.append(model_value)
-                else:
-                    path = self.alias_helper.get_model_folder_path(location)
-                    archive_file_name = self.model_context.get_archive_file_name
-                    ex = exception_helper.create_create_exception('WLSDPLY-12121', model_name, path,
-                                                                  model_value, archive_file_name)
-                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                    raise ex
-            else:
-                path = self.alias_helper.get_model_folder_path(location)
-                ex = exception_helper.create_create_exception('WLSDPLY-12122', model_name, path, model_value)
-                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
+        if (model_name in uses_path_tokens_names) and (model_value is not None):
+            self._extract_archive_files(location, model_name, model_value)
 
         wlst_name, wlst_value = self.alias_helper.get_wlst_attribute_name_and_value(location, model_name, model_value)
 
@@ -349,6 +330,49 @@ class Creator(object):
                                class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.set(wlst_name, wlst_value, masked=masked)
         return
+
+    def _extract_archive_files(self, location, model_name, model_value):
+        """
+        Extract any archive files associated with the specified model attribute value.
+        The attribute has already been determined to use path tokens.
+        :param location: the location of the attribute
+        :param model_name: the model attribute name
+        :param model_value: the model attribute value
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '_extract_archive_files'
+
+        # model value should be a list, comma-delimited string, or string
+        model_paths = model_value
+        if isinstance(model_value, str):
+            model_paths = model_value.split(',')
+
+        for model_path in model_paths:
+            model_path = model_path.strip()
+
+            # check for path starting with "wlsdeploy/".
+            # skip classpath libraries, they are extracted elsewhere.
+            if WLSDeployArchive.isPathIntoArchive(model_path) and not WLSDeployArchive.isClasspathEntry(model_path):
+                if self.archive_helper is not None:
+                    if self.archive_helper.contains_file(model_path):
+                        #
+                        # We cannot extract the files until the domain directory exists
+                        # so add them to the list so that they can be extracted after
+                        # domain creation completes.
+                        #
+                        self.files_to_extract_from_archive.append(model_path)
+                    else:
+                        path = self.alias_helper.get_model_folder_path(location)
+                        archive_file_name = self.model_context.get_archive_file_name
+                        ex = exception_helper.create_create_exception('WLSDPLY-12121', model_name, path,
+                                                                      model_path, archive_file_name)
+                        self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                        raise ex
+                else:
+                    path = self.alias_helper.get_model_folder_path(location)
+                    ex = exception_helper.create_create_exception('WLSDPLY-12122', model_name, path, model_path)
+                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                    raise ex
 
     def _is_type_valid(self, location, type_name):
         """
