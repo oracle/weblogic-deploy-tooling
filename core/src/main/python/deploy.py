@@ -446,7 +446,10 @@ def main(args):
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         __clean_up_temp_files()
-        tool_exit.end(None, exit_code)
+
+        # create a minimal model for summary logging
+        model_context = ModelContext(_program_name, dict())
+        tool_exit.end(model_context, exit_code)
 
     model_file = model_context.get_model_file()
     try:
