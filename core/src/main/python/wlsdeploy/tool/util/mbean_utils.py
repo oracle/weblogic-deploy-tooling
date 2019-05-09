@@ -5,13 +5,13 @@ The Universal Permissive License (UPL), Version 1.0
 import re
 
 import java.lang.Boolean as Boolean
+import java.lang.Exception as JException
 
 from oracle.weblogic.deploy.exception import BundleAwareException
 
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
@@ -23,11 +23,10 @@ _logger = PlatformLogger('wlsdeploy.mbean.utils')
 
 class MBeanUtils(object):
     """
-    Utility class used to provide information about WLST attributes retrieved from the MBean MBeanInfo or Interface
-    methods.
+    Utility class used to provide information about WLST attributes as retrieved from the MBean MBeanInfo or Interface
+    methods. This class has methods to provide the information stored in different combinations. All methods that want
+    to combine the information from the MBean helpers into different combinations are located in this class.
     """
-
-    __class_name = 'MBeanUtils'
 
     def __init__(self, model_context, exception_type):
         self.__model_context = model_context
@@ -37,6 +36,7 @@ class MBeanUtils(object):
         self.__wlst_helper = WlstHelper(_logger, exception_type)
         self.__helper = self.__get_helper()
         self.__ignore_list = self.__alias_helper.get_ignore_attribute_names()
+        _logger.finer('WLSDPLY-01779', self.__ignore_list, class_name=self.__class__.__name__, method_name='__init__')
 
     def get_attributes_not_in_lsa_map(self, location, lsa_map=None):
         """
@@ -47,12 +47,12 @@ class MBeanUtils(object):
         :return: Any additional attributes or empty list if none found
         """
         _method_name = 'get_attributes_not_in_lsa_map'
-        _logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
+        _logger.entering(location.get_folder_path(), class_name=self.__class__.__name__, method_name=_method_name)
         mbean_attributes = self.__collapse_attributes(location)
         lsa_attributes = self.__get_lsa_attributes(location, lsa_map)
         loose_attributes = [attribute for attribute in mbean_attributes
                             if not self.__helper.is_attribute_in_lsa_map(attribute, lsa_attributes)]
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=loose_attributes)
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=loose_attributes)
         return loose_attributes
 
     def get_mbean_info_attributes(self, location=None, helper=None):
@@ -67,26 +67,32 @@ class MBeanUtils(object):
 
     def __collapse_attributes(self, location):
         _method_name = '__filter_attributes'
-        _logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
-
         info_helper = self.__get_info_helper(location)
         info_attributes = self.get_mbean_info_attributes(helper=info_helper)
 
         interface_helper = self.__get_interface_helper(location)
         interface_attributes = self.get_interface_attributes(helper=interface_helper)
 
-        self.__remove_duplicates(interface_attributes, info_attributes)
-        self.__slim_list(info_attributes, info_helper)
-        self.__slim_list(interface_attributes, interface_helper)
+        self.__remove_duplicates(interface_attributes, str(interface_helper), info_attributes, str(info_helper))
+        # This is the main list to drive from
+        info_attributes = self.__slim_list(info_attributes, info_helper)
+        # Because there are very few valid attributes in the Interface methods that are not in either the LSA map
+        # or MBeanInfo PropertyDescriptors, remove all the read_only attributes
+        interface_attributes = self.__slim_list(interface_attributes, interface_helper, remove_readonly=True)
         consolidated = list()
         consolidated.extend(info_attributes)
         consolidated.extend(interface_attributes)
+        _logger.finer('WLSDPLY-01787', consolidated, class_name=self.__class__.__name__, method_name=_method_name)
         return consolidated
 
-    def __slim_list(self, attributes, attribute_helper):
+    def __slim_list(self, attributes, attribute_helper, remove_readonly=False):
         return [attribute for attribute in attributes if not (
             self.__in_ignore(attribute) or
-            attribute_helper.is_child_mbean(attribute)
+            attribute_helper.is_child_mbean(attribute) or
+            (remove_readonly and attribute_helper.is_read_only(attribute)) or
+            self.__is_clear_text_encrypted(attribute, attribute_helper) or
+            # The following should always be the final elimination step
+            not attribute_helper.is_valid_getter(attribute)
         )]
 
     def __get_info_helper(self, location):
@@ -95,13 +101,21 @@ class MBeanUtils(object):
     def __get_interface_helper(self, location):
         return InterfaceAttributes(self.__model_context, self.__exception_type, location)
 
-    def __remove_duplicates(self, check_list, main_list):
+    def __remove_duplicates(self, check_list, check_list_type, main_list, main_list_type):
         _method_name = '__remove_duplicates'
-        _logger.entering(len(check_list), class_name=self.__class_name, method_name=_method_name)
+        _logger.entering(len(check_list), len(main_list), class_name=self.__class__.__name__, method_name=_method_name)
         for attribute in main_list:
             if attribute in check_list:
                 check_list.remove(attribute)
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=len(check_list))
+            else:
+                _logger.fine('WLSDPLY-01788', attribute, check_list_type, main_list_type,
+                             class_name=self.__class__.__name__, method_name=_method_name)
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=len(check_list))
+
+    def __is_clear_text_encrypted(self, attribute_name, attribute_helper):
+        if not attribute_name.endswith('Encrypted'):
+            return attribute_helper.is_encrypted(attribute_name + 'Encrypted')
+        return False
 
     def __in_ignore(self, attribute_name):
         return attribute_name in self.__ignore_list
@@ -113,7 +127,7 @@ class MBeanUtils(object):
             helper = OnlineMBeanHelper(self.__model_context, self.__exception_type)
         return helper
 
-    def __get_lsa_attributes(self, location, lsa_map):
+    def __get_lsa_attributes(self, location, lsa_map=None):
         _method_name = '__get_lsa_attributes'
         attributes = None
         attribute_path = self.__alias_helper.get_wlst_attributes_path(location)
@@ -129,17 +143,15 @@ class MBeanUtils(object):
                     except BundleAwareException:
                         pass
         if attributes is None:
-            # throw exception
-            _logger.fine('Unable to retrieve the lsa attributes for the MBean at location {0}', attribute_path,
-                         class_name=self.__class_name, method_name=_method_name)
-            attributes = list()
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01771', attribute_path)
+            _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
+            raise ex
         return attributes
 
 
 class MBeanHelper(object):
     """
-    Utility methods to assist with retrieving MBean information from the CMO MBean instance and
-    the MBeanInfo for the MBean interface.
+    Utility methods to assist with providing additional information specific to online and offline WLST techniques.
     """
 
     __class_name = 'MBeanHelper'
@@ -155,8 +167,9 @@ class MBeanHelper(object):
 
 
 class OnlineMBeanHelper(MBeanHelper):
-
-    __class_name = 'OnlineMBeanHelper'
+    """
+    Assist the MBeanHelper providing mbean attribute information using a specific technique for online.
+    """
 
     def __init__(self, model_context, exception_type):
         """
@@ -167,26 +180,43 @@ class OnlineMBeanHelper(MBeanHelper):
         MBeanHelper.__init__(self,  model_context, exception_type)
 
     def is_attribute_in_lsa_map(self, attribute, lsa_attributes):
+        """
+        Look for the attribute name from one of the MBean helper lists in the online LSA map.
+        This is a straight comparison and needs no alteration.
+        :param attribute: to match in the LSA list
+        :param lsa_attributes: list of LSA attributes
+        :return: True if the attribute is found in the LSA list
+        """
         _method_name = 'is_attribute_in_lsa_map'
-        _logger.entering(attribute, class_name=self.__class_name, method_name=_method_name)
+        _logger.entering(attribute, class_name=self.__class__.__name__, method_name=_method_name)
 
         found = False
         if attribute in lsa_attributes:
             found = True
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(found))
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=Boolean(found))
         return found
 
     def is_lsa_in_attributes(self, lsa_attribute, attribute_list):
+        """
+        Look for the online WLST LSA attribute name in one of the MBean helper lists. This is
+        a straight comparison.
+        :param lsa_attribute: attribute from the online WLST LSA list
+        :param attribute_list: list of attributes from one of the MBean helper maps
+        :return: True if the LSA attribute is found in the MBean list
+        """
         _method_name = 'is_lsa_in_attributes'
-        _logger.entering(lsa_attribute, class_name=self.__class_name, method_name=_method_name)
+        _logger.entering(lsa_attribute, class_name=self.__class__.__name__, method_name=_method_name)
         found = False
         if lsa_attribute in attribute_list:
             found = True
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(found))
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=Boolean(found))
         return found
 
 
 class OfflineMBeanHelper(MBeanHelper):
+    """
+    Assist the MBeanHelper providing mbean attribute information using a specific technique for online.
+    """
 
     __class_name = 'OfflineMBeanUtils'
 
@@ -199,8 +229,16 @@ class OfflineMBeanHelper(MBeanHelper):
         MBeanHelper.__init__(self,  model_context, exception_type)
 
     def is_attribute_in_lsa_map(self, attribute, lsa_attributes):
+        """
+        Look for the attribute name from one of the MBean helper lists in the offline WLST LSA map.
+        Names differ for some attributes between the offline LSA and MBean helper list. Attempt to match
+        the attribute in the LSA map using different representations of the name.
+        :param attribute: to match in the LSA list
+        :param lsa_attributes: list of LSA attributes
+        :return: True if the attribute is found in the LSA list
+        """
         _method_name = 'is_attribute_in_lsa_map'
-        _logger.entering(attribute, class_name=self.__class_name, method_name=_method_name)
+        _logger.entering(attribute, class_name=self.__class__.__name__, method_name=_method_name)
         found = True
         if attribute not in lsa_attributes and not self.__is_found_with_lower_case(attribute, lsa_attributes):
             if not attribute.endswith('ies') or \
@@ -210,12 +248,20 @@ class OfflineMBeanHelper(MBeanHelper):
                     if not attribute.endswith('s') or \
                             not self.__is_found_with_lower_case(attribute[:len(attribute) - 1], lsa_attributes):
                         found = False
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(found))
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=Boolean(found))
         return found
 
     def is_lsa_in_attributes(self, lsa_attribute, attribute_list):
+        """
+        Look for the offline WLST LSA attribute name in one of the MBean helper lists. The names
+        can differ between the LSA attribute and the MBean attribute lists. Attempt to match the LSA
+        attribute using different representations of the name.
+        :param lsa_attribute: attribute from the offline WLST LSA list
+        :param attribute_list: list of attributes from one of the MBean helper maps
+        :return: True if the LSA attribute is found in the MBean list
+        """
         _method_name = 'is_lsa_in_attributes'
-        _logger.entering(lsa_attribute, class_name=self.__class_name, method_name=_method_name)
+        _logger.entering(lsa_attribute, class_name=self.__class__.__name__, method_name=_method_name)
         found = True
         if lsa_attribute not in attribute_list and not self.__is_found_with_lower_case(lsa_attribute, attribute_list):
             if not lsa_attribute.endswith('y') or not \
@@ -223,12 +269,12 @@ class OfflineMBeanHelper(MBeanHelper):
                 if not self.__is_found_with_lower_case(lsa_attribute + 'es', attribute_list):
                     if not self.__is_found_with_lower_case(lsa_attribute + 's', attribute_list):
                         found = False
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(found))
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=Boolean(found))
         return found
 
     def __is_found_with_lower_case(self, attribute, mbean_list):
         _method_name = '_is_found_with_lower_case'
-        _logger.entering(attribute, class_name=self.__class_name, method_name=_method_name)
+        _logger.entering(attribute, class_name=self.__class__.__name__, method_name=_method_name)
 
         found = False
         try:
@@ -236,13 +282,18 @@ class OfflineMBeanHelper(MBeanHelper):
         except (ValueError, KeyError):
             pass
 
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(found))
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=Boolean(found))
         return found
 
 
 class MBeanAttributes(object):
+    """
+    The MBeanAttributes class is a wrapper class encapsulating MBean information for the different types of
+    MBean attribute collections. An instance of this class contains all attributes for an MBean at a specific
+    location. The methods in this class operates on the attributes the class encapsulates to provide attribute
+    specific information.
+    """
 
-    __class_name = 'MBeanAttributes'
     __interface_matcher = re.compile('Bean$')
 
     def __init__(self, model_context, exception_type, location):
@@ -253,6 +304,7 @@ class MBeanAttributes(object):
         self.__alias_helper = AliasHelper(self.__aliases, _logger, exception_type)
         self.__wlst_helper = WlstHelper(_logger, exception_type)
         self.__mbean_instance = None
+        self.__mbean_name = ''
 
     def _get_mbean_instance(self):
         _method_name = '_get_mbean_instance'
@@ -261,42 +313,36 @@ class MBeanAttributes(object):
             self.__mbean_instance = self.__wlst_helper.get_mbean(attribute_path)
             if self.__mbean_instance is None:
                 ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01775', attribute_path)
-                _logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
                 raise ex
         return self.__mbean_instance
 
     def _get_mbean_interface(self):
         _method_name = '__get_mbean_interface'
-        _logger.entering(class_name=self.__class_name, method_name=_method_name)
+        _logger.entering(class_name=self.__class__.__name__, method_name=_method_name)
         interfaces = [str(interface) for interface in self._get_mbean_interfaces()
                       if re.search(self.__interface_matcher, str(interface)) is not None]
         if len(interfaces) == 0:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01777',
                                                    str(self._get_mbean_interfaces()),
                                                    self._get_mbean_instance())
-            _logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
             raise ex
         else:
             if len(interfaces) > 1:
                 _logger.fine('WLSDPLY-01770', interfaces, self._get_mbean_instance(),
-                             class_name=self.__class_name, method_name=_method_name)
+                             class_name=self.__class__.__name__, method_name=_method_name)
             mbean_interface = interfaces[0]
+            self.__mbean_name = self._get_mbean_interfaces()[0].getSimpleName()
 
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=mbean_interface)
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=mbean_interface)
         return mbean_interface
-
-    def _get_index_of_name_in_list(self, search_list_for, name):
-        _method_name = 'get_index_of_name_in_list'
-        _logger.finest('WLSDPLY-01772', name, class_name=self.__class_name, method_name=_method_name)
-        try:
-            return [named_item.getName() for named_item in search_list_for].index(name)
-        except ValueError:
-            _logger.finest('WLSDPLY-01771', name, search_list_for,
-                           class_name=self.__class_name, method_name=_method_name)
-        return -1
 
     def _get_mbean_methods(self):
         return self.__get_mbean_class().getDeclaredMethods()
+
+    def _get_mbean_name(self):
+        return self.__mbean_name
 
     def _get_mbean_interfaces(self):
         return self.__get_mbean_class().getInterfaces()
@@ -312,19 +358,41 @@ class MBeanAttributes(object):
             pass
         if mbean_class is None:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01776', mbean_instance)
-            _logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
             raise ex
         return mbean_class
 
+    def _get_from_bean_proxy(self, getter):
+        _method_name = '__get_from_bean_proxy'
+        success = False
+        value = None
+        try:
+            get_method = getattr(self._get_mbean_instance(), getter)
+            if get_method is not None:
+                value = get_method()
+                _logger.finest('WLSDPLY-01784', getter, self._get_mbean_name(),
+                               class_name=self.__class__.__name__, method_name=_method_name)
+                success = True
+            else:
+                _logger.finer('WLSDPLY-01786', self._get_mbean_name(), getter,
+                              class_name=self.__class__.__name__, method_name=_method_name)
+        except (Exception, JException), e:
+            _logger.finest('WLSDPLY-01785', self._get_mbean_name(), getter, str(e),
+                           class_name=self.__class__.__name__, method_name=_method_name)
+        return success, value
+
 
 class InterfaceAttributes(MBeanAttributes):
-
-    __class_name = 'InterfaceAttributes'
+    """
+    This MBeanAttributes class type encapsulates the attribute information found from the
+    attribute methods on the WLST CMO instance.
+    """
 
     def __init__(self,  model_context, exception_type, location):
         MBeanAttributes.__init__(self,  model_context, exception_type, location)
 
         self.__interface_methods_list = None
+        self.__interface_method_names_list = None
         self.__interface_attribute_map = None
 
     def get_interface_attributes(self):
@@ -334,7 +402,7 @@ class InterfaceAttributes(MBeanAttributes):
         :return: list of attribute names from the MBean interface or empty list if the MBean has no attributes.
         """
         _method_name = 'get_interface_attribute_list'
-        _logger.entering(class_name=self.__class_name, method_name=_method_name)
+        _logger.entering(class_name=self.__class__.__name__, method_name=_method_name)
         map_to_list = list()
         attributes = self.__get_interface_map()
         if len(attributes) > 0:
@@ -357,11 +425,14 @@ class InterfaceAttributes(MBeanAttributes):
         :param attribute_name: to search for in the MBean Interface
         :return: True if the attribute is a child MBean or None if the attribute is not found in MBean Interface
         """
+        _method_name = 'is_child_mbean'
         if self.exists(attribute_name):
             child = False
             for method_name in [method.getName() for method in self.__get_interface_methods()
                                 if self.__is_subfolder_method(method)]:
                 if attribute_name in method_name:
+                    _logger.finer('WLSDPLY-01781', method_name, attribute_name,
+                                  class_name=self.__class__.__name__, method_name=_method_name)
                     child = True
                     break
             return child
@@ -388,6 +459,22 @@ class InterfaceAttributes(MBeanAttributes):
             return method_list[0]
         return None
 
+    def is_valid_getter(self, attribute_name):
+        """
+        Try to invoke the getter method on the mbean_instance. Some of the methods listed
+        on the Interface will fail.
+        :return: True if can invoke the getter on the mbean instance
+        """
+        _method_name = 'is_valid_getter'
+        _logger.entering(attribute_name, class_name=self.__class__.__name__, method_name=_method_name)
+
+        valid = False
+        getter = self.getter(attribute_name)
+        if getter is not None:
+            valid, __ = self._get_from_bean_proxy(getter)
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=Boolean(valid))
+        return valid
+
     def setter(self, attribute_name):
         """
         Return the setter Method for the attribute in the MBean interface
@@ -399,6 +486,19 @@ class InterfaceAttributes(MBeanAttributes):
             return method_list[1]
         return None
 
+    def is_encrypted(self, attribute_name):
+        """
+        Determine if the property is encrypted by checking for a byte array return type on the getter.
+        :param attribute_name: to search for in the MBean interface
+        :return: True if the attribute is an encrypted type or None if the attribute does not exist in the Interface
+        """
+        return_type = self.get_type(attribute_name)
+        if return_type is not None:
+            if return_type == '[B':
+                return True
+            return False
+        return None
+
     def get_type(self, attribute_name):
         """
         Return the type of the attribute value if the attribute exists in MBean Interface.
@@ -407,7 +507,7 @@ class InterfaceAttributes(MBeanAttributes):
         """
         method_list = self.__get_mbean_attribute(attribute_name)
         if method_list is not None:
-            return method_list[0].getReturnType()
+            return str(method_list[0].getReturnType())
         return None
 
     def get_default_value(self, attribute_name):
@@ -433,6 +533,14 @@ class InterfaceAttributes(MBeanAttributes):
             self.__interface_methods_list = self._get_mbean_methods()
         return self.__interface_methods_list
 
+    def __get_interface_method_names(self):
+        _method_name = '__get_interface_method_names'
+        if self.__interface_method_names_list is None:
+            self.__interface_method_names_list = [named_item.getName() for named_item in self.__get_interface_methods()]
+            _logger.finest('WLSDPLY-01772', self._get_mbean_name(), self.__interface_method_names_list,
+                           class_name=self.__class__.__name__, method_name=_method_name)
+        return self.__interface_method_names_list
+
     def __get_mbean_getters(self):
         mbean_methods = self.__get_interface_methods()
         # log and exit if no mbean methods
@@ -444,27 +552,24 @@ class InterfaceAttributes(MBeanAttributes):
 
     def __get_mbean_setter(self, attribute_name):
         setter = None
-        methods = self.__get_interface_methods()
-        index = self._get_index_of_name_in_list(methods, 'set' + attribute_name)
+        index = _get_index_of_name_in_list(self.__get_interface_method_names(), 'set' + attribute_name)
         if index >= 0:
-            setter = methods[index]
+            setter = self.__get_interface_methods()[index]
         return setter
 
     def __create_method_list(self, attribute, getter):
         _method_name = '__get_method_list'
-        _logger.entering(attribute, class_name=self.__class_name, method_name=_method_name)
+        _logger.entering(attribute, class_name=self.__class__.__name__, method_name=_method_name)
         method_list = list()
         method_list.append(getter)
         setter = self.__get_mbean_setter(attribute)
         if setter is not None:
             method_list.append(setter)
 
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=method_list)
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=method_list)
         return method_list
 
     def __get_method_name(self, method):
-        _method_name = '_get_method_name'
-        _logger.finest('WLSDPLY-01773', method, class_name=self.__class_name, method_name=_method_name)
         return method.getName()
 
     def __is_getter(self, method):
@@ -473,7 +578,8 @@ class InterfaceAttributes(MBeanAttributes):
             and len(method.getParameterTypes()) == 0
 
     def __is_setter(self, method):
-        return self.__get_method_name(method).startswith('set')
+        setter = self.__get_method_name(method)
+        return setter.startswith('set') and str(setter.getReturnType) == 'void'
 
     def __is_subfolder_method(self, method):
         name = self.__get_method_name(method)
@@ -486,8 +592,23 @@ class InterfaceAttributes(MBeanAttributes):
         else:
             return getter[2:]
 
+    def __str__(self):
+        return self.__class__.__name__ + self._get_mbean_name()
+
+
+def _get_index_of_name_in_list(search_list_for, name):
+    try:
+        return search_list_for.index(name)
+    except ValueError:
+        pass
+    return -1
+
 
 class MBeanInfoAttributes(MBeanAttributes):
+    """
+    This MBeanAttributes class type encapsulates the attribute information found from the
+    PropertyDescriptors in the MBeanInfo for the MBean type.
+    """
 
     __class_name = 'MBeanInfoAttributes'
 
@@ -505,13 +626,13 @@ class MBeanInfoAttributes(MBeanAttributes):
         :return: list of all attributes from the MBeanInfo property descriptors, or an empty list if none
         """
         _method_name = 'get_mbean_info_attribute_list'
-        _logger.entering(class_name=self.__class_name, method_name=_method_name)
+        _logger.entering(class_name=self.__class__.__name__, method_name=_method_name)
         map_to_list = list()
         attributes = self.__get_mbean_info_map()
         if len(attributes) > 0:
             map_to_list = [attribute for attribute in attributes.iterkeys()]
             map_to_list.sort()
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=len(map_to_list))
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=len(map_to_list))
         return map_to_list
 
     def exists(self, attribute_name):
@@ -529,10 +650,16 @@ class MBeanInfoAttributes(MBeanAttributes):
         :param attribute_name: to search for in the MBeanInfo
         :return: True if the attribute is a child MBean or None if the attribute is not found in MBeanInfo
         """
+        _method_name = 'is_child_mbean'
         descriptor = self.__get_mbean_attribute(attribute_name)
         if descriptor is not None:
             relationship = descriptor.getValue('relationship')
-            return relationship == 'containment' or (relationship == 'reference' and self.is_read_only(attribute_name))
+            is_child = relationship == 'containment' or \
+                (relationship == 'reference' and self.is_read_only(attribute_name))
+            if is_child:
+                _logger.finer('WLSDPLY-01780', attribute_name, class_name=self.__class__.__name__,
+                              method_name=_method_name)
+            return is_child
         return None
 
     def is_read_only(self, attribute_name):
@@ -556,6 +683,22 @@ class MBeanInfoAttributes(MBeanAttributes):
             return descriptor.getReadMethod().getName()
         return None
 
+    def is_valid_getter(self, attribute_name):
+        """
+        Try to invoke the getter method on the mbean_instance. Some of the attributes in the PropertyDescriptors
+        have read methods that cannot be invoked on the mbean instance.
+        :return: True if can invoke the getter on the mbean instance
+        """
+        _method_name = 'is_valid_getter'
+        _logger.entering(attribute_name, class_name=self.__class__.__name__, method_name=_method_name)
+
+        valid = False
+        getter = self.getter(attribute_name)
+        if getter is not None:
+            valid, __ = self._get_from_bean_proxy(getter)
+        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=Boolean(valid))
+        return valid
+
     def setter(self, attribute_name):
         """
         Return the set method name for the attribute in the MBeanInfo.
@@ -565,8 +708,19 @@ class MBeanInfoAttributes(MBeanAttributes):
         descriptor = self.__get_mbean_attribute(attribute_name)
         if descriptor is not None:
             setter = descriptor.getWriteMethod()
-            if setter is not None:
+            if setter is not None and str(setter.getReturnType()) == 'void':
                 return setter.getName()
+        return None
+
+    def is_encrypted(self, attribute_name):
+        """
+        Determine if the property is encrypted.
+        :param attribute_name: to search for in the MBeanInfo
+        :return: True if is an encrypted property or None if the attribute does not exist in the MBeanInfo
+        """
+        descriptor = self.__get_mbean_attribute(attribute_name)
+        if descriptor is not None:
+            return descriptor.getPropertyType()
         return None
 
     def get_type(self, attribute_name):
@@ -592,11 +746,14 @@ class MBeanInfoAttributes(MBeanAttributes):
         return self.__mbean_info_map
 
     def __get_mbean_descriptors(self):
+        _method_name = '__get_mbean_descriptors'
         if self.__mbean_info_descriptors is None:
             mbean_info = self.__weblogic_helper.get_bean_info_for_interface(self._get_mbean_interface())
             if mbean_info is None:
-                # throw it
-                _logger.fine('WLSDPLY-01774', self._get_mbean_interface(), self._get_mbean_instance())
+                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01774',
+                                                       self._get_mbean_interface(), self._get_mbean_instance())
+                _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
+                raise ex
             self.__mbean_info_descriptors = mbean_info.getPropertyDescriptors()
         return self.__mbean_info_descriptors
 
@@ -605,3 +762,6 @@ class MBeanInfoAttributes(MBeanAttributes):
         if attribute in descriptor_map:
             return descriptor_map[attribute]
         return None
+
+    def __str__(self):
+        return self.__class__.__name__ + self._get_mbean_name()

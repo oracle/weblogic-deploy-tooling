@@ -94,12 +94,19 @@ class Discoverer(object):
                        class_name=_class_name, method_name=_method_name)
         if wlst_extra_params is not None:
             for wlst_extra_param in wlst_extra_params:
-                if wlst_extra_param not in wlst_get_params:
-                    _logger.info('WLSDPLY-06148', wlst_extra_param, str(location),
+                if wlst_extra_param in wlst_get_params:
+                    success, wlst_value = self._get_attribute_value_with_get(wlst_extra_param, wlst_path)
+                    if success:
+                        self._add_to_dictionary(dictionary, location, wlst_extra_param, wlst_value, wlst_path)
+                    else:
+                        _logger.info('WLSDPLY-06152', wlst_extra_param, location.get_folder_path(),
+                                     class_name=_class_name, method_name=_method_name)
+                elif self._is_defined_attribute(location, wlst_extra_param):
+                    _logger.info('WLSDPLY-06154', wlst_extra_param, location.get_folder_path(),
                                  class_name=_class_name, method_name=_method_name)
-                success, wlst_value = self._get_attribute_value_with_get(wlst_extra_param, wlst_path)
-                if success:
-                    self._add_to_dictionary(dictionary, location, wlst_extra_param, wlst_value, wlst_path)
+                else:
+                    _logger.info('WLSDPLY-06153', wlst_extra_param, location.get_folder_path(),
+                                 class_name=_class_name, method_name=_method_name)
 
     def _get_attribute_value_with_get(self, wlst_get_param, wlst_path):
         _method_name = '_get_attribute_value_with_get'
@@ -142,13 +149,7 @@ class Discoverer(object):
         :param location: context with the current location information
         :return: list of attributes
         """
-        if self._wlst_mode == WlstModes.OFFLINE:
-            return self._get_attributes_for_current_location_offline(location)
-        else:
-            return self._get_attributes_for_current_location_online(location)
-
-    def _get_attributes_for_current_location_offline(self, location):
-        _method_name = '_get_attributes_for_current_location_offline'
+        _method_name = '_get_attributes_for_current_location'
         attributes = []
         path = self._alias_helper.get_wlst_attributes_path(location)
         try:
@@ -159,37 +160,12 @@ class Discoverer(object):
                          method_name=_method_name)
         return attributes
 
-    def _get_attributes_for_current_location_online(self, location):
-        _method_name = '_get_attributes_for_current_location_online'
-        lsa_attributes = dict()
-        path = self._alias_helper.get_wlst_attributes_path(location)
-        try:
-            lsa_attributes = wlst_helper.lsa(path)
-            mbi_attributes = _get_mbi_attribute_list(path)
-            if mbi_attributes:
-                for lsa_attribute_name in lsa_attributes:
-                    if lsa_attribute_name in lsa_attributes and lsa_attribute_name not in mbi_attributes:
-                        _logger.finer('WLSDPLY-06142', lsa_attribute_name)
-                        del lsa_attributes[lsa_attribute_name]
-                for mbi_attribute_name in mbi_attributes:
-                    if mbi_attribute_name not in lsa_attributes and mbi_attribute_name in mbi_attributes:
-                        # don't count on the item in the get required list in caller, just get the value
-                        # and add it to our lsa list
-                        _logger.finer('WLSDPLY-06141', mbi_attribute_name, class_name=_class_name,
-                                      method_name=_method_name)
-                        lsa_attributes[mbi_attribute_name] = wlst_helper.get(mbi_attribute_name)
-        except PyWLSTException, pe:
-            name = location.get_model_folders()[-1]
-            _logger.fine('WLSDPLY-06109', name, str(location), pe.getLocalizedMessage(), class_name=_class_name,
-                         method_name=_method_name)
-        return lsa_attributes
-
     def _is_defined_attribute(self, location, wlst_name):
         attribute = False
         try:
-            if self._aliases.get_model_attribute_name(location, wlst_name):
+            if self._alias_helper.get_model_attribute_name(location, wlst_name, check_read_only=False):
                 attribute = True
-        except AliasException:
+        except DiscoverException, de:
             pass
         return attribute
 
@@ -722,45 +698,8 @@ def convert_to_absolute_path(relative_to, file_name):
     return file_name
 
 
-def _get_mbi_attribute_list(path):
-    attribute_list = []
-    for mbean_attribute_info in wlst_helper.get_mbi(path).getAttributes():
-        if _is_attribute(mbean_attribute_info):
-            attribute_list.append(mbean_attribute_info.getName())
-    return attribute_list
-
-
-def _is_attribute(attributes_info):
-    return _is_attribute_type(attributes_info) or _is_valid_reference(attributes_info)
-
-
-def _is_valid_reference(attribute_info):
-    # check again after all done to see whether need to use get deprecated
-    return _is_reference(attribute_info) and (
-        attribute_info.isWritable() or not _is_deprecated(attribute_info))
-
-
-def _is_reference(mbean_attribute_info):
-    return mbean_attribute_info.getDescriptor().getFieldValue('com.bea.relationship') == 'reference'
-
-
-def _is_deprecated(mbean_attribute_info):
-    deprecated_version = mbean_attribute_info.getDescriptor().getFieldValue('deprecated')
-    return deprecated_version is not None and deprecated_version != 'null' and len(deprecated_version) > 1
-
-
 def _is_containment(mbean_attribute_info):
     return mbean_attribute_info.getDescriptor().getFieldValue('com.bea.relationship') == 'containment'
-
-
-def _is_attribute_type(attribute_info):
-    _method_name = '_is_attribute_type'
-    if not attribute_info.isWritable() and _is_deprecated(attribute_info):
-        _logger.finer('WLSDPLY-06143', attribute_info.getName(), wlst_helper.get_pwd(),
-                      class_name=_class_name, method_name=_method_name)
-    return attribute_info.getDescriptor().getFieldValue(
-        'descriptorType') == 'Attribute' and attribute_info.getDescriptor().getFieldValue(
-        'com.bea.relationship') is None and (attribute_info.isWritable() or not _is_deprecated(attribute_info))
 
 
 def _massage_online_folders(lsc_folders):

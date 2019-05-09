@@ -39,6 +39,28 @@ class AliasHelper(object):
             raise ex
         return model_name, model_value
 
+    def get_model_attribute_name(self, location, wlst_attribute_name, check_read_only=True):
+        """
+        Returns the model attribute name for the specified WLST attribute name. If the model attribute name
+        is not valid for the version or the attribute is marked as read-only, and the check_read_only flag
+        is True, return None
+
+        :param location: the location
+        :param wlst_attribute_name: the WLST attribute name
+        :param check_read_only: Defaults to True. If False, return the WLST attribute name even if read only
+        :return: matching model attribute name
+        :raises: BundleAwareException: if a AliasException is thrown by the aliases
+        """
+        _method_name = 'get_model_attribute_name'
+        try:
+            model_name = self.__aliases.get_model_attribute_name(location, wlst_attribute_name, check_read_only)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19039', str(location),
+                                                   ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return model_name
+
     def get_model_subfolder_names(self, location):
         """
         Get the model subfolder names for the specified location.
