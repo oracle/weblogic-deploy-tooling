@@ -76,6 +76,7 @@ from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
+from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model as model_helper
@@ -416,12 +417,18 @@ class DomainCreator(Creator):
         self.__configure_fmw_infra_database()
 
         if self.wls_helper.is_set_server_groups_supported():
+            # 12c versions set server groups directly
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
             self.target_helper.target_server_groups_to_servers(server_groups_to_target)
             self.wlst_helper.update_domain()
-        elif self._domain_typedef.is_jrf_domain_type():
+
+        elif self._domain_typedef.is_jrf_domain_type() or \
+                (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
+            # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
             self.target_helper.target_jrf_groups_to_clusters_servers(domain_home)
+
         else:
+            # for 11g, if no targeting was needed, just update the domain
             self.wlst_helper.update_domain()
 
         self.wlst_helper.close_domain()

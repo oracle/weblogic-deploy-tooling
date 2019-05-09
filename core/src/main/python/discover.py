@@ -489,7 +489,10 @@ def main(args):
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
-        __log_and_exit(None, exit_code, _class_name, _method_name)
+
+        # create a minimal model for summary logging
+        model_context = ModelContext(_program_name, dict())
+        __log_and_exit(model_context, exit_code, _class_name, _method_name)
 
     try:
         __clear_archive_file(model_context)
