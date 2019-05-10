@@ -28,15 +28,14 @@ class MBeanUtils(object):
     to combine the information from the MBean helpers into different combinations are located in this class.
     """
 
-    def __init__(self, model_context, exception_type):
+    def __init__(self, model_context, alias_helper, exception_type):
         self.__model_context = model_context
         self.__exception_type = exception_type
-        self.__aliases = Aliases(self.__model_context, wlst_mode=self.__model_context.get_target_wlst_mode())
-        self.__alias_helper = AliasHelper(self.__aliases, _logger, exception_type)
+        self.__alias_helper = alias_helper
         self.__wlst_helper = WlstHelper(_logger, exception_type)
         self.__helper = self.__get_helper()
-        self.__ignore_list = self.__alias_helper.get_ignore_attribute_names()
-        _logger.finer('WLSDPLY-01779', self.__ignore_list, class_name=self.__class__.__name__, method_name='__init__')
+        self.__ignore_list = None
+
 
     def get_attributes_not_in_lsa_map(self, location, lsa_map=None):
         """
@@ -117,8 +116,16 @@ class MBeanUtils(object):
             return attribute_helper.is_encrypted(attribute_name + 'Encrypted')
         return False
 
+    def __get_ignore_attributes(self):
+        _method_name = '__get_ignore_attributes'
+        if self.__ignore_list is None:
+            self.__ignore_list = self.__alias_helper.get_ignore_attribute_names()
+            _logger.finer('WLSDPLY-01779', self.__ignore_list,
+                          class_name=self.__class__.__name__, method_name=_method_name)
+        return self.__ignore_list
+
     def __in_ignore(self, attribute_name):
-        return attribute_name in self.__ignore_list
+        return attribute_name in self.__get_ignore_attributes()
 
     def __get_helper(self):
         if self.__model_context.get_target_wlst_mode() == WlstModes.OFFLINE:

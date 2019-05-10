@@ -52,7 +52,7 @@ class Discoverer(object):
         self._weblogic_helper = WebLogicHelper(_logger)
         self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
         self._wlst_helper = WlstHelper(_logger, ExceptionType.DISCOVER)
-        self._mbean_utils = MBeanUtils(self._model_context, ExceptionType.DISCOVER)
+        self._mbean_utils = MBeanUtils(self._model_context, self._alias_helper, ExceptionType.DISCOVER)
 
     # methods for use only by the subclasses
 
@@ -165,7 +165,7 @@ class Discoverer(object):
         try:
             if self._alias_helper.get_model_attribute_name(location, wlst_name, check_read_only=False):
                 attribute = True
-        except DiscoverException, de:
+        except DiscoverException:
             pass
         return attribute
 
