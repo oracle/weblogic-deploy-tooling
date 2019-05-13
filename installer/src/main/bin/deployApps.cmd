@@ -181,7 +181,7 @@ IF %JVM_VERSION% LSS %MIN_JDK_VERSION% (
 @rem The underlying WLST script has other required arguments.
 @rem
 IF "%ORACLE_HOME%" == "" (
-  ECHO Required argument ORACLE_HOME not provided >&2
+  ECHO Required argument -oracle_home not provided >&2
   SET RETURN_CODE=99
   GOTO usage
 )
@@ -192,13 +192,13 @@ IF "%ORACLE_HOME%" == "" (
 IF DEFINED WLST_PATH_DIR (
   FOR %%i IN ("%WLST_PATH_DIR%") DO SET WLST_PATH_DIR=%%~fsi
   IF NOT EXIST "%WLST_PATH_DIR%" (
-    ECHO WLST_PATH_DIR specified does not exist: %WLST_PATH_DIR% >&2
+    ECHO Specified -wlst_path directory does not exist: %WLST_PATH_DIR% >&2
     SET RETURN_CODE=98
     GOTO exit_script
   )
   set "WLST=%WLST_PATH_DIR%\common\bin\wlst.cmd"
   IF NOT EXIST "%WLST%" (
-    ECHO WLST executable %WLST% not found under specified WLST_PATH_DIR %WLST_PATH_DIR% >&2
+    ECHO WLST executable %WLST% not found under -wlst_path directory %WLST_PATH_DIR% >&2
     SET RETURN_CODE=98
     GOTO exit_script
   )

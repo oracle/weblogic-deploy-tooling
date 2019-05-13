@@ -197,11 +197,11 @@ fi
 # The underlying WLST script has other required arguments.
 #
 if [ "${ORACLE_HOME}" = "" ]; then
-    echo "Required argument ORACLE_HOME not provided" >&2
+    echo "Required argument -oracle_home not provided" >&2
     usage `basename $0`
     exit 99
 elif [ ! -d ${ORACLE_HOME} ]; then
-    echo "The specified ORACLE_HOME does not exist: ${ORACLE_HOME}" >&2
+    echo "The specified -oracle_home directory does not exist: ${ORACLE_HOME}" >&2
     exit 98
 fi
 
@@ -210,12 +210,12 @@ fi
 #
 if [ "${WLST_PATH_DIR}" != "" ]; then
     if [ ! -d ${WLST_PATH_DIR} ]; then
-        echo "WLST_PATH_DIR specified does not exist: ${WLST_PATH_DIR}" >&2
+        echo "Specified -wlst_path directory does not exist: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
     WLST=${WLST_PATH_DIR}/common/bin/wlst.sh
     if [ ! -x "${WLST}" ]; then
-        echo "WLST executable ${WLST} not found under specified WLST_PATH_DIR: ${WLST_PATH_DIR}" >&2
+        echo "WLST executable ${WLST} not found under -wlst_path directory: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
     CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
