@@ -148,7 +148,7 @@ fi
 #
 # Check to see if no args were given and print the usage message
 #
-if [[ $# = 0 ]]; then
+if [ "$#" -eq "0" ]; then
   usage `basename $0`
   exit 0
 fi
@@ -159,7 +159,7 @@ SCRIPT_ARGS="$*"
 # Find the args required to determine the WLST script to run
 #
 
-while [[ $# > 1 ]]; do
+while [ "$#" -gt "1" ]; do
     key="$1"
     case $key in
         -help)
