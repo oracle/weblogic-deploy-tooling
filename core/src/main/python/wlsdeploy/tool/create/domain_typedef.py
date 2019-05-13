@@ -12,6 +12,7 @@ from oracle.weblogic.deploy.json import JsonException
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -69,6 +70,8 @@ class DomainTypedef(object):
         self._paths_resolved = False
         self._model_context = None
         self._version_typedef_name = None
+
+        self._targeting_type = self._resolve_targeting_type()
 
         if 'system-elements' in self._domain_typedefs_dict:
             self._system_elements = self._domain_typedefs_dict['system-elements']
@@ -184,6 +187,13 @@ class DomainTypedef(object):
         # No need to resolve the paths and we need this to work prior to
         # resolution for create.py argument processing.
         return 'rcuSchemas' in self._domain_typedef and len(self._domain_typedef['rcuSchemas']) > 0
+
+    def get_targeting(self):
+        """
+        Get the targeting type for the domain, or None if not specified.
+        :return: the TargetingType enum value for the domain, or None
+        """
+        return self._targeting_type
 
     def is_system_app(self, name):
         """
@@ -409,3 +419,32 @@ class DomainTypedef(object):
                 raise ex
         self._logger.exiting(self.__class_name, _method_name, result)
         return result
+
+    def _resolve_targeting_type(self):
+        """
+        Determine the targeting type based on the value in the definition.
+        Check for problems or incompatibilities.
+        :return: the matching TargetType enum value
+        :raises: ClaException: if there are problems or incompatibilities
+        """
+        _method_name = '_resolve_targeting_type'
+
+        if 'targeting' not in self._domain_typedef:
+            return None
+
+        targeting_text = self._domain_typedef['targeting']
+
+        # there are no valid targeting types for version 12c and up
+        if self.wls_helper.is_set_server_groups_supported():
+            ex = exception_helper.create_cla_exception('WLSDPLY-12311', targeting_text, self._domain_typedef_filename,
+                                                       self.wls_helper.get_weblogic_version())
+            self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        # if specified, targeting must be one of the known types
+        if targeting_text not in TargetingType:
+            ex = exception_helper.create_cla_exception('WLSDPLY-12312', targeting_text, self._domain_typedef_filename)
+            self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        return TargetingType[targeting_text]

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 from oracle.weblogic.deploy.exception import ExceptionHelper
@@ -29,6 +29,12 @@ class Enum(object):
 
     def __iter__(self):
         return self
+
+    def __contains__(self, name):
+        return name in self.enum_list
+
+    def __getitem__(self, name):
+        return self.enum_list.index(name)
 
     def next(self):
         if self.current < len(self.enum_list):
