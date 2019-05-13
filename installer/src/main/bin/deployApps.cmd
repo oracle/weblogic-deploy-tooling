@@ -319,47 +319,47 @@ GOTO exit_script
 :usage
 ECHO.
 ECHO Usage: %~nx0 [-help] [-use_encryption]
-ECHO              -oracle_home ^<oracle-home^>
-ECHO              -domain_home ^<domain-home^>
-ECHO              [-archive_file ^<archive-file^>]
-ECHO              [-model_file ^<model-file^>]
-ECHO              [-prev_model_file ^<prev-model-file^>]
-ECHO              [-variable_file ^<variable-file^>]
-ECHO              [-domain_type ^<domain-type^>]
-ECHO              [-wlst_path ^<wlst-path^>]
-ECHO              [-admin_url ^<admin-url^>
-ECHO               -admin_user ^<admin-user^>
+ECHO              -oracle_home ^<oracle_home^>
+ECHO              -domain_home ^<domain_home^>
+ECHO              [-archive_file ^<archive_file^>]
+ECHO              [-model_file ^<model_file^>]
+ECHO              [-prev_model_file ^<prev_model_file^>]
+ECHO              [-variable_file ^<variable_file^>]
+ECHO              [-domain_type ^<domain_type^>]
+ECHO              [-wlst_path ^<wlst_path^>]
+ECHO              [-admin_url ^<admin_url^>
+ECHO               -admin_user ^<admin_user^>
 ECHO              ]
 ECHO.
 ECHO     where:
-ECHO         oracle-home     - the existing Oracle Home directory for the domain
+ECHO         oracle_home     - the existing Oracle Home directory for the domain
 ECHO.
-ECHO         domain-home     - the domain home directory
+ECHO         domain_home     - the domain home directory
 ECHO.
-ECHO         archive-file    - the path to the archive file to use
+ECHO         archive_file    - the path to the archive file to use
 ECHO.
-ECHO         model-file      - the location of the model file to use,
+ECHO         model_file      - the location of the model file to use,
 ECHO                           the default is to get the model from the archive
 ECHO.
-ECHO         prev-model-file - the location of the previous model file.
+ECHO         prev_model_file - the location of the previous model file.
 ECHO.
 ECHO                           This is used to remove apps and resources that
 ECHO                           were previously deployed in addition to
 ECHO                           (re)deploying the current apps and resources
 ECHO.
-ECHO         variable-file   - the location of the property file containing
+ECHO         variable_file   - the location of the property file containing
 ECHO                           the variable values for all variables used in
 ECHO                           the model
 ECHO.
-ECHO         domain-type     - the type of domain (e.g., WLS, JRF).
-ECHO                           Used to locate wlst.cmd if wlst-path not specified
+ECHO         domain_type     - the type of domain (e.g., WLS, JRF).
+ECHO                           Used to locate wlst.cmd if -wlst_path not specified
 ECHO.
-ECHO         wlst-path       - the Oracle Home subdirectory of the wlst.cmd
+ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa)
 ECHO.
-ECHO         admin-url       - the admin server URL (used for online deploy)
+ECHO         admin_url       - the admin server URL (used for online deploy)
 ECHO.
-ECHO         admin-user      - the admin username (used for online deploy)
+ECHO         admin_user      - the admin username (used for online deploy)
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will

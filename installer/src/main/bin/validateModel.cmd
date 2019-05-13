@@ -287,18 +287,18 @@ GOTO exit_script
 :usage
 ECHO.
 ECHO Usage: %~nx0 [-help]
-ECHO              -oracle_home ^<oracle-home^>
+ECHO              -oracle_home ^<oracle_home^>
 ECHO              [-print_usage ^<context^> [-attributes_only^|-folders_only^|-recursive] ]
-ECHO              [-model_file ^<model-file^>]
-ECHO              [-variable_file ^<variable-file^>]
-ECHO              [-archive_file ^<archive-file^>]
-ECHO              [-target_version ^<target-version^>]
-ECHO              [-target_mode ^<target-mode^>]
-ECHO              [-domain_type ^<domain-type^>]
-ECHO              [-wlst_path ^<wlst-path^>]
+ECHO              [-model_file ^<model_file^>]
+ECHO              [-variable_file ^<variable_file^>]
+ECHO              [-archive_file ^<archive_file^>]
+ECHO              [-target_version ^<target_version^>]
+ECHO              [-target_mode ^<target_mode^>]
+ECHO              [-domain_type ^<domain_type^>]
+ECHO              [-wlst_path ^<wlst_path^>]
 ECHO.
 ECHO     where:
-ECHO         oracle-home     - the existing Oracle Home directory for the domain
+ECHO         oracle_home     - the existing Oracle Home directory for the domain
 ECHO.
 ECHO         context         - specify the context for printing out the model structure.
 ECHO                           By default, the specified folder attributes and subfolder
@@ -306,39 +306,39 @@ ECHO                           names are printed.  Use one of the optional contr
 ECHO                           switches to customize the behavior.  Note that the
 ECHO                           control switches are mutually exclusive.
 ECHO.
-ECHO         model-file      - the location of the model file to use if not using
+ECHO         model_file      - the location of the model file to use if not using
 ECHO                           the -print_usage functionality.  If not specified,
 ECHO                           the tool will look for the model in the archive.
 ECHO                           If the model is not found, validation will only
 ECHO                           validate the artifacts provided.
 ECHO.
-ECHO         variable-file   - the location of the property file containing
+ECHO         variable_file   - the location of the property file containing
 ECHO                           the variable values for all variables used in
 ECHO                           the model if not using the -print_usage functionality.
 ECHO                           If the variable file is not provided, validation will
 ECHO                           only validate the artifacts provided.
 ECHO.
-ECHO         archive-file    - the path to the archive file to use if not using the
+ECHO         archive_file    - the path to the archive file to use if not using the
 ECHO                           -print_usage functionality.  If the archive file is
 ECHO                           not provided, validation will only validate the
 ECHO                           artifacts provided.
 ECHO.
-ECHO         target-version  - the target version of WebLogic Server the tool
+ECHO         target_version  - the target version of WebLogic Server the tool
 ECHO                           should use to validate the model content.  This
 ECHO                           version number can be different than the version
 ECHO                           being used to run the tool.  If not specified, the
 ECHO                           tool will validate against the version being used
 ECHO                           to run the tool.
 ECHO.
-ECHO         target-mode     - the target WLST mode that the tool should use to
+ECHO         target_mode     - the target WLST mode that the tool should use to
 ECHO                           validate the model content.  The only valid values
 ECHO                           are online or offline.  If not specified, the tool
 ECHO                           defaults to WLST offline mode.
 ECHO.
-ECHO         domain-type     - the type of domain (e.g., WLS, JRF).
-ECHO                           Used to locate wlst.cmd if wlst-path not specified
+ECHO         domain_type     - the type of domain (e.g., WLS, JRF).
+ECHO                           Used to locate wlst.cmd if -wlst_path not specified
 ECHO.
-ECHO         wlst-path       - the Oracle Home subdirectory of the wlst.cmd
+ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa)
 ECHO.
 

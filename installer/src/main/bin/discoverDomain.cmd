@@ -295,35 +295,35 @@ GOTO exit_script
 
 :usage
 ECHO.
-ECHO Usage: %~nx0 -oracle_home ^<oracle-home^>
-ECHO              -domain_home ^<domain-home^>
-ECHO              -archive_file ^<archive-file^>
-ECHO              [-model_file ^<model-file^>]
-ECHO              [-domain_type ^<domain-type^>]
-ECHO              [-wlst_path ^<wlst-path^>]
-ECHO              [-admin_url ^<admin-url^>
-ECHO               -admin_user ^<admin-user^>
+ECHO Usage: %~nx0 -oracle_home ^<oracle_home^>
+ECHO              -domain_home ^<domain_home^>
+ECHO              -archive_file ^<archive_file^>
+ECHO              [-model_file ^<model_file^>]
+ECHO              [-domain_type ^<domain_type^>]
+ECHO              [-wlst_path ^<wlst_path^>]
+ECHO              [-admin_url ^<admin_url^>
+ECHO               -admin_user ^<admin_user^>
 ECHO              ]
 ECHO.
 ECHO     where:
-ECHO         oracle-home    - the existing Oracle Home directory for the domain
+ECHO         oracle_home    - the existing Oracle Home directory for the domain
 ECHO.
-ECHO         domain-home    - the domain home directory
+ECHO         domain_home    - the domain home directory
 ECHO.
-ECHO         archive-file   - the path to the archive file to create
+ECHO         archive_file   - the path to the archive file to create
 ECHO.
-ECHO         model-file     - the location to write the model file,
+ECHO         model_file     - the location to write the model file,
 ECHO                          the default is to write it inside the archive
 ECHO.
-ECHO         domain-type    - the type of domain (e.g., WLS, JRF).
-ECHO                          used to locate wlst.cmd if wlst-path not specified
+ECHO         domain_type    - the type of domain (e.g., WLS, JRF).
+ECHO                          used to locate wlst.cmd if -wlst_path not specified
 ECHO.
-ECHO         wlst-path      - the Oracle Home subdirectory of the wlst.cmd
+ECHO         wlst_path      - the Oracle Home subdirectory of the wlst.cmd
 ECHO                          script to use (e.g., ^<ORACLE_HOME^>\soa)
 ECHO.
-ECHO         admin-url      - the admin server URL (used for online discovery)
+ECHO         admin_url      - the admin server URL (used for online discovery)
 ECHO.
-ECHO         admin-user     - the admin username (used for online discovery)
+ECHO         admin_user     - the admin username (used for online discovery)
 ECHO.
 
 :exit_script
