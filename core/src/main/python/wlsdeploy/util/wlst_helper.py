@@ -449,6 +449,36 @@ def is_connected():
     return wlst.connected == 'true'
 
 
+def get_mbean(wlst_path):
+    """
+    Return the current CMO or the proxy instance for the MBean of the current folder.
+    There are certain directories in offline that will not deliver a cmo, but will
+    give an MBean proxy for a cd to a fully qualified path
+    :param wlst_path: path of the named MBean
+    :return: CMO or MBean proxy for the current location
+    """
+    _method_name = 'get_mbean'
+    _logger.entering(wlst_path, class_name=_class_name, method_name=_method_name)
+    current_dir = get_pwd()
+    mbean_path = wlst_path
+    if mbean_path is None:
+        mbean_path = current_dir
+    _logger.finest('WLSDPLY-00096', mbean_path, class_name=_class_name, method_name=_method_name)
+    cd(current_dir)
+    cmo = get_cmo()
+    if cmo is None:
+        cmo = get_mbean_for_wlst_path(mbean_path)
+    if cmo is None:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00095', mbean_path)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    if wlst_path is None:
+        cd(current_dir)
+
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=cmo)
+    return cmo
+
+
 def get_mbean_for_wlst_path(path):
     """
     Return the mbean object for the provided path.
@@ -533,6 +563,25 @@ def select_template(template):
         wlst.selectTemplate(template)
     except offlineWLSTException, e:
         pwe = exception_helper.create_pywlst_exception('WLSDPLY-00040', template, e.getLocalizedMessage(), error=e)
+        _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
+        raise pwe
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def select_custom_template(template):
+    """
+    Select an existing custom domain template or application template for create a domain. This is
+    available only in WebLogic 12c versions
+    :param template: to be selected and loaded into the current session
+    :raises: PyWLSTException: if a WLST error occurs
+    """
+    _method_name = 'select_custom_template'
+    _logger.entering(template, class_name=_class_name, method_name=_method_name)
+
+    try:
+        wlst.selectCustomTemplate(template)
+    except offlineWLSTException, e:
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00095', template, e.getLocalizedMessage(), error=e)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     _logger.exiting(class_name=_class_name, method_name=_method_name)

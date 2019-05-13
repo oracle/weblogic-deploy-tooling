@@ -504,6 +504,23 @@ class WlstHelper(object):
             raise ex
         return
 
+    def select_custom_template(self, template_name):
+        """
+        Select the custom template from the specified location.
+        :param template_name: the custom template to select
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'select_custom_template'
+
+        try:
+            wlst_helper.select_custom_template(template_name)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19148', template_name,
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return
+
     def add_template(self, template_name):
         """
         Add the domain extension template from the specified location.
@@ -714,6 +731,24 @@ class WlstHelper(object):
                 self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
         return
+
+    def get_mbean(self, wlst_path):
+        """
+        Get the cmo or the MBean instance for the named MBean at the wlst_path or current directory.
+        :param wlst_path: path to the name MBean or None for current directory
+        :return: mbean instance
+        """
+        _method_name = 'get_mbean'
+
+        try:
+            wlst_value = wlst_helper.get_mbean(wlst_path)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19122',
+                                                   wlst_path, pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        return wlst_value
 
     def get_mbean_for_wlst_path(self, wlst_path):
         """
