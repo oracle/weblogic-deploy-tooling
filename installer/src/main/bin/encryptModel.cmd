@@ -55,6 +55,7 @@ SETLOCAL
 
 SET WLSDEPLOY_PROGRAM_NAME=encryptModel
 
+SET SCRIPT_NAME=%~nx0
 SET SCRIPT_PATH=%~dp0
 FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi
 IF %SCRIPT_PATH:~-1%==\ SET SCRIPT_PATH=%SCRIPT_PATH:~0,-1%
@@ -297,7 +298,7 @@ GOTO exit_script
 
 :usage
 ECHO.
-ECHO Usage: %~nx0 [-help] [-manual]
+ECHO Usage: %SCRIPT_NAME% [-help] [-manual]
 ECHO              -oracle_home ^<oracle_home^>
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]

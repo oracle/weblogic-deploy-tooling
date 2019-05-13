@@ -52,6 +52,7 @@ SETLOCAL
 
 SET WLSDEPLOY_PROGRAM_NAME=discoverDomain
 
+SET SCRIPT_NAME=%~nx0
 SET SCRIPT_PATH=%~dp0
 FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi
 IF %SCRIPT_PATH:~-1%==\ SET SCRIPT_PATH=%SCRIPT_PATH:~0,-1%
@@ -295,7 +296,7 @@ GOTO exit_script
 
 :usage
 ECHO.
-ECHO Usage: %~nx0 -oracle_home ^<oracle_home^>
+ECHO Usage: %SCRIPT_NAME% -oracle_home ^<oracle_home^>
 ECHO              -domain_home ^<domain_home^>
 ECHO              -archive_file ^<archive_file^>
 ECHO              [-model_file ^<model_file^>]
