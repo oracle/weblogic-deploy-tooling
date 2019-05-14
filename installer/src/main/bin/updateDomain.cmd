@@ -325,7 +325,6 @@ ECHO              -oracle_home ^<oracle_home^>
 ECHO              -domain_home ^<domain_home^>
 ECHO              [-archive_file ^<archive_file^>]
 ECHO              [-model_file ^<model_file^>]
-ECHO              [-prev_model_file ^<prev_model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-wlst_path ^<wlst_path^>]
@@ -342,12 +341,6 @@ ECHO         archive_file    - the path to the archive file to use
 ECHO.
 ECHO         model_file      - the location of the model file to use,
 ECHO                           the default is to get the model from the archive
-ECHO.
-ECHO         prev_model_file - the location of the previous model file.
-ECHO.
-ECHO                           This is used to remove apps and resources that
-ECHO                           were previously deployed in addition to
-ECHO                           (re)deploying the current apps and resources
 ECHO.
 ECHO         variable_file   - the location of the property file containing
 ECHO                           the variable values for all variables used in
