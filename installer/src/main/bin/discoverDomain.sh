@@ -18,7 +18,7 @@
 # of the arguments are passed down to the underlying python program:
 #
 #     - -oracle_home        The directory of the existing Oracle Home to use.
-#                           This directory must exist and it is the caller^'s
+#                           This directory must exist and it is the caller's
 #                           responsibility to verify that it does. This
 #                           argument is required.
 #
@@ -51,35 +51,35 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help]"
-  echo "          -oracle_home <oracle-home>"
-  echo "          -domain_home <domain-home>"
-  echo "          -archive_file <archive-file>"
-  echo "          [-model_file <model-file>]"
-  echo "          [-domain_type <domain-type>]"
-  echo "          [-wlst_path <wlst-path>]"
-  echo "          [-admin_url <admin-url>"
-  echo "           -admin_user <admin-user>"
+  echo "          -oracle_home <oracle_home>"
+  echo "          -domain_home <domain_home>"
+  echo "          -archive_file <archive_file>"
+  echo "          [-model_file <model_file>]"
+  echo "          [-domain_type <domain_type>]"
+  echo "          [-wlst_path <wlst_path>]"
+  echo "          [-admin_url <admin_url>"
+  echo "           -admin_user <admin_user>"
   echo "          ]"
   echo ""
   echo "    where:"
-  echo "        oracle-home     - the existing Oracle Home directory for the domain"
+  echo "        oracle_home     - the existing Oracle Home directory for the domain"
   echo ""
-  echo "        domain-home     - the domain home directory"
+  echo "        domain_home     - the domain home directory"
   echo ""
-  echo "        archive-file    - the path to the archive file to use"
+  echo "        archive_file    - the path to the archive file to use"
   echo ""
-  echo "        model-file      - the location of the model file to use,"
+  echo "        model_file      - the location of the model file to use,"
   echo "                          the default is to get the model from the archive"
   echo ""
-  echo "        domain-type     - the type of domain (e.g., WLS, JRF)."
-  echo "                          Used to locate wlst.cmd if wlst-path not specified"
+  echo "        domain_type     - the type of domain (e.g., WLS, JRF)."
+  echo "                          Used to locate wlst.cmd if -wlst_path not specified"
   echo ""
-  echo "        wlst-path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
   echo ""
-  echo "        admin-url       - the admin server URL (used for online deploy)"
+  echo "        admin_url       - the admin server URL (used for online deploy)"
   echo ""
-  echo "        admin-user      - the admin username (used for online deploy)"
+  echo "        admin_user      - the admin username (used for online deploy)"
   echo ""
 }
 

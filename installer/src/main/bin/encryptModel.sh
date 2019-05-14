@@ -22,7 +22,7 @@
 # of the arguments are passed down to the underlying python program:
 #
 #     - -oracle_home        The directory of the existing Oracle Home to use.
-#                           This directory must exist and it is the caller^'s
+#                           This directory must exist and it is the caller's
 #                           responsibility to verify that it does. This
 #                           argument is required.
 #
@@ -55,25 +55,25 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help] [-manual]"
-  echo "          -oracle_home <oracle-home>"
-  echo "          [-model_file <model-file>]"
-  echo "          [-variable_file <variable-file>]"
-  echo "          [-domain_type <domain-type>]"
-  echo "          [-wlst_path <wlst-path>]"
+  echo "          -oracle_home <oracle_home>"
+  echo "          [-model_file <model_file>]"
+  echo "          [-variable_file <variable_file>]"
+  echo "          [-domain_type <domain_type>]"
+  echo "          [-wlst_path <wlst_path>]"
   echo ""
   echo "    where:"
-  echo "        oracle-home     - the existing Oracle Home directory for the domain."
+  echo "        oracle_home     - the existing Oracle Home directory for the domain."
   echo ""
-  echo "        model-file      - the location of the model file to use."
+  echo "        model_file      - the location of the model file to use."
   echo ""
-  echo "        variable-file   - the location of the property file containing"
+  echo "        variable_file   - the location of the property file containing"
   echo "                          the variable values for all variables used in"
   echo "                          the model."
   echo ""
-  echo "        domain-type     - the type of domain (e.g., WLS, JRF)."
-  echo "                          Used to locate wlst.cmd if wlst-path not specified"
+  echo "        domain_type     - the type of domain (e.g., WLS, JRF)."
+  echo "                          Used to locate wlst.cmd if -wlst_path not specified"
   echo ""
-  echo "        wlst-path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
   echo ""
   echo "    The -manual switch can be used to run the tool without a model and get"
