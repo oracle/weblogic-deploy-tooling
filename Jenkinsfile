@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'phx.ocir.io/weblogick8s/wdt/wls:122130'
+            image 'phx.ocir.io/weblogick8s/wdt/wls:12213'
             args '-v /root/.m2:/root/.m2'
         }
     }
