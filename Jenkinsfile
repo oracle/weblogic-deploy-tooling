@@ -5,10 +5,6 @@ pipeline {
             args '-v /root/.m2:/root/.m2'
         }
     }
-    tools {
-        maven 'maven-3.6.0'
-        jdk 'jdk1.8.0_201'
-    }
 
     stages {
         stage ('Environment') {
