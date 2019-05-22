@@ -2,7 +2,6 @@ pipeline {
     agent {
         docker {
             image 'phx.ocir.io/weblogick8s/wdt/jenkins/slave:3.9-wls12213'
-            args '-v /root/.m2:/root/.m2'
         }
     }
 
