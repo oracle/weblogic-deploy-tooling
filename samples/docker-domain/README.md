@@ -14,7 +14,7 @@ Another option is to use the WDT `discoverDomain` tool to create a model. This p
 
 The sample model is accompanied by a properties file whose values can be changed to customize a domain. The model's variable tokens are replaced with values from 'simple-topology.properties' when building the docker image. The properties files can be created and modified using a text editor. Select variables in the properties file are used by the Dockerfile during the build to persist ENV variables and expose ports in the image.
  
-Care should be taken to secure the credentials that are present in the model. The ADMIN credential attributes in the sample model have a file token referencing a special property file. Each special property file must only contain a single property and can be created and modified using a text editor. The sample includes the files adminuser.properties and the adminpass.properties in the properties/docker_build directory.
+Care should be taken to secure the credentials that are present in the model. The ADMIN credential attributes in the sample model have a file token referencing a special property file. Each special property file must only contain a single property and can be created and modified using a text editor. The sample includes the files adminuser.properties and the adminpass.properties in the properties/docker-build directory.
 
 See the README file for more information on using property and file tokens in the WDT model.
 
@@ -99,15 +99,15 @@ The Admin Server and each Managed Server are run in containers from this build i
 
 To start the containerized Administration Server, run:
 
-    $ docker run -d --name wlsadmin --hostname wlsadmin -p 7001:7001 -v <sample-directory>/properties/docker_run:/u01/oracle/properties 12213-domain-wdt
+    $ docker run -d --name wlsadmin --hostname wlsadmin -p 7001:7001 -v <sample-directory>/properties/docker-run:/u01/oracle/properties 12213-domain-wdt
 
 To start a containerized Managed Server (managed-server-1) to self-register with the Administration Server above, run:
 
-    $ docker run -d --name managed-server-1 --link wlsadmin:wlsadmin -p 9001:9001 -v <sample-directory>/properties/docker_run:/u01/oracle/properties -e MANAGED_SERVER_NAME=managed-server-1 12213-domain-wdt startManagedServer.sh
+    $ docker run -d --name managed-server-1 --link wlsadmin:wlsadmin -p 9001:9001 -v <sample-directory>/properties/docker-run:/u01/oracle/properties -e MANAGED_SERVER_NAME=managed-server-1 12213-domain-wdt startManagedServer.sh
 
 To start an additional Managed Server (in this example managed-server-2), run:
 
-    $ docker run -d --name managed-server-2 --link wlsadmin:wlsadmin -p 9002:9001 -v <sample-directory>/properties/docker_run/:/u01/oracle/properties -e MANAGED_SERVER_NAME=managed-server-2 12213-domain-wdt startManagedServer.sh
+    $ docker run -d --name managed-server-2 --link wlsadmin:wlsadmin -p 9002:9001 -v <sample-directory>/properties/docker-run/:/u01/oracle/properties -e MANAGED_SERVER_NAME=managed-server-2 12213-domain-wdt startManagedServer.sh
 
 The above scenario from this sample will give you a WebLogic domain with a dynamic cluster set up on a single host environment.
 
