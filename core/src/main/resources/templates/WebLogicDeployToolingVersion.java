@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
 package oracle.weblogic.deploy.util;
@@ -65,7 +65,7 @@ public final class WebLogicDeployToolingVersion {
      * @param programName - the name of the WebLogic Deploy Tooling program that is running
      */
     public static void logVersionInfo(String programName) {
-        LOGGER.config("WLSDPLY-01750", programName, getFullVersion());
+        LOGGER.info("WLSDPLY-01750", programName, getFullVersion());
     }
 
     /**

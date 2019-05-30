@@ -732,6 +732,24 @@ class WlstHelper(object):
                 raise ex
         return
 
+    def get_mbean(self, wlst_path):
+        """
+        Get the cmo or the MBean instance for the named MBean at the wlst_path or current directory.
+        :param wlst_path: path to the name MBean or None for current directory
+        :return: mbean instance
+        """
+        _method_name = 'get_mbean'
+
+        try:
+            wlst_value = wlst_helper.get_mbean(wlst_path)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19122',
+                                                   wlst_path, pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        return wlst_value
+
     def get_mbean_for_wlst_path(self, wlst_path):
         """
         Get the MBean for the specified location.
