@@ -308,8 +308,10 @@ ECHO                           switches to customize the behavior.  Note that th
 ECHO                           control switches are mutually exclusive.
 ECHO.
 ECHO         model_file      - the location of the model file to use if not using
-ECHO                           the -print_usage functionality.  If not specified,
-ECHO                           the tool will look for the model in the archive.
+ECHO                           the -print_usage functionality.  This can also be specified as a
+ECHO                           comma-separated list of model locations, where each successive model
+ECHO                           layers on top of the previous ones.
+ECHO                           If not specified, the tool will look for the model in the archive.
 ECHO                           If the model is not found, validation will only
 ECHO                           validate the artifacts provided.
 ECHO.
