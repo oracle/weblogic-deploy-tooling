@@ -16,7 +16,7 @@
 # of the arguments are passed down to the underlying python program:
 #
 #     - -oracle_home        The directory of the existing Oracle Home to use.
-#                           This directory must exist and it is the caller^'s
+#                           This directory must exist and it is the caller's
 #                           responsibility to verify that it does. This
 #                           argument is required.
 #
@@ -49,18 +49,18 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help]"
-  echo "          -oracle_home <oracle-home>"
+  echo "          -oracle_home <oracle_home>"
   echo "          [-print_usage <context> [-attributes_only|-folders_only|-recursive] ]"
-  echo "          [-model_file <model-file>]"
-  echo "          [-variable_file <variable-file>]"
-  echo "          [-archive_file <archive-file>]"
-  echo "          [-target_version <target-version>]"
-  echo "          [-target_mode <target-mode>]"
-  echo "          [-domain_type <domain-type>]"
-  echo "          [-wlst_path <wlst-path>]"
+  echo "          [-model_file <model_file>]"
+  echo "          [-variable_file <variable_file>]"
+  echo "          [-archive_file <archive_file>]"
+  echo "          [-target_version <target_version>]"
+  echo "          [-target_mode <target_mode>]"
+  echo "          [-domain_type <domain_type>]"
+  echo "          [-wlst_path <wlst_path>]"
   echo ""
   echo "    where:"
-  echo "        oracle-home     - the existing Oracle Home directory for the domain"
+  echo "        oracle_home     - the existing Oracle Home directory for the domain"
   echo ""
   echo "        context         - specify the context for printing out the model structure."
   echo "                          By default, the specified folder attributes and subfolder"
@@ -68,40 +68,41 @@ usage() {
   echo "                          switches to customize the behavior.  Note that the"
   echo "                          control switches are mutually exclusive."
   echo ""
-  echo "        model-file      - the location of the model file to use if not using"
-  echo "                          the -print_usage functionality.  If not specified,"
-  echo "                          the tool will look for the model in the archive."
-  echo "                          If the model is not found, validation will only"
+  echo "        model_file      - the location of the model file to use if not using"
+  echo "                          the -print_usage functionality.  This can also be specified as a"
+  echo "                          comma-separated list of model locations, where each successive model layers"
+  echo "                          on top of the previous ones.  If not specified, the tool will look for the"
+  echo "                          model in the archive.  If the model is not found, validation will only"
   echo "                          validate the artifacts provided."
   echo ""
-  echo "        variable-file   - the location of the property file containing"
+  echo "        variable_file   - the location of the property file containing"
   echo "                          the variable values for all variables used in"
   echo "                          the model if not using the -print_usage functionality."
   echo "                          If the variable file is not provided, validation will"
   echo "                          only validate the artifacts provided."
   echo ""
-  echo "        archive-file    - the path to the archive file to use if not using the"
+  echo "        archive_file    - the path to the archive file to use if not using the"
   echo "                          -print_usage functionality.  If the archive file is"
   echo "                          not provided, validation will only validate the"
   echo "                          artifacts provided."
   echo ""
-  echo "        target-version  - the target version of WebLogic Server the tool"
+  echo "        target_version  - the target version of WebLogic Server the tool"
   echo "                          should use to validate the model content.  This"
   echo "                          version number can be different than the version"
   echo "                          being used to run the tool.  If not specified, the"
   echo "                          tool will validate against the version being used"
   echo "                          to run the tool."
   echo ""
-  echo "        target-mode     - the target WLST mode that the tool should use to"
+  echo "        target_mode     - the target WLST mode that the tool should use to"
   echo "                          validate the model content.  The only valid values"
   echo "                          are online or offline.  If not specified, the tool"
   echo "                          defaults to WLST offline mode."
   echo ""
-  echo "        domain-type     - the type of domain (e.g., WLS, JRF)."
-  echo "                          Used to locate wlst.cmd if wlst-path not specified"
+  echo "        domain_type     - the type of domain (e.g., WLS, JRF)."
+  echo "                          Used to locate wlst.cmd if -wlst_path not specified"
   echo ""
-  echo "        wlst-path       - the Oracle Home subdirectory of the wlst.cmd"
-  echo "                          script to use (e.g., ^<ORACLE_HOME^>/soa)"
+  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
   echo ""
 }
 
@@ -145,8 +146,8 @@ case "${JVM_OUTPUT}" in
     ;;
 esac
 
-JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F "\"" '{ print $2 }'`
-JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F "." '{ print $2 }'`
+JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
+JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
 
 if [ ${JVM_VERSION} -lt 7 ]; then
   echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
@@ -207,11 +208,11 @@ fi
 # The underlying WLST script has other required arguments.
 #
 if [ "${ORACLE_HOME}" = "" ]; then
-    echo "Required argument ORACLE_HOME not provided" >&2
+    echo "Required argument -oracle_home not provided" >&2
     usage `basename $0`
     exit 99
 elif [ ! -d ${ORACLE_HOME} ]; then
-    echo "The specified ORACLE_HOME does not exist: ${ORACLE_HOME}" >&2
+    echo "The specified -oracle_home directory does not exist: ${ORACLE_HOME}" >&2
     exit 98
 fi
 
@@ -220,12 +221,12 @@ fi
 #
 if [ "${WLST_PATH_DIR}" != "" ]; then
     if [ ! -d ${WLST_PATH_DIR} ]; then
-        echo "WLST_PATH_DIR specified does not exist: ${WLST_PATH_DIR}" >&2
+        echo "Specified -wlst_path directory does not exist: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
     WLST=${WLST_PATH_DIR}/common/bin/wlst.sh
     if [ ! -x "${WLST}" ]; then
-        echo "WLST executable ${WLST} not found under specified WLST_PATH_DIR: ${WLST_PATH_DIR}" >&2
+        echo "WLST executable ${WLST} not found under -wlst_path directory: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
     CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH

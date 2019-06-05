@@ -41,6 +41,7 @@ public class RCURunner {
     private static final String CREATE_REPO_SWITCH = "-createRepository";
     private static final String DB_TYPE_SWITCH = "-databaseType";
     private static final String ORACLE_DB_TYPE = "ORACLE";
+    private static final String USER_SAME_PWD_FOR_ALL ="-useSamePasswordForAllSchemaUsers";
     private static final String DB_CONNECT_SWITCH = "-connectString";
     private static final String DB_USER_SWITCH = "-dbUser";
     private static final String DB_USER = "SYS";
@@ -289,6 +290,8 @@ public class RCURunner {
         createArgs.add(CREATE_REPO_SWITCH);
         createArgs.add(DB_TYPE_SWITCH);
         createArgs.add(ORACLE_DB_TYPE);
+        createArgs.add(USER_SAME_PWD_FOR_ALL);
+        createArgs.add("true");
         createArgs.add(DB_CONNECT_SWITCH);
         createArgs.add(rcuDb);
         if (ATP_DB) {
@@ -338,13 +341,10 @@ public class RCURunner {
     }
 
     private List<String> getRcuStdinLines(RcuOpType rcuOpType, String rcuSysPass, String rcuSchemaPass) {
-        int extraRcuSchemaPasswordCount = getExtraRcuSchemaPasswordCount(rcuOpType);
-        List<String> stdinLines = new ArrayList<>(rcuSchemas.size() + extraRcuSchemaPasswordCount);
+        List<String> stdinLines = new ArrayList<>(2);
         stdinLines.add(rcuSysPass);
+        stdinLines.add(rcuSchemaPass);
 
-        for (int i = 0; i < rcuSchemas.size() + extraRcuSchemaPasswordCount; i++) {
-            stdinLines.add(rcuSchemaPass);
-        }
         return stdinLines;
     }
 

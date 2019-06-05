@@ -55,6 +55,7 @@ SETLOCAL
 
 SET WLSDEPLOY_PROGRAM_NAME=encryptModel
 
+SET SCRIPT_NAME=%~nx0
 SET SCRIPT_PATH=%~dp0
 FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi
 IF %SCRIPT_PATH:~-1%==\ SET SCRIPT_PATH=%SCRIPT_PATH:~0,-1%
@@ -178,7 +179,7 @@ IF "%DOMAIN_TYPE%"=="" (
 @rem The underlying WLST script has other required arguments.
 @rem
 IF "%ORACLE_HOME%" == "" (
-  ECHO Required argument ORACLE_HOME not provided >&2
+  ECHO Required argument -oracle_home not provided >&2
   SET RETURN_CODE=99
   GOTO usage
 )
@@ -189,13 +190,13 @@ IF "%ORACLE_HOME%" == "" (
 IF DEFINED WLST_PATH_DIR (
   FOR %%i IN ("%WLST_PATH_DIR%") DO SET WLST_PATH_DIR=%%~fsi
   IF NOT EXIST "%WLST_PATH_DIR%" (
-    ECHO WLST_PATH_DIR specified does not exist: %WLST_PATH_DIR% >&2
+    ECHO Specified -wlst_path directory does not exist: %WLST_PATH_DIR% >&2
     SET RETURN_CODE=98
     GOTO exit_script
   )
   set "WLST=%WLST_PATH_DIR%\common\bin\wlst.cmd"
   IF NOT EXIST "%WLST%" (
-    ECHO WLST executable %WLST% not found under specified WLST_PATH_DIR %WLST_PATH_DIR% >&2
+    ECHO WLST executable %WLST% not found under -wlst_path directory %WLST_PATH_DIR% >&2
     SET RETURN_CODE=98
     GOTO exit_script
   )
@@ -297,26 +298,26 @@ GOTO exit_script
 
 :usage
 ECHO.
-ECHO Usage: %~nx0 [-help] [-manual]
-ECHO              -oracle_home ^<oracle-home^>
-ECHO              [-model_file ^<model-file^>]
-ECHO              [-variable_file ^<variable-file^>]
-ECHO              [-domain_type ^<domain-type^>]
-ECHO              [-wlst_path ^<wlst-path^>]
+ECHO Usage: %SCRIPT_NAME% [-help] [-manual]
+ECHO              -oracle_home ^<oracle_home^>
+ECHO              [-model_file ^<model_file^>]
+ECHO              [-variable_file ^<variable_file^>]
+ECHO              [-domain_type ^<domain_type^>]
+ECHO              [-wlst_path ^<wlst_path^>]
 ECHO.
 ECHO     where:
-ECHO         oracle-home     - the existing Oracle Home directory for the domain.
+ECHO         oracle_home     - the existing Oracle Home directory for the domain.
 ECHO.
-ECHO         model-file      - the location of the model file to use.
+ECHO         model_file      - the location of the model file to use.
 ECHO.
-ECHO         variable-file   - the location of the property file containing
+ECHO         variable_file   - the location of the property file containing
 ECHO                           the variable values for all variables used in
 ECHO                           the model.
 ECHO.
-ECHO         domain-type     - the type of domain (e.g., WLS, JRF).
-ECHO                           Used to locate wlst.cmd if wlst-path not specified.
+ECHO         domain_type     - the type of domain (e.g., WLS, JRF).
+ECHO                           Used to locate wlst.cmd if -wlst_path not specified.
 ECHO.
-ECHO         wlst-path       - the Oracle Home subdirectory of the wlst.cmd
+ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa)
 ECHO.
 ECHO     The -manual switch can be used to run the tool without a model and get

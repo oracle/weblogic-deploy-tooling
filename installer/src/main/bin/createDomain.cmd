@@ -52,6 +52,7 @@ SETLOCAL
 
 SET WLSDEPLOY_PROGRAM_NAME=createDomain
 
+SET SCRIPT_NAME=%~nx0
 SET SCRIPT_PATH=%~dp0
 FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi
 IF %SCRIPT_PATH:~-1%==\ SET SCRIPT_PATH=%SCRIPT_PATH:~0,-1%
@@ -184,7 +185,7 @@ IF %JVM_VERSION% LSS %MIN_JDK_VERSION% (
 @rem The underlying WLST script has other required arguments.
 @rem
 IF "%ORACLE_HOME%" == "" (
-  ECHO Required argument ORACLE_HOME not provided >&2
+  ECHO Required argument -oracle_home not provided >&2
   SET RETURN_CODE=99
   GOTO usage
 )
@@ -195,13 +196,13 @@ IF "%ORACLE_HOME%" == "" (
 IF DEFINED WLST_PATH_DIR (
   FOR %%i IN ("%WLST_PATH_DIR%") DO SET WLST_PATH_DIR=%%~fsi
   IF NOT EXIST "%WLST_PATH_DIR%" (
-    ECHO WLST_PATH_DIR specified does not exist: %WLST_PATH_DIR% >&2
+    ECHO Specified -wlst_path directory does not exist: %WLST_PATH_DIR% >&2
     SET RETURN_CODE=98
     GOTO exit_script
   )
   set "WLST=%WLST_PATH_DIR%\common\bin\wlst.cmd"
   IF NOT EXIST "%WLST%" (
-    ECHO WLST executable %WLST% not found under specified WLST_PATH_DIR %WLST_PATH_DIR% >&2
+    ECHO WLST executable %WLST% not found under -wlst_path directory %WLST_PATH_DIR% >&2
     SET RETURN_CODE=98
     GOTO exit_script
   )
@@ -307,55 +308,57 @@ GOTO exit_script
 
 :usage
 ECHO.
-ECHO Usage: %~nx0 [-help] [-use_encryption] [-run_rcu]
-ECHO              -oracle_home ^<oracle-home^>
-ECHO              [-domain_parent ^<domain-parent^> ^| -domain_home ^<domain-home^>]
-ECHO              -domain_type ^<domain-type^>
-ECHO              [-java_home ^<java-home^>]
-ECHO              [-archive_file ^<archive-file^>]
-ECHO              [-model_file ^<model-file^>]
-ECHO              [-variable_file ^<variable-file^>]
-ECHO              [-wlst_path ^<wlst-path^>]
-ECHO              [-rcu_db ^<rcu-database^>
-ECHO               -rcu_prefix ^<rcu-prefix^>
+ECHO Usage: %SCRIPT_NAME% [-help] [-use_encryption] [-run_rcu]
+ECHO              -oracle_home ^<oracle_home^>
+ECHO              [-domain_parent ^<domain_parent^> ^| -domain_home ^<domain_home^>]
+ECHO              -domain_type ^<domain_type^>
+ECHO              [-java_home ^<java_home^>]
+ECHO              [-archive_file ^<archive_file^>]
+ECHO              [-model_file ^<model_file^>]
+ECHO              [-variable_file ^<variable_file^>]
+ECHO              [-wlst_path ^<wlst_path^>]
+ECHO              [-rcu_db ^<rcu_database^>
+ECHO               -rcu_prefix ^<rcu_prefix^>
 ECHO              ]
 ECHO.
 ECHO     where:
-ECHO         oracle-home     - the existing Oracle Home directory for the domain.
+ECHO         oracle_home     - the existing Oracle Home directory for the domain.
 ECHO.
-ECHO         domain-parent   - the parent directory where the domain should be created.
+ECHO         domain_parent   - the parent directory where the domain should be created.
 ECHO                           The domain name from the model will be appended to this
 ECHO                           location to become the domain home.
 ECHO.
-ECHO         domain-home     - the full directory where the domain should be created.
+ECHO         domain_home     - the full directory where the domain should be created.
 ECHO                           This is used in cases where the domain name is different
 ECHO                           from the domain home directory name.
 ECHO.
-ECHO         domain-type     - the type of domain (e.g., WLS, JRF).  This controls
+ECHO         domain_type     - the type of domain (e.g., WLS, JRF).  This controls
 ECHO                           the domain templates and template resource targeting.
-ECHO                           Also used to locate wlst.cmd if wlst-path not specified.
+ECHO                           Also used to locate wlst.cmd if -wlst_path not specified.
 ECHO.
-ECHO         java-home       - the Java Home to use for the new domain.  If not
+ECHO         java_home       - the Java Home to use for the new domain.  If not
 ECHO                           specified, it defaults to the value of the JAVA_HOME
 ECHO                           environment variable.
 ECHO.
-ECHO         archive-file    - the path to the archive file to use.  If the -model_file
+ECHO         archive_file    - the path to the archive file to use.  If the -model_file
 ECHO                           argument is not specified, the model file in this archive
 ECHO                           will be used.
 ECHO.
-ECHO         model-file      - the location of the model file to use.
+ECHO         model_file      - the location of the model file to use.  This can also be specified as a
+ECHO                           comma-separated list of model locations, where each successive model
+ECHO                           layers on top of the previous ones.
 ECHO.
-ECHO         variable-file   - the location of the property file containing
+ECHO         variable_file   - the location of the property file containing
 ECHO                           the variable values for all variables used in
 ECHO                           the model
 ECHO.
-ECHO         wlst-path       - the Oracle Home subdirectory of the wlst.cmd
+ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa).
 ECHO.
-ECHO         rcu-database    - the RCU database connect string (if the domain
+ECHO         rcu_database    - the RCU database connect string (if the domain
 ECHO                           type requires RCU).
 ECHO.
-ECHO         rcu-prefix      - the RCU prefix to use (if the domain type requires
+ECHO         rcu_prefix      - the RCU prefix to use (if the domain type requires
 ECHO                           RCU).
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
