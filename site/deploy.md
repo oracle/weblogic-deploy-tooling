@@ -29,3 +29,6 @@ When running the tool in WLST online mode, the deploy operation may require serv
 - `102` - The servers impacted by the deploy operation need to be restarted, in a rolling fashion, starting with the Administration Server, if applicable.
 - `103` - The entire domain needs to be restarted.
 
+### Using Multiple Models
+
+The Deploy Applications Tool supports the use of multiple models, as described in [Using Multiple Models](../README.md#using-multiple-models).
