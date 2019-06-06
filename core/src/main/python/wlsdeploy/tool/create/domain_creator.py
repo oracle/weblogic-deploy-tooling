@@ -353,7 +353,7 @@ class DomainCreator(Creator):
         self._configure_security_configuration()
         self.__deploy_resources_and_apps()
 
-
+        self.__configure_opss_secrets()
 
         self.wlst_helper.update_domain()
         self.wlst_helper.close_domain()
@@ -1104,7 +1104,7 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __configure_opss_secrets(self, model_context, model):
+    def __configure_opss_secrets(self):
         _method_name = '__configure_opss_secrets'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
@@ -1113,9 +1113,8 @@ class DomainCreator(Creator):
         if domain_info is not None:
             if OPSS_SECRETS in domain_info:
                 opss_secret_password = domain_info[OPSS_SECRETS]
-
-                if model_context.get_archive_file_name() and opss_secret_password:
-                    archive_file = WLSDeployArchive(model_context.get_archive_file_name())
+                if self.model_context.get_archive_file_name() and opss_secret_password:
+                    archive_file = WLSDeployArchive(self.model_context.get_archive_file_name())
                     if archive_file:
                         opss_wallet_zipentry = archive_file.getOPSSWallet()
                         if opss_wallet_zipentry:
@@ -1149,6 +1148,6 @@ class DomainCreator(Creator):
                             zis.close()
                             fis.close()
                             os.remove(wallet_zip)
-                            #self.wlst_helper.setSharedSecretStoreWithPassword(extract_path, opss_secret_password)
+                            self.wlst_helper.setSharedSecretStoreWithPassword(extract_path, opss_secret_password)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return extract_path
