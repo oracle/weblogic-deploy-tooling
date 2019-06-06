@@ -1099,6 +1099,8 @@ class DomainCreator(Creator):
         return
 
     def __create_boot_dot_properties(self):
+        _method_name = '__create_boot_dot_properties'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         systemIni = SerializedSystemIni.getEncryptionService(self._domain_home)
         encryptionService = ClearOrEncryptedService(systemIni)
         admin_password = self._domain_info[ADMIN_PASSWORD]
@@ -1124,4 +1126,5 @@ class DomainCreator(Creator):
             ostream = FileOutputStream(file_location)
             properties.store(ostream, None)
             ostream.close()
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
