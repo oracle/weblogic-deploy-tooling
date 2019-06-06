@@ -1049,6 +1049,12 @@ class WlstHelper(object):
             raise ex
 
     def setSharedSecretStoreWithPassword(self, wallet_path, password):
+        """
+        set the shared secret store opss password
+        :param wallet_path: opss extracted wallet dir
+        :param password: extract time password
+        """
+        _method_name = 'setSharedSecretStoreWithPassword'
         try:
             wlst_helper.set_shared_secret_store_with_password(wallet_path, password)
         except PyWLSTException, pwe:
@@ -1056,4 +1062,3 @@ class WlstHelper(object):
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
-        _method_name = 'setSharedSecretStoreWithPassword'

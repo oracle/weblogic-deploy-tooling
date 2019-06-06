@@ -5,7 +5,6 @@ The Universal Permissive License (UPL), Version 1.0
 The main module for the WLSDeploy tool to create empty domains.
 """
 import javaos as os
-import jarray
 import sys
 from java.io import IOException
 from java.lang import IllegalArgumentException
@@ -47,7 +46,6 @@ from wlsdeploy.util import wlst_extended
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
-from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 
@@ -331,8 +329,6 @@ def validateRCUArgsAndModel(model_context, model, alias_helper):
     return has_atpdbinfo
 
 
-
-
 def main(args):
     """
     The entry point for the create domain tool.
@@ -410,7 +406,6 @@ def main(args):
             rcu_properties_map = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
             rcu_db_info = RcuDbInfo(alias_helper, rcu_properties_map)
             atp_helper.fix_jps_config(rcu_db_info, model_context)
-
 
     except WLSDeployArchiveIOException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
