@@ -12,7 +12,6 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_translator import FileToPython
-from wlsdeploy.yaml.yaml_translator import PythonToYaml
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 
@@ -129,8 +128,6 @@ def merge_model_files(model_file_value):
     for model_file in model_files:
         model = FileToPython(model_file, True).parse()
         _merge_dictionaries(merged_model, model)
-
-    PythonToYaml(merged_model).write_to_yaml_file("C:/tmp/mergedModel.yaml")
 
     return merged_model
 
