@@ -3,6 +3,8 @@ Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
+from java.util import Properties
+from java.io import FileOutputStream
 from oracle.weblogic.deploy.create import RCURunner
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
@@ -80,6 +82,8 @@ from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model as model_helper
+import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
+import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
 
 
 class DomainCreator(Creator):
@@ -161,6 +165,7 @@ class DomainCreator(Creator):
         self.__fail_mt_1221_domain_creation()
         self.__create_domain()
         self.__deploy()
+        self.__create_boot_dot_properties()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -302,7 +307,6 @@ class DomainCreator(Creator):
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, RESOURCE_GROUP_TEMPLATE)) or \
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, RESOURCE_GROUP)) or \
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, PARTITION)):
-
             ex = exception_helper.create_create_exception('WLSDPLY-12202', self.wls_helper.wl_version)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -1092,4 +1096,32 @@ class DomainCreator(Creator):
         security_config_location = LocationContext().add_name_token(domain_name_token, self._domain_name)
         self.security_provider_creator.create_security_configuration(security_config_location)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __create_boot_dot_properties(self):
+        systemIni = SerializedSystemIni.getEncryptionService(self._domain_home)
+        encryptionService = ClearOrEncryptedService(systemIni)
+        admin_password = self._domain_info[ADMIN_PASSWORD]
+        admin_username = self.wls_helper.get_default_admin_username()
+        if ADMIN_USERNAME in self._domain_info:
+            admin_username = self._domain_info[ADMIN_USERNAME]
+
+        server_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER)
+        servers = [self._admin_server_name]
+
+        for model_name in server_nodes:
+            name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
+            servers.append(name)
+
+        for server in servers:
+            properties = Properties()
+            properties.put("username", encryptionService.encrypt(admin_username))
+            properties.put("password", encryptionService.encrypt(admin_password))
+            file_directory = self._domain_home + "/servers/" + server + "/security"
+            file_location = file_directory + "/boot.properties"
+            if not os.path.exists(file_directory):
+                os.makedirs(file_directory)
+            ostream = FileOutputStream(file_location)
+            properties.store(ostream, None)
+            ostream.close()
         return
