@@ -1047,3 +1047,13 @@ class WlstHelper(object):
                                                    pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
+
+    def setSharedSecretStoreWithPassword(self, wallet_path, password):
+        try:
+            wlst_helper.set_shared_secret_store_with_password(wallet_path, password)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19144',
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        _method_name = 'setSharedSecretStoreWithPassword'

@@ -3,6 +3,7 @@ Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
+import jarray
 from oracle.weblogic.deploy.create import RCURunner
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
@@ -39,6 +40,7 @@ from wlsdeploy.aliases.model_constants import LOG_FILTER
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import NAME
+from wlsdeploy.aliases.model_constants import OPSS_SECRETS
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
@@ -80,6 +82,9 @@ from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model as model_helper
+from java.io import File, FileInputStream, FileOutputStream
+from java.util.zip import ZipInputStream
+from oracle.weblogic.deploy.util import WLSDeployArchive
 
 
 class DomainCreator(Creator):
@@ -161,6 +166,8 @@ class DomainCreator(Creator):
         self.__fail_mt_1221_domain_creation()
         self.__create_domain()
         self.__deploy()
+
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -345,6 +352,9 @@ class DomainCreator(Creator):
         self.__set_domain_attributes()
         self._configure_security_configuration()
         self.__deploy_resources_and_apps()
+
+
+
         self.wlst_helper.update_domain()
         self.wlst_helper.close_domain()
         return
@@ -1093,3 +1103,52 @@ class DomainCreator(Creator):
         self.security_provider_creator.create_security_configuration(security_config_location)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    def __configure_opss_secrets(self, model_context, model):
+        _method_name = '__configure_opss_secrets'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        extract_path = None
+        domain_info = self._domain_info
+        if domain_info is not None:
+            if OPSS_SECRETS in domain_info:
+                opss_secret_password = domain_info[OPSS_SECRETS]
+
+                if model_context.get_archive_file_name() and opss_secret_password:
+                    archive_file = WLSDeployArchive(model_context.get_archive_file_name())
+                    if archive_file:
+                        opss_wallet_zipentry = archive_file.getOPSSWallet()
+                        if opss_wallet_zipentry:
+                            domain_path = self._domain_home
+                            extract_path = domain_path +  os.sep + 'opsswallet'
+                            extract_dir = File(extract_path)
+                            extract_dir.mkdirs()
+                            wallet_zip = archive_file.extractFile(opss_wallet_zipentry, File(domain_path))
+
+                            if not os.path.exists(extract_path):
+                                os.mkdir(extract_path)
+
+                            buffer = jarray.zeros(1024, "b")
+                            fis = FileInputStream(wallet_zip)
+                            zis = ZipInputStream(fis)
+                            ze = zis.getNextEntry()
+                            while ze:
+                                fileName = ze.getName()
+                                newFile = File(extract_path + File.separator + fileName)
+                                File(newFile.getParent()).mkdirs()
+                                fos = FileOutputStream(newFile)
+                                len = zis.read(buffer)
+                                while len > 0:
+                                    fos.write(buffer, 0, len)
+                                    len = zis.read(buffer)
+
+                                fos.close()
+                                zis.closeEntry()
+                                ze = zis.getNextEntry()
+                            zis.closeEntry()
+                            zis.close()
+                            fis.close()
+                            os.remove(wallet_zip)
+                            #self.wlst_helper.setSharedSecretStoreWithPassword(extract_path, opss_secret_password)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return extract_path

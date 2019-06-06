@@ -1395,3 +1395,11 @@ def reopen_offline(domain_home):
     _logger.fine('WLSDPLY-00081', class_name=_class_name, method_name=_method_name)
     read_domain(domain_home)
     _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def set_shared_secret_store_with_password(wallet_path, password):
+    _method_name = 'setSharedSecretStoreWithPassword'
+    _logger.fine('WLSDPLY-00081', class_name=_class_name, method_name=_method_name)
+    setSharedSecretStoreWithPassword(wallet_path,password)
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
