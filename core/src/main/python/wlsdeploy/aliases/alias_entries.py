@@ -185,7 +185,8 @@ class AliasEntries(object):
         # the ServerGroup is not listed in this map, it will be targeted to all managed
         # servers in the domain.
         'ServerGroupTargetingLimits': 'dict',
-        'RCUDbInfo' : 'dict'
+        'RCUDbInfo': 'dict',
+        'OPSSSecrets': 'string'
     }
 
     __domain_name_token = 'DOMAIN'
