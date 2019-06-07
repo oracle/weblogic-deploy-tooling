@@ -220,7 +220,7 @@ One of the primary goals of the WebLogic Deploy Tooling is to support a sparse m
 
 ### Using Multiple Models
 
-The Create Domain, Update Domain, Deploy Applications, and Validate Model tools allow the specification of multiple models on the command line. For example:
+The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple models on the command line. For example:
 
     weblogic-deploy\bin\createDomain.cmd -model_file modelOne,modelTwo,modelThree ...
 
