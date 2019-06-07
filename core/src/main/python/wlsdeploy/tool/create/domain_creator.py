@@ -3,24 +3,21 @@ Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
-import jarray
-from java.util import Properties
-from java.io import File, FileInputStream, FileOutputStream
-from oracle.weblogic.deploy.create import RCURunner
-from java.util.zip import ZipInputStream
-from oracle.weblogic.deploy.util import WLSDeployArchive
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
 import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
-
+from java.io import FileOutputStream
+from java.util import Properties
+from oracle.weblogic.deploy.create import RCURunner
+from oracle.weblogic.deploy.util import WLSDeployArchive, FileUtils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import APP_DIR
 from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
-from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
+from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
@@ -51,11 +48,11 @@ from wlsdeploy.aliases.model_constants import OPSS_SECRETS
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
+from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
-from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SECURITY
@@ -77,8 +74,8 @@ from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
-from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.creator import Creator
+from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
@@ -1138,7 +1135,6 @@ class DomainCreator(Creator):
     def __configure_opss_secrets(self):
         _method_name = '__configure_opss_secrets'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-
         extract_path = None
         domain_info = self._domain_info
         if domain_info is not None:
@@ -1146,39 +1142,9 @@ class DomainCreator(Creator):
                 opss_secret_password = domain_info[OPSS_SECRETS]
                 if self.model_context.get_archive_file_name() and opss_secret_password:
                     archive_file = WLSDeployArchive(self.model_context.get_archive_file_name())
-                    if archive_file:
-                        opss_wallet_zipentry = archive_file.getOPSSWallet()
-                        if opss_wallet_zipentry:
-                            domain_path = self._domain_home
-                            extract_path = domain_path +  os.sep + 'opsswallet'
-                            extract_dir = File(extract_path)
-                            extract_dir.mkdirs()
-                            wallet_zip = archive_file.extractFile(opss_wallet_zipentry, File(domain_path))
-
-                            if not os.path.exists(extract_path):
-                                os.mkdir(extract_path)
-
-                            buffer = jarray.zeros(1024, "b")
-                            fis = FileInputStream(wallet_zip)
-                            zis = ZipInputStream(fis)
-                            ze = zis.getNextEntry()
-                            while ze:
-                                fileName = ze.getName()
-                                newFile = File(extract_path + File.separator + fileName)
-                                File(newFile.getParent()).mkdirs()
-                                fos = FileOutputStream(newFile)
-                                len = zis.read(buffer)
-                                while len > 0:
-                                    fos.write(buffer, 0, len)
-                                    len = zis.read(buffer)
-
-                                fos.close()
-                                zis.closeEntry()
-                                ze = zis.getNextEntry()
-                            zis.closeEntry()
-                            zis.close()
-                            fis.close()
-                            os.remove(wallet_zip)
-                            self.wlst_helper.setSharedSecretStoreWithPassword(extract_path, opss_secret_password)
+                    extract_path = self._domain_home + os.sep + 'opsswallet'
+                    zip_entry = archive_file.getOPSSWallet();
+                    FileUtils.extractZipFileContent(archive_file, zip_entry, extract_path)
+                    self.wlst_helper.setSharedSecretStoreWithPassword(extract_path, opss_secret_password)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return extract_path
