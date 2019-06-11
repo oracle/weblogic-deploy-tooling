@@ -1,17 +1,29 @@
 The following list are known issues. The issue may contain a work-around or an associated Issue number.
 
 **ISSUE**:
-   The createDomain tool does not target non-JRF product resources to dynamic clusters.
-   WebLogic WLST will not assign resources associated with extension template or custom template user server groups
-   to dynamic clusters or dynamic servers. The createDomain can target any resources associated to JRF
-   related user server groups using the FMW WLST extension function applyJRF.
+   The createDomain and updateDomain tools cannot target non-JRF product resources to dynamic clusters because
+   WebLogic WLST will not assign resources associated with extension or custom template user server groups
+   to dynamic clusters. Resources associated to JRF user server groups defined in the domain typedef
+   (i.e. JRF, RestrictedJRF) will be targeted to the dynamic cluster by the WDT tools using the FMW WLST function
+   applyJRF.
+
+   If you have only non-JRF user server groups targeted to a dynamic cluster, you will see the following message:
+
+    WLSDPLY-12238: Unable to target non-JRF template server groups for domain type CUSTOM to dynamic cluster(s).
+
+   You will not see this message if you have a mix of non-JRF and JRF user server groups targeted to the dynamic
+   cluster. WDT cannot detect if a user server group is associated to JRF, and therefore, whether the applyJRF will
+   target the user group resources to the dynamic cluster.
 
 **ACTION**:
-   1. Contact WebLogic support concerning the inability to target non-JRF resources to a dynamic cluster.
-   2. Manually target the resources to the dynamic cluster.
-   3. Add a configured managed server to your dynamic cluster. The dynamic cluster will become a "mixed" cluster. The
-      extension template or custom template resources will then be targeted to both the managed server and the
-      dynamic servers in the mixed cluster.
+
+   You must contact WebLogic support to assist you with a solution for this targeting dilemma. You can perform
+   the following action as a temporary work-around to the described issue.
+
+   1. Add a configured managed server to your dynamic cluster and re-run the createDomain or updateDomain tool.
+      The dynamic cluster becomes "mixed" cluster once the managed server is added. When the WDT tool targets the
+      user server groups to the configured managed server, the resources are automatically targeted to the cluster
+      by WebLogic, which includes the managed server and the dynamic servers.
 
 **ISSUE**:
    The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1 domain.
