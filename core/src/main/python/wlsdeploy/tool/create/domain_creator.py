@@ -3,18 +3,21 @@ Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 import javaos as os
-from java.util import Properties
+import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
+import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
 from java.io import FileOutputStream
+from java.util import Properties
 from oracle.weblogic.deploy.create import RCURunner
+from oracle.weblogic.deploy.util import WLSDeployArchive, FileUtils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import APP_DIR
 from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
-from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
+from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
@@ -41,14 +44,15 @@ from wlsdeploy.aliases.model_constants import LOG_FILTER
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import NAME
+from wlsdeploy.aliases.model_constants import OPSS_SECRETS
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
+from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
-from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SECURITY
@@ -70,8 +74,8 @@ from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
-from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.creator import Creator
+from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
@@ -82,8 +86,6 @@ from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model as model_helper
-import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
-import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
 
 
 class DomainCreator(Creator):
@@ -349,6 +351,7 @@ class DomainCreator(Creator):
         self.__set_domain_attributes()
         self._configure_security_configuration()
         self.__deploy_resources_and_apps()
+        self.__configure_opss_secrets()
         self.wlst_helper.update_domain()
         self.wlst_helper.close_domain()
         return
@@ -1128,3 +1131,20 @@ class DomainCreator(Creator):
             ostream.close()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    def __configure_opss_secrets(self):
+        _method_name = '__configure_opss_secrets'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        extract_path = None
+        domain_info = self._domain_info
+        if domain_info is not None:
+            if OPSS_SECRETS in domain_info:
+                opss_secret_password = domain_info[OPSS_SECRETS]
+                if self.model_context.get_archive_file_name() and opss_secret_password:
+                    archive_file = WLSDeployArchive(self.model_context.get_archive_file_name())
+                    extract_path = self._domain_home + os.sep + 'opsswallet'
+                    zip_entry = archive_file.getOPSSWallet();
+                    FileUtils.extractZipFileContent(archive_file, zip_entry, extract_path)
+                    self.wlst_helper.setSharedSecretStoreWithPassword(extract_path, opss_secret_password)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return extract_path
