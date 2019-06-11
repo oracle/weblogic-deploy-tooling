@@ -5,8 +5,6 @@ The Universal Permissive License (UPL), Version 1.0
 
 import copy
 
-import java.lang.Boolean as Boolean
-
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 
@@ -18,7 +16,6 @@ from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
-from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import string_utils
