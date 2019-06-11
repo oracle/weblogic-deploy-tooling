@@ -1,6 +1,19 @@
 The following list are known issues. The issue may contain a work-around or an associated Issue number.
 
 **ISSUE**:
+   The createDomain tool does not target non-JRF product resources to dynamic clusters.
+   WebLogic WLST will not assign resources associated with extension template or custom template user server groups
+   to dynamic clusters or dynamic servers. The createDomain can target any resources associated to JRF
+   related user server groups using the FMW WLST extension function applyJRF.
+
+**ACTION**:
+   1. Contact WebLogic support concerning the inability to target non-JRF resources to a dynamic cluster.
+   2. Manually target the resources to the dynamic cluster.
+   3. Add a configured managed server to your dynamic cluster. The dynamic cluster will become a "mixed" cluster. The
+      extension template or custom template resources will then be targeted to both the managed server and the
+      dynamic servers in the mixed cluster.
+
+**ISSUE**:
    The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1 domain.
    The discover tool navigates through the domain MBeans using wlst to determine which MBeans are present in a
    domain. When it tests an MBean that is not present, the erroneous message is logged by Weblogic WLST.
