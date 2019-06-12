@@ -1,6 +1,31 @@
 The following list are known issues. The issue may contain a work-around or an associated Issue number.
 
 **ISSUE**:
+   The createDomain and updateDomain tools cannot target non-JRF product resources to dynamic clusters because
+   WebLogic WLST will not assign resources associated with extension or custom template user server groups
+   to dynamic clusters. Resources associated to JRF user server groups defined in the domain typedef
+   (i.e. JRF, RestrictedJRF) will be targeted to the dynamic cluster by the WDT tools using the FMW WLST function
+   applyJRF.
+
+   If you have only non-JRF user server groups targeted to a dynamic cluster, you will see the following message:
+
+    WLSDPLY-12238: Unable to target non-JRF template server groups for domain type <your domain typedef> to dynamic cluster(s).
+
+   You will not see this message if you have a mix of non-JRF and JRF user server groups targeted to the dynamic
+   cluster. WDT cannot detect if a user server group is associated to JRF, and therefore, whether the applyJRF will
+   target the user group resources to the dynamic cluster.
+
+**ACTION**:
+
+   You must contact WebLogic support to assist you with a solution for this targeting dilemma. You can perform
+   the following action as a temporary work-around to the described issue.
+
+   1. Add a configured managed server to your dynamic cluster and re-run the createDomain or updateDomain tool.
+      The dynamic cluster becomes a "mixed" cluster once the managed server is added. When the WDT tool targets the
+      user server groups to the configured managed server, the resources are automatically targeted to the cluster
+      by WebLogic, which includes both the managed server and the dynamic servers.
+
+**ISSUE**:
    The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1 domain.
    The discover tool navigates through the domain MBeans using wlst to determine which MBeans are present in a
    domain. When it tests an MBean that is not present, the erroneous message is logged by Weblogic WLST.
