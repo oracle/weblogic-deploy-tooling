@@ -99,7 +99,7 @@ class TargetHelper(object):
 
         self.logger.entering(server_groups_to_target, class_name=self.__class_name, method_name=_method_name)
         if len(server_groups_to_target) == 0:
-            return None, None
+            return list(), list()
 
         location = LocationContext()
         root_path = self.alias_helper.get_wlst_attributes_path(location)
