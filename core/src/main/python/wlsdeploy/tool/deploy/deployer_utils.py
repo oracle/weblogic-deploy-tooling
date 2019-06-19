@@ -177,6 +177,22 @@ def merge_lists(existing_list, model_list, separator=',', return_as_string=True)
     return result
 
 
+def is_delete_name(name):
+    return name.startswith("!")
+
+
+def delete_named_element(location, delete_name, existing_names, alias_helper):
+    _method_name = 'delete_named_element'
+
+    name = delete_name[1:]
+
+    type_path = alias_helper.get_wlst_create_path(location)
+
+    _wlst_helper.cd(type_path)
+
+    _wlst_helper.delete(name, location.get_current_model_folder())
+
+
 def ensure_no_uncommitted_changes_or_edit_sessions():
     """
     Ensure that the domain does not contain any uncommitted changes and there is no existing edit session.

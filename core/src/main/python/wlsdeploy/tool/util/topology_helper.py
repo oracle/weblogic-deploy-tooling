@@ -113,6 +113,10 @@ class TopologyHelper(object):
 
             name_nodes = dictionary_utils.get_dictionary_element(model_nodes, model_type)
             for name in name_nodes:
+                if deployer_utils.is_delete_name(name):
+                    # don't create placeholder for delete names
+                    continue
+
                 if name not in existing_names:
                     self.logger.info('WLSDPLY-19403', model_type, name, class_name=self.__class_name,
                                      method_name=_method_name)

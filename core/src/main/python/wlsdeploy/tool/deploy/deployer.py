@@ -80,6 +80,10 @@ class Deployer(object):
 
         token = self.alias_helper.get_name_token(location)
         for name in model_nodes:
+            if deployer_utils.is_delete_name(name):
+                deployer_utils.delete_named_element(location, name, existing_names, self.alias_helper)
+                continue
+
             is_add = name not in existing_names
             log_helper.log_updating_named_folder(type_name, name, parent_type, parent_name, is_add, self._class_name,
                                                  _method_name)
