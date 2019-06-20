@@ -351,7 +351,6 @@ class DomainCreator(Creator):
         self.__set_domain_attributes()
         self._configure_security_configuration()
         self.__deploy_resources_and_apps()
-        self.__configure_opss_secrets()
         self.wlst_helper.update_domain()
         self.wlst_helper.close_domain()
         return
@@ -489,6 +488,8 @@ class DomainCreator(Creator):
         server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
         if len(server_assigns) > 0:
             self.target_helper.target_server_groups(server_assigns)
+
+        self.__configure_opss_secrets()
 
         self.wlst_helper.write_domain(domain_home)
         self.wlst_helper.close_template()
@@ -1134,6 +1135,10 @@ class DomainCreator(Creator):
 
     def __configure_opss_secrets(self):
         _method_name = '__configure_opss_secrets'
+
+        if not self._domain_typedef.is_jrf_domain_type():
+            return
+
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         extract_path = None
         domain_info = self._domain_info
