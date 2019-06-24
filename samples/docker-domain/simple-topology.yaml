@@ -1,6 +1,3 @@
-# Copyright 2017, 2019, Oracle Corporation and/or its affiliates. All rights reserved.
-# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
-
 domainInfo:
     AdminUserName: '@@FILE:/u01/oracle/properties/adminuser.properties@@'
     AdminPassword: '@@FILE:/u01/oracle/properties/adminpass.properties@@'

@@ -1,6 +1,3 @@
-# Copyright 2019, Oracle Corporation and/or its affiliates. All rights reserved.
-# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
-
 domainInfo:
     # The DOMAIN_TYPE field is for reference only.  The actual type of domain created is controlled by
     # the -domain_type parameter passed to the createDomain shell script.
