@@ -542,6 +542,7 @@ public class WLSDeployArchive {
 
         LOGGER.entering(CLASS, METHOD);
         List<String> result = getZipFile().listZipEntries(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+        result.remove(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
         LOGGER.exiting(CLASS, METHOD, result);
         if (result.size() > 0) {
             return result.get(0);
