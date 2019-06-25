@@ -18,7 +18,7 @@ Care should be taken to secure the credentials that are present in the model. Th
 
 See the README file for more information on using property and file tokens in the WDT model.
 
-The ADMIN credentials are necessary to start the Admin or Managed Server in a docker container. The sample provides security.properties in the properties/docker-run directory. This file contains the admin credentials and additional properties used to customize the Weblogic Server start.
+The ADMIN credentials are necessary to start the Admin or Managed Server in a docker container. The sample provides security.properties in the properties/docker-run directory. This file contains the admin credentials and additional properties used to customize the WebLogic Server start.
 
 Note: Oracle recommends that the adminpass.properties, adminuser.properties and security.properties files be deleted or secured after the image is built and the WebLogic Server are started so that the user name and password are not inadvertently exposed.
 
@@ -30,7 +30,7 @@ When the WDT `discoverDomain` tool is used on an existing domain, a ZIP archive 
 
 **NOTE:** The image is based on a WebLogic Server image in the Oracle Container Registry: `container-registry.oracle.com/middleware/weblogic:12.2.1.3-dev`. You will need to log in and accept the license agreement on the [Oracle Container Registry](https://container-registry.oracle.com/) before you can use Docker to pull the image.  
 Also, don't forget to log in with Docker, `docker login container-registry.oracle.com`, before you try to pull the image, `docker pull container-registry.oracle.com/middleware/weblogic:12.2.1.3-dev`.
-If you prefer, you may want to build your own base image, using the docker-images project for OracleWebLogic on GitHub as a starting point, [https://github.com/oracle/docker-images/tree/master/OracleWebLogic/dockerfiles/12.2.1.3](https://github.com/oracle/docker-images/tree/master/OracleWebLogic/dockerfiles/12.2.1.3).
+If you prefer, you may want to build your own base image, using the docker-images project for Oracle WebLogic on GitHub as a starting point, [https://github.com/oracle/docker-images/tree/master/OracleWebLogic/dockerfiles/12.2.1.3](https://github.com/oracle/docker-images/tree/master/OracleWebLogic/dockerfiles/12.2.1.3).
 
 The WebLogic Deploy Tool installer is required to build this image. Add `weblogic-deploy.zip` to the sample directory.
 
@@ -113,7 +113,7 @@ To start an additional Managed Server (in this example managed-server-2), run:
 
 The above scenario from this sample will give you a WebLogic domain with a dynamic cluster set up on a single host environment.
 
-You may create more containerized Managed Servers by calling the `docker` command above for `startManagedServer.sh` as long you link properly with the Administration Server. For an example of a multihost environment, see the sample `1221-multihost`.
+You may create more containerized Managed Servers by calling the `docker` command above for `startManagedServer.sh` as long you link properly with the Administration Server. For an example of a multi-host environment, see the sample `1221-multihost`.
 
 # Copyright
 Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
