@@ -1,6 +1,5 @@
-#Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
-#
-#Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+# Copyright 2018, 2019, Oracle Corporation and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
 # ORACLE DOCKERFILES PROJECT
 # --------------------------
@@ -29,10 +28,10 @@
 #            --force-rm=true \
 #            -t 12213-domain-wdt .
 #
-# If the ADMIN_HOST, ADMIN_PORT, MS_PORT, DOMAIN_NAME are not provided, the variables 
-# are set to default values. (The values shown in the build statement). 
+# If the ADMIN_HOST, ADMIN_PORT, MS_PORT, DOMAIN_NAME are not provided, the variables
+# are set to default values. (The values shown in the build statement).
 #
-# You must insure that the build arguments align with the values in the model. 
+# You must insure that the build arguments align with the values in the model.
 # The sample model replaces the attributes with tokens that are resolved from values in the
 # corresponding property file domain.properties. The container-scripts/setEnv.sh script
 # demonstrates parsing the variable file to build a string of --build-args that can
@@ -61,7 +60,7 @@ ARG CUSTOM_DEBUG_PORT=8453
 # Create a placeholder for the manager server name. This will be provided when run the container
 # Weblogic and Domain locations
 # Set the start derby in admin server flag to true. Override this in the runtime properties
-# The boot.properties will be created under the DOMAIN_HOME when the admin server container is run 
+# The boot.properties will be created under the DOMAIN_HOME when the admin server container is run
 # WDT installation
 # ---------------------------
 ENV ADMIN_NAME=${CUSTOM_ADMIN_NAME} \
@@ -73,7 +72,7 @@ ENV ADMIN_NAME=${CUSTOM_ADMIN_NAME} \
     DERBY_FLAG="true" \
     ORACLE_HOME=/u01/oracle \
     DOMAIN_NAME=${CUSTOM_DOMAIN_NAME} \
-    DOMAIN_PARENT=${ORACLE_HOME}/user_projects/domains 
+    DOMAIN_PARENT=${ORACLE_HOME}/user_projects/domains
 
 ENV DOMAIN_HOME=${DOMAIN_PARENT}/${DOMAIN_NAME} \
     PROPERTIES_FILE_DIR=$ORACLE_HOME/properties \
@@ -84,10 +83,10 @@ ENV DOMAIN_HOME=${DOMAIN_PARENT}/${DOMAIN_NAME} \
 COPY weblogic-deploy.zip ${WDT_HOME}
 COPY container-scripts/* ${SCRIPT_HOME}/
 
-# Create the properties file directory and the domain home parent with the correct permissions / owner. 
+# Create the properties file directory and the domain home parent with the correct permissions / owner.
 # Unzip and install the WDT image and change the permissions / owner.
 USER root
-RUN chmod +xw $SCRIPT_HOME/*.sh && \ 
+RUN chmod +xw $SCRIPT_HOME/*.sh && \
     chown -R oracle:oracle ${SCRIPT_HOME} && \
     mkdir -p +xwr $PROPERTIES_FILE_DIR && \
     chown -R oracle:oracle $PROPERTIES_FILE_DIR && \
@@ -99,10 +98,10 @@ RUN chmod +xw $SCRIPT_HOME/*.sh && \
     rm weblogic-deploy.zip && \
     chmod +xw weblogic-deploy/bin/*.sh && \
     chmod -R +xw weblogic-deploy/lib/python   && \
-    chown -R oracle:oracle weblogic-deploy 
+    chown -R oracle:oracle weblogic-deploy
 
 # Persist the WDT tool home location
-ENV WDT_HOME=$WDT_HOME/weblogic-deploy 
+ENV WDT_HOME=$WDT_HOME/weblogic-deploy
 
 # Copy the WDT model, archive file, variable file and credential secrets to the property file directory.
 # These files will be removed after the image is built.
@@ -111,11 +110,11 @@ ENV WDT_HOME=$WDT_HOME/weblogic-deploy
 COPY ${WDT_MODEL} ${WDT_ARCHIVE} ${WDT_VARIABLE} properties/docker-build/*.properties ${PROPERTIES_FILE_DIR}/
 # --chown for COPY is available in docker version 18 'COPY --chown oracle:oracle'
 RUN chown -R oracle:oracle ${PROPERTIES_FILE_DIR}
-         
+
 # Create the domain home in the docker image.
 #
 # The create domain tool creates a domain at the DOMAIN_HOME location
-# The domain name is set using the value in the model / variable files 
+# The domain name is set using the value in the model / variable files
 # The domain name can be different from the DOMAIN_HOME domain folder name.
 #
 # Set WORKDIR for @@PWD@@ global token in model file
@@ -123,7 +122,7 @@ WORKDIR $ORACLE_HOME
 USER oracle
 RUN if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file $PROPERTIES_FILE_DIR/${WDT_MODEL##*/}"; fi && \
     if [ -n "$WDT_ARCHIVE" ]; then ARCHIVE_OPT="-archive_file $PROPERTIES_FILE_DIR/${WDT_ARCHIVE##*/}"; fi && \
-    if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file $PROPERTIES_FILE_DIR/${WDT_VARIABLE##*/}"; fi && \ 
+    if [ -n "$WDT_VARIABLE" ]; then VARIABLE_OPT="-variable_file $PROPERTIES_FILE_DIR/${WDT_VARIABLE##*/}"; fi && \
     ${WDT_HOME}/bin/createDomain.sh \
         -oracle_home $ORACLE_HOME \
         -java_home $JAVA_HOME \
@@ -133,7 +132,7 @@ RUN if [ -n "$WDT_MODEL" ]; then MODEL_OPT="-model_file $PROPERTIES_FILE_DIR/${W
         $MODEL_OPT \
         $ARCHIVE_OPT && \
     chmod -R a+x $DOMAIN_HOME/bin/*.sh && \
-    rm -rf $PROPERTIES_FILE_DIR 
+    rm -rf $PROPERTIES_FILE_DIR
 
 # Mount the domain home and the WDT home for easy access.
 VOLUME $DOMAIN_HOME
