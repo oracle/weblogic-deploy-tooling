@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 
 """
@@ -129,7 +129,6 @@ def extract_walletzip(model, model_context, archive_file, atp_zipentry):
     extract_path = domain_path +  os.sep + 'atpwallet'
     extract_dir = File(extract_path)
     extract_dir.mkdirs()
-    wallet_zip = archive_file.extractFile(atp_zipentry, File(domain_path))
-    FileUtils.extractZipFileContent(archive_file, wallet_zip, extract_path)
+    FileUtils.extractZipFileContent(archive_file, atp_zipentry, extract_path)
     return extract_path
     # update the model to add the tns_admin

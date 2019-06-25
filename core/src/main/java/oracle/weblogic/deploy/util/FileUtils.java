@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
- * The Universal Permissive License (UPL), Version 1.0
+ * Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
 
@@ -652,6 +652,10 @@ public final class FileUtils {
                     Files.createDirectory(Paths.get(extractPath));
                 }
 
+                // verify that each target file is under the extract directory,
+                // to protect from the file overwrite security vulnerability (zip slip).
+                String canonicalExtractPath = extractDir.getCanonicalPath();
+
                 byte[] buffer = new byte[1024];
                 FileInputStream fis = new FileInputStream(walletZip);
                 ZipInputStream zis = new ZipInputStream(fis);
@@ -659,6 +663,11 @@ public final class FileUtils {
                 while (ze != null) {
                     String fileName = ze.getName();
                     File newFile = new File(extractPath + File.separator + fileName);
+                    String canonicalNewFile = newFile.getCanonicalPath();
+                    if(!canonicalNewFile.startsWith(canonicalExtractPath + File.separator)) {
+                        throw new WLSDeployArchiveIOException("WLSDPLY-01119", ze.getName());
+                    }
+
                     new File(newFile.getParent()).mkdirs();
                     FileOutputStream fos = new FileOutputStream(newFile);
                     int len = zis.read(buffer);
@@ -677,7 +686,8 @@ public final class FileUtils {
                 Files.delete(Paths.get(walletZip));
             }
         } catch (IOException | WLSDeployArchiveIOException ioe) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-01118", METHOD, CLASS, ioe.getLocalizedMessage());
+            String message = ExceptionHelper.getMessage("WLSDPLY-01118", archiveFile.getArchiveFileName(),
+                    ioe.getLocalizedMessage());
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
