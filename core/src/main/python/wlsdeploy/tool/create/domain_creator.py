@@ -1121,6 +1121,9 @@ class DomainCreator(Creator):
 
         for server in servers:
             properties = Properties()
+
+            admin_username = self.aliases.decrypt_password(admin_username)
+            admin_password = self.aliases.decrypt_password(admin_password)
             properties.put("username", encryptionService.encrypt(admin_username))
             properties.put("password", encryptionService.encrypt(admin_password))
             file_directory = self._domain_home + "/servers/" + server + "/security"
