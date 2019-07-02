@@ -167,7 +167,6 @@ class DomainCreator(Creator):
         self.__fail_mt_1221_domain_creation()
         self.__create_domain()
         self.__deploy()
-        self.__create_boot_dot_properties()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
