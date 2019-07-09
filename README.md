@@ -241,8 +241,10 @@ topology:
         m1:
             ListenPort: 8000
             ListenAddress: myhostname
+        m3:
+            ListenPort: 10000        
 ```
-The resulting model would be:
+The attributes for server m1 are merged, server m2 is left unchanged, and server m3 is added. The resulting model would be:
 ```yaml
 topology:
     Server:
@@ -251,6 +253,8 @@ topology:
             ListenAddress: myhostname      
         m2:
             ListenPort: 9000
+        m3:
+            ListenPort: 10000  
 ```
 
 ## Downloading and Installing the Software
