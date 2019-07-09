@@ -231,6 +231,7 @@ topology:
     Server:
         m1:
             ListenPort: 7000 
+            Notes: "Server 1"
         m2:
             ListenPort: 9000
 ```
@@ -239,8 +240,8 @@ and Model 2 looks like:
 topology:
     Server:
         m1:
-            ListenPort: 8000
             ListenAddress: myhostname
+            ListenPort: 8000
         m3:
             ListenPort: 10000        
 ```
@@ -249,8 +250,9 @@ The attributes for server m1 are merged, server m2 is left unchanged, and server
 topology:
     Server:
         m1:
-            ListenPort: 8000
             ListenAddress: myhostname      
+            ListenPort: 8000
+            Notes: "Server 1"
         m2:
             ListenPort: 9000
         m3:
