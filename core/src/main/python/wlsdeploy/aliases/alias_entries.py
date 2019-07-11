@@ -186,7 +186,8 @@ class AliasEntries(object):
         # servers in the domain.
         'ServerGroupTargetingLimits': 'dict',
         'RCUDbInfo': 'dict',
-        'OPSSSecrets': 'string'
+        'OPSSSecrets': 'string',
+        'AppDir' : 'string'
     }
 
     __domain_name_token = 'DOMAIN'

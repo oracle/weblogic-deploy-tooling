@@ -33,6 +33,7 @@ class CommandLineArgUtil(object):
     DOMAIN_HOME_SWITCH         = '-domain_home'
     DOMAIN_PARENT_SWITCH       = '-domain_parent'
     DOMAIN_TYPE_SWITCH         = '-domain_type'
+    EXTRACT_LOCATION_SWITCH    = '-extract_location'
     # never used by the tools but used by shell scripts
     WLST_PATH_SWITCH           = '-wlst_path'
     ADMIN_URL_SWITCH           = '-admin_url'
@@ -380,6 +381,15 @@ class CommandLineArgUtil(object):
                     ex = self._get_out_of_args_exception(key)
                     self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
                     raise ex
+            elif self.is_extract_location_key(key):
+                idx += 1
+                if idx < args_len:
+                    full_path = self._validate_extract_location_arg(args[idx])
+                    self._add_arg(key, full_path)
+                else:
+                    ex = self._get_out_of_args_exception(key)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
             else:
                 ex = exception_helper.create_cla_exception('WLSDPLY-01601', self._program_name, key)
                 ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
@@ -492,6 +502,20 @@ class CommandLineArgUtil(object):
             raise ex
 
         return dh.getAbsolutePath()
+
+    def _validate_extract_location_arg(self, value):
+        method_name = '__validate_extract_location_arg'
+
+        try:
+            dh = JFileUtils.validateExistingDirectory(value)
+        except JIllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01637', value, iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        print 'returning ' + dh.getAbsolutePath()
+        return dh.getAbsolutePath()
+
 
     #
     # The domain home arg used by create must be the child of a valid, writable directory.
@@ -756,6 +780,9 @@ class CommandLineArgUtil(object):
 
     def is_rcu_database_key(self, key):
         return self.RCU_DB_SWITCH == key
+
+    def is_extract_location_key(self, key):
+        return self.EXTRACT_LOCATION_SWITCH == key
 
     def _validate_rcu_database_arg(self, value):
         method_name = '_validate_rcu_database_arg'

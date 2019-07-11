@@ -140,7 +140,8 @@ class DomainCreator(Creator):
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
             self.archive_helper = ArchiveHelper(archive_file_name, self._domain_home, self.logger,
-                                                exception_helper.ExceptionType.CREATE)
+                                                exception_helper.ExceptionType.CREATE,
+                                                model_context.get_extract_location())
 
         self.library_helper = LibraryHelper(self.model, self.model_context, self.aliases, self._domain_home,
                                             ExceptionType.CREATE, self.logger)
@@ -1121,6 +1122,9 @@ class DomainCreator(Creator):
 
         for server in servers:
             properties = Properties()
+
+            admin_username = self.aliases.decrypt_password(admin_username)
+            admin_password = self.aliases.decrypt_password(admin_password)
             properties.put("username", encryptionService.encrypt(admin_username))
             properties.put("password", encryptionService.encrypt(admin_password))
             file_directory = self._domain_home + "/servers/" + server + "/security"

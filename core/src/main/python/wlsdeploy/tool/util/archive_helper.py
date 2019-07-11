@@ -18,12 +18,13 @@ class ArchiveHelper(object):
     """
     __class_name = 'ArchiveHelper'
 
-    def __init__(self, archive_file_name, domain_home, logger, exception_type):
+    def __init__(self, archive_file_name, domain_home, logger, exception_type, extract_location=None):
         _method_name = '__init__'
         self.__archive_file_name = archive_file_name
         self.__domain_home = File(domain_home)
         self.__logger = logger
         self.__exception_type = exception_type
+        self.__extract_location = extract_location
 
         try:
             self.__archive_file = WLSDeployArchive(archive_file_name)
@@ -147,11 +148,15 @@ class ArchiveHelper(object):
 
         self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
         try:
-            if location is None:
-                result = self.__archive_file.extractFile(path, self.__domain_home)
+            if self.__extract_location is not None:
+                extract_location = FileUtils.getCanonicalFile(File(self.__extract_location))
+                result = self.__archive_file.extractFile(path, extract_location, False)
             else:
-                extract_location = FileUtils.getCanonicalFile(File(location))
-                result = self.__archive_file.extractFile(path, extract_location, True)
+                if location is None:
+                    result = self.__archive_file.extractFile(path, self.__domain_home)
+                else:
+                    extract_location = FileUtils.getCanonicalFile(File(location))
+                    result = self.__archive_file.extractFile(path, extract_location, True)
         except (IllegalArgumentException, WLSDeployArchiveIOException), e:
             ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19303", path,
                                                    self.__archive_file_name, e.getLocalizedMessage(), error=e)
@@ -191,8 +196,12 @@ class ArchiveHelper(object):
         self.__logger.entering(lib_path, class_name=self.__class_name, method_name=_method_name)
         try:
             domain_libs = self.__archive_file.listDomainLibLibraries()
+            if self.__extract_location is not None:
+                extract_root = self.__extract_location
+            else:
+                extract_root = self.__domain_home
             if lib_path in domain_libs:
-                self.__archive_file.extractDomainLibLibrary(lib_path, File(self.__domain_home, 'lib'))
+                self.__archive_file.extractDomainLibLibrary(lib_path, File(extract_root, 'lib'))
             else:
                 ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19305',
                                                        lib_path, self.__archive_file_name)
@@ -217,9 +226,13 @@ class ArchiveHelper(object):
 
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
         try:
+            if self.__extract_location is not None:
+                extract_root = self.__extract_location
+            else:
+                extract_root = self.__domain_home
             cp_libs = self.__archive_file.listClasspathLibraries()
             if cp_libs.size() > 0:
-                self.__archive_file.extractClasspathLibraries(self.__domain_home)
+                self.__archive_file.extractClasspathLibraries(extract_root)
         except (WLSDeployArchiveIOException, IllegalArgumentException), e:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19307', self.__archive_file_name,
                                                    self.__domain_home.getAbsolutePath(), e.getLocalizedMessage(),

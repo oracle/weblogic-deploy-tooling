@@ -104,6 +104,9 @@ class ApplicationsDeployer(Deployer):
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
+            extract_root = self.model_context.get_extract_location()
+            if extract_root is None:
+                extract_root = self.model_context.get_domain_home()
             if deployer_utils.is_path_into_archive(shlib_source_path):
                 if self.archive_helper is not None:
                     self.archive_helper.extract_file(shlib_source_path)
@@ -111,10 +114,10 @@ class ApplicationsDeployer(Deployer):
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09303', shared_library_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
-                full_source_path = File(File(self.model_context.get_domain_home()), shlib_source_path).getAbsolutePath()
+                full_source_path = File(extract_root, shlib_source_path).getAbsolutePath()
             else:
                 full_source_path = File(self.model_context.replace_token_string(shlib_source_path)).getAbsolutePath()
-
+            shared_library[SOURCE_PATH] = full_source_path
             library_name = \
                 self.__get_deployable_library_versioned_name(full_source_path, shared_library_name)
             quoted_library_name = self.wlst_helper.get_quoted_name_for_wlst(library_name)
@@ -160,6 +163,9 @@ class ApplicationsDeployer(Deployer):
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
+            extract_root = self.model_context.get_extract_location()
+            if extract_root is None:
+                extract_root = self.model_context.get_domain_home()
             if deployer_utils.is_path_into_archive(app_source_path):
                 if self.archive_helper is not None:
                     self.archive_helper.extract_file(app_source_path)
@@ -167,16 +173,14 @@ class ApplicationsDeployer(Deployer):
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09303', application_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
-                full_source_path = File(File(self.model_context.get_domain_home()), app_source_path).getAbsolutePath()
+                full_source_path = File(File(extract_root), app_source_path).getAbsolutePath()
             else:
                 full_source_path = File(self.model_context.replace_token_string(app_source_path)).getAbsolutePath()
-
             application_name = \
                 self.__get_deployable_library_versioned_name(full_source_path, application_name)
-
+            application[SOURCE_PATH] = full_source_path
             quoted_application_name = self.wlst_helper.get_quoted_name_for_wlst(application_name)
             application_location.add_name_token(application_token, quoted_application_name)
-
             self.wlst_helper.cd(root_path)
             deployer_utils.create_and_cd(application_location, existing_applications, self.alias_helper)
             self.set_attributes(application_location, application)
