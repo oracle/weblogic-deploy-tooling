@@ -104,9 +104,6 @@ class ApplicationsDeployer(Deployer):
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
-            extract_root = self.model_context.get_extract_location()
-            if extract_root is None:
-                extract_root = self.model_context.get_domain_home()
             if deployer_utils.is_path_into_archive(shlib_source_path):
                 if self.archive_helper is not None:
                     self.archive_helper.extract_file(shlib_source_path)
@@ -114,7 +111,7 @@ class ApplicationsDeployer(Deployer):
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09303', shared_library_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
-                full_source_path = File(extract_root, shlib_source_path).getAbsolutePath()
+                full_source_path = File(self.__get_extract_root(), shlib_source_path).getAbsolutePath()
             else:
                 full_source_path = File(self.model_context.replace_token_string(shlib_source_path)).getAbsolutePath()
             shared_library[SOURCE_PATH] = full_source_path
@@ -163,9 +160,6 @@ class ApplicationsDeployer(Deployer):
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
-            extract_root = self.model_context.get_extract_location()
-            if extract_root is None:
-                extract_root = self.model_context.get_domain_home()
             if deployer_utils.is_path_into_archive(app_source_path):
                 if self.archive_helper is not None:
                     self.archive_helper.extract_file(app_source_path)
@@ -173,7 +167,7 @@ class ApplicationsDeployer(Deployer):
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09303', application_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
-                full_source_path = File(File(extract_root), app_source_path).getAbsolutePath()
+                full_source_path = File(File(self.__get_extract_root()), app_source_path).getAbsolutePath()
             else:
                 full_source_path = File(self.model_context.replace_token_string(app_source_path)).getAbsolutePath()
             application_name = \
@@ -187,6 +181,18 @@ class ApplicationsDeployer(Deployer):
             application_location.remove_name_token(application_token)
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
         return
+
+
+    def __get_extract_root(self):
+        """
+        This should ONLY be used by app and lib.
+        :return: root directory where app and lib are extracted tp
+        """
+        extract_root = self.model_context.get_extract_location()
+        if extract_root is None:
+            extract_root = self.model_context.get_domain_home()
+        return extract_root
+
 
     def __online_deploy_apps_and_libs(self, base_location):
         """
