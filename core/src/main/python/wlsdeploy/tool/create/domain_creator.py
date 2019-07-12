@@ -77,6 +77,7 @@ from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
+from wlsdeploy.tool.create.wlsroles_helper import WLSRoles
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
@@ -147,6 +148,8 @@ class DomainCreator(Creator):
 
         self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, ExceptionType.CREATE,
                                           self.logger)
+
+        self.wlsroles_helper = WLSRoles(self._domain_info, self._domain_home, self.logger)
 
         #
         # This list gets modified as the domain is being created so do use this list for anything else...
@@ -338,6 +341,7 @@ class DomainCreator(Creator):
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
+        self.wlsroles_helper.process_roles()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
