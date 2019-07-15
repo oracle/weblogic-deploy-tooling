@@ -7,6 +7,8 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import EXPRESSION
 from wlsdeploy.aliases.model_constants import UPDATE
 from wlsdeploy.aliases.model_constants import WLS_ROLES
+from wlsdeploy.util.weblogic_roles_helper import WebLogicRolesHelper
+
 
 WLS_GLOBAL_ROLES = {
     'Admin': '?weblogic.entitlement.rules.AdministrativeGroup(Administrators)',
@@ -19,7 +21,6 @@ WLS_GLOBAL_ROLES = {
     'AdminChannelUser': '?weblogic.entitlement.rules.OwnerIDDGroup(AdminChannelUsers)'
 }
 WLS_ROLE_UPDATE_OPERAND = '|'
-WLS_XACML_ROLE_MAPPER_LDIFT = 'XACMLRoleMapperInit.ldift' 
 
 class WLSRoles(object):
     """
@@ -27,7 +28,7 @@ class WLSRoles(object):
     """
     __class_name = 'WLSRoles'
 
-    def __init__(self, domain_info, domain_home, logger):
+    def __init__(self, domain_info, domain_home, exception_type, logger):
         self.logger = logger
         self._wls_roles_map = None
         self._domain_security_folder = None
@@ -36,6 +37,7 @@ class WLSRoles(object):
             if WLS_ROLES in domain_info:
                self._wls_roles_map = domain_info[WLS_ROLES]
                self._domain_security_folder = File(domain_home, 'security').getPath()
+               self._weblogic_roles_helper = WebLogicRolesHelper(logger, exception_type, self._domain_security_folder)
 
     def process_roles(self):
         """
@@ -46,7 +48,7 @@ class WLSRoles(object):
         if self._wls_roles_map is not None:
             role_expressions = self._process_roles_map()
             if role_expressions is not None:
-                self.logger.info('The WebLogic XACML role mapper will be updated with the roles: {0}', role_expressions.keys(), class_name=self.__class_name, method_name=_method_name)
+                self.logger.info('The WebLogic role mapper will be updated with the roles: {0}', role_expressions.keys(), class_name=self.__class_name, method_name=_method_name)
                 self._update_xacml_role_mapper(role_expressions)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
@@ -82,8 +84,7 @@ class WLSRoles(object):
         """
         _method_name = '_update_xacml_role_mapper'
         self.logger.entering(role_expression_map, class_name=self.__class_name, method_name=_method_name)
-        _xacml_ldift_file = File(self._domain_security_folder, WLS_XACML_ROLE_MAPPER_LDIFT).getPath()
-        self.logger.finer('Updating XACML role mapper file {0}', _xacml_ldift_file, class_name=self.__class_name, method_name=_method_name)
+        self._weblogic_roles_helper.update_xacml_role_mapper(role_expression_map)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def _get_role_expression(self, role_name):

@@ -149,7 +149,7 @@ class DomainCreator(Creator):
         self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, ExceptionType.CREATE,
                                           self.logger)
 
-        self.wlsroles_helper = WLSRoles(self._domain_info, self._domain_home, self.logger)
+        self.wlsroles_helper = WLSRoles(self._domain_info, self._domain_home, ExceptionType.CREATE, self.logger)
 
         #
         # This list gets modified as the domain is being created so do use this list for anything else...
