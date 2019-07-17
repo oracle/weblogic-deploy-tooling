@@ -8,6 +8,7 @@ from wlsdeploy.aliases.model_constants import EXPRESSION
 from wlsdeploy.aliases.model_constants import UPDATE
 from wlsdeploy.aliases.model_constants import WLS_ROLES
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import string_utils
 from wlsdeploy.util.weblogic_roles_helper import WebLogicRolesHelper
 
 WLS_GLOBAL_ROLES = {
@@ -48,7 +49,7 @@ class WLSRoles(object):
         if self._wls_roles_map is not None:
             role_expressions = self._process_roles_map()
             if role_expressions is not None and len(role_expressions) > 0:
-                self.logger.info('The WebLogic role mapper will be updated with the roles: {0}', role_expressions.keys(), class_name=self.__class_name, method_name=_method_name)
+                self.logger.info('WLSDPLY-12500', role_expressions.keys(), class_name=self.__class_name, method_name=_method_name)
                 self._update_xacml_role_mapper(role_expressions)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
@@ -63,12 +64,12 @@ class WLSRoles(object):
         for role in role_list:
             # Get the role expression and if the role should be an update to the default set of roles
             expression = self._get_role_expression(role)
-            if expression is None:
-                self.logger.warning('The role {0} has no specified expression value', role, class_name=self.__class_name, method_name=_method_name)
+            if string_utils.is_empty(expression):
+                self.logger.warning('WLSDPLY-12501', role, class_name=self.__class_name, method_name=_method_name)
                 continue
             update_role = self._is_role_updated(role)
             if update_role and role not in WLS_GLOBAL_ROLES:
-                self.logger.warning('The role {0} is not a WebLogic global role and will use the expression as specified', role, class_name=self.__class_name, method_name=_method_name)
+                self.logger.warning('WLSDPLY-12502', role, class_name=self.__class_name, method_name=_method_name)
                 update_role = False
             # Add the role and expression to the map of roles to be processed 
             if update_role:

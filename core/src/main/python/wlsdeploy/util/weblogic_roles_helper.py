@@ -68,11 +68,11 @@ class WebLogicRolesHelper(object):
                     entries[role] = entry
 
             except DocumentParseException, dpe:
-                ex = exception_helper.create_exception(self._exception_type, 'Failed to convert role expression {0} because {1}', role_expression, dpe.getLocalizedMessage(), error=dpe)
+                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01804', role_expression, dpe.getLocalizedMessage(), error=dpe)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
             except URISyntaxException, use:
-                ex = exception_helper.create_exception(self._exception_type, 'Failed to convert role expression {0} because {1}', role_expression, use.getLocalizedMessage(), error=use)
+                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01804', role_expression, use.getLocalizedMessage(), error=use)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
@@ -86,7 +86,7 @@ class WebLogicRolesHelper(object):
         try:
             # Determine the current XACML ldift file name
             ldift_filename = File(self._domain_security_folder, WLS_XACML_ROLE_MAPPER_LDIFT_FILENAME).getPath()
-            self.logger.finer('XACML role mapper file: {0}', ldift_filename, class_name=self.__class_name, method_name=_method_name)
+            self.logger.finer('WLSDPLY-01800', ldift_filename, class_name=self.__class_name, method_name=_method_name)
 
             # Update the XACML ldift file
             ldift_file = None
@@ -101,7 +101,7 @@ class WebLogicRolesHelper(object):
                         role_entry_lines = self.__read_xacml_role_entry(line, ldift_file)
                         role_name = self.__get_xacml_role_entry_name(role_entry_lines)
                         if role_name in role_entries_map:
-                            self.logger.finer('Updating role: {0}', role_name, class_name=self.__class_name, method_name=_method_name)
+                            self.logger.finer('WLSDPLY-01802', role_name, class_name=self.__class_name, method_name=_method_name)
                             update_file.writelines(role_entries_map[role_name])
                             del role_entries_map[role_name]
                         else:
@@ -110,7 +110,7 @@ class WebLogicRolesHelper(object):
                         update_file.write(line)
                 # Append any remaining entries
                 role_names = role_entries_map.keys()
-                self.logger.finer('Adding roles: {0}', role_names, class_name=self.__class_name, method_name=_method_name)
+                self.logger.finer('WLSDPLY-01803', role_names, class_name=self.__class_name, method_name=_method_name)
                 for role_name in role_names:
                     update_file.write('\n')
                     update_file.writelines(role_entries_map[role_name])
@@ -123,7 +123,7 @@ class WebLogicRolesHelper(object):
             # Backup or remove the existing ldift file
             backup_filename = ldift_filename + '.bak'
             if not os.path.exists(backup_filename):
-                self.logger.finer('Creating backup file: {0}', backup_filename, class_name=self.__class_name, method_name=_method_name)
+                self.logger.finer('WLSDPLY-01801', backup_filename, class_name=self.__class_name, method_name=_method_name)
                 os.rename(ldift_filename, backup_filename)
             else:
                 os.remove(ldift_filename)
@@ -132,15 +132,15 @@ class WebLogicRolesHelper(object):
             os.rename(update_filename, ldift_filename)
 
         except ValueError, ve:
-            ex = exception_helper.create_exception(self._exception_type, 'ValueError: {0}', str(ve), error=ve)
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01805', 'ValueError', str(ve), error=ve)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         except IOError, ioe:
-            ex = exception_helper.create_exception(self._exception_type, 'IOError: {0}', str(ioe), error=ioe)
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01805', 'IOError', str(ioe), error=ioe)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         except OSError, ose:
-            ex = exception_helper.create_exception(self._exception_type, 'OSError: {0}', str(ose), error=ose)
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01805', 'OSError', str(ose), error=ose)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
