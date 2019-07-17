@@ -3,9 +3,11 @@ Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 from java.io import File
-from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases.model_constants import APPEND
 from wlsdeploy.aliases.model_constants import EXPRESSION
-from wlsdeploy.aliases.model_constants import UPDATE
+from wlsdeploy.aliases.model_constants import PREPEND
+from wlsdeploy.aliases.model_constants import REPLACE
+from wlsdeploy.aliases.model_constants import UPDATE_MODE
 from wlsdeploy.aliases.model_constants import WLS_ROLES
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import string_utils
@@ -73,7 +75,7 @@ class WLSRoles(object):
             if string_utils.is_empty(expression):
                 self.logger.warning('WLSDPLY-12501', role, class_name=self.__class_name, method_name=_method_name)
                 continue
-            update_role = self._is_role_updated(role)
+            update_role = self._is_role_update_mode(role)
             if update_role and role not in WLS_GLOBAL_ROLES:
                 self.logger.warning('WLSDPLY-12502', role, class_name=self.__class_name, method_name=_method_name)
                 update_role = False
@@ -105,20 +107,35 @@ class WLSRoles(object):
             result = role_map[EXPRESSION]
         return result
 
-    def _is_role_updated(self, role_name):
+    def _is_role_update_mode(self, role_name):
         """
-        Determine if the role is to be updated with the default definition
-        :return: True if the model value is present and indicates true, False otherwise
+        Determine if the role update mode indicates that a role update is specified
+        :return: True if the update mode value is present and set to append or prepend mode
         """
+        result = False
         role_map = self._wls_roles_map[role_name]
-        if UPDATE in role_map:
-            value = alias_utils.convert_to_type('boolean', role_map[UPDATE])
-            return value == 'true'
-        return False
+        if UPDATE_MODE in role_map:
+            mode = role_map[UPDATE_MODE]
+            if not string_utils.is_empty(mode):
+                mode = mode.lower()
+                if APPEND == mode or PREPEND == mode:
+                    result = True
+        return result
 
     def _update_role_epression(self, role_name, expression_value):
         """
-        Lookup the default role definition and logically OR the expressions
+        Lookup the default role definition and logically OR the expression
+        Based on the update mode the expression is appended or prepended
         :return: the updated role expression
         """
-        return WLS_GLOBAL_ROLES[role_name] + WLS_ROLE_UPDATE_OPERAND + expression_value
+        result = expression_value
+        role_map = self._wls_roles_map[role_name]
+        if UPDATE_MODE in role_map:
+            mode = role_map[UPDATE_MODE]
+            if not string_utils.is_empty(mode):
+                mode = mode.lower()
+                if APPEND == mode:
+                    result = WLS_GLOBAL_ROLES[role_name] + WLS_ROLE_UPDATE_OPERAND + expression_value
+                elif PREPEND == mode:
+                    result = expression_value + WLS_ROLE_UPDATE_OPERAND + WLS_GLOBAL_ROLES[role_name]
+        return result
