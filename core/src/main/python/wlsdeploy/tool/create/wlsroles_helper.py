@@ -7,8 +7,8 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import EXPRESSION
 from wlsdeploy.aliases.model_constants import UPDATE
 from wlsdeploy.aliases.model_constants import WLS_ROLES
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.weblogic_roles_helper import WebLogicRolesHelper
-
 
 WLS_GLOBAL_ROLES = {
     'Admin': '?weblogic.entitlement.rules.AdministrativeGroup(Administrators)',
@@ -34,7 +34,7 @@ class WLSRoles(object):
         self._domain_security_folder = None
         
         if domain_info is not None:
-            if WLS_ROLES in domain_info:
+            if not dictionary_utils.is_empty_dictionary_element(domain_info, WLS_ROLES):
                self._wls_roles_map = domain_info[WLS_ROLES]
                self._domain_security_folder = File(domain_home, 'security').getPath()
                self._weblogic_roles_helper = WebLogicRolesHelper(logger, exception_type, self._domain_security_folder)
@@ -47,7 +47,7 @@ class WLSRoles(object):
         self.logger.entering(self._domain_security_folder, self._wls_roles_map, class_name=self.__class_name, method_name=_method_name)
         if self._wls_roles_map is not None:
             role_expressions = self._process_roles_map()
-            if role_expressions is not None:
+            if role_expressions is not None and len(role_expressions) > 0:
                 self.logger.info('The WebLogic role mapper will be updated with the roles: {0}', role_expressions.keys(), class_name=self.__class_name, method_name=_method_name)
                 self._update_xacml_role_mapper(role_expressions)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
