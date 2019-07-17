@@ -11,6 +11,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.exception import exception_helper
+import os
 
 class ArchiveHelper(object):
     """
@@ -145,10 +146,12 @@ class ArchiveHelper(object):
         :raises: BundleAwareException of the appropriate type: if an error occurs
         """
         _method_name = 'extract_file'
+        ignore_list = [ 'wlsdeploy/config', 'wlsdeploy/coherence', 'wlsdeploy/stores', 'wlsdeploy/servers',
+                        'wlsdeploy/nodeManager']
 
         self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
         try:
-            if self.__extract_location is not None:
+            if self.__extract_location is not None and os.path.dirname(path) not in ignore_list:
                 extract_location = FileUtils.getCanonicalFile(File(self.__extract_location))
                 result = self.__archive_file.extractFile(path, extract_location, False)
             else:
