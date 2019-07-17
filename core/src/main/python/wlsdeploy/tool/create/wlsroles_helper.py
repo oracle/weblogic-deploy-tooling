@@ -29,8 +29,9 @@ class WLSRoles(object):
     """
     __class_name = 'WLSRoles'
 
-    def __init__(self, domain_info, domain_home, exception_type, logger):
+    def __init__(self, domain_info, domain_home, wls_helper, exception_type, logger):
         self.logger = logger
+        self._wls_helper = wls_helper
         self._wls_roles_map = None
         self._domain_security_folder = None
         
@@ -42,15 +43,20 @@ class WLSRoles(object):
 
     def process_roles(self):
         """
-        Process the WebLogic roles contained in the domainInfo section of the model when specified 
+        Process the WebLogic roles contained in the domainInfo section of the model when specified
+        Support for the WebLogic roles handling is when using WebLogic Server 12.2.1 or greater
         """
         _method_name = 'process_roles'
         self.logger.entering(self._domain_security_folder, self._wls_roles_map, class_name=self.__class_name, method_name=_method_name)
         if self._wls_roles_map is not None:
-            role_expressions = self._process_roles_map()
-            if role_expressions is not None and len(role_expressions) > 0:
-                self.logger.info('WLSDPLY-12500', role_expressions.keys(), class_name=self.__class_name, method_name=_method_name)
-                self._update_xacml_role_mapper(role_expressions)
+            # Process the WLSRoles section after checking for proper version support
+            if not self._wls_helper.is_weblogic_version_or_above('12.2.1'):
+                self.logger.warning('WLSDPLY-12503', self._wls_helper.get_actual_weblogic_version(), class_name=self.__class_name, method_name=_method_name)
+            else:
+                role_expressions = self._process_roles_map()
+                if role_expressions is not None and len(role_expressions) > 0:
+                    self.logger.info('WLSDPLY-12500', role_expressions.keys(), class_name=self.__class_name, method_name=_method_name)
+                    self._update_xacml_role_mapper(role_expressions)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def _process_roles_map(self):
