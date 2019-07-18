@@ -186,7 +186,7 @@ class AliasEntries(object):
         # servers in the domain.
         'ServerGroupTargetingLimits': 'dict',
         'RCUDbInfo': 'dict',
-        'OPSSSecrets': 'string',
+        'OPSSSecrets': 'password',
         'WLSRoles': 'dict'
     }
 

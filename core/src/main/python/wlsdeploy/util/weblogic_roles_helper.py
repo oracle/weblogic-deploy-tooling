@@ -28,6 +28,7 @@ class WebLogicRolesHelper(object):
         self._b64encoder = BASE64Encoder()
         self._escaper = ResourcePolicyIdUtil.getEscaper()
         self._converter = EntitlementConverter(None)
+        return
 
     def update_xacml_role_mapper(self, role_expressions_map):
         _method_name = 'update_xacml_role_mapper'
@@ -35,6 +36,7 @@ class WebLogicRolesHelper(object):
         role_entries_map = self._create_xacml_role_mapper_entries(role_expressions_map)
         self._update_xacml_role_mapper_ldift(role_entries_map)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
 
     def _create_xacml_role_mapper_entries(self, role_expressions_map):
         _method_name = '_create_xacml_role_mapper_entries'
@@ -43,8 +45,7 @@ class WebLogicRolesHelper(object):
         entries = {}
         if role_expressions_map is not None:
             try:
-                role_list = role_expressions_map.keys()
-                for role_name in role_list:
+                for role_name in role_expressions_map.keys():
                     # Get the role expression
                     role_expression = role_expressions_map[role_name]
                     # Convert the role expression
@@ -145,6 +146,7 @@ class WebLogicRolesHelper(object):
             raise ex
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
 
     def __read_xacml_role_entry(self, start_line, ldift_file):
         count = 1
