@@ -68,11 +68,11 @@ class WebLogicRolesHelper(object):
                     entries[role] = entry
 
             except DocumentParseException, dpe:
-                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01804', role_expression, dpe.getLocalizedMessage(), error=dpe)
+                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01804', role_name, role_expression, dpe.getLocalizedMessage(), error=dpe)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
             except URISyntaxException, use:
-                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01804', role_expression, use.getLocalizedMessage(), error=use)
+                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01804', role_name, role_expression, use.getLocalizedMessage(), error=use)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
