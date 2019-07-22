@@ -224,7 +224,40 @@ The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools 
 
     weblogic-deploy\bin\createDomain.cmd -model_file modelOne,modelTwo,modelThree ...
 
-In this case, the models are merged into a single model before being applied. Each successive model is layered onto the previous ones, so any existing values from the previous models are overwritten. The resulting model is then verified before being applied.
+In this case, the models are merged into a single model before being applied. Each successive model is added to the previous model. In cases where entities exist in both models, the attributes are combined and attribute values from successive models prevail.  The resulting model is then verified before being applied.  
+For example, if Model 1 looks like:
+```yaml
+topology:
+    Server:
+        m1:
+            ListenPort: 7000 
+            Notes: "Server 1"
+        m2:
+            ListenPort: 9000
+```
+and Model 2 looks like:
+```yaml
+topology:
+    Server:
+        m1:
+            ListenAddress: myhostname
+            ListenPort: 8000
+        m3:
+            ListenPort: 10000        
+```
+The attributes for server m1 are merged, server m2 is left unchanged, and server m3 is added. The resulting model would be:
+```yaml
+topology:
+    Server:
+        m1:
+            ListenAddress: myhostname      
+            ListenPort: 8000
+            Notes: "Server 1"
+        m2:
+            ListenPort: 9000
+        m3:
+            ListenPort: 10000  
+```
 
 ## Downloading and Installing the Software
 
