@@ -27,7 +27,7 @@ The `Admin` role will have the expression appended to the default expression, th
 In addition, the `Expression` value can use the variable placeholder syntax specified when running the [Create Tool](create.md) as shown in the above example.
 
 #### WebLogic Users and Groups
-The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP Server (i.e. `DefaultAuthenticator`). New groups can be specified and users can be added as members of the new groups or existing groups such as the `Administrators` group which is defaulted to be in the WebLogic `Admin` global role.
+The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP Server (i.e. `DefaultAuthenticator`). New groups can be specified and users can be added as members of the new groups or existing groups such as the `Administrators` group which is defaulted to be in the WebLogic `Admin` global role. Please see [known limitations](#known-limitations) below for additional information on users and groups.
 
 The user password can be specified with a placeholder or encrypted with the [Encrypt Tool](encrypt.md). An example `Security` section that adds an additional group `AppMonitors`, adds two new users and places the users into groups is as follows:
 
@@ -51,3 +51,4 @@ topology:
 - The processing of users, groups, and roles will only take place when using the [Create Domain Tool](create.md)
 - WebLogic global roles are only supported with WebLogic Server version 12.2.1 or greater
 - WebLogic global roles are only updated for the WebLogic security XACML role mapping provider (i.e. `XACMLRoleMapper`)
+- The user and group processing is not complete, groups are created but users are only assigned to the `Administrators` group
