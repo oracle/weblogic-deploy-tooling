@@ -28,8 +28,8 @@ When the WDT `discoverDomain` tool is used on an existing domain, a ZIP archive 
 
 ### How to Build and Run
 
-**NOTE:** The image is based on a WebLogic Server image in the Oracle Container Registry: `container-registry.oracle.com/middleware/weblogic:12.2.1.3-dev`. You will need to log in and accept the license agreement on the [Oracle Container Registry](https://container-registry.oracle.com/) before you can use Docker to pull the image.  
-Also, don't forget to log in with Docker, `docker login container-registry.oracle.com`, before you try to pull the image, `docker pull container-registry.oracle.com/middleware/weblogic:12.2.1.3-dev`.
+**NOTE:** The image is based on a WebLogic Server image in the Oracle Container Registry: `container-registry.oracle.com/middleware/weblogic:12.2.1.3`. You will need to log in and accept the license agreement on the [Oracle Container Registry](https://container-registry.oracle.com/) before you can use Docker to pull the image.  
+Also, don't forget to log in with Docker, `docker login container-registry.oracle.com`, before you try to pull the image, `docker pull container-registry.oracle.com/middleware/weblogic:12.2.1.3`.
 If you prefer, you may want to build your own base image, using the docker-images project for Oracle WebLogic on GitHub as a starting point, [https://github.com/oracle/docker-images/tree/master/OracleWebLogic/dockerfiles/12.2.1.3](https://github.com/oracle/docker-images/tree/master/OracleWebLogic/dockerfiles/12.2.1.3).
 
 The WebLogic Deploy Tool installer is required to build this image. Add `weblogic-deploy.zip` to the sample directory.
