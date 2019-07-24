@@ -51,4 +51,4 @@ topology:
 - The processing of users, groups, and roles will only take place when using the [Create Domain Tool](create.md)
 - WebLogic global roles are only supported with WebLogic Server version 12.2.1 or greater
 - WebLogic global roles are only updated for the WebLogic security XACML role mapping provider (i.e. `XACMLRoleMapper`)
-- The user and group processing is not complete, groups are created but users are only assigned to the `Administrators` group
+- The user and group processing is not complete, currently, users cannot be assigned to groups. Users created using the `Security` section are automatically added to the `Administrators` group and are not added to the groups specified. As soon as a patch to correct the user and group processing is available, we will post it here.
