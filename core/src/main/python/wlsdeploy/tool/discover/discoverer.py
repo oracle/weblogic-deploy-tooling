@@ -16,7 +16,9 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+
 from wlsdeploy.tool.util.mbean_utils import MBeanUtils
+from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import path_utils
@@ -49,10 +51,11 @@ class Discoverer(object):
             self._aliases = Aliases(self._model_context, wlst_mode=self._wlst_mode)
         self._alias_helper = AliasHelper(self._aliases, _logger, ExceptionType.DISCOVER)
         self._att_handler_map = OrderedDict()
+        self._custom_folder = CustomFolderHelper(self._aliases, _logger, self._model_context, ExceptionType.DISCOVER)
         self._weblogic_helper = WebLogicHelper(_logger)
-        self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
         self._wlst_helper = WlstHelper(_logger, ExceptionType.DISCOVER)
         self._mbean_utils = MBeanUtils(self._model_context, self._alias_helper, ExceptionType.DISCOVER)
+        self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
 
     # methods for use only by the subclasses
 
@@ -356,19 +359,19 @@ class Discoverer(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return result
 
-    def _discover_artificial_folder(self, model_subfolder_name, location, name_token):
+    def _discover_artificial_folder(self, model_subfolder_type, location, name_token):
         """
         Discover the subfolder that has an artificial connection; the subfolder contains multiple different types
         under one MBean. The model must contain the subfolder type, the artificial type that specifies which it is,
         and the name of the subfolder. This folder is only one layer deep. No need to continue to discover
         additional subfolders
-        :param model_subfolder_name: type of the model subfolder
+        :param model_subfolder_type: type of the model subfolder
         :param location: context containing the current location information
         :param name_token: for use in the location to contain the folder name
         :return: dictionary containing the discovered folder attributes
         """
         _method_name = '_discover_artifical_folder'
-        _logger.entering(model_subfolder_name, str(location), name_token, class_name=_class_name,
+        _logger.entering(model_subfolder_type, str(location), name_token, class_name=_class_name,
                          method_name=_method_name)
         subfolder_result = OrderedDict()
         names = self._find_names_in_folder(location)
@@ -378,10 +381,16 @@ class Discoverer(object):
                 location.add_name_token(name_token, massaged)
                 artificial = self._get_artificial_type(location)
                 if artificial is None:
-                    _logger.warning('WLSDPLY-06123', self._alias_helper.get_model_folder_path(location),
-                                    class_name=_class_name, method_name=_method_name)
+                    if self._alias_helper.is_custom_folder_allowed(location):
+                        _logger.fine('WLSDPLY-06148', model_subfolder_type, massaged, location.get_folder_path(),
+                                     class_name=_class_name, method_name=_method_name)
+                        subfolder_result = self._custom_folder.discover_custom_mbean(location, model_subfolder_type,
+                                                                                     massaged)
+                    else:
+                        _logger.warning('WLSDPLY-06123', self._alias_helper.get_model_folder_path(location),
+                                        class_name=_class_name, method_name=_method_name)
                 else:
-                    _logger.finer('WLSDPLY-06120', artificial, massaged, model_subfolder_name, class_name=_class_name,
+                    _logger.finer('WLSDPLY-06120', artificial, massaged, model_subfolder_type, class_name=_class_name,
                                   method_name=_method_name)
                     location.append_location(artificial)
                     subfolder_result[massaged] = OrderedDict()

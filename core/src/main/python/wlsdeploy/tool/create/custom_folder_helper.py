@@ -5,7 +5,7 @@ The Universal Permissive License (UPL), Version 1.0
 from java.lang import IllegalArgumentException
 from java.lang import IllegalAccessException
 from java.lang.reflect import InvocationTargetException
-from oracle.weblogic.deploy.util import CustomBeanUtils
+from oracle.weblogic.deploy.create import CustomBeanUtils
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.exception import exception_helper

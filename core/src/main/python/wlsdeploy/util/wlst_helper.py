@@ -104,6 +104,17 @@ def set(attribute, value):
     _logger.finest('WLSDPLY-00009', class_name=_class_name, method_name=_method_name)
 
 
+def get_with_cmo(cmo_getter_method_name):
+    """
+    Use the CMO to get the attribute value from the MBean instance. It is possible for the getter to be present on the
+    bean instance, but still get a method . Catch the exception and allow the user to handle.
+    :param cmo_getter_method_name: The method name to invoke on the cmo instance
+    :return: result of the method
+    """
+    _method_name = 'invoke_cmo_function'
+    _logger.entering(cmo_getter_method_name, class_name=_class_name, _method_name=_method_name)
+
+    _logger.exiting()
 def set_with_cmo(wlst_name, wlst_value, masked=False):
     """
     Set the specified attribute using the corresponding cmo set method (e.g., cmo.setListenPort()).

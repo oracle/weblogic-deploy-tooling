@@ -2,8 +2,9 @@
  * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
-package oracle.weblogic.deploy.util;
+package oracle.weblogic.deploy.create;
 
+import oracle.weblogic.deploy.create.CustomBeanUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

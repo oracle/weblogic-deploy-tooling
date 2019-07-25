@@ -2,8 +2,12 @@
  * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
-package oracle.weblogic.deploy.util;
+package oracle.weblogic.deploy.discover;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import oracle.weblogic.deploy.aliases.TypeUtils;
 import oracle.weblogic.deploy.exception.ExceptionHelper;
 
@@ -44,6 +48,7 @@ public final class CustomBeanUtils {
         method.invoke(mbean, setValue);
     }
 
+
     /**
      * Convert the specified value to the specified type.
      * The conversions and available types are specific to user-defined custom mbeans.
@@ -65,6 +70,26 @@ public final class CustomBeanUtils {
         }
 
         return result;
+    }
+
+    static Object byteBufferToString(byte[] byteBuffer) throws IllegalArgumentException {
+        String decryptionString = null;
+        if (byteBuffer != null) {
+            try (BufferedReader reader =
+                         new BufferedReader(new InputStreamReader(new ByteArrayInputStream(byteBuffer)))) {
+                if (reader.ready()) {
+                    decryptionString = reader.readLine();
+                    if (reader.ready()) {
+                        String message = ExceptionHelper.getMessage("WLSDPLY-06800");
+                        throw new IllegalArgumentException(message);
+                    }
+                }
+            } catch (IOException ioe) {
+                String message = ExceptionHelper.getMessage("WLSDPLY-06801");
+                throw new IllegalArgumentException(message);
+            }
+        }
+        return decryptionString;
     }
 
     /**

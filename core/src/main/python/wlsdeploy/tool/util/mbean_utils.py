@@ -36,7 +36,6 @@ class MBeanUtils(object):
         self.__helper = self.__get_helper()
         self.__ignore_list = None
 
-
     def get_attributes_not_in_lsa_map(self, location, lsa_map=None):
         """
         Return a list of all attributes from the MBean MBeanInfo or Interface methods that are not contained in the LSA
@@ -54,23 +53,32 @@ class MBeanUtils(object):
         _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=loose_attributes)
         return loose_attributes
 
-    def get_mbean_info_attributes(self, location=None, helper=None):
-        if helper is None:
-            helper = self.__get_info_helper(location)
-        return helper.get_mbean_info_attributes()
+    def get_info_attribute_helper(self, location):
+        return self.__get_info_helper(location)
 
-    def get_interface_attributes(self, location=None, helper=None):
+    def get_mbean_info_attributes(self, location, helper=None):
         if helper is None:
-            helper = self.__get_interface_helper(location)
-        return helper.get_interface_attributes()
+            helper = self.get_info_attribute_helper(location)
+        return self.get_mbean_attributes(helper)
+
+    def get_interface_attribute_helper(self, location):
+        return self.self.__get_interface_helper(location)
+
+    def get_interface_attributes(self, location, helper=None):
+        if helper is None:
+            helper = self.get_interface_attribute_helper(location)
+        return self.get_mbean_attributes(helper)
+
+    def get_mbean_attributes(self, helper):
+        return helper.get_mbean_attributes()
 
     def __collapse_attributes(self, location):
         _method_name = '__filter_attributes'
         info_helper = self.__get_info_helper(location)
-        info_attributes = self.get_mbean_info_attributes(helper=info_helper)
+        info_attributes = self.get_mbean_attributes(info_helper)
 
         interface_helper = self.__get_interface_helper(location)
-        interface_attributes = self.get_interface_attributes(helper=interface_helper)
+        interface_attributes = self.get_mbean_attributes(interface_helper)
 
         self.__remove_duplicates(interface_attributes, str(interface_helper), info_attributes, str(info_helper))
         # This is the main list to drive from
@@ -311,7 +319,17 @@ class MBeanAttributes(object):
         self.__alias_helper = AliasHelper(self.__aliases, _logger, exception_type)
         self.__wlst_helper = WlstHelper(_logger, exception_type)
         self.__mbean_instance = None
+        self.__mbean_interface = None
         self.__mbean_name = ''
+
+    def mbean_string(self):
+        return 'MBean %s at location %s' % (self.get_mbean_name(), self._get_mbean_path())
+
+    def get_mbean_name(self):
+        return self.__mbean_name
+
+    def get_mbean_interface_name(self):
+        return self._get_mbean_interface()
 
     def _get_mbean_instance(self):
         _method_name = '_get_mbean_instance'
@@ -326,24 +344,25 @@ class MBeanAttributes(object):
 
     def _get_mbean_interface(self):
         _method_name = '__get_mbean_interface'
-        _logger.entering(class_name=self.__class__.__name__, method_name=_method_name)
-        interfaces = [str(interface) for interface in self._get_mbean_interfaces()
-                      if re.search(self.__interface_matcher, str(interface)) is not None]
-        if len(interfaces) == 0:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01777',
-                                                   str(self._get_mbean_interfaces()),
-                                                   self._get_mbean_instance())
-            _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
-            raise ex
-        else:
-            if len(interfaces) > 1:
-                _logger.fine('WLSDPLY-01770', interfaces, self._get_mbean_instance(),
-                             class_name=self.__class__.__name__, method_name=_method_name)
-            mbean_interface = interfaces[0]
-            self.__mbean_name = self._get_mbean_interfaces()[0].getSimpleName()
+        if self.__mbean_interface is None:
+            _logger.entering(class_name=self.__class__.__name__, method_name=_method_name)
+            interfaces = [interface for interface in self._get_mbean_interfaces()
+                          if re.search(self.__interface_matcher, str(interface)) is not None]
+            if len(interfaces) == 0:
+                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01777',
+                                                       self._get_mbean_instance())
+                _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
+                raise ex
+            else:
+                if len(interfaces) > 1:
+                    _logger.fine('WLSDPLY-01770', interfaces, self._get_mbean_instance(),
+                                 class_name=self.__class__.__name__, method_name=_method_name)
+                interface = interfaces[0]
+                self.__mbean_name = interface.getSimpleName()
+                self.__mbean_interface = str(interface)
+            _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=self.__mbean_interface)
 
-        _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=mbean_interface)
-        return mbean_interface
+        return self.__mbean_interface
 
     def _get_mbean_methods(self):
         return self.__get_mbean_class().getDeclaredMethods()
@@ -388,6 +407,13 @@ class MBeanAttributes(object):
                            class_name=self.__class__.__name__, method_name=_method_name)
         return success, value
 
+    def _get_mbean_path(self):
+        return self.__location.get_folder_path()
+
+
+def _is_empty(value):
+    return value is None or len(value) == 0 or value == '[]' or value == 'null'
+
 
 class InterfaceAttributes(MBeanAttributes):
     """
@@ -402,7 +428,7 @@ class InterfaceAttributes(MBeanAttributes):
         self.__interface_method_names_list = None
         self.__interface_attribute_map = None
 
-    def get_interface_attributes(self):
+    def get_mbean_attributes(self):
         """
         Return the sorted list of interface attribute names including child MBeans,
         as compiled from MBean interface getter methods.
@@ -518,7 +544,19 @@ class InterfaceAttributes(MBeanAttributes):
         return None
 
     def get_default_value(self, attribute_name):
-        pass
+        return None
+
+    def get_value(self, attribute_name):
+        """
+        Return the attribute value from the mbean instance.
+        :param attribute_name: name of the attribute
+        :return: value of the MBean attribute in the format retrieved from the mbean instance
+        """
+        value = None
+        getter = self.getter(attribute_name)
+        if getter is not None:
+            __, value = self._get_from_bean_proxy(getter)
+        return value
 
     def __get_interface_map(self):
         if self.__interface_attribute_map is None:
@@ -626,13 +664,13 @@ class MBeanInfoAttributes(MBeanAttributes):
         self.__mbean_info_descriptors = None
         self.__mbean_info_map = None
 
-    def get_mbean_info_attributes(self):
+    def get_mbean_attributes(self):
         """
         Return the sorted list of attributes compiled from the MBeanInfo PropertyDescriptors including the
         child MBeans.
         :return: list of all attributes from the MBeanInfo property descriptors, or an empty list if none
         """
-        _method_name = 'get_mbean_info_attribute_list'
+        _method_name = 'get_mbean_attributes'
         _logger.entering(class_name=self.__class__.__name__, method_name=_method_name)
         map_to_list = list()
         attributes = self.__get_mbean_info_map()
@@ -742,7 +780,25 @@ class MBeanInfoAttributes(MBeanAttributes):
         return None
 
     def get_default_value(self, attribute_name):
-        pass
+        descriptor = self.__get_mbean_attribute(attribute_name)
+        values = _get_descriptor_values_keys(descriptor)
+        if 'defaultValueNull' in values and descriptor.getValue('defaultValueNull') is True:
+            default = None
+        else:
+            default = descriptor.getValue('default')
+        return default
+
+    def get_value(self, attribute_name):
+        """
+        Return the attribute value from the mbean instance.
+        :param attribute_name: name of the attribute
+        :return: value of the MBean attribute in the format retrieved from the mbean instance
+        """
+        value = None
+        getter = self.getter(attribute_name)
+        if getter is not None:
+            __, value = self._get_from_bean_proxy(getter)
+        return value
 
     def __get_mbean_info_map(self):
         if self.__mbean_info_map is None:
@@ -772,3 +828,15 @@ class MBeanInfoAttributes(MBeanAttributes):
 
     def __str__(self):
         return self.__class__.__name__ + self._get_mbean_name()
+
+
+def _get_descriptor_values_keys(descriptor):
+    enumerations = descriptor.attributeNames()
+    return _create_enumeration_list(enumerations)
+
+
+def _create_enumeration_list(enumeration):
+    enumeration_list = list()
+    while enumeration.hasMoreElements():
+        enumeration_list.append(enumeration.nextElement())
+    return enumeration_list
