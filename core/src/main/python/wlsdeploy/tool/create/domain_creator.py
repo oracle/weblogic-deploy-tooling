@@ -9,6 +9,7 @@ from java.io import FileOutputStream
 from java.util import Properties
 from oracle.weblogic.deploy.create import RCURunner
 from oracle.weblogic.deploy.util import WLSDeployArchive, FileUtils
+from wlsdeploy.util import string_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
@@ -48,6 +49,7 @@ from wlsdeploy.aliases.model_constants import OPSS_SECRETS
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
+from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
@@ -1110,6 +1112,16 @@ class DomainCreator(Creator):
     def __create_boot_dot_properties(self):
         _method_name = '__create_boot_dot_properties'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        if SERVER_START_MODE in self._domain_info:
+            server_start_mode = self._domain_info[SERVER_START_MODE]
+            if server_start_mode == 'prod' or server_start_mode == 'PROD':
+                return
+
+        if PRODUCTION_MODE_ENABLED in self._topology:
+            if string_utils.to_boolean(self._topology[PRODUCTION_MODE_ENABLED]):
+                return
+
         systemIni = SerializedSystemIni.getEncryptionService(self._domain_home)
         encryptionService = ClearOrEncryptedService(systemIni)
         admin_password = self._domain_info[ADMIN_PASSWORD]
@@ -1124,10 +1136,14 @@ class DomainCreator(Creator):
             name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
             servers.append(name)
 
+        admin_username = self.aliases.decrypt_password(admin_username)
+        admin_password = self.aliases.decrypt_password(admin_password)
+        encrypted_username =  encryptionService.encrypt(admin_username)
+        encrypted_password = encryptionService.encrypt(admin_password)
         for server in servers:
             properties = Properties()
-            properties.put("username", encryptionService.encrypt(admin_username))
-            properties.put("password", encryptionService.encrypt(admin_password))
+            properties.put("username", encrypted_username)
+            properties.put("password", encrypted_password)
             file_directory = self._domain_home + "/servers/" + server + "/security"
             file_location = file_directory + "/boot.properties"
             if not os.path.exists(file_directory):
