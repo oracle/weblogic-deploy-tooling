@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 The main module for the WLSDeploy tool to create empty domains.
 """
@@ -8,7 +8,6 @@ import javaos as os
 import sys
 from java.io import IOException
 from java.lang import IllegalArgumentException
-from java.lang import IllegalStateException
 from java.lang import String
 from java.lang import System
 from oracle.weblogic.deploy.create import CreateException
@@ -39,6 +38,7 @@ from wlsdeploy.tool.create.domain_typedef import CREATE_DOMAIN
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.validate.validator import Validator
+from wlsdeploy.util import cla_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
@@ -46,7 +46,6 @@ from wlsdeploy.util import wlst_extended
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
-from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 
@@ -58,7 +57,6 @@ _class_name = 'create'
 __logger = PlatformLogger('wlsdeploy.create')
 __wlst_mode = WlstModes.OFFLINE
 __version = WebLogicHelper(__logger).get_actual_weblogic_version()
-__tmp_model_dir = None
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH,
@@ -89,6 +87,7 @@ def __process_args(args):
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
+    cla_util.set_allow_multiple_models(True)
     required_arg_map, optional_arg_map = cla_util.process_args(args, True)
     __verify_required_args_present(required_arg_map)
     __process_java_home_arg(optional_arg_map)
@@ -159,7 +158,6 @@ def __process_domain_location_args(optional_arg_map):
     :raises CLAException: if the arguments are invalid or an error occurs extracting the model from the archive
     """
     _method_name = '__process_domain_location_args'
-    global __tmp_model_dir
 
     has_home = CommandLineArgUtil.DOMAIN_HOME_SWITCH in optional_arg_map
     has_parent = CommandLineArgUtil.DOMAIN_PARENT_SWITCH in optional_arg_map
@@ -176,53 +174,16 @@ def __process_domain_location_args(optional_arg_map):
 
 def __process_model_args(optional_arg_map):
     """
-    Verify that either the model_file or archive_file was provided and exists.
+    Verify that the specified model_file exists, or there is a model file in the specified archive_file.
     Extract the model file if only the archive_file was provided.
     :param optional_arg_map: the optional arguments map
     :raises CLAException: if the arguments are invalid or an error occurs extracting the model from the archive
     """
-    _method_name = '__process_model_args'
-    global __tmp_model_dir
 
-    if CommandLineArgUtil.MODEL_FILE_SWITCH in optional_arg_map:
-        model_file_name = optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
+    # don't verify that the archive is valid until it is needed.
+    # this requirement is specific to create, other tools will verify it.
 
-        try:
-            FileUtils.validateExistingFile(model_file_name)
-        except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20006', _program_name, model_file_name,
-                                                       iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    elif CommandLineArgUtil.ARCHIVE_FILE_SWITCH in optional_arg_map:
-        archive_file_name = optional_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-
-        try:
-            archive_file = WLSDeployArchive(archive_file_name)
-            __tmp_model_dir = FileUtils.createTempDirectory(_program_name)
-            tmp_model_raw_file = archive_file.extractModel(__tmp_model_dir)
-            if not tmp_model_raw_file:
-                ex = exception_helper.create_cla_exception('WLSDPLY-20026', _program_name, archive_file_name,
-                                                           CommandLineArgUtil.MODEL_FILE_SWITCH)
-                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-
-            tmp_model_file = FileUtils.fixupFileSeparatorsForJython(tmp_model_raw_file.getAbsolutePath())
-        except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20010', _program_name, archive_file_name,
-                                                       archex.getLocalizedMessage(), error=archex)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-        optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = FileUtils.fixupFileSeparatorsForJython(tmp_model_file)
-    else:
-        ex = exception_helper.create_cla_exception('WLSDPLY-20015', _program_name, CommandLineArgUtil.MODEL_FILE_SWITCH,
-                                                   CommandLineArgUtil.ARCHIVE_FILE_SWITCH)
-        ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
+    cla_helper.validate_model_present(_program_name, optional_arg_map)
     return
 
 
@@ -303,17 +264,6 @@ def __process_encryption_args(optional_arg_map):
     return
 
 
-def __clean_up_temp_files():
-    """
-    If a temporary directory was created to extract the model from the archive, delete the directory and its contents.
-    """
-    global __tmp_model_dir
-
-    if __tmp_model_dir is not None:
-        FileUtils.deleteDirectory(__tmp_model_dir)
-        __tmp_model_dir = None
-
-
 def validate_model(model_dictionary, model_context, aliases):
     _method_name = 'validate_model'
 
@@ -326,12 +276,12 @@ def validate_model(model_dictionary, model_context, aliases):
     except ValidateException, ex:
         __logger.severe('WLSDPLY-20000', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     if return_code == Validator.ReturnCode.STOP:
         __logger.severe('WLSDPLY-20001', _program_name, class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
 
@@ -365,7 +315,7 @@ def validateRCUArgsAndModel(model_context, model, alias_helper):
                     else:
                         __logger.severe('WLSDPLY-12411', error=None,
                                         class_name=_class_name, method_name="validateRCUArgsAndModel")
-                        __clean_up_temp_files()
+                        cla_helper.clean_up_temp_files()
                         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
         else:
@@ -373,7 +323,7 @@ def validateRCUArgsAndModel(model_context, model, alias_helper):
                 if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
                     __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
                                     CommandLineArgUtil.RCU_PREFIX_SWITCH)
-                    __clean_up_temp_files()
+                    cla_helper.clean_up_temp_files()
                     tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     return has_atpdbinfo
@@ -403,19 +353,19 @@ def main(args):
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
 
         # create a minimal model for summary logging
         model_context = ModelContext(_program_name, dict())
         tool_exit.end(model_context, exit_code)
 
-    model_file = model_context.get_model_file()
+    model_file_value = model_context.get_model_file()
     try:
-        model = FileToPython(model_file, True).parse()
+        model = cla_helper.merge_model_files(model_file_value)
     except TranslateException, te:
-        __logger.severe('WLSDPLY-20009', _program_name, model_file, te.getLocalizedMessage(), error=te,
+        __logger.severe('WLSDPLY-20009', _program_name, model_file_value, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     try:
@@ -426,7 +376,7 @@ def main(args):
     except VariableException, ex:
         __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
@@ -460,27 +410,28 @@ def main(args):
     except WLSDeployArchiveIOException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     except CreateException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     except IOException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
     except DeployException, ex:
         __logger.severe('WLSDPLY-12410', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    __clean_up_temp_files()
+    cla_helper.clean_up_temp_files()
 
     tool_exit.end(model_context, exit_code)
     return

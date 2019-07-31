@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
- * The Universal Permissive License (UPL), Version 1.0
+ * Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
 
@@ -12,12 +12,15 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -632,6 +635,66 @@ public final class FileUtils {
         return file;
     }
 
+
+    public static void extractZipFileContent(WLSDeployArchive archiveFile, String zipEntry, String extractPath)  {
+        final String METHOD = "extractZipFileContent";
+
+        try {
+
+            if (zipEntry != null) {
+
+                File extractDir = new File(extractPath);
+                extractDir.mkdirs();
+                String walletZip = archiveFile.extractFile(zipEntry,
+                    Files.createTempDirectory("tempwallet").toFile());
+
+                if (!Files.exists(Paths.get(extractPath))) {
+                    Files.createDirectory(Paths.get(extractPath));
+                }
+
+                // verify that each target file is under the extract directory,
+                // to protect from the file overwrite security vulnerability (zip slip).
+                String canonicalExtractPath = extractDir.getCanonicalPath();
+
+                byte[] buffer = new byte[1024];
+                FileInputStream fis = new FileInputStream(walletZip);
+                ZipInputStream zis = new ZipInputStream(fis);
+                ZipEntry ze = zis.getNextEntry();
+                while (ze != null) {
+                    String fileName = ze.getName();
+                    File newFile = new File(extractPath + File.separator + fileName);
+                    String canonicalNewFile = newFile.getCanonicalPath();
+                    if(!canonicalNewFile.startsWith(canonicalExtractPath + File.separator)) {
+                        throw new WLSDeployArchiveIOException("WLSDPLY-01119", ze.getName());
+                    }
+
+                    new File(newFile.getParent()).mkdirs();
+                    FileOutputStream fos = new FileOutputStream(newFile);
+                    int len = zis.read(buffer);
+                    while (len > 0) {
+                        fos.write(buffer, 0, len);
+                        len = zis.read(buffer);
+                    }
+                    fos.close();
+                    zis.closeEntry();
+                    ze = zis.getNextEntry();
+
+                }
+                zis.closeEntry();
+                zis.close();
+                fis.close();
+                Files.delete(Paths.get(walletZip));
+            }
+        } catch (IOException | WLSDeployArchiveIOException ioe) {
+            String message = ExceptionHelper.getMessage("WLSDPLY-01118", archiveFile.getArchiveFileName(),
+                    ioe.getLocalizedMessage());
+            IllegalArgumentException iae = new IllegalArgumentException(message);
+            LOGGER.throwing(CLASS, METHOD, iae);
+            throw iae;
+
+        }
+
+    }
     ///////////////////////////////////////////////////////////////////////////
     // Private helper methods                                                //
     ///////////////////////////////////////////////////////////////////////////
@@ -718,4 +781,6 @@ public final class FileUtils {
             return result;
         }
     }
+
+
 }

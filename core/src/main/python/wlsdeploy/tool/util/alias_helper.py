@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.aliases import AliasException
 
@@ -38,6 +38,28 @@ class AliasHelper(object):
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return model_name, model_value
+
+    def get_model_attribute_name(self, location, wlst_attribute_name, check_read_only=True):
+        """
+        Returns the model attribute name for the specified WLST attribute name. If the model attribute name
+        is not valid for the version or the attribute is marked as read-only, and the check_read_only flag
+        is True, return None
+
+        :param location: the location
+        :param wlst_attribute_name: the WLST attribute name
+        :param check_read_only: Defaults to True. If False, return the WLST attribute name even if read only
+        :return: matching model attribute name
+        :raises: BundleAwareException: if a AliasException is thrown by the aliases
+        """
+        _method_name = 'get_model_attribute_name'
+        try:
+            model_name = self.__aliases.get_model_attribute_name(location, wlst_attribute_name, check_read_only)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19039', str(location),
+                                                   ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return model_name
 
     def get_model_subfolder_names(self, location):
         """
@@ -740,6 +762,16 @@ class AliasHelper(object):
                                                    ae.getLocalizedMessage(), error=ae)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
+        return result
+
+    def get_ignore_attribute_names(self):
+        """
+        Return the list of ignored attribute names - the attributes for all MBeans that are not discovered or set.
+        :return: list of MBean attribute names to ignore
+        """
+        _method_name = 'get_ignore_attribute_names'
+        result = self.__aliases.get_ignore_attribute_names()
+        self.__logger.finest('WLSDPLY-19038', result, class_name=self.__class_name, method_name=_method_name)
         return result
 
     ###########################################################################

@@ -16,9 +16,11 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Model Names](#model-names)
     - [Model Semantics](#model-semantics)
     - [Administration Server Configuration](site/admin_server.md)
-    - [Modeling Security Providers](site/security_providers.md)
-        - [JRF Trust Service Identity Asserter](site/security_providers.md#trust-service-identity-asserter)
-        - [Custom Security Providers](site/security_providers.md#custom-security-providers)
+    - [Model Security](site/security.md)
+      - [Modeling Security Providers](site/security_providers.md)
+          - [JRF Trust Service Identity Asserter](site/security_providers.md#trust-service-identity-asserter)
+          - [Custom Security Providers](site/security_providers.md#custom-security-providers)
+      - [Modeling WebLogic Users, Groups, and Roles](site/security_users_groups_roles.md)
     - [Variable Injection](site/variable_injection.md)
     - [Model Filters](site/tool_filters.md)
 - [Downloading and Installing](#downloading-and-installing-the-software)
@@ -218,6 +220,47 @@ resources:
 In the example above, the `Target` attribute is specified three different ways, as a comma-separated string, as a list, and as a single string in the case of where there is only a single target.  The `JNDIName` attribute is specified as a comma-separated string and as a list (a single string also works). On the other hand, the `HarvestedInstances` attribute had to be specified as a list because each element contains commas.
 
 One of the primary goals of the WebLogic Deploy Tooling is to support a sparse model where the user can specify just the configuration needed for a particular situation.  What this implies varies somewhat between the tools but, in general, this implies that the tools are using an additive model.  That is, the tools add to what is already there in the existing domain or domain templates (when creating a new domain) rather than making the domain conform exactly to the specified model.  Where it makes sense, a similar, additive approach is taken when setting the value of multi-valued attributes.  For example, if the model specified the cluster `mycluster` as the target for an artifact, the tooling will add `mycluster` to any existing list of targets for the artifact.  While the development team has tried to mark attributes that do not make sense to merge accordingly in our knowledge base, this behavior can be disabled on an attribute-by-attribute basis, by adding an additional annotation in the knowledge base data files.  The development team is already thinking about how to handle situations that require a non-additive, converge-to-the-model approach, and how that might be supported, but this still remains a wish list item.  Users with these requirements should raise an issue for this support.
+
+### Using Multiple Models
+
+The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple models on the command line. For example:
+
+    weblogic-deploy\bin\createDomain.cmd -model_file modelOne,modelTwo,modelThree ...
+
+In this case, the models are merged into a single model before being applied. Each successive model is added to the previous model. In cases where entities exist in both models, the attributes are combined and attribute values from successive models prevail.  The resulting model is then verified before being applied.  
+For example, if Model 1 looks like:
+```yaml
+topology:
+    Server:
+        m1:
+            ListenPort: 7000 
+            Notes: "Server 1"
+        m2:
+            ListenPort: 9000
+```
+and Model 2 looks like:
+```yaml
+topology:
+    Server:
+        m1:
+            ListenAddress: myhostname
+            ListenPort: 8000
+        m3:
+            ListenPort: 10000        
+```
+The attributes for server m1 are merged, server m2 is left unchanged, and server m3 is added. The resulting model would be:
+```yaml
+topology:
+    Server:
+        m1:
+            ListenAddress: myhostname      
+            ListenPort: 8000
+            Notes: "Server 1"
+        m2:
+            ListenPort: 9000
+        m3:
+            ListenPort: 10000  
+```
 
 ## Downloading and Installing the Software
 

@@ -2,8 +2,8 @@
 # *****************************************************************************
 # encryptModel.sh
 #
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
-# The Universal Permissive License (UPL), Version 1.0
+# Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
 #     NAME
 #       encryptModel.sh - WLS Deploy tool to encrypt the password fields in
@@ -22,7 +22,7 @@
 # of the arguments are passed down to the underlying python program:
 #
 #     - -oracle_home        The directory of the existing Oracle Home to use.
-#                           This directory must exist and it is the caller^'s
+#                           This directory must exist and it is the caller's
 #                           responsibility to verify that it does. This
 #                           argument is required.
 #
@@ -55,25 +55,25 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help] [-manual]"
-  echo "          -oracle_home <oracle-home>"
-  echo "          [-model_file <model-file>]"
-  echo "          [-variable_file <variable-file>]"
-  echo "          [-domain_type <domain-type>]"
-  echo "          [-wlst_path <wlst-path>]"
+  echo "          -oracle_home <oracle_home>"
+  echo "          [-model_file <model_file>]"
+  echo "          [-variable_file <variable_file>]"
+  echo "          [-domain_type <domain_type>]"
+  echo "          [-wlst_path <wlst_path>]"
   echo ""
   echo "    where:"
-  echo "        oracle-home     - the existing Oracle Home directory for the domain."
+  echo "        oracle_home     - the existing Oracle Home directory for the domain."
   echo ""
-  echo "        model-file      - the location of the model file to use."
+  echo "        model_file      - the location of the model file to use."
   echo ""
-  echo "        variable-file   - the location of the property file containing"
+  echo "        variable_file   - the location of the property file containing"
   echo "                          the variable values for all variables used in"
   echo "                          the model."
   echo ""
-  echo "        domain-type     - the type of domain (e.g., WLS, JRF)."
-  echo "                          Used to locate wlst.cmd if wlst-path not specified"
+  echo "        domain_type     - the type of domain (e.g., WLS, JRF)."
+  echo "                          Used to locate wlst.cmd if -wlst_path not specified"
   echo ""
-  echo "        wlst-path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
   echo ""
   echo "    The -manual switch can be used to run the tool without a model and get"
@@ -123,8 +123,8 @@ case "${JVM_OUTPUT}" in
     ;;
 esac
 
-JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F "\"" '{ print $2 }'`
-JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F "." '{ print $2 }'`
+JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
+JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
 
 if [ ${JVM_VERSION} -lt 8 ]; then
   if [ ${JVM_VERSION} -lt 7 ]; then
@@ -188,11 +188,11 @@ fi
 # The underlying WLST script has other required arguments.
 #
 if [ "${ORACLE_HOME}" = "" ]; then
-    echo "Required argument ORACLE_HOME not provided" >&2
+    echo "Required argument -oracle_home not provided" >&2
     usage `basename $0`
     exit 99
 elif [ ! -d ${ORACLE_HOME} ]; then
-    echo "The specified ORACLE_HOME does not exist: ${ORACLE_HOME}" >&2
+    echo "The specified -oracle_home directory does not exist: ${ORACLE_HOME}" >&2
     exit 98
 fi
 
@@ -201,12 +201,12 @@ fi
 #
 if [ "${WLST_PATH_DIR}" != "" ]; then
     if [ ! -d ${WLST_PATH_DIR} ]; then
-        echo "WLST_PATH_DIR specified does not exist: ${WLST_PATH_DIR}" >&2
+        echo "Specified -wlst_path directory does not exist: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
     WLST=${WLST_PATH_DIR}/common/bin/wlst.sh
     if [ ! -x "${WLST}" ]; then
-        echo "WLST executable ${WLST} not found under specified WLST_PATH_DIR: ${WLST_PATH_DIR}" >&2
+        echo "WLST executable ${WLST} not found under -wlst_path directory: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
     CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH

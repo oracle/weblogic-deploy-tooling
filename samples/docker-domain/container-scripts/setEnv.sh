@@ -1,9 +1,9 @@
 #!/bin/bash ex
 
-# Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
-# The Universal Permissive License (UPL), Version 1.0
+# Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
-# This example creates the BUILD_ARG environment variable as a string of --build-arg for 
+# This example creates the BUILD_ARG environment variable as a string of --build-arg for
 # the arguments passed on the docker build command. The variable file that is used for the WDT
 # create domain step is the input to this script. This insures that the values persisted
 # as environment variables in the docker image match the configured domain home.
@@ -20,7 +20,7 @@ fi
 echo Export environment variables from the ${PROPERTIES_FILE} properties file
 
 DOMAIN_DIR=`awk '{print $1}' $PROPERTIES_FILE | grep ^DOMAIN_NAME= | cut -d "=" -f2`
-if [ ! -n "$DOMAIN_DIR" ]; then  
+if [ ! -n "$DOMAIN_DIR" ]; then
    if [ -n "$DOMAIN_NAME" ]; then
       DOMAIN_DIR=$DOMAIN_NAME
    fi
@@ -55,7 +55,7 @@ fi
 
 MANAGED_SERVER_PORT=`awk '{print $1}' $PROPERTIES_FILE | grep ^MANAGED_SERVER_PORT= | cut -d "=" -f2`
 if [ -n "$MANAGED_SERVER_PORT" ]; then
-    export MANAGED_SERVER_PORT 
+    export MANAGED_SERVER_PORT
     echo MANAGED_SERVER_PORT=$MANAGED_SERVER_PORT
     BUILD_ARG="$BUILD_ARG --build-arg CUSTOM_MANAGED_SERVER_PORT=$MANAGED_SERVER_PORT"
 fi

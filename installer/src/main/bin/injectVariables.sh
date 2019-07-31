@@ -2,8 +2,8 @@
 # *****************************************************************************
 # injectVariables.sh
 #
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
-# The Universal Permissive License (UPL), Version 1.0
+# Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
 #     NAME
 #       injectVariables.sh - WLS Deploy tool to inject variables into the model
@@ -52,45 +52,45 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help]"
-  echo "          -oracle_home <oracle-home>"
-  echo "          -model_file <model-file> | -archive_file <archive-file>"
-  echo "          [-variable_injector_file <variable-injector-file>]"
-  echo "          [-variable_keywords_file <variable-keywords-file>]"
-  echo "          [-variable_properties_file <variable-file>]"
-  echo "          [-domain_type <domain-type>]"
-  echo "          [-wlst_path <wlst-path>]"
+  echo "          -oracle_home <oracle_home>"
+  echo "          -model_file <model_file> | -archive_file <archive_file>"
+  echo "          [-variable_injector_file <variable_injector_file>]"
+  echo "          [-variable_keywords_file <variable_keywords_file>]"
+  echo "          [-variable_properties_file <variable_file>]"
+  echo "          [-domain_type <domain_type>]"
+  echo "          [-wlst_path <wlst_path>]"
   echo ""
   echo "    where:"
-  echo "         oracle-home     - the existing Oracle Home directory for the domain"
+  echo "         oracle_home     - the existing Oracle Home directory for the domain"
   echo ""
-  echo "         model-file      - the location of the model file in which variables will be injected."
+  echo "         model_file      - the location of the model file in which variables will be injected."
   echo "                           If not specified, the tool will look for the model"
   echo "                           in the archive file. Either the model_file or the archive_file argument must be provided."
   echo ""
-  echo "         archive-file    - the path to the archive file that contains a model in which the variables"
-  echo "                           will be injected. If the model-file argument is used, this argument will be"
+  echo "         archive_file    - the path to the archive file that contains a model in which the variables"
+  echo "                           will be injected. If the -model_file argument is used, this argument will be"
   echo "                           ignored. The archive file must contain a valid model."
   echo ""
-  echo "         variable-injector-file  - the location of the variable injector file which contains the variable"
+  echo "         variable_injector_file  - the location of the variable injector file which contains the variable"
   echo "                           injector keywords for this model injection run. If this argument is not provided,"
   echo "                           the model_variable_injector.json file must exist in the lib directory in the"
   echo "                           WLSDEPLOY_HOME location."
   echo ""
-  echo "         variable-keywords-file   - this argument overrides the INSTALLED version of the allowed variable keywords"
+  echo "         variable_keywords_file   - this argument overrides the INSTALLED version of the allowed variable keywords"
   echo "                           for the variable injector. This argument is for advanced usage only. The installed"
   echo "                           keywords file is located in the lib directory of WLSDEPLOY_HOME location."
   echo ""
-  echo "         variable-file   - the location of the property file in which to store any variable names injected"
+  echo "         variable_file   - the location of the property file in which to store any variable names injected"
   echo "                           into the model. This argument overrides the value in the model injector file."
   echo "                           If the variable file is not listed in the model injector file, and this command"
   echo "                           line argument is not used, the variable properties will be located and named"
   echo "                           based on the model file or archive file name and location."
   echo "                           If the variable file exists, new variable values will be appended to the file."
   echo ""
-  echo "         domain-type     - the type of domain (e.g., WLS, JRF)."
-  echo "                           Used to locate wlst.cmd if wlst-path not specified"
+  echo "         domain_type     - the type of domain (e.g., WLS, JRF)."
+  echo "                           Used to locate wlst.cmd if -wlst_path not specified"
   echo ""
-  echo "         wlst-path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "         wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
   echo "                           script to use (e.g., <ORACLE_HOME>/soa)"
   echo ""
 }
@@ -135,8 +135,8 @@ case "${JVM_OUTPUT}" in
     ;;
 esac
 
-JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F "\"" '{ print $2 }'`
-JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F "." '{ print $2 }'`
+JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
+JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
 
 if [ ${JVM_VERSION} -lt 7 ]; then
   echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
@@ -197,11 +197,11 @@ fi
 # The underlying WLST script has other required arguments.
 #
 if [ "${ORACLE_HOME}" = "" ]; then
-    echo "Required argument ORACLE_HOME not provided" >&2
+    echo "Required argument -oracle_home not provided" >&2
     usage `basename $0`
     exit 99
 elif [ ! -d ${ORACLE_HOME} ]; then
-    echo "The specified ORACLE_HOME does not exist: ${ORACLE_HOME}" >&2
+    echo "The specified -oracle_home directory does not exist: ${ORACLE_HOME}" >&2
     exit 98
 fi
 
@@ -210,12 +210,12 @@ fi
 #
 if [ "${WLST_PATH_DIR}" != "" ]; then
     if [ ! -d ${WLST_PATH_DIR} ]; then
-        echo "WLST_PATH_DIR specified does not exist: ${WLST_PATH_DIR}" >&2
+        echo "Specified -wlst_path directory does not exist: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
     WLST=${WLST_PATH_DIR}/common/bin/wlst.sh
     if [ ! -x "${WLST}" ]; then
-        echo "WLST executable ${WLST} not found under specified WLST_PATH_DIR: ${WLST_PATH_DIR}" >&2
+        echo "WLST executable ${WLST} not found under -wlst_path directory: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
     CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH

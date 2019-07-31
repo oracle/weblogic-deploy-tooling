@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 
 from oracle.weblogic.deploy.util import PyWLSTException
@@ -732,6 +732,24 @@ class WlstHelper(object):
                 raise ex
         return
 
+    def get_mbean(self, wlst_path):
+        """
+        Get the cmo or the MBean instance for the named MBean at the wlst_path or current directory.
+        :param wlst_path: path to the name MBean or None for current directory
+        :return: mbean instance
+        """
+        _method_name = 'get_mbean'
+
+        try:
+            wlst_value = wlst_helper.get_mbean(wlst_path)
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19122',
+                                                   wlst_path, pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        return wlst_value
+
     def get_mbean_for_wlst_path(self, wlst_path):
         """
         Get the MBean for the specified location.
@@ -893,7 +911,7 @@ class WlstHelper(object):
         _method_name = 'redeploy_application'
 
         try:
-            result = wlst_helper.redeploy_application(application_name, args, kwargs)
+            result = wlst_helper.redeploy_application(application_name, *args, **kwargs)
         except PyWLSTException, pwe:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19138', application_name,
                                                    pwe.getLocalizedMessage(), error=pwe)
@@ -913,7 +931,7 @@ class WlstHelper(object):
         _method_name = 'undeploy_application'
 
         try:
-            result = wlst_helper.redeploy_application(application_name, args, kwargs)
+            result = wlst_helper.undeploy_application(application_name, *args, **kwargs)
         except PyWLSTException, pwe:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19141', application_name,
                                                    pwe.getLocalizedMessage(), error=pwe)
@@ -1024,6 +1042,21 @@ class WlstHelper(object):
                                           model_context.get_admin_url())
             else:
                 wlst_helper.reopen_offline(model_context.get_domain_home())
+        except PyWLSTException, pwe:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19144',
+                                                   pwe.getLocalizedMessage(), error=pwe)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+    def setSharedSecretStoreWithPassword(self, wallet_path, password):
+        """
+        set the shared secret store opss password
+        :param wallet_path: opss extracted wallet dir
+        :param password: extract time password
+        """
+        _method_name = 'setSharedSecretStoreWithPassword'
+        try:
+            wlst_helper.set_shared_secret_store_with_password(wallet_path, password)
         except PyWLSTException, pwe:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19144',
                                                    pwe.getLocalizedMessage(), error=pwe)

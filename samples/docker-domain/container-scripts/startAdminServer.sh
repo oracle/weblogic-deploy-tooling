@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+#Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 #Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
@@ -26,7 +26,7 @@ CUSTOM_DERBY_FLAG=`awk '{print $1}' $PROPERTIES_FILE | grep ^DERBY_FLAG= | cut -
 if [ -n "${CUSTOM_DERBY_FLAG}" ]; then
     DERBY_FLAG="${CUSTOM_DERBY_FLAG}"
 fi
- 
+
 export ${DERBY_FLAG}
 echo "Start Derby: ${DERBY_FLAG}"
 

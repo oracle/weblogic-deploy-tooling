@@ -23,4 +23,10 @@ It is also possible to specify the connection information in the model instead o
 
 To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to [Domain Type Definitions](type_def.md).
 
-One last note is that if the model or variables file contains encrypted passwords, add the `-use_encryption` flag to the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input.
+### Using an Encrypted Model
+
+If the model or variables file contains encrypted passwords, add the `-use_encryption` flag to the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input.
+
+### Using Multiple Models
+
+The Create Domain Tool supports the use of multiple models, as described in [Using Multiple Models](../README.md#using-multiple-models).

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
- * The Universal Permissive License (UPL), Version 1.0
+ * Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
 
@@ -28,7 +28,6 @@ public class WLSDeployArchive {
 
     public static final String WLSDPLY_ARCHIVE_BINARY_DIR = "wlsdeploy";
 
-
     /**
      * Top-level archive subdirectory where the config
      * will be extracted.
@@ -41,6 +40,10 @@ public class WLSDeployArchive {
     public static final String ARCHIVE_ATP_WALLET_PATH = "atpwallet";
 
     /**
+     * Top-level archive subdirectory where the opss wallet is stored
+     */
+    public static final String ARCHIVE_OPSS_WALLET_PATH = "opsswallet";
+    /**
      * Top-level archive subdirectory where the model is stored and the subdirectory to which it will be extracted.
      */
     public static final String ARCHIVE_MODEL_TARGET_DIR = "model";
@@ -50,7 +53,6 @@ public class WLSDeployArchive {
      * they will be extracted.
      */
     public static final String ARCHIVE_APPS_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/applications";
-
 
     /**
      * Top-level archive subdirectory where the shared libraries are stored and the subdirectory to
@@ -142,8 +144,8 @@ public class WLSDeployArchive {
         LOGGER.entering(CLASS, METHOD, path);
         boolean result = false;
         if (!StringUtils.isEmpty(path)) {
-            result =
-                path.startsWith(WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP) || path.startsWith(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+            result = path.startsWith(WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP) || path
+                .startsWith(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP) || path.startsWith(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
         }
         LOGGER.exiting(CLASS, METHOD, result);
         return result;
@@ -152,6 +154,7 @@ public class WLSDeployArchive {
     /**
      * Determine if the specified path is in the classpath libraries folder.
      * This includes the case where the specified path is the classpath libraries folder.
+     *
      * @param path the path to be checked
      * @return true if the specified path matches or is under the classpath libraries folder
      */
@@ -173,7 +176,7 @@ public class WLSDeployArchive {
      *
      * @param model the model file to add
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
-     * @throws IllegalArgumentException if the model is null, does not exist, or is not a file
+     * @throws IllegalArgumentException    if the model is null, does not exist, or is not a file
      */
     public void addModel(File model) throws WLSDeployArchiveIOException {
         final String METHOD = "addModel";
@@ -188,10 +191,10 @@ public class WLSDeployArchive {
     /**
      * Adds the model file into the archive using the specified model file name.
      *
-     * @param model the file containing the model
+     * @param model         the file containing the model
      * @param modelFileName the file name to use
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
-     * @throws IllegalArgumentException if the model is null, does not exist, or is not a file
+     * @throws IllegalArgumentException    if the model is null, does not exist, or is not a file
      */
     public void addModel(File model, String modelFileName) throws WLSDeployArchiveIOException {
         final String METHOD = "addModel";
@@ -209,7 +212,7 @@ public class WLSDeployArchive {
      * @param modelDirectory the directory where to place the extracted model
      * @return the model file or null, if no model exists
      * @throws WLSDeployArchiveIOException if an error occurs
-     * @throws IllegalArgumentException if the modelDirectory is null, does not exist, or is not a directory
+     * @throws IllegalArgumentException    if the modelDirectory is null, does not exist, or is not a directory
      */
     public File extractModel(File modelDirectory) throws WLSDeployArchiveIOException {
         final String METHOD = "extractModel";
@@ -225,8 +228,9 @@ public class WLSDeployArchive {
             try {
                 modelFile = FileUtils.getModelFile(resultDirectory);
             } catch (IllegalArgumentException | IllegalStateException ex) {
-                WLSDeployArchiveIOException wsdioe = new WLSDeployArchiveIOException("WLSDPLY-01400", ex,
-                    resultDirectory.getAbsolutePath(), ex.getLocalizedMessage());
+                WLSDeployArchiveIOException wsdioe =
+                    new WLSDeployArchiveIOException("WLSDPLY-01400", ex, resultDirectory.getAbsolutePath(),
+                        ex.getLocalizedMessage());
                 LOGGER.throwing(CLASS, METHOD, wsdioe);
                 throw wsdioe;
             }
@@ -257,8 +261,8 @@ public class WLSDeployArchive {
                 String modelEntryName = FileUtils.getModelFileName(modelDirContents, getZipFile().getFileName());
                 result = !StringUtils.isEmpty(modelEntryName);
             } catch (IllegalArgumentException iae) {
-                WLSDeployArchiveIOException wsdioe = new WLSDeployArchiveIOException("WLSDPLY-01401", iae,
-                    iae.getLocalizedMessage());
+                WLSDeployArchiveIOException wsdioe =
+                    new WLSDeployArchiveIOException("WLSDPLY-01401", iae, iae.getLocalizedMessage());
                 LOGGER.throwing(CLASS, METHOD, wsdioe);
                 throw wsdioe;
             }
@@ -288,7 +292,7 @@ public class WLSDeployArchive {
      * @param path the path into the archive file to test
      * @return true if the specified location was found int the archive, false otherwise
      * @throws WLSDeployArchiveIOException if an error occurs reading the archive file
-     * @throws IllegalArgumentException if the path is null or empty
+     * @throws IllegalArgumentException    if the path is null or empty
      */
     public boolean containsFile(String path) throws WLSDeployArchiveIOException {
         final String METHOD = "containsFile";
@@ -312,7 +316,7 @@ public class WLSDeployArchive {
      * @param path the path into the archive file to test
      * @return true if the specified location was found in the archive file and is a directory
      * @throws WLSDeployArchiveIOException if an error occurs reading the archive file
-     * @throws IllegalArgumentException if the path is null or empty
+     * @throws IllegalArgumentException    if the path is null or empty
      */
     public boolean containsPath(String path) throws WLSDeployArchiveIOException {
         final String METHOD = "isAPath";
@@ -337,7 +341,7 @@ public class WLSDeployArchive {
      * @param path the path into the archive file to test
      * @return true if the specified location was found in the archive file
      * @throws WLSDeployArchiveIOException if an error occurs reading the archive file
-     * @throws IllegalArgumentException if the path is null or empty
+     * @throws IllegalArgumentException    if the path is null or empty
      */
     public boolean containsFileOrPath(String path) throws WLSDeployArchiveIOException {
         final String METHOD = "containsFileOrPath";
@@ -360,12 +364,12 @@ public class WLSDeployArchive {
      * if the path is wlsdeploy/applications/myapp.ear and the extractToLocation is the domain home, the file
      * will be written to $DOMAIN_HOME/wlsdeploy/applications/myapp.ear.
      *
-     * @param path the path into the archive file to extract
+     * @param path              the path into the archive file to extract
      * @param extractToLocation the base directory to which to write the extracted file or directory.
      * @return the canonical extracted file name
      * @throws WLSDeployArchiveIOException if an error occurs reading the archive or writing the file
-     * @throws IllegalArgumentException if the path is null or empty or the extractToLocation
-     *                                  was not a valid, existing directory
+     * @throws IllegalArgumentException    if the path is null or empty or the extractToLocation
+     *                                     was not a valid, existing directory
      */
     public String extractFile(String path, File extractToLocation) throws WLSDeployArchiveIOException {
         return extractFile(path, extractToLocation, false);
@@ -374,14 +378,14 @@ public class WLSDeployArchive {
     /**
      * Extract the specified file to the specified location.
      *
-     * @param path the path into the archive file to extract
-     * @param extractToLocation the base directory to which to write the extracted file or directory
+     * @param path                        the path into the archive file to extract
+     * @param extractToLocation           the base directory to which to write the extracted file or directory
      * @param stripLeadingPathDirectories whether or not to strip the leading directories
      *                                    when writing to the target location
      * @return the canonical extracted file name
      * @throws WLSDeployArchiveIOException if an error occurs reading the archive or writing the file
-     * @throws IllegalArgumentException if the path is null or empty or the extractToLocation
-     *                                  was not a valid directory
+     * @throws IllegalArgumentException    if the path is null or empty or the extractToLocation
+     *                                     was not a valid directory
      */
     public String extractFile(String path, File extractToLocation, boolean stripLeadingPathDirectories)
         throws WLSDeployArchiveIOException {
@@ -466,8 +470,8 @@ public class WLSDeployArchive {
             fileBytes = FileUtils.readInputStreamToByteArray(zipEntries.get(path));
         } catch (IOException ioe) {
             WLSDeployArchiveIOException aioe =
-                new WLSDeployArchiveIOException("WLSDPLY-01407", ioe, getArchiveFileName(),
-                                                path, ioe.getLocalizedMessage());
+                new WLSDeployArchiveIOException("WLSDPLY-01407", ioe, getArchiveFileName(), path,
+                    ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, aioe);
             throw aioe;
         } finally {
@@ -480,8 +484,8 @@ public class WLSDeployArchive {
             result = FileUtils.computeHash(fileBytes);
         } catch (NoSuchAlgorithmException e) {
             WLSDeployArchiveIOException aioe =
-                new WLSDeployArchiveIOException("WLSDPLY-01407", e, getArchiveFileName(),
-                                                path, e.getLocalizedMessage());
+                new WLSDeployArchiveIOException("WLSDPLY-01407", e, getArchiveFileName(), path,
+                    e.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, aioe);
             throw aioe;
         }
@@ -497,7 +501,7 @@ public class WLSDeployArchive {
      * @param appPath - File representing the actual path of the archive or directory in the file system
      * @return the relative path where the application will be unpacked by the unpackApplications() method
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
-     * @throws IllegalArgumentException if the file or directory passed in does not exist
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
     public String addApplication(File appPath) throws WLSDeployArchiveIOException {
         final String METHOD = "addApplication";
@@ -538,8 +542,29 @@ public class WLSDeployArchive {
 
         LOGGER.entering(CLASS, METHOD);
         List<String> result = getZipFile().listZipEntries(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+        result.remove(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
         LOGGER.exiting(CLASS, METHOD, result);
-        if (result.size()>0) {
+        if (result.size() > 0) {
+            return result.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the path of the OPSS wallet in the archive.
+     *
+     * @return path of the OPSS wallet
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive
+     */
+    public String getOPSSWallet() throws WLSDeployArchiveIOException {
+        final String METHOD = "getOPSSWallet";
+
+        LOGGER.entering(CLASS, METHOD);
+        List<String> result = getZipFile().listZipEntries(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+        result.remove(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+        LOGGER.exiting(CLASS, METHOD, result);
+        if (result.size() > 0) {
             return result.get(0);
         } else {
             return null;
@@ -550,10 +575,10 @@ public class WLSDeployArchive {
      * Extract the specified application from the archive to the domain home directory.
      *
      * @param applicationPath the application path into the archive file
-     * @param domainHome the domain home directory
+     * @param domainHome      the domain home directory
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
-     * @throws IllegalArgumentException if the file or directory passed in does not exist
-     *                                  or the application path is empty
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     *                                     or the application path is empty
      */
     public void extractApplication(String applicationPath, File domainHome) throws WLSDeployArchiveIOException {
         final String METHOD = "extractApplication";
@@ -578,7 +603,7 @@ public class WLSDeployArchive {
      * @param shlibPath - File representing the actual path of the archive or directory in the file system
      * @return the relative path where the shared library will be unpacked by the unpackSharedLibraries() method
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
-     * @throws IllegalArgumentException if the file or directory passed in does not exist
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
     public String addSharedLibrary(File shlibPath) throws WLSDeployArchiveIOException {
         final String METHOD = "addSharedLibrary";
@@ -612,10 +637,10 @@ public class WLSDeployArchive {
      * Extract the specified shared library from the archive to the domain home directory.
      *
      * @param sharedLibraryPath the shared library path into the archive file
-     * @param domainHome the domain home directory
+     * @param domainHome        the domain home directory
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
-     * @throws IllegalArgumentException if the file or directory passed in does not exist
-     *                                  or the application path is empty
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     *                                     or the application path is empty
      */
     public void extractSharedLibrary(String sharedLibraryPath, File domainHome) throws WLSDeployArchiveIOException {
         final String METHOD = "extractSharedLibrary";
@@ -640,7 +665,7 @@ public class WLSDeployArchive {
      * @param domainLibPath - File representing the actual path of the archive or directory in the file system
      * @return the relative path where the library will be unpacked by the unpackApplications() method
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
-     * @throws IllegalArgumentException if the file or directory passed in does not exist
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
     public String addDomainLibLibrary(File domainLibPath) throws WLSDeployArchiveIOException {
         final String METHOD = "addDomainLibLibrary";
@@ -673,10 +698,10 @@ public class WLSDeployArchive {
     /**
      * Extract the specified domain library to the specified location (e.g., $DOMAIN_HOME/lib).
      *
-     * @param archivePath the path of the library within the archive
+     * @param archivePath       the path of the library within the archive
      * @param extractToLocation the location to write the file
      * @throws WLSDeployArchiveIOException if an IOException occurred while extracting or writing the file
-     * @throws IllegalArgumentException if the file or directory passed in does not exist
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
     public void extractDomainLibLibrary(String archivePath, File extractToLocation) throws WLSDeployArchiveIOException {
         final String METHOD = "extractDomainLibLibrary";
@@ -697,7 +722,7 @@ public class WLSDeployArchive {
      * @param libPath - File representing the actual path of the archive or directory in the file system
      * @return the relative path where the library will be unpacked by the unpackApplications() method
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
-     * @throws IllegalArgumentException if the file or directory passed in does not exist
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
     public String addClasspathLibrary(File libPath) throws WLSDeployArchiveIOException {
         final String METHOD = "addClasspathLibrary";
@@ -732,7 +757,7 @@ public class WLSDeployArchive {
      *
      * @param domainHome the domain home directory
      * @throws WLSDeployArchiveIOException in an error occurs reading the archive or writing the files.
-     * @throws IllegalArgumentException if the domain home directory is not a valid, existing directory
+     * @throws IllegalArgumentException    if the domain home directory is not a valid, existing directory
      */
     public void extractClasspathLibraries(File domainHome) throws WLSDeployArchiveIOException {
         final String METHOD = "extractClasspathLibraries";
@@ -747,11 +772,11 @@ public class WLSDeployArchive {
     /**
      * Adds an application's deployment plan file to the archive.
      *
-     * @param planFile the deployment plan file
+     * @param planFile      the deployment plan file
      * @param preferredName the preferred name of the file to add
      * @return the actual name of the file in the archive
      * @throws WLSDeployArchiveIOException if an error occurs adding the file
-     * @throws IllegalArgumentException if the file does not exist or the preferredName was empty or null
+     * @throws IllegalArgumentException    if the file does not exist or the preferredName was empty or null
      */
     public String addApplicationDeploymentPlan(File planFile, String preferredName) throws WLSDeployArchiveIOException {
         final String METHOD = "addApplicationDeploymentPlan";
@@ -769,11 +794,11 @@ public class WLSDeployArchive {
     /**
      * Adds a shared library's deployment plan file to the archive.
      *
-     * @param planFile the deployment plan file
+     * @param planFile      the deployment plan file
      * @param preferredName the preferred name of the file to add
      * @return the actual name of the file in the archive
      * @throws WLSDeployArchiveIOException if an error occurs adding the file
-     * @throws IllegalArgumentException if the file does not exist or the preferredName was empty or null
+     * @throws IllegalArgumentException    if the file does not exist or the preferredName was empty or null
      */
     public String addSharedLibraryDeploymentPlan(File planFile, String preferredName)
         throws WLSDeployArchiveIOException {
@@ -795,7 +820,7 @@ public class WLSDeployArchive {
      * @param scriptFile the script file to add
      * @return the actual name of the file in the archive
      * @throws WLSDeployArchiveIOException if an error occurs adding the file
-     * @throws IllegalArgumentException if the file does not exist
+     * @throws IllegalArgumentException    if the file does not exist
      */
     public String addScript(File scriptFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addScript";
@@ -811,11 +836,11 @@ public class WLSDeployArchive {
     /**
      * Add a Server Identity Key Store file to the server's directory in the archive.
      *
-     * @param serverName the Server name used to segregate the directories
+     * @param serverName   the Server name used to segregate the directories
      * @param keystoreFile the file to add
      * @return the new location of the file to use in the model
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
-     * @throws IllegalArgumentException if the file does not exist or the clusterName is empty or null
+     * @throws IllegalArgumentException    if the file does not exist or the clusterName is empty or null
      */
     public String addServerKeyStoreFile(String serverName, File keystoreFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addServerKeyStoreFile";
@@ -835,7 +860,7 @@ public class WLSDeployArchive {
      * @param mimeMappingFile the file to add
      * @return the new location of the file to use in the model
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
-     * @throws IllegalArgumentException if the file does not exist or the clusterName is empty or null
+     * @throws IllegalArgumentException    if the file does not exist or the clusterName is empty or null
      */
     public String addMimeMappingFile(File mimeMappingFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addMimeMappingFile";
@@ -843,7 +868,7 @@ public class WLSDeployArchive {
         LOGGER.entering(CLASS, METHOD, mimeMappingFile);
 
         validateExistingFile(mimeMappingFile, "mimeMappingFile", getArchiveFileName(), METHOD);
-        String newName = addItemToZip(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP , mimeMappingFile);
+        String newName = addItemToZip(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP, mimeMappingFile);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
@@ -852,10 +877,10 @@ public class WLSDeployArchive {
      * Add a Coherence configuration file to the archive.
      *
      * @param clusterName the Coherence cluster name used to segregate the directories
-     * @param configFile the file to add
+     * @param configFile  the file to add
      * @return thje new location of the file to use in the model
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
-     * @throws IllegalArgumentException if the file does not exist or the clusterName is empty or null
+     * @throws IllegalArgumentException    if the file does not exist or the clusterName is empty or null
      */
     public String addCoherenceConfigFile(String clusterName, File configFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addCoherenceConfigFile";
@@ -872,11 +897,11 @@ public class WLSDeployArchive {
     /**
      * Add a Coherence configuration file to the archive from an http site.
      *
-     * @param clusterName the Coherence cluster name used to segregate the directories
+     * @param clusterName      the Coherence cluster name used to segregate the directories
      * @param urlForConfigFile a file object representing the path at the remote url
      * @return the new location of the file to use in the model
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
-     * @throws IllegalArgumentException if the clusterName is empty or null or the urlForConfigFile is null
+     * @throws IllegalArgumentException    if the clusterName is empty or null or the urlForConfigFile is null
      */
     public String addCoherenceConfigFileFromUrl(String clusterName, URL urlForConfigFile)
         throws WLSDeployArchiveIOException {
@@ -886,8 +911,8 @@ public class WLSDeployArchive {
 
         validateNonEmptyString(clusterName, "clusterName", METHOD);
         validateNonNullObject(urlForConfigFile, "urlForConfigFile", METHOD);
-        String newName = addUrlToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName,
-            urlForConfigFile, COHERENCE_CONFIG_FILE_EXTENSION, true);
+        String newName = addUrlToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, urlForConfigFile,
+            COHERENCE_CONFIG_FILE_EXTENSION, true);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
@@ -895,13 +920,14 @@ public class WLSDeployArchive {
     /**
      * Add an empty directory to the archive file for the coherence cluster using the persistence directory type value.
      * The directory type is stored under the unique coherence cluster name.
-     * @param clusterName name of the coherence cluster to which the persistence directory belongs
+     *
+     * @param clusterName   name of the coherence cluster to which the persistence directory belongs
      * @param directoryType type of the coherence cluster persistence directory
      * @return unique directory name
      * @throws WLSDeployArchiveIOException unexpected exception adding the directory name to the archive file
      */
-    public String addCoherencePersistenceDirectory(String clusterName, String directoryType) throws
-        WLSDeployArchiveIOException {
+    public String addCoherencePersistenceDirectory(String clusterName, String directoryType)
+        throws WLSDeployArchiveIOException {
         final String METHOD = "addCoherencePersistenceDirectory";
         LOGGER.entering(CLASS, METHOD, clusterName, directoryType);
 
@@ -914,12 +940,12 @@ public class WLSDeployArchive {
 
     /**
      * Add an empty directory to the archive file using the File Store name.
+     *
      * @param fileStoreName name of the File Store
      * @return unique directory name created using the file store name
      * @throws WLSDeployArchiveIOException unexpected exception adding the directory name to the archive file
      */
-    public String addFileStoreDirectory(String fileStoreName) throws
-        WLSDeployArchiveIOException {
+    public String addFileStoreDirectory(String fileStoreName) throws WLSDeployArchiveIOException {
         final String METHOD = "addFileStoreDirectory";
         LOGGER.entering(CLASS, METHOD, fileStoreName);
 
@@ -935,7 +961,7 @@ public class WLSDeployArchive {
      * @param keystoreFile the file to add
      * @return the new location of the file to use in the model
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
-     * @throws IllegalArgumentException if the file does not exist
+     * @throws IllegalArgumentException    if the file does not exist
      */
     public String addNodeManagerKeyStoreFile(File keystoreFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addNodeManagerKeyStoreFile";
@@ -1142,8 +1168,9 @@ public class WLSDeployArchive {
                         targetDirectory = targetFile.getParentFile();
                     }
                     if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
-                        WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01414",
-                            getArchiveFileName(), targetDirectory.getAbsolutePath());
+                        WLSDeployArchiveIOException wdaioe =
+                            new WLSDeployArchiveIOException("WLSDPLY-01414", getArchiveFileName(),
+                                targetDirectory.getAbsolutePath());
                         LOGGER.throwing(CLASS, METHOD, wdaioe);
                         throw wdaioe;
                     }
@@ -1160,8 +1187,9 @@ public class WLSDeployArchive {
                 }
             }
         } catch (IOException ioe) {
-            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01415", ioe,
-                getArchiveFileName(), targetFile.getAbsolutePath(), ioe.getLocalizedMessage());
+            WLSDeployArchiveIOException wdaioe =
+                new WLSDeployArchiveIOException("WLSDPLY-01415", ioe, getArchiveFileName(),
+                    targetFile.getAbsolutePath(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, wdaioe);
             throw wdaioe;
         } finally {
@@ -1171,8 +1199,7 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD);
     }
 
-    protected void extractFileFromZip(String itemToExtract, File extractToLocation)
-        throws WLSDeployArchiveIOException {
+    protected void extractFileFromZip(String itemToExtract, File extractToLocation) throws WLSDeployArchiveIOException {
         extractFileFromZip(itemToExtract, null, null, extractToLocation);
     }
 
@@ -1193,8 +1220,8 @@ public class WLSDeployArchive {
         File targetFile = new File(extractToLocation, targetFileName);
         File targetDirectory = targetFile.getParentFile();
         if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
-            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01414",
-                getArchiveFileName(), targetDirectory.getAbsolutePath());
+            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01414", getArchiveFileName(),
+                targetDirectory.getAbsolutePath());
             LOGGER.throwing(CLASS, METHOD, wdaioe);
             throw wdaioe;
         }
@@ -1202,8 +1229,9 @@ public class WLSDeployArchive {
         try (FileOutputStream outputStream = new FileOutputStream(targetFile, false)) {
             copyFile(inputStream, outputStream);
         } catch (IOException ioe) {
-            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01415", ioe,
-                getArchiveFileName(), targetFile.getAbsolutePath(), ioe.getLocalizedMessage());
+            WLSDeployArchiveIOException wdaioe =
+                new WLSDeployArchiveIOException("WLSDPLY-01415", ioe, getArchiveFileName(),
+                    targetFile.getAbsolutePath(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, wdaioe);
             throw wdaioe;
         } finally {
@@ -1373,8 +1401,9 @@ public class WLSDeployArchive {
         try {
             inputStream = new FileInputStream(f);
         } catch (IOException ioe) {
-            WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01425", ioe, archiveName,
-                f.getAbsolutePath(), itemName, ioe.getLocalizedMessage());
+            WLSDeployArchiveIOException wdaioe =
+                new WLSDeployArchiveIOException("WLSDPLY-01425", ioe, archiveName, f.getAbsolutePath(), itemName,
+                    ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, callingMethod, wdaioe);
             throw wdaioe;
         }

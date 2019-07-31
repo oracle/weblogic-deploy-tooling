@@ -1,18 +1,24 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 import javaos as os
+import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
+import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
+from java.io import FileOutputStream
+from java.util import Properties
 from oracle.weblogic.deploy.create import RCURunner
+from oracle.weblogic.deploy.util import WLSDeployArchive, FileUtils
+from wlsdeploy.util import string_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import APP_DIR
 from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
-from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
+from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
@@ -39,14 +45,16 @@ from wlsdeploy.aliases.model_constants import LOG_FILTER
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import NAME
+from wlsdeploy.aliases.model_constants import OPSS_SECRETS
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
+from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
+from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
-from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SECURITY
@@ -68,9 +76,10 @@ from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
-from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.creator import Creator
+from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
+from wlsdeploy.tool.create.wlsroles_helper import WLSRoles
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
@@ -142,6 +151,9 @@ class DomainCreator(Creator):
         self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, ExceptionType.CREATE,
                                           self.logger)
 
+        self.wlsroles_helper = WLSRoles(self._domain_info, self._domain_home, self.wls_helper,
+                                        ExceptionType.CREATE, self.logger)
+
         #
         # This list gets modified as the domain is being created so do use this list for anything else...
         #
@@ -161,6 +173,7 @@ class DomainCreator(Creator):
         self.__fail_mt_1221_domain_creation()
         self.__create_domain()
         self.__deploy()
+        self.__create_boot_dot_properties()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -302,7 +315,6 @@ class DomainCreator(Creator):
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, RESOURCE_GROUP_TEMPLATE)) or \
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, RESOURCE_GROUP)) or \
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, PARTITION)):
-
             ex = exception_helper.create_create_exception('WLSDPLY-12202', self.wls_helper.wl_version)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -332,6 +344,7 @@ class DomainCreator(Creator):
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
+        self.wlsroles_helper.process_roles()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -480,13 +493,15 @@ class DomainCreator(Creator):
 
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
         server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-        if server_assigns is not None:
+        if len(server_assigns) > 0:
             self.target_helper.target_server_groups(server_assigns)
+
+        self.__configure_opss_secrets()
 
         self.wlst_helper.write_domain(domain_home)
         self.wlst_helper.close_template()
 
-        if dynamic_assigns is not None:
+        if len(dynamic_assigns) > 0:
             self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -1093,3 +1108,69 @@ class DomainCreator(Creator):
         self.security_provider_creator.create_security_configuration(security_config_location)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    def __create_boot_dot_properties(self):
+        _method_name = '__create_boot_dot_properties'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        if SERVER_START_MODE in self._domain_info:
+            server_start_mode = self._domain_info[SERVER_START_MODE]
+            if server_start_mode == 'prod' or server_start_mode == 'PROD':
+                return
+
+        if PRODUCTION_MODE_ENABLED in self._topology:
+            if string_utils.to_boolean(self._topology[PRODUCTION_MODE_ENABLED]):
+                return
+
+        systemIni = SerializedSystemIni.getEncryptionService(self._domain_home)
+        encryptionService = ClearOrEncryptedService(systemIni)
+        admin_password = self._domain_info[ADMIN_PASSWORD]
+        admin_username = self.wls_helper.get_default_admin_username()
+        if ADMIN_USERNAME in self._domain_info:
+            admin_username = self._domain_info[ADMIN_USERNAME]
+
+        server_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER)
+        servers = [self._admin_server_name]
+
+        for model_name in server_nodes:
+            name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
+            servers.append(name)
+
+        admin_username = self.aliases.decrypt_password(admin_username)
+        admin_password = self.aliases.decrypt_password(admin_password)
+        encrypted_username =  encryptionService.encrypt(admin_username)
+        encrypted_password = encryptionService.encrypt(admin_password)
+        for server in servers:
+            properties = Properties()
+            properties.put("username", encrypted_username)
+            properties.put("password", encrypted_password)
+            file_directory = self._domain_home + "/servers/" + server + "/security"
+            file_location = file_directory + "/boot.properties"
+            if not os.path.exists(file_directory):
+                os.makedirs(file_directory)
+            ostream = FileOutputStream(file_location)
+            properties.store(ostream, None)
+            ostream.close()
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __configure_opss_secrets(self):
+        _method_name = '__configure_opss_secrets'
+
+        if not self._domain_typedef.is_jrf_domain_type():
+            return
+
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        extract_path = None
+        domain_info = self._domain_info
+        if domain_info is not None:
+            if OPSS_SECRETS in domain_info:
+                opss_secret_password = domain_info[OPSS_SECRETS]
+                if self.model_context.get_archive_file_name() and opss_secret_password:
+                    archive_file = WLSDeployArchive(self.model_context.get_archive_file_name())
+                    extract_path = self._domain_home + os.sep + 'opsswallet'
+                    zip_entry = archive_file.getOPSSWallet();
+                    FileUtils.extractZipFileContent(archive_file, zip_entry, extract_path)
+                    self.wlst_helper.setSharedSecretStoreWithPassword(extract_path, opss_secret_password)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return extract_path
