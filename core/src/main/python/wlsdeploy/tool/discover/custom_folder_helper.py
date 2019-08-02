@@ -248,7 +248,7 @@ class CustomFolderHelper(object):
                        class_name=_class_name, method_name=_method_name)
 
         if attribute_helper.is_clear_text_encrypted(attr_name):
-            _logger.fine('{0} attribute {1} is clear text encrypted and will skipped', mbean_string, attr_name,
+            _logger.fine('WLSDPLY-06777', mbean_string, attr_name,
                          class_name=_class_name, method_name=_method_name)
             converted_type = None
             converted = None
@@ -268,7 +268,7 @@ class CustomFolderHelper(object):
         """
         _method_name = '__get_default_value'
         default = attribute_helper.get_default_value(attribute_name)
-        _logger.finer('WLSDPLY-06762', attribute_helper.mbean_string(), attribute_name, default,
+        _logger.finest('WLSDPLY-06762', attribute_helper.mbean_string(), attribute_name, default,
                       class_name=_class_name, method_name=_method_name)
         converted_default = None
         if not is_empty(default):
