@@ -9,11 +9,9 @@ import java.lang.Exception as JException
 
 from oracle.weblogic.deploy.exception import BundleAwareException
 
-from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -54,22 +52,55 @@ class MBeanUtils(object):
         return loose_attributes
 
     def get_info_attribute_helper(self, location):
+        """
+        Get a wrapper for the MBeanInfo attribute information for the current MBean designated in the location context.
+        :param location: containing the current MBean context
+        :return: MBeanAttributes class wrapping the MBeanInfo attributes with convenience methods
+        """
         return self.__get_info_helper(location)
 
-    def get_mbean_info_attributes(self, location, helper=None):
+    def get_mbean_info_attributes(self, location=None, helper=None):
+        """
+        Get a list of attribute names for the MBean using the MBeanInfoAttributes wrapper class.
+        If the helper is not provided, use the location arg to create an instance of the helper
+        for the MBean designated in the location context.
+        :param location: If helper is None, the location is required to create the helper instance
+        :param helper: If not None, the provided helper is used to return the attribute information. The
+            location arg is not required if helper is provided.
+        :return: List of attribute names for the MBean
+        """
         if helper is None:
             helper = self.get_info_attribute_helper(location)
         return self.get_mbean_attributes(helper)
 
     def get_interface_attribute_helper(self, location):
-        return self.self.__get_interface_helper(location)
+        """
+        Return an instance of the InterfaceAttributes helper class for the MBean indicated in the location context.
+        :param location: context for the current MBean location
+        :return: InterfaceAttributes helper instance
+        """
+        return self.__get_interface_helper(location)
 
-    def get_interface_attributes(self, location, helper=None):
+    def get_interface_attributes(self, location=None, helper=None):
+        """
+        Get a list of attribute names for the MBean using the InterfaceAttributes wrapper class.
+        If the helper is not provided, use the location arg to create an instance of the helper
+        for the MBean designated in the location context.
+        :param location: If helper is None, the location is required to create the helper instance
+        :param helper: If not None, the provided helper is used to return the attribute information. The
+            location arg is not required if helper is provided.
+        :return: List of attribute names for the MBean
+        """
         if helper is None:
             helper = self.get_interface_attribute_helper(location)
         return self.get_mbean_attributes(helper)
 
     def get_mbean_attributes(self, helper):
+        """
+        Return a list of the MBean attribute names through the MBean attribute helper.
+        :param helper: MBeanAttributes helper class
+        :return: list of MBean attribute names
+        """
         return helper.get_mbean_attributes()
 
     def __collapse_attributes(self, location):
@@ -103,10 +134,10 @@ class MBeanUtils(object):
         )]
 
     def __get_info_helper(self, location):
-        return MBeanInfoAttributes(self.__model_context, self.__exception_type, location)
+        return MBeanInfoAttributes(self.__model_context, self.__alias_helper, self.__exception_type, location)
 
     def __get_interface_helper(self, location):
-        return InterfaceAttributes(self.__model_context, self.__exception_type, location)
+        return InterfaceAttributes(self.__model_context, self.__alias_helper, self.__exception_type, location)
 
     def __remove_duplicates(self, check_list, check_list_type, main_list, main_list_type):
         _method_name = '__remove_duplicates'
@@ -311,24 +342,35 @@ class MBeanAttributes(object):
 
     __interface_matcher = re.compile('Bean$')
 
-    def __init__(self, model_context, exception_type, location):
+    def __init__(self, model_context, alias_helper, exception_type, location, mbean_interface_name):
         self.__model_context = model_context
         self.__exception_type = exception_type
         self.__location = location
-        self.__aliases = Aliases(self.__model_context, wlst_mode=self.__model_context.get_target_wlst_mode())
-        self.__alias_helper = AliasHelper(self.__aliases, _logger, exception_type)
+        self.__alias_helper = alias_helper
+        self.__mbean_interface = mbean_interface_name
         self.__wlst_helper = WlstHelper(_logger, exception_type)
         self.__mbean_instance = None
-        self.__mbean_interface = None
         self.__mbean_name = ''
 
     def mbean_string(self):
+        """
+        Return a string representing the MBean encapsulated by the helper class.
+        :return: Printable string identifying the MBean
+        """
         return 'MBean %s at location %s' % (self.get_mbean_name(), self._get_mbean_path())
 
     def get_mbean_name(self):
+        """
+        Return the MBean "type" (i.e. JDBCSystemResource)
+        :return: mbean type
+        """
         return self.__mbean_name
 
     def get_mbean_interface_name(self):
+        """
+        Return the full name of the MBean interface class.
+        :return: Interface name
+        """
         return self._get_mbean_interface()
 
     def _get_mbean_instance(self):
@@ -421,8 +463,8 @@ class InterfaceAttributes(MBeanAttributes):
     attribute methods on the WLST CMO instance.
     """
 
-    def __init__(self,  model_context, exception_type, location):
-        MBeanAttributes.__init__(self,  model_context, exception_type, location)
+    def __init__(self,  model_context, alias_helper, exception_type, location, mbean_interface_name=None):
+        MBeanAttributes.__init__(self,  model_context, alias_helper, exception_type, location, mbean_interface_name)
 
         self.__interface_methods_list = None
         self.__interface_method_names_list = None
@@ -544,6 +586,11 @@ class InterfaceAttributes(MBeanAttributes):
         return None
 
     def get_default_value(self, attribute_name):
+        """
+        Unable to determine the default value using the MBean interface information.
+        :param attribute_name: attribute name
+        :return: None to indicate no default information available
+        """
         return None
 
     def get_value(self, attribute_name):
@@ -657,8 +704,8 @@ class MBeanInfoAttributes(MBeanAttributes):
 
     __class_name = 'MBeanInfoAttributes'
 
-    def __init__(self, model_context, exception_type, location):
-        MBeanAttributes.__init__(self, model_context, exception_type, location)
+    def __init__(self, model_context, alias_helper, exception_type, location, mbean_interface_name=None):
+        MBeanAttributes.__init__(self, model_context, alias_helper, exception_type, location, mbean_interface_name)
 
         self.__weblogic_helper = WebLogicHelper(_logger)
         self.__mbean_info_descriptors = None
@@ -765,7 +812,7 @@ class MBeanInfoAttributes(MBeanAttributes):
         """
         descriptor = self.__get_mbean_attribute(attribute_name)
         if descriptor is not None:
-            return descriptor.getPropertyType()
+            return descriptor.getValue('encrypted') is True
         return None
 
     def get_type(self, attribute_name):
@@ -780,6 +827,11 @@ class MBeanInfoAttributes(MBeanAttributes):
         return None
 
     def get_default_value(self, attribute_name):
+        """
+        Return the default value if the attribute exists in MBeanInfo
+        :param attribute_name: to search for in the MBeanInfo
+        :return: default value for the attribute
+        """
         descriptor = self.__get_mbean_attribute(attribute_name)
         values = _get_descriptor_values_keys(descriptor)
         if 'defaultValueNull' in values and descriptor.getValue('defaultValueNull') is True:
@@ -814,7 +866,7 @@ class MBeanInfoAttributes(MBeanAttributes):
             mbean_info = self.__weblogic_helper.get_bean_info_for_interface(self._get_mbean_interface())
             if mbean_info is None:
                 ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01774',
-                                                       self._get_mbean_interface(), self._get_mbean_instance())
+                                                       self._get_mbean_interface(), self.mbean_string())
                 _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
                 raise ex
             self.__mbean_info_descriptors = mbean_info.getPropertyDescriptors()
@@ -831,6 +883,11 @@ class MBeanInfoAttributes(MBeanAttributes):
 
 
 def _get_descriptor_values_keys(descriptor):
+    """
+    Return a list of keys from the PropertyDescriptor "values" map.
+    :param descriptor: MBeanInfo PropertyDescriptor with the values array
+    :return: list of keys from the "values" key=value map
+    """
     enumerations = descriptor.attributeNames()
     return _create_enumeration_list(enumerations)
 
