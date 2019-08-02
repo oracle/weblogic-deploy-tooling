@@ -574,6 +574,17 @@ class InterfaceAttributes(MBeanAttributes):
             return False
         return None
 
+    def is_clear_text_encrypted(self, attribute_name):
+        """
+        The tool does not discover encrypted attributes that are clear text. Determine if the attribute is a
+        this type of attribute.
+        :param attribute_name: name of the attribute to test
+        :return: True if the attribute is an encrypted clear text attribute
+        """
+        if self.is_encrypted(attribute_name + 'Encrypted'):
+            return True
+        return False
+
     def get_type(self, attribute_name):
         """
         Return the type of the attribute value if the attribute exists in MBean Interface.
@@ -814,6 +825,15 @@ class MBeanInfoAttributes(MBeanAttributes):
         if descriptor is not None:
             return descriptor.getValue('encrypted') is True
         return None
+
+    def is_clear_text_encrypted(self, attribute_name):
+        """
+        The tool does not discover encrypted attributes that are clear text. Determine if the attribute is a
+        this type of attribute.
+        :param attribute_name: name of the attribute to test
+        :return: True if the attribute is an encrypted clear text attribute
+        """
+        return self.is_encrypted(attribute_name) and str(self.get_type(attribute_name)) == 'java.lang.String'
 
     def get_type(self, attribute_name):
         """

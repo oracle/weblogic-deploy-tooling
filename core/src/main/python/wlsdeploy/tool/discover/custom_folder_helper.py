@@ -137,15 +137,9 @@ class CustomFolderHelper(object):
         converted_type = None
         converted = None
         try:
-            if encrypted:
+            if value_type == '[B':
                 converted_type = alias_constants.PASSWORD
-                if value_type == 'str' or value_type == 'java.lang.String':
-                    _logger.finer('WLSDPLY-06764', value_type, class_name=_class_name, method_name=_method_name)
-                elif value_type == '[B':
-                    if value is not None:
-                        converted = str(String(value))
-                else:
-                    _logger.fine('WLSDPLY-06765', value_type, class_name=_class_name, method_name=_method_name)
+                converted = convert_byte_buffer(value)
             elif value_type == 'int' or value_type == 'java.lang.Integer':
                 converted_type = alias_constants.INTEGER
                 converted = convert_numeric(Integer, value)
@@ -244,8 +238,14 @@ class CustomFolderHelper(object):
         attr_type = attribute_type(attribute_helper, attr_name)
         _logger.finest('WLSDPLY-06763', mbean_string, attr_name, attr_type,
                        class_name=_class_name, method_name=_method_name)
-        encrypted = attribute_helper.is_encrypted(attr_name)
-        converted_type, converted = self.convert(wlst_value, attr_type, encrypted)
+
+        if attribute_helper.is_clear_text_encrypted(attr_name):
+            _logger.fine('{0} attribute {1} is clear text encrypted and will skipped', mbean_string, attr_name,
+                         class_name=_class_name, method_name=_method_name)
+            converted_type = alias_constants.PASSWORD
+            converted = None
+        else:
+            converted_type, converted = self.convert(wlst_value, attr_type)
         if converted_type is not None:
             print_orig = wlst_value
             print_conv = converted
@@ -336,7 +336,7 @@ def security_provider_interface_name(mbean_interface):
     result = mbean_interface
     idx = mbean_interface.rfind('MBean')
     if idx > 0:
-        result = result[:idx-1]
+        result = result[:idx]
     return result
 
 
@@ -427,6 +427,12 @@ def convert_string(value):
 def convert_boolean(boolean_value):
     if boolean_value is not None:
         return Boolean(boolean_value).toString()
+    return None
+
+
+def convert_byte_buffer(buffer_value):
+    if buffer_value is not None:
+        return str(String(buffer_value))
     return None
 
 

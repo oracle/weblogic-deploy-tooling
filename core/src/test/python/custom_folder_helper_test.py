@@ -111,8 +111,7 @@ class CustomFolderHelperTestCase(unittest.TestCase):
         return_result = self._custom_helper.is_default(converted, converted_type, converted_default)
         self.assertEquals(True, return_result)
 
-    def testListDoesNotEqualDefault(self):
-        self._logger.info('First test is to test two arrays that are not equal in length')
+    def testListNotDefaultLengthDiff(self):
         list_value = ['foo', 'bar']
         list_default = ['bar']
         converted_type, converted = self._custom_helper.convert(list_value, 'list')
@@ -121,7 +120,7 @@ class CustomFolderHelperTestCase(unittest.TestCase):
         return_result = self._custom_helper.is_default(converted, converted_type, converted_default)
         self.assertEquals(False, return_result)
 
-        self._logger.info('Second test is to test two arrays same length but different values')
+    def testListNotDefaultElementsDiff(self):
         list_value = ['abc', 'xyz']
         list_default = ['bar', 'foo']
         converted_type, converted = self._custom_helper.convert(list_value, 'list')
