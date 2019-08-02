@@ -125,12 +125,11 @@ class CustomFolderHelper(object):
 
         return add_value
 
-    def convert(self, value, value_type, encrypted=False):
+    def convert(self, value, value_type):
         """
         Public function to convert the value with value_type to a model compatible value
         :param value: Value to be converted into the appropriate model data type
         :param value_type: data type of the value
-        :param encrypted: if the value is an encrypted value
         :return: converted data type and value
         """
         _method_name = '___convert_method'
