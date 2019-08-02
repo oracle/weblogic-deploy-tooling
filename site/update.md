@@ -23,3 +23,7 @@ When running the tool in WLST online mode, the update operation may require serv
 - `101` - The domain needs to be restarted and the Update Domain Tool needs to be re-invoked with the same arguments.
 - `102` - The servers impacted by the update operation need to be restarted, in a rolling fashion, starting with the Administration Server, if applicable.
 - `103` - The entire domain needs to be restarted.
+
+### Using Multiple Models
+
+The Update Domain Tool supports the use of multiple models, as described in [Using Multiple Models](../README.md#using-multiple-models).

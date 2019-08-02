@@ -3,7 +3,7 @@
 # updateDomain.sh
 #
 # Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-# The Universal Permissive License (UPL), Version 1.0
+# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
 #     NAME
 #       updateDomain.sh - WLS Deploy tool to update an existing domain.
@@ -17,7 +17,7 @@
 # of the arguments are passed down to the underlying python program:
 #
 #     - -oracle_home        The directory of the existing Oracle Home to use.
-#                           This directory must exist and it is the caller^'s
+#                           This directory must exist and it is the caller's
 #                           responsibility to verify that it does. This
 #                           argument is required.
 #
@@ -50,47 +50,41 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help] [-use_encryption]"
-  echo "          -oracle_home <oracle-home>"
-  echo "          -domain_home <domain-home>"
-  echo "          [-archive_file <archive-file>]"
-  echo "          [-model_file <model-file>]"
-  echo "          [-prev_model_file <prev-model-file>]"
-  echo "          [-variable_file <variable-file>]"
-  echo "          [-domain_type <domain-type>]"
-  echo "          [-wlst_path <wlst-path>]"
-  echo "          [-admin_url <admin-url>"
-  echo "           -admin_user <admin-user>"
+  echo "          -oracle_home <oracle_home>"
+  echo "          -domain_home <domain_home>"
+  echo "          [-archive_file <archive_file>]"
+  echo "          [-model_file <model_file>]"
+  echo "          [-variable_file <variable_file>]"
+  echo "          [-domain_type <domain_type>]"
+  echo "          [-wlst_path <wlst_path>]"
+  echo "          [-admin_url <admin_url>"
+  echo "           -admin_user <admin_user>"
   echo "          ]"
   echo ""
   echo "    where:"
-  echo "        oracle-home     - the existing Oracle Home directory for the domain"
+  echo "        oracle_home     - the existing Oracle Home directory for the domain"
   echo ""
-  echo "        domain-home     - the domain home directory"
+  echo "        domain_home     - the domain home directory"
   echo ""
-  echo "        archive-file    - the path to the archive file to use"
+  echo "        archive_file    - the path to the archive file to use"
   echo ""
-  echo "        model-file      - the location of the model file to use,"
-  echo "                          the default is to get the model from the archive"
+  echo "        model_file      - the location of the model file to use.  This can also be specified as a"
+  echo "                          comma-separated list of model locations, where each successive model layers"
+  echo "                          on top of the previous ones."
   echo ""
-  echo "        prev-model-file - the location of the previous model file."
-  echo ""
-  echo "                          This is used to remove apps and resources that"
-  echo "                          were previously deployed in addition to"
-  echo "                          (re)deploy the current apps and resources"
-  echo ""
-  echo "        variable-file   - the location of the property file containing"
+  echo "        variable_file   - the location of the property file containing"
   echo "                          the variable values for all variables used in"
   echo "                          the model"
   echo ""
-  echo "        domain-type     - the type of domain (e.g., WLS, JRF)."
-  echo "                          Used to locate wlst.cmd if wlst-path not specified"
+  echo "        domain_type     - the type of domain (e.g., WLS, JRF)."
+  echo "                          Used to locate wlst.cmd if -wlst_path not specified"
   echo ""
-  echo "        wlst-path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
   echo ""
-  echo "        admin-url       - the admin server URL (used for online deploy)"
+  echo "        admin_url       - the admin server URL (used for online deploy)"
   echo ""
-  echo "        admin-user      - the admin username (used for online deploy)"
+  echo "        admin_user      - the admin username (used for online deploy)"
   echo ""
   echo "    The -use_encryption switch tells the program that one or more of the"
   echo "    passwords in the model or variables files are encrypted.  The program will"
@@ -193,8 +187,8 @@ fi
 #
 # Validate the JVM version based on whether or not the user asked us to use encryption
 #
-JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F "\"" '{ print $2 }'`
-JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F "." '{ print $2 }'`
+JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
+JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
 
 if [ ${JVM_VERSION} -lt ${MIN_JDK_VERSION} ]; then
   if [ ${JVM_VERSION} -lt 7 ]; then
@@ -212,11 +206,11 @@ fi
 # The underlying WLST script has other required arguments.
 #
 if [ "${ORACLE_HOME}" = "" ]; then
-    echo "Required argument ORACLE_HOME not provided" >&2
+    echo "Required argument -oracle_home not provided" >&2
     usage `basename $0`
     exit 99
 elif [ ! -d ${ORACLE_HOME} ]; then
-    echo "The specified ORACLE_HOME does not exist: ${ORACLE_HOME}" >&2
+    echo "The specified -oracle_home directory does not exist: ${ORACLE_HOME}" >&2
     exit 98
 fi
 
@@ -225,12 +219,12 @@ fi
 #
 if [ "${WLST_PATH_DIR}" != "" ]; then
     if [ ! -d ${WLST_PATH_DIR} ]; then
-        echo "WLST_PATH_DIR specified does not exist: ${WLST_PATH_DIR}" >&2
+        echo "Specified -wlst_path directory does not exist: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
     WLST=${WLST_PATH_DIR}/common/bin/wlst.sh
     if [ ! -x "${WLST}" ]; then
-        echo "WLST executable ${WLST} not found under specified WLST_PATH_DIR: ${WLST_PATH_DIR}" >&2
+        echo "WLST executable ${WLST} not found under -wlst_path directory: ${WLST_PATH_DIR}" >&2
         exit 98
     fi
     CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH

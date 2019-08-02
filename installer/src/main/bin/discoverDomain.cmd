@@ -2,8 +2,8 @@
 @rem **************************************************************************
 @rem discoverDomain.cmd
 @rem
-@rem Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
-@rem The Universal Permissive License (UPL), Version 1.0
+@rem Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+@rem Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
 @rem       discoverDomain.cmd - WLS Deploy tool to discover a domain.
@@ -52,6 +52,7 @@ SETLOCAL
 
 SET WLSDEPLOY_PROGRAM_NAME=discoverDomain
 
+SET SCRIPT_NAME=%~nx0
 SET SCRIPT_PATH=%~dp0
 FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi
 IF %SCRIPT_PATH:~-1%==\ SET SCRIPT_PATH=%SCRIPT_PATH:~0,-1%
@@ -169,7 +170,7 @@ IF "%DOMAIN_TYPE%"=="" (
 @rem The underlying WLST script has other required arguments.
 @rem
 IF "%ORACLE_HOME%" == "" (
-  ECHO Required argument ORACLE_HOME not provided >&2
+  ECHO Required argument -oracle_home not provided >&2
   SET RETURN_CODE=99
   GOTO usage
 )
@@ -180,13 +181,13 @@ IF "%ORACLE_HOME%" == "" (
 IF DEFINED WLST_PATH_DIR (
   FOR %%i IN ("%WLST_PATH_DIR%") DO SET WLST_PATH_DIR=%%~fsi
   IF NOT EXIST "%WLST_PATH_DIR%" (
-    ECHO WLST_PATH_DIR specified does not exist: %WLST_PATH_DIR% >&2
+    ECHO Specified -wlst_path directory does not exist: %WLST_PATH_DIR% >&2
     SET RETURN_CODE=98
     GOTO exit_script
   )
   set "WLST=%WLST_PATH_DIR%\common\bin\wlst.cmd"
   IF NOT EXIST "%WLST%" (
-    ECHO WLST executable %WLST% not found under specified WLST_PATH_DIR %WLST_PATH_DIR% >&2
+    ECHO WLST executable %WLST% not found under -wlst_path directory %WLST_PATH_DIR% >&2
     SET RETURN_CODE=98
     GOTO exit_script
   )
@@ -295,35 +296,35 @@ GOTO exit_script
 
 :usage
 ECHO.
-ECHO Usage: %~nx0 -oracle_home ^<oracle-home^>
-ECHO              -domain_home ^<domain-home^>
-ECHO              -archive_file ^<archive-file^>
-ECHO              [-model_file ^<model-file^>]
-ECHO              [-domain_type ^<domain-type^>]
-ECHO              [-wlst_path ^<wlst-path^>]
-ECHO              [-admin_url ^<admin-url^>
-ECHO               -admin_user ^<admin-user^>
+ECHO Usage: %SCRIPT_NAME% -oracle_home ^<oracle_home^>
+ECHO              -domain_home ^<domain_home^>
+ECHO              -archive_file ^<archive_file^>
+ECHO              [-model_file ^<model_file^>]
+ECHO              [-domain_type ^<domain_type^>]
+ECHO              [-wlst_path ^<wlst_path^>]
+ECHO              [-admin_url ^<admin_url^>
+ECHO               -admin_user ^<admin_user^>
 ECHO              ]
 ECHO.
 ECHO     where:
-ECHO         oracle-home    - the existing Oracle Home directory for the domain
+ECHO         oracle_home    - the existing Oracle Home directory for the domain
 ECHO.
-ECHO         domain-home    - the domain home directory
+ECHO         domain_home    - the domain home directory
 ECHO.
-ECHO         archive-file   - the path to the archive file to create
+ECHO         archive_file   - the path to the archive file to create
 ECHO.
-ECHO         model-file     - the location to write the model file,
+ECHO         model_file     - the location to write the model file,
 ECHO                          the default is to write it inside the archive
 ECHO.
-ECHO         domain-type    - the type of domain (e.g., WLS, JRF).
-ECHO                          used to locate wlst.cmd if wlst-path not specified
+ECHO         domain_type    - the type of domain (e.g., WLS, JRF).
+ECHO                          used to locate wlst.cmd if -wlst_path not specified
 ECHO.
-ECHO         wlst-path      - the Oracle Home subdirectory of the wlst.cmd
+ECHO         wlst_path      - the Oracle Home subdirectory of the wlst.cmd
 ECHO                          script to use (e.g., ^<ORACLE_HOME^>\soa)
 ECHO.
-ECHO         admin-url      - the admin server URL (used for online discovery)
+ECHO         admin_url      - the admin server URL (used for online discovery)
 ECHO.
-ECHO         admin-user     - the admin username (used for online discovery)
+ECHO         admin_user     - the admin username (used for online discovery)
 ECHO.
 
 :exit_script

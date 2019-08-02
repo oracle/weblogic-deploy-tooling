@@ -1,21 +1,15 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 The WLS Deploy tooling entry point for the validateModel tool.
 """
 import javaos as os
 import sys
 
-from java.lang import IllegalArgumentException
-from java.lang import IllegalStateException
-
 from oracle.weblogic.deploy.util import CLAException
-from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
-from oracle.weblogic.deploy.util import WLSDeployArchive
-from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
@@ -25,10 +19,10 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.validate.validator import Validator
+from wlsdeploy.util import cla_helper
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
-from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -37,14 +31,13 @@ _class_name = 'validate'
 __logger = PlatformLogger('wlsdeploy.validate')
 __wls_helper = WebLogicHelper(__logger)
 __wlst_mode = WlstModes.OFFLINE
-__tmp_model_dir = None
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
 __optional_arguments = [
-    CommandLineArgUtil.DOMAIN_TYPE_SWITCH, # Used by shell script to locate WLST
+    CommandLineArgUtil.DOMAIN_TYPE_SWITCH,  # Used by shell script to locate WLST
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.PRINT_USAGE_SWITCH,
@@ -64,6 +57,7 @@ def __process_args(args):
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
+    cla_util.set_allow_multiple_models(True)
     required_arg_map, optional_arg_map = cla_util.process_args(args)
 
     __verify_required_args_present(required_arg_map)
@@ -100,59 +94,15 @@ def __process_model_args(optional_arg_map):
     :raises CLAException: if the arguments were not valid or an error occurred extracting the model from the archive
     """
     _method_name = '__process_model_args'
-    global __tmp_model_dir
 
     if CommandLineArgUtil.PRINT_USAGE_SWITCH in optional_arg_map:
         # nothing to do since we are printing help information rather than validating supplied artifacts...
         return
 
+    cla_helper.validate_optional_archive(_program_name, optional_arg_map)
+    cla_helper.validate_model_present(_program_name, optional_arg_map)
+
     something_to_validate = False
-    if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in optional_arg_map:
-        #
-        # Verify that the archive file exists
-        #
-        archive_file_name = optional_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-        try:
-            FileUtils.validateExistingFile(archive_file_name)
-        except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20014', _program_name, archive_file_name,
-                                                       iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-        something_to_validate = True
-
-    if CommandLineArgUtil.MODEL_FILE_SWITCH in optional_arg_map:
-        model_file_name = optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
-
-        try:
-            # Reset the value in the arg map so that the value is always a java.io.File object...
-            optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = FileUtils.validateExistingFile(model_file_name)
-        except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20006', _program_name, model_file_name,
-                                                       iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    elif CommandLineArgUtil.ARCHIVE_FILE_SWITCH in optional_arg_map:
-        archive_file_name = optional_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-        try:
-            archive_file = WLSDeployArchive(archive_file_name)
-            #
-            # If the model file was not specified, check to see if the archive contains one.
-            # If so, extract it and use it; otherwise, validate will only validate the archive structure.
-            #
-            if archive_file.containsModel():
-                __tmp_model_dir = FileUtils.createTempDirectory(_program_name)
-                model_file = archive_file.extractModel(__tmp_model_dir)
-                optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file
-        except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20010', _program_name, archive_file_name,
-                                                       archex.getLocalizedMessage(), error=archex)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-
     if CommandLineArgUtil.MODEL_FILE_SWITCH in optional_arg_map:
         something_to_validate = True
 
@@ -164,6 +114,7 @@ def __process_model_args(optional_arg_map):
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     return
+
 
 def __process_print_usage_args(optional_arg_map):
     """
@@ -203,16 +154,6 @@ def __process_print_usage_args(optional_arg_map):
                           found_controller_arg, class_name=_class_name, method_name=_method_name)
     return
 
-def __clean_up_temp_files():
-    """
-    If a temporary directory was created to extract the model from the archive, delete the directory and its contents.
-    """
-    global __tmp_model_dir
-
-    if __tmp_model_dir is not None:
-        FileUtils.deleteDirectory(__tmp_model_dir)
-        __tmp_model_dir = None
-
 
 def __perform_model_file_validation(model_file_name, model_context):
     """
@@ -231,13 +172,13 @@ def __perform_model_file_validation(model_file_name, model_context):
                       class_name=_class_name, method_name=_method_name)
 
     try:
-        model_dictionary = FileToPython(model_file_name.getAbsolutePath(), True).parse()
+        model_dictionary = cla_helper.merge_model_files(model_file_name)
         model_validator = Validator(model_context, logger=__logger)
         validation_results = model_validator.validate_in_standalone_mode(model_dictionary,
                                                                          model_context.get_variable_file(),
                                                                          model_context.get_archive_file_name())
     except TranslateException, te:
-        __logger.severe('WLSDPLY-20009', _program_name, model_file_name.getAbsolutePath(), te.getLocalizedMessage(),
+        __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
                         error=te, class_name=_class_name, method_name=_method_name)
         ex = exception_helper.create_validate_exception(te.getLocalizedMessage(), error=te)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -278,7 +219,7 @@ def main(args):
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
-        __clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
         sys.exit(exit_code)
 
     print_usage = model_context.get_print_usage()
@@ -302,12 +243,13 @@ def main(args):
         except ValidateException, ve:
             __logger.severe('WLSDPLY-20000', _program_name, ve.getLocalizedMessage(), error=ve,
                             class_name=_class_name, method_name=_method_name)
-            __clean_up_temp_files()
+            cla_helper.clean_up_temp_files()
             sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    __clean_up_temp_files()
+    cla_helper.clean_up_temp_files()
 
     return
+
 
 if __name__ == "main":
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)

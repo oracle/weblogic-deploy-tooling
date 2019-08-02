@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 import unittest
 import os
@@ -18,6 +18,9 @@ from wlsdeploy.aliases import alias_constants
 
 import oracle.weblogic.deploy.util.TranslateException as TranslateException
 from oracle.weblogic.deploy.validate import ValidateException
+
+from wlsdeploy.tool.create import wlsroles_helper
+from wlsdeploy.tool.validate.validation_results import ValidationResult
 
 class ValidationTestCase(unittest.TestCase):
     _program_name = 'validation_test'
@@ -231,6 +234,44 @@ class ValidationTestCase(unittest.TestCase):
                                 class_name=self._class_name, method_name=_method_name)
 
         self.assertNotEqual(return_code, Validator.ReturnCode.STOP)
+
+    def testWLSRolesValidation(self):
+        """
+        Run the validation portion of the WLSRoles helper and check for expected results.
+        """
+        _method_name = 'testWLSRolesValidation'
+
+        validation_result = ValidationResult('Test WLSRoles Section')
+        wlsroles_dict = {'Admin':     {'UpdateMode': 'append',
+                                       'Expression': 'Grp(AppAdmin)'},
+                         'Deployer':  {'UpdateMode': 'prepend',
+                                       'Expression': 'Grp(AppDeployer)'},
+                         'Tester':    {'Expression': 'Grp(AppTester)'},
+                         'MyEmpty':   { },
+                         'MyTester':  {'UpdateMode': 'append',
+                                       'Expression': 'Grp(MyTester)'},
+                         'MyTester2': {'UpdateMode': 'replace',
+                                       'Expression': 'Grp(MyTester2)'},
+                         'MyTester3': {'UpdateMode': 'bad',
+                                       'Expression': 'Grp(MyTester3)'}}
+
+        wlsroles_validator = wlsroles_helper.validator(wlsroles_dict, self._logger)
+        validation_result = wlsroles_validator.validate_roles(validation_result)
+        self._logger.info('The WLSRoles validation result is: {0}', validation_result,
+                          class_name=self._class_name, method_name=_method_name)
+
+        # Verify only warnings resulted
+        self.assertEqual(validation_result.get_errors_count(), 0)
+        self.assertEqual(validation_result.get_warnings_count(), 3)
+        self.assertEqual(validation_result.get_infos_count(), 0)
+
+        # Verify each warning message is a different message id
+        msgid_dict = {}
+        warn_msg_list = validation_result.get_warnings_messages()
+        for warn_msg in warn_msg_list:
+            id = warn_msg['resource_id']
+            msgid_dict[id] = 'true'
+        self.assertEqual(len(msgid_dict), 3)
 
 if __name__ == '__main__':
     unittest.main()

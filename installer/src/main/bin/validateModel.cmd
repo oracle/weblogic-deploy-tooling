@@ -2,8 +2,8 @@
 @rem **************************************************************************
 @rem validateModel.cmd
 @rem
-@rem Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
-@rem The Universal Permissive License (UPL), Version 1.0
+@rem Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+@rem Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
 @rem       validateModel.cmd - WLS Deploy tool to validate artifacts and print usage
@@ -50,6 +50,7 @@ SETLOCAL
 
 SET WLSDEPLOY_PROGRAM_NAME=validateModel
 
+SET SCRIPT_NAME=%~nx0
 SET SCRIPT_PATH=%~dp0
 FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi
 IF %SCRIPT_PATH:~-1%==\ SET SCRIPT_PATH=%SCRIPT_PATH:~0,-1%
@@ -167,7 +168,7 @@ IF "%DOMAIN_TYPE%"=="" (
 @rem The underlying WLST script has other required arguments.
 @rem
 IF "%ORACLE_HOME%" == "" (
-  ECHO Required argument ORACLE_HOME not provided >&2
+  ECHO Required argument -oracle_home not provided >&2
   SET RETURN_CODE=99
   GOTO usage
 )
@@ -178,13 +179,13 @@ IF "%ORACLE_HOME%" == "" (
 IF DEFINED WLST_PATH_DIR (
   FOR %%i IN ("%WLST_PATH_DIR%") DO SET WLST_PATH_DIR=%%~fsi
   IF NOT EXIST "%WLST_PATH_DIR%" (
-    ECHO WLST_PATH_DIR specified does not exist: %WLST_PATH_DIR% >&2
+    ECHO Specified -wlst_path directory does not exist: %WLST_PATH_DIR% >&2
     SET RETURN_CODE=98
     GOTO exit_script
   )
   set "WLST=%WLST_PATH_DIR%\common\bin\wlst.cmd"
   IF NOT EXIST "%WLST%" (
-    ECHO WLST executable %WLST% not found under specified WLST_PATH_DIR %WLST_PATH_DIR% >&2
+    ECHO WLST executable %WLST% not found under -wlst_path directory %WLST_PATH_DIR% >&2
     SET RETURN_CODE=98
     GOTO exit_script
   )
@@ -286,19 +287,19 @@ GOTO exit_script
 
 :usage
 ECHO.
-ECHO Usage: %~nx0 [-help]
-ECHO              -oracle_home ^<oracle-home^>
+ECHO Usage: %SCRIPT_NAME% [-help]
+ECHO              -oracle_home ^<oracle_home^>
 ECHO              [-print_usage ^<context^> [-attributes_only^|-folders_only^|-recursive] ]
-ECHO              [-model_file ^<model-file^>]
-ECHO              [-variable_file ^<variable-file^>]
-ECHO              [-archive_file ^<archive-file^>]
-ECHO              [-target_version ^<target-version^>]
-ECHO              [-target_mode ^<target-mode^>]
-ECHO              [-domain_type ^<domain-type^>]
-ECHO              [-wlst_path ^<wlst-path^>]
+ECHO              [-model_file ^<model_file^>]
+ECHO              [-variable_file ^<variable_file^>]
+ECHO              [-archive_file ^<archive_file^>]
+ECHO              [-target_version ^<target_version^>]
+ECHO              [-target_mode ^<target_mode^>]
+ECHO              [-domain_type ^<domain_type^>]
+ECHO              [-wlst_path ^<wlst_path^>]
 ECHO.
 ECHO     where:
-ECHO         oracle-home     - the existing Oracle Home directory for the domain
+ECHO         oracle_home     - the existing Oracle Home directory for the domain
 ECHO.
 ECHO         context         - specify the context for printing out the model structure.
 ECHO                           By default, the specified folder attributes and subfolder
@@ -306,39 +307,41 @@ ECHO                           names are printed.  Use one of the optional contr
 ECHO                           switches to customize the behavior.  Note that the
 ECHO                           control switches are mutually exclusive.
 ECHO.
-ECHO         model-file      - the location of the model file to use if not using
-ECHO                           the -print_usage functionality.  If not specified,
-ECHO                           the tool will look for the model in the archive.
+ECHO         model_file      - the location of the model file to use if not using
+ECHO                           the -print_usage functionality.  This can also be specified as a
+ECHO                           comma-separated list of model locations, where each successive model
+ECHO                           layers on top of the previous ones.
+ECHO                           If not specified, the tool will look for the model in the archive.
 ECHO                           If the model is not found, validation will only
 ECHO                           validate the artifacts provided.
 ECHO.
-ECHO         variable-file   - the location of the property file containing
+ECHO         variable_file   - the location of the property file containing
 ECHO                           the variable values for all variables used in
 ECHO                           the model if not using the -print_usage functionality.
 ECHO                           If the variable file is not provided, validation will
 ECHO                           only validate the artifacts provided.
 ECHO.
-ECHO         archive-file    - the path to the archive file to use if not using the
+ECHO         archive_file    - the path to the archive file to use if not using the
 ECHO                           -print_usage functionality.  If the archive file is
 ECHO                           not provided, validation will only validate the
 ECHO                           artifacts provided.
 ECHO.
-ECHO         target-version  - the target version of WebLogic Server the tool
+ECHO         target_version  - the target version of WebLogic Server the tool
 ECHO                           should use to validate the model content.  This
 ECHO                           version number can be different than the version
 ECHO                           being used to run the tool.  If not specified, the
 ECHO                           tool will validate against the version being used
 ECHO                           to run the tool.
 ECHO.
-ECHO         target-mode     - the target WLST mode that the tool should use to
+ECHO         target_mode     - the target WLST mode that the tool should use to
 ECHO                           validate the model content.  The only valid values
 ECHO                           are online or offline.  If not specified, the tool
 ECHO                           defaults to WLST offline mode.
 ECHO.
-ECHO         domain-type     - the type of domain (e.g., WLS, JRF).
-ECHO                           Used to locate wlst.cmd if wlst-path not specified
+ECHO         domain_type     - the type of domain (e.g., WLS, JRF).
+ECHO                           Used to locate wlst.cmd if -wlst_path not specified
 ECHO.
-ECHO         wlst-path       - the Oracle Home subdirectory of the wlst.cmd
+ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa)
 ECHO.
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+#Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 #Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
@@ -36,7 +36,7 @@ echo "Managed Server Logs: ${MS_LOGS}"
 USER=`awk '{print $1}' $PROPERTIES_FILE | grep ^username= | cut -d "=" -f2`
 if [ -z "$USER" ]; then
     echo "The admin username is blank.  The admin username must be set in the properties file."
-    exit 
+    exit
 fi
 
 PASS=`awk '{print $1}' $PROPERTIES_FILE | grep ^password= | cut -d "=" -f2`
@@ -49,7 +49,7 @@ mkdir -p ${MS_SECURITY}
 echo username=$USER > ${MS_SECURITY}/boot.properties
 echo password=$PASS >> ${MS_SECURITY}/boot.properties
 
-# Start Managed Server 
+# Start Managed Server
 ${DOMAIN_HOME}/bin/setDomainEnv.sh
 echo 'Start Managed Server: ${MANAGED_SERVER_NAME}'
 ${DOMAIN_HOME}/bin/startManagedWebLogic.sh ${MANAGED_SERVER_NAME} http://${ADMIN_HOST}:${ADMIN_PORT}

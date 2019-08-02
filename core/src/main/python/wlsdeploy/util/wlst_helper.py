@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
 import oracle.weblogic.deploy.util.StringUtils as StringUtils
@@ -1406,3 +1406,16 @@ def reopen_offline(domain_home):
     _logger.fine('WLSDPLY-00081', class_name=_class_name, method_name=_method_name)
     read_domain(domain_home)
     _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def set_shared_secret_store_with_password(wallet_path, password):
+    """
+    Set opss store password
+    :param wallet_path: opss extracted wallet
+    :param password:  opss store extraction time password
+    """
+    _method_name = 'set_shared_secret_store_with_password'
+    _logger.fine('WLSDPLY-00081', class_name=_class_name, method_name=_method_name)
+    wlst.setSharedSecretStoreWithPassword(wallet_path,password)
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+

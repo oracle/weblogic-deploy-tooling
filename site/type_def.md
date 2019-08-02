@@ -4,7 +4,7 @@ WebLogic Server Deploy Tooling has an extensible domain type system.  The three 
 
 ```json
 {
-    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.",
     "license": "The Universal Permissive License (UPL), Version 1.0",
     "name": "JRF",
     "description": "JRF type domain definitions",
@@ -221,7 +221,7 @@ If there are any server groups in the custom template that should be targeted to
 Templates in WebLogic Server versions prior to 12.2.1 may require the use of the `applyJRF` WLST command to correctly target resources to the correct clusters and servers. The default behavior for WebLogic Deploy Tooling is to invoke `applyJRF` only when the `extensionTemplates` list includes JRF templates.
 
 A custom type definition file can require `applyJRF` to be invoked after the templates are added. This is done by setting the `targeting` attribute to `APPLY_JRF`, as in this example:
- 
+
 ```json
 {
     "name": "MyCustom",
@@ -243,4 +243,4 @@ A custom type definition file can require `applyJRF` to be invoked after the tem
 }
 ```
 
-The `targeting` attribute is not valid for WebLogic Server versions 12.2.1 and up. 
+The `targeting` attribute is not valid for WebLogic Server versions 12.2.1 and up.
