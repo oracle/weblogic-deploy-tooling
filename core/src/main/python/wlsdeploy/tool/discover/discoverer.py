@@ -674,9 +674,6 @@ class Discoverer(object):
                 self._alias_helper.is_security_provider_type(location) and 'Provider' == folder_name:
             raise exception_helper.create_discover_exception('WLSDPLY-06201', folder_name, location.get_folder_path())
 
-        _logger.fine('version {0} mode {1} type? {2} provider {3}', not self._weblogic_helper.is_version_in_12c(),
-                     self._wlst_mode == WlstModes.OFFLINE, self._alias_helper.is_security_provider_type(location),
-                     'Provider' == folder_name)
         return folder_name
 
 

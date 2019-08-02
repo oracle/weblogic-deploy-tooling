@@ -109,19 +109,28 @@ class CustomFolderHelper(object):
         """
         _method_name = 'get_model_attribute_value'
         add_value = None
+        mbean_string = attribute_helper.mbean_string()
         if attribute_helper.is_read_only(attribute_name):
-            _logger.finer('WLDSPLY-06754', attribute_name, attribute_helper.mbean_string(),
+            _logger.finer('WLDSPLY-06776', mbean_string, attribute_name,
                           class_name=_class_name, method_name=_method_name)
         else:
-            if wlst_value == 'unknown':
-                wlst_value = attribute_helper.get_value(attribute_name)
             model_type, model_value = self.__convert_to_type(attribute_helper, attribute_name, wlst_value)
-            default_value = self.__get_default_value(attribute_helper, attribute_name)
-            if not is_empty(model_value):
-                if is_empty(default_value) or not self.is_default(model_value, model_type, default_value):
-                    add_value = model_value
-            if add_value is not None and model_type == alias_constants.PASSWORD:
-                add_value = alias_constants.PASSWORD_TOKEN
+            if model_type is not None:
+                print_conv = model_value
+                if model_type == alias_constants.PASSWORD:
+                    print_orig = alias_constants.MASKED
+                    print_conv = print_orig
+                _logger.finer('WLSDPLY-06770', mbean_string, attribute_name, model_type, str(print_conv),
+                              class_name=_class_name, method_name=_method_name)
+                default_value = self.__get_default_value(attribute_helper, attribute_name)
+                if not is_empty(model_value):
+                    if is_empty(default_value) or not self.is_default(model_value, model_type, default_value):
+                        add_value = model_value
+                if add_value is not None and model_type == alias_constants.PASSWORD:
+                    add_value = alias_constants.PASSWORD_TOKEN
+            else:
+                _logger.finer('WLSDPLY-06771', mbean_string, attribute_name, attribute_helper.get_type(attribute_name),
+                              class_name=_class_name, method_name=_method_name)
 
         return add_value
 
@@ -241,21 +250,13 @@ class CustomFolderHelper(object):
         if attribute_helper.is_clear_text_encrypted(attr_name):
             _logger.fine('{0} attribute {1} is clear text encrypted and will skipped', mbean_string, attr_name,
                          class_name=_class_name, method_name=_method_name)
-            converted_type = alias_constants.PASSWORD
+            converted_type = None
             converted = None
         else:
+            if wlst_value == 'unknown':
+                wlst_value = attribute_helper.get_value(attr_name)
             converted_type, converted = self.convert(wlst_value, attr_type)
-        if converted_type is not None:
-            print_orig = wlst_value
-            print_conv = converted
-            if converted_type == alias_constants.PASSWORD:
-                print_orig = alias_constants.MASKED
-                print_conv = print_orig
-            _logger.fine('WLSDPLY-06770', mbean_string, attr_name, print_orig, converted_type, print_conv,
-                         class_name=_class_name, method_name=_method_name)
-        else:
-            _logger.finer('WLSDPLY-06771', mbean_string, attr_name, attr_type,
-                          class_name=_class_name, method_name=_method_name)
+
         return converted_type, converted
 
     def __get_default_value(self, attribute_helper, attribute_name):
