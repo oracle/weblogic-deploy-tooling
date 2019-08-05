@@ -12,7 +12,7 @@ This project is structured using the Standard Directory Layout for Maven project
 
 The `core` module contains the main source code for the project. This includes Jython modules and Java classes, as well as typedef files, alias definitions, and the message bundle. There are unit tests related to this module.
 
-Alias definitions are discussed in more detail [here](#alias definitions). 
+Alias definitions are discussed in more detail [here](#alias-definitions). 
 
 The `installer` module builds the final installer zip file. It includes the assembly definitions, start scripts for each tool for Linux and Windows platforms, and configurations for variable injection and logging. 
 
@@ -36,7 +36,7 @@ The class `TopologyUpdater` is a special subclass of `Deployer` that is used to 
 
 ## Alias Definitions
 
-WebLogic Deploy Tool uses a set of JSON configuration files to map folders and attributes in the model to their corresponding WLST MBeans and their attributes. These mappings are referred as 'aliases' throughout the project code and documentation. Each element in the alias definition file has detailed properties that assist in this mapping.
+WebLogic Deploy Tool uses a set of JSON configuration files to map folders and attributes in the model to the corresponding WLST MBeans and their attributes. These mappings are referred as 'aliases' throughout the project code and documentation. Each element in the alias definition file has detailed properties that assist in this mapping.
 
 The model's folder and attribute names usually match the names of the corresponding elements in WLST. For cases where the names of WLST elements may change across WebLogic Server releases, the names should match the names in the 12.2.1.3 release. The unit test `AttributesTestCase` verifies that this convention is used, and identifies a few exceptions.
  
@@ -99,11 +99,11 @@ These JSON keys are applicable for the top-level element (such as `JDBCSystemRes
 
 #### `wlst_type`
 
-This value is the model folder's corresponding name in WLST. The `${x:y}` notation described above is often used here to distinguish offline and online folder names
+This value is the type name of the WLST MBean that corresponds to a model folder. The `${x:y}` notation described above is often used here to distinguish offline and online folder names.
 
 #### `child_folders_type`
 
-This value specifies how the tool will map the domain model element to WLST MBeans. The values are:
+This value specifies how the tool will map the domain model element to one or more WLST MBeans. The values are:
 
 - `single` (default) - this element represents a single MBean, and the MBean name is known.
 
@@ -113,7 +113,7 @@ This value specifies how the tool will map the domain model element to WLST MBea
 
 #### `folders`
 
-Nested WLST MBeans for the current MBean are listed here. Each has a domain model name, followed by its own JSON keyed elements.
+Nested WLST MBean types for the current MBean are listed here. Each has a domain model type name, followed by its own JSON keyed elements.
  
 #### `wlst_attributes_path`
 
@@ -141,7 +141,7 @@ Specifies that an MBean attribute description is relevant for WebLogic Server ve
 
 #### `wlst_mode`
 
-This key element specifies the WLST mode that is applicable for an MBean attribute description. The value can be "offline", "online", or "both".
+This key element specifies the WLST modes that are applicable for an MBean attribute description. The value can be "offline", "online", or "both".
 
 #### `wlst_name`
 
@@ -193,7 +193,7 @@ The method `set_target_mbeans` directs the tool to call the Jython method `attri
 
 #### `set_mbean_type`
 
-When a `set_method` key is specified, it may be required to specify the MBean type for the set method to use (see the example under `set_method`.
+When a `set_method` key is specified, it may be required to specify the MBean type for the set method to use (see the example under `set_method`).
 
 ## Building WebLogic Deploy Tool
 
@@ -234,5 +234,3 @@ If you are not making changes and are only interested in building the latest ver
 The option `-Denforcer.skip` prevents the Maven Enforcer plugin from verifying the JDK version, and checking that the WLST directory is specified.
 
 The resulting installer zip file built is under the `WLSDEPLOY_HOME/installer/target` directory.
-
-See [The `installer` Module](#the-installer-module) for more details about how the installer is created.
