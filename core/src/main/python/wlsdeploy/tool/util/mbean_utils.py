@@ -346,7 +346,6 @@ class MBeanAttributes(object):
     def __init__(self, model_context, alias_helper, exception_type, location, mbean_interface_name):
         self.__model_context = model_context
         self.__exception_type = exception_type
-        _logger.info('The exception type is {0}', ExceptionType.from_value(self.__exception_type))
         self.__location = location
         self.__alias_helper = alias_helper
         self.__mbean_interface = mbean_interface_name
