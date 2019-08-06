@@ -379,7 +379,7 @@ class MBeanAttributes(object):
             attribute_path = self.__alias_helper.get_wlst_attributes_path(self.__location)
             self.__mbean_instance = self.__wlst_helper.get_mbean(attribute_path)
             if self.__mbean_instance is None:
-                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01775', attribute_path)
+                ex = exception_helper.create_exception(self._get_exception_type(), 'WLSDPLY-01775', attribute_path)
                 _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
                 raise ex
         return self.__mbean_instance
@@ -391,7 +391,7 @@ class MBeanAttributes(object):
             interfaces = [interface for interface in self._get_mbean_interfaces()
                           if re.search(self.__interface_matcher, str(interface)) is not None]
             if len(interfaces) == 0:
-                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01777',
+                ex = exception_helper.create_exception(self._get_exception_type(), 'WLSDPLY-01777',
                                                        self._get_mbean_instance())
                 _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
                 raise ex
@@ -415,6 +415,9 @@ class MBeanAttributes(object):
     def _get_mbean_interfaces(self):
         return self.__get_mbean_class().getInterfaces()
 
+    def _get_exception_type(self):
+        return self.__exception_type
+
     def __get_mbean_class(self):
         _method_name = '__get_mbean_class'
         mbean_class = None
@@ -425,7 +428,7 @@ class MBeanAttributes(object):
         except AttributeError:
             pass
         if mbean_class is None:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01776', mbean_instance)
+            ex = exception_helper.create_exception(self._get_exception_type(), 'WLSDPLY-01776', mbean_instance)
             _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
             raise ex
         return mbean_class
@@ -885,7 +888,7 @@ class MBeanInfoAttributes(MBeanAttributes):
         if self.__mbean_info_descriptors is None:
             mbean_info = self.__weblogic_helper.get_bean_info_for_interface(self._get_mbean_interface())
             if mbean_info is None:
-                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01774',
+                ex = exception_helper.create_exception(self._get_exception_type(), 'WLSDPLY-01774',
                                                        self._get_mbean_interface(), self.mbean_string())
                 _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
                 raise ex
