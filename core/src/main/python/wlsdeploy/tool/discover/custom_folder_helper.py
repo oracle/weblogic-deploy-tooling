@@ -158,9 +158,7 @@ class CustomFolderHelper(object):
                 converted_type = alias_constants.DOUBLE
                 converted = convert_numeric(Double, value)
             elif value_type == 'float' or value_type == 'java.lang.Float':
-                _logger.fine('WLSDPLY-06766', value_type, class_name=_class_name, method_name=_method_name)
-                converted_type = alias_constants.DOUBLE
-                converted = convert_numeric(Double, value)
+                _logger.info('WLSDPLY-06766', value_type, class_name=_class_name, method_name=_method_name)
             elif value_type == 'java.math.BigInteger':
                 converted_type, converted = convert_big_integer(value)
                 _logger.fine('WLSDPLY-06767', converted, converted_type,
@@ -179,11 +177,13 @@ class CustomFolderHelper(object):
                 if value is not None:
                     converted = value.toString()
             elif value_type == 'PyArray' or value_type.startswith('[L'):
-                converted_type = alias_constants.JARRAY
                 converted = create_array(value)
+                if converted is not None:
+                    converted_type = alias_constants.JARRAY
             elif value_type == 'list':
-                converted_type = alias_constants.LIST
                 converted = create_array(value)
+                if converted is not None:
+                    converted_type = alias_constants.LIST
             else:
                 converted_type, converted = convert_value(value)
                 _logger.fine('WLSDPLY-06768', value_type, converted_type,
@@ -216,8 +216,7 @@ class CustomFolderHelper(object):
         if model_type == alias_constants.LIST:
             is_default = equal_lists(model_value, default_value)
         elif model_type == alias_constants.PROPERTIES:
-            is_default = equal_lists(model_value.keys(), default_value.keys()) and \
-                   equal_lists(model_value.values(), default_value.values())
+            is_default = equal_dictionary(model_value, default_value)
         elif model_type == alias_constants.JARRAY:
             is_default = equal_jarrays(model_value, default_value)
         elif model_type == alias_constants.STRING:
@@ -269,7 +268,7 @@ class CustomFolderHelper(object):
         _method_name = '__get_default_value'
         default = attribute_helper.get_default_value(attribute_name)
         _logger.finest('WLSDPLY-06762', attribute_helper.mbean_string(), attribute_name, default,
-                      class_name=_class_name, method_name=_method_name)
+                       class_name=_class_name, method_name=_method_name)
         converted_default = None
         if not is_empty(default):
             __, converted_default = self.__convert_to_type(attribute_helper, attribute_name, default)
@@ -293,6 +292,17 @@ class CustomFolderHelper(object):
         return False
 
 
+def equal_dictionary(dict1, dict2):
+    if dict1 is not None and dict2 is not None:
+        dict1_keys = dict1.keys()
+        if equal_lists(dict1_keys, dict2.keys()):
+            for key in dict1_keys:
+                if dict1[key] != dict2[key]:
+                    return False
+            return True
+    return False
+
+
 def equal_lists(list1, list2):
     """
     Compare the two lists for values that are in the first or second but not both
@@ -300,7 +310,7 @@ def equal_lists(list1, list2):
     :param list2: second list of values
     :return: True if all values in each list are in the other list
     """
-    if len(list1) == len(list2):
+    if list1 is not None and list2 is not None and len(list1) == len(list2):
         return (len([item for item in list1 if item not in list2]) +
                 len([item for item in list2 if item not in list1])) == 0
     return False
@@ -443,11 +453,13 @@ def create_array(iterable):
     :return: an array or a string containing the converted contents from the provided iterable
     """
     my_array = None
-    if iterable:
+    if is_iterable(iterable):
         my_array = list()
         for element in iterable:
             __, converted = convert_value(element)
             my_array.append(converted)
+    elif iterable is None:
+        my_array = list()
     return my_array
 
 
@@ -494,3 +506,11 @@ def convert_value(value):
             converted_type = alias_constants.OBJECT
             converted = value
     return converted_type, converted
+
+
+def is_iterable(iterable):
+    try:
+        iter(iterable)
+        return True
+    except TypeError:
+        return False

@@ -7,12 +7,11 @@ import unittest
 
 from org.python.modules import jarray
 
+from java.lang import Boolean
 from java.util import HashMap
 from java.lang import String
-from java.lang import System
 from java.io import ByteArrayOutputStream
 from java.io import DataOutputStream
-from java.io import File
 from java.io import IOException
 from java.util import Properties
 
@@ -49,10 +48,8 @@ class CustomFolderHelperTestCase(unittest.TestCase):
     """
 
     _custom_helper = None
-    _oracle_home = None
     _logger = platform_logger.PlatformLogger('wlsdeploy.unittest')
     _location = None
-    _bean_info_access = None
     _aliases = None
     _alias_helper = None
     _helper = None
@@ -60,13 +57,9 @@ class CustomFolderHelperTestCase(unittest.TestCase):
 
     _wls_version = '12.2.1.3'
 
-    _mbean_info = None
-
     def setUp(self):
-        wlst_dir = File(System.getProperty('unit-test-wlst-dir'))
-        self._oracle_home = wlst_dir.getParentFile().getParentFile().getParentFile().getCanonicalPath()
         arg_map = dict()
-        arg_map[CLA.ORACLE_HOME_SWITCH] = self._oracle_home
+        arg_map[CLA.ORACLE_HOME_SWITCH] = '/my/path/to/oracle'
         arg_map[CLA.TARGET_MODE_SWITCH] = 'offline'
 
         self._model_context = ModelContext("test", arg_map)
@@ -77,7 +70,7 @@ class CustomFolderHelperTestCase(unittest.TestCase):
         self._location.add_name_token(self.name_token(self._location), 'testdomain')
         self._location.append_location('Realm').add_name_token(self.name_token(self._location), 'myrealm'). \
             append_location('AuthenticationProvider'). \
-            add_name_token(self.name_token(self._location), 'IoT IDCS Authenticator')
+            add_name_token(self.name_token(self._location), 'any_custom_authenticator')
         self._helper = MBeanInfoAttributes(self._model_context, self._alias_helper, ExceptionType.DISCOVER,
                                            self._location, _mbean_interface)
         self._custom_helper = CustomFolderHelper(self._aliases, self._logger, self._model_context,
@@ -94,99 +87,94 @@ class CustomFolderHelperTestCase(unittest.TestCase):
             dos.close()
         except IOException, ioe:
             self.fail('Unexpected exception writing out credential : ', str(ioe))
-        return_result = self._custom_helper.get_model_attribute_value(self._helper, 'ClientSecretEncrypted', byte_array)
-        self.assertEqual(alias_constants.PASSWORD_TOKEN, return_result)
-
-    def testClearTextPassword(self):
-        credential_string = '*******'
-        return_result = self._custom_helper.get_model_attribute_value(self._helper, 'ClientSecret', credential_string)
-        self.assertEquals(None, return_result)
+        converted_type, converted_value = self._custom_helper.convert(byte_array, '[B')
+        self.common_test_converted(alias_constants.PASSWORD_TOKEN, alias_constants.PASSWORD,
+                                   converted_value, converted_type)
 
     def testListEqualsDefault(self):
         list_value = ['foo', 'bar']
         list_default = list(list_value)
-        converted_type, converted = self._custom_helper.convert(list_value, 'list')
-        self.assertEquals(alias_constants.LIST, converted_type)
-        __, converted_default = self._custom_helper.convert(list_default, 'list')
-        return_result = self._custom_helper.is_default(converted, converted_type, converted_default)
-        self.assertEquals(True, return_result)
+        converted_type, converted_value = self._custom_helper.convert(list_value, 'list')
+        self.common_test_converted(list_value, alias_constants.LIST, converted_value, converted_type)
+        self.common_test_default(list_default, 'list', converted_value, converted_type, True)
 
     def testListNotDefaultLengthDiff(self):
         list_value = ['foo', 'bar']
         list_default = ['bar']
-        converted_type, converted = self._custom_helper.convert(list_value, 'list')
-        self.assertEquals(alias_constants.LIST, converted_type)
-        __, converted_default = self._custom_helper.convert(list_default, 'list')
-        return_result = self._custom_helper.is_default(converted, converted_type, converted_default)
-        self.assertEquals(False, return_result)
+        converted_type, converted_value = self._custom_helper.convert(list_value, 'list')
+        self.common_test_converted(list_value, alias_constants.LIST, converted_value, converted_type)
+        self.common_test_default(list_default, 'list', converted_value, converted_type, False)
 
     def testListNotDefaultElementsDiff(self):
         list_value = ['abc', 'xyz']
         list_default = ['bar', 'foo']
-        converted_type, converted = self._custom_helper.convert(list_value, 'list')
-        self.assertEquals(2, len(converted))
-        self.assertEquals(alias_constants.LIST, converted_type)
-        __, converted_default = self._custom_helper.convert(list_default, 'list')
-        return_result = self._custom_helper.is_default(converted, converted_type, converted_default)
-        self.assertEquals(False, return_result)
+        converted_type, converted_value = self._custom_helper.convert(list_value, 'list')
+        self.common_test_converted(list_value, alias_constants.LIST, converted_value, converted_type)
+        self.common_test_default(list_default, 'list', converted_value, converted_type, False)
 
     def testJarrayEqualsDefault(self):
         jarray_value = jarray.array(['Idcs_user_assertion', 'idcs_user_assertion'], String)
-        return_result = self._custom_helper.get_model_attribute_value(self._helper, 'ActiveTypes', jarray_value)
-        self.assertEquals(None, return_result)
+        expected_value = ['Idcs_user_assertion', 'idcs_user_assertion']
+        jarray_default = ['idcs_user_assertion', 'Idcs_user_assertion']
+        converted_type, converted_value = self._custom_helper.convert(jarray_value, '[L')
+        self.common_test_converted(expected_value, alias_constants.JARRAY, converted_value, converted_type)
+        self.common_test_default(jarray_default, str(type(jarray_default)), converted_value, converted_type, True)
 
-    def testJarryDoesNotEqualDefault(self):
-        length_diff = jarray.array(['idcs_user_assertion'], String)
-        return_result = self._custom_helper.get_model_attribute_value(self._helper, 'ActiveTypes', length_diff)
-        self.assertNotEquals(None, return_result)
-        self.assertEquals(list, type(return_result))
-        self.assertEquals(1, len(return_result))
-        value_diff = jarray.array(['nonmatch', 'idcs_user_assertion'], String)
-        return_result = self._custom_helper.get_model_attribute_value(self._helper, 'ActiveTypes', value_diff)
-        self.assertNotEquals(None, return_result)
-        self.assertEquals(list, type(return_result))
-        self.assertEquals(2, len(return_result))
+    def testJarryDoesNotEqualDefaultDiffLength(self):
+        jarray_value = jarray.array(['idcs_user_assertion'], String)
+        expected_value = ['idcs_user_assertion']
+        jarray_default = ['idcs_user_assertion', 'Idcs_user_assertion']
+        converted_type, converted_value = self._custom_helper.convert(jarray_value, 'PyArray')
+        self.common_test_converted(expected_value, alias_constants.JARRAY, converted_value, converted_type)
+        self.common_test_default(jarray_default, 'PyArray', converted_value, converted_type, False)
+
+    def testJarryDoesNotEqualDefaultDiffValue(self):
+        jarray_value = jarray.array(['nonmatch', 'idcs_user_assertion'], String)
+        expected_value = ['nomatch', 'idcs_user_assertion']
+        jarray_default = ['idcs_user_assertion', 'Idcs_user_assertion']
+        converted_type, converted_value = self._custom_helper.convert(jarray_value, 'PyArray')
+        self.common_test_converted(expected_value, alias_constants.JARRAY, converted_value, converted_type)
+        self.common_test_default(jarray_default, str(type(jarray_default)), converted_value, converted_type, False)
 
     def testMatchesEmptyJarray(self):
-        return_result = self._custom_helper.get_model_attribute_value(self._helper, 'SyncFilterUserHeaderNames', None)
-        self.assertEquals(None, return_result)
-
-    def testReadOnly(self):
-        return_result = self._custom_helper.\
-            get_model_attribute_value(self._helper, 'ProviderClassName',
-                                      'weblogic.security.providers.authentication.IDCSIntegratorProviderImpl')
-        self.assertEquals(None, return_result)
+        jarray_value = None
+        expected_value = []
+        jarray_default = jarray.array([], String)
+        converted_type, converted_value = self._custom_helper.convert(jarray_value, '[L')
+        self.common_test_converted(expected_value, alias_constants.JARRAY, converted_value, converted_type)
+        self.common_test_default(jarray_default, 'PyArray', converted_value, converted_type, True)
 
     def testBooleanDefault(self):
-        bool_value = False
-        return_result = self._custom_helper.get_model_attribute_value(self._helper, 'SSLEnabled', bool_value)
-        self.assertEquals(None, return_result)
+        bool_value = Boolean(False)
+        expected_value = 'false'
+        expected_default = expected_value
+        converted_type, converted_value = self._custom_helper.convert(bool_value, 'java.lang.Boolean')
+        self.common_test_converted(expected_value, alias_constants.BOOLEAN, converted_value, converted_type)
+        self.common_test_default(expected_default, 'bool', converted_value, converted_type, True)
 
     def testBooleanNotDefault(self):
         bool_value = False
-        return_result = self._custom_helper.get_model_attribute_value(self._helper,
-                                                                      'SyncFilterOnlyClientCertRequests', bool_value)
-        self.assertEquals('false', return_result)
+        expected_value = 'false'
+        expected_default = True
+        converted_type, converted_value = self._custom_helper.convert(bool_value, 'bool')
+        self.common_test_converted(expected_value, alias_constants.BOOLEAN, converted_value, converted_type)
+        self.common_test_default(expected_default, 'bool', converted_value, converted_type, False)
 
     def testDictionaryDefault(self):
         dict_value = {'integer1': 111, 'integer2': 112}
         dict_default = {'integer2': 112, 'integer1': 111}
         converted_type, converted_value = self._custom_helper.convert(dict_value, 'dict')
-        self.assertEquals(alias_constants.PROPERTIES, converted_type)
+        self.common_test_converted(dict_value, alias_constants.PROPERTIES, converted_value, converted_type)
         self.assertEquals(PyOrderedDict, type(converted_value))
-        __, default_value = self._custom_helper.convert(dict_default, 'dict')
-        return_result = self._custom_helper.is_default(converted_value, converted_type, default_value)
-        self.assertEquals(True, return_result)
+        self.common_test_default(dict_default, 'dict', converted_value, converted_type, True)
 
     def testDictionaryNotDefault(self):
-        dict_value = { 'integer1': 111, 'integer2': 112 }
+        dict_value = {'integer1': 111, 'integer2': 112}
         dict_default = dict()
         converted_type, converted_value = self._custom_helper.convert(dict_value, 'dict')
-        self.assertEquals(alias_constants.PROPERTIES, converted_type)
+        self.common_test_converted(dict_value, alias_constants.PROPERTIES, converted_value, converted_type)
         self.assertEquals(PyOrderedDict, type(converted_value))
-        __, default_value = self._custom_helper.convert(dict_default, 'dict')
-        return_result = self._custom_helper.is_default(converted_value, converted_type, default_value)
-        self.assertEquals(False, return_result)
+        self.common_test_default(dict_default, 'dict', converted_value, converted_type, False)
 
     def testPropertiesDefault(self):
         prop_value = Properties()
@@ -194,98 +182,132 @@ class CustomFolderHelperTestCase(unittest.TestCase):
         prop_value.setProperty('value2', 'bar')
         prop_value.setProperty('value3', 'equal')
         prop_default = Properties(prop_value)
+        expected_value = {'value3': 'equal', 'value1': 'foo', 'value2': 'bar'}
         converted_type, converted_value = self._custom_helper.convert(prop_value, 'java.util.Properties')
-        self.assertEquals(alias_constants.PROPERTIES, converted_type)
-        self.assertEquals(PyOrderedDict, type(converted_value))
-        __, default_value = self._custom_helper.convert(prop_default, 'java.util.Properties')
-        return_result = self._custom_helper.is_default(converted_value, converted_type, default_value)
-        self.assertEquals(True, return_result)
+        self.common_test_converted(expected_value, alias_constants.PROPERTIES, converted_value, converted_type)
+        self.common_test_default(prop_default, 'java.util.Properties', converted_value, converted_type, True)
 
     def testPropertiesNotDefault(self):
         prop_value = Properties()
         prop_value.setProperty('value1', 'foo')
         prop_value.setProperty('value2', 'bar')
         prop_value.setProperty('value3', 'equal')
-        prop_default = Properties()
-        prop_default.setProperty('value1', 'foo')
-        prop_default.setProperty('value4', 'bar')
-        prop_default.setProperty('value3', 'equal')
+        expected_value = {'value1': 'foo', 'value2': 'bar', 'value3': 'equal'}
+        prop_default = {'value2': 'foo', 'value1': 'bar', 'value3': 'equal'}
         converted_type, converted_value = self._custom_helper.convert(prop_value, 'java.util.Properties')
-        self.assertEquals(alias_constants.PROPERTIES, converted_type)
+        self.common_test_converted(expected_value, alias_constants.PROPERTIES, converted_value, converted_type)
         self.assertEquals(PyOrderedDict, type(converted_value))
-        __, default_value = self._custom_helper.convert(prop_default, 'java.util.Properties')
-        return_result = self._custom_helper.is_default(converted_value, converted_type, default_value)
-        self.assertEquals(False, return_result)
+        self.common_test_default(prop_default, 'dict', converted_value, converted_type, False)
 
     def testMapDefault(self):
         map_value = HashMap()
         map_value.put('value1', 'foo')
         map_value.put('value2', 'bar')
         map_value.put('value3', 'equal')
-
+        expected_value = {'value1': 'foo', 'value2': 'bar', 'value3': 'equal'}
         map_default = HashMap()
-        map_default.putAll(map_value)
+        map_default.put('value1', 'foo')
+        map_default.put('value2', 'bar')
+        map_default.put('value3', 'equal')
 
         converted_type, converted_value = self._custom_helper.convert(map_value, 'java.util.Map')
-        self.assertEquals(alias_constants.PROPERTIES, converted_type)
+        self.common_test_converted(expected_value, alias_constants.PROPERTIES, converted_value, converted_type)
         self.assertEquals(PyOrderedDict, type(converted_value))
-        __, default_value = self._custom_helper.convert(map_default, 'java.util.Map')
-        return_result = self._custom_helper.is_default(converted_value, converted_type, default_value)
-        self.assertEquals(True, return_result)
+        self.common_test_default(map_default, 'java.util.Map', converted_value, converted_type, True)
 
     def testMapNotDefault(self):
         map_value = HashMap()
         map_value.put('value1', 'foo')
         map_value.put('value2', 'bar')
         map_value.put('value3', 'equal')
+        expected_value = {'value1': 'foo', 'value2': 'bar', 'value3': 'equal'}
 
-        map_default = HashMap()
-        map_default.put('value1', 'eightball')
-        map_default.put('value2', 'bar')
-        map_default.put('value3', 'equal')
+        map_default = dict()
+        map_default['value1'] = 'eightball'
+        map_default['value2'] = 'bar'
+        map_default['value3'] = 'equal'
 
         converted_type, converted_value = self._custom_helper.convert(map_value, 'java.util.Map')
+        self.common_test_converted(expected_value, alias_constants.PROPERTIES, converted_value, converted_type)
         self.assertEquals(alias_constants.PROPERTIES, converted_type)
-        self.assertEquals(PyOrderedDict, type(converted_value))
-        __, default_value = self._custom_helper.convert(map_default, 'java.util.Map')
-        return_result = self._custom_helper.is_default(converted_value, converted_type, default_value)
-        self.assertEquals(False, return_result)
+        self.common_test_default(map_default, 'dict', converted_value, converted_type, False)
 
-    def testOfflineIntegerNotDefault(self):
-        offline_default = 0
-        return_result = self._custom_helper.get_model_attribute_value(self._helper, 'CacheSize', offline_default)
-        self.assertEquals(None, return_result)
+    def testIntegerDefault(self):
+        port_value = '0'
+        expected_value = 0
+        default_value = expected_value
+        converted_type, converted_value = self._custom_helper.convert(port_value, 'java.lang.Integer')
+        self.common_test_converted(expected_value, alias_constants.INTEGER, converted_value, converted_type)
+        self.common_test_default(default_value, 'int', converted_value, converted_type, True)
 
     def testIntegerNotDefault(self):
         port_value = 1443
-        return_result = self._custom_helper.get_model_attribute_value(self._helper, 'Port', port_value)
-        self.assertEquals(port_value, return_result)
-
-    def testIntegerDefault(self):
-        port_value = 0
-        return_result = self._custom_helper.get_model_attribute_value(self._helper, 'Port', port_value)
-        self.assertEquals(None, return_result)
-        port_value = None
-        return_result = self._custom_helper.get_model_attribute_value(self._helper, 'Port', port_value)
-        self.assertEquals(None, return_result)
+        expected_value = port_value
+        default_value = 0
+        converted_type, converted_value = self._custom_helper.convert(port_value, 'int')
+        self.common_test_converted(expected_value, alias_constants.INTEGER, converted_value, converted_type)
+        self.common_test_default(default_value, 'int', converted_value, converted_type, False)
 
     def testBigIntegerConvert(self):
         big_value = '67999'
-        converted_type, converted = self._custom_helper.convert(big_value, 'java.math.BigInteger')
-        self.assertEquals(alias_constants.LONG, converted_type)
-        self.assertEquals(67999L, converted)
+        expected_value = 67999L
+        default_value = 0
+        converted_type, converted_value = self._custom_helper.convert(big_value, 'java.math.BigInteger')
+        self.common_test_converted(expected_value, alias_constants.LONG, converted_value, converted_type)
+        self.common_test_default(default_value, 'long', converted_value, converted_type, False)
 
     def testDoubleConvert(self):
         double_value = '67999'
-        converted_type, converted = self._custom_helper.convert(double_value, 'java.lang.Double')
-        self.assertEquals(alias_constants.DOUBLE, converted_type)
-        self.assertEquals(67999, converted)
+        expected_value = 67999
+        default_value = expected_value
+        converted_type, converted_value = self._custom_helper.convert(double_value, 'java.lang.Double')
+        self.common_test_converted(expected_value, alias_constants.DOUBLE, converted_value, converted_type)
+        self.common_test_default(default_value, 'double', converted_value, converted_type, True)
 
     def testFloatConvert(self):
         float_value = 4.2e-4
-        converted_type, converted = self._custom_helper.convert(float_value, 'float')
-        self.assertEquals(alias_constants.DOUBLE, converted_type)
-        self.assertEquals(float_value, converted)
+        expected_value = None
+        converted_type, converted_value = self._custom_helper.convert(float_value, 'float')
+        self.common_test_converted(expected_value, None, converted_value, converted_type)
+
+    def common_test_default(self, default_value, default_type, model_value, model_type, expected):
+        converted_type, converted_default = self._custom_helper.convert(default_value, default_type)
+        return_result = self._custom_helper.is_default(model_value, model_type, converted_default)
+        self.assertEquals(expected, return_result)
+
+    def common_test_converted(self, expected_value, expected_type, model_value, model_type):
+
+        self.assertEquals(expected_type, model_type)
+        if expected_type == alias_constants.LIST:
+            self.is_expected_list(expected_value, model_value)
+        elif expected_type == alias_constants.PROPERTIES:
+            self.is_expected_dict(expected_value, model_value)
+        else:
+            self.is_expected(expected_value, model_value)
+
+    def is_expected(self, expected_value, model_value):
+        return expected_value is not None and model_value is not None and expected_value == model_value
+
+    def is_expected_list(self, expected_list, converted_list):
+        return expected_list is not None and converted_list is not None and \
+            self.roll_list(expected_list, converted_list) and self.roll_list(converted_list, expected_list)
+
+    def roll_list(self, list1, list2):
+        for item in list1:
+            if item not in list2:
+                return False
+        return True
+
+    def is_expected_dict(self, expected_dict, converted_dict):
+        return expected_dict is not None and converted_dict is not None and \
+               self.roll_dict(expected_dict, converted_dict) and self.roll_dict(converted_dict, expected_dict)
+
+    def roll_dict(self, dict1, dict2):
+        dict1_keys = dict1.keys()
+        for key in dict2.keys():
+            if key not in dict1_keys or dict2[key] != dict1[key]:
+                return False
+        return True
 
     def name_token(self, location):
         return self._alias_helper.get_name_token(location)
