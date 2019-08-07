@@ -345,6 +345,11 @@ class DomainCreator(Creator):
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
         self.wlsroles_helper.process_roles()
+        if self.model_context.get_store_model():
+            fh = open(self.model_context.get_domain_home() + os.sep + 'domain_saved.json', 'w')
+            fh.write(str(self.model.get_model()))
+            fh.close()
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -394,7 +399,6 @@ class DomainCreator(Creator):
 
         self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.close_template()
-
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
