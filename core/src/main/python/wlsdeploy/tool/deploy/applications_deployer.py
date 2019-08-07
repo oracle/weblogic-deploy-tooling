@@ -111,10 +111,10 @@ class ApplicationsDeployer(Deployer):
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09303', shared_library_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
-                full_source_path = File(self.__get_extract_root(), shlib_source_path).getAbsolutePath()
+                full_source_path = File(File(self.model_context.get_domain_home()), shlib_source_path).getAbsolutePath()
             else:
                 full_source_path = File(self.model_context.replace_token_string(shlib_source_path)).getAbsolutePath()
-            shared_library[SOURCE_PATH] = full_source_path
+
             library_name = \
                 self.__get_deployable_library_versioned_name(full_source_path, shared_library_name)
             quoted_library_name = self.wlst_helper.get_quoted_name_for_wlst(library_name)
@@ -167,32 +167,22 @@ class ApplicationsDeployer(Deployer):
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09303', application_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
-                full_source_path = File(File(self.__get_extract_root()), app_source_path).getAbsolutePath()
+                full_source_path = File(File(self.model_context.get_domain_home()), app_source_path).getAbsolutePath()
             else:
                 full_source_path = File(self.model_context.replace_token_string(app_source_path)).getAbsolutePath()
+
             application_name = \
                 self.__get_deployable_library_versioned_name(full_source_path, application_name)
-            application[SOURCE_PATH] = full_source_path
+
             quoted_application_name = self.wlst_helper.get_quoted_name_for_wlst(application_name)
             application_location.add_name_token(application_token, quoted_application_name)
+
             self.wlst_helper.cd(root_path)
             deployer_utils.create_and_cd(application_location, existing_applications, self.alias_helper)
             self.set_attributes(application_location, application)
             application_location.remove_name_token(application_token)
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
         return
-
-
-    def __get_extract_root(self):
-        """
-        This should ONLY be used by app and lib.
-        :return: root directory where app and lib are extracted tp
-        """
-        extract_root = self.model_context.get_extract_location()
-        if extract_root is None:
-            extract_root = self.model_context.get_domain_home()
-        return extract_root
-
 
     def __online_deploy_apps_and_libs(self, base_location):
         """

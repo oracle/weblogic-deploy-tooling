@@ -53,8 +53,7 @@ class Deployer(object):
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
             self.archive_helper = ArchiveHelper(archive_file_name, self.model_context.get_domain_home(), self.logger,
-                                                exception_helper.ExceptionType.DEPLOY,
-                                                model_context.get_extract_location())
+                                                exception_helper.ExceptionType.DEPLOY)
         return
 
     def _add_named_elements(self, type_name, model_nodes, location):

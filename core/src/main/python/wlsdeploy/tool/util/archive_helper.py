@@ -11,7 +11,6 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.exception import exception_helper
-import os
 
 class ArchiveHelper(object):
     """
@@ -19,13 +18,12 @@ class ArchiveHelper(object):
     """
     __class_name = 'ArchiveHelper'
 
-    def __init__(self, archive_file_name, domain_home, logger, exception_type, extract_location=None):
+    def __init__(self, archive_file_name, domain_home, logger, exception_type):
         _method_name = '__init__'
         self.__archive_file_name = archive_file_name
         self.__domain_home = File(domain_home)
         self.__logger = logger
         self.__exception_type = exception_type
-        self.__extract_location = extract_location
 
         try:
             self.__archive_file = WLSDeployArchive(archive_file_name)
@@ -146,20 +144,14 @@ class ArchiveHelper(object):
         :raises: BundleAwareException of the appropriate type: if an error occurs
         """
         _method_name = 'extract_file'
-        ignore_list = [ 'wlsdeploy/config', 'wlsdeploy/coherence', 'wlsdeploy/stores', 'wlsdeploy/servers',
-                        'wlsdeploy/nodeManager']
 
         self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
         try:
-            if self.__extract_location is not None and os.path.dirname(path) not in ignore_list:
-                extract_location = FileUtils.getCanonicalFile(File(self.__extract_location))
-                result = self.__archive_file.extractFile(path, extract_location, False)
+            if location is None:
+                result = self.__archive_file.extractFile(path, self.__domain_home)
             else:
-                if location is None:
-                    result = self.__archive_file.extractFile(path, self.__domain_home)
-                else:
-                    extract_location = FileUtils.getCanonicalFile(File(location))
-                    result = self.__archive_file.extractFile(path, extract_location, True)
+                extract_location = FileUtils.getCanonicalFile(File(location))
+                result = self.__archive_file.extractFile(path, extract_location, True)
         except (IllegalArgumentException, WLSDeployArchiveIOException), e:
             ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19303", path,
                                                    self.__archive_file_name, e.getLocalizedMessage(), error=e)

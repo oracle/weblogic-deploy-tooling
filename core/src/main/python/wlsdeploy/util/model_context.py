@@ -38,7 +38,7 @@ class ModelContext(object):
         self._domain_parent_dir = None
         self._domain_type = 'WLS'
         self._domain_typedef = None
-        self._extract_location = None
+        self._store_model = None
         self._admin_url = None
         self._admin_user = None
         self._admin_password = None
@@ -92,8 +92,8 @@ class ModelContext(object):
         if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in arg_map:
             self._archive_file_name = arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
 
-        if CommandLineArgUtil.EXTRACT_LOCATION_SWITCH in arg_map:
-            self._extract_location = arg_map[CommandLineArgUtil.EXTRACT_LOCATION_SWITCH]
+        if CommandLineArgUtil.STORE_MODEL_SWITCH in arg_map:
+            self._store_model = arg_map[CommandLineArgUtil.STORE_MODEL_SWITCH]
 
         if CommandLineArgUtil.MODEL_FILE_SWITCH in arg_map:
             self._model_file = arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
@@ -241,12 +241,12 @@ class ModelContext(object):
         """
         return self._domain_typedef
 
-    def get_extract_location(self):
+    def get_store_model(self):
         """
         Get the extract location.
         :return: the extract location
         """
-        return self._extract_location
+        return self._store_model
 
     def get_admin_url(self):
         """
