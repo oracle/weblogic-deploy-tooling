@@ -20,39 +20,23 @@ from oracle.weblogic.deploy.util import PyOrderedDict
 import wlsdeploy.aliases.alias_constants as alias_constants
 import wlsdeploy.logging.platform_logger as platform_logger
 from wlsdeploy.aliases.aliases import Aliases
-from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
-from wlsdeploy.tool.util.alias_helper import AliasHelper
-from wlsdeploy.tool.util.mbean_utils import MBeanInfoAttributes
 from wlsdeploy.util.cla_utils import CommandLineArgUtil as CLA
 from wlsdeploy.util.model_context import ModelContext
-
-_mbean_interface = 'weblogic.security.providers.authentication.OracleIdentityCloudIntegratorMBean'
-_interface_for_model = 'weblogic.security.providers.authentication.OracleIdentityCloudIntegrator'
-_provider_name = 'IoT IDCS Authenticator'
 
 
 class CustomFolderHelperTestCase(unittest.TestCase):
     """
-    Test extracting MBeanInfo from an MBean that is loaded into the WLST 12.2.1.3.
-    In this case, the selected MBean is the IDCS or OracleIdentityCloudIntegrationMBean. This MBean
-    is delivered with Oracle 12.2.1.3 weblogic installs. Since WLST is started when this test runs,
-    it will be loaded into the classpath. There is no need to open a domain to get the MBeanInfo for this MBean.
-    The test does not go through a path that requires a domain MBean instance. The WLST value is supplied by
-    each test.
 
-    Test the Custom MBean attribute conversion routines which convert from WLST value to Model value and
-    test that defaults return None.
+    Test the Custom MBean attribute conversion routines which convert from WLST value to Model value.
+    Test comparison of converted model value to default value.
     """
 
     _custom_helper = None
     _logger = platform_logger.PlatformLogger('wlsdeploy.unittest')
-    _location = None
     _aliases = None
-    _alias_helper = None
-    _helper = None
     _model_context = None
 
     _wls_version = '12.2.1.3'
@@ -65,14 +49,6 @@ class CustomFolderHelperTestCase(unittest.TestCase):
         self._model_context = ModelContext("test", arg_map)
         self._aliases = Aliases(model_context=self._model_context, wlst_mode=WlstModes.OFFLINE,
                                 wls_version=self._wls_version)
-        self._alias_helper = AliasHelper(self._aliases, self._logger, ExceptionType.DISCOVER)
-        self._location = LocationContext().append_location('SecurityConfiguration')
-        self._location.add_name_token(self.name_token(self._location), 'testdomain')
-        self._location.append_location('Realm').add_name_token(self.name_token(self._location), 'myrealm'). \
-            append_location('AuthenticationProvider'). \
-            add_name_token(self.name_token(self._location), 'any_custom_authenticator')
-        self._helper = MBeanInfoAttributes(self._model_context, self._alias_helper, ExceptionType.DISCOVER,
-                                           self._location, _mbean_interface)
         self._custom_helper = CustomFolderHelper(self._aliases, self._logger, self._model_context,
                                                  ExceptionType.DISCOVER)
         return
@@ -308,9 +284,6 @@ class CustomFolderHelperTestCase(unittest.TestCase):
             if key not in dict1_keys or dict2[key] != dict1[key]:
                 return False
         return True
-
-    def name_token(self, location):
-        return self._alias_helper.get_name_token(location)
 
 
 if __name__ == '__main__':

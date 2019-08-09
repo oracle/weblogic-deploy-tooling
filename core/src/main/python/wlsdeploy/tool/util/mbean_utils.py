@@ -10,7 +10,6 @@ import java.lang.Exception as JException
 from oracle.weblogic.deploy.exception import BundleAwareException
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
@@ -22,9 +21,9 @@ _logger = PlatformLogger('wlsdeploy.mbean.utils')
 
 class MBeanUtils(object):
     """
-    Utility class used to provide information about WLST attributes as retrieved from the MBean MBeanInfo or Interface
+    Utility class used to provide information about WLST attributes as retrieved from the MBeans MBeanInfo or Interface
     methods. This class has methods to provide the information stored in different combinations. All methods that want
-    to combine the information from the MBean helpers into different combinations are located in this class.
+    to combine the information from the MBeans helpers into different combinations are located in this class.
     """
 
     def __init__(self, model_context, alias_helper, exception_type):
@@ -37,11 +36,11 @@ class MBeanUtils(object):
 
     def get_attributes_not_in_lsa_map(self, location, lsa_map=None):
         """
-        Return a list of all attributes from the MBean MBeanInfo or Interface methods that are not contained in the LSA
+        Return a list of all attributes from the MBeans MBeanInfo or Interface methods that are not contained in the LSA
         attributes for the location in the location context.
         :param location: current location context of the MBean
         :param lsa_map: map returned from WLST ls('a') or None to get the LSA map from the current location context
-        :return: Any additional attributes or empty list if none found
+        :return: Any additional attributes or empty list if None found
         """
         _method_name = 'get_attributes_not_in_lsa_map'
         _logger.entering(location.get_folder_path(), class_name=self.__class__.__name__, method_name=_method_name)
@@ -300,7 +299,7 @@ class OfflineMBeanHelper(MBeanHelper):
 
     def is_lsa_in_attributes(self, lsa_attribute, attribute_list):
         """
-        Look for the offline WLST LSA attribute name in one of the MBean helper lists. The names
+        Look for the offline WLST LSA attribute name in one of the MBean's helper lists. The names
         can differ between the LSA attribute and the MBean attribute lists. Attempt to match the LSA
         attribute using different representations of the name.
         :param lsa_attribute: attribute from the offline WLST LSA list
@@ -477,8 +476,8 @@ class InterfaceAttributes(MBeanAttributes):
     def get_mbean_attributes(self):
         """
         Return the sorted list of interface attribute names including child MBeans,
-        as compiled from MBean interface getter methods.
-        :return: list of attribute names from the MBean interface or empty list if the MBean has no attributes.
+        as compiled from an MBean's interface getter methods.
+        :return: list of attribute names from the MBean's interface or empty list if the MBean has no attributes.
         """
         _method_name = 'get_interface_attribute_list'
         _logger.entering(class_name=self.__class__.__name__, method_name=_method_name)
@@ -491,18 +490,18 @@ class InterfaceAttributes(MBeanAttributes):
 
     def exists(self, attribute_name):
         """
-        Determine if the attribute name exists for the MBean in MBean Interface.
-        :param attribute_name: to search for in the MBean Interface
-        :return: True if the attribute is found in the MBean Interface
+        Determine if the attribute name exists for the MBean using the methods in the MBean's Interface.
+        :param attribute_name: to search for in the MBean's Interface
+        :return: True if the attribute is found in the MBean's Interface
         """
         return attribute_name in self.__get_interface_map()
 
     def is_child_mbean(self, attribute_name):
         """
-        Determine if the attribute exists in MBean Interface and if the attribute is a child MBean.
+        Determine if the attribute exists in the MBean's Interface and if the attribute is a child MBean.
 
-        :param attribute_name: to search for in the MBean Interface
-        :return: True if the attribute is a child MBean or None if the attribute is not found in MBean Interface
+        :param attribute_name: to search for in the MBean's Interface
+        :return: True if the attribute is a child MBean or None if the attribute is not found in the MBean's Interface
         """
         _method_name = 'is_child_mbean'
         if self.exists(attribute_name):
@@ -519,9 +518,9 @@ class InterfaceAttributes(MBeanAttributes):
 
     def is_read_only(self, attribute_name):
         """
-        Determine if the attribute exists in MBean Interface and if the attribute is readonly.
-        :param attribute_name: to search for in the MBean Interface
-        :return: True if the attribute is readonly or None if the attribute does not exist in MBean Interface
+        Determine if the attribute exists in the MBean's Interface and if the attribute is readonly.
+        :param attribute_name: to search for in the MBean's Interface
+        :return: True if the attribute is readonly or None if the attribute does not exist in the MBean's Interface
         """
         if self.exists(attribute_name):
             return self.setter(attribute_name) is None
@@ -529,9 +528,9 @@ class InterfaceAttributes(MBeanAttributes):
 
     def getter(self, attribute_name):
         """
-        Return the read method string for the attribute in the MBean Interface.
-        :param attribute_name: to search for in the MBean Interface
-        :return: attribute getter or None if the attribute does not exist in the MBean Interface
+        Return the read method string for the attribute in the MBean's Interface.
+        :param attribute_name: to search for in the MBean's Interface
+        :return: attribute getter or None if the attribute does not exist in the MBean's Interface
         """
         method_list = self.__get_mbean_attribute(attribute_name)
         if method_list is not None:
@@ -540,7 +539,7 @@ class InterfaceAttributes(MBeanAttributes):
 
     def is_valid_getter(self, attribute_name):
         """
-        Try to invoke the getter method on the mbean_instance. Some of the methods listed
+        Try to invoke the Interface getter method on the mbean instance. Some of the methods listed
         on the Interface will fail.
         :return: True if can invoke the getter on the mbean instance
         """
@@ -556,8 +555,8 @@ class InterfaceAttributes(MBeanAttributes):
 
     def setter(self, attribute_name):
         """
-        Return the setter Method for the attribute in the MBean interface
-        :param attribute_name: to search for in the MBean interface
+        Return the setter Method for the attribute in the MBean's Interface
+        :param attribute_name: to search for in the MBean's Interface
         :return: setter Method or None if the attribute is readonly or the attribute does not exist in the Interface
         """
         method_list = self.__get_mbean_attribute(attribute_name)
@@ -568,7 +567,7 @@ class InterfaceAttributes(MBeanAttributes):
     def is_encrypted(self, attribute_name):
         """
         Determine if the property is encrypted by checking for a byte array return type on the getter.
-        :param attribute_name: to search for in the MBean interface
+        :param attribute_name: to search for in the MBean's Interface
         :return: True if the attribute is an encrypted type or None if the attribute does not exist in the Interface
         """
         return_type = self.get_type(attribute_name)
@@ -591,9 +590,9 @@ class InterfaceAttributes(MBeanAttributes):
 
     def get_type(self, attribute_name):
         """
-        Return the type of the attribute value if the attribute exists in MBean Interface.
-        :param attribute_name: to search for in the MBean Interface
-        :return: Type of the property attribute or None if the attribute does not exist in the MBean Interface
+        Return the type of the attribute value if the attribute exists in the MBean's Interface.
+        :param attribute_name: to search for in the MBean's Interface
+        :return: Type of the property attribute or None if the attribute does not exist in the MBean's Interface
         """
         method_list = self.__get_mbean_attribute(attribute_name)
         if method_list is not None:
@@ -602,7 +601,7 @@ class InterfaceAttributes(MBeanAttributes):
 
     def get_default_value(self, attribute_name):
         """
-        Unable to determine the default value using the MBean interface information.
+        Unable to determine the default value when using only the MBean Interface.
         :param attribute_name: attribute name
         :return: None to indicate no default information available
         """
@@ -610,9 +609,9 @@ class InterfaceAttributes(MBeanAttributes):
 
     def get_value(self, attribute_name):
         """
-        Return the attribute value from the mbean instance.
+        Return the attribute value from the MBean instance.
         :param attribute_name: name of the attribute
-        :return: value of the MBean attribute in the format retrieved from the mbean instance
+        :return: value of the MBean attribute in the format retrieved from the MBean instance
         """
         value = None
         getter = self.getter(attribute_name)
@@ -713,7 +712,7 @@ def _get_index_of_name_in_list(search_list_for, name):
 
 class MBeanInfoAttributes(MBeanAttributes):
     """
-    This MBeanAttributes class type encapsulates the attribute information found from the
+    MBeanInfoAttributes extends the MBeanAttributes class. It encapsulates the attribute information found from the
     PropertyDescriptors in the MBeanInfo for the MBean type.
     """
 
@@ -793,8 +792,8 @@ class MBeanInfoAttributes(MBeanAttributes):
     def is_valid_getter(self, attribute_name):
         """
         Try to invoke the getter method on the mbean_instance. Some of the attributes in the PropertyDescriptors
-        have read methods that cannot be invoked on the mbean instance.
-        :return: True if can invoke the getter on the mbean instance
+        have read methods that cannot be invoked on the MBean instance.
+        :return: True if can invoke the getter on the MBean instance
         """
         _method_name = 'is_valid_getter'
         _logger.entering(attribute_name, class_name=self.__class__.__name__, method_name=_method_name)
@@ -821,9 +820,9 @@ class MBeanInfoAttributes(MBeanAttributes):
 
     def is_encrypted(self, attribute_name):
         """
-        Determine if the property is encrypted.
+        Determine if the property is an encrypted attribute.
         :param attribute_name: to search for in the MBeanInfo
-        :return: True if is an encrypted property or None if the attribute does not exist in the MBeanInfo
+        :return: True if it is an encrypted attribute or None if the attribute does not exist in the MBeanInfo
         """
         descriptor = self.__get_mbean_attribute(attribute_name)
         if descriptor is not None:
@@ -832,10 +831,10 @@ class MBeanInfoAttributes(MBeanAttributes):
 
     def is_clear_text_encrypted(self, attribute_name):
         """
-        The tool does not discover encrypted attributes that are clear text. Determine if the attribute is a
-        this type of attribute.
+        The tool does not discover security attributes that are clear text. Determine if the attribute is a
+        an attribute returning clear text form of the matching encrypted attribute and skip if True.
         :param attribute_name: name of the attribute to test
-        :return: True if the attribute is an encrypted clear text attribute
+        :return: True if the attribute is a clear text security attribute
         """
         return self.is_encrypted(attribute_name) and str(self.get_type(attribute_name)) == 'java.lang.String'
 
@@ -854,7 +853,7 @@ class MBeanInfoAttributes(MBeanAttributes):
         """
         Return the default value if the attribute exists in MBeanInfo
         :param attribute_name: to search for in the MBeanInfo
-        :return: default value for the attribute
+        :return: The default value for the attribute
         """
         descriptor = self.__get_mbean_attribute(attribute_name)
         values = _get_descriptor_values_keys(descriptor)
@@ -868,7 +867,7 @@ class MBeanInfoAttributes(MBeanAttributes):
         """
         Return the attribute value from the mbean instance.
         :param attribute_name: name of the attribute
-        :return: value of the MBean attribute in the format retrieved from the mbean instance
+        :return: Value of the MBean attribute in the format retrieved from the mbean instance
         """
         value = None
         getter = self.getter(attribute_name)

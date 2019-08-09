@@ -32,7 +32,8 @@ _class_name = 'CustomFolderHelper'
 
 class CustomFolderHelper(object):
     """
-    Helper for locating the custom MBeans and attributes
+    Helper for locating the custom MBeans and its attributes.
+
     These require special handling, since they do not have alias definitions.
     Discover the MBean attributes using the information provided by the MBeanAttributes
     wrapper class.
@@ -51,10 +52,10 @@ class CustomFolderHelper(object):
 
     def discover_custom_mbean(self, base_location, model_type, mbean_name):
         """
-        Discover the custom mbean attributes using the MBeanInfo for the proxy.
+        Discover the custom MBean attributes using the MBeanInfo for the proxy.
         :param base_location: the current context for the location
         :param model_type: The parent type of the custom MBean
-        :param mbean_name: the name of the custom mbean instance
+        :param mbean_name: the name of the custom MBean instance
         :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'discover_custom_mbean'
@@ -84,11 +85,11 @@ class CustomFolderHelper(object):
 
     def get_model_attribute_map(self, attribute_helper):
         """
-        Return the model attributes for the MBean
+        Return the MBean's attributes that do not contain the default value converted for the model.
         :param attribute_helper: context for the current MBean
         :return: model ready dictionary of the discovered MBean
         """
-        _method_name = 'get_model_attribute_map_'
+        _method_name = 'get_model_attribute_map'
         _logger.entering(str(attribute_helper), class_name=_class_name, method_name=_method_name)
         mbean_attributes = PyOrderedDict()
         for attribute_name in attribute_helper.get_mbean_attributes():
@@ -100,11 +101,11 @@ class CustomFolderHelper(object):
 
     def get_model_attribute_value(self, attribute_helper, attribute_name, wlst_value='unknown'):
         """
-        Retrieve the wlst value for the attribute and convert the value into a model appropriate format.
+        Retrieve the WLST value for the attribute and convert the value into a model appropriate format.
         If the attribute is read only, or the value is empty, or the value is the default, return None
         :param attribute_helper: context for the current MBean
         :param attribute_name: current MBean attribute being processed
-        :param wlst_value: if provided, use this WLST value for the attribute instead of from the mbean instance
+        :param wlst_value: if provided, use this WLST value for the attribute instead of from the MBean instance
         :return: Converted model attribute value
         """
         _method_name = 'get_model_attribute_value'
@@ -136,12 +137,12 @@ class CustomFolderHelper(object):
 
     def convert(self, value, value_type):
         """
-        Public function to convert the value with value_type to a model compatible value
+        Public function to convert the value with value_type to a model compatible value.
         :param value: Value to be converted into the appropriate model data type
         :param value_type: data type of the value
         :return: converted data type and value
         """
-        _method_name = '___convert_method'
+        _method_name = 'convert_method'
         converted_type = None
         converted = None
         try:
@@ -195,10 +196,10 @@ class CustomFolderHelper(object):
 
     def is_default(self, model_value, model_type, default_value):
         """
-        Compare the model value to the model default value to determine if the model value is default.
+        Compare the model value to the model default value to determine if it is a default.
         If this is running in offline Discover then the default value might differ from the MBInfo value,
-        which is geared towards online. If offline and the default value is not empty, but the wlst value is empty,
-        (numeric values zero) then consider it the default value.
+        which is geared towards online. If it is offline and the default value is not empty but the
+        WLST value indicates empty (i.e. zero length string or zero in a numeric field) then return True.
         :param model_value: WLST value converted to model value
         :param model_type: data type of the model value using the alias_constants nomenclature
         :param default_value: WLST default value converted to model value
@@ -338,10 +339,13 @@ def equal_jarrays(array1, array2):
 
 def security_provider_interface_name(mbean_interface):
     """
-    This is too tied into security providers.
-    This needs something more to differentiate Security Provider interface "like" name from other custom mbeans
+    Return the name that is used to look up the custom Security Provider MBeanInfo.
+
+    This is too tightly coupled to be in this class.
+    This needs something more to differentiate Security Provider Interface which is formatted differently from other
+    custom MBean Interface names.
     :param mbean_interface: interface for the MBean
-    :return: massaged name specific to the security provider
+    :return: massaged name specific to the Scurity Provider
     """
     result = mbean_interface
     idx = mbean_interface.rfind('MBean')
@@ -353,7 +357,7 @@ def security_provider_interface_name(mbean_interface):
 def attribute_type(attribute_helper, attribute_name):
     """
     Use the attribute helper to return the attribute type.
-    :param attribute_helper: wrapper class is a helper to extract attribute information
+    :param attribute_helper: wrapper Class is a helper to extract attribute information
     :param attribute_name: name of the attribute to type
     :return: data type of the attribute
     """
@@ -366,7 +370,7 @@ def attribute_type(attribute_helper, attribute_name):
 
 def create_enumeration_list(enumeration):
     """
-    The attribute value is a java Enumeration class. Convert the iterable to string values.
+    The attribute value is a Java Enumeration class. Convert the iterable to string values.
     :param enumeration: Enumeration iterable
     :return: string list of values
     """
@@ -379,8 +383,8 @@ def create_enumeration_list(enumeration):
 
 def convert_numeric(class_type, number):
     """
-    Convert the numeric to appropriate model value using the java class representing the number.
-    :param class_type: java class to convert into a model type
+    Convert the numeric to appropriate model value using the Java Class representing the number.
+    :param class_type: Java Class to convert into a model type
     :param number: value to be converted
     :return: model value from WLST value
     """
@@ -509,6 +513,11 @@ def convert_value(value):
 
 
 def is_iterable(iterable):
+    """
+    Determine if the provided object is an iterable type.
+    :param iterable: Object to test
+    :return: True if the object is an instance of an iterable data type
+    """
     try:
         iter(iterable)
         return True
