@@ -52,7 +52,7 @@ class CustomFolderHelper(object):
 
     def discover_custom_mbean(self, base_location, model_type, mbean_name):
         """
-        Discover the custom MBean attributes using the MBeanInfo for the proxy.
+        Discover the Custom MBean attributes using its MBeanInfo.
         :param base_location: the current context for the location
         :param model_type: The parent type of the custom MBean
         :param mbean_name: the name of the custom MBean instance
@@ -85,7 +85,7 @@ class CustomFolderHelper(object):
 
     def get_model_attribute_map(self, attribute_helper):
         """
-        Return the MBean's attributes that do not contain the default value converted for the model.
+        Return a map of the MBean's attributes, in model format, which do not have default values.
         :param attribute_helper: context for the current MBean
         :return: model ready dictionary of the discovered MBean
         """
@@ -93,7 +93,7 @@ class CustomFolderHelper(object):
         _logger.entering(str(attribute_helper), class_name=_class_name, method_name=_method_name)
         mbean_attributes = PyOrderedDict()
         for attribute_name in attribute_helper.get_mbean_attributes():
-            model_value = self.get_model_attribute_value(attribute_helper, attribute_name)
+            model_value = self.ge,t_model_attribute_value(attribute_helper, attribute_name)
             if model_value is not None:
                 mbean_attributes[attribute_name] = model_value
         _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -197,7 +197,7 @@ class CustomFolderHelper(object):
     def is_default(self, model_value, model_type, default_value):
         """
         Compare the model value to the model default value to determine if it is a default.
-        If this is running in offline Discover then the default value might differ from the MBInfo value,
+        If this is running in offline Discover then the default value might differ from the MBeanInfo value,
         which is geared towards online. If it is offline and the default value is not empty but the
         WLST value indicates empty (i.e. zero length string or zero in a numeric field) then return True.
         :param model_value: WLST value converted to model value
