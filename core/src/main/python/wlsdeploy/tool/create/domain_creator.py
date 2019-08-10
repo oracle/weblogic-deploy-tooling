@@ -346,6 +346,7 @@ class DomainCreator(Creator):
         self.library_helper.extract_classpath_libraries()
         self.wlsroles_helper.process_roles()
         if self.model_context.get_store_model():
+            os.makedirs(self.model_context.get_domain_home() + os.sep + 'wlsdeploy')
             fh = open(self.model_context.get_domain_home() + os.sep + 'wlsdeploy' + os.sep + 'domain_saved.json', 'w')
             fh.write(str(self.model.get_model()))
             fh.close()
