@@ -10,10 +10,10 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util import dictionary_utils
+from wlsdeploy.tool.create.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
-from wlsdeploy.tool.util.custom_folder_helper import CustomFolderHelper
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
