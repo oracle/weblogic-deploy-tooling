@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
- * The Universal Permissive License (UPL), Version 1.0
+ * Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
  */
-package oracle.weblogic.deploy.util;
+package oracle.weblogic.deploy.create;
 
 import oracle.weblogic.deploy.aliases.TypeUtils;
 import oracle.weblogic.deploy.exception.ExceptionHelper;

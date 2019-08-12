@@ -3,7 +3,7 @@
 # updateDomain.sh
 #
 # Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-# The Universal Permissive License (UPL), Version 1.0
+# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
 #     NAME
 #       updateDomain.sh - WLS Deploy tool to update an existing domain.

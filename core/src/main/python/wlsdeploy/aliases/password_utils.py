@@ -1,6 +1,6 @@
 """
-Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates. All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 Contains methods for special processing of dual-password attributes.
 Dual-password attributes follow a common pattern in WLST, with the following rules.
