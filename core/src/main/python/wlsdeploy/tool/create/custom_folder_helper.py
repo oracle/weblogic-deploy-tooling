@@ -5,7 +5,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at http://oss.ora
 from java.lang import IllegalArgumentException
 from java.lang import IllegalAccessException
 from java.lang.reflect import InvocationTargetException
-from oracle.weblogic.deploy.util import CustomBeanUtils
+from oracle.weblogic.deploy.create import CustomBeanUtils
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.exception import exception_helper

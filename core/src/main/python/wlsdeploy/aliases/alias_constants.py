@@ -82,6 +82,7 @@ PROPERTIES = 'properties'
 SEMI_COLON_DELIMITED_STRING = 'delimited_string[semicolon]'
 SPACE_DELIMITED_STRING = 'delimited_string[space]'
 STRING = 'string'
+MASKED = '<masked>'
 
 ALIAS_DELIMITED_TYPES = [
     COMMA_DELIMITED_STRING,
@@ -111,6 +112,12 @@ ALIAS_PRIMITIVE_DATA_TYPES = [
     LONG,
     PASSWORD,
     STRING
+]
+
+ALIAS_NUMERIC_DATA_TYPES = [
+    DOUBLE,
+    INTEGER,
+    LONG
 ]
 
 ALIAS_DATA_TYPES = list()
