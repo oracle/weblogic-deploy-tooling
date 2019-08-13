@@ -41,6 +41,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
             <version>3.6</version>
@@ -117,6 +122,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>io.rhpatrick.mojo</groupId>
                 <artifactId>wlst-test-maven-plugin</artifactId>
@@ -138,6 +144,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>ru.concerteza.buildnumber</groupId>
                 <artifactId>maven-jgit-buildnumber-plugin</artifactId>
@@ -166,6 +173,40 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <failIfNoTests>false</failIfNoTests>
+                    <argLine>
+                        -Xmx1024m -XX:MaxPermSize=256m
+                    </argLine>
+                    <systemProperties>
+                        <property>
+                            <name>wdtversion</name>
+                            <value>${project.version}</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <phase>integration-test</phase>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <java.util.logging.SimpleFormatter.format>%1$tm-%1$td-%1$tY %1$tH:%1$tM:%1$tS %4$-6s %2$s %5$s%6$s%n</java.util.logging.SimpleFormatter.format>
+                            </systemPropertyVariables>
+                            <trimStackTrace>false</trimStackTrace>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
