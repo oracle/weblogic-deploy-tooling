@@ -33,7 +33,6 @@ class CommandLineArgUtil(object):
     DOMAIN_HOME_SWITCH         = '-domain_home'
     DOMAIN_PARENT_SWITCH       = '-domain_parent'
     DOMAIN_TYPE_SWITCH         = '-domain_type'
-    STORE_MODEL_SWITCH         = '-store_model'
     # never used by the tools but used by shell scripts
     WLST_PATH_SWITCH           = '-wlst_path'
     ADMIN_URL_SWITCH           = '-admin_url'
@@ -381,16 +380,6 @@ class CommandLineArgUtil(object):
                     ex = self._get_out_of_args_exception(key)
                     self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
                     raise ex
-            elif self.is_store_model_key(key):
-                idx += 1
-                if idx < args_len:
-                    store_model = self._validate_store_model_arg(args[idx])
-                    if store_model is not None:
-                        self._add_arg(key, store_model)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
             else:
                 ex = exception_helper.create_cla_exception('WLSDPLY-01601', self._program_name, key)
                 ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
@@ -503,10 +492,6 @@ class CommandLineArgUtil(object):
             raise ex
 
         return dh.getAbsolutePath()
-
-    def _validate_store_model_arg(self, value):
-        return value
-
 
     #
     # The domain home arg used by create must be the child of a valid, writable directory.
@@ -771,9 +756,6 @@ class CommandLineArgUtil(object):
 
     def is_rcu_database_key(self, key):
         return self.RCU_DB_SWITCH == key
-
-    def is_store_model_key(self, key):
-        return self.STORE_MODEL_SWITCH == key
 
     def _validate_rcu_database_arg(self, value):
         method_name = '_validate_rcu_database_arg'
