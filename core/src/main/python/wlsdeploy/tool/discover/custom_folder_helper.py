@@ -93,7 +93,7 @@ class CustomFolderHelper(object):
         _logger.entering(str(attribute_helper), class_name=_class_name, method_name=_method_name)
         mbean_attributes = PyOrderedDict()
         for attribute_name in attribute_helper.get_mbean_attributes():
-            model_value = self.ge,t_model_attribute_value(attribute_helper, attribute_name)
+            model_value = self.get_model_attribute_value(attribute_helper, attribute_name)
             if model_value is not None:
                 mbean_attributes[attribute_name] = model_value
         _logger.exiting(class_name=_class_name, method_name=_method_name)
