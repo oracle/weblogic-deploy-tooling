@@ -18,25 +18,25 @@
 # This script uses the following command-line arguments directly, the rest
 # of the arguments are passed down to the underlying python program:
 #
-#     - -oracle_home        The directory of the existing Oracle Home to use.
-#                           This directory must exist and it is the caller's
-#                           responsibility to verify that it does. This
-#                           argument is required.
+#     -oracle_home        The directory of the existing Oracle Home to use.
+#                         This directory must exist and it is the caller's
+#                         responsibility to verify that it does. This
+#                         argument is required.
 #
-#     - -domain_type        The type of domain to create. This argument is
-#                           is optional.  If not specified, it defaults to WLS.
+#     -domain_type        The type of domain to create. This argument is
+#                         is optional.  If not specified, it defaults to WLS.
 #
-#     - -wlst_path          The path to the Oracle Home product directory under
-#                           which to find the wlst.cmd script.  This is only
-#                           needed for pre-12.2.1 upper stack products like SOA.
+#     -wlst_path          The path to the Oracle Home product directory under
+#                         which to find the wlst script.  This is only
+#                         needed for pre-12.2.1 upper stack products like SOA.
 #
-#                           For example, for SOA 12.1.3, -wlst_path should be
-#                           specified as $ORACLE_HOME/soa
+#                         For example, for SOA 12.1.3, -wlst_path should be
+#                         specified as $ORACLE_HOME/soa
 #
 # This script uses the following variables:
 #
-# JAVA_HOME            - The location of the JDK to use.  The caller must set
-#                        this variable to a valid Java 7 (or later) JDK.
+# JAVA_HOME             - The location of the JDK to use.  The caller must set
+#                         this variable to a valid Java 7 (or later) JDK.
 #
 # WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
 #                         If the caller sets this, the callers location will be
@@ -99,7 +99,7 @@ umask 27
 
 WLSDEPLOY_PROGRAM_NAME="injectVariables"; export WLSDEPLOY_PROGRAM_NAME
 
-if [ "${WLSDEPLOY_HOME}" = "" ]; then
+if [ -z "${WLSDEPLOY_HOME}" ]; then
     BASEDIR="$( cd "$( dirname $0 )" && pwd )"
     WLSDEPLOY_HOME=`cd "${BASEDIR}/.." ; pwd`
     export WLSDEPLOY_HOME
@@ -112,7 +112,7 @@ fi
 # Make sure that the JAVA_HOME environment variable is set to point to a
 # JDK 7 or higher JVM (and that it isn't OpenJDK).
 #
-if [ "${JAVA_HOME}" = "" ]; then
+if [ -z "${JAVA_HOME}" ]; then
   echo "Please set the JAVA_HOME environment variable to point to a Java 7 installation" >&2
   exit 2
 elif [ ! -d "${JAVA_HOME}" ]; then
@@ -196,7 +196,7 @@ fi
 # Check for values of required arguments for this script to continue.
 # The underlying WLST script has other required arguments.
 #
-if [ "${ORACLE_HOME}" = "" ]; then
+if [ -z "${ORACLE_HOME}" ]; then
     echo "Required argument -oracle_home not provided" >&2
     usage `basename $0`
     exit 99
@@ -206,9 +206,9 @@ elif [ ! -d ${ORACLE_HOME} ]; then
 fi
 
 #
-# If the WLST_PATH_DIR is specified, validate that it contains the wlst.cmd script
+# If the WLST_PATH_DIR is specified, validate that it contains the wlst.sh script
 #
-if [ "${WLST_PATH_DIR}" != "" ]; then
+if [ -n "${WLST_PATH_DIR}" ]; then
     if [ ! -d ${WLST_PATH_DIR} ]; then
         echo "Specified -wlst_path directory does not exist: ${WLST_PATH_DIR}" >&2
         exit 98
