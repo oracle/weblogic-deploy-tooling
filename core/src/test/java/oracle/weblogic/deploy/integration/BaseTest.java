@@ -46,16 +46,8 @@ public class BaseTest {
         projectRoot = System.getProperty("user.dir");
         logger.info("DEBUG: projectRoot=" + projectRoot);
 
-        mwhome_12213 = System.getenv("MW_HOME_12213");
-        if(mwhome_12213 == null) {
-            throw new Exception("Please set the environment variable MW_HOME_12213 to point to your " +
-                    "WebLogic 12.2.1.3.0 installation.");
-        }
-        fmwhome_12213 = System.getenv("FMW_HOME_12213");
-        if(fmwhome_12213 == null) {
-            throw new Exception("Please set the environment variable FMW_HOME_12213 to point to your " +
-                    "Fusion Middleware Infrastructure 12.2.1.3.0 installation.");
-        }
+        mwhome_12213 = System.getProperty("MW_HOME");
+        fmwhome_12213 = System.getProperty("FMW_HOME");
 
         createDomainScript = getWDTScriptsHome() + FS + "createDomain.sh";
         discoverDomainScript = getWDTScriptsHome() + FS + "discoverDomain.sh";
@@ -93,11 +85,13 @@ public class BaseTest {
 
     protected static void pullOracleDBDockerImage() throws Exception {
         logger.info("Pulling Oracle DB image from OCR ...");
-        String ocr_username = System.getenv("OCR_USERNAME");
-        String ocr_password = System.getenv("OCR_PASSWORD");
 
+        String ocr_username = System.getProperty("OCR_USERNAME");
+        String ocr_password = System.getProperty("OCR_PASSWORD");
+        logger.info("DEBUG: ocr_username=" + ocr_username);
+        logger.info("DEBUG: ocr_password=" + ocr_password);
         if(ocr_username == null || ocr_password == null) {
-            throw new Exception("You need to set OCR_USERNAME and OCR_PASSWORD environment variable to pull DB " +
+            throw new Exception("Please set -Docr_username and -Docr_password in mvn.config to pull DB " +
                     "image " + ORACLE_DB_IMG + ":" + ORACLE_DB_IMG_TAG);
         }
 
@@ -107,9 +101,12 @@ public class BaseTest {
     private static void pullDockerImage(String repoServer, String username, String password,
                                         String imagename, String imagetag) throws Exception {
 
-        ExecCommand.exec("docker login " + repoServer + " -u " + username +
-                " -p " + password);
-        ExecCommand.exec("docker pull " + imagename + ":" + imagetag);
+        String cmd = "docker login " + repoServer + " -u " + username + " -p " + password;
+        logger.info("executing command: " + cmd);
+        ExecCommand.exec(cmd);
+        cmd = "docker pull " + imagename + ":" + imagetag;
+        logger.info("executing command: " + cmd);
+        ExecCommand.exec(cmd);
 
         // verify the docker image is pulled
         ExecResult result = ExecCommand.exec("docker images | grep " + imagename  + " | grep " +

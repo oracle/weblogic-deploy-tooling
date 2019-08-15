@@ -239,7 +239,7 @@ public class ITWdt extends BaseTest {
                 " -domain_type WLS -variable_file " + getSampleVariableFile() + " -wlst_path " +
                 mwhome_12213 + FS + "wlserver";
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "createDomain.sh completed successfully");
 
         logTestEnd(testMethodName);
@@ -366,7 +366,7 @@ public class ITWdt extends BaseTest {
         String discoveredArchive = System.getProperty("java.io.tmpdir") + FS + "discoveredArchive.zip";
         String cmd = discoverDomainScript + " -oracle_home " + fmwhome_12213 + " -domain_home " +
                 fmwDomainParent12213 + FS + "restrictedJRFD1 " +
-                " -archive_file " + discoveredArchive;
+                " -archive_file " + discoveredArchive + " -domain_type RestrictedJRF";
 
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd, true);
