@@ -136,7 +136,7 @@ fi
 #
 # Check to see if no args were given and print the usage message
 #
-if [[ $# = 0 ]]; then
+if [ "$#" -eq "0" ]; then
   usage `basename $0`
   exit 0
 fi
@@ -146,7 +146,7 @@ SCRIPT_ARGS="$*"
 #
 # Find the args required to determine the WLST script to run
 #
-while [[ $# > 1 ]]; do
+while [ "$#" -gt "1" ]; do
     key="$1"
     case $key in
         -help)
@@ -244,7 +244,7 @@ if [ "${WLSDEPLOY_LOG_DIRECTORY}" = "" ]; then
     WLSDEPLOY_LOG_DIRECTORY=${WLSDEPLOY_HOME}/logs; export WLSDEPLOY_LOG_DIRECTORY
 fi
 
-if [ "${WLSDEPLOY_LOG_HANDLERS}" == "" ]; then
+if [ "${WLSDEPLOY_LOG_HANDLERS}" = "" ]; then
     WLSDEPLOY_LOG_HANDLERS=${WLSDEPLOY_LOG_HANDLER}; export WLSDEPLOY_LOG_HANDLERS
 fi
 
