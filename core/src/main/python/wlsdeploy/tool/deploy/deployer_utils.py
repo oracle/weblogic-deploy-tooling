@@ -185,12 +185,15 @@ def delete_named_element(location, delete_name, existing_names, alias_helper):
     _method_name = 'delete_named_element'
 
     name = delete_name[1:]
+    type_name = location.get_current_model_folder()
 
-    type_path = alias_helper.get_wlst_create_path(location)
-
-    _wlst_helper.cd(type_path)
-
-    _wlst_helper.delete(name, location.get_current_model_folder())
+    if name not in existing_names:
+        _logger.warning('WLSDPLY-09109', type_name, name, class_name=_class_name, method_name=_method_name)
+    else:
+        _logger.info('WLSDPLY-09110', type_name, name, class_name=_class_name, method_name=_method_name)
+        type_path = alias_helper.get_wlst_create_path(location)
+        _wlst_helper.cd(type_path)
+        _wlst_helper.delete(name, type_name)
 
 
 def ensure_no_uncommitted_changes_or_edit_sessions():
