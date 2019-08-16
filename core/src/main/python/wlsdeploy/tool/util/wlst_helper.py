@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 
 from oracle.weblogic.deploy.util import PyWLSTException
@@ -147,11 +147,13 @@ class WlstHelper(object):
         try:
             wlst_helper.set(attribute_name, attribute_value)
         except PyWLSTException, pwe:
+            path = self.get_pwd()
             log_value = attribute_value
             if masked:
                 log_value = '<masked>'
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19102', attribute_name, log_value,
-                                                   pwe.getLocalizedMessage(), error=pwe)
+
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19102', attribute_name, path,
+                                                   log_value, pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return
@@ -169,11 +171,13 @@ class WlstHelper(object):
         try:
             wlst_helper.set_with_cmo(attribute_name, attribute_value, masked=masked)
         except PyWLSTException, pwe:
+            path = self.get_pwd()
             log_value = attribute_value
             if masked:
                 log_value = '<masked>'
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19136', attribute_name, log_value,
-                                                   pwe.getLocalizedMessage(), error=pwe)
+
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19136', attribute_name, path,
+                                                   log_value, pwe.getLocalizedMessage(), error=pwe)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return

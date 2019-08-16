@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 import javaos as os
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
@@ -9,6 +9,7 @@ from java.io import FileOutputStream
 from java.util import Properties
 from oracle.weblogic.deploy.create import RCURunner
 from oracle.weblogic.deploy.util import WLSDeployArchive, FileUtils
+from wlsdeploy.util import string_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
@@ -48,6 +49,7 @@ from wlsdeploy.aliases.model_constants import OPSS_SECRETS
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
+from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
@@ -77,6 +79,7 @@ from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
+from wlsdeploy.tool.create.wlsroles_helper import WLSRoles
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
@@ -147,6 +150,9 @@ class DomainCreator(Creator):
 
         self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, ExceptionType.CREATE,
                                           self.logger)
+
+        self.wlsroles_helper = WLSRoles(self._domain_info, self._domain_home, self.wls_helper,
+                                        ExceptionType.CREATE, self.logger)
 
         #
         # This list gets modified as the domain is being created so do use this list for anything else...
@@ -338,6 +344,10 @@ class DomainCreator(Creator):
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
+        self.wlsroles_helper.process_roles()
+        if os.environ.has_key('__WLSDEPLOY_STORE_MODEL__'):
+            model_helper.persist_model(self.model_context, self.model)
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -351,7 +361,6 @@ class DomainCreator(Creator):
         self.__set_domain_attributes()
         self._configure_security_configuration()
         self.__deploy_resources_and_apps()
-        self.__configure_opss_secrets()
         self.wlst_helper.update_domain()
         self.wlst_helper.close_domain()
         return
@@ -489,6 +498,8 @@ class DomainCreator(Creator):
         server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
         if len(server_assigns) > 0:
             self.target_helper.target_server_groups(server_assigns)
+
+        self.__configure_opss_secrets()
 
         self.wlst_helper.write_domain(domain_home)
         self.wlst_helper.close_template()
@@ -1104,6 +1115,16 @@ class DomainCreator(Creator):
     def __create_boot_dot_properties(self):
         _method_name = '__create_boot_dot_properties'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        if SERVER_START_MODE in self._domain_info:
+            server_start_mode = self._domain_info[SERVER_START_MODE]
+            if server_start_mode == 'prod' or server_start_mode == 'PROD':
+                return
+
+        if PRODUCTION_MODE_ENABLED in self._topology:
+            if string_utils.to_boolean(self._topology[PRODUCTION_MODE_ENABLED]):
+                return
+
         systemIni = SerializedSystemIni.getEncryptionService(self._domain_home)
         encryptionService = ClearOrEncryptedService(systemIni)
         admin_password = self._domain_info[ADMIN_PASSWORD]
@@ -1118,10 +1139,14 @@ class DomainCreator(Creator):
             name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
             servers.append(name)
 
+        admin_username = self.aliases.decrypt_password(admin_username)
+        admin_password = self.aliases.decrypt_password(admin_password)
+        encrypted_username =  encryptionService.encrypt(admin_username)
+        encrypted_password = encryptionService.encrypt(admin_password)
         for server in servers:
             properties = Properties()
-            properties.put("username", encryptionService.encrypt(admin_username))
-            properties.put("password", encryptionService.encrypt(admin_password))
+            properties.put("username", encrypted_username)
+            properties.put("password", encrypted_password)
             file_directory = self._domain_home + "/servers/" + server + "/security"
             file_location = file_directory + "/boot.properties"
             if not os.path.exists(file_directory):
@@ -1134,6 +1159,10 @@ class DomainCreator(Creator):
 
     def __configure_opss_secrets(self):
         _method_name = '__configure_opss_secrets'
+
+        if not self._domain_typedef.is_jrf_domain_type():
+            return
+
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         extract_path = None
         domain_info = self._domain_info

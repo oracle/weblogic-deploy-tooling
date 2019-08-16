@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
- * The Universal Permissive License (UPL), Version 1.0
+ * Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
 
@@ -542,6 +542,7 @@ public class WLSDeployArchive {
 
         LOGGER.entering(CLASS, METHOD);
         List<String> result = getZipFile().listZipEntries(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+        result.remove(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
         LOGGER.exiting(CLASS, METHOD, result);
         if (result.size() > 0) {
             return result.get(0);
@@ -561,6 +562,7 @@ public class WLSDeployArchive {
 
         LOGGER.entering(CLASS, METHOD);
         List<String> result = getZipFile().listZipEntries(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+        result.remove(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
         LOGGER.exiting(CLASS, METHOD, result);
         if (result.size() > 0) {
             return result.get(0);

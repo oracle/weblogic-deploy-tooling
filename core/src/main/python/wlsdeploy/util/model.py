@@ -1,11 +1,11 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 This module serves as a wrapper for the model dictionary.
 It has convenience methods for accessing top-level fields in the model.
 """
-import pprint
+import pprint, os
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 
@@ -144,3 +144,12 @@ def get_model_top_level_keys():
         get_model_resources_key(),
         get_model_deployments_key()
     ]
+
+
+def persist_model(model_context,model):
+    base_dir = model_context.get_domain_home() + os.sep + 'wlsdeploy'
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir)
+    fh = open(base_dir + os.sep + 'domain_model.json', 'w')
+    fh.write(str(model.get_model()))
+    fh.close()
