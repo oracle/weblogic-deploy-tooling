@@ -346,10 +346,7 @@ class DomainCreator(Creator):
         self.library_helper.extract_classpath_libraries()
         self.wlsroles_helper.process_roles()
         if os.environ.has_key('__WLSDEPLOY_STORE_MODEL__'):
-            os.makedirs(self.model_context.get_domain_home() + os.sep + 'wlsdeploy')
-            fh = open(self.model_context.get_domain_home() + os.sep + 'wlsdeploy' + os.sep + 'domain_model.json', 'w')
-            fh.write(str(self.model.get_model()))
-            fh.close()
+            model_helper.persist_model(self.model_context, self.model)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
