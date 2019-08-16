@@ -185,7 +185,7 @@ def delete_named_element(location, delete_name, existing_names, alias_helper):
     _method_name = 'delete_named_element'
 
     name = delete_name[1:]
-    type_name = location.get_current_model_folder()
+    type_name = alias_helper.get_wlst_mbean_type(location)
 
     if name not in existing_names:
         _logger.warning('WLSDPLY-09109', type_name, name, class_name=_class_name, method_name=_method_name)
