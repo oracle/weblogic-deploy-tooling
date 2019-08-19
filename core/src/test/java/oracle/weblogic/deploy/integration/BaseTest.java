@@ -129,7 +129,8 @@ public class BaseTest {
 
     protected void verifyResult(ExecResult result, String matchString) throws Exception {
         if(result.exitValue() != 0 || !result.stdout().contains(matchString)) {
-            throw new Exception("verifying test result failed.");
+            logger.info("DEBUG: result.stdout=" + result.stdout());
+            throw new Exception("result stdout does not contains the expected string: " + matchString);
         }
     }
 

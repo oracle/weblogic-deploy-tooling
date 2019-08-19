@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.io.File;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ITWdt extends BaseTest {
@@ -459,7 +460,7 @@ public class ITWdt extends BaseTest {
                 " -domain_type WLS -variable_file " + tmpVariableFile;
 
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "updateDomain.sh completed successfully");
 
         // verify the domain is updated
@@ -584,6 +585,50 @@ public class ITWdt extends BaseTest {
         ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "Errors: 2");
 
+        logTestEnd(testMethodName);
+    }
+
+    @Test
+    public void testPEncryptModel() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        String clearPwdModelFile = getSampleModelFile("-constant");
+        String tmpModelFile = System.getProperty("java.io.tmpdir") + FS + SAMPLE_MODEL_FILE_PREFIX +
+                "-constant.yaml";
+
+        // update wdt model file
+        Path source = Paths.get(clearPwdModelFile);
+        Path dest = Paths.get(tmpModelFile);
+        Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+
+        // update encrypt model script
+        String encryptModelTemplate = getResourcePath() + FS + "encrypt-model-template.sh";
+        String tmpEncryptModelScript = System.getProperty("java.io.tmpdir") + FS + "encryptModel.sh";
+        source = Paths.get(encryptModelTemplate);
+        dest = Paths.get(tmpEncryptModelScript);
+        Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+
+        replaceStringInFile(tmpEncryptModelScript, "%ENCRYPT_MODEL_SCRIPT%", encryptModelScript);
+        replaceStringInFile(tmpEncryptModelScript, "%MW_HOME%", mwhome_12213);
+        replaceStringInFile(tmpEncryptModelScript, "%MODEL_FILE%", tmpModelFile);
+
+        File tmpEncryptModelScriptFile = new File(tmpEncryptModelScript);
+        tmpEncryptModelScriptFile.setExecutable(true, false);
+        String cmd = tmpEncryptModelScript;
+
+        logger.info("executing command: " + cmd);
+        ExecResult result = ExecCommand.exec(cmd, true);
+        verifyResult(result, "encryptModel.sh completed successfully");
+
+        // create the domain using -use_encryption
+        cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                domainParent12213 + FS + "domain10 -model_file " +
+                tmpModelFile + " -archive_file " + getSampleArchiveFile() +
+                " -domain_type WLS -use_encryption < " + getResourcePath() + FS + "passphrase.txt";
+        logger.info("executing command: " + cmd);
+        result = ExecCommand.exec(cmd, true);
+        verifyResult(result, "createDomain.sh completed successfully");
         logTestEnd(testMethodName);
     }
 }
