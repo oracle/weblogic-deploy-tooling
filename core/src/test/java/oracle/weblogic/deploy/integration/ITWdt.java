@@ -136,7 +136,7 @@ public class ITWdt extends BaseTest {
                 " -model_file " + getSampleModelFile("-constant") +
                 " -archive_file " + getSampleArchiveFile();
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "createDomain.sh completed successfully");
 
         logTestEnd(testMethodName);
@@ -348,7 +348,7 @@ public class ITWdt extends BaseTest {
                 getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
                 " -domain_type RestrictedJRF";
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "createDomain.sh completed successfully");
 
         logTestEnd(testMethodName);
@@ -470,6 +470,119 @@ public class ITWdt extends BaseTest {
         if(Integer.parseInt(result.stdout().trim()) != 1) {
             throw new Exception("the domain is not updated as expected");
         }
+
+        logTestEnd(testMethodName);
+    }
+
+    /**
+     * test deployApp.sh without model file
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testJDeployAppWithoutModelfile() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        String cmd = deployAppScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                domainParent12213 + FS + "domain2 -archive_file " + getSampleArchiveFile();
+        ExecResult result = ExecCommand.exec(cmd);
+        logger.info("NEGATIVE TEST: returned error msg: " + result.stderr());
+        String expectedErrorMsg = "deployApps failed to find a model file in archive";
+        verifyErrorMsg(result, expectedErrorMsg);
+
+        logTestEnd(testMethodName);
+    }
+
+    /**
+     * test deployApps.sh with model file
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testKDeployAppWithModelfile() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        String cmd = deployAppScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                domainParent12213 + FS + "domain2 -archive_file " + getSampleArchiveFile() +
+                " -model_file " + getSampleModelFile("-constant");
+        logger.info("executing command: " + cmd);
+        ExecResult result = ExecCommand.exec(cmd, true);
+        verifyResult(result, "deployApps.sh completed successfully");
+
+        logTestEnd(testMethodName);
+    }
+
+    /**
+     * test validateModel.sh with -oracle_home only
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testLValidateModelWithOracleHomeOnly() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        String cmd = validateModelScript + " -oracle_home " + mwhome_12213;
+        logger.info("Executing command: " + cmd);
+        ExecResult result = ExecCommand.exec(cmd);
+        logger.info("NEGATIVE TEST: returned error msg: " + result.stderr());
+        String expectedErrorMsg = "validateModel requires a model file to run";
+        verifyErrorMsg(result, expectedErrorMsg);
+
+        logTestEnd(testMethodName);
+    }
+
+    /**
+     * test validateModel.sh with -oracle_home and -model_file
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testMValidateModelWithOracleHomeModelFile() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        String cmd = validateModelScript + " -oracle_home " + mwhome_12213 + " -model_file " +
+                getSampleModelFile("-constant");
+        logger.info("Executing command: " + cmd);
+        ExecResult result = ExecCommand.exec(cmd);
+        verifyResult(result, "the archive file was not provided");
+
+        logTestEnd(testMethodName);
+    }
+
+    /**
+     * test validateModel.sh without -variable_file
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testNValidateModelWithoutVariablefile() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        String cmd = validateModelScript + " -oracle_home " + mwhome_12213 + " -model_file " +
+                getSampleModelFile("1");
+        logger.info("Executing command: " + cmd);
+        ExecResult result = ExecCommand.exec(cmd);
+        logger.info("NEGATIVE TEST: returned error msg: " + result.stderr());
+        String expectedErrorMsg = "validateModel variable substitution failed";
+        verifyErrorMsg(result, expectedErrorMsg);
+
+        logTestEnd(testMethodName);
+    }
+
+    /**
+     * test validateModel.sh with invalid model file
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testOValidateModelWithInvalidModelfile() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        String cmd = validateModelScript + " -oracle_home " + mwhome_12213 + " -model_file " +
+                getSampleModelFile("-invalid") + " -variable_file " + getSampleVariableFile();
+        logger.info("Executing command: " + cmd);
+        ExecResult result = ExecCommand.exec(cmd);
+        verifyResult(result, "Errors: 2");
 
         logTestEnd(testMethodName);
     }
