@@ -178,13 +178,37 @@ def merge_lists(existing_list, model_list, separator=',', return_as_string=True)
 
 
 def is_delete_name(name):
+    """
+    Determines if the specified name is flagged for deletion with the "!" prefix.
+    :param name: the name to be checked
+    :return: True if the name is prefixed, false otherwise
+    """
     return name.startswith("!")
 
 
+def get_delete_item_name(name):
+    """
+    Returns the WLST name of the item to be deleted.
+    Removes the "!" prefix from the name. Assumes the name has been checked with is_delete_name().
+    :param name: the prefixed model name of the item to be deleted
+    :return: the model name of the item to be deleted
+    """
+    if is_delete_name(name):
+        return name[1:]
+    return name
+
+
 def delete_named_element(location, delete_name, existing_names, alias_helper):
+    """
+    Delete the specified named element if present. If the name is not present, log a warning and return.
+    :param location: the location of the element to be deleted
+    :param delete_name: the name of the element to be deleted, assumed to include the "!" prefix
+    :param existing_names: a list of names to check against
+    :param alias_helper: alias helper for lookups
+    """
     _method_name = 'delete_named_element'
 
-    name = delete_name[1:]
+    name = get_delete_item_name(delete_name)
     type_name = alias_helper.get_wlst_mbean_type(location)
 
     if name not in existing_names:

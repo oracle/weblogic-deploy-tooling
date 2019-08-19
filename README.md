@@ -15,6 +15,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Simple Example](#simple-example)
     - [Model Names](#model-names)
     - [Model Semantics](#model-semantics)
+    - [Declaring Named MBeans to Delete](#declaring-named-mbeans-to-delete)
     - [Administration Server Configuration](site/admin_server.md)
     - [Model Security](site/security.md)
       - [Modeling Security Providers](site/security_providers.md)
@@ -219,6 +220,36 @@ resources:
 In the example above, the `Target` attribute is specified three different ways, as a comma-separated string, as a list, and as a single string in the case of where there is only a single target.  The `JNDIName` attribute is specified as a comma-separated string and as a list (a single string also works). On the other hand, the `HarvestedInstances` attribute had to be specified as a list because each element contains commas.
 
 One of the primary goals of the WebLogic Deploy Tooling is to support a sparse model where the user can specify just the configuration needed for a particular situation.  What this implies varies somewhat between the tools but, in general, this implies that the tools are using an additive model.  That is, the tools add to what is already there in the existing domain or domain templates (when creating a new domain) rather than making the domain conform exactly to the specified model.  Where it makes sense, a similar, additive approach is taken when setting the value of multi-valued attributes.  For example, if the model specified the cluster `mycluster` as the target for an artifact, the tooling will add `mycluster` to any existing list of targets for the artifact.  While the development team has tried to mark attributes that do not make sense to merge accordingly in our knowledge base, this behavior can be disabled on an attribute-by-attribute basis, by adding an additional annotation in the knowledge base data files.  The development team is already thinking about how to handle situations that require a non-additive, converge-to-the-model approach, and how that might be supported, but this still remains a wish list item.  Users with these requirements should raise an issue for this support.
+
+### Declaring Named MBeans to Delete
+
+With WebLogic Deploy Tooling release 1.3.0, you can specify named items in the model to be deleted using the Create Domain, Update Domain, Deploy Applications Tools.  Named items are those that have multiple instances that are distinguished by user-provided names, such as managed servers, datasources, and security realms.  Items to be deleted are prepended with an exclamation point (!) in the model. 
+
+This feature can be used to remove items that were created by WebLogic Server templates. For example, the basic template creates a default security realm called ```myrealm```.  If a user chooses to declare a custom realm, ```myrealm``` is no longer needed.  In this example, ```myrealm``` will be deleted, and the custom realm ```newrealm``` will be created, and declared as the default realm:
+
+```yaml
+    SecurityConfiguration:
+        DefaultRealm: newrealm
+        Realm:
+            !myrealm:
+            newrealm:
+                AuthenticationProvider:
+                ...
+```
+
+This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling Security Providers](site/security_providers.md) for detailed information.
+
+This feature cannot be use to un-deploy applications or remove libraries.
+
+This feature can also be used for simple updates to domain configuration. In this example, the managed server ```obsoleteServer``` will be deleted, and ```newServer``` will be created:
+
+```yaml
+    Server:
+        !obsoleteServer:
+        newServer:
+            ListenAddress: 127.0.0.1
+            ListenPort: 9005
+```
 
 ### Using Multiple Models
 
