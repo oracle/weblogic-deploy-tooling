@@ -47,6 +47,7 @@ from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+from wlsdeploy.util import model as model_helper
 
 wlst_extended.wlst_functions = globals()
 
@@ -228,6 +229,9 @@ def __update(model, model_context, aliases):
         __update_online(model, model_context, aliases)
     else:
         __update_offline(model, model_context, aliases)
+
+    if os.environ.has_key('__WLSDEPLOY_STORE_MODEL__'):
+        model_helper.persist_model(model_context, model)
     return
 
 
