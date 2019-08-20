@@ -9,7 +9,7 @@ import sys
 
 from java.io import IOException
 from java.lang import IllegalArgumentException
-from java.lang import String
+from java.lang import String, System
 
 from oracle.weblogic.deploy.encrypt import EncryptionException
 from oracle.weblogic.deploy.util import CLAException
@@ -155,6 +155,14 @@ def __process_passphrase_arg(optional_arg_map):
             if passphrase == passphrase2:
                 got_matching_passphrases = True
                 optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
+            else:
+                # if it is script mode do not prompt again
+                if System.console() is None:
+                    ex = exception_helper.create_cla_exception('WLSDPLY-04213')
+                    ex.setExitCode(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+                    __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                    raise ex
+
     return
 
 
