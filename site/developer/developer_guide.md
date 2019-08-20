@@ -39,6 +39,8 @@ The class `TopologyUpdater` is a special subclass of `Deployer` that is used to 
 WebLogic Deploy Tool uses a set of JSON configuration files to map folders and attributes in the model to the corresponding WLST MBeans and their attributes. These mappings are referred as 'aliases' throughout the project code and documentation. Each element in the alias definition file has detailed properties that assist in this mapping.
 
 The model's folder and attribute names usually match the names of the corresponding elements in WLST. For cases where the names of WLST elements may change across WebLogic Server releases, the names should match the names in the 12.2.1.3 release. The unit test `AttributesTestCase` verifies that this convention is used, and identifies a few exceptions.
+
+Attributes that are introduced after the 12.2.1.3 release should, in most cases, match the name of the first WebLogic Server release in which they appear. The unit test `AttributesTestCase` will ignore these for now, since they will not be present in the 12.2.1.3 alias structure.
  
 The alias definition files reside in the directory:
 
