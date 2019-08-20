@@ -189,13 +189,18 @@ def is_delete_name(name):
 def get_delete_item_name(name):
     """
     Returns the WLST name of the item to be deleted.
-    Removes the "!" prefix from the name. Assumes the name has been checked with is_delete_name().
+    Removes the "!" prefix from the name. An exception is thrown if the name is not prefixed.
     :param name: the prefixed model name of the item to be deleted
     :return: the model name of the item to be deleted
     """
+    _method_name = 'get_delete_item_name'
+
     if is_delete_name(name):
         return name[1:]
-    return name
+
+    ex = exception_helper.create_deploy_exception('WLSDPLY-09111', name)
+    _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+    raise ex
 
 
 def delete_named_element(location, delete_name, existing_names, alias_helper):
