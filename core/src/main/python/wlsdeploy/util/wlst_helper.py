@@ -463,13 +463,13 @@ def get_mbean(wlst_path):
     mbean_path = wlst_path
     if mbean_path is None:
         mbean_path = current_dir
-    _logger.finest('WLSDPLY-00096', mbean_path, class_name=_class_name, method_name=_method_name)
+    _logger.finest('WLSDPLY-00097', mbean_path, class_name=_class_name, method_name=_method_name)
     cd(current_dir)
     cmo = get_cmo()
     if cmo is None:
         cmo = get_mbean_for_wlst_path(mbean_path)
     if cmo is None:
-        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00095', mbean_path)
+        pwe = exception_helper.create_pywlst_exception('WLSDPLY-00096', mbean_path)
         _logger.throwing(class_name=_class_name, method_name=_method_name, error=pwe)
         raise pwe
     if wlst_path is None:
