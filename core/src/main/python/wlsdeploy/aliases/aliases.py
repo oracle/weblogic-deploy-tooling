@@ -1133,7 +1133,7 @@ class Aliases(object):
 
     def get_preferred_model_type(self, location, model_attribute_name):
         """
-        Return the preferred model type, if present, for the alias attribue definition
+        Return the preferred model type, if present, for the alias attribute definition.
         :param location: current location context
         :param model_attribute_name: name of the attribute to look up in model representation
         :return: alias attribute preferred model type or None if not present or attribute not found
