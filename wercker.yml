@@ -7,6 +7,12 @@ box:
     username: $OCIR_USER
     password: $OCIR_PASS
 
+box:
+    id: phx.ocir.io/weblogick8s/database/enterprise
+    tag: 12.2.0.1-slim
+    username: $OCIR_USER
+    password: $OCIR_PASS
+
 build:
     steps:
       - script:
