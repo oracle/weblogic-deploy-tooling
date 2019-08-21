@@ -15,7 +15,7 @@ build:
           yum makecache fast
           yum -y install tar gzip procps
       - wercker/maven:
-        maven_opts: -Dunit-test-wlst-dir=/u01/oracle/oracle_common/common/bin -Dsonar.login=${SONAR_LOGIN} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.host.url=${SONAR_HOST}
+        maven_opts: -Dunit-test-wlst-dir=/u01/oracle/oracle_common/common/bin -Dsonar.login=${SONAR_LOGIN} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.host.url=${SONAR_HOST} -Dmw_home=/u01/oracle -Dfmw_home=/u01/oracle
         goals: clean install
         cache_repo: true
         version: 3.5.2
