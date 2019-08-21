@@ -14,11 +14,11 @@ The `core` module contains the main source code for the project. This includes J
 
 Alias definitions are discussed in more detail [here](#alias-definitions). 
 
-The `installer` module builds the final installer zip file. It includes the assembly definitions, start scripts for each tool for Linux and Windows platforms, and configurations for variable injection and logging. 
+The `installer` module builds the final installer ZIP file. It includes the assembly definitions, start scripts for each tool for Linux and Windows platforms, and configurations for variable injection and logging. 
 
-A single installer zip file is built under the `WLSDEPLOY_HOME/installer/target` directory.
+A single installer ZIP file is built under the `WLSDEPLOY_HOME/installer/target` directory.
 
-There are detailed instructions for building the project [here](#building-weblogic-deploy-tool)
+There are detailed instructions for building the project [here](#building-weblogic-deploy-tool).
 
 ## Functional Areas
 
@@ -40,7 +40,7 @@ WebLogic Deploy Tool uses a set of JSON configuration files to map folders and a
 
 The model's folder and attribute names usually match the names of the corresponding elements in WLST. For cases where the names of WLST elements may change across WebLogic Server releases, the names should match the names in the 12.2.1.3 release. The unit test `AttributesTestCase` verifies that this convention is used, and identifies a few exceptions.
 
-Attributes that are introduced after the 12.2.1.3 release should, in most cases, match the name of the first WebLogic Server release in which they appear. The unit test `AttributesTestCase` will ignore these for now, since they will not be present in the 12.2.1.3 alias structure.
+Attributes that are introduced after the 12.2.1.3 release should, in most cases, match the name of the first WebLogic Server release in which they appear. The unit test `AttributesTestCase` will ignore these for now, because they will not be present in the 12.2.1.3 alias structure.
  
 The alias definition files reside in the directory:
 
@@ -50,7 +50,7 @@ Each definition file corresponds to a second-level folder within the model, such
 
 Top-level elements such as `topology` and `resources` are for organizational purposes, and are not represented in the alias definition files.
 
-No elements in the `domainInfo` section of the model are represented in the alias definitions, since they don't correspond directly to WLST elements.
+No elements in the `domainInfo` section of the model are represented in the alias definitions, because they don't correspond directly to WLST elements.
 
 This example, from the file `JDBCSystemResource.json`, will be used as a reference in the descriptions below: 
 
@@ -127,7 +127,7 @@ The dictionary key defines the various WLST path values used elsewhere in this f
 
 `"WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCConnectionPoolParams/${NO_NAME_0:%DATASOURCE%}"`
 
-The `%DATASOURCE%` text is token placeholder. It will be replaced with the name of the actual datasource by the tool.
+The `%DATASOURCE%` text is token placeholder. It will be replaced with the name of the actual data source by the tool.
 
 ### Keys for `attributes` Elements
 
@@ -139,7 +139,7 @@ This key element defines the applicable versions for a particular MBean attribut
  
 `"version": "[10,)"`
   
-Specifies that an MBean attribute description is relevant for WebLogic Server version 10 and higher
+Specifies that an MBean attribute description is relevant for WebLogic Server version 10 and later
 
 #### `wlst_mode`
 
@@ -151,7 +151,7 @@ This key element specifies the WLST name of the MBean attribute.
 
 #### `wlst_type`
 
-This key element specifies the data type used to set the WLST MBean attribute. Valid values are integer, long, string, boolean, jarray and MBean type. If the `wlst_read_type` is not set, this is also the data type used to read the value from WLST.
+This key element specifies the data type used to set the WLST MBean attribute. Valid values are ```integer```, ```long```, ```string```, ```delimited_string```, ```boolean``` and ```jarray```. If the `wlst_read_type` is not set, this is also the data type used to read the value from WLST.
 
 #### `wlst_read_type`
 
@@ -203,9 +203,9 @@ When a `set_method` key is specified, it may be required to specify the MBean ty
 
 You will need the following software installed in your local build environment
 
-1. Oracle WebLogic Server installation version 12.2.1 and above
+1. Oracle WebLogic Server installation version 12.2.1 and later
 2. JDK version 8
-3. Maven 3 and above
+3. Maven 3 and later
 
 ### Specifying the WLST location
 
@@ -219,7 +219,7 @@ The WLST directory can be specified in one of two ways:
 
 In these cases, `<wlst-directory>` refers to the fully-qualified path to the WLST script (`wlst.sh` or `wlst.cmd`).
 
-If you are using an IDE for development and building, creating a `mavin-config` file will allow some Maven tasks to be performed within the IDE.
+If you are using an IDE for development and building, creating a `maven-config` file will allow some Maven tasks to be performed within the IDE.
 
 ### Build Commands
 
@@ -235,4 +235,4 @@ If you are not making changes and are only interested in building the latest ver
 
 The option `-Denforcer.skip` prevents the Maven Enforcer plugin from verifying the JDK version, and checking that the WLST directory is specified.
 
-The resulting installer zip file built is under the `WLSDEPLOY_HOME/installer/target` directory.
+The resulting installer ZIP file built is under the `WLSDEPLOY_HOME/installer/target` directory.
