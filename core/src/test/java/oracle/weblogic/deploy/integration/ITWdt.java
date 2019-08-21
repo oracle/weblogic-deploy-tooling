@@ -219,7 +219,7 @@ public class ITWdt extends BaseTest {
                 getSampleModelFile("1") + " -archive_file " + getSampleArchiveFile() +
                 " -domain_type WLS -variable_file " + getSampleVariableFile();
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "createDomain.sh completed successfully");
 
         logTestEnd(testMethodName);
@@ -261,7 +261,7 @@ public class ITWdt extends BaseTest {
                 " -domain_type WLS -variable_file " + getSampleVariableFile() + " -wlst_path " +
                 mwhome_12213 + FS + "oracle_common";
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "createDomain.sh completed successfully");
 
         logTestEnd(testMethodName);

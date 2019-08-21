@@ -19,8 +19,8 @@
         <unit-test-wlst-dir>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</unit-test-wlst-dir>
         <mw_home>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</mw_home>
         <fmw_home>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</fmw_home>
-        <ocr_username>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</ocr_username>
-        <ocr_password>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</ocr_password>
+        <ocir_user>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</ocir_user>
+        <ocir_pass>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</ocir_pass>
         <!--
             Hack to get around Maven bug so that we can inject the build timestamp into the version class
          -->
@@ -202,12 +202,12 @@
                             <value>${fmw_home}</value>
                         </property>
                         <property>
-                            <name>OCR_USERNAME</name>
-                            <value>${ocr_username}</value>
+                            <name>OCIR_USER</name>
+                            <value>${ocir_user}</value>
                         </property>
                         <property>
-                            <name>OCR_PASSWORD</name>
-                            <value>${ocr_password}</value>
+                            <name>OCIR_PASS</name>
+                            <value>${ocir_pass}</value>
                         </property>
                     </systemProperties>
                 </configuration>

@@ -35,10 +35,10 @@ public class BaseTest {
     protected static String validateModelScript = "";
     protected static String domainParent12213 = "";
     protected static String fmwDomainParent12213 = "";
-    protected static final String ORACLE_DB_IMG = "container-registry.oracle.com/database/enterprise";
+    protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
     private static final String DB_CONTAINER_NAME = "InfraDB";
-    private static final String OCR_SERVER = "container-registry.oracle.com";
+    private static final String OCIR_SERVER = "phx.ocir.io";
 
     protected static void initialize() throws Exception {
 
@@ -86,16 +86,16 @@ public class BaseTest {
     protected static void pullOracleDBDockerImage() throws Exception {
         logger.info("Pulling Oracle DB image from OCR ...");
 
-        String ocr_username = System.getProperty("OCR_USERNAME");
-        String ocr_password = System.getProperty("OCR_PASSWORD");
-        logger.info("DEBUG: ocr_username=" + ocr_username);
-        logger.info("DEBUG: ocr_password=" + ocr_password);
-        if(ocr_username == null || ocr_password == null) {
-            throw new Exception("Please set -Docr_username and -Docr_password in mvn.config to pull DB " +
+        String ocir_user = System.getProperty("OCIR_USER");
+        String ocir_pass = System.getProperty("OCIR_PASS");
+        logger.info("DEBUG: ocir_user=" + ocir_user);
+        logger.info("DEBUG: ocir_pass=" + ocir_pass);
+        if(ocir_user == null || ocir_pass == null) {
+            throw new Exception("Please set -Docir_user and -Docir_pass in mvn.config to pull DB " +
                     "image " + ORACLE_DB_IMG + ":" + ORACLE_DB_IMG_TAG);
         }
 
-        pullDockerImage(OCR_SERVER, ocr_username, ocr_password, ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
+        pullDockerImage(OCIR_SERVER, ocir_user, ocir_pass, ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
     }
 
     private static void pullDockerImage(String repoServer, String username, String password,
@@ -103,10 +103,10 @@ public class BaseTest {
 
         String cmd = "docker login " + repoServer + " -u " + username + " -p " + password;
         logger.info("executing command: " + cmd);
-        ExecCommand.exec(cmd);
+        ExecCommand.exec(cmd, true);
         cmd = "docker pull " + imagename + ":" + imagetag;
         logger.info("executing command: " + cmd);
-        ExecCommand.exec(cmd);
+        ExecCommand.exec(cmd, true);
 
         // verify the docker image is pulled
         ExecResult result = ExecCommand.exec("docker images | grep " + imagename  + " | grep " +
