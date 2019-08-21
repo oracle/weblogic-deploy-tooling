@@ -124,7 +124,9 @@ public class BaseTest {
 
     protected static void executeNoVerify(String command) throws Exception {
         logger.info("executing command: " + command);
-        ExecCommand.exec(command, true);
+        ExecResult result = ExecCommand.exec(command);
+        logger.info("DEBUG: result.stderr=" + result.stderr());
+        logger.info("DEBUG: result.stdout=" + result.stdout());
     }
 
     protected void verifyResult(ExecResult result, String matchString) throws Exception {
