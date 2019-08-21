@@ -5,8 +5,8 @@
     "description": "Restricted JRF type domain definitions",
     "versions": {
         "12.2.1": "RJRF_12CR2",
-		"12.2.1.3": "RJRF_12CR2",
-		"12.2.1.4": "RJRF_12CR2"
+        "12.2.1.3": "RJRF_12CR2",
+        "12.2.1.4": "RJRF_12CR2"
     },
     "definitions": {
         "RJRF_12CR2": {
