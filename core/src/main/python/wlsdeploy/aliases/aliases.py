@@ -1133,7 +1133,7 @@ class Aliases(object):
 
     def get_preferred_model_type(self, location, model_attribute_name):
         """
-        Return the preferred model type, if present, for the alias attribute
+        Return the preferred model type, if present, for the alias attribue definition
         :param location: current location context
         :param model_attribute_name: name of the attribute to look up in model representation
         :return: alias attribute preferred model type or None if not present or attribute not found
@@ -1150,9 +1150,10 @@ class Aliases(object):
 
     def get_wlst_read_type(self, location, model_attribute_name):
         """
-        Return the wlst read type, which overrides the wlst type when retrieving the attribute value.
-        Works hand in hand with the get_method.
-        :return: WLST read type or None if not found for the attribute
+        Return the aliases attribute WLST_READ_TYPE, which overrides the WLST_TYPE when retrieving the attribute value.
+        :param location: The context for the current location in WLST
+        :param model_attribute_name: the model name for the WLST attribute
+        :return: WLST_READ_TYPE or None if not defined for the attribute in the alias definitions
         """
         _method_name = 'get_wlst_read_type'
         self._logger.entering(str(location), model_attribute_name,
