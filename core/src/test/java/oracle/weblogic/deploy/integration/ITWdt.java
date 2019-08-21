@@ -6,10 +6,7 @@ package oracle.weblogic.deploy.integration;
 
 import oracle.weblogic.deploy.integration.utils.ExecCommand;
 import oracle.weblogic.deploy.integration.utils.ExecResult;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.FixMethodOrder;
+import org.junit.*;
 import org.junit.runners.MethodSorters;
 
 import java.nio.file.Files;
@@ -33,9 +30,9 @@ public class ITWdt extends BaseTest {
         setup();
 
         // pull Oracle DB image for FMW RCU testing
-        pullOracleDBDockerImage();
+        //pullOracleDBDockerImage();
         // create a db container for RCU
-        createDBContainer();
+        //createDBContainer();
 
     }
 
@@ -158,7 +155,7 @@ public class ITWdt extends BaseTest {
                 domainParent12213 + FS + "domain2 -model_file " +
                 getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile();
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "createDomain.sh completed successfully");
 
         logTestEnd(testMethodName);
@@ -178,7 +175,7 @@ public class ITWdt extends BaseTest {
                 getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
                 " -domain_type WLS";
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "createDomain.sh completed successfully");
 
         logTestEnd(testMethodName);
@@ -305,6 +302,7 @@ public class ITWdt extends BaseTest {
      * test createDomain.sh, create JRF domain with -run_rcu argument
      * @throws Exception - if any error occurs
      */
+    @Ignore
     @Test
     public void testDCreateJRFDomainRunRCU() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -370,7 +368,7 @@ public class ITWdt extends BaseTest {
                 " -archive_file " + discoveredArchive + " -domain_type RestrictedJRF";
 
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // unzip discoveredArchive.zip
@@ -401,7 +399,7 @@ public class ITWdt extends BaseTest {
                 " -model_file " + discoveredModelFile;
 
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // verify model file
@@ -426,7 +424,7 @@ public class ITWdt extends BaseTest {
                 " -model_file " + discoveredModelFile + " -domain_type JRF";
 
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // verify model file
@@ -507,7 +505,7 @@ public class ITWdt extends BaseTest {
                 domainParent12213 + FS + "domain2 -archive_file " + getSampleArchiveFile() +
                 " -model_file " + getSampleModelFile("-constant");
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "deployApps.sh completed successfully");
 
         logTestEnd(testMethodName);
@@ -618,7 +616,7 @@ public class ITWdt extends BaseTest {
         String cmd = tmpEncryptModelScript;
 
         logger.info("executing command: " + cmd);
-        ExecResult result = ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "encryptModel.sh completed successfully");
 
         // create the domain using -use_encryption
@@ -627,7 +625,7 @@ public class ITWdt extends BaseTest {
                 tmpModelFile + " -archive_file " + getSampleArchiveFile() +
                 " -domain_type WLS -use_encryption < " + getResourcePath() + FS + "passphrase.txt";
         logger.info("executing command: " + cmd);
-        result = ExecCommand.exec(cmd, true);
+        result = ExecCommand.exec(cmd);
         verifyResult(result, "createDomain.sh completed successfully");
         logTestEnd(testMethodName);
     }
