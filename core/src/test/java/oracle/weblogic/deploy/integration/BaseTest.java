@@ -66,8 +66,12 @@ public class BaseTest {
         buildSampleArchive();
 
         // unzip weblogic-deploy-tooling/installer/target/weblogic-deploy.zip
-        String cmd = "/bin/unzip -o " + getInstallerTargetDir() + FS + WDT_ZIPFILE;
+        //String cmd = "/bin/unzip -o " + getInstallerTargetDir() + FS + WDT_ZIPFILE;
+        String cmd = "/bin/jar -xvf " + getInstallerTargetDir() + FS + WDT_ZIPFILE;
         executeNoVerify(cmd);
+
+        chmodScriptFiles(createDomainScript, discoverDomainScript, updateDomainScript, deployAppScript,
+                encryptModelScript, validateModelScript);
 
     }
 
@@ -81,6 +85,13 @@ public class BaseTest {
 
     protected static String getProjectRoot() {
         return projectRoot;
+    }
+
+    protected static void chmodScriptFiles(String... filenames) throws Exception {
+        for(String filename : filenames) {
+            String cmd = "/bin/chmod +x " + filename;
+            executeNoVerify(cmd);
+        }
     }
 
     protected static void pullOracleDBDockerImage() throws Exception {
@@ -101,10 +112,10 @@ public class BaseTest {
     private static void pullDockerImage(String repoServer, String username, String password,
                                         String imagename, String imagetag) throws Exception {
 
-        String cmd = "docker login " + repoServer + " -u " + username + " -p " + password;
-        logger.info("executing command: " + cmd);
-        ExecCommand.exec(cmd, true);
-        cmd = "docker pull " + imagename + ":" + imagetag;
+        //String cmd = "docker login " + repoServer + " -u " + username + " -p " + password;
+        //logger.info("executing command: " + cmd);
+        //ExecCommand.exec(cmd, true);
+        String cmd = "docker pull " + imagename + ":" + imagetag;
         logger.info("executing command: " + cmd);
         ExecCommand.exec(cmd, true);
 
