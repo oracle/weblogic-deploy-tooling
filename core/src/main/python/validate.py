@@ -195,6 +195,7 @@ def __perform_model_file_validation(model_file_name, model_context):
     validation_results.print_details()
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
+    return validation_results
 
 
 def main(args):
@@ -237,8 +238,14 @@ def main(args):
             model_file_name = model_context.get_model_file()
 
             if model_file_name is not None:
-                __perform_model_file_validation(model_file_name,
-                                                model_context)
+                validation_results = __perform_model_file_validation(model_file_name, model_context)
+
+                if validation_results.get_errors_count() > 0:
+                    cla_helper.clean_up_temp_files()
+                    sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+                elif validation_results.get_warnings_count() > 0:
+                    cla_helper.clean_up_temp_files()
+                    sys.exit(CommandLineArgUtil.PROG_WARNING_EXIT_CODE)
 
         except ValidateException, ve:
             __logger.severe('WLSDPLY-20000', _program_name, ve.getLocalizedMessage(), error=ve,
