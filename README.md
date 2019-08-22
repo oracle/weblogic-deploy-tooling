@@ -223,9 +223,19 @@ One of the primary goals of the WebLogic Deploy Tooling is to support a sparse m
 
 ### Declaring Named MBeans to Delete
 
-With WebLogic Deploy Tooling release 1.3.0, you can specify named items in the model to be deleted using the Create Domain, Update Domain, and Deploy Applications Tools.  Named items are those that have multiple instances that are distinguished by user-provided names, such as managed servers, data sources, and security realms.  Items to be deleted are prepended with an exclamation point (!) in the model. 
+With WebLogic Deploy Tooling release 1.3.0, you can specify named items in the model to be deleted using the Create Domain, Update Domain, and Deploy Applications Tools.  Named items are those that have multiple instances that are distinguished by user-provided names, such as managed servers, data sources, and security realms.  Items to be deleted are prepended with an exclamation point (!) in the model.
 
-This feature can be used to remove items that were created by WebLogic Server templates. For example, the basic template creates a default security realm called ```myrealm```.  If a user chooses to declare a custom realm, ```myrealm``` is no longer needed.  In this example, ```myrealm``` will be deleted, and the custom realm ```newrealm``` will be created, and declared as the default realm:
+In this example, the managed server ```obsoleteServer``` will be deleted, and ```newServer``` will be created:
+
+```yaml
+    Server:
+        !obsoleteServer:
+        newServer:
+            ListenAddress: 127.0.0.1
+            ListenPort: 9005
+```
+
+This feature can also remove items that were created by WebLogic Server templates. For example, the basic template creates a default security realm called ```myrealm```.  If a user chooses to declare a custom realm, ```myrealm``` is no longer needed.  In this example, ```myrealm``` will be deleted, and the custom realm ```newrealm``` will be created, and declared as the default realm:
 
 ```yaml
     SecurityConfiguration:
@@ -240,16 +250,6 @@ This feature can be used to remove items that were created by WebLogic Server te
 This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling Security Providers](site/security_providers.md) for detailed information.
 
 This feature cannot be use to un-deploy applications or remove libraries.
-
-This feature can also be used for simple updates to domain configuration. In this example, the managed server ```obsoleteServer``` will be deleted, and ```newServer``` will be created:
-
-```yaml
-    Server:
-        !obsoleteServer:
-        newServer:
-            ListenAddress: 127.0.0.1
-            ListenPort: 9005
-```
 
 ### Using Multiple Models
 
