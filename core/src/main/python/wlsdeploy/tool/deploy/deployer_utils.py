@@ -177,6 +177,54 @@ def merge_lists(existing_list, model_list, separator=',', return_as_string=True)
     return result
 
 
+def is_delete_name(name):
+    """
+    Determines if the specified name is flagged for deletion with the "!" prefix.
+    :param name: the name to be checked
+    :return: True if the name is prefixed, false otherwise
+    """
+    return name.startswith("!")
+
+
+def get_delete_item_name(name):
+    """
+    Returns the WLST name of the item to be deleted.
+    Removes the "!" prefix from the name. An exception is thrown if the name is not prefixed.
+    :param name: the prefixed model name of the item to be deleted
+    :return: the model name of the item to be deleted
+    """
+    _method_name = 'get_delete_item_name'
+
+    if is_delete_name(name):
+        return name[1:]
+
+    ex = exception_helper.create_deploy_exception('WLSDPLY-09111', name)
+    _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+    raise ex
+
+
+def delete_named_element(location, delete_name, existing_names, alias_helper):
+    """
+    Delete the specified named element if present. If the name is not present, log a warning and return.
+    :param location: the location of the element to be deleted
+    :param delete_name: the name of the element to be deleted, assumed to include the "!" prefix
+    :param existing_names: a list of names to check against
+    :param alias_helper: alias helper for lookups
+    """
+    _method_name = 'delete_named_element'
+
+    name = get_delete_item_name(delete_name)
+    type_name = alias_helper.get_wlst_mbean_type(location)
+
+    if name not in existing_names:
+        _logger.warning('WLSDPLY-09109', type_name, name, class_name=_class_name, method_name=_method_name)
+    else:
+        _logger.info('WLSDPLY-09110', type_name, name, class_name=_class_name, method_name=_method_name)
+        type_path = alias_helper.get_wlst_create_path(location)
+        _wlst_helper.cd(type_path)
+        _wlst_helper.delete(name, type_name)
+
+
 def ensure_no_uncommitted_changes_or_edit_sessions():
     """
     Ensure that the domain does not contain any uncommitted changes and there is no existing edit session.

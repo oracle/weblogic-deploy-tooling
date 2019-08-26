@@ -275,6 +275,7 @@ fragment ID_START
     : [_]
     | [A-Z]
     | [a-z]
+    | '!'
     ;
 
 fragment ID_CONTINUE
