@@ -8,10 +8,12 @@ import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;
 
 /**
- * This Class extends the ConsoleHandler to write log records to STDERR. By default, the ConsoleHandler
- * logs records to STDERR. Add this Class to the log properties along with the @WLSDeployStdoutHandler@
- * to write records to both the STDOUT and STDERR. Use a Level or Filter class to select which log records
- * are written to one of the Console output streams.
+ /**
+ * This Class extends the StreamHandler to write log records to STDOUT. The "wlsdeploy" Logger
+ * is configured with an instance of this Handler class and an instance of Class @WLSDeployStderrHandler@
+ * to log records to the STDOUT and STDERR output streams.
+ * <p>
+ * Attach a logger or filter to this Handler to direct log records to the STDOUT output stream
  */
 public class WLSDeployLoggingStdoutHandler extends StreamHandler {
 
