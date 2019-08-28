@@ -138,6 +138,9 @@ class JmsResourcesDeployer(Deployer):
         if len(property_name_nodes) == 0:
             return
 
+        # use a copy of the dictionary to remove items as they are deleted
+        remaining_name_nodes = property_name_nodes.copy()
+
         parent_type, parent_name = self.get_location_type_and_name(location)
         is_online = self.wlst_mode == WlstModes.ONLINE
         if is_online and deployer_utils.is_in_resource_group_or_template(location):
@@ -151,10 +154,16 @@ class JmsResourcesDeployer(Deployer):
         name_attribute = self.alias_helper.get_wlst_attribute_name(properties_location, KEY)
         mbean_type = self.alias_helper.get_wlst_mbean_type(properties_location)
 
+        for property_name in property_name_nodes:
+            if deployer_utils.is_delete_name(property_name):
+                name = deployer_utils.get_delete_item_name(property_name)
+                self._delete_mapped_mbean(properties_location, properties_token, mbean_type, name_attribute, name)
+                del remaining_name_nodes[property_name]
+
         # loop once to create and name any missing folders.
         folder_map = self._build_folder_map(properties_location, properties_token, name_attribute)
 
-        for property_name in property_name_nodes:
+        for property_name in remaining_name_nodes:
             folder_name = dictionary_utils.get_element(folder_map, property_name)
             if folder_name is None:
                 self.wlst_helper.cd(foreign_server_path)
@@ -164,7 +173,7 @@ class JmsResourcesDeployer(Deployer):
         # loop a second time to set attributes
         new_folder_map = self._build_folder_map(properties_location, properties_token, name_attribute)
 
-        for property_name in property_name_nodes:
+        for property_name in remaining_name_nodes:
             is_add = property_name not in folder_map
             log_helper.log_updating_named_folder(JNDI_PROPERTY, property_name, parent_type, parent_name, is_add,
                                                  self._class_name, _method_name)
@@ -173,7 +182,7 @@ class JmsResourcesDeployer(Deployer):
             properties_location.add_name_token(properties_token, folder_name)
             self.wlst_helper.cd(self.alias_helper.get_wlst_attributes_path(properties_location))
 
-            property_nodes = property_name_nodes[property_name]
+            property_nodes = remaining_name_nodes[property_name]
             self.set_attributes(properties_location, property_nodes)
 
     def _add_group_params(self, group_name_nodes, location):
@@ -188,6 +197,9 @@ class JmsResourcesDeployer(Deployer):
         if len(group_name_nodes) == 0:
             return
 
+        # use a copy of the dictionary to remove items as they are deleted
+        remaining_name_nodes = group_name_nodes.copy()
+
         parent_type, parent_name = self.get_location_type_and_name(location)
         template_path = self.alias_helper.get_wlst_subfolders_path(location)
         groups_location = LocationContext(location)
@@ -196,11 +208,20 @@ class JmsResourcesDeployer(Deployer):
         name_attribute = self.alias_helper.get_wlst_attribute_name(groups_location, SUB_DEPLOYMENT_NAME)
         mbean_type = self.alias_helper.get_wlst_mbean_type(groups_location)
 
+        for group_name in group_name_nodes:
+            if deployer_utils.is_delete_name(group_name):
+                group_nodes = group_name_nodes[group_name]
+                name = deployer_utils.get_delete_item_name(group_name)
+                sub_name = self._get_subdeployment_name(group_nodes, name)
+                self._delete_mapped_mbean(groups_location, groups_token, mbean_type, name_attribute, sub_name)
+                del remaining_name_nodes[group_name]
+
         # loop once to create and name any missing folders.
         folder_map = self._build_folder_map(groups_location, groups_token, name_attribute)
 
-        for group_name in group_name_nodes:
-            sub_deployment_name = self._get_subdeployment_name(group_name_nodes, group_name)
+        for group_name in remaining_name_nodes:
+            group_nodes = remaining_name_nodes[group_name]
+            sub_deployment_name = self._get_subdeployment_name(group_nodes, group_name)
             folder_name = dictionary_utils.get_element(folder_map, sub_deployment_name)
             if folder_name is None:
                 self.wlst_helper.cd(template_path)
@@ -210,8 +231,9 @@ class JmsResourcesDeployer(Deployer):
         # loop a second time to set attributes
         new_folder_map = self._build_folder_map(groups_location, groups_token, name_attribute)
 
-        for group_name in group_name_nodes:
-            sub_deployment_name = self._get_subdeployment_name(group_name_nodes, group_name)
+        for group_name in remaining_name_nodes:
+            group_nodes = remaining_name_nodes[group_name]
+            sub_deployment_name = self._get_subdeployment_name(group_nodes, group_name)
             is_add = sub_deployment_name not in folder_map
             log_helper.log_updating_named_folder(GROUP_PARAMS, group_name, parent_type, parent_name, is_add,
                                                  self._class_name, _method_name)
@@ -219,9 +241,41 @@ class JmsResourcesDeployer(Deployer):
             folder_name = dictionary_utils.get_element(new_folder_map, sub_deployment_name)
             groups_location.add_name_token(groups_token, folder_name)
             self.wlst_helper.cd(self.alias_helper.get_wlst_attributes_path(groups_location))
-
-            group_nodes = group_name_nodes[group_name]
             self.set_attributes(groups_location, group_nodes)
+
+    def _delete_mapped_mbean(self, folder_location, folder_token, mbean_type, name_attribute, name):
+        """
+        Delete the child MBean with an attribute value that matches the specified name.
+        This requires looping through the child MBeans for each deletion, since the MBean names change on delete.
+        :param folder_location: the WLST location for the folder with named sub-elements
+        :param folder_token: the folder token used to iterate through the MBean names
+        :param mbean_type: the MBean type of the sub-elements
+        :param name_attribute: the attribute for the name in each sub-element
+        :param name: the name of the sub-element to be deleted
+        """
+        _method_name = '_delete_mapped_mbean'
+
+        original_path = self.wlst_helper.get_pwd()
+        mapped_folder_name = None
+
+        folder_names = deployer_utils.get_existing_object_list(folder_location, self.alias_helper)
+        for folder_name in folder_names:
+            folder_location.add_name_token(folder_token, folder_name)
+            self.wlst_helper.cd(self.alias_helper.get_wlst_attributes_path(folder_location))
+            attribute_value = self.wlst_helper.get(name_attribute)
+            if attribute_value == name:
+                mapped_folder_name = folder_name
+                break
+
+        self.wlst_helper.cd(original_path)
+
+        if mapped_folder_name is None:
+            self.logger.warning('WLSDPLY-09109', mbean_type, name,
+                                class_name=self._class_name, method_name=_method_name)
+        else:
+            self.logger.info('WLSDPLY-09110', mbean_type, name,
+                             class_name=self._class_name, method_name=_method_name)
+            self.wlst_helper.delete(mapped_folder_name, mbean_type)
 
     def _build_folder_map(self, folder_location, folder_token, name_attribute):
         """
@@ -245,15 +299,14 @@ class JmsResourcesDeployer(Deployer):
         self.wlst_helper.cd(original_path)
         return folder_map
 
-    def _get_subdeployment_name(self, group_name_nodes, group_name):
+    def _get_subdeployment_name(self, group_nodes, group_name):
         """
         Returns the derived sub-deployment name for the specified group name.
         The sub-deployment name attribute is returned if specified, otherwise the group name is returned.
-        :param group_name_nodes: the group name nodes from the model
+        :param group_nodes: the group nodes from the model
         :param group_name: the group name being examined
         :return: the derived sub-deployment name
         """
-        group_nodes = group_name_nodes[group_name]
         sub_deployment_name = dictionary_utils.get_element(group_nodes, SUB_DEPLOYMENT_NAME)
         if sub_deployment_name is not None:
             return sub_deployment_name
