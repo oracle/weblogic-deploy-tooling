@@ -2,7 +2,7 @@
 
 ## Table of Contents
 - [Project Structure](#project-structure)
-- [Functional Areas](#functional-areas)
+- [Feature Implementation](#feature-implementation)
 - [Alias Definitions](#alias-definitions)
 - [Building WebLogic Deploy Tool](#building-weblogic-deploy-tool)
 
@@ -20,9 +20,9 @@ A single installer ZIP file is built under the `WLSDEPLOY_HOME/installer/target`
 
 There are detailed instructions for building the project [here](#building-weblogic-deploy-tool).
 
-## Functional Areas
+## Feature Implementation
 
-This section contains information about functional areas within the project.
+This section describes how specific features of WebLogic Deploy Tooling are implemented in the source code.
 
 ### Creator and Deployer Class Hierarchies
 
