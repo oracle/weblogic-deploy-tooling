@@ -8,13 +8,8 @@ import oracle.weblogic.deploy.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.logging.Handler;
 
 /**
  * Use this class to add custom handlers to the root WLSDEPLOY logger. The WLSDeployLoggingConfig
@@ -26,10 +21,10 @@ import java.util.Set;
  * WLSDEPLOY_LOG_HANDLERS_ENV_VARIABLE. The property in the logging.properties file takes precedence
  * over the environment variable.
  *
- * <p>This class will check each handler in the list to see if it has implemented the WLSDEPLOY_HANDLER_METHOD.
- * This method returns a handler's properties. Any property that already exists in the logging.properties
- * will be discarded - as logging.properties takes precedence. Any property that does not start with the handler
- * class name will be rejected. This class' ONLY purpose is to dynamically add a handler and/or its properties to the
+ * <p>This class will check each handler in the list to see if it has implemented the WLSDEPLOY_HANDLER_METHOD. This method
+ * returns a handler's properties. Any property that already exists in the logging.properties will be discarded -
+ * as logging.properties takes precedence. Any property that does not start with the handler class name will
+ * be rejected. This class' ONLY purpose is to dynamically add a handler and/or its properties to the
  * WLSDEPLOY root logger.
  *
  * <p>The WLSDEPLOY logger is instantiated by WLSDeployLoggingConfig (and thus, the handlers are
@@ -80,12 +75,25 @@ public class WLSDeployCustomizeLoggingConfig extends WLSDeployLoggingConfig {
     }
 
     private static Class<?> getHandlerClass(String handlerName) {
-        return LoggingUtils.getHandlerClass(handlerName);
+        String message = null;
+        Class<?> handler = null;
+        try {
+            handler = Class.forName(handlerName);
+            if (!Handler.class.isAssignableFrom(handler)) {
+                message = MessageFormat.format("Class {0} is not a Handler", handlerName);
+            }
+        } catch(ClassNotFoundException cnf) {
+            message = MessageFormat.format("Unable to find handler class {0} so skipping logging configuration",
+                    handlerName);
+        }
+        if (message != null) {
+            System.err.println(message);
+            System.exit(ERROR_EXIT_CODE);
+        }
+        return handler;
     }
 
     private static void addHandlerProperties(Properties logProps, Class<?> clazz) {
-        // Uncomment to debug the properties
-        // LoggingUtils.printLogProperties(logProps, "Before:  ");
         Properties props = null;
         // a forEach would be good here!
         String clazzName = clazz.getName();
@@ -117,8 +125,6 @@ public class WLSDeployCustomizeLoggingConfig extends WLSDeployLoggingConfig {
                 }
             }
         }
-        // Uncomment to debug the log properties
-        // LoggingUtils.printLogProperties(logProps, "After:  ");
     }
 
 }

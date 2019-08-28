@@ -7,6 +7,7 @@ package oracle.weblogic.deploy.logging;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -15,6 +16,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.MemoryHandler;
 
 import oracle.weblogic.deploy.util.WLSDeployContext;
+import oracle.weblogic.deploy.util.WLSDeployExit;
 import oracle.weblogic.deploy.util.WebLogicDeployToolingVersion;
 
 
@@ -109,16 +111,16 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
     }
 
     /**
-     * The WLSDeployLoggingConfig will call this method to add the SummaryHandler properties to the logging.properties
-     * files. If the logging.properties already contains the property, the property in this list will be ignored.
+     * The WLSDeployLoggingConfig will call this method to add to the logging.properties files.
+     * If the logging.properties already contains the property, the property in this list will be ignored.
      *
      * @return properties to set in logging.properties
      */
     public static Properties getHandlerProperties() {
         Properties properties = new Properties();
         properties.setProperty(LEVEL_PROPERTY, Level.INFO.getName());
-        properties.setProperty(TARGET_PROPERTY, WLSDeployLoggingConfig.getStdoutHandler());
-        properties.setProperty(FORMATTER_PROPERTY, WLSDeployConsoleFormatter.class.getName());
+        properties.setProperty(TARGET_PROPERTY, WLSDeployLoggingConsoleHandler.class.getName());
+        properties.setProperty(FORMATTER_PROPERTY, WLSDeployLogFormatter.class.getName());
         return properties;
     }
 
@@ -205,9 +207,7 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
                 super.publish(record);
             }
         }
-        public synchronized void push() {
-            super.push();
-        }
+
         int getTotalRecords() {
             return totalRecords;
         }
@@ -231,11 +231,18 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
         return handlerSize;
     }
 
-    private Handler getConsoleHandler() {
-        Handler handler = LoggingUtils.getHandlerInstance(WLSDeployLoggingConfig.getStdoutHandler());
-        handler.setFilter(null);
+    private ConsoleHandler getConsoleHandler() {
+        ConsoleHandler handler = null;
+        try {
+            handler = (ConsoleHandler) Class.forName(WLSDeployLoggingConfig.getConsoleHandler()).newInstance();
+        } catch (ClassNotFoundException | IllegalAccessException cne) {
+            System.out.println("Class not found " + WLSDeployLoggingConfig.getConsoleHandler());
+        } catch (InstantiationException ie) {
+            handler = new ConsoleHandler();
+        }
         return handler;
     }
+
 
     private LogRecord getLogRecord(String msg, Object... params) {
         LogRecord record = new LogRecord(Level.INFO, msg);
