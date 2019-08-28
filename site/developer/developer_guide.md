@@ -22,7 +22,7 @@ There are detailed instructions for building the project [here](#building-weblog
 
 ## Functional Areas
 
-This section contains information about the operation of functional areas within the project.
+This section contains information about functional areas within the project.
 
 ### Creator and Deployer Class Hierarchies
 
