@@ -6,6 +6,7 @@ package oracle.weblogic.deploy.integration;
 
 import oracle.weblogic.deploy.integration.utils.ExecCommand;
 import oracle.weblogic.deploy.integration.utils.ExecResult;
+import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,8 +56,8 @@ public class BaseTest {
         deployAppScript = getWDTScriptsHome() + FS + "deployApps.sh";
         encryptModelScript = getWDTScriptsHome() + FS + "encryptModel.sh";
         validateModelScript = getWDTScriptsHome() + FS + "validateModel.sh";
-        domainParent12213 = mwhome_12213 + FS + "user_projects" + FS + "domains";
-        fmwDomainParent12213 = fmwhome_12213 + FS + "user_projects" + FS + "domains";
+        domainParent12213 = mwhome_12213 + FS + "domains";
+        fmwDomainParent12213 = fmwhome_12213 + FS + "domains";
     }
 
     protected static void setup() throws Exception {
@@ -66,10 +67,18 @@ public class BaseTest {
         buildSampleArchive();
 
         // unzip weblogic-deploy-tooling/installer/target/weblogic-deploy.zip
-        //String cmd = "/bin/unzip -o " + getInstallerTargetDir() + FS + WDT_ZIPFILE;
         String cmd = "/bin/jar -xvf " + getInstallerTargetDir() + FS + WDT_ZIPFILE;
         executeNoVerify(cmd);
 
+        // create domain_parent directory if not existing
+        File domainParentDir = new File(domainParent12213);
+        File fmwDomainParentDir = new File(fmwDomainParent12213);
+        if(!domainParentDir.exists()) {
+            domainParentDir.mkdir();
+        }
+        if(!fmwDomainParentDir.exists()) {
+            fmwDomainParentDir.mkdir();
+        }
         chmodScriptFiles(createDomainScript, discoverDomainScript, updateDomainScript, deployAppScript,
                 encryptModelScript, validateModelScript);
 
@@ -81,6 +90,17 @@ public class BaseTest {
         // remove WDT script home directory
         String cmd = "/bin/rm -rf " + getProjectRoot() + FS + WDT_HOME_DIR;
         executeNoVerify(cmd);
+
+        // delete the domain directory created by the tests
+        File domainParentDir = new File(domainParent12213);
+        File fmwDomainParentDir = new File(fmwDomainParent12213);
+
+        if(domainParentDir.exists()) {
+            FileUtils.deleteDirectory(domainParentDir);
+        }
+        if(fmwDomainParentDir.exists()) {
+            FileUtils.deleteDirectory(fmwDomainParentDir);
+        }
     }
 
     protected static String getProjectRoot() {

@@ -6,14 +6,16 @@ package oracle.weblogic.deploy.integration;
 
 import oracle.weblogic.deploy.integration.utils.ExecCommand;
 import oracle.weblogic.deploy.integration.utils.ExecResult;
-import org.junit.*;
+import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
-
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+import org.junit.Test;
+import org.junit.Ignore;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.io.File;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ITWdt extends BaseTest {
@@ -41,7 +43,6 @@ public class ITWdt extends BaseTest {
         logger.info("cleaning up after the test ...");
         cleanup();
     }
-
 
     /**
      * test createDomain.sh with only -oracle_home argument
@@ -412,6 +413,7 @@ public class ITWdt extends BaseTest {
      * test discoverDomain.sh with -domain_type as JRF
      * @throws Exception - if any error occurs
      */
+    @Ignore
     @Test
     public void testHDiscoverDomainJRFDomainType() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -599,7 +601,7 @@ public class ITWdt extends BaseTest {
         Path source = Paths.get(clearPwdModelFile);
         Path dest = Paths.get(tmpModelFile);
         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-        
+
         String cmd = encryptModelScript + " -oracle_home " + mwhome_12213 + " -model_file " +
                 tmpModelFile + " < " + getResourcePath() + FS + "passphrase.txt";
         logger.info("executing command: " + cmd);
