@@ -53,6 +53,7 @@
     <modules>
         <module>core</module>
         <module>installer</module>
+        <module>system-test</module>
     </modules>
 
     <dependencyManagement>

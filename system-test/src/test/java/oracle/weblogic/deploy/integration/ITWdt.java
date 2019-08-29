@@ -581,7 +581,7 @@ public class ITWdt extends BaseTest {
                 getSampleModelFile("-invalid") + " -variable_file " + getSampleVariableFile();
         logger.info("Executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
-        verifyResult(result, "Errors: 2");
+        verifyErrorMsg(result, "completed with 2 error");
 
         logTestEnd(testMethodName);
     }
@@ -599,22 +599,9 @@ public class ITWdt extends BaseTest {
         Path source = Paths.get(clearPwdModelFile);
         Path dest = Paths.get(tmpModelFile);
         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-
-        // update encrypt model script
-        String encryptModelTemplate = getResourcePath() + FS + "encrypt-model-template.sh";
-        String tmpEncryptModelScript = System.getProperty("java.io.tmpdir") + FS + "encryptModel.sh";
-        source = Paths.get(encryptModelTemplate);
-        dest = Paths.get(tmpEncryptModelScript);
-        Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-
-        replaceStringInFile(tmpEncryptModelScript, "%ENCRYPT_MODEL_SCRIPT%", encryptModelScript);
-        replaceStringInFile(tmpEncryptModelScript, "%MW_HOME%", mwhome_12213);
-        replaceStringInFile(tmpEncryptModelScript, "%MODEL_FILE%", tmpModelFile);
-
-        File tmpEncryptModelScriptFile = new File(tmpEncryptModelScript);
-        tmpEncryptModelScriptFile.setExecutable(true, false);
-        String cmd = tmpEncryptModelScript;
-
+        
+        String cmd = encryptModelScript + " -oracle_home " + mwhome_12213 + " -model_file " +
+                tmpModelFile + " < " + getResourcePath() + FS + "passphrase.txt";
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
         verifyResult(result, "encryptModel.sh completed successfully");

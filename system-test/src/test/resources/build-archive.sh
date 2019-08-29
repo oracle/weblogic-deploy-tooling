@@ -7,6 +7,6 @@
 rm -Rf src/test/resources/archive
 mkdir -p src/test/resources/archive/wlsdeploy/applications
 cd ../samples/docker-domain/simple-app
-jar cvf ../../../core/src/test/resources/archive/wlsdeploy/applications/simple-app.war  *
-cd ../../../core/src/test/resources/archive
+jar cvf ../../../system-test/src/test/resources/archive/wlsdeploy/applications/simple-app.war  *
+cd ../../../system-test/src/test/resources/archive
 jar cvf ../archive.zip *

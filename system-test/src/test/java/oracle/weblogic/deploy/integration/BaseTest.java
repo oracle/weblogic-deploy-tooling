@@ -135,13 +135,12 @@ public class BaseTest {
 
     protected static void executeNoVerify(String command) throws Exception {
         logger.info("executing command: " + command);
-        ExecResult result = ExecCommand.exec(command);
-        logger.info("DEBUG: result.stderr=" + result.stderr());
-        logger.info("DEBUG: result.stdout=" + result.stdout());
+        ExecCommand.exec(command);
     }
 
     protected void verifyResult(ExecResult result, String matchString) throws Exception {
         if(result.exitValue() != 0 || !result.stdout().contains(matchString)) {
+            logger.info("DEBUG: result.exitValue=" + result.exitValue());
             logger.info("DEBUG: result.stdout=" + result.stdout());
             throw new Exception("result stdout does not contains the expected string: " + matchString);
         }
