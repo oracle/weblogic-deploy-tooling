@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 Module that handles command-line argument parsing and common validation.
 """
@@ -72,6 +72,8 @@ class CommandLineArgUtil(object):
     # a slot to stash the archive file object
     ARCHIVE_FILE               = 'archive_file'
 
+    MODEL_FILES_SEPARATOR = ','
+
     HELP_EXIT_CODE                 = 100
     USAGE_ERROR_EXIT_CODE          = 99
     ARG_VALIDATION_ERROR_EXIT_CODE = 98
@@ -85,6 +87,7 @@ class CommandLineArgUtil(object):
 
         self._required_args = list(required_args)
         self._optional_args = list(optional_args)
+        self._allow_multiple_models = False
 
         #
         # Add args that all tools should accept.
@@ -95,6 +98,14 @@ class CommandLineArgUtil(object):
         self._required_result = {}
         self._optional_result = {}
         return
+
+    def set_allow_multiple_models(self, allow_multiple_models):
+        """
+        This method determines if this instance allows multiple models to be specified for the MODEL_FILE_SWITCH
+        argument. By default, multiple models are not allowed.
+        :param allow_multiple_models: the flag indicating if multiple models are allowed
+        """
+        self._allow_multiple_models = allow_multiple_models
 
     def process_args(self, args, for_domain_create=False):
         """
@@ -655,14 +666,25 @@ class CommandLineArgUtil(object):
     def _validate_model_file_arg(self, value):
         method_name = '_validate_model_file_arg'
 
-        try:
-            model = JFileUtils.validateFileName(value)
-        except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01617', value, iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        return model.getAbsolutePath()
+        result_model_files = []  # type: list
+        if self._allow_multiple_models:
+            model_files = get_model_files(value)
+        else:
+            model_files = [value]
+
+        for model_file in model_files:
+            try:
+                model_file = JFileUtils.validateFileName(model_file)
+                model_file = model_file.getAbsolutePath()
+                result_model_files.append(model_file)
+            except JIllegalArgumentException, iae:
+                ex = exception_helper.create_cla_exception('WLSDPLY-01617', model_file, iae.getLocalizedMessage(),
+                                                           error=iae)
+                ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+                self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                raise ex
+
+        return ",".join(result_model_files)
 
     def get_previous_model_file_key(self):
         return self.PREVIOUS_MODEL_FILE_SWITCH
@@ -970,7 +992,6 @@ class CommandLineArgUtil(object):
             raise ex
         return variables.getAbsolutePath()
 
-
     ###########################################################################
     # Helper methods                                                          #
     ###########################################################################
@@ -997,3 +1018,17 @@ class CommandLineArgUtil(object):
         ex = exception_helper.create_cla_exception('WLSDPLY-01110', key, self._program_name)
         ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
         return ex
+
+
+###########################################################################
+# Static methods                                                          #
+###########################################################################
+
+def get_model_files(model_files_text):
+    """
+    Returns a list of model files from the comma-separated MODEL_FILE_SWITCH value.
+    Returns a list of one item if there is only one model in the value.
+    :param model_files_text: the value of the MODEL_FILE_SWITCH argument
+    :return: a list of model files
+    """
+    return model_files_text.split(CommandLineArgUtil.MODEL_FILES_SEPARATOR)

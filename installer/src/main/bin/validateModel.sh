@@ -2,8 +2,8 @@
 # *****************************************************************************
 # validateModel.sh
 #
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
-# The Universal Permissive License (UPL), Version 1.0
+# Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 #
 #     NAME
 #       validateModel.sh - WLS Deploy tool to validate artifacts and print usage
@@ -15,25 +15,25 @@
 # This script uses the following command-line arguments directly, the rest
 # of the arguments are passed down to the underlying python program:
 #
-#     - -oracle_home        The directory of the existing Oracle Home to use.
-#                           This directory must exist and it is the caller's
-#                           responsibility to verify that it does. This
-#                           argument is required.
+#     -oracle_home        The directory of the existing Oracle Home to use.
+#                         This directory must exist and it is the caller's
+#                         responsibility to verify that it does. This
+#                         argument is required.
 #
-#     - -domain_type        The type of domain to create. This argument is
-#                           is optional.  If not specified, it defaults to WLS.
+#     -domain_type        The type of domain to create. This argument is
+#                         is optional.  If not specified, it defaults to WLS.
 #
-#     - -wlst_path          The path to the Oracle Home product directory under
-#                           which to find the wlst.cmd script.  This is only
-#                           needed for pre-12.2.1 upper stack products like SOA.
+#     -wlst_path          The path to the Oracle Home product directory under
+#                         which to find the wlst script.  This is only
+#                         needed for pre-12.2.1 upper stack products like SOA.
 #
-#                           For example, for SOA 12.1.3, -wlst_path should be
-#                           specified as $ORACLE_HOME/soa
+#                         For example, for SOA 12.1.3, -wlst_path should be
+#                         specified as $ORACLE_HOME/soa
 #
 # This script uses the following variables:
 #
-# JAVA_HOME            - The location of the JDK to use.  The caller must set
-#                        this variable to a valid Java 7 (or later) JDK.
+# JAVA_HOME             - The location of the JDK to use.  The caller must set
+#                         this variable to a valid Java 7 (or later) JDK.
 #
 # WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
 #                         If the caller sets this, the callers location will be
@@ -69,9 +69,10 @@ usage() {
   echo "                          control switches are mutually exclusive."
   echo ""
   echo "        model_file      - the location of the model file to use if not using"
-  echo "                          the -print_usage functionality.  If not specified,"
-  echo "                          the tool will look for the model in the archive."
-  echo "                          If the model is not found, validation will only"
+  echo "                          the -print_usage functionality.  This can also be specified as a"
+  echo "                          comma-separated list of model locations, where each successive model layers"
+  echo "                          on top of the previous ones.  If not specified, the tool will look for the"
+  echo "                          model in the archive.  If the model is not found, validation will only"
   echo "                          validate the artifacts provided."
   echo ""
   echo "        variable_file   - the location of the property file containing"
@@ -109,7 +110,7 @@ umask 27
 
 WLSDEPLOY_PROGRAM_NAME="validateModel"; export WLSDEPLOY_PROGRAM_NAME
 
-if [ "${WLSDEPLOY_HOME}" = "" ]; then
+if [ -z "${WLSDEPLOY_HOME}" ]; then
     BASEDIR="$( cd "$( dirname $0 )" && pwd )"
     WLSDEPLOY_HOME=`cd "${BASEDIR}/.." ; pwd`
     export WLSDEPLOY_HOME
@@ -122,7 +123,7 @@ fi
 # Make sure that the JAVA_HOME environment variable is set to point to a
 # JDK 7 or higher JVM (and that it isn't OpenJDK).
 #
-if [ "${JAVA_HOME}" = "" ]; then
+if [ -z "${JAVA_HOME}" ]; then
   echo "Please set the JAVA_HOME environment variable to point to a Java 7 installation" >&2
   exit 2
 elif [ ! -d "${JAVA_HOME}" ]; then
@@ -158,7 +159,7 @@ fi
 #
 # Check to see if no args were given and print the usage message
 #
-if [[ $# = 0 ]]; then
+if [ "$#" -eq "0" ]; then
   usage `basename $0`
   exit 0
 fi
@@ -169,7 +170,7 @@ SCRIPT_ARGS="$*"
 # Find the args required to determine the WLST script to run
 #
 
-while [[ $# > 1 ]]; do
+while [ "$#" -gt "1" ]; do
     key="$1"
     case $key in
         -help)
@@ -206,7 +207,7 @@ fi
 # Check for values of required arguments for this script to continue.
 # The underlying WLST script has other required arguments.
 #
-if [ "${ORACLE_HOME}" = "" ]; then
+if [ -z "${ORACLE_HOME}" ]; then
     echo "Required argument -oracle_home not provided" >&2
     usage `basename $0`
     exit 99
@@ -218,7 +219,7 @@ fi
 #
 # If the WLST_PATH_DIR is specified, validate that it contains the wlst.cmd script
 #
-if [ "${WLST_PATH_DIR}" != "" ]; then
+if [ -n "${WLST_PATH_DIR}" ]; then
     if [ ! -d ${WLST_PATH_DIR} ]; then
         echo "Specified -wlst_path directory does not exist: ${WLST_PATH_DIR}" >&2
         exit 98
@@ -247,7 +248,7 @@ else
         CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
     fi
 
-    if [ "${WLST}" = "" ]; then
+    if [ -z "${WLST}" ]; then
         echo "Unable to determine WLS version in ${ORACLE_HOME} to determine WLST shell script to call" >&2
         exit 98
     fi
@@ -258,11 +259,11 @@ WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
 WLST_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS} ${WLST_PROPERTIES} ${WLSDEPLOY_PROPERTIES}"
 export WLST_PROPERTIES
 
-if [ "${WLSDEPLOY_LOG_PROPERTIES}" = "" ]; then
+if [ -z "${WLSDEPLOY_LOG_PROPERTIES}" ]; then
     WLSDEPLOY_LOG_PROPERTIES=${WLSDEPLOY_HOME}/etc/logging.properties; export WLSDEPLOY_LOG_PROPERTIES
 fi
 
-if [ "${WLSDEPLOY_LOG_DIRECTORY}" = "" ]; then
+if [ -z "${WLSDEPLOY_LOG_DIRECTORY}" ]; then
     WLSDEPLOY_LOG_DIRECTORY=${WLSDEPLOY_HOME}/logs; export WLSDEPLOY_LOG_DIRECTORY
 fi
 

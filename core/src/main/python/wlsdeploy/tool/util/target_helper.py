@@ -1,10 +1,10 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 
 import copy
-import oracle.weblogic.deploy.util.StringUtils as StringUtils
+
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 
@@ -16,7 +16,6 @@ from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
-from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import string_utils
@@ -100,7 +99,7 @@ class TargetHelper(object):
 
         self.logger.entering(server_groups_to_target, class_name=self.__class_name, method_name=_method_name)
         if len(server_groups_to_target) == 0:
-            return None, None
+            return list(), list()
 
         location = LocationContext()
         root_path = self.alias_helper.get_wlst_attributes_path(location)
@@ -140,32 +139,52 @@ class TargetHelper(object):
                           method_name=_method_name)
 
         final_assignment_map = dict()
-        if len(server_names) > 0:
+        dynamic_cluster_assigns = dict()
+        # Target servers and dynamic clusters to the server group resources
+        if len(server_names) > 0 or len(dynamic_cluster_names) > 0:
             for server, server_groups in server_to_server_groups_map.iteritems():
-                if server in server_names and len(server_groups) > 0:
-                    final_assignment_map[server] = server_groups
+                if len(server_groups) > 0:
+                    if server in server_names:
+                        final_assignment_map[server] = server_groups
+                    elif server in dynamic_cluster_names:
+                        dynamic_cluster_assigns[server] = server_groups
 
-        elif len(server_names) == 0 and len(dynamic_cluster_names) == 0:
-            #
-            # Domain has no managed servers and there were not targeting limits specified to target
-            # server groups to the admin server so make sure that the server groups are targeted to
-            # the admin server.
-            #
-            # This is really a best effort attempt.  It works for JRF domains but it is certainly possible
-            # that it may cause problems with other custom domain types.  Of course, creating a domain with
-            # no managed servers is not a primary use case of this tool so do it and hope for the best...
-            #
-            final_assignment_map[server_names[0]] = server_groups_to_target
+        #
+        # Domain has not targeted the server groups to managed servers (configured), or the
+        # domain has no managed servers (configured) but has user server groups. The resources for the
+        # user server groups must be targeted before the write/update domain or the write/update will fail.
+        # Thus assign the user server groups to the admin server.
+        #
+        # Because of the interaction of the working context in the different wlst helpers, the dynamic
+        # clusters will be applied to the resources separately and after the write/update domain.
+        #
+        # (From original blurb)
+        #  This is really a best effort attempt.  It works for JRF domains but it is certainly possible
+        # that it may cause problems with other custom domain types.  Of course, creating a domain with
+        # no managed servers is not a primary use case of this tool so do it and hope for the best...
+        #
+        # (New comment)
+        # As we have added the intricacies of the dynamic clusters, if the targeting is to dynamic
+        # clusters only, the set server groups with the admin server will get through the write/update domain
+        # and the applyJRF with the dynamic cluster should theoretically unset the AdminServer on the user server
+        # groups. It works with JRF type domains.
 
-        # Target any dynamic clusters to the server group resources
-        dynamic_cluster_assigns = None
-        if len(dynamic_cluster_names) > 0:
-            dynamic_cluster_assigns = dict()
-            for name in dynamic_cluster_names:
-                if name in server_to_server_groups_map:
-                    dynamic_cluster_assigns[name] = server_to_server_groups_map[name]
+        if len(server_groups_to_target) > 0:
+            if len(final_assignment_map) == 0:
+                # This is a quickie to fix the issue where server groups are not targeted because no configured
+                #  managed servers exist in the domain
+                final_assignment_map[server_names[0]] = server_groups_to_target
+            else:
+                # If a server group or groups is not targeted in the assignments, log it to stdout
+                no_targets = [server_target for server_target in server_groups_to_target if server_target not in
+                              [server_target for row in final_assignment_map.itervalues() for
+                               server_target in server_groups_to_target if server_target in row]]
+                if len(no_targets) > 0:
+                    self.logger.info('WLSDPLY-12248', no_targets,
+                                     class_name=self.__class_name, method_name=_method_name)
 
-        self.logger.exiting(result=str(dynamic_cluster_assigns), class_name=self.__class_name, method_name=_method_name)
+        self.logger.exiting(result=str(dynamic_cluster_assigns),
+                            class_name=self.__class_name, method_name=_method_name)
         return final_assignment_map, dynamic_cluster_assigns
 
     def target_server_groups(self, server_assigns):
@@ -200,15 +219,14 @@ class TargetHelper(object):
         domain_typedef = self.model_context.get_domain_typedef()
 
         if len(dynamic_cluster_assigns) > 0:
+            self.logger.info('WLSDPLY-12247', class_name=self.__class_name, method_name=_method_name)
             # TBD assign server group resources to cluster. The JRF resources could still be applied separately
             # using this technique - or remove this technique and replace with the resource targeting
             if domain_typedef.has_jrf_resources():
                 self._target_jrf_resources(dynamic_cluster_assigns)
             else:
-                ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12238',
-                                                       domain_typedef.get_domain_type())
-                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
+                self.logger.warning('WLSDPLY-12238', domain_typedef.get_domain_type(),
+                                    class_name=self.__class_name, method_name=_method_name)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -357,7 +375,7 @@ class TargetHelper(object):
                     if DYNAMIC_SERVERS in cluster_members:
                         # This will need special handling to target server group resources
                         cluster_members.remove(DYNAMIC_SERVERS)
-                        cluster_members.add(target_name)
+                        cluster_members.append(target_name)
                     new_list.extend(cluster_members)
                 else:
                     # Assume it is a server name and add it to the new list
@@ -385,26 +403,45 @@ class TargetHelper(object):
         self.logger.entering(admin_server_name, str(server_names), str(server_groups), str(sg_targeting_limits),
                              class_name=self.__class_name, method_name=_method_name)
         result = OrderedDict()
+        revised_server_groups = self._revised_list_server_groups(server_groups, sg_targeting_limits)
         for server_name in server_names:
             server_groups_for_server = self.__get_server_groups_for_entity(server_name, sg_targeting_limits)
-            if server_groups_for_server is not None:
+            if len(server_groups_for_server) > 0:
                 result[server_name] = server_groups_for_server
             elif server_name != admin_server_name:
                 # By default, we only target managed servers unless explicitly listed in the targeting limits
-                result[server_name] = list(server_groups)
+                result[server_name] = list(revised_server_groups)
             else:
                 result[admin_server_name] = list()
         for cluster_name in dynamic_cluster_names:
-            server_groups_for_cluster = self.__get_server_groups_for_entity(cluster_name, sg_targeting_limits)
-            if server_groups_for_cluster is not None:
+            server_groups_for_cluster = \
+                self.__get_server_groups_for_entity(cluster_name, sg_targeting_limits)
+            if len(server_groups_for_cluster) > 0:
                 result[cluster_name] = server_groups_for_cluster
             else:
-                result[cluster_name] = list(server_groups)
+                result[cluster_name] = list(revised_server_groups)
             self.logger.finer('WLSDPLY-12239', result[cluster_name], cluster_name,
                               class_name=self.__class_name, method_name=_method_name)
         if admin_server_name not in result:
             result[admin_server_name] = list()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def _revised_list_server_groups(self, server_groups, sg_targeting_limits):
+        """
+        Remove all server groups that are explicitly targeted to a cluster, server set or stand-alone
+        managed server.
+        :param server_groups: list of server groups applied by the extension templates
+        :param sg_targeting_limits: list of targeting from the domainInfo section
+        :return: server group list with the specific targeted server groups removed
+        """
+        _method_name = '_revised_list_server_groups'
+        self.logger.entering(sg_targeting_limits, class_name=self.__class_name, method_name=_method_name)
+        result = list()
+        targeted_server_groups = sg_targeting_limits.keys()
+        for server_group in server_groups:
+            if server_group not in targeted_server_groups:
+                result.append(server_group)
         return result
 
     def __get_server_groups_for_entity(self, entity_name, sg_targeting_limits):
@@ -416,14 +453,11 @@ class TargetHelper(object):
                  if the entity name does not appear in the targeting limits
         """
         _method_name = '__get_server_groups_for_entity'
-
-        result = None
+        result = list()
         for server_group, entity_names_list in sg_targeting_limits.iteritems():
             if entity_name in entity_names_list:
-                if result is None:
-                    result = list()
                 result.append(server_group)
-        if result is not None:
+        if len(result) > 0:
             self.logger.fine('WLSDPLY-12243', entity_name, result, class_name=self.__class_name,
                              method_name=_method_name)
         return result

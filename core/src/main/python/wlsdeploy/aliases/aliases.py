@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 from java.lang import String
 
@@ -46,6 +46,7 @@ from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import USES_PATH_TOKENS
 from wlsdeploy.aliases.alias_constants import VALUE
 from wlsdeploy.aliases.alias_constants import WLST_NAME
+from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 
@@ -1129,6 +1130,40 @@ class Aliases(object):
         :return: list of ignored attribute
         """
         return self._alias_entries.IGNORE_FOR_MODEL_LIST
+
+    def get_preferred_model_type(self, location, model_attribute_name):
+        """
+        Return the preferred model type, if present, for the alias attribute definition.
+        :param location: current location context
+        :param model_attribute_name: name of the attribute to look up in model representation
+        :return: alias attribute preferred model type or None if not present or attribute not found
+        """
+        _method_name = 'get_preferred_model_type'
+        self._logger.entering(str(location), model_attribute_name,
+                              class_name=self._class_name, method_name=_method_name)
+        result = None
+        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
+        if attribute_info is not None and PREFERRED_MODEL_TYPE in attribute_info:
+            result = attribute_info[PREFERRED_MODEL_TYPE]
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+    def get_wlst_read_type(self, location, model_attribute_name):
+        """
+        Return the aliases attribute WLST_READ_TYPE, which overrides the WLST_TYPE when retrieving the attribute value.
+        :param location: The context for the current location in WLST
+        :param model_attribute_name: the model name for the WLST attribute
+        :return: WLST_READ_TYPE or None if not defined for the attribute in the alias definitions
+        """
+        _method_name = 'get_wlst_read_type'
+        self._logger.entering(str(location), model_attribute_name,
+                              class_name=self._class_name, method_name=_method_name)
+        result = None
+        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
+        if attribute_info is not None and WLST_READ_TYPE in attribute_info:
+            result = attribute_info[WLST_READ_TYPE]
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
 
     def decrypt_password(self, text):
         """

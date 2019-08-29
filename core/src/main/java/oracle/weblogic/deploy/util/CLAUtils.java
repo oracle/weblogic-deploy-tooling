@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
- * The Universal Permissive License (UPL), Version 1.0
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Arrays;
 
 import oracle.weblogic.deploy.exception.ExceptionHelper;
@@ -65,9 +65,7 @@ public final class CLAUtils {
         if (System.console() != null) {
             result = System.console().readPassword();
         } else {
-            try (BufferedReader stdinReader = new BufferedReader(new InputStreamReader(System.in, UTF_8))){
-                result = readPasswordFromStdin(stdinReader);
-            }
+            result = readPasswordFromStdin(System.in);
         }
         return result;
     }
@@ -76,7 +74,7 @@ public final class CLAUtils {
         System.out.print(ExceptionHelper.getMessage(messageKey, args) + PROMPT_ENDING);
     }
 
-    private static char[] readPasswordFromStdin(Reader stdinReader) throws IOException {
+    private static char[] readPasswordFromStdin(InputStream stdinReader) throws IOException {
         char[] result = new char[MAX_PASSWORD_LENGTH];
 
         boolean eolFound = false;

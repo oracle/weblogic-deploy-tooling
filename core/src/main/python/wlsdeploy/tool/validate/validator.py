@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 import os
 import copy
@@ -16,6 +16,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
@@ -32,6 +33,7 @@ from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
 from wlsdeploy.aliases.model_constants import TOPOLOGY
+from wlsdeploy.aliases.model_constants import WLS_ROLES
 
 _class_name = 'Validator'
 _logger = PlatformLogger('wlsdeploy.validate')
@@ -210,6 +212,17 @@ class Validator(object):
     #
     ####################################################################################
 
+    def __get_attribute_log_value(self, attribute_name, attribute_value, attribute_infos):
+        """
+        Get the log output for an attribute value to protect sensitive data
+        """
+        result = attribute_value
+        if attribute_name in attribute_infos:
+            expected_data_type = dictionary_utils.get_element(attribute_infos, attribute_name)
+            if expected_data_type == 'password':
+                result = '<masked>'
+        return result
+
     def __validate_model_file(self, model_dict, variables_file_name, archive_file_name):
         _method_name = '__validate_model_file'
 
@@ -387,7 +400,8 @@ class Validator(object):
             if '${' in section_dict_key:
                 validation_result.add_error('WLSDPLY-05035', model_folder_path, section_dict_key)
 
-            self._logger.finer('WLSDPLY-05011', section_dict_key, section_dict_value,
+            log_value = self.__get_attribute_log_value(section_dict_key, section_dict_value, valid_attr_infos)
+            self._logger.finer('WLSDPLY-05011', section_dict_key, log_value,
                                class_name=_class_name, method_name=_method_name)
 
             if section_dict_key in valid_attr_infos:
@@ -405,6 +419,14 @@ class Validator(object):
                                                                                       model_folder_path,
                                                                                       validation_location,
                                                                                       validation_result)
+                elif section_dict_key == WLS_ROLES:
+                    validation_result = self.__validate_wlsroles_section(section_dict_key,
+                                                                         section_dict_value,
+                                                                         valid_attr_infos,
+                                                                         path_tokens_attr_keys,
+                                                                         model_folder_path,
+                                                                         validation_location,
+                                                                         validation_result)
                 else:
                     validation_result = self.__validate_attribute(section_dict_key,
                                                                   section_dict_value,
@@ -740,11 +762,7 @@ class Validator(object):
                              model_folder_path, validation_location, validation_result):
         _method_name = '__validate_attribute'
 
-        log_value = attribute_value
-        expected_data_type = dictionary_utils.get_element(valid_attr_infos, attribute_name)
-        if expected_data_type == 'password':
-            log_value = '<masked>'
-
+        log_value = self.__get_attribute_log_value(attribute_name, attribute_value, valid_attr_infos)
         self._logger.entering(attribute_name, log_value, str(valid_attr_infos), str(path_tokens_attr_keys),
                               model_folder_path, str(validation_location),
                               class_name=_class_name, method_name=_method_name)
@@ -976,6 +994,27 @@ class Validator(object):
                                                                               validation_result)
                     else:
                         validation_result.add_error('WLSDPLY-05034', key, model_folder_path, str(type(value)))
+
+        self._logger.exiting(class_name=_class_name, method_name=__method_name)
+        return validation_result
+
+    def __validate_wlsroles_section(self, attribute_name, attribute_value, valid_attr_infos, path_tokens_attr_keys,
+                                    model_folder_path, validation_location, validation_result):
+        __method_name = '__validate_wlsroles_section'
+        self._logger.entering(class_name=_class_name, method_name=__method_name)
+
+        # Validate the basics of the WLSRoles section definition
+        validation_result = self.__validate_attribute(attribute_name,
+                                                      attribute_value,
+                                                      valid_attr_infos,
+                                                      path_tokens_attr_keys,
+                                                      model_folder_path,
+                                                      validation_location,
+                                                      validation_result)
+
+        # Validate WebLogic role content using WLSRoles helper
+        wlsroles_validator = wlsroles_helper.validator(attribute_value, self._logger)
+        validation_result = wlsroles_validator.validate_roles(validation_result)
 
         self._logger.exiting(class_name=_class_name, method_name=__method_name)
         return validation_result

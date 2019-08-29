@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 These constants are internal to the aliases module and should not be used, as they are not part of the public API.
 """
@@ -82,6 +82,7 @@ PROPERTIES = 'properties'
 SEMI_COLON_DELIMITED_STRING = 'delimited_string[semicolon]'
 SPACE_DELIMITED_STRING = 'delimited_string[space]'
 STRING = 'string'
+MASKED = '<masked>'
 
 ALIAS_DELIMITED_TYPES = [
     COMMA_DELIMITED_STRING,
@@ -102,6 +103,11 @@ ALIAS_LIST_TYPES = [
 ]
 ALIAS_MAP_TYPES = [PROPERTIES, DICTIONARY]
 
+ALIAS_BOOLEAN_TYPES = [
+    BOOLEAN,
+    JAVA_LANG_BOOLEAN
+]
+
 ALIAS_PRIMITIVE_DATA_TYPES = [
     BOOLEAN,
     CREDENTIAL,
@@ -111,6 +117,12 @@ ALIAS_PRIMITIVE_DATA_TYPES = [
     LONG,
     PASSWORD,
     STRING
+]
+
+ALIAS_NUMERIC_DATA_TYPES = [
+    DOUBLE,
+    INTEGER,
+    LONG
 ]
 
 ALIAS_DATA_TYPES = list()

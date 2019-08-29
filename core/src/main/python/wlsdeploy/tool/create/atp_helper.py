@@ -1,21 +1,16 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 
 """
 
-import os, re
-
-from xml.dom.minidom import parse
-
+import os
+import re
 from java.io import File
-from java.io import FileInputStream
-from java.io import FileOutputStream
-from java.util.zip import ZipInputStream
-import jarray
-
+from oracle.weblogic.deploy.util import FileUtils
 from wlsdeploy.aliases import model_constants
+from xml.dom.minidom import parse
 
 
 def set_ssl_properties(xmlDoc, atp_creds_path, keystore_password, truststore_password):
@@ -60,34 +55,6 @@ def set_property(DOMTree, prop, name, value):
     prop.appendChild(property)
     newline = DOMTree.createTextNode('\n')
     prop.appendChild(newline)
-
-
-def unzip_atp_wallet(wallet_file, location):
-
-    if not os.path.exists(location):
-        os.mkdir(location)
-
-    buffer = jarray.zeros(1024, "b")
-    fis = FileInputStream(wallet_file)
-    zis = ZipInputStream(fis)
-    ze = zis.getNextEntry()
-    while ze:
-        fileName = ze.getName()
-        newFile = File(location + File.separator + fileName)
-        File(newFile.getParent()).mkdirs()
-        fos = FileOutputStream(newFile)
-        len = zis.read(buffer)
-        while len > 0:
-            fos.write(buffer, 0, len)
-            len = zis.read(buffer)
-
-        fos.close()
-        zis.closeEntry()
-        ze = zis.getNextEntry()
-    zis.closeEntry()
-    zis.close()
-    fis.close()
-
 
 def fix_jps_config(rcu_db_info, model_context):
     tns_admin = rcu_db_info.get_atp_tns_admin()
@@ -162,8 +129,6 @@ def extract_walletzip(model, model_context, archive_file, atp_zipentry):
     extract_path = domain_path +  os.sep + 'atpwallet'
     extract_dir = File(extract_path)
     extract_dir.mkdirs()
-    wallet_zip = archive_file.extractFile(atp_zipentry, File(domain_path))
-    unzip_atp_wallet(wallet_zip, extract_path)
-    os.remove(wallet_zip)
+    FileUtils.extractZipFileContent(archive_file, atp_zipentry, extract_path)
     return extract_path
     # update the model to add the tns_admin

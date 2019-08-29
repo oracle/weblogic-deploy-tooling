@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 import copy
 import javaos as os
@@ -16,7 +16,6 @@ from sets import Set
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ABSOLUTE_SOURCE_PATH
 from wlsdeploy.aliases.model_constants import APPLICATION
-from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import DEPLOYMENT_ORDER
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import PARTITION
@@ -215,6 +214,8 @@ class ApplicationsDeployer(Deployer):
         existing_libs = existing_lib_refs.keys()
         existing_apps = existing_app_refs.keys()
 
+        # stop the app if the referenced shared library is newer or
+        # if the source path changes
         stop_app_list = list()
         stop_and_undeploy_app_list = list()
         update_library_list = list()
@@ -372,7 +373,8 @@ class ApplicationsDeployer(Deployer):
 
         self.wlst_helper.server_config()
         self.wlst_helper.cd(wlst_list_path)
-        apps = self.wlst_helper.get_existing_object_list(APP_DEPLOYMENTS)
+        apps = self.wlst_helper.get_existing_object_list()
+
         self.wlst_helper.domain_runtime()
         #
         # Cannot use ApplicationRuntime since it includes datasources as ApplicationRuntimes
@@ -388,7 +390,24 @@ class ApplicationsDeployer(Deployer):
                 attributes_map = self.wlst_helper.lsa()
                 absolute_sourcepath = attributes_map['AbsoluteSourcePath']
                 absolute_planpath = attributes_map['AbsolutePlanPath']
+
+                # There are case in application where absolute source path is not set but sourepath is
+                # if source path is not absolute then we need to add the domain path
+
+                if absolute_planpath is None:
+                    absolute_planpath = attributes_map['PlanPath']
+
+                if absolute_planpath is not None and not os.path.isabs(absolute_planpath):
+                    absolute_planpath = self.model_context.get_domain_home() + '/' + absolute_planpath
+
+                if absolute_sourcepath is None:
+                    absolute_sourcepath = attributes_map['SourcePath']
+
+                if absolute_sourcepath is not None and not os.path.isabs(absolute_sourcepath):
+                    absolute_sourcepath = self.model_context.get_domain_home() + '/' + absolute_sourcepath
+
                 deployment_order = attributes_map['DeploymentOrder']
+
                 app_hash = self.__get_file_hash(absolute_sourcepath)
                 if absolute_planpath is not None:
                     plan_hash = self.__get_file_hash(absolute_planpath)
@@ -436,8 +455,16 @@ class ApplicationsDeployer(Deployer):
                 config_attributes = self.wlst_helper.lsa()
                 config_targets = self.__get_config_targets()
 
-                # TODO(jshum) - Why does the deployment plan not get considered?
+                # There are case in application where absolute source path is not set but sourepath is
+                # if source path is not absolute then we need to add the domain path
+
                 absolute_source_path = config_attributes[ABSOLUTE_SOURCE_PATH]
+                if absolute_source_path is None:
+                    absolute_source_path = config_attributes['SourcePath']
+
+                if absolute_source_path is not None and not os.path.isabs(absolute_source_path):
+                    absolute_source_path = self.model_context.get_domain_home() + '/' + absolute_source_path
+
                 deployment_order = config_attributes[DEPLOYMENT_ORDER]
                 lib_hash = self.__get_file_hash(absolute_source_path)
 
@@ -569,6 +596,8 @@ class ApplicationsDeployer(Deployer):
         _method_name = '__get_file_hash'
 
         try:
+            if filename is None:
+                return None
             hash_value = FileUtils.computeHash(filename)
         except (IOException, NoSuchAlgorithmException), e:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09309', filename, e.getLocalizedMessage(), error=e)
@@ -632,6 +661,10 @@ class ApplicationsDeployer(Deployer):
         progress = self.wlst_helper.stop_application(application_name, partition=partition_name, timeout=timeout)
         while progress.isRunning():
             continue
+        if progress.isFailed():
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09327', application_name, progress.getMessage())
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
         return
 
     def __start_app(self, application_name, partition_name=None):

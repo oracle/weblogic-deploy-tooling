@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 
 from oracle.weblogic.deploy.util import WLSDeployArchive
@@ -10,10 +10,10 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util import dictionary_utils
+from wlsdeploy.tool.create.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
-from wlsdeploy.tool.util.custom_folder_helper import CustomFolderHelper
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -71,6 +71,9 @@ class Creator(object):
         existing_folder_names = self._get_existing_folders(list_path)
         for model_name in model_nodes:
             name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
+            if deployer_utils.is_delete_name(name):
+                deployer_utils.delete_named_element(location, name, existing_folder_names, self.alias_helper)
+                continue
 
             if token_name is not None:
                 location.add_name_token(token_name, name)

@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.",
     "license": "The Universal Permissive License (UPL), Version 1.0",
     "wlst_type": "MessagingBridge${:s}",
     "child_folders_type": "multiple",
@@ -12,6 +12,7 @@
         "DistributionPolicy":                  [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "DistributionPolicy",                  "wlst_path": "WP001", "value": {"default": "${None:Distributed}"   },  "wlst_type": "string",          "restart_required": "true" } ],
         "DurabilityEnabled":                   [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "DurabilityEnabled",                   "wlst_path": "WP001", "value": {"default": "true"                  },  "wlst_type": "boolean",         "restart_required": "true" } ],
         "FailbackDelaySeconds":                [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "FailbackDelaySeconds",                "wlst_path": "WP001", "value": {"default": -1                      },  "wlst_type": "long"             } ],
+        "FailOverLimit":                       [ {"version": "[12.2.1.4,)",       "wlst_mode": "both",    "wlst_name": "FailOverLimit",                       "wlst_path": "WP001", "value": {"default": -1                      },  "wlst_type": "integer"          } ],
         "IdleTimeMaximum":                     [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "IdleTimeMaximum",                     "wlst_path": "WP001", "value": {"default": 60                      },  "wlst_type": "integer"          } ],
         "InitialBootDelaySeconds":             [ {"version": "[12.2.1,12.2.1.1)", "wlst_mode": "both",    "wlst_name": "InitialBootDelaySeconds",             "wlst_path": "WP001", "value": {"default": -1                      },  "wlst_type": "long"             } ,
                                                  {"version": "[12.2.1.1,)",       "wlst_mode": "both",    "wlst_name": "InitialBootDelaySeconds",             "wlst_path": "WP001", "value": {"default": 60                      },  "wlst_type": "long"             } ],
