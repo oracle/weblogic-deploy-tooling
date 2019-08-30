@@ -15,8 +15,13 @@ _ATTR_MISMATCH_MSG = '*** ATTRIBUTE MISMATCH: Attribute %s in location %s should
 
 class AttributesTestCase(unittest.TestCase):
     """
-       1) Unit tests must be a class that extends unittest.TestCase
-       2) Class methods with names starting with 'test' will be executed by the framework (all others skipped)
+    This test verifies that the each alias folder name and attribute name matches the value of its 'wlst_type'
+    field for 12.2.1.3 offline WLST.
+
+    This test only verifies internal consistency of the alias map, not against the WLST instance.
+
+    Folders and attributes added after 12.2.1.3 do not adhere to this rule, and are not verified here. The
+    Developer Guide clarifies that they should match the WLST name for the WLS release in which they were added.
     """
     wls_version = '12.2.1.3'
 
@@ -37,6 +42,11 @@ class AttributesTestCase(unittest.TestCase):
     #
     def _check_folder(self, name, location, aliases):
         wlst_name = aliases.get_wlst_mbean_type(location)
+
+        if wlst_name is None:
+            # folders added since 12.2.1.3 are not in the alias structure.
+            # they do not follow the name matching rule, so it is OK to skip them here.
+            return
 
         if not self._is_filtered_folder(name, location) and wlst_name != name:
             message = self._format(_FOLDER_MISMATCH_MSG, name, location.get_folder_path(), wlst_name)
@@ -64,7 +74,6 @@ class AttributesTestCase(unittest.TestCase):
     #
     def _is_filtered_folder(self, name, location):
         result = False
-
 
         if name == 'Domain':
             result = True

@@ -1343,6 +1343,7 @@
                 },
                 "WebServiceResiliency": {
                     "wlst_type": "WebServiceResiliency",
+                    "version": "[12.2.1.4,)",
                     "folders": {},
                     "attributes": {
                         "Notes":                            [ {"version": "[12.2.1.4,)",     "wlst_mode": "both", "wlst_name": "Notes",                "wlst_path": "WP001", "value": {"default": "None"       }, "wlst_type": "string"    } ],
