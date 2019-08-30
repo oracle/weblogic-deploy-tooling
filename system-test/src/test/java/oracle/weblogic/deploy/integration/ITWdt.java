@@ -283,7 +283,7 @@ public class ITWdt extends BaseTest {
         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
         String host = System.getenv("HOST");
         if (host == null) {
-            throw new Exception("There is no HOST environment variable defined");
+            host = "localhost";
         }
         replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
 
