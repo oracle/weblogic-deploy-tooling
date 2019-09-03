@@ -1224,6 +1224,8 @@
         },
         "WebService": {
             "wlst_type": "WebService",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {
                 "WebServiceReliability": {
@@ -1242,7 +1244,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceReliability/${NO_NAME_0:%SERVERTEMPLATE%}"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/%SERVERTEMPLATE_WEBSERVICE%/WebServiceReliability/${NO_NAME_0:%SERVERTEMPLATE%}"
                     }
                 },
                 "WebServicePersistence": {
@@ -1265,7 +1267,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServicePersistence/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceLogicalStore${:s}/%STORE%"
+                                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/%SERVERTEMPLATE_WEBSERVICE%/WebServicePersistence/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceLogicalStore${:s}/%STORE%"
                             }
                         },
                         "WebServicePhysicalStore": {
@@ -1282,7 +1284,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServicePersistence/${NO_NAME_0:%SERVERTEMPLATE%}/WebServicePhysicalStore${:s}/%STORE%"
+                                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/%SERVERTEMPLATE_WEBSERVICE%/WebServicePersistence/${NO_NAME_0:%SERVERTEMPLATE%}/WebServicePhysicalStore${:s}/%STORE%"
                             }
                         }
                     },
@@ -1292,7 +1294,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServicePersistence/${NO_NAME_0:%SERVERTEMPLATE%}"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/%SERVERTEMPLATE_WEBSERVICE%/WebServicePersistence/${NO_NAME_0:%SERVERTEMPLATE%}"
                     }
                 },
                 "WebServiceBuffering": {
@@ -1311,7 +1313,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceBuffering/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceRequestBufferingQueue/${NO_NAME_0:%SERVERTEMPLATE%}"
+                                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/%SERVERTEMPLATE_WEBSERVICE%/WebServiceBuffering/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceRequestBufferingQueue/${NO_NAME_0:%SERVERTEMPLATE%}"
                             }
                         },
                         "WebServiceResponseBufferingQueue": {
@@ -1326,7 +1328,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceBuffering/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceResponseBufferingQueue/${NO_NAME_0:%SERVERTEMPLATE%}"
+                                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/%SERVERTEMPLATE_WEBSERVICE%/WebServiceBuffering/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceResponseBufferingQueue/${NO_NAME_0:%SERVERTEMPLATE%}"
                             }
                         }
                     },
@@ -1338,11 +1340,13 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceBuffering/${NO_NAME_0:%SERVERTEMPLATE%}"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/%SERVERTEMPLATE_WEBSERVICE%/WebServiceBuffering/${NO_NAME_0:%SERVERTEMPLATE%}"
                     }
                 },
                 "WebServiceResiliency": {
                     "wlst_type": "WebServiceResiliency",
+                    "child_folders_type": "single_unpredictable",
+                    "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
                     "version": "[12.2.1.4,)",
                     "folders": {},
                     "attributes": {
@@ -1352,7 +1356,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceResiliency/${NO_NAME_0:%SERVERTEMPLATE%}"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/%SERVERTEMPLATE_WEBSERVICE%/WebServiceResiliency/%SERVERTEMPLATE_WEBSERVICERESILIENCY%"
                     }
                 }
             },
@@ -1366,7 +1370,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}"
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/%SERVERTEMPLATE_WEBSERVICE%"
             }
         }
     },
