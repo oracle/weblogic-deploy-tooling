@@ -1352,7 +1352,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Server${:s}/%SERVER%/WebService/${NO_NAME_0:%SERVER%}/WebServiceResiliency/${NO_NAME_0:%SERVER%}"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebService/${NO_NAME_0:%SERVERTEMPLATE%}/WebServiceResiliency/${NO_NAME_0:%SERVERTEMPLATE%}"
                     }
                 }
             },
