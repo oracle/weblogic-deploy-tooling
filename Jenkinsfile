@@ -19,13 +19,13 @@ pipeline {
         }
         stage ('Build') {
             steps {
-                sh pwd
+                sh 'pwd'
                 sh 'mvn -B -DskipTests -Dunit-test-wlst-dir=${WLST_DIR} clean package'
             }
         }
         stage ('Test') {
             steps {
-                sh pwd
+                sh 'pwd'
                 sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR}  test'
             }
             post {
