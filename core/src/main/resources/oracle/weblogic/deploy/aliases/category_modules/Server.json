@@ -195,6 +195,8 @@
         },
         "JTAMigratableTarget": {
             "wlst_type": "JTAMigratableTarget",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {},
             "attributes": {
                 "AdditionalMigrationAttempts":  [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "AdditionalMigrationAttempts",  "wlst_path": "WP001", "value": {"default": 2       }, "wlst_type": "integer"  } ],
@@ -221,7 +223,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/JTAMigratableTarget/${NO_NAME_0:%SERVER%}"
+                "WP001": "/Server${:s}/%SERVER%/JTAMigratableTarget/%JTAMIGRATABLETARGET%"
             }
         },
         "Log": {
