@@ -21,6 +21,17 @@ pipeline {
             steps {
                 sh 'mvn -B -DskipTests -Dunit-test-wlst-dir=${ORACLE_HOME}/oracle_common/common/bin clean package'
             }
+            stage ('Test') {
+                steps {
+                    sh 'mvn -Dunit-test-wlst-dir=${ORACLE_HOME}/oracle_common/common/bin  test'
+                }
+                post {
+                    always {
+                        junit 'imagetool/target/surefire-reports/*.xml'
+                    }
+                }
+            }
         }
+
     }
 }
