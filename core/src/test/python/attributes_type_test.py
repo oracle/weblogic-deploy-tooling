@@ -12,15 +12,16 @@ from wlsdeploy.util.model_context import ModelContext
 
 class AttributesTypeTestCase(unittest.TestCase):
     """
-       1) Unit tests must be a class that extends unittest.TestCase
-       2) Class methods with names starting with 'test' will be executed by the framework (all others skipped)
+    This test verifies that the every alias attribute that has the model type "delimited_string" returns a
+    comma-delimited string for method get_model_attribute_name_and_value.  The model should always use
+    comma-delimited values, except for the special case of delimited_string[space], which has special handling.
+
+    This test currently only verifies attributes for the 12.2.1.3 offline alias structure.  Values that are
+    obsolete in 12.2.1.3, or were created since 12.2.1.3 are not included.
     """
     wls_version = '12.2.1.3'
 
     def testDelimitedAttributes(self):
-        # This test ensures that delimited attributes are always comma-delimited for the model.
-        # Space-delimited attributes are allowed to bypass this rule.
-
         model_context = ModelContext("test", {})
         aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE, wls_version=self.wls_version)
 
@@ -33,6 +34,12 @@ class AttributesTypeTestCase(unittest.TestCase):
             self._check_folder(location, aliases)
 
     def _check_folder(self, location, aliases):
+        wlst_name = aliases.get_wlst_mbean_type(location)
+        if wlst_name is None:
+            # folders added since 12.2.1.3 are not in the alias structure.
+            # this test does not validate attributes in those folders.
+            return
+
         test_value = ['one', 'two']
         expected_value = ','.join(test_value)
 
