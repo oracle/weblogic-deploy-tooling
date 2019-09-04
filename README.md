@@ -25,6 +25,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Variable Injection](site/variable_injection.md)
     - [Model Filters](site/tool_filters.md)
 - [Downloading and Installing](#downloading-and-installing-the-software)
+- [Developer Guide](site/developer/developer_guide.md)
 - [Known Issues](KnownIssues.md)
 
 ## Features of the Oracle WebLogic Server Deploy Tooling
