@@ -19,7 +19,7 @@ pipeline {
         }
         stage ('Build') {
             steps {
-                sh 'mvn -B -DskipTests clean package'
+                sh 'mvn -B -DskipTests -Dunit-test-wlst-dir=${ORACLE_HOME}/oracle_common/common/bin clean package'
             }
         }
     }
