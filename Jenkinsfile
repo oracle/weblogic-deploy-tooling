@@ -19,12 +19,14 @@ pipeline {
         }
         stage ('Build') {
             steps {
-                sh 'mvn -B -DskipTests -Dunit-test-wlst-dir=${ORACLE_HOME}/oracle_common/common/bin clean package'
+                sh pwd
+                sh 'mvn -B -DskipTests -Dunit-test-wlst-dir=${WLST_DIR} clean package'
             }
         }
         stage ('Test') {
             steps {
-                sh 'mvn -Dunit-test-wlst-dir=${ORACLE_HOME}/oracle_common/common/bin  test'
+                sh pwd
+                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR}  test'
             }
             post {
                 always {
