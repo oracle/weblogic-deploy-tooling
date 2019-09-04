@@ -77,6 +77,7 @@ class AliasEntries(object):
         'Cluster': 'Cluster',
         'CoherenceClusterSystemResource': 'CoherenceClusterSystemResource',
         'Domain': 'Domain',
+        'EmbeddedLDAP': 'EmbeddedLDAP',
         'FileStore': 'FileStore',
         'ForeignJNDIProvider': 'ForeignJNDIProvider',
         'JDBCStore': 'JDBCStore',
@@ -124,6 +125,7 @@ class AliasEntries(object):
     __topology_top_level_folders = [
         'AdminConsole',
         'Cluster',
+        'EmbeddedLDAP',
         'JMX',
         'JTA',
         'Log',
