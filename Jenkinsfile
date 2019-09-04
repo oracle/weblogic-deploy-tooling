@@ -1,6 +1,7 @@
 pipeline {
     agent {
         docker {
+            alwaysPull true
             image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
         }
     }
