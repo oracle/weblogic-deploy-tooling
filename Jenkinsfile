@@ -4,7 +4,7 @@ pipeline {
             alwaysPull true
             reuseNode true
             image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
-            args '--user oracle:oracle'
+            args '--user jenkins:oracle'
         }
     }
 
