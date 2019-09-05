@@ -31,7 +31,7 @@ pipeline {
                     ls -al /u01/oracle/oracle_common
                     ls -al /u01/oracle/oracle_common/common
                     ls -al /u01/oracle/oracle_common/common/bin
-                    mvn -B -DskipTests -Dunit-test-wlst-dir="${WLST_DIR} clean package
+                    mvn -B -DskipTests -Dunit-test-wlst-dir=${WLST_DIR} clean package
                 '''
             }
         }
