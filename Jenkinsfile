@@ -2,6 +2,7 @@ pipeline {
     agent {
         docker {
             alwaysPull true
+            reuseNode true
             image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
         }
     }
@@ -10,6 +11,8 @@ pipeline {
         stage ('Environment') {
             steps {
                 sh '''
+                    echo $PWD
+                    hostname
                     echo "PATH = ${PATH}"
                     echo "JAVA_HOME = ${JAVA_HOME}"
                     echo "M2_HOME = ${M2_HOME}"
