@@ -30,8 +30,11 @@ pipeline {
         stage ('Test') {
             steps {
                 sh 'pwd'
-                sh 'ls -al /'
-                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR}  test'
+                sh 'ls -al /u01/oracle'
+                sh 'ls -al /u01/oracle/oracle_common'
+                sh 'ls -al /u01/oracle/oracle_common/common'
+                sh 'ls -al /u01/oracle/oracle_common/common/bin'
+                sh 'mvn -Dunit-test-wlst-dir="${WLST_DIR}"  test'
             }
             post {
                 always {
