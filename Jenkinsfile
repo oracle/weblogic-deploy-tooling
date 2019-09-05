@@ -23,8 +23,11 @@ pipeline {
         stage ('Build') {
             steps {
                 sh 'pwd'
-                sh 'ls -al /'
-                sh 'mvn -B -DskipTests -Dunit-test-wlst-dir=${WLST_DIR} clean package'
+                sh 'ls -al /u01/oracle'
+                sh 'ls -al /u01/oracle/oracle_common'
+                sh 'ls -al /u01/oracle/oracle_common/common'
+                sh 'ls -al /u01/oracle/oracle_common/common/bin'
+                sh 'mvn -B -DskipTests -Dunit-test-wlst-dir="${WLST_DIR} clean package'
             }
         }
         stage ('Test') {
