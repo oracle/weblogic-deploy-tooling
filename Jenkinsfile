@@ -12,8 +12,6 @@ pipeline {
         stage ('Environment') {
             steps {
                 sh '''
-                    echo $PWD
-                    ls -al /
                     echo "PATH = ${PATH}"
                     echo "JAVA_HOME = ${JAVA_HOME}"
                     echo "M2_HOME = ${M2_HOME}"
@@ -24,13 +22,6 @@ pipeline {
         stage ('Build') {
             steps {
                 sh '''
-                    pwd
-                    whoami
-                    groups
-                    ls -al /u01/oracle
-                    ls -al /u01/oracle/oracle_common
-                    ls -al /u01/oracle/oracle_common/common
-                    ls -al /u01/oracle/oracle_common/common/bin
                     mvn -B -DskipTests -Dunit-test-wlst-dir=${WLST_DIR} clean package
                 '''
             }
@@ -41,7 +32,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'imagetool/target/surefire-reports/*.xml'
+                    junit 'core/target/surefire-reports/*.xml'
                 }
             }
         }
