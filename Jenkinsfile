@@ -12,7 +12,7 @@ pipeline {
             steps {
                 sh '''
                     echo $PWD
-                    hostname
+                    ls -al /
                     echo "PATH = ${PATH}"
                     echo "JAVA_HOME = ${JAVA_HOME}"
                     echo "M2_HOME = ${M2_HOME}"
@@ -23,12 +23,14 @@ pipeline {
         stage ('Build') {
             steps {
                 sh 'pwd'
+                sh 'ls -al /'
                 sh 'mvn -B -DskipTests -Dunit-test-wlst-dir=${WLST_DIR} clean package'
             }
         }
         stage ('Test') {
             steps {
                 sh 'pwd'
+                sh 'ls -al /'
                 sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR}  test'
             }
             post {
