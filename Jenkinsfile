@@ -22,22 +22,21 @@ pipeline {
         }
         stage ('Build') {
             steps {
-                sh 'pwd'
-                sh 'ls -al /u01/oracle'
-                sh 'ls -al /u01/oracle/oracle_common'
-                sh 'ls -al /u01/oracle/oracle_common/common'
-                sh 'ls -al /u01/oracle/oracle_common/common/bin'
-                sh 'mvn -B -DskipTests -Dunit-test-wlst-dir="${WLST_DIR} clean package'
+                sh '''
+                    pwd
+                    whoami
+                    groups
+                    ls -al /u01/oracle
+                    ls -al /u01/oracle/oracle_common
+                    ls -al /u01/oracle/oracle_common/common
+                    ls -al /u01/oracle/oracle_common/common/bin
+                    mvn -B -DskipTests -Dunit-test-wlst-dir="${WLST_DIR} clean package
+                '''
             }
         }
         stage ('Test') {
             steps {
-                sh 'pwd'
-                sh 'ls -al /u01/oracle'
-                sh 'ls -al /u01/oracle/oracle_common'
-                sh 'ls -al /u01/oracle/oracle_common/common'
-                sh 'ls -al /u01/oracle/oracle_common/common/bin'
-                sh 'mvn -Dunit-test-wlst-dir="${WLST_DIR}"  test'
+                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR}  test'
             }
             post {
                 always {
