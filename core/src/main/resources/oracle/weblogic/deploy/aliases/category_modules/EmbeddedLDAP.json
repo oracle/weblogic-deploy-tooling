@@ -16,7 +16,6 @@
         "CredentialEncrypted":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "CredentialEncrypted",     "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "password", "get_method": "GET" } ],
         "KeepAliveEnabled":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "KeepAliveEnabled",        "wlst_path": "WP001", "value": {"default": "false" }, "wlst_type": "boolean"   } ],
         "MasterFirst":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MasterFirst",             "wlst_path": "WP001", "value": {"default": "false" }, "wlst_type": "boolean"   } ],
-        "Name":                    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Name",                    "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"    } ],
         "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"    } ],
         "RefreshReplicaAtStartup": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RefreshReplicaAtStartup", "wlst_path": "WP001", "value": {"default": "false" }, "wlst_type": "boolean"   } ],
         "Timeout":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Timeout",                 "wlst_path": "WP001", "value": {"default": 0       }, "wlst_type": "integer"   } ]
