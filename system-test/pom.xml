@@ -17,10 +17,7 @@
     </parent>
 
     <properties>
-        <mw_home>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</mw_home>
-        <fmw_home>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</fmw_home>
-        <ocir_user>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</ocir_user>
-        <ocir_pass>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</ocir_pass>
+        <fmw_home>${env.ORACLE_HOME}</fmw_home>
     </properties>
 
     <dependencies>
@@ -46,6 +43,34 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-resources</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.0.0-M3</version>
                 <configuration>
@@ -60,20 +85,8 @@
                             <value>${project.version}</value>
                         </property>
                         <property>
-                            <name>MW_HOME</name>
-                            <value>${mw_home}</value>
-                        </property>
-                        <property>
                             <name>FMW_HOME</name>
                             <value>${fmw_home}</value>
-                        </property>
-                        <property>
-                            <name>OCIR_USER</name>
-                            <value>${ocir_user}</value>
-                        </property>
-                        <property>
-                            <name>OCIR_PASS</name>
-                            <value>${ocir_pass}</value>
                         </property>
                     </systemProperties>
                 </configuration>
