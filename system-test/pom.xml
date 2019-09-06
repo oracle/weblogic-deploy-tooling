@@ -7,6 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>weblogic-deploy-system-test</artifactId>
+    <packaging>pom</packaging>
 
     <parent>
         <artifactId>weblogic-deploy</artifactId>
