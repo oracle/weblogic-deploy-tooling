@@ -82,6 +82,9 @@ class TopologyDiscoverer(Discoverer):
         model_top_folder_name, security_configuration = self.discover_security_configuration()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, security_configuration)
 
+        model_top_folder_name, embedded_ldap_configuration = self.get_embedded_ldap_configuration()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, embedded_ldap_configuration)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
 
@@ -301,6 +304,31 @@ class TopologyDiscoverer(Discoverer):
                 _logger.warning('WLSDPLY-06200', self._wls_version, de.getLocalizedMessage(),
                                 class_name=_class_name, method_name=_method_name)
                 result = OrderedDict()
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+        return model_top_folder_name, result
+
+    def get_embedded_ldap_configuration(self):
+        """
+        Get the Embedded LDAP server configuration for the domain and only return the configuration
+        when there are non-default settings other than the credential value.
+        :return: name for the model:dictionary containing the discovered Embedded LDAP configuration
+        """
+        _method_name = 'get_embedded_ldap_configuration'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        result = OrderedDict()
+        model_top_folder_name = model_constants.EMBEDDED_LDAP
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        embedded_ldap_configuration = self._find_singleton_name_in_folder(location)
+        if embedded_ldap_configuration is not None:
+            location.add_name_token(self._alias_helper.get_name_token(location), embedded_ldap_configuration)
+            self._populate_model_parameters(result, location)
+            # IFF credential is the only attribute, skip adding the Embedded LDAP server configuration
+            if len(result) == 1 and model_constants.CREDENTIAL_ENCRYPTED in result:
+                result = OrderedDict()
+                _logger.info('WLSDPLY-06639', class_name=_class_name, method_name=_method_name)
+            else:
+                _logger.info('WLSDPLY-06640', class_name=_class_name, method_name=_method_name)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_top_folder_name, result
 
