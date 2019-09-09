@@ -17,7 +17,7 @@
     </parent>
 
     <properties>
-        <fmw_home>${env.ORACLE_HOME}</fmw_home>
+        <mw_home>${env.ORACLE_HOME}</mw_home>
     </properties>
 
     <dependencies>
@@ -85,8 +85,8 @@
                             <value>${project.version}</value>
                         </property>
                         <property>
-                            <name>FMW_HOME</name>
-                            <value>${fmw_home}</value>
+                            <name>MW_HOME</name>
+                            <value>${mw_home}</value>
                         </property>
                     </systemProperties>
                 </configuration>
@@ -103,6 +103,28 @@
                                 <java.util.logging.SimpleFormatter.format>%1$tm-%1$td-%1$tY %1$tH:%1$tM:%1$tS %4$-6s %2$s %5$s%6$s%n</java.util.logging.SimpleFormatter.format>
                             </systemPropertyVariables>
                             <trimStackTrace>false</trimStackTrace>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-build-environment</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireProperty>
+                                    <property>mw_home</property>
+                                    <message>
+                                        You must set the mw_home System property to point to the Oracle Home directory where WebLogic is installed. Or, set ORACLE_HOME environment variable.
+                                    </message>
+                                </requireProperty>
+                            </rules>
                         </configuration>
                     </execution>
                 </executions>
