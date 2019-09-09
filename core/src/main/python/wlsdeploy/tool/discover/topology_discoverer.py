@@ -23,7 +23,6 @@ from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
 from wlsdeploy.util import wlst_helper
 
-CREDENTIAL_ENCRYPTED = 'CredentialEncrypted'
 
 _class_name = 'TopologyDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -325,7 +324,7 @@ class TopologyDiscoverer(Discoverer):
             location.add_name_token(self._alias_helper.get_name_token(location), embedded_ldap_configuration)
             self._populate_model_parameters(result, location)
             # IFF credential is the only attribute, skip adding the Embedded LDAP server configuration
-            if len(result) == 1 and CREDENTIAL_ENCRYPTED in result:
+            if len(result) == 1 and model_constants.CREDENTIAL_ENCRYPTED in result:
                 result = OrderedDict()
                 _logger.info('WLSDPLY-06639', class_name=_class_name, method_name=_method_name)
             else:
