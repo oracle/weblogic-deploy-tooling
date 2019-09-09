@@ -16,7 +16,6 @@
     </parent>
 
     <properties>
-        <unit-test-wlst-dir>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</unit-test-wlst-dir>
         <!--
             Hack to get around Maven bug so that we can inject the build timestamp into the version class
          -->

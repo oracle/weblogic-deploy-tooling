@@ -48,6 +48,7 @@
         <sonar.java.source>7</sonar.java.source>
         <sonar.exclusions>.flattened-pom.xml,target/**</sonar.exclusions>
         <sonar.test.exclusions>src/test/**</sonar.test.exclusions>
+        <unit-test-wlst-dir>${env.WLST_DIR}</unit-test-wlst-dir>
     </properties>
 
     <modules>
