@@ -23,9 +23,9 @@ from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
 from wlsdeploy.util import wlst_helper
 
-
 _class_name = 'TopologyDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
+
 
 class TopologyDiscoverer(Discoverer):
     """
