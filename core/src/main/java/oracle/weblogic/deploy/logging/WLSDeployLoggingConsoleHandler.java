@@ -9,7 +9,10 @@ import java.util.logging.LogRecord;
 
 /**
  * The WLS Deploy Console Handler that prevents stack traces from being output to the console.
+ *
+ * @deprecated  As of release 1.2.1, moved the code into Formatter {@link WLSDeployConsoleFormatter}
  */
+@Deprecated
 public class WLSDeployLoggingConsoleHandler extends ConsoleHandler {
 
     /**
@@ -20,24 +23,10 @@ public class WLSDeployLoggingConsoleHandler extends ConsoleHandler {
     }
 
     @Override
+    @Deprecated
     public void publish(LogRecord record) {
-        LogRecord myRecord = cloneRecordWithoutException(record);
+        LogRecord myRecord = LoggingUtils.cloneRecordWithoutException(record);
         super.publish(myRecord);
     }
 
-    private static LogRecord cloneRecordWithoutException(LogRecord record) {
-        LogRecord newRecord = new LogRecord(record.getLevel(), record.getMessage());
-
-        newRecord.setLoggerName(record.getLoggerName());
-        newRecord.setMillis(record.getMillis());
-        newRecord.setParameters(record.getParameters());
-        newRecord.setResourceBundle(record.getResourceBundle());
-        newRecord.setResourceBundleName(record.getResourceBundleName());
-        newRecord.setSequenceNumber(record.getSequenceNumber());
-        newRecord.setSourceClassName(record.getSourceClassName());
-        newRecord.setSourceMethodName(record.getSourceMethodName());
-        newRecord.setThreadID(record.getThreadID());
-        // Skip thrown
-        return newRecord;
-    }
 }
