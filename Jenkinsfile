@@ -28,12 +28,19 @@ pipeline {
         }
         stage ('Test') {
             steps {
-                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR}  test'
+                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} test'
             }
             post {
                 always {
                     junit 'core/target/surefire-reports/*.xml'
                 }
+            }
+
+            -Dmw_home=/u01/oracle -Dfmw_home=/u01/oracle
+        }
+        stage ('Verify') {
+            steps {
+                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} -Dmw_home=${ORACLE_HOME} -Dfmw_home=${ORACLE_HOME} verify'
             }
         }
     }

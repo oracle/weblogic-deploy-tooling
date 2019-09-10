@@ -287,7 +287,7 @@ public class ITWdt extends BaseTest {
         }
         replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
 
-        String cmd = createDomainScript + " -oracle_home " + fmwhome_12213 + " -domain_home " +
+        String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 fmwDomainParent12213 + FS + "domain2 -model_file " +
                 tmpWdtModel + " -archive_file " + getSampleArchiveFile() + " -domain_type JRF";
         logger.info("executing command: " + cmd);
@@ -322,7 +322,7 @@ public class ITWdt extends BaseTest {
         }
         replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
 
-        String cmd = createDomainScript + " -oracle_home " + fmwhome_12213 + " -domain_home " +
+        String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 fmwDomainParent12213 + FS + "jrfDomain1 -model_file " +
                 tmpWdtModel + " -archive_file " + getSampleArchiveFile() + " -domain_type JRF -run_rcu";
         logger.info("executing command: " + cmd);
@@ -343,7 +343,7 @@ public class ITWdt extends BaseTest {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
-        String cmd = createDomainScript + " -oracle_home " + fmwhome_12213 + " -domain_home " +
+        String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 fmwDomainParent12213 + FS + "restrictedJRFD1 -model_file " +
                 getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
                 " -domain_type RestrictedJRF";
@@ -364,7 +364,7 @@ public class ITWdt extends BaseTest {
         logTestBegin(testMethodName);
 
         String discoveredArchive = System.getProperty("java.io.tmpdir") + FS + "discoveredArchive.zip";
-        String cmd = discoverDomainScript + " -oracle_home " + fmwhome_12213 + " -domain_home " +
+        String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 fmwDomainParent12213 + FS + "restrictedJRFD1 " +
                 " -archive_file " + discoveredArchive + " -domain_type RestrictedJRF";
 
@@ -395,7 +395,7 @@ public class ITWdt extends BaseTest {
 
         String discoveredArchive = System.getProperty("java.io.tmpdir") + FS + "discoveredArchive.zip";
         String discoveredModelFile = System.getProperty("java.io.tmpdir") + FS + "discoveredRestrictedJRFD1.yaml";
-        String cmd = discoverDomainScript + " -oracle_home " + fmwhome_12213 + " -domain_home " +
+        String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 fmwDomainParent12213 + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
                 " -model_file " + discoveredModelFile;
 
@@ -421,7 +421,7 @@ public class ITWdt extends BaseTest {
 
         String discoveredArchive = System.getProperty("java.io.tmpdir") + FS + "discoveredArchive.zip";
         String discoveredModelFile = System.getProperty("java.io.tmpdir") + FS + "discoveredJRFD1.yaml";
-        String cmd = discoverDomainScript + " -oracle_home " + fmwhome_12213 + " -domain_home " +
+        String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 fmwDomainParent12213 + FS + "jrfDomain1 -archive_file " + discoveredArchive +
                 " -model_file " + discoveredModelFile + " -domain_type JRF";
 

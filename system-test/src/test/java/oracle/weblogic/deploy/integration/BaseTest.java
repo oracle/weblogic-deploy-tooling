@@ -27,7 +27,6 @@ public class BaseTest {
     private static int waitTime = 5;
     private static String projectRoot = "";
     protected static String mwhome_12213;
-    protected static String fmwhome_12213;
     protected static String createDomainScript = "";
     protected static String discoverDomainScript = "";
     protected static String updateDomainScript = "";
@@ -48,7 +47,6 @@ public class BaseTest {
         logger.info("DEBUG: projectRoot=" + projectRoot);
 
         mwhome_12213 = System.getProperty("MW_HOME");
-        fmwhome_12213 = System.getProperty("FMW_HOME");
 
         createDomainScript = getWDTScriptsHome() + FS + "createDomain.sh";
         discoverDomainScript = getWDTScriptsHome() + FS + "discoverDomain.sh";
@@ -56,8 +54,8 @@ public class BaseTest {
         deployAppScript = getWDTScriptsHome() + FS + "deployApps.sh";
         encryptModelScript = getWDTScriptsHome() + FS + "encryptModel.sh";
         validateModelScript = getWDTScriptsHome() + FS + "validateModel.sh";
-        domainParent12213 = mwhome_12213 + FS + "domains";
-        fmwDomainParent12213 = fmwhome_12213 + FS + "domains";
+        domainParent12213 = "." + FS + "domains";
+        fmwDomainParent12213 = "." + FS + "domains";
     }
 
     protected static void setup() throws Exception {

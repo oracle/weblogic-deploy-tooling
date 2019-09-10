@@ -7,6 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>weblogic-deploy-system-test</artifactId>
+    <packaging>pom</packaging>
 
     <parent>
         <artifactId>weblogic-deploy</artifactId>
@@ -16,10 +17,7 @@
     </parent>
 
     <properties>
-        <mw_home>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</mw_home>
-        <fmw_home>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</fmw_home>
-        <ocir_user>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</ocir_user>
-        <ocir_pass>SET_VALUE_WITH_DASH_D_OR_SETTINGS_PROFILE</ocir_pass>
+        <mw_home>${env.ORACLE_HOME}</mw_home>
     </properties>
 
     <dependencies>
@@ -45,6 +43,34 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-resources</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>testResources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.0.0-M3</version>
                 <configuration>
@@ -62,18 +88,6 @@
                             <name>MW_HOME</name>
                             <value>${mw_home}</value>
                         </property>
-                        <property>
-                            <name>FMW_HOME</name>
-                            <value>${fmw_home}</value>
-                        </property>
-                        <property>
-                            <name>OCIR_USER</name>
-                            <value>${ocir_user}</value>
-                        </property>
-                        <property>
-                            <name>OCIR_PASS</name>
-                            <value>${ocir_pass}</value>
-                        </property>
                     </systemProperties>
                 </configuration>
                 <executions>
@@ -89,6 +103,28 @@
                                 <java.util.logging.SimpleFormatter.format>%1$tm-%1$td-%1$tY %1$tH:%1$tM:%1$tS %4$-6s %2$s %5$s%6$s%n</java.util.logging.SimpleFormatter.format>
                             </systemPropertyVariables>
                             <trimStackTrace>false</trimStackTrace>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-build-environment</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireProperty>
+                                    <property>mw_home</property>
+                                    <message>
+                                        You must set the mw_home System property to point to the Oracle Home directory where WebLogic is installed. Or, set ORACLE_HOME environment variable.
+                                    </message>
+                                </requireProperty>
+                            </rules>
                         </configuration>
                     </execution>
                 </executions>
