@@ -47,6 +47,8 @@ class ApplicationsDeployer(Deployer):
     _SPEC_INDEX = 1
     _IMPL_INDEX = 2
 
+    _APP_VERSION_MANIFEST_KEY = 'Weblogic-Application-Version'
+
     def __init__(self, model, model_context, aliases, wlst_mode=WlstModes.OFFLINE, base_location=LocationContext()):
         Deployer.__init__(self, model, model_context, aliases, wlst_mode)
         self._class_name = 'ApplicationDeployer'
@@ -172,7 +174,7 @@ class ApplicationsDeployer(Deployer):
                 full_source_path = File(self.model_context.replace_token_string(app_source_path)).getAbsolutePath()
 
             application_name = \
-                self.__get_deployable_library_versioned_name(full_source_path, application_name)
+                self.__get_deployable_application_versioned_name(full_source_path, application_name)
 
             quoted_application_name = self.wlst_helper.get_quoted_name_for_wlst(application_name)
             application_location.add_name_token(application_token, quoted_application_name)
@@ -783,7 +785,7 @@ class ApplicationsDeployer(Deployer):
             raise ex
 
         # if options is not None and 'libraryModule' in options and string_utils.to_boolean(options['libraryModule']):
-        computed_name = self.__get_deployable_library_versioned_name(source_path, application_name)
+        computed_name = self.__get_deployable_application_versioned_name(source_path, application_name)
         application_name = computed_name
 
         # build the dictionary of named arguments to pass to the deploy_application method
@@ -845,13 +847,6 @@ class ApplicationsDeployer(Deployer):
                 manifest = bao.toString('UTF-8')
                 tokens = manifest.split()
 
-            # this is specific to application not shared library, so just returns it
-
-            if 'Weblogic-Application-Version:' in tokens:
-                weblogic_appname_index = tokens.index('Weblogic-Application-Version:')
-                versioned_name = old_name_tuple[self._EXTENSION_INDEX] + '#' + tokens[weblogic_appname_index+1]
-                return versioned_name
-
             if 'Extension-Name:' in tokens:
                 extension_index = tokens.index('Extension-Name:')
                 if len(tokens) > extension_index:
@@ -883,12 +878,49 @@ class ApplicationsDeployer(Deployer):
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
 
-
-
             self.logger.info('WLSDPLY-09324', model_name, versioned_name,
                              class_name=self._class_name, method_name=_method_name)
         except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09325', model_name, source_path, str(e), error=e)
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=versioned_name)
+        return versioned_name
+
+    def __get_deployable_application_versioned_name(self, source_path, model_name):
+        """
+        Get the proper name of the deployable application that WLST requires in the target domain.
+        This method is needed for the case where the application is explicitly versioned in its ear/war manifest.
+        Rather than requiring the modeller to have to know/adjust the application name, we extract
+        the information from the application's archive file (e.g., war file) and compute the correct name.
+        :param source_path: the SourcePath value of the application
+        :param model_name: the model name of the application
+        :return: the updated application name for the target environment
+        :raises: DeployException: if an error occurs
+        """
+        _method_name = '__get_deployable_application_versioned_name'
+
+        self.logger.entering(source_path, model_name, class_name=self._class_name, method_name=_method_name)
+
+        # discard any version information in the model name
+        model_name_tuple = deployer_utils.get_library_name_components(model_name, self.wlst_mode)
+        versioned_name = model_name_tuple[self._EXTENSION_INDEX]
+
+        try:
+            source_path = self.model_context.replace_token_string(source_path)
+            archive = JarFile(source_path)
+            manifest = archive.getManifest()
+            if manifest is not None:
+                attributes = manifest.getMainAttributes()
+                application_version = attributes.getValue(self._APP_VERSION_MANIFEST_KEY)
+                if application_version is not None:
+                    versioned_name = model_name + '#' + application_version
+                    self.logger.info('WLSDPLY-09328', model_name, versioned_name, class_name=self._class_name,
+                                     method_name=_method_name)
+
+        except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09329', model_name, source_path, str(e), error=e)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
