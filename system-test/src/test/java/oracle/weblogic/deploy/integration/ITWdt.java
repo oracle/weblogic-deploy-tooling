@@ -583,7 +583,7 @@ public class ITWdt extends BaseTest {
                 getSampleModelFile("-invalid") + " -variable_file " + getSampleVariableFile();
         logger.info("Executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
-        verifyErrorMsg(result, "completed with 2 error");
+        verifyErrorMsg(result, "exit code = 2");
 
         logTestEnd(testMethodName);
     }

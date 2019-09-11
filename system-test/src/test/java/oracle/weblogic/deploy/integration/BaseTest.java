@@ -65,7 +65,7 @@ public class BaseTest {
         buildSampleArchive();
 
         // unzip weblogic-deploy-tooling/installer/target/weblogic-deploy.zip
-        String cmd = "/bin/jar -xvf " + getInstallerTargetDir() + FS + WDT_ZIPFILE;
+        String cmd = "/bin/unzip " + getInstallerTargetDir() + FS + WDT_ZIPFILE;
         //executeNoVerify(cmd);
         executeAndVerify(cmd, true);
 
