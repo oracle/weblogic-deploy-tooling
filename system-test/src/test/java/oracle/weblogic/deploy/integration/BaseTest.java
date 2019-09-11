@@ -65,7 +65,7 @@ public class BaseTest {
         buildSampleArchive();
 
         // unzip weblogic-deploy-tooling/installer/target/weblogic-deploy.zip
-        String cmd = "/bin/unzip " + getInstallerTargetDir() + FS + WDT_ZIPFILE;
+        String cmd = "unzip " + getInstallerTargetDir() + FS + WDT_ZIPFILE;
         //executeNoVerify(cmd);
         executeAndVerify(cmd, true);
 
@@ -87,7 +87,7 @@ public class BaseTest {
         logger.info("cleaning up the test environment ...");
 
         // remove WDT script home directory
-        String cmd = "/bin/rm -rf " + getProjectRoot() + FS + WDT_HOME_DIR;
+        String cmd = "rm -rf " + getProjectRoot() + FS + WDT_HOME_DIR;
         executeNoVerify(cmd);
 
         // delete the domain directory created by the tests
@@ -108,7 +108,7 @@ public class BaseTest {
 
     protected static void chmodScriptFiles(String... filenames) throws Exception {
         for(String filename : filenames) {
-            String cmd = "/bin/chmod +x " + filename;
+            String cmd = "chmod +x " + filename;
             //executeNoVerify(cmd);
             executeAndVerify(cmd, true);
         }
@@ -169,7 +169,7 @@ public class BaseTest {
     }
 
     protected void verifyModelFile(String modelFile) throws Exception {
-        String cmd = "/bin/ls " + modelFile + " | wc -l";
+        String cmd = "ls " + modelFile + " | wc -l";
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
         if(Integer.parseInt(result.stdout().trim()) != 1) {
