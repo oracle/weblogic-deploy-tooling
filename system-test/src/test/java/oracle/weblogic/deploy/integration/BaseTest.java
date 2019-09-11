@@ -66,7 +66,8 @@ public class BaseTest {
 
         // unzip weblogic-deploy-tooling/installer/target/weblogic-deploy.zip
         String cmd = "/bin/jar -xvf " + getInstallerTargetDir() + FS + WDT_ZIPFILE;
-        executeNoVerify(cmd);
+        //executeNoVerify(cmd);
+        executeAndVerify(cmd, true);
 
         // create domain_parent directory if not existing
         File domainParentDir = new File(domainParent12213);
@@ -108,7 +109,8 @@ public class BaseTest {
     protected static void chmodScriptFiles(String... filenames) throws Exception {
         for(String filename : filenames) {
             String cmd = "/bin/chmod +x " + filename;
-            executeNoVerify(cmd);
+            //executeNoVerify(cmd);
+            executeAndVerify(cmd, true);
         }
     }
 
