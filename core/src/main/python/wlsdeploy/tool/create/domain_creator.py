@@ -1175,5 +1175,11 @@ class DomainCreator(Creator):
                     zip_entry = archive_file.getOPSSWallet();
                     FileUtils.extractZipFileContent(archive_file, zip_entry, extract_path)
                     self.wlst_helper.setSharedSecretStoreWithPassword(extract_path, opss_secret_password)
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return extract_path
+            else:
+                opss_secret_password = self.model_context.get_opss_wallet_passphrase()
+                opss_wallet = self.model_context.get_opss_wallet()
+                if opss_wallet is not None and opss_secret_password is not None:
+                    self.wlst_helper.setSharedSecretStoreWithPassword(opss_wallet, opss_secret_password)
+
+            self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
