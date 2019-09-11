@@ -3,7 +3,7 @@ pipeline {
         docker {
             alwaysPull true
             reuseNode true
-            image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
+            image 'phx.ocir.io/weblogick8s/oracle/fmw-infrastructure:12.2.1.3'
             args '--user jenkins:oracle'
         }
     }
