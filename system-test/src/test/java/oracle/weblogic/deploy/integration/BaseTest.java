@@ -115,7 +115,7 @@ public class BaseTest {
     }
 
     protected static void pullOracleDBDockerImage() throws Exception {
-        logger.info("Pulling Oracle DB image from OCR ...");
+        logger.info("Pulling Oracle DB image from OCIIR ...");
 
         pullDockerImage(ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
     }
@@ -124,10 +124,11 @@ public class BaseTest {
 
         String cmd = "docker pull " + imagename + ":" + imagetag;
         logger.info("executing command: " + cmd);
-        ExecCommand.exec(cmd, true);
+        ExecResult result = ExecCommand.exec(cmd, true);
+        logger.info("DEBUG: result.stderr=" + result.stderr() );
 
         // verify the docker image is pulled
-        ExecResult result = ExecCommand.exec("docker images | grep " + imagename  + " | grep " +
+        result = ExecCommand.exec("docker images | grep " + imagename  + " | grep " +
                 imagetag + "| wc -l");
         String resultString = result.stdout();
         if(Integer.parseInt(resultString.trim()) != 1) {
