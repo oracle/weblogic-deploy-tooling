@@ -11,7 +11,6 @@ import org.junit.runners.MethodSorters;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import org.junit.Test;
-import org.junit.Ignore;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,9 +31,9 @@ public class ITWdt extends BaseTest {
         setup();
 
         // pull Oracle DB image for FMW RCU testing
-        //pullOracleDBDockerImage();
+        pullOracleDBDockerImage();
         // create a db container for RCU
-        //createDBContainer();
+        createDBContainer();
 
     }
 
@@ -303,7 +302,6 @@ public class ITWdt extends BaseTest {
      * test createDomain.sh, create JRF domain with -run_rcu argument
      * @throws Exception - if any error occurs
      */
-    @Ignore
     @Test
     public void testDCreateJRFDomainRunRCU() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -413,7 +411,6 @@ public class ITWdt extends BaseTest {
      * test discoverDomain.sh with -domain_type as JRF
      * @throws Exception - if any error occurs
      */
-    @Ignore
     @Test
     public void testHDiscoverDomainJRFDomainType() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();

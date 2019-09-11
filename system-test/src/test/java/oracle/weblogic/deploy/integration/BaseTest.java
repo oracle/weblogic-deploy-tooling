@@ -117,24 +117,11 @@ public class BaseTest {
     protected static void pullOracleDBDockerImage() throws Exception {
         logger.info("Pulling Oracle DB image from OCR ...");
 
-        String ocir_user = System.getProperty("OCIR_USER");
-        String ocir_pass = System.getProperty("OCIR_PASS");
-        logger.info("DEBUG: ocir_user=" + ocir_user);
-        logger.info("DEBUG: ocir_pass=" + ocir_pass);
-        if(ocir_user == null || ocir_pass == null) {
-            throw new Exception("Please set -Docir_user and -Docir_pass in mvn.config to pull DB " +
-                    "image " + ORACLE_DB_IMG + ":" + ORACLE_DB_IMG_TAG);
-        }
-
-        pullDockerImage(OCIR_SERVER, ocir_user, ocir_pass, ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
+        pullDockerImage(ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
     }
 
-    private static void pullDockerImage(String repoServer, String username, String password,
-                                        String imagename, String imagetag) throws Exception {
+    private static void pullDockerImage(String imagename, String imagetag) throws Exception {
 
-        //String cmd = "docker login " + repoServer + " -u " + username + " -p " + password;
-        //logger.info("executing command: " + cmd);
-        //ExecCommand.exec(cmd, true);
         String cmd = "docker pull " + imagename + ":" + imagetag;
         logger.info("executing command: " + cmd);
         ExecCommand.exec(cmd, true);
