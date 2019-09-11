@@ -371,7 +371,7 @@ public class ITWdt extends BaseTest {
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // unzip discoveredArchive.zip
-        cmd = "/bin/unzip -o " + discoveredArchive + " -d " + System.getProperty("java.io.tmpdir");
+        cmd = "unzip -o " + discoveredArchive + " -d " + System.getProperty("java.io.tmpdir");
         logger.info("executing command: " + cmd);
         executeNoVerify(cmd);
 
@@ -461,7 +461,7 @@ public class ITWdt extends BaseTest {
         verifyResult(result, "updateDomain.sh completed successfully");
 
         // verify the domain is updated
-        cmd = "/bin/grep '<max-dynamic-cluster-size>4</max-dynamic-cluster-size>' " + domainParent12213 + FS +
+        cmd = "grep '<max-dynamic-cluster-size>4</max-dynamic-cluster-size>' " + domainParent12213 + FS +
                 "domain2" + FS + "config" + FS + "config.xml |wc -l";
         logger.info("executing command: " + cmd);
         result = ExecCommand.exec(cmd);
