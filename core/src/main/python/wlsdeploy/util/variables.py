@@ -134,18 +134,18 @@ def get_variable_names(text):
     return names
 
 
-def substitute(dictionary, variables, model_context, validation_result=None, skip_file_check=None):
+def substitute(dictionary, variables, model_context, validation_result=None):
     """
     Substitute fields in the specified dictionary with variable values.
     :param dictionary: the dictionary in which to substitute variables
     :param variables: a dictionary of variables for substitution
     :param model_context: used to resolve variables in file paths
     """
-    _process_node(dictionary, variables, model_context, validation_result, skip_file_check)
+    _process_node(dictionary, variables, model_context, validation_result)
     return validation_result
 
 
-def _process_node(nodes, variables, model_context, validation_result, skip_file_check):
+def _process_node(nodes, variables, model_context, validation_result):
     """
     Process variables in the node.
     :param nodes: the dictionary to process
@@ -161,18 +161,18 @@ def _process_node(nodes, variables, model_context, validation_result, skip_file_
         value = nodes[key]
 
         # if the key changes with substitution, remove old key and map value to new key
-        new_key = _substitute(key, variables, model_context, validation_result, skip_file_check)
+        new_key = _substitute(key, variables, model_context, validation_result)
         if new_key is not key:
             nodes.pop(key)
             nodes[new_key] = value
 
         if isinstance(value, dict):
-            _process_node(value, variables, model_context, validation_result, skip_file_check)
+            _process_node(value, variables, model_context, validation_result)
         elif type(value) is str:
-            nodes[key] = _substitute(value, variables, model_context, validation_result, skip_file_check)
+            nodes[key] = _substitute(value, variables, model_context, validation_result)
 
 
-def _substitute(text, variables, model_context, validation_result, skip_file_check):
+def _substitute(text, variables, model_context, validation_result):
     """
     Substitute the variable placeholders with the variable value.
     :param text: the text to process for variable placeholders
@@ -217,7 +217,7 @@ def _substitute(text, variables, model_context, validation_result, skip_file_che
         if tokens:
             for token in tokens:
                 path = token[7:-2]
-                value = _read_value_from_file(path, validation_result, skip_file_check)
+                value = _read_value_from_file(path, model_context, validation_result)
                 text = text.replace(token, value)
 
         # special case for @@FILE:@@ORACLE_HOME@@/dir/name.txt@@
@@ -226,13 +226,13 @@ def _substitute(text, variables, model_context, validation_result, skip_file_che
             for token in tokens:
                 path = token[7:-2]
                 path = model_context.replace_token_string(path)
-                value = _read_value_from_file(path, validation_result, skip_file_check)
+                value = _read_value_from_file(path, model_context, validation_result)
                 text = text.replace(token, value)
 
     return text
 
 
-def _read_value_from_file(file_path, validation_result, skip_file_check):
+def _read_value_from_file(file_path, model_context, validation_result):
     """
     Read a single text value from the first line in the specified file.
     :param file_path: the file from which to read the value
@@ -246,7 +246,7 @@ def _read_value_from_file(file_path, validation_result, skip_file_check):
         line = file_reader.readLine()
         file_reader.close()
     except IOException, e:
-        if skip_file_check is None:
+        if model_context.get_validation_method() == 'strict':
             if validation_result:
                 validation_result.add_error('WLSDPLY-01733', file_path, e.getLocalizedMessage())
             ex = exception_helper.create_variable_exception('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e)
