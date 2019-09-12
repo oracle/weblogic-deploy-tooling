@@ -77,6 +77,8 @@ __optional_arguments = [
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
+    CommandLineArgUtil.OPSS_WALLET_SWITCH,
+    CommandLineArgUtil.OPSS_WALLET_PASSPHRASE
 ]
 
 
@@ -103,7 +105,8 @@ def __process_args(args):
 
     __process_rcu_args(optional_arg_map, domain_type, domain_typedef)
     __process_encryption_args(optional_arg_map)
-
+    __process_opss_args(optional_arg_map)
+    
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
     model_context = ModelContext(_program_name, combined_arg_map)
@@ -262,6 +265,29 @@ def __process_encryption_args(optional_arg_map):
             raise ex
         optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
     return
+
+
+def __process_opss_args(optional_arg_map):
+    """
+    Determine if the user is using opss wallet and if so, get the passphrase.
+    :param optional_arg_map: the optional arguments map
+    :raises CLAException: if getting the passphrase from the user fails
+    """
+    _method_name = '__process_opss_args'
+
+    if CommandLineArgUtil.OPSS_WALLET_SWITCH in optional_arg_map and \
+            CommandLineArgUtil.OPSS_WALLET_PASSPHRASE not in optional_arg_map:
+        try:
+            passphrase = getcreds.getpass('WLSDPLY-20027')
+        except IOException, ioe:
+            ex = exception_helper.create_cla_exception('WLSDPLY-20028', ioe.getLocalizedMessage(),
+                                                       error=ioe)
+            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+        optional_arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE] = String(passphrase)
+    return
+
 
 
 def validate_model(model_dictionary, model_context, aliases):

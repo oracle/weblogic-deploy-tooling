@@ -61,6 +61,8 @@ class ModelContext(object):
         self._recursive = False
         self._attributes_only = False
         self._folders_only = False
+        self._opss_wallet_passphrase = None
+        self._opss_wallet = None
 
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
@@ -144,6 +146,12 @@ class ModelContext(object):
 
         if CommandLineArgUtil.ARCHIVE_FILE in arg_map:
             self._archive_file = arg_map[CommandLineArgUtil.ARCHIVE_FILE]
+
+        if CommandLineArgUtil.OPSS_WALLET_PASSPHRASE in arg_map:
+            self._opss_wallet_passphrase = arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE]
+
+        if CommandLineArgUtil.OPSS_WALLET_SWITCH in arg_map:
+            self._opss_wallet = arg_map[CommandLineArgUtil.OPSS_WALLET_SWITCH]
 
         if CommandLineArgUtil.TARGET_VERSION_SWITCH in arg_map:
             self._wl_version = arg_map[CommandLineArgUtil.TARGET_VERSION_SWITCH]
@@ -264,6 +272,21 @@ class ModelContext(object):
         :return: the archive file name
         """
         return self._archive_file_name
+
+    def get_opss_wallet(self):
+        """
+        Get the opss wallet.
+        :return: the opss wallet
+        """
+        return self._opss_wallet
+
+    def get_opss_wallet_passphrase(self):
+        """
+        Get the wallet passphrase.
+        :return: the wallet passphrase
+        """
+        return self._opss_wallet_passphrase
+
 
     def get_archive_file(self):
         """
