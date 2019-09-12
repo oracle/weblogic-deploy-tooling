@@ -344,10 +344,9 @@ class Validator(object):
         for key in model_root_level_keys:
             if key not in valid_root_level_keys:
                 # Found a model_root_level_keys key that isn't in
-                # valid_root_level_keys, so log it at a INFO level
-                self._logger.info('WLSDPLY-05007', self._model_file_name, key,
-                                  '%s' % ', '.join(valid_root_level_keys),
-                                  class_name=_class_name, method_name=_method_name)
+                # valid_root_level_keys, so log it at the ERROR level
+                validation_result.add_error('WLSDPLY-05007', self._model_file_name, key,
+                                            '%s' % ', '.join(valid_root_level_keys))
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
         return validation_result
