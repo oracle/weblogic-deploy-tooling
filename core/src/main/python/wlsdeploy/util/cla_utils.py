@@ -41,6 +41,8 @@ class CommandLineArgUtil(object):
     ADMIN_PASS_SWITCH          = '-admin_pass'
     ARCHIVE_FILE_SWITCH        = '-archive_file'
     MODEL_FILE_SWITCH          = '-model_file'
+    OPSS_WALLET_SWITCH         = '-opss_wallet'
+    OPSS_WALLET_PASSPHRASE     = '-opss_wallet_passphrase'
     PREVIOUS_MODEL_FILE_SWITCH = '-prev_model_file'
     VARIABLE_FILE_SWITCH       = '-variable_file'
     PRINT_USAGE_SWITCH         = '-print_usage'
@@ -228,6 +230,24 @@ class CommandLineArgUtil(object):
                 idx += 1
                 if idx < args_len:
                     full_path = self._validate_archive_file_arg(args[idx])
+                    self._add_arg(key, full_path, True)
+                else:
+                    ex = self._get_out_of_args_exception(key)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
+            elif self.is_opss_passphrase_key(key):
+                idx += 1
+                if idx < args_len:
+                    self._validate_opss_passphrase_arg(args[idx])
+                    self._add_arg(key, args[idx])
+                else:
+                    ex = self._get_out_of_args_exception(key)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
+            elif self.is_opss_wallet_key(key):
+                idx += 1
+                if idx < args_len:
+                    full_path = self._validate_opss_wallet_arg(args[idx])
                     self._add_arg(key, full_path, True)
                 else:
                     ex = self._get_out_of_args_exception(key)
@@ -656,6 +676,39 @@ class CommandLineArgUtil(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return archive.getAbsolutePath()
+
+    def get_opss_passphrase_key(self):
+        return self.OPSS_WALLET_PASSPHRASE
+
+    def is_opss_passphrase_key(self, key):
+
+        return self.OPSS_WALLET_PASSPHRASE == key
+
+    def _validate_opss_passphrase_arg(self, value):
+        method_name = '_validate_opss_passphrase_arg'
+        if value is None or len(value) == 0:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01615')
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return
+
+    def get_opss_wallet_key(self):
+        return self.OPSS_WALLET_SWITCH
+
+    def is_opss_wallet_key(self, key):
+        return self.OPSS_WALLET_SWITCH == key
+
+    def _validate_opss_wallet_arg(self, value):
+        method_name = '_validate_opss_wallet_arg'
+        try:
+            opss_wallet = JFileUtils.validateDirectoryName(value)
+        except JIllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01616', value, iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return opss_wallet.getAbsolutePath()
 
     def get_model_file_key(self):
         return self.MODEL_FILE_SWITCH
