@@ -254,8 +254,8 @@ def _read_value_from_file(file_path, model_context, validation_result):
             raise ex
         else:
             if validation_result:
-                validation_result.add_warning('WLSDPLY-01733', file_path, e.getLocalizedMessage())
-            _logger.warning('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e,
+                validation_result.add_info('WLSDPLY-01733', file_path, e.getLocalizedMessage())
+            _logger.info('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e,
                             class_name=_class_name, method_name=method_name)
             line = ''
 
