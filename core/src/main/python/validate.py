@@ -246,10 +246,7 @@ def main(args):
                     sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
                 elif validation_results.get_warnings_count() > 0:
                     cla_helper.clean_up_temp_files()
-                    if model_context.get_validation_method() is 'strict':
-                        sys.exit(CommandLineArgUtil.PROG_WARNING_EXIT_CODE)
-                    else:
-                        sys.exit(CommandLineArgUtil.PROG_OK_EXIT_CODE)
+                    sys.exit(CommandLineArgUtil.PROG_WARNING_EXIT_CODE)
 
 
         except ValidateException, ve:
