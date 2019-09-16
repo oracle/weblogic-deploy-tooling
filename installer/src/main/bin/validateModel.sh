@@ -58,11 +58,12 @@ usage() {
   echo "          [-target_mode <target_mode>]"
   echo "          [-domain_type <domain_type>]"
   echo "          [-wlst_path <wlst_path>]"
+  echo "          [-method <method>]"
   echo ""
   echo "    where:"
   echo "        oracle_home     - the existing Oracle Home directory for the domain"
   echo ""
-  echo "        context         - specify the context for printing out the model structure."
+  echo "        print_usage     - specify the context for printing out the model structure."
   echo "                          By default, the specified folder attributes and subfolder"
   echo "                          names are printed.  Use one of the optional control"
   echo "                          switches to customize the behavior.  Note that the"
@@ -103,6 +104,9 @@ usage() {
   echo ""
   echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
+  echo ""
+  echo "        method          - the validation method to apply. Options: lax, strict. "
+  echo "                          The lax method will skip validation of external model references like @@FILE@@"
   echo ""
 }
 

@@ -134,17 +134,18 @@ def get_variable_names(text):
     return names
 
 
-def substitute(dictionary, variables, model_context):
+def substitute(dictionary, variables, model_context, validation_result=None):
     """
     Substitute fields in the specified dictionary with variable values.
     :param dictionary: the dictionary in which to substitute variables
     :param variables: a dictionary of variables for substitution
     :param model_context: used to resolve variables in file paths
     """
-    _process_node(dictionary, variables, model_context)
+    _process_node(dictionary, variables, model_context, validation_result)
+    return validation_result
 
 
-def _process_node(nodes, variables, model_context):
+def _process_node(nodes, variables, model_context, validation_result):
     """
     Process variables in the node.
     :param nodes: the dictionary to process
@@ -160,18 +161,18 @@ def _process_node(nodes, variables, model_context):
         value = nodes[key]
 
         # if the key changes with substitution, remove old key and map value to new key
-        new_key = _substitute(key, variables, model_context)
+        new_key = _substitute(key, variables, model_context, validation_result)
         if new_key is not key:
             nodes.pop(key)
             nodes[new_key] = value
 
         if isinstance(value, dict):
-            _process_node(value, variables, model_context)
+            _process_node(value, variables, model_context, validation_result)
         elif type(value) is str:
-            nodes[key] = _substitute(value, variables, model_context)
+            nodes[key] = _substitute(value, variables, model_context, validation_result)
 
 
-def _substitute(text, variables, model_context):
+def _substitute(text, variables, model_context, validation_result):
     """
     Substitute the variable placeholders with the variable value.
     :param text: the text to process for variable placeholders
@@ -204,9 +205,17 @@ def _substitute(text, variables, model_context):
                 key = token[7:-2]
                 # for @@PROP:key@@ variables, throw an exception if key is not found.
                 if key not in variables:
-                    ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
-                    _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-                    raise ex
+                    if model_context.get_validation_method() == 'strict':
+                        if validation_result:
+                            validation_result.add_error('WLSDPLY-01732', key)
+                        ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
+                        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+                        raise ex
+                    else:
+                        if validation_result:
+                            validation_result.add_info('WLSDPLY-01732', key)
+                            continue
+                            
                 value = variables[key]
                 text = text.replace(token, value)
 
@@ -214,7 +223,7 @@ def _substitute(text, variables, model_context):
         if tokens:
             for token in tokens:
                 path = token[7:-2]
-                value = _read_value_from_file(path)
+                value = _read_value_from_file(path, model_context, validation_result)
                 text = text.replace(token, value)
 
         # special case for @@FILE:@@ORACLE_HOME@@/dir/name.txt@@
@@ -223,13 +232,13 @@ def _substitute(text, variables, model_context):
             for token in tokens:
                 path = token[7:-2]
                 path = model_context.replace_token_string(path)
-                value = _read_value_from_file(path)
+                value = _read_value_from_file(path, model_context, validation_result)
                 text = text.replace(token, value)
 
     return text
 
 
-def _read_value_from_file(file_path):
+def _read_value_from_file(file_path, model_context, validation_result):
     """
     Read a single text value from the first line in the specified file.
     :param file_path: the file from which to read the value
@@ -243,9 +252,18 @@ def _read_value_from_file(file_path):
         line = file_reader.readLine()
         file_reader.close()
     except IOException, e:
-        ex = exception_helper.create_variable_exception('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e)
-        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-        raise ex
+        if model_context.get_validation_method() == 'strict':
+            if validation_result:
+                validation_result.add_error('WLSDPLY-01733', file_path, e.getLocalizedMessage())
+            ex = exception_helper.create_variable_exception('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e)
+            _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+            raise ex
+        else:
+            if validation_result:
+                validation_result.add_info('WLSDPLY-01733', file_path, e.getLocalizedMessage())
+            _logger.info('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e,
+                            class_name=_class_name, method_name=method_name)
+            line = ''
 
     if line is None:
         ex = exception_helper.create_variable_exception('WLSDPLY-01734', file_path)

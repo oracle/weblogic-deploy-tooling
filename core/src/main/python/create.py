@@ -106,7 +106,7 @@ def __process_args(args):
     __process_rcu_args(optional_arg_map, domain_type, domain_typedef)
     __process_encryption_args(optional_arg_map)
     __process_opss_args(optional_arg_map)
-    
+
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
     model_context = ModelContext(_program_name, combined_arg_map)
