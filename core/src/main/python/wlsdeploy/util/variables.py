@@ -205,11 +205,17 @@ def _substitute(text, variables, model_context, validation_result):
                 key = token[7:-2]
                 # for @@PROP:key@@ variables, throw an exception if key is not found.
                 if key not in variables:
-                    if validation_result:
-                        validation_result.add_error('WLSDPLY-01732', key)
-                    ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
-                    _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-                    raise ex
+                    if model_context.get_validation_method() == 'strict':
+                        if validation_result:
+                            validation_result.add_error('WLSDPLY-01732', key)
+                        ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
+                        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+                        raise ex
+                    else:
+                        if validation_result:
+                            validation_result.add_info('WLSDPLY-01732', key)
+                            continue
+                            
                 value = variables[key]
                 text = text.replace(token, value)
 
