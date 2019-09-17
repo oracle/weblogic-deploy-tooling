@@ -13,6 +13,7 @@ from oracle.weblogic.deploy.exception import ExceptionHelper
 
 from wlsdeploy.util import model
 from wlsdeploy.tool.validate import validation_utils
+from wlsdeploy.aliases import model_constants
 
 
 class ValidationResults(object):
@@ -27,7 +28,8 @@ class ValidationResults(object):
             '%s Section' % model.get_model_domain_info_key(): None,
             '%s Section' % model.get_model_topology_key(): None,
             '%s Section' % model.get_model_deployments_key(): None,
-            '%s Section' % model.get_model_resources_key(): None
+            '%s Section' % model.get_model_resources_key(): None,
+            '%s Section' % model_constants.GLOBAL_VARIABLE_SUBSTITUTION: None
         }
 
     def __str__(self):

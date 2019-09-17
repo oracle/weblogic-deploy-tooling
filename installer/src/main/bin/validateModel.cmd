@@ -15,20 +15,61 @@
 @rem This script uses the following command-line arguments directly, the rest
 @rem of the arguments are passed down to the underlying python program:
 @rem
-@rem     - -oracle_home        The directory of the existing Oracle Home to use.
-@rem                           This directory must exist and it is the caller^'s
-@rem                           responsibility to verify that it does. This
-@rem                           argument is required.
+@rem     - -oracle_home       The directory of the existing Oracle Home to use.
+@rem                          This directory must exist and it is the caller^'s
+@rem                          responsibility to verify that it does. This
+@rem                          argument is required.
 @rem
-@rem     - -domain_type        The type of domain to create. This argument is
-@rem                           is optional.  If not specified, it defaults to WLS.
+@rem     - -wlst_path         The path to the Oracle Home product directory under
+@rem                          which to find the wlst.cmd script.  This is only
+@rem                          needed for pre-12.2.1 upper stack products like SOA.
 @rem
-@rem     - -wlst_path          The path to the Oracle Home product directory under
-@rem                           which to find the wlst.cmd script.  This is only
-@rem                           needed for pre-12.2.1 upper stack products like SOA.
+@rem                          For example, for SOA 12.1.3, -wlst_path should be
+@rem                          specified as %ORACLE_HOME%\soa
 @rem
-@rem                           For example, for SOA 12.1.3, -wlst_path should be
-@rem                           specified as %ORACLE_HOME%\soa
+@rem     - -domain_type       The type of domain (e.g., WLS, JRF).
+@rem                          Used to locate wlst.cmd if -wlst_path not specified
+@rem
+@rem The following arguments are passed down to the underlying python program:
+@rem
+@rem     - -print_usage       Specify the context for printing out the model structure.
+@rem                          By default, the specified folder attributes and subfolder
+@rem                          names are printed.  Use one of the optional control
+@rem                          switches to customize the behavior.  Note that the
+@rem                          control switches are mutually exclusive.
+@rem
+@rem     - -model_file        The location of the model file to use if not using
+@rem                          the -print_usage functionality.  This can also be specified as a
+@rem                          comma-separated list of model locations, where each successive model layers
+@rem                          on top of the previous ones.  If not specified, the tool will look for the
+@rem                          model in the archive.  If the model is not found, validation will only
+@rem                          validate the artifacts provided.
+@rem
+@rem     - -variable_file     The location of the property file containing
+@rem                          the variable values for all variables used in
+@rem                          the model if not using the -print_usage functionality.
+@rem                          If the variable file is not provided, validation will
+@rem                          only validate the artifacts provided.
+@rem
+@rem     - -archive_file      The path to the archive file to use if not using the
+@rem                          -print_usage functionality.  If the archive file is
+@rem                          not provided, validation will only validate the
+@rem                          artifacts provided.
+@rem
+@rem     - -target_version    The target version of WebLogic Server the tool
+@rem                          should use to validate the model content.  This
+@rem                          version number can be different than the version
+@rem                          being used to run the tool.  If not specified, the
+@rem                          tool will validate against the version being used
+@rem                          to run the tool.
+@rem
+@rem     - -target_mode       The target WLST mode that the tool should use to
+@rem                          validate the model content.  The only valid values
+@rem                          are online or offline.  If not specified, the tool
+@rem                          defaults to WLST offline mode.
+@rem
+@rem     - -method            The validation method to apply. Options: lax, strict.
+@rem                          The lax method will skip validation of external model references like @@FILE@@
 @rem
 @rem This script uses the following variables:
 @rem

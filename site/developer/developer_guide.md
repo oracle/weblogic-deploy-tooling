@@ -229,10 +229,11 @@ If you are making changes to the project, you can build the project using this c
   
 This will build the entire project and run the unit tests. Omit the `-Dunit-test-wlst-dir=` argument if you have created a `maven.config` file, as described above.
 
-If you are not making changes and are only interested in building the latest version, then you can skip the unit tests, and avoid validation of the WLST location, using this command line:
+Another option for specifying the WLST directory is to set the environment variable WLST_DIR.  It is not necessary to use both, and
+the -D setting will take precedence.
 
-  `mvn -Denforcer.skip -DskipTests clean install`
+If you are not making changes and are only interested in building the latest version, then you can skip the unit tests, using this command line:
 
-The option `-Denforcer.skip` prevents the Maven Enforcer plugin from verifying the JDK version, and checking that the WLST directory is specified.
+  `mvn -DskipTests clean install`
 
 The resulting installer ZIP file built is under the `WLSDEPLOY_HOME/installer/target` directory.

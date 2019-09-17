@@ -119,7 +119,7 @@
                 <plugin>
                     <groupId>io.rhpatrick.mojo</groupId>
                     <artifactId>wlst-test-maven-plugin</artifactId>
-                    <version>1.0.2</version>
+                    <version>1.0.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.antlr</groupId>
@@ -221,18 +221,8 @@
                             <rules>
                                 <requireJavaVersion>
                                     <version>1.8.0</version>
-                                    <message>
-                                        You must use JDK 8 to build the project since the encryption utilities
-                                        unit test requires JDK 8 due to the encryption algorithms used
-                                    </message>
+                                    <message>You must use JDK 8 to build the project since the encryption utilities unit test requires JDK 8 due to the encryption algorithms used</message>
                                 </requireJavaVersion>
-                                <requireProperty>
-                                    <property>unit-test-wlst-dir</property>
-                                    <message>
-                                        You must set the unit-test-wlst-dir System property to point
-                                        the directory where the WLST shell script lives.
-                                    </message>
-                                </requireProperty>
                             </rules>
                         </configuration>
                     </execution>

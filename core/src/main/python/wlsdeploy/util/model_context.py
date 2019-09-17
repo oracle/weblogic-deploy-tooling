@@ -63,6 +63,7 @@ class ModelContext(object):
         self._folders_only = False
         self._opss_wallet_passphrase = None
         self._opss_wallet = None
+        self._validation_method = None
 
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
@@ -152,6 +153,9 @@ class ModelContext(object):
 
         if CommandLineArgUtil.OPSS_WALLET_SWITCH in arg_map:
             self._opss_wallet = arg_map[CommandLineArgUtil.OPSS_WALLET_SWITCH]
+
+        if CommandLineArgUtil.VALIDATION_METHOD in arg_map:
+            self._validation_method = arg_map[CommandLineArgUtil.VALIDATION_METHOD]
 
         if CommandLineArgUtil.TARGET_VERSION_SWITCH in arg_map:
             self._wl_version = arg_map[CommandLineArgUtil.TARGET_VERSION_SWITCH]
@@ -287,6 +291,14 @@ class ModelContext(object):
         """
         return self._opss_wallet_passphrase
 
+    def get_validation_method(self):
+        """
+        Get the validation method.
+        :return: the validation method
+        """
+        if self._validation_method is None:
+            self._validation_method = 'strict'
+        return self._validation_method
 
     def get_archive_file(self):
         """
