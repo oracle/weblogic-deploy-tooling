@@ -126,6 +126,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
+                            <skipTests>${skipTests}</skipTests>
                             <wlstScriptDirectory>${unit-test-wlst-dir}</wlstScriptDirectory>
                             <wlstExtClasspath>
                                 <element>org.antlr:antlr4-runtime:jar</element>
