@@ -61,6 +61,9 @@ class ModelContext(object):
         self._recursive = False
         self._attributes_only = False
         self._folders_only = False
+        self._opss_wallet_passphrase = None
+        self._opss_wallet = None
+        self._validation_method = None
 
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
@@ -144,6 +147,15 @@ class ModelContext(object):
 
         if CommandLineArgUtil.ARCHIVE_FILE in arg_map:
             self._archive_file = arg_map[CommandLineArgUtil.ARCHIVE_FILE]
+
+        if CommandLineArgUtil.OPSS_WALLET_PASSPHRASE in arg_map:
+            self._opss_wallet_passphrase = arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE]
+
+        if CommandLineArgUtil.OPSS_WALLET_SWITCH in arg_map:
+            self._opss_wallet = arg_map[CommandLineArgUtil.OPSS_WALLET_SWITCH]
+
+        if CommandLineArgUtil.VALIDATION_METHOD in arg_map:
+            self._validation_method = arg_map[CommandLineArgUtil.VALIDATION_METHOD]
 
         if CommandLineArgUtil.TARGET_VERSION_SWITCH in arg_map:
             self._wl_version = arg_map[CommandLineArgUtil.TARGET_VERSION_SWITCH]
@@ -264,6 +276,29 @@ class ModelContext(object):
         :return: the archive file name
         """
         return self._archive_file_name
+
+    def get_opss_wallet(self):
+        """
+        Get the opss wallet.
+        :return: the opss wallet
+        """
+        return self._opss_wallet
+
+    def get_opss_wallet_passphrase(self):
+        """
+        Get the wallet passphrase.
+        :return: the wallet passphrase
+        """
+        return self._opss_wallet_passphrase
+
+    def get_validation_method(self):
+        """
+        Get the validation method.
+        :return: the validation method
+        """
+        if self._validation_method is None:
+            self._validation_method = 'strict'
+        return self._validation_method
 
     def get_archive_file(self):
         """

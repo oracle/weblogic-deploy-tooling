@@ -46,7 +46,8 @@ __optional_arguments = [
     CommandLineArgUtil.TARGET_MODE_SWITCH,
     CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH,
     CommandLineArgUtil.FOLDERS_ONLY_SWITCH,
-    CommandLineArgUtil.RECURSIVE_SWITCH
+    CommandLineArgUtil.RECURSIVE_SWITCH,
+    CommandLineArgUtil.VALIDATION_METHOD
 ]
 
 
@@ -246,6 +247,7 @@ def main(args):
                 elif validation_results.get_warnings_count() > 0:
                     cla_helper.clean_up_temp_files()
                     sys.exit(CommandLineArgUtil.PROG_WARNING_EXIT_CODE)
+
 
         except ValidateException, ve:
             __logger.severe('WLSDPLY-20000', _program_name, ve.getLocalizedMessage(), error=ve,

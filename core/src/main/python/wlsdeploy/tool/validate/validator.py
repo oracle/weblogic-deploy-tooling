@@ -44,6 +44,8 @@ _DOMAIN_INFO_VALIDATION_AREA = validation_utils.format_message('WLSDPLY-05001', 
 _TOPOLOGY_VALIDATION_AREA = validation_utils.format_message('WLSDPLY-05001', model_constants.TOPOLOGY)
 _RESOURCES_VALIDATION_AREA = validation_utils.format_message('WLSDPLY-05001', model_constants.RESOURCES)
 _APP_DEPLOYMENTS_VALIDATION_AREA = validation_utils.format_message('WLSDPLY-05001', model_constants.APP_DEPLOYMENTS)
+_GLOBAL_LEVEL_VARAIBLE_SUBSTITUTE = validation_utils.format_message('WLSDPLY-05001',
+                                                                    model_constants.GLOBAL_VARIABLE_SUBSTITUTION)
 
 
 class Validator(object):
@@ -239,8 +241,11 @@ class Validator(object):
             if variables_file_name is not None:
                 self._logger.info('WLSDPLY-05004', variables_file_name, class_name=_class_name, method_name=_method_name)
                 self._variable_properties = variables.load_variables(variables_file_name)
+            validation_result = ValidationResult(_GLOBAL_LEVEL_VARAIBLE_SUBSTITUTE)
+            validation_result = variables.substitute(model_dict, self._variable_properties, self._model_context,
+                                                     validation_result)
 
-            variables.substitute(model_dict, self._variable_properties, self._model_context)
+            self._validation_results.set_validation_result(validation_result)
         except VariableException, ve:
             ex = exception_helper.create_validate_exception('WLSDPLY-20004', 'validateModel',
                                                             ve.getLocalizedMessage(), error=ve)
@@ -344,10 +349,9 @@ class Validator(object):
         for key in model_root_level_keys:
             if key not in valid_root_level_keys:
                 # Found a model_root_level_keys key that isn't in
-                # valid_root_level_keys, so log it at a INFO level
-                self._logger.info('WLSDPLY-05007', self._model_file_name, key,
-                                  '%s' % ', '.join(valid_root_level_keys),
-                                  class_name=_class_name, method_name=_method_name)
+                # valid_root_level_keys, so log it at the ERROR level
+                validation_result.add_error('WLSDPLY-05007', self._model_file_name, key,
+                                            '%s' % ', '.join(valid_root_level_keys))
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
         return validation_result
