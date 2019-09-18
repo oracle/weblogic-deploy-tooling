@@ -37,7 +37,7 @@ public class BaseTest {
     protected static String fmwDomainParent12213 = "";
     protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
-    private static final String DB_CONTAINER_NAME = "InfraDB";
+    protected static final String DB_CONTAINER_NAME = "InfraDB";
     private static final String OCIR_SERVER = "phx.ocir.io";
 
     protected static void initialize() throws Exception {

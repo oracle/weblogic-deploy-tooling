@@ -314,10 +314,10 @@ public class ITWdt extends BaseTest {
         Path source = Paths.get(wdtModel);
         Path dest = Paths.get(tmpWdtModel);
         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-        String host = System.getenv("HOST");
-        if (host == null) {
-            throw new Exception("There is no HOST environment variable defined");
-        }
+        String getDBContainerIP = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' " +
+                DB_CONTAINER_NAME;
+        String host = ExecCommand.exec(getDBContainerIP).stdout().trim();
+        logger.info("DEBUG: DB_HOST=" + host);
         replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
 
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
