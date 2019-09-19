@@ -37,7 +37,7 @@ public class BaseTest {
     protected static String fmwDomainParent12213 = "";
     protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
-    protected static final String DB_CONTAINER_NAME = "InfraDB";
+    private static final String DB_CONTAINER_NAME = "InfraDB";
     private static final String OCIR_SERVER = "phx.ocir.io";
 
     protected static void initialize() throws Exception {
@@ -234,6 +234,14 @@ public class BaseTest {
         String content = new String(Files.readAllBytes(path));
         content = content.replaceAll(originalString, newString);
         Files.write(path, content.getBytes());
+    }
+
+    protected String getDBContainerIP() throws Exception {
+        String getDBContainerIP = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' " +
+                DB_CONTAINER_NAME;
+        String dbhost = ExecCommand.exec(getDBContainerIP).stdout().trim();
+        logger.info("DEBUG: DB_HOST=" + dbhost);
+        return dbhost;
     }
 
     private static ExecResult executeAndVerify(String command, boolean isRedirectToOut) throws Exception {

@@ -280,11 +280,7 @@ public class ITWdt extends BaseTest {
         Path source = Paths.get(wdtModel);
         Path dest = Paths.get(tmpWdtModel);
         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-        String host = System.getenv("HOST");
-        if (host == null) {
-            host = "localhost";
-        }
-        replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
+        replaceStringInFile(tmpWdtModel, "%DB_HOST%", getDBContainerIP());
 
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 fmwDomainParent12213 + FS + "domain2 -model_file " +
@@ -308,17 +304,15 @@ public class ITWdt extends BaseTest {
         logTestBegin(testMethodName);
 
         String wdtModel = getSampleModelFile("2");
+        logger.info("DEBUG: wdtModel=" + wdtModel);
         String tmpWdtModel = System.getProperty("java.io.tmpdir") + FS + SAMPLE_MODEL_FILE_PREFIX + "2.yaml";
+        logger.info("DEBUG: tmpWdtModel=" + tmpWdtModel);
 
         // update wdt model file
         Path source = Paths.get(wdtModel);
         Path dest = Paths.get(tmpWdtModel);
         Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-        String getDBContainerIP = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' " +
-                DB_CONTAINER_NAME;
-        String host = ExecCommand.exec(getDBContainerIP).stdout().trim();
-        logger.info("DEBUG: DB_HOST=" + host);
-        replaceStringInFile(tmpWdtModel, "%DB_HOST%", host);
+        replaceStringInFile(tmpWdtModel, "%DB_HOST%", getDBContainerIP());
 
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 fmwDomainParent12213 + FS + "jrfDomain1 -model_file " +
