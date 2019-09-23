@@ -15,6 +15,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.MemoryHandler;
 
 import oracle.weblogic.deploy.util.WLSDeployContext;
+import oracle.weblogic.deploy.util.WLSDeployExit;
 import oracle.weblogic.deploy.util.WebLogicDeployToolingVersion;
 
 
@@ -120,6 +121,47 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
         properties.setProperty(TARGET_PROPERTY, WLSDeployLoggingConfig.getStdoutHandler());
         properties.setProperty(FORMATTER_PROPERTY, WLSDeployConsoleFormatter.class.getName());
         return properties;
+    }
+
+    /**
+     * Find the summary handler instance in the logging setup.
+     * If not found, return null.
+     * @return the summary handler instance, or null if not found.
+     */
+    public static SummaryHandler findInstance() {
+        return (SummaryHandler) WLSDeployExit.findHandler(SummaryHandler.class);
+    }
+
+    /**
+     * Returns the highest level of the messages in the summary.
+     * If no messages are found, the level INFO is returned.
+     * @return the maximum message level, or Level.INFO if none are found.
+     */
+    public Level getMaximumMessageLevel() {
+        Level maxLevel = Level.INFO;
+        for(LevelHandler levelHandler : handlers) {
+            if(levelHandler.getTotalRecords() > 0) {
+                Level level = levelHandler.getLevel();
+                if(level.intValue() > maxLevel.intValue()) {
+                    maxLevel = level;
+                }
+            }
+        }
+        return maxLevel;
+    }
+
+    /**
+     * Returns the message count in the summary for the specified level.
+     * @return the message count for the specified level.
+     */
+    public int getMessageCount(Level level) {
+        for(LevelHandler levelHandler : handlers) {
+            Level handlerLevel = levelHandler.getLevel();
+            if(handlerLevel.equals(level)) {
+                return levelHandler.getTotalRecords();
+            }
+         }
+        return 0;
     }
 
     private void addLevelHandler(Level level) {
