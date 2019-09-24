@@ -8,7 +8,7 @@ import javaos as os
 import sys
 from java.util.logging import Level
 
-from oracle.weblogic.deploy.util import CLAException, WLSDeployExit
+from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
@@ -247,9 +247,9 @@ def main(args):
             cla_helper.clean_up_temp_files()
             sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    cla_helper.clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
 
-    tool_exit.end(model_context, exit_code)
+        tool_exit.end(model_context, exit_code)
     return
 
 
