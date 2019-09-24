@@ -87,13 +87,11 @@ class WLSRoles(object):
             # Get the role expression and if the role should be an update to the default set of roles
             expression = self._get_role_expression(role, roles_map)
             if string_utils.is_empty(expression):
-                self.logger.finer('WLSDPLY-12501', role, class_name=self.__class_name, method_name=_method_name)
-                self.logger.warning('WLSDPLY-12501', role)
+                self.logger.warning('WLSDPLY-12501', role, class_name=self.__class_name, method_name=_method_name)
                 continue
             update_role = self._is_role_update_mode(role, roles_map)
             if update_role and role not in WLS_GLOBAL_ROLES:
-                self.logger.finer('WLSDPLY-12502', role, class_name=self.__class_name, method_name=_method_name)
-                self.logger.warning('WLSDPLY-12502', role)
+                self.logger.warning('WLSDPLY-12502', role, class_name=self.__class_name, method_name=_method_name)
                 update_role = False
             # Add the role and expression to the map of roles to be processed 
             if update_role:
@@ -173,8 +171,8 @@ class WLSRoles(object):
                     mode = mode.lower()
                     if APPEND == mode or PREPEND == mode or REPLACE == mode:
                         continue
-                    self.logger.finer('WLSDPLY-12503', role_name, class_name=self.__class_name, method_name=_method_name)
-                    self.logger.warning('WLSDPLY-12503', role_name)
+                    self.logger.warning('WLSDPLY-12503', role_name, class_name=self.__class_name,
+                                        method_name=_method_name)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

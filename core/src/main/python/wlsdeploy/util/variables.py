@@ -205,12 +205,12 @@ def _substitute(text, variables, model_context):
                 # for @@PROP:key@@ variables, throw an exception if key is not found.
                 if key not in variables:
                     if model_context.get_validation_method() == 'strict':
-                        _logger.severe('WLSDPLY-01732', key)
+                        _logger.severe('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
                         ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
                         _logger.throwing(ex, class_name=_class_name, method_name=method_name)
                         raise ex
                     else:
-                        _logger.info('WLSDPLY-01732', key)
+                        _logger.info('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
                         continue
                             
                 value = variables[key]
@@ -250,13 +250,14 @@ def _read_value_from_file(file_path, model_context):
         file_reader.close()
     except IOException, e:
         if model_context.get_validation_method() == 'strict':
-            _logger.severe('WLSDPLY-01733', file_path, e.getLocalizedMessage())
+            _logger.severe('WLSDPLY-01733', file_path, e.getLocalizedMessage(), class_name=_class_name,
+                           method_name=method_name)
             ex = exception_helper.create_variable_exception('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e)
             _logger.throwing(ex, class_name=_class_name, method_name=method_name)
             raise ex
         else:
-            _logger.info('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e,
-                            class_name=_class_name, method_name=method_name)
+            _logger.info('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e, class_name=_class_name,
+                         method_name=method_name)
             line = ''
 
     if line is None:
