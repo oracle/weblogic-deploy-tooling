@@ -1,4 +1,4 @@
-node {
+pipeline {
     agent {
         docker {
             alwaysPull true
