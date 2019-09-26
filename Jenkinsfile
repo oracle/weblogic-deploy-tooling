@@ -1,10 +1,10 @@
-pipeline {
+node {
     agent {
         docker {
             alwaysPull true
             reuseNode true
             image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
+            args '--user jenkins:docker -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
 
@@ -28,7 +28,6 @@ pipeline {
         }
         stage ('Verify') {
             steps {
-                sh 'docker pull phx.ocir.io/weblogick8s/database/enterprise:12.2.0.1-slim'
                 sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} -Dmw_home=${ORACLE_HOME} verify'
             }
             post {

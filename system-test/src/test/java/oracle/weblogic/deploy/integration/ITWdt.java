@@ -31,7 +31,7 @@ public class ITWdt extends BaseTest {
         setup();
 
         // pull Oracle DB image for FMW RCU testing
-        // pullOracleDBDockerImage();
+        pullOracleDBDockerImage();
         // create a db container for RCU
         createDBContainer();
 
