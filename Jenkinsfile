@@ -8,11 +8,11 @@ node {
         dbimage.inside("--link ${c.id}:db") {
             /* Wait until db service is up */
             sh '''
-                echo "waiting for db is ready ..."
-                sleep 3m
+                echo "waiting for the db to be ready ..."
+                sleep 3
             '''
         }
-        osimage.withRun('-u jenkins:oracle').inside("--link ${c.id}:db") {
+        osimage.inside("--link ${c.id}:db") {
             /*
              * Run some tests which require MySQL, and assume that it is
              * available on the host name `db`
