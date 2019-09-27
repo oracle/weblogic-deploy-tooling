@@ -2,7 +2,7 @@ node {
     checkout scm
 
     def dbimage = docker.image('phx.ocir.io/weblogick8s/database/enterprise:12.2.0.1-slim')
-    def osimage = docker.image('phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213')
+    def osimage = docker.image('phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213new')
 
     dbimage.withRun('-e "DB_PDB=InfraPDB1" -e "DB_DOMAIN=us.oracle.com" -e "DB_BUNDLE=basic"') { c ->
         dbimage.inside("--link ${c.id}:db") {
