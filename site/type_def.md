@@ -4,7 +4,7 @@ WebLogic Server Deploy Tooling has an extensible domain type system.  The three 
 
 ```json
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates. All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "name": "JRF",
     "description": "JRF type domain definitions",

@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem deployApps.cmd
 @rem
-@rem Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates. All rights reserved.
+@rem Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
