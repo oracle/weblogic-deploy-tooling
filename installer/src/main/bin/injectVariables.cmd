@@ -3,7 +3,7 @@
 @rem injectVariables.cmd
 @rem
 @rem Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
-@rem Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+@rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
 @rem       injectVariables.cmd - Inject variables into the model.
