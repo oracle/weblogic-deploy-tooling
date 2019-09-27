@@ -4,13 +4,15 @@ Licensed under the Universal Permissive License v 1.0 as shown at http://oss.ora
 """
 import unittest
 import os
+from java.util.logging import Level
+
+from oracle.weblogic.deploy.logging import SummaryHandler
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.model_context import ModelContext
 
-import validate
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -20,7 +22,7 @@ import oracle.weblogic.deploy.util.TranslateException as TranslateException
 from oracle.weblogic.deploy.validate import ValidateException
 
 from wlsdeploy.tool.create import wlsroles_helper
-from wlsdeploy.tool.validate.validation_results import ValidationResult
+
 
 class ValidationTestCase(unittest.TestCase):
     _program_name = 'validation_test'
@@ -30,11 +32,12 @@ class ValidationTestCase(unittest.TestCase):
     # _model_file = _resources_dir + '/test_empty.json'
     # _variable_file = _resources_dir + "/test_invalid_variable_file.properties"
     # _archive_file = _resources_dir + "/test_jms_archive.zip"
-    _logger = PlatformLogger('wlsdeploy.validate')
 
     def setUp(self):
         self.name = 'ValidationTestCase'
+        self._logger = PlatformLogger('wlsdeploy.validate')
         self.wls_helper = WebLogicHelper(self._logger)
+        self._logger.logger.addHandler(SummaryHandler())
 
     def testModelValidation(self):
         _method_name = 'testModelValidation'
@@ -241,7 +244,6 @@ class ValidationTestCase(unittest.TestCase):
         """
         _method_name = 'testWLSRolesValidation'
 
-        validation_result = ValidationResult('Test WLSRoles Section')
         wlsroles_dict = {'Admin':     {'UpdateMode': 'append',
                                        'Expression': 'Grp(AppAdmin)'},
                          'Deployer':  {'UpdateMode': 'prepend',
@@ -256,22 +258,15 @@ class ValidationTestCase(unittest.TestCase):
                                        'Expression': 'Grp(MyTester3)'}}
 
         wlsroles_validator = wlsroles_helper.validator(wlsroles_dict, self._logger)
-        validation_result = wlsroles_validator.validate_roles(validation_result)
-        self._logger.info('The WLSRoles validation result is: {0}', validation_result,
-                          class_name=self._class_name, method_name=_method_name)
+        wlsroles_validator.validate_roles()
+
+        handler = SummaryHandler.findInstance()
+        self.assertNotEqual(handler, None, "Summary handler is not present")
 
         # Verify only warnings resulted
-        self.assertEqual(validation_result.get_errors_count(), 0)
-        self.assertEqual(validation_result.get_warnings_count(), 3)
-        self.assertEqual(validation_result.get_infos_count(), 0)
+        self.assertEqual(handler.getMessageCount(Level.SEVERE), 0)
+        self.assertEqual(handler.getMessageCount(Level.WARNING), 3)
 
-        # Verify each warning message is a different message id
-        msgid_dict = {}
-        warn_msg_list = validation_result.get_warnings_messages()
-        for warn_msg in warn_msg_list:
-            id = warn_msg['resource_id']
-            msgid_dict[id] = 'true'
-        self.assertEqual(len(msgid_dict), 3)
 
 if __name__ == '__main__':
     unittest.main()
