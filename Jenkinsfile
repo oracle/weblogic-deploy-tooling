@@ -7,7 +7,7 @@ node {
             echo "JAVA_HOME = ${JAVA_HOME}"
             echo "M2_HOME = ${M2_HOME}"
             mvn --version
-            mvn -B -DskipTests -Dunit-test-wlst-dir=${WLST_DIR} clean package
+            mvn -B -DskipTests -Dunit-test-wlst-dir=/u01/oracle/oracle_common/common/bin -Dmw_home=/u01/oracle clean package
         '''
 
     }
