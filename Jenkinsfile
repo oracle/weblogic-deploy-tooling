@@ -9,7 +9,7 @@ node {
             /* Wait until db service is up */
             sh '''
                 echo "waiting for the db to be ready ..."
-                sleep 3
+                sleep 2m
             '''
         }
         osimage.inside("--link ${c.id}:db") {
@@ -23,6 +23,7 @@ node {
                 echo "M2_HOME = ${M2_HOME}"
                 mvn --version
                 mvn -B -DskipTests -Dunit-test-wlst-dir=/u01/oracle/oracle_common/common/bin -Dmw_home=/u01/oracle clean package
+                mvn -Dunit-test-wlst-dir=/u01/oracle/oracle_common/common/bin -Dmw_home=/u01/oracle verify
             '''
         }
     }
