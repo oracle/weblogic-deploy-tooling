@@ -1,15 +1,18 @@
 node {
     checkout scm
 
-    def dbimage = docker.image('mysql:5')
-    def osimage = docker.image('centos:7')
+    def dbimage = docker.image('phx.ocir.io/weblogick8s/database/enterprise:12.2.0.1-slim')
+    def osimage = docker.image('phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213')
 
-    dbimage.withRun('-e "MYSQL_ROOT_PASSWORD=my-secret-pw"') { c ->
+    dbimage.withRun('-e "DB_PDB=InfraPDB1" -e "DB_DOMAIN=us.oracle.com" -e "DB_BUNDLE=basic"') { c ->
         dbimage.inside("--link ${c.id}:db") {
-            /* Wait until mysql service is up */
-            sh 'while ! mysqladmin ping -hdb --silent; do sleep 1; done'
+            /* Wait until db service is up */
+            sh '''
+                echo "waiting for db is ready ..."
+                sleep 3m
+            '''
         }
-        osimage.inside("--link ${c.id}:db") {
+        osimage.withRun('-u jenkins:oracle').inside("--link ${c.id}:db") {
             /*
              * Run some tests which require MySQL, and assume that it is
              * available on the host name `db`
