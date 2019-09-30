@@ -56,8 +56,8 @@ This example, from the file `JDBCSystemResource.json`, will be used as a referen
 
 ```yaml
 {
-    "copyright": "Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.",
-    "license": "The Universal Permissive License (UPL), Version 1.0",
+    "copyright": "Copyright (c) 2017, 2018, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "JDBCSystemResource${:s}",
     "child_folders_type": "multiple",
     "folders": {
