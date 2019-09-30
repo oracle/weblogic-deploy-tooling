@@ -1,12 +1,18 @@
 // Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
-// Licensed under the Universal Permissive License v 1.0 as shown at
-// http://oss.oracle.com/licenses/upl.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 package oracle.weblogic.deploy.integration.utils;
 
-import com.google.common.io.ByteStreams;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.stream.Collectors;
+
+import com.google.common.io.ByteStreams;
 
 /** Class for executing shell commands from java */
 public class ExecCommand {

@@ -1,22 +1,20 @@
 // Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
-// Licensed under the Universal Permissive License v 1.0 as shown at
-// http://oss.oracle.com/licenses/upl.
+// Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 package oracle.weblogic.deploy.integration;
 
-import oracle.weblogic.deploy.integration.utils.ExecCommand;
-import oracle.weblogic.deploy.integration.utils.ExecResult;
-import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
+import oracle.weblogic.deploy.integration.utils.ExecCommand;
+import oracle.weblogic.deploy.integration.utils.ExecResult;
+import org.apache.commons.io.FileUtils;
 
 public class BaseTest {
 
     protected static final Logger logger = Logger.getLogger(ITWdt.class.getName());
-    protected static final String PS = File.pathSeparator;
     protected static final String FS = File.separator;
     private static final String SAMPLE_ARCHIVE_FILE = "archive.zip";
     private static final String WDT_ZIPFILE = "weblogic-deploy.zip";
@@ -26,7 +24,7 @@ public class BaseTest {
     private static int maxIterations = 50;
     private static int waitTime = 5;
     private static String projectRoot = "";
-    protected static String mwhome_12213;
+    protected static String mwhome_12213 = "";
     protected static String createDomainScript = "";
     protected static String discoverDomainScript = "";
     protected static String updateDomainScript = "";
@@ -34,13 +32,11 @@ public class BaseTest {
     protected static String encryptModelScript = "";
     protected static String validateModelScript = "";
     protected static String domainParent12213 = "";
-    protected static String fmwDomainParent12213 = "";
     protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
     private static final String DB_CONTAINER_NAME = "InfraDB";
-    private static final String OCIR_SERVER = "phx.ocir.io";
 
-    protected static void initialize() throws Exception {
+    protected static void initialize() {
 
         logger.info("Initializing the tests ...");
         projectRoot = System.getProperty("user.dir");
@@ -55,7 +51,6 @@ public class BaseTest {
         encryptModelScript = getWDTScriptsHome() + FS + "encryptModel.sh";
         validateModelScript = getWDTScriptsHome() + FS + "validateModel.sh";
         domainParent12213 = "." + FS + "domains";
-        fmwDomainParent12213 = "." + FS + "domains";
     }
 
     protected static void setup() throws Exception {
@@ -65,19 +60,16 @@ public class BaseTest {
         buildSampleArchive();
 
         // unzip weblogic-deploy-tooling/installer/target/weblogic-deploy.zip
-        String cmd = "unzip " + getInstallerTargetDir() + FS + WDT_ZIPFILE;
+        String cmd = "unzip " + getInstallerTargetDir() + FS + WDT_ZIPFILE + " -d " + getTargetDir();
         //executeNoVerify(cmd);
         executeAndVerify(cmd, true);
 
         // create domain_parent directory if not existing
         File domainParentDir = new File(domainParent12213);
-        File fmwDomainParentDir = new File(fmwDomainParent12213);
         if(!domainParentDir.exists()) {
             domainParentDir.mkdir();
         }
-        if(!fmwDomainParentDir.exists()) {
-            fmwDomainParentDir.mkdir();
-        }
+
         chmodScriptFiles(createDomainScript, discoverDomainScript, updateDomainScript, deployAppScript,
                 encryptModelScript, validateModelScript);
 
@@ -87,23 +79,23 @@ public class BaseTest {
         logger.info("cleaning up the test environment ...");
 
         // remove WDT script home directory
-        String cmd = "rm -rf " + getProjectRoot() + FS + WDT_HOME_DIR;
+        String cmd = "rm -rf " + getTargetDir() + FS + WDT_HOME_DIR;
         executeNoVerify(cmd);
 
         // delete the domain directory created by the tests
         File domainParentDir = new File(domainParent12213);
-        File fmwDomainParentDir = new File(fmwDomainParent12213);
 
         if(domainParentDir.exists()) {
             FileUtils.deleteDirectory(domainParentDir);
-        }
-        if(fmwDomainParentDir.exists()) {
-            FileUtils.deleteDirectory(fmwDomainParentDir);
         }
     }
 
     protected static String getProjectRoot() {
         return projectRoot;
+    }
+
+    protected static String getTargetDir() {
+        return getProjectRoot() + FS + "target";
     }
 
     protected static void chmodScriptFiles(String... filenames) throws Exception {
@@ -138,7 +130,7 @@ public class BaseTest {
     }
 
     protected static String getWDTScriptsHome() {
-        return getProjectRoot() + FS + WDT_HOME_DIR + FS + "bin";
+        return getTargetDir() + FS + WDT_HOME_DIR + FS + "bin";
     }
 
     protected static void executeNoVerify(String command) throws Exception {
@@ -164,7 +156,7 @@ public class BaseTest {
     protected void verifyErrorMsg(ExecResult result, String errorMsg) throws Exception {
         if(result.exitValue() == 0 || !result.stderr().contains(errorMsg)) {
             logger.info("DEBUG: result stderr: " + result.stderr());
-            throw new Exception("test result does not contains expected error msg: " + errorMsg);
+            throw new Exception("test result does not contain the expected error msg: " + errorMsg);
         }
     }
 
@@ -173,7 +165,7 @@ public class BaseTest {
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
         if(Integer.parseInt(result.stdout().trim()) != 1) {
-            throw new Exception("no model file is not created as expected");
+            throw new Exception("no model file is created as expected");
         }
     }
 
