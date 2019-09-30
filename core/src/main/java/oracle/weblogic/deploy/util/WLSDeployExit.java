@@ -50,6 +50,22 @@ public class WLSDeployExit {
     }
 
     /**
+     * Returns the first handler that is assignment-compatible with the specified class.
+     * @param handlerClass the class to check for compatibility
+     * @return the first matching handler, or null if none is found
+     */
+    public static Handler findHandler(Class handlerClass) {
+        Stack<Handler> handlers = reduceList(traverseHandlers(getTopLogList(), new LinkedList<Handler>()));
+        while (handlers.size() > 0) {
+            Handler handler = handlers.pop();
+            if(handlerClass.isInstance(handler)) {
+                return handler;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Call any WLSDeployLogEnd Logger handlers so the handlers can perform end actions.
      *
      * @param context that contains contextual information about the tool that is currently running
