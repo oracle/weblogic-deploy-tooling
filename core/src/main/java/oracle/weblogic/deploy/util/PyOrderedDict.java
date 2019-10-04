@@ -6,6 +6,8 @@ package oracle.weblogic.deploy.util;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -280,9 +282,10 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         synchronized (this.linkedHashMap) {
             this.linkedHashMap.put(key, value);
         }
-        synchronized (super.table) {
-            super.table.put(key, value);
-        }
+        // do not access protected field directly.
+        // 2.7 version does not have table variable.
+        // Neither version has synchronization on the table.
+        super.__setitem__(key, value);
     }
 
     /**
@@ -291,7 +294,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
     @Override
     public void clear() {
         this.linkedHashMap.clear();
-        super.table.clear();;
+        super.clear();;
     }
 
     /**
@@ -344,6 +347,10 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         for (Map.Entry<PyObject, PyObject> entry: entries) {
             l.add(new PyTuple(new PyObject[] { entry.getKey(), entry.getValue() }));
         }
+        System.out.println("Class is " + l.getClass().getName());
+        for (Class i : l.getClass().getInterfaces()) {
+            System.out.println("Interface : " + i.getName());
+        }
         return new PyList(l);
     }
 
@@ -384,9 +391,31 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      */
     @Override
     public PyList keys() {
+
+        Class<?> c = PyList.class;
+        Constructor[] allConstructors = c.getDeclaredConstructors();
         Set<PyObject> keys = this.linkedHashMap.keySet();
         java.util.Vector<PyObject> v = new java.util.Vector<>(keys.size());
         v.addAll(keys);
+        System.out.println("########## What is the type of the vector key lists " + v.getClass().getName());
+        Class<?> cArg = v.getClass();
+        for (Constructor ctor : allConstructors) {
+            Class<?>[] pType  = ctor.getParameterTypes();
+            for (int i = 0; i < pType.length; i++) {
+                if (pType[i].equals(cArg)) {
+                    System.out.format("%s%n", ctor.toGenericString());
+
+                    Type[] gpType = ctor.getGenericParameterTypes();
+                    for (int j = 0; j < gpType.length; j++) {
+                        char ch = (pType[j].equals(cArg) ? '*' : ' ');
+                        System.out.format("%7c%s[%d]: %s%n", ch,
+                            "GenericParameterType", j, gpType[j]);
+                    }
+                    break;
+                }
+            }
+        }
+        System.out.println();
         return new PyList(v);
     }
 
@@ -480,9 +509,11 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
 
         for (int i = 0; i < pylist.size(); i++) {
             PyTuple tuple = (PyTuple) pylist.get(i);
+            System.out.println("py tuple " + tuple.toString());
             this.__setitem__(Py.java2py(tuple.get(0)), Py.java2py(tuple.get(1)));
             super.__setitem__(Py.java2py(tuple.get(0)), Py.java2py(tuple.get(1)));
         }
+        System.out.println("LOOP ENDED");
     }
 
     private void doUpdate(PyObject d,PyObject keys) {

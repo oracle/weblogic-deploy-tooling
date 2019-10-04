@@ -53,6 +53,7 @@ class VariablesTestCase(unittest.TestCase):
         ${key} substitution is deprecated.
         """
         model = FileToPython(self._resources_dir + '/variables-test.json', self._use_ordering).parse()
+        print 'type of model after parse is ', type(model)
         model['topology']['Name'] = '${bad.variable}'
         variable_map = variables.load_variables(self._variables_file)
         variables.substitute(model, variable_map, self.model_context)

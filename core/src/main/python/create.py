@@ -4,7 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at http://oss.ora
 
 The main module for the WLSDeploy tool to create empty domains.
 """
-import javaos as os
+import os
 import sys
 from java.io import IOException
 from java.lang import IllegalArgumentException
@@ -463,6 +463,6 @@ def main(args):
     return
 
 
-if __name__ == "main":
+if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     main(sys.argv)

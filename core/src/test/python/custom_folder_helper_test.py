@@ -280,6 +280,7 @@ class CustomFolderHelperTestCase(unittest.TestCase):
 
     def roll_dict(self, dict1, dict2):
         dict1_keys = dict1.keys()
+        print '***** The dict2 is of type ', type(dict2)
         for key in dict2.keys():
             if key not in dict1_keys or dict2[key] != dict1[key]:
                 return False
