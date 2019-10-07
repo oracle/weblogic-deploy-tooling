@@ -1,0 +1,43 @@
+domainInfo:
+    AdminUserName: weblogic
+    AdminPassword: welcome1
+    ServerStartMode: prod
+    RCUDbInfo:
+        rcu_prefix: wdt1
+        rcu_schema_password: Oradoc_db1
+        rcu_admin_password: Oradoc_db1
+        rcu_db_conn_string: '%DB_HOST%:1521/InfraPDB1.us.oracle.com'
+topology:
+    Name: domain1
+    AdminServerName: 'admin-server'
+    ProductionModeEnabled: true
+    Cluster:
+        cluster1:
+            ClientCertProxyEnabled: true
+            DynamicServers:
+                ServerTemplate: template1
+                CalculatedListenPorts: true
+                ServerNamePrefix: 'ms-'
+                DynamicClusterSize: 2
+                MaxDynamicClusterSize: 2
+    Server:
+        'admin-server':
+            ListenPort: 7001
+            NetworkAccessPoint:
+                T3Channel:
+                    ListenAddress: None
+                    ListenPort: 30012
+                    PublicAddress: kubernetes
+                    PublicPort: 30012
+    ServerTemplate:
+        template1:
+            ListenPort: 8001
+appDeployments:
+    Application:
+        # Quote needed because of hyphen in string
+        'simple-app':
+            SourcePath: 'wlsdeploy/applications/simple-app.war'
+            Target: cluster1
+            ModuleType: war
+            StagingMode: nostage
+            PlanStagingMode: nostage
