@@ -266,3 +266,22 @@ def _read_value_from_file(file_path, model_context):
         raise ex
 
     return str(line).strip()
+
+
+def substitute_key(text, variables):
+    """
+    Substitute any @@PROP values in the text and return.
+    If the corresponding variable is not found, leave the @@PROP value in place.
+    The deprecated ${} notation is not resolved.
+    :param text: the text to be evaluated
+    :param variables: the variable map
+    :return: the substituted text value
+    """
+    tokens = _property_pattern.findall(text)
+    if tokens:
+        for token in tokens:
+            key = token[7:-2]
+            if key in variables:
+                value = variables[key]
+                text = text.replace(token, value)
+    return text

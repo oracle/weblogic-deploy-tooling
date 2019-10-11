@@ -96,7 +96,7 @@ class Validator(object):
         self._model_file_name = self._model_context.get_model_file()
         return
 
-    def validate_in_standalone_mode(self, model_dict, variables_file_name=None, archive_file_name=None):
+    def validate_in_standalone_mode(self, model_dict, variable_map, archive_file_name=None):
         """
         Performs model file validate and returns a ValidationResults object.
 
@@ -105,8 +105,7 @@ class Validator(object):
         ones, followed by error-related ones.
 
         :param model_dict: A Python dictionary of the model to be validated
-        :param variables_file_name: Path to file containing variable substitution data used with model file.
-        Defaults to None.
+        :param variable_map: Map used for variable substitution
         :param archive_file_name: Path to file containing binaries associated with the model file.
         Defaults to None.
         :raises ValidationException: if an AliasException is raised during an invocation of an aliases API call.
@@ -119,9 +118,9 @@ class Validator(object):
         # actually require changes to be made to the cloned model dictionary
         cloned_model_dict = copy.deepcopy(model_dict)
 
-        self._logger.entering(variables_file_name, archive_file_name, class_name=_class_name, method_name=_method_name)
+        self._logger.entering(archive_file_name, class_name=_class_name, method_name=_method_name)
         self._validation_mode = _ValidationModes.STANDALONE
-        self.__validate_model_file(cloned_model_dict, variables_file_name, archive_file_name)
+        self.__validate_model_file(cloned_model_dict, variable_map, archive_file_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -156,7 +155,8 @@ class Validator(object):
         self._logger.entering(variables_file_name, archive_file_name, class_name=_class_name, method_name=_method_name)
         return_code = Validator.ReturnCode.STOP
         self._validation_mode = _ValidationModes.TOOL
-        self.__validate_model_file(cloned_model_dict, variables_file_name, archive_file_name)
+        variable_map = self.load_variables(variables_file_name)
+        self.__validate_model_file(cloned_model_dict, variable_map, archive_file_name)
 
         status = Validator.ValidationStatus.VALID
 
@@ -223,12 +223,12 @@ class Validator(object):
                 result = '<masked>'
         return result
 
-    def __validate_model_file(self, model_dict, variables_file_name, archive_file_name):
+    def __validate_model_file(self, model_dict, variables_map, archive_file_name):
         _method_name = '__validate_model_file'
 
         self.__pre_validation_setup(model_dict, archive_file_name)
 
-        self._logger.entering(variables_file_name, archive_file_name, class_name=_class_name, method_name=_method_name)
+        self._logger.entering(archive_file_name, class_name=_class_name, method_name=_method_name)
         self._logger.info('WLSDPLY-05002', _ValidationModes.from_value(self._validation_mode), self._wls_version,
                           WlstModes.from_value(self._wlst_mode), class_name=_class_name, method_name=_method_name)
 
@@ -236,10 +236,7 @@ class Validator(object):
             self._logger.info('WLSDPLY-05003', self._model_file_name, class_name=_class_name, method_name=_method_name)
 
         try:
-            if variables_file_name is not None:
-                self._logger.info('WLSDPLY-05004', variables_file_name, class_name=_class_name,
-                                  method_name=_method_name)
-                self._variable_properties = variables.load_variables(variables_file_name)
+            self._variable_properties = variables_map
             variables.substitute(model_dict, self._variable_properties, self._model_context)
         except VariableException, ve:
             ex = exception_helper.create_validate_exception('WLSDPLY-20004', 'validateModel',
@@ -269,6 +266,26 @@ class Validator(object):
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
         return
+
+    def load_variables(self, variables_file_name):
+        """
+        Load the variables properties from the specified file.
+        :param variables_file_name: the name of the variables file, or None if not specified
+        :return: the variables properties
+        """
+        _method_name = 'load_variables'
+
+        try:
+            if variables_file_name is not None:
+                self._logger.info('WLSDPLY-05004', variables_file_name, class_name=_class_name,
+                                  method_name=_method_name)
+                return variables.load_variables(variables_file_name)
+            return {}
+        except VariableException, ve:
+            ex = exception_helper.create_validate_exception('WLSDPLY-20004', 'validateModel',
+                                                            ve.getLocalizedMessage(), error=ve)
+            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
     def __pre_validation_setup(self, model_dict, archive_file_name):
         """

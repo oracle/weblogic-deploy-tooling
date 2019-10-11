@@ -10,6 +10,7 @@ from oracle.weblogic.deploy.util import FileUtils, WLSDeployArchive, WLSDeployAr
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import cla_utils
+from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_translator import FileToPython
 
@@ -115,10 +116,11 @@ def clean_up_temp_files():
         __tmp_model_dir = None
 
 
-def merge_model_files(model_file_value):
+def merge_model_files(model_file_value, variable_map=None):
     """
     Merge the model files specified by the model file value.
     It may be a single file, or a comma-separated list of files.
+    :param variable_map: variables to be used for name resolution, or None
     :param model_file_value: the value specified as a command argument
     :return: the merge model dictionary
     """
@@ -127,24 +129,50 @@ def merge_model_files(model_file_value):
 
     for model_file in model_files:
         model = FileToPython(model_file, True).parse()
-        _merge_dictionaries(merged_model, model)
+        _merge_dictionaries(merged_model, model, variable_map)
 
     return merged_model
 
 
-def _merge_dictionaries(dictionary, new_dictionary):
+def _merge_dictionaries(dictionary, new_dictionary, variable_map):
     """
     Merge the values from the new dictionary to the existing one.
+    Use variables to resolve keys.
     :param dictionary: the existing dictionary
     :param new_dictionary: the new dictionary to be merged
+    :param variable_map: variables to be used for name resolution, or None
     """
-    for key in new_dictionary:
-        new_value = new_dictionary[key]
-        if key not in dictionary:
-            dictionary[key] = new_value
+    for new_key in new_dictionary:
+        new_value = new_dictionary[new_key]
+        dictionary_key = _find_dictionary_key(dictionary, new_key, variable_map)
+        if dictionary_key is None:
+            dictionary[new_key] = new_value
         else:
-            value = dictionary[key]
+            value = dictionary[dictionary_key]
             if isinstance(value, dict) and isinstance(new_value, dict):
-                _merge_dictionaries(value, new_value)
+                _merge_dictionaries(value, new_value, variable_map)
             else:
-                dictionary[key] = new_value
+                dictionary[new_key] = new_value
+
+
+def _find_dictionary_key(dictionary, new_key, variable_map):
+    """
+    Find the specified key in the specified dictionary.
+    If a direct match is not found, and a variable map is specified, perform a more thorough check,
+    taking into account variable substitution.
+    :param dictionary: the dictionary to be searched
+    :param new_key: the key being checked
+    :param variable_map: variables to be used for name resolution, or None
+    :return: the corresponding key from the dictionary
+    """
+    if new_key in dictionary:
+        return new_key
+
+    if variable_map is not None:
+        actual_new_key = variables.substitute_key(new_key, variable_map)
+        for key in dictionary.keys():
+            actual_key = variables.substitute_key(key, variable_map)
+            if actual_key == actual_new_key:
+                return key
+
+    return None
