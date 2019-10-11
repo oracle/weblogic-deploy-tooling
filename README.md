@@ -236,6 +236,13 @@ In this example, the managed server ```obsoleteServer``` will be deleted, and ``
             ListenPort: 9005
 ```
 
+If the name of the item requires quotation marks, the exclamation point should be inside the quotation marks:
+
+```yaml
+    Server:
+        '!obsolete-server':
+```
+
 This feature can also remove items that were created by WebLogic Server templates. For example, the base template creates a default security realm called ```myrealm```.  If a user chooses to declare a custom realm, ```myrealm``` is no longer needed.  In this example, ```myrealm``` will be deleted, and the custom realm ```newrealm``` will be created, and declared as the default realm:
 
 ```yaml
