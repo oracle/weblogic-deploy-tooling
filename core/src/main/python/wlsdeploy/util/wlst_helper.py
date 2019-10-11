@@ -440,6 +440,19 @@ def get_cmo():
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=wlst.cmo)
     return wlst.cmo
 
+def is_restart_required():
+    """
+    Return if the update changes require restart of the domain or servers.
+    :return: true if the changes require restart
+    """
+    print 'CALLING ISrestt'
+    return wlst.isRestartRequired()
+
+def cancel_edit():
+    """
+    Cancel current edit session
+    """
+    wlst.cancelEdit('y')
 
 def is_connected():
     """
@@ -692,6 +705,15 @@ def silence():
     wlst.WLS_ON.setHideDumpStack('true')
     wlst.WLS.getCommandExceptionHandler().setMode(True)
     wlst.WLS.getCommandExceptionHandler().setSilent(True)
+
+
+def enable_stdout():
+    """
+    Performs the wlst commands to enable stdout
+    """
+    wlst.WLS.setLogToStdOut(True)
+    wlst.WLS.setShowLSResult(True)
+    wlst.WLS_ON.setlogToStandardOut(True)
 
 
 def connect(username, password, url):

@@ -57,6 +57,7 @@ class CommandLineArgUtil(object):
     ENCRYPT_MANUAL_SWITCH      = '-manual'
     # phony arg used as a key to store the password
     ONE_PASS_SWITCH            = '-password'
+    ROLLBACK_IF_RESTART_REQ_SWITCH = '-rollback_if_require_restart'
     USE_ENCRYPTION_SWITCH      = '-use_encryption'
     RUN_RCU_SWITCH             = '-run_rcu'
     TARGET_VERSION_SWITCH      = '-target_version'
@@ -80,6 +81,8 @@ class CommandLineArgUtil(object):
     HELP_EXIT_CODE                 = 100
     USAGE_ERROR_EXIT_CODE          = 99
     ARG_VALIDATION_ERROR_EXIT_CODE = 98
+    PORG_RESTART_REQUIRED          = 103
+    PROG_ROLLBACK_IF_RESTART_EXIT_CODE = 3
     PROG_ERROR_EXIT_CODE           = 2
     PROG_WARNING_EXIT_CODE         = 1
     PROG_OK_EXIT_CODE              = 0
@@ -410,6 +413,8 @@ class CommandLineArgUtil(object):
                     ex = self._get_out_of_args_exception(key)
                     self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
                     raise ex
+            elif self.is_rollback_if_restart_required_key(key):
+                self._add_arg(key, True)
             else:
                 ex = exception_helper.create_cla_exception('WLSDPLY-01601', self._program_name, key)
                 ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
@@ -1072,6 +1077,9 @@ class CommandLineArgUtil(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return variables.getAbsolutePath()
+
+    def is_rollback_if_restart_required_key(self, key):
+        return self.ROLLBACK_IF_RESTART_REQ_SWITCH == key
 
     ###########################################################################
     # Helper methods                                                          #

@@ -7,9 +7,9 @@ The entry point for the updateDomain tool.
 import javaos as os
 import sys
 
-from java.io import IOException
+from java.io import IOException, PrintStream
 from java.lang import IllegalArgumentException
-from java.lang import String
+from java.lang import String, System
 
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
@@ -36,6 +36,7 @@ from wlsdeploy.tool.deploy.topology_updater import TopologyUpdater
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import getcreds
@@ -45,7 +46,6 @@ from wlsdeploy.util import wlst_extended
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
-from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import model as model_helper
 
@@ -74,7 +74,8 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_USER_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
-    CommandLineArgUtil.PASSPHRASE_SWITCH
+    CommandLineArgUtil.PASSPHRASE_SWITCH,
+    CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH
 ]
 
 
@@ -226,14 +227,14 @@ def __update(model, model_context, aliases):
     :raises DeployException: if an error occurs
     """
     if __wlst_mode == WlstModes.ONLINE:
-        __update_online(model, model_context, aliases)
+        ret_code = __update_online(model, model_context, aliases)
     else:
-        __update_offline(model, model_context, aliases)
+        ret_code = __update_offline(model, model_context, aliases)
 
     if os.environ.has_key('__WLSDEPLOY_STORE_MODEL__'):
         model_helper.persist_model(model_context, model)
-    return
 
+    return ret_code
 
 def __update_online(model, model_context, aliases):
     """
@@ -264,15 +265,33 @@ def __update_online(model, model_context, aliases):
     try:
         topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.ONLINE)
         topology_updater.update()
-
         model_deployer.deploy_resources(model, model_context, aliases, wlst_mode=__wlst_mode)
     except DeployException, de:
         __release_edit_session_and_disconnect()
         raise de
 
+    exit_code = 0
+
     try:
-        __wlst_helper.save()
-        __wlst_helper.activate()
+        # First we enable the stdout again and then redirect the stdoout to a string output stream
+        # call isRestartRequired to get the output, capture the string and then silence wlst output again
+        #
+
+        __wlst_helper.enable_stdout()
+        sostream = StringOutputStream()
+        System.setOut(PrintStream(sostream))
+        restart_required = __wlst_helper.is_restart_required()
+        is_restartreq_output = sostream.get_string()
+        __wlst_helper.silence()
+        if model_context.is_rollback_if_restart_required() and restart_required:
+            __wlst_helper.cancel_edit()
+            __logger.severe('WLSDPLY_09015', is_restartreq_output)
+            exit_code = CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE
+        else:
+            __wlst_helper.save()
+            __wlst_helper.activate()
+            if restart_required:
+                exit_code = CommandLineArgUtil.PORG_RESTART_REQUIRED
     except BundleAwareException, ex:
         __release_edit_session_and_disconnect()
         raise ex
@@ -286,7 +305,7 @@ def __update_online(model, model_context, aliases):
         # to indicate a failure...just log the error since the process is going to exit anyway.
         __logger.warning('WLSDPLY-09009', _program_name, ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
-    return
+    return exit_code
 
 
 def __update_offline(model, model_context, aliases):
@@ -322,7 +341,7 @@ def __update_offline(model, model_context, aliases):
         # a failure...just log the error since the process is going to exit anyway.
         __logger.warning('WLSDPLY-09011', _program_name, ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
-    return
+    return 0
 
 
 def __release_edit_session_and_disconnect():
@@ -437,7 +456,7 @@ def main(args):
 
     try:
         model = Model(model_dictionary)
-        __update(model, model_context, aliases)
+        exit_code = __update(model, model_context, aliases)
     except DeployException, ex:
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
