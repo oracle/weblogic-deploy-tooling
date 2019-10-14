@@ -445,7 +445,6 @@ def is_restart_required():
     Return if the update changes require restart of the domain or servers.
     :return: true if the changes require restart
     """
-    print 'CALLING ISrestt'
     return wlst.isRestartRequired()
 
 def cancel_edit():

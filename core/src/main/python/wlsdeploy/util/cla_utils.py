@@ -81,7 +81,7 @@ class CommandLineArgUtil(object):
     HELP_EXIT_CODE                 = 100
     USAGE_ERROR_EXIT_CODE          = 99
     ARG_VALIDATION_ERROR_EXIT_CODE = 98
-    PORG_RESTART_REQUIRED          = 103
+    PROG_RESTART_REQUIRED          = 103
     PROG_ROLLBACK_IF_RESTART_EXIT_CODE = 3
     PROG_ERROR_EXIT_CODE           = 2
     PROG_WARNING_EXIT_CODE         = 1

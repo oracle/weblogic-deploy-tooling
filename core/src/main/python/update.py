@@ -291,7 +291,7 @@ def __update_online(model, model_context, aliases):
             __wlst_helper.save()
             __wlst_helper.activate()
             if restart_required:
-                exit_code = CommandLineArgUtil.PORG_RESTART_REQUIRED
+                exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
     except BundleAwareException, ex:
         __release_edit_session_and_disconnect()
         raise ex
