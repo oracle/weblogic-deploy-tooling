@@ -99,15 +99,43 @@ class ClaHelperTest(unittest.TestCase):
 
         self._check_merged_server(dictionary, '@@PROP:server1a@@')
 
+    # an element with delete notation should replace a base element with a matching name and no notation.
+    def testMergeDeletedNameToName(self):
+        dictionary = _build_model_one('m1')
+        new_dictionary = _build_delete_model('m1')
+        variables = {}
+
+        cla_helper._merge_dictionaries(dictionary, new_dictionary, variables)
+        # print("Merged model: " + str(dictionary))
+
+        server = self._check_single_server(dictionary, '!m1')
+        self.assertEquals(0, len(server), "delete server should have no attributes")
+
+    # an element should replace a base element with a matching name and delete notation.
+    def testMergeNameToDeletedName(self):
+        dictionary = _build_delete_model('m1')
+        new_dictionary = _build_model_two('m1')
+        variables = {}
+
+        cla_helper._merge_dictionaries(dictionary, new_dictionary, variables)
+        # print("Merged model: " + str(dictionary))
+
+        server = self._check_single_server(dictionary, 'm1')
+        self.assertEquals(2, len(server), "server should have two attributes")
+
     # check that a single server exists in the result, and its attributes were merged correctly
     def _check_merged_server(self, dictionary, key):
-        servers = dictionary['Servers']
-        self.assertEquals(1, len(servers), "there should be one server")
-
-        server = servers[key]
+        server = self._check_single_server(dictionary, key)
         self.assertEquals(9001, server['ListenPort'], "m1 should have listen port 9001")
         self.assertEquals(5, server['ListenDelaySecs'], "m1 should have listen delay secs 5")
         self.assertEquals(7, server['MaxOpenSockCount'], "m1 should have max open sock count 7")
+
+    # check that a single server exists in the result, with the specified name
+    def _check_single_server(self, dictionary, key):
+        servers = dictionary['Servers']
+        self.assertEquals(1, len(servers), "there should be one server")
+        self.assertEquals(True, key in servers, "the single server name should be " + key)
+        return servers[key]
 
 
 # model 1 has one server with attributes
@@ -130,6 +158,15 @@ def _build_model_two(key):
                 "ListenPort": 9001,
                 "MaxOpenSockCount": 7,
             }
+        }
+    }
+
+
+# the delete model 1 has one server with delete notation, and no attributes
+def _build_delete_model(key):
+    return {
+        "Servers": {
+            '!' + key: {}
         }
     }
 
