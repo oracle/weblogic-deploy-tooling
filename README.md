@@ -16,6 +16,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Model Names](#model-names)
     - [Model Semantics](#model-semantics)
     - [Declaring Named MBeans to Delete](#declaring-named-mbeans-to-delete)
+    - [Using Multiple Models](#using-multiple-models)
     - [Administration Server Configuration](site/admin_server.md)
     - [Model Security](site/security.md)
       - [Modeling Security Providers](site/security_providers.md)
@@ -298,6 +299,54 @@ topology:
             ListenPort: 9000
         m3:
             ListenPort: 10000  
+```
+
+If variable properties are used in element names, such as ```@@PROP:my-server@@```, the names in both models will be resolved and matching elements will be merged.
+
+#### Multiple Models and Delete Notation
+
+A named element using [delete notation](#declaring-named-mbeans-to-delete) will completely replace an element with a matching name and no delete notation in a previous model. For example, if Model 1 looks like:
+```yaml
+topology:
+    Server:
+        m1:
+            ListenPort: 7000 
+            Notes: "Server 1"
+```
+and Model 2 looks like:
+```yaml
+topology:
+    Server:
+        !m1:
+```
+The resulting model would be:
+```yaml
+topology:
+    Server:
+        !m1:
+```
+
+Similarly, an element without delete notation will completely replace an element with a matching name that has delete notation in a previous model. For example, if Model 1 looks like:
+```yaml
+topology:
+    Server:
+        !m1:
+```
+and Model 2 looks like:
+```yaml
+topology:
+    Server:
+        m1:
+            ListenPort: 7000 
+            Notes: "Server 1"
+```
+The resulting model would be:
+```yaml
+topology:
+    Server:
+        m1:
+            ListenPort: 7000 
+            Notes: "Server 1"
 ```
 
 ## Downloading and Installing the Software
