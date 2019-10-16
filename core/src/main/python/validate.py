@@ -175,9 +175,10 @@ def __perform_model_file_validation(model_file_name, model_context):
                       class_name=_class_name, method_name=_method_name)
 
     try:
-        model_dictionary = cla_helper.merge_model_files(model_file_name)
         model_validator = Validator(model_context, logger=__logger)
-        model_validator.validate_in_standalone_mode(model_dictionary, model_context.get_variable_file(),
+        variable_map = model_validator.load_variables(model_context.get_variable_file())
+        model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
+        model_validator.validate_in_standalone_mode(model_dictionary, variable_map,
                                                     model_context.get_archive_file_name())
     except TranslateException, te:
         __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),

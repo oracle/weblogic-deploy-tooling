@@ -409,9 +409,19 @@ def main(args):
         model_context = ModelContext(_program_name, dict())
         tool_exit.end(model_context, exit_code)
 
+    variable_map = {}
+    try:
+        if model_context.get_variable_file():
+            variable_map = variables.load_variables(model_context.get_variable_file())
+    except VariableException, ex:
+        __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+        cla_helper.clean_up_temp_files()
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
     model_file_value = model_context.get_model_file()
     try:
-        model_dictionary = cla_helper.merge_model_files(model_file_value)
+        model_dictionary = cla_helper.merge_model_files(model_file_value, variable_map)
     except TranslateException, te:
         __logger.severe('WLSDPLY-09014', _program_name, model_file_value, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
@@ -419,9 +429,6 @@ def main(args):
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     try:
-        variable_map = {}
-        if model_context.get_variable_file():
-            variable_map = variables.load_variables(model_context.get_variable_file())
         variables.substitute(model_dictionary, variable_map, model_context)
     except VariableException, ex:
         __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
