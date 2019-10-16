@@ -246,6 +246,7 @@ class DomainCreator(Creator):
         java_home = self.model_context.get_java_home()
 
         if RCU_DB_INFO in self.model.get_model_domain_info():
+
             rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
             rcu_db_info = RcuDbInfo(self.alias_helper, rcu_properties_map)
 
@@ -806,6 +807,10 @@ class DomainCreator(Creator):
         """
         _method_name = '__configure_fmw_infra_database'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        if not self._domain_typedef.is_jrf_domain_type():
+            self.logger.warning('WLSDPLY-12249')
+            return
 
         has_atp = 0
         # For ATP databases :  we need to set all the property for each datasource
