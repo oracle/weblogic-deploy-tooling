@@ -145,18 +145,18 @@ def _merge_dictionaries(dictionary, new_dictionary, variable_map):
     """
     for new_key in new_dictionary:
         new_value = new_dictionary[new_key]
-        dictionary_key, replace = _find_dictionary_merge_key(dictionary, new_key, variable_map)
+        dictionary_key, replace_key = _find_dictionary_merge_key(dictionary, new_key, variable_map)
 
         # the key is not in the original dictionary, just add it
         if dictionary_key is None:
             dictionary[new_key] = new_value
 
-        # the new dictionary key should replace the existing one, delete the existing key and add the new one
-        elif replace:
+        # the new key should replace the existing one - delete the existing key and add the new one
+        elif replace_key:
             del dictionary[dictionary_key]
             dictionary[new_key] = new_value
 
-        # the key is in both dictionaries, merge if the values are dictionaries, otherwise replace the value
+        # the key is in both dictionaries - merge if the values are dictionaries, otherwise replace the value
         else:
             value = dictionary[dictionary_key]
             if isinstance(value, dict) and isinstance(new_value, dict):
@@ -187,15 +187,15 @@ def _find_dictionary_merge_key(dictionary, new_key, variable_map):
             dictionary_is_delete = deployer_utils.is_delete_name(dictionary_key)
             match_dictionary_key = _get_merge_match_key(dictionary_key, variable_map)
             if match_dictionary_key == match_new_key:
-                replace = new_is_delete != dictionary_is_delete
-                return dictionary_key, replace
+                replace_key = new_is_delete != dictionary_is_delete
+                return dictionary_key, replace_key
 
     return None, False
 
 
 def _get_merge_match_key(key, variable_map):
     """
-    Get the key name to use for model merge.
+    Get the key name to use for matching in model merge.
     This includes resolving any variables, and removing delete notation if present.
     :param key: the key to be examined
     :param variable_map: variable map to use for substitutions
