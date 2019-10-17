@@ -119,27 +119,6 @@ def __verify_required_args_present(required_arg_map):
     return
 
 
-def __validate_archive_file_arg(required_arg_map):
-    """
-    Verify that the archive file exists.
-    :param required_arg_map: the required arguments map
-    :return: the archive file name
-    :raises CLAException: if the archive file is not valid
-    """
-    _method_name = '__validate_archive_file_arg'
-
-    archive_file_name = required_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-    try:
-        FileUtils.validateExistingFile(archive_file_name)
-    except IllegalArgumentException, iae:
-        ex = exception_helper.create_cla_exception('WLSDPLY-20014', _program_name, archive_file_name,
-                                                   iae.getLocalizedMessage(), error=iae)
-        ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
-    return archive_file_name
-
-
 def __process_model_args(optional_arg_map):
     """
     Determine if the model file was passed separately or requires extraction from the archive.
@@ -221,10 +200,10 @@ def __deploy(model, model_context, aliases):
         ret_code = __deploy_online(model, model_context, aliases)
     else:
         ret_code = __deploy_offline(model, model_context, aliases)
-    return ret_code =
+    return ret_code
 
 
-    def __deploy_online(model, model_context, aliases):
+def __deploy_online(model, model_context, aliases):
     """
     Online deployment orchestration
     :param model: the model
