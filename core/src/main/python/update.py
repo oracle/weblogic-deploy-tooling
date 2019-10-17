@@ -8,7 +8,6 @@ import javaos as os
 import sys
 
 from java.io import IOException, PrintStream
-from java.lang import IllegalArgumentException
 from java.lang import String, System
 
 from oracle.weblogic.deploy.deploy import DeployException
@@ -126,27 +125,6 @@ def __verify_required_args_present(required_arg_map):
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     return
-
-
-def __validate_archive_file_arg(required_arg_map):
-    """
-    Verify that the archive file exists.
-    :param required_arg_map: the required arguments map
-    :return: the archive file name
-    :raises CLAException: if the archive file is not valid
-    """
-    _method_name = '__validate_archive_file_arg'
-
-    archive_file_name = required_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-    try:
-        FileUtils.validateExistingFile(archive_file_name)
-    except IllegalArgumentException, iae:
-        ex = exception_helper.create_cla_exception('WLSDPLY-20014', _program_name, archive_file_name,
-                                                   iae.getLocalizedMessage(), error=iae)
-        ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
-    return archive_file_name
 
 
 def __process_model_args(optional_arg_map):
