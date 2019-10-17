@@ -23,7 +23,16 @@ def extract_path_tokens(tokenized_value):
     :param tokenized_value:
     :return:
     """
-    tokens = re.findall(_path_token_pattern, str(tokenized_value))
+    path_pattern = _path_token_pattern
+    path_value = tokenized_value
+    print 'path is ', path_value, ' and pattern is ', path_value
+    print dir(path_value)
+    if tokenized_value.isunicode():
+        path_pattern = unicode(_path_token_pattern)
+    elif not isinstance(tokenized_value, basestring):
+        path_value = str(tokenized_value)
+    print 'path is ', path_value, ' and pattern is ', path_value
+    tokens = re.findall(path_pattern, path_value)
     if tokens is None:
         # tokenized_value didn't contain any variable expressions, so
         # return an empty list
@@ -55,6 +64,7 @@ def get_python_data_type(value):
     """
     data_types_map = {
         types.StringType: 'string',
+        "<type 'unicode'>": 'unicode',
         types.IntType: 'integer',
         types.LongType: 'long',
         types.FloatType: 'float',
@@ -64,9 +74,11 @@ def get_python_data_type(value):
         types.ListType: 'list'
     }
     data_type = type(value)
-
+    print ' *************************************************** the type is ', str(data_type)
     if data_type in data_types_map:
         rtnval = data_types_map[data_type]
+    elif str(data_type) in data_types_map:
+        rtnval = data_types_map[str(data_type)]
     else:
         rtnval = data_type
 
@@ -133,21 +145,21 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
     if expected_data_type == 'string':
         retval = (actual_data_type in ["<type 'str'>", "<type 'long'>", "<type 'unicode'>"])
     elif expected_data_type == 'integer':
-        retval = (actual_data_type in ["<type 'int'>", "<type 'long'>", "<type 'str'>"])
+        retval = (actual_data_type in ["<type 'int'>", "<type 'long'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type == 'long':
-        retval = (actual_data_type in ["<type 'int'>", "<type 'long'>", "<type 'str'>"])
+        retval = (actual_data_type in ["<type 'int'>", "<type 'long'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type in ['boolean', 'java.lang.Boolean']:
         retval = (actual_data_type in ["<type 'int'>", "<type 'str'>", "<type 'long'>", "<type 'unicode'>"])
     elif expected_data_type in ['float', 'double']:
-        retval = (actual_data_type in ["<type 'float'>", "<type 'str'>"])
+        retval = (actual_data_type in ["<type 'float'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type == 'properties' or expected_data_type == 'dict':
         retval = (actual_data_type in ["<type 'PyOrderedDict'>", "<type 'dict'>", "<type 'str'>"])
     elif 'list' in expected_data_type:
-        retval = (actual_data_type in ["<type 'list'>", "<type 'str'>"])
+        retval = (actual_data_type in ["<type 'list'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type in ['password', 'credential', 'jarray']:
         retval = (actual_data_type in ["<type 'str'>"])
     elif 'delimited_' in expected_data_type:
-        retval = (actual_data_type in ["<type 'str'>", "<type 'list'>"])
+        retval = (actual_data_type in ["<type 'str'>", "<type 'list'>", "<type 'unicode'>"])
 
     return retval
 

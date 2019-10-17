@@ -612,7 +612,7 @@ class Discoverer(object):
         _method_name = '_find_mbean_interface'
         mbean_name = None
         for interface in interfaces:
-            interface_name = str(interface)
+            interface_name = str(interface.getTypeName())
             if 'MBean' in interface_name:
                 _logger.finer('WLSDPLY-06126', interface_name, self._alias_helper.get_model_folder_path(location),
                               class_name=_class_name, method_name=_method_name)

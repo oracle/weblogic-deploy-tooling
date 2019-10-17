@@ -4,6 +4,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at http://oss.ora
 
 This model provider translation classes that convert between JSON and Python Dictionaries.
 """
+import types
+
 import java.io.FileNotFoundException as JFileNotFoundException
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.IOException as JIOException
@@ -202,13 +204,14 @@ def _format_json_value(value):
     """
     import java.lang.StringBuilder as StringBuilder
     builder = StringBuilder()
-    if type(value) == bool or (type(value) == str and (value == 'true' or value == 'false')):
+    if type(value) == bool or (isinstance(value, types.StringTypes) and (value == 'true' or value == 'false')):
         builder.append(JBoolean.toString(value))
-    elif type(value) == str:
-        builder.append('"').append(_quote_embedded_quotes(value)).append('"')
+    elif isinstance(value, types.StringTypes):
+        builder.append('"').append(_quote_embedded_quotes(value.strip())).append('"')
     else:
         builder.append(value)
     return builder.toString()
+
 
 def _quote_embedded_quotes(text):
     """
@@ -217,6 +220,6 @@ def _quote_embedded_quotes(text):
     :return: the quotes result
     """
     result = text
-    if type(text) is str and '"' in text:
+    if isinstance(text, types.StringTypes) and '"' in text:
         result = text.replace('"', '\\"')
     return result

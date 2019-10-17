@@ -74,7 +74,8 @@ class CustomFolderHelper(object):
                           class_name=_class_name, method_name=_method_name)
             short_name = attribute_helper.get_mbean_name()
             # This is not like other custom interface names and should be changed to be more flexible
-            interface_name = security_provider_interface_name(attribute_helper.get_mbean_interface_name())
+            interface_name = security_provider_interface_name(
+                attribute_helper.get_mbean_instance(), attribute_helper.get_mbean_interface_name())
             subfolder_result[mbean_name][interface_name] = PyOrderedDict()
             _logger.info('WLSDPLY-06751', model_type, short_name, class_name=_class_name, method_name=_method_name)
             _logger.info('WLSDPLY-06752', mbean_name, model_type, short_name,
@@ -337,20 +338,25 @@ def equal_jarrays(array1, array2):
     return False
 
 
-def security_provider_interface_name(mbean_interface):
+def security_provider_interface_name(mbean_instance, mbean_interface_name):
     """
     Return the name that is used to look up the custom Security Provider MBeanInfo.
 
     This is too tightly coupled to be in this class.
     This needs something more to differentiate Security Provider Interface which is formatted differently from other
     custom MBean Interface names.
-    :param mbean_interface: interface for the MBean
-    :return: massaged name specific to the Scurity Provider
+    :param mbean_instance: instance of the current provider
+    :param mbean_interface_name: interface for the MBean
+    :return: name returned from the mbean instance or massaged name specific to the Scurity Provider
     """
-    result = mbean_interface
-    idx = mbean_interface.rfind('MBean')
-    if idx > 0:
-        result = result[:idx]
+    try:
+        getter = getattr(mbean_instance, 'getProviderClassName')
+        result = getter()
+    except AttributeError:
+        result = mbean_interface_name
+        idx = mbean_interface_name.rfind('MBean')
+        if idx > 0:
+            result = result[:idx]
     return result
 
 
@@ -422,7 +428,7 @@ def is_empty(value):
     :return: True if the attribute does not contain a value
     """
     return value is None or (type(value) in [list, dict] and len(value) == 0) or \
-        ((type(value) == str or isinstance(value, String)) and
+        ((isinstance(value, basestring) or isinstance(value, String)) and
             (len(value) == 0 or value == '[]' or value == 'null' or value == 'None'))
 
 

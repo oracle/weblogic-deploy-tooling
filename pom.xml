@@ -49,6 +49,8 @@
         <sonar.exclusions>.flattened-pom.xml,target/**</sonar.exclusions>
         <sonar.test.exclusions>src/test/**</sonar.test.exclusions>
         <unit-test-wlst-dir>${env.WLST_DIR}</unit-test-wlst-dir>
+        <jython.package>${env.JYTHON_PACKAGE}</jython.package>
+        <jython.version>${env.JYTHON_VERSION}</jython.version>
     </properties>
 
     <modules>
@@ -66,9 +68,7 @@
             <dependency>
                 <groupId>org.python</groupId>
                 <artifactId>jython</artifactId>
-                <version>2.7.1</version>
-                <scope>system</scope>
-                <systemPath>${project.build.directory}/dependency</systemPath>
+                <version>2.2.1</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -81,7 +81,6 @@
     <build>
         <pluginManagement>
             <plugins>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
@@ -192,34 +191,6 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.1</version>
-                <executions>
-                    <execution>
-                        <id>unpack-dependencies</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.python</groupId>
-                                    <artifactId>jython-installer</artifactId>
-                                    <version>2.7.1</version>
-                                    <type>jar</type>
-                                    <overWrite>false</overWrite>
-                                </artifactItem>
-                            </artifactItems>
-                            <includes>jython.jar,Lib/**</includes>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

@@ -74,10 +74,10 @@ def merge_model_and_existing_lists(model_list, existing_list, string_list_separa
         result = model_list
     elif model_list is None or len(model_list) == 0:
         result = existing_list
-        if type(model_list) is str and type(existing_list) is not str:
+        if isinstance(model_list, basestring) and not isinstance(existing_list, basestring):
             result = string_list_separator_char.join(existing_list)
     else:
-        model_list_is_string = type(model_list) is str
+        model_list_is_string = isinstance(model_list, basestring)
         model_set = _create_set(model_list, string_list_separator_char, 'WLSDPLY-08000')
         existing_set = _create_set(existing_list, string_list_separator_char, 'WLSDPLY-08001')
 
@@ -107,7 +107,7 @@ def merge_model_and_existing_properties(model_props, existing_props, string_prop
         result = model_props
     elif model_props is None or len(model_props) == 0:
         result = existing_props
-        if type(model_props) is str and type(existing_props) is not str:
+        if isinstance(model_props, basestring) and isinstance(existing_props, basestring):
             result = _properties_to_string(existing_props, string_props_separator_char)
     else:
         model_props_is_string = False
@@ -517,7 +517,7 @@ def convert_boolean(value):
                 result = True
             elif value == 0:
                 result = False
-        elif type(value) is str:
+        elif isinstance(value, basestring):
             if value.lower() == 'true':
                 result = True
             elif value.lower() == 'false':
@@ -844,7 +844,7 @@ def _get_path_separator(value):
     _logger.entering(value, class_name=_class_name, method_name=_method_name)
 
     result = File.pathSeparator
-    if type(value) is str and len(value) > 0:
+    if isinstance(value, basestring) and len(value) > 0:
         # If the value has a windows separator or a single directory that starts with a drive letter
         if ';' in value or _windows_path_regex.match(value):
             result = ';'
@@ -972,7 +972,7 @@ def _properties_to_string(props, string_props_separator_char):
     _logger.entering(props, string_props_separator_char, class_name=_class_name, method_name=_method_name)
     if props is None:
         result = ''
-    elif type(props) is str:
+    elif isinstance(props, basestring):
         result = props
     else:
         result = ''
