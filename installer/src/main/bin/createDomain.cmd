@@ -342,7 +342,9 @@ ECHO                           environment variable.
 ECHO.
 ECHO         archive_file    - the path to the archive file to use.  If the -model_file
 ECHO                           argument is not specified, the model file in this archive
-ECHO                           will be used.
+ECHO                           will be used.  This can also be specified as a
+ECHO                           comma-separated list of archive files.  The contents in
+ECHO                           each file take precedence over previous files.
 ECHO.
 ECHO         model_file      - the location of the model file to use.  This can also be specified as a
 ECHO                           comma-separated list of model locations, where each successive model
