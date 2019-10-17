@@ -4,12 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 
 """
-
-import os
 import re
-from java.io import File
-from oracle.weblogic.deploy.util import FileUtils
-from wlsdeploy.aliases import model_constants
 from xml.dom.minidom import parse
 
 
@@ -117,18 +112,3 @@ def format_connect_string(connect_string):
         connect_string = "%s%s%s%s" % (part1, part2, part3, part4)
 
     return connect_string
-
-
-def extract_walletzip(model, model_context, archive_file, atp_zipentry):
-    domain_parent = model_context.get_domain_parent_dir()
-    if domain_parent is None:
-        domain_path = model_context.get_domain_home()
-    else:
-        domain_path = domain_parent + os.sep + model[model_constants.TOPOLOGY][
-            'Name']
-    extract_path = domain_path +  os.sep + 'atpwallet'
-    extract_dir = File(extract_path)
-    extract_dir.mkdirs()
-    FileUtils.extractZipFileContent(archive_file, atp_zipentry, extract_path)
-    return extract_path
-    # update the model to add the tns_admin

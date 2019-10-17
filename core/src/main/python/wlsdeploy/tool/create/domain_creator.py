@@ -1167,11 +1167,8 @@ class DomainCreator(Creator):
         domain_info = self._domain_info
         if OPSS_SECRETS in domain_info:
             opss_secret_password = domain_info[OPSS_SECRETS]
-            if self.model_context.get_archive_file_name() and opss_secret_password:
-                archive_file = WLSDeployArchive(self.model_context.get_archive_file_name())
-                extract_path = self._domain_home + os.sep + 'opsswallet'
-                zip_entry = archive_file.getOPSSWallet();
-                FileUtils.extractZipFileContent(archive_file, zip_entry, extract_path)
+            if self.archive_helper and opss_secret_password:
+                extract_path = self.archive_helper.extract_opss_wallet()
                 self.wlst_helper.setSharedSecretStoreWithPassword(extract_path, opss_secret_password)
         else:
             opss_secret_password = self.model_context.get_opss_wallet_passphrase()

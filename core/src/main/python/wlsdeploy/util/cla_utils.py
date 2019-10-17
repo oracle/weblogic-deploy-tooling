@@ -76,6 +76,7 @@ class CommandLineArgUtil(object):
     # a slot to stash the archive file object
     ARCHIVE_FILE               = 'archive_file'
 
+    ARCHIVE_FILES_SEPARATOR = ','
     MODEL_FILES_SEPARATOR = ','
 
     HELP_EXIT_CODE                 = 100
@@ -683,14 +684,25 @@ class CommandLineArgUtil(object):
     def _validate_archive_file_arg(self, value):
         method_name = '_validate_archive_file_arg'
 
-        try:
-            archive = JFileUtils.validateFileName(value)
-        except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01616', value, iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        return archive.getAbsolutePath()
+        result_archive_files = []  # type: list
+        if self._allow_multiple_models:
+            archive_files = get_archive_files(value)
+        else:
+            archive_files = [value]
+
+        for archive_file in archive_files:
+            try:
+                archive_file = JFileUtils.validateFileName(archive_file)
+                archive_file = archive_file.getAbsolutePath()
+                result_archive_files.append(archive_file)
+            except JIllegalArgumentException, iae:
+                ex = exception_helper.create_cla_exception('WLSDPLY-01616', archive_file, iae.getLocalizedMessage(),
+                                                           error=iae)
+                ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+                self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                raise ex
+
+        return CommandLineArgUtil.ARCHIVE_FILES_SEPARATOR.join(result_archive_files)
 
     def get_opss_passphrase_key(self):
         return self.OPSS_WALLET_PASSPHRASE
@@ -1121,3 +1133,13 @@ def get_model_files(model_files_text):
     :return: a list of model files
     """
     return model_files_text.split(CommandLineArgUtil.MODEL_FILES_SEPARATOR)
+
+
+def get_archive_files(archive_files_text):
+    """
+    Returns a list of archive files from the comma-separated ARCHIVE_FILE_SWITCH value.
+    Returns a list of one item if there is only one archive in the value.
+    :param archive_files_text: the value of the ARCHIVE_FILE_SWITCH argument
+    :return: a list of archive files
+    """
+    return archive_files_text.split(CommandLineArgUtil.ARCHIVE_FILES_SEPARATOR)
