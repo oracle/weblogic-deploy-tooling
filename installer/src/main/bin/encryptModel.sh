@@ -124,18 +124,20 @@ case "${JVM_OUTPUT}" in
 esac
 
 JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
-JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
+JVM_VERSION_PART_ONE=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $1 }'`
+JVM_VERSION_PART_TWO=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
 
-if [ ${JVM_VERSION} -lt 8 ]; then
-  if [ ${JVM_VERSION} -lt 7 ]; then
-    echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
-  else
-    echo "JDK version 1.8 or higher is required when using encryption" >&2
+if [ ${JVM_VERSION_PART_ONE} -le 1 ]; then
+  if [ ${JVM_VERSION_PART_TWO} -lt 8 ]; then
+    if [ ${JVM_VERSION_PART_TWO} -lt 7 ]; then
+      echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
+    else
+      echo "JDK version 1.8 or higher is required when using encryption" >&2
+    fi
+    exit 2
   fi
-  exit 2
-else
-  echo "JDK version is ${JVM_FULL_VERSION}"
 fi
+echo "JDK version is ${JVM_FULL_VERSION}"
 
 #
 # Check to see if no args were given and print the usage message
