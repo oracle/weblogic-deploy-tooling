@@ -27,6 +27,9 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases import model_constants
+from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -37,6 +40,7 @@ from wlsdeploy.tool.create.domain_typedef import DomainTypedef
 from wlsdeploy.tool.create.domain_typedef import CREATE_DOMAIN
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
+from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import getcreds
@@ -289,7 +293,6 @@ def __process_opss_args(optional_arg_map):
     return
 
 
-
 def validate_model(model_dictionary, model_context, aliases):
     _method_name = 'validate_model'
 
@@ -311,7 +314,9 @@ def validate_model(model_dictionary, model_context, aliases):
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
 
-def validateRCUArgsAndModel(model_context, model, alias_helper):
+def validate_rcu_args_and_model(model_context, model, archive_helper, alias_helper):
+    _method_name = 'validate_rcu_args_and_model'
+
     has_atpdbinfo = 0
     domain_info = model[model_constants.DOMAIN_INFO]
     if domain_info is not None:
@@ -321,26 +326,20 @@ def validateRCUArgsAndModel(model_context, model, alias_helper):
             has_regular_db = rcu_db_info.is_regular_db()
             has_atpdbinfo = rcu_db_info.has_atpdbinfo()
 
-            if model_context.get_archive_file_name() and not has_regular_db:
+            if archive_helper and not has_regular_db:
                 System.setProperty('oracle.jdbc.fanEnabled', 'false')
 
                 # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
                 # 2. If it is plain old regular oracle db, do nothing
                 # 3. If it deos not have tns_admin in the model, then the wallet must be in the archive
                 if not has_tns_admin:
-                    # extract the wallet first
-                    archive_file = WLSDeployArchive(model_context.get_archive_file_name())
-                    atp_wallet_zipentry = None
-                    if archive_file:
-                        atp_wallet_zipentry = archive_file.getATPWallet()
-                    if atp_wallet_zipentry and model[model_constants.TOPOLOGY]['Name']:
-                        extract_path = atp_helper.extract_walletzip(model, model_context, archive_file, atp_wallet_zipentry)
+                    wallet_path = archive_helper.extract_atp_wallet()
+                    if wallet_path:
                         # update the model to add the tns_admin
                         model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-                            model_constants.DRIVER_PARAMS_NET_TNS_ADMIN] = extract_path
+                            model_constants.DRIVER_PARAMS_NET_TNS_ADMIN] = wallet_path
                     else:
-                        __logger.severe('WLSDPLY-12411', error=None,
-                                        class_name=_class_name, method_name="validateRCUArgsAndModel")
+                        __logger.severe('WLSDPLY-12411', error=None, class_name=_class_name, method_name=_method_name)
                         cla_helper.clean_up_temp_files()
                         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
@@ -353,6 +352,22 @@ def validateRCUArgsAndModel(model_context, model, alias_helper):
                     tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     return has_atpdbinfo
+
+
+def _get_domain_path(model_context, model):
+    """
+    Returns the domain home path.
+    :param model_context: the model context
+    :param model: the model
+    :return: the domain path
+    """
+    domain_parent = model_context.get_domain_parent_dir()
+    if domain_parent is None:
+        return model_context.get_domain_home()
+    elif TOPOLOGY in model and DOMAIN_NAME in model[TOPOLOGY]:
+        return domain_parent + os.sep + model[TOPOLOGY][DOMAIN_NAME]
+    else:
+        return domain_parent + os.sep + DEFAULT_WLS_DOMAIN_NAME
 
 
 def main(args):
@@ -419,18 +434,20 @@ def main(args):
     if filter_helper.apply_filters(model, "create"):
         # if any filters were applied, re-validate the model
         validate_model(model, model_context, aliases)
-    try:
 
-        has_atp = validateRCUArgsAndModel(model_context, model, alias_helper)
+    try:
+        archive_helper = None
+        archive_file_name = model_context.get_archive_file_name()
+        if archive_file_name:
+            domain_path = _get_domain_path(model_context, model)
+            archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
+
+        has_atp = validate_rcu_args_and_model(model_context, model, archive_helper, alias_helper)
+
         # check if there is an atpwallet and extract in the domain dir
         # it is to support non JRF domain but user wants to use ATP database
-        archive_file_name = model_context.get_archive_file_name()
-        if not has_atp and archive_file_name and os.path.exists(archive_file_name):
-            archive_file = WLSDeployArchive(archive_file_name)
-            if archive_file:
-                atp_wallet_zipentry = archive_file.getATPWallet()
-                if atp_wallet_zipentry:
-                    atp_helper.extract_walletzip(model, model_context, archive_file, atp_wallet_zipentry)
+        if not has_atp and archive_helper:
+            archive_helper.extract_atp_wallet()
 
         creator = DomainCreator(model, model_context, aliases)
         creator.create()

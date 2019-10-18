@@ -369,7 +369,9 @@ ECHO.
 ECHO         archive_file    - the path to the archive file to use if not using the
 ECHO                           -print_usage functionality.  If the archive file is
 ECHO                           not provided, validation will only validate the
-ECHO                           artifacts provided.
+ECHO                           artifacts provided.  This can also be specified as a
+ECHO                           comma-separated list of archive files.  The overlapping contents in
+ECHO                           each archive take precedence over previous archives in the list.
 ECHO.
 ECHO         target_version  - the target version of WebLogic Server the tool
 ECHO                           should use to validate the model content.  This

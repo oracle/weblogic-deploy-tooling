@@ -366,7 +366,7 @@ class Creator(object):
                         self.files_to_extract_from_archive.append(model_path)
                     else:
                         path = self.alias_helper.get_model_folder_path(location)
-                        archive_file_name = self.model_context.get_archive_file_name
+                        archive_file_name = self.model_context.get_archive_file_name()
                         ex = exception_helper.create_create_exception('WLSDPLY-12121', model_name, path,
                                                                       model_path, archive_file_name)
                         self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)

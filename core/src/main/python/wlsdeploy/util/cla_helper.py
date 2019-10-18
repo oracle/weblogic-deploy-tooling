@@ -4,12 +4,13 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 Utility CLS methods shared by multiple tools.
 """
-from java.lang import IllegalArgumentException, IllegalStateException
-from oracle.weblogic.deploy.util import FileUtils, WLSDeployArchive, WLSDeployArchiveIOException
+from java.lang import IllegalArgumentException
+from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
+from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -34,15 +35,17 @@ def validate_optional_archive(program_name, optional_arg_map):
 
     if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in optional_arg_map:
         archive_file_name = optional_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
+        archive_files = cla_utils.get_archive_files(archive_file_name)
 
-        try:
-            FileUtils.validateExistingFile(archive_file_name)
-        except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20014', program_name, archive_file_name,
-                                                       iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
+        for archive_file in archive_files:
+            try:
+                FileUtils.validateExistingFile(archive_file)
+            except IllegalArgumentException, iae:
+                ex = exception_helper.create_cla_exception('WLSDPLY-20014', program_name, archive_file_name,
+                                                           iae.getLocalizedMessage(), error=iae)
+                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
 
 
 def validate_model_present(program_name, optional_arg_map):
@@ -51,6 +54,7 @@ def validate_model_present(program_name, optional_arg_map):
     If the model is in the archive, extract it to the temporary model location, and set that file as the
     MODEL_FILE_SWITCH argument.
     The MODEL_FILE_SWITCH value may be specified as multiple comma-separated models.
+    The ARCHIVE_FILE_SWITCH value may be specified as multiple comma-separated archives.
     :param program_name: the name of the calling program, for logging
     :param optional_arg_map: the optional arguments from the command line
     :raises CLAException: if the specified model is not an existing file, or the model is not found in the archive,
@@ -74,27 +78,19 @@ def validate_model_present(program_name, optional_arg_map):
                 raise ex
 
     elif CommandLineArgUtil.ARCHIVE_FILE_SWITCH in optional_arg_map:
-        archive_file_name = optional_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-        try:
-            archive_file = WLSDeployArchive(archive_file_name)
-            __tmp_model_dir = FileUtils.createTempDirectory(program_name)
-            tmp_model_raw_file = archive_file.extractModel(__tmp_model_dir)
-            if not tmp_model_raw_file:
-                ex = exception_helper.create_cla_exception('WLSDPLY-20026', program_name, archive_file_name,
-                                                           CommandLineArgUtil.MODEL_FILE_SWITCH)
-                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
+        archive_file = optional_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
+        archive_helper = ArchiveHelper(archive_file, None, __logger, exception_helper.ExceptionType.CLA)
 
-            model_file_name = FileUtils.fixupFileSeparatorsForJython(tmp_model_raw_file.getAbsolutePath())
-        except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20010', program_name, archive_file_name,
-                                                       archex.getLocalizedMessage(), error=archex)
+        if archive_helper.contains_model():
+            tmp_model_dir, tmp_model_file = archive_helper.extract_model(program_name)
+            model_file_name = FileUtils.fixupFileSeparatorsForJython(tmp_model_file.getAbsolutePath())
+            optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
+        else:
+            ex = exception_helper.create_cla_exception('WLSDPLY-20026', program_name, archive_file,
+                                                       CommandLineArgUtil.MODEL_FILE_SWITCH)
             ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-
-        optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
 
     else:
         ex = exception_helper.create_cla_exception('WLSDPLY-20015', program_name,
