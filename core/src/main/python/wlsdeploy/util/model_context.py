@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import tempfile
@@ -64,6 +64,7 @@ class ModelContext(object):
         self._opss_wallet_passphrase = None
         self._opss_wallet = None
         self._validation_method = None
+        self._rollback_if_restart_required = None
 
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
@@ -141,6 +142,9 @@ class ModelContext(object):
 
         if CommandLineArgUtil.ONE_PASS_SWITCH in arg_map:
             self._encrypt_one_pass = arg_map[CommandLineArgUtil.ONE_PASS_SWITCH]
+
+        if CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH in arg_map:
+            self._rollback_if_restart_required = arg_map[CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH]
 
         if CommandLineArgUtil.USE_ENCRYPTION_SWITCH in arg_map:
             self._use_encryption = arg_map[CommandLineArgUtil.USE_ENCRYPTION_SWITCH]
@@ -276,6 +280,13 @@ class ModelContext(object):
         :return: the archive file name
         """
         return self._archive_file_name
+
+    def is_rollback_if_restart_required(self):
+        """
+        Get the rollback if restart required
+        :return: true or false
+        """
+        return self._rollback_if_restart_required
 
     def get_opss_wallet(self):
         """

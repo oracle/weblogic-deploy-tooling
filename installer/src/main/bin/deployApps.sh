@@ -2,8 +2,8 @@
 # *****************************************************************************
 # deployApps.sh
 #
-# Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+# Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
 #       deployApps.sh - WLS Deploy tool to provision apps and resources.
@@ -66,7 +66,11 @@ usage() {
   echo ""
   echo "        domain_home     - the domain home directory"
   echo ""
-  echo "        archive_file    - the path to the archive file to use"
+  echo "        archive_file    - the path to the archive file to use  If the -model_file"
+  echo "                          argument is not specified, the model file in this archive"
+  echo "                          will be used.  This can also be specified as a"
+  echo "                          comma-separated list of archive files.  The overlapping contents in"
+  echo "                          each archive take precedence over previous archives in the list."
   echo ""
   echo "        model_file      - the location of the model file to use.  This can also be specified as a"
   echo "                          comma-separated list of model locations, where each successive model layers"

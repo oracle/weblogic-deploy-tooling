@@ -1,6 +1,6 @@
 """
-Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
-Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
 from wlsdeploy.aliases.model_constants import APPEND
@@ -24,6 +24,7 @@ WLS_GLOBAL_ROLES = {
     'AdminChannelUser': '?weblogic.entitlement.rules.OwnerIDDGroup(AdminChannelUsers)'
 }
 WLS_ROLE_UPDATE_OPERAND = '|'
+
 
 class WLSRoles(object):
     """
@@ -57,26 +58,25 @@ class WLSRoles(object):
             if self._wls_helper is not None and not self._wls_helper.is_weblogic_version_or_above('12.2.1'):
                 self.logger.warning('WLSDPLY-12504', self._wls_helper.get_actual_weblogic_version(), class_name=self.__class_name, method_name=_method_name)
             else:
-                role_expressions = self._process_roles_map(self._wls_roles_map, None)
+                role_expressions = self._process_roles_map(self._wls_roles_map)
                 if role_expressions is not None and len(role_expressions) > 0:
                     self.logger.info('WLSDPLY-12500', role_expressions.keys(), class_name=self.__class_name, method_name=_method_name)
                     self._update_xacml_role_mapper(role_expressions)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def validate_roles(self, validation_result):
+    def validate_roles(self):
         """
         Validate WLSRoles section of the domainInfo independent of any domain home location
         """
         _method_name = 'validate_roles'
         self.logger.entering(self._validation_roles_map, class_name=self.__class_name, method_name=_method_name)
         if self._validation_roles_map is not None and len(self._validation_roles_map) > 0:
-            self._validate_update_mode(self._validation_roles_map, validation_result)
-            self._process_roles_map(self._validation_roles_map, validation_result)
+            self._validate_update_mode(self._validation_roles_map)
+            self._process_roles_map(self._validation_roles_map)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return validation_result
 
-    def _process_roles_map(self, roles_map, validation_result):
+    def _process_roles_map(self, roles_map):
         """
         Loop through the WebLogic roles listed in the domainInfo and create a map of the role to the expression 
         """
@@ -87,15 +87,11 @@ class WLSRoles(object):
             # Get the role expression and if the role should be an update to the default set of roles
             expression = self._get_role_expression(role, roles_map)
             if string_utils.is_empty(expression):
-                self.logger.finer('WLSDPLY-12501', role, class_name=self.__class_name, method_name=_method_name)
-                if validation_result is not None:
-                    validation_result.add_warning('WLSDPLY-12501', role)
+                self.logger.warning('WLSDPLY-12501', role, class_name=self.__class_name, method_name=_method_name)
                 continue
             update_role = self._is_role_update_mode(role, roles_map)
             if update_role and role not in WLS_GLOBAL_ROLES:
-                self.logger.finer('WLSDPLY-12502', role, class_name=self.__class_name, method_name=_method_name)
-                if validation_result is not None:
-                    validation_result.add_warning('WLSDPLY-12502', role)
+                self.logger.warning('WLSDPLY-12502', role, class_name=self.__class_name, method_name=_method_name)
                 update_role = False
             # Add the role and expression to the map of roles to be processed 
             if update_role:
@@ -159,7 +155,7 @@ class WLSRoles(object):
                     result = expression_value + WLS_ROLE_UPDATE_OPERAND + WLS_GLOBAL_ROLES[role_name]
         return result
 
-    def _validate_update_mode(self, roles_map, validation_result):
+    def _validate_update_mode(self, roles_map):
         """
         Check that the UpdateMode value of a role is one of append, prepend or replace
         Provide a warning for other values as these will be treated as the default of replace
@@ -175,12 +171,12 @@ class WLSRoles(object):
                     mode = mode.lower()
                     if APPEND == mode or PREPEND == mode or REPLACE == mode:
                         continue
-                    self.logger.finer('WLSDPLY-12503', role_name, class_name=self.__class_name, method_name=_method_name)
-                    if validation_result is not None:
-                        validation_result.add_warning('WLSDPLY-12503', role_name)
+                    self.logger.warning('WLSDPLY-12503', role_name, class_name=self.__class_name,
+                                        method_name=_method_name)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
 
 def validator(roles_map, logger):
     """

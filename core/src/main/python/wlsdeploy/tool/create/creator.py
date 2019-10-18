@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 from oracle.weblogic.deploy.util import WLSDeployArchive
@@ -366,7 +366,7 @@ class Creator(object):
                         self.files_to_extract_from_archive.append(model_path)
                     else:
                         path = self.alias_helper.get_model_folder_path(location)
-                        archive_file_name = self.model_context.get_archive_file_name
+                        archive_file_name = self.model_context.get_archive_file_name()
                         ex = exception_helper.create_create_exception('WLSDPLY-12121', model_name, path,
                                                                       model_path, archive_file_name)
                         self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)

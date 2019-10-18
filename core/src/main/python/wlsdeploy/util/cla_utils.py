@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module that handles command-line argument parsing and common validation.
 """
@@ -57,6 +57,7 @@ class CommandLineArgUtil(object):
     ENCRYPT_MANUAL_SWITCH      = '-manual'
     # phony arg used as a key to store the password
     ONE_PASS_SWITCH            = '-password'
+    ROLLBACK_IF_RESTART_REQ_SWITCH = '-rollback_if_require_restart'
     USE_ENCRYPTION_SWITCH      = '-use_encryption'
     RUN_RCU_SWITCH             = '-run_rcu'
     TARGET_VERSION_SWITCH      = '-target_version'
@@ -75,11 +76,14 @@ class CommandLineArgUtil(object):
     # a slot to stash the archive file object
     ARCHIVE_FILE               = 'archive_file'
 
+    ARCHIVE_FILES_SEPARATOR = ','
     MODEL_FILES_SEPARATOR = ','
 
     HELP_EXIT_CODE                 = 100
     USAGE_ERROR_EXIT_CODE          = 99
     ARG_VALIDATION_ERROR_EXIT_CODE = 98
+    PROG_RESTART_REQUIRED          = 103
+    PROG_ROLLBACK_IF_RESTART_EXIT_CODE = 3
     PROG_ERROR_EXIT_CODE           = 2
     PROG_WARNING_EXIT_CODE         = 1
     PROG_OK_EXIT_CODE              = 0
@@ -410,6 +414,8 @@ class CommandLineArgUtil(object):
                     ex = self._get_out_of_args_exception(key)
                     self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
                     raise ex
+            elif self.is_rollback_if_restart_required_key(key):
+                self._add_arg(key, True)
             else:
                 ex = exception_helper.create_cla_exception('WLSDPLY-01601', self._program_name, key)
                 ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
@@ -678,14 +684,25 @@ class CommandLineArgUtil(object):
     def _validate_archive_file_arg(self, value):
         method_name = '_validate_archive_file_arg'
 
-        try:
-            archive = JFileUtils.validateFileName(value)
-        except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01616', value, iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        return archive.getAbsolutePath()
+        result_archive_files = []  # type: list
+        if self._allow_multiple_models:
+            archive_files = get_archive_files(value)
+        else:
+            archive_files = [value]
+
+        for archive_file in archive_files:
+            try:
+                archive_file = JFileUtils.validateFileName(archive_file)
+                archive_file = archive_file.getAbsolutePath()
+                result_archive_files.append(archive_file)
+            except JIllegalArgumentException, iae:
+                ex = exception_helper.create_cla_exception('WLSDPLY-01616', archive_file, iae.getLocalizedMessage(),
+                                                           error=iae)
+                ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+                self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                raise ex
+
+        return CommandLineArgUtil.ARCHIVE_FILES_SEPARATOR.join(result_archive_files)
 
     def get_opss_passphrase_key(self):
         return self.OPSS_WALLET_PASSPHRASE
@@ -1073,6 +1090,9 @@ class CommandLineArgUtil(object):
             raise ex
         return variables.getAbsolutePath()
 
+    def is_rollback_if_restart_required_key(self, key):
+        return self.ROLLBACK_IF_RESTART_REQ_SWITCH == key
+
     ###########################################################################
     # Helper methods                                                          #
     ###########################################################################
@@ -1113,3 +1133,13 @@ def get_model_files(model_files_text):
     :return: a list of model files
     """
     return model_files_text.split(CommandLineArgUtil.MODEL_FILES_SEPARATOR)
+
+
+def get_archive_files(archive_files_text):
+    """
+    Returns a list of archive files from the comma-separated ARCHIVE_FILE_SWITCH value.
+    Returns a list of one item if there is only one archive in the value.
+    :param archive_files_text: the value of the ARCHIVE_FILE_SWITCH argument
+    :return: a list of archive files
+    """
+    return archive_files_text.split(CommandLineArgUtil.ARCHIVE_FILES_SEPARATOR)

@@ -2,8 +2,8 @@
 # *****************************************************************************
 # validateModel.sh
 #
-# Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-# Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+# Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
 #       validateModel.sh - WLS Deploy tool to validate artifacts and print usage
@@ -85,7 +85,9 @@ usage() {
   echo "        archive_file    - the path to the archive file to use if not using the"
   echo "                          -print_usage functionality.  If the archive file is"
   echo "                          not provided, validation will only validate the"
-  echo "                          artifacts provided."
+  echo "                          artifacts provided.  This can also be specified as a"
+  echo "                          comma-separated list of archive files.  The overlapping contents in"
+  echo "                          each archive take precedence over previous archives in the list."
   echo ""
   echo "        target_version  - the target version of WebLogic Server the tool"
   echo "                          should use to validate the model content.  This"
@@ -263,7 +265,8 @@ else
     fi
 fi
 
-LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
+LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
+WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
 WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
 WLST_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS} ${WLST_PROPERTIES} ${WLSDEPLOY_PROPERTIES}"
 export WLST_PROPERTIES
@@ -274,6 +277,10 @@ fi
 
 if [ -z "${WLSDEPLOY_LOG_DIRECTORY}" ]; then
     WLSDEPLOY_LOG_DIRECTORY=${WLSDEPLOY_HOME}/logs; export WLSDEPLOY_LOG_DIRECTORY
+fi
+
+if [ -z "${WLSDEPLOY_LOG_HANDLERS}" ]; then
+    WLSDEPLOY_LOG_HANDLERS=${WLSDEPLOY_LOG_HANDLER}; export WLSDEPLOY_LOG_HANDLERS
 fi
 
 echo "JAVA_HOME = ${JAVA_HOME}"

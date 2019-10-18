@@ -4,7 +4,7 @@ pipeline {
             alwaysPull true
             reuseNode true
             image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
-            args '--user jenkins:oracle'
+            args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
 
@@ -26,9 +26,9 @@ pipeline {
                 '''
             }
         }
-        stage ('Test') {
+        stage ('Verify') {
             steps {
-                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR}  test'
+                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} -Dmw_home=${ORACLE_HOME} verify'
             }
             post {
                 always {

@@ -1,16 +1,16 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the deployApps tool.
 """
 import os
 import sys
 
-from java.io import IOException
+from java.io import IOException, PrintStream
 from java.lang import IllegalArgumentException
-from java.lang import IllegalStateException
-from java.lang import String
+from java.lang import String, System
+
 
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
@@ -35,6 +35,7 @@ from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import getcreds
@@ -73,7 +74,8 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_USER_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
-    CommandLineArgUtil.PASSPHRASE_SWITCH
+    CommandLineArgUtil.PASSPHRASE_SWITCH,
+    CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH
 ]
 
 
@@ -115,27 +117,6 @@ def __verify_required_args_present(required_arg_map):
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     return
-
-
-def __validate_archive_file_arg(required_arg_map):
-    """
-    Verify that the archive file exists.
-    :param required_arg_map: the required arguments map
-    :return: the archive file name
-    :raises CLAException: if the archive file is not valid
-    """
-    _method_name = '__validate_archive_file_arg'
-
-    archive_file_name = required_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-    try:
-        FileUtils.validateExistingFile(archive_file_name)
-    except IllegalArgumentException, iae:
-        ex = exception_helper.create_cla_exception('WLSDPLY-20014', _program_name, archive_file_name,
-                                                   iae.getLocalizedMessage(), error=iae)
-        ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
-    return archive_file_name
 
 
 def __process_model_args(optional_arg_map):
@@ -216,10 +197,10 @@ def __deploy(model, model_context, aliases):
     :raises DeployException: if an error occurs
     """
     if __wlst_mode == WlstModes.ONLINE:
-        __deploy_online(model, model_context, aliases)
+        ret_code = __deploy_online(model, model_context, aliases)
     else:
-        __deploy_offline(model, model_context, aliases)
-    return
+        ret_code = __deploy_offline(model, model_context, aliases)
+    return ret_code
 
 
 def __deploy_online(model, model_context, aliases):
@@ -254,9 +235,27 @@ def __deploy_online(model, model_context, aliases):
         __release_edit_session_and_disconnect()
         raise de
 
+    exit_code = 0
+
     try:
-        __wlst_helper.save()
-        __wlst_helper.activate()
+        # First we enable the stdout again and then redirect the stdoout to a string output stream
+        # call isRestartRequired to get the output, capture the string and then silence wlst output again
+        #
+        __wlst_helper.enable_stdout()
+        sostream = StringOutputStream()
+        System.setOut(PrintStream(sostream))
+        restart_required = __wlst_helper.is_restart_required()
+        is_restartreq_output = sostream.get_string()
+        __wlst_helper.silence()
+        if model_context.is_rollback_if_restart_required() and restart_required:
+            __wlst_helper.cancel_edit()
+            __logger.severe('WLSDPLY_09015', is_restartreq_output)
+            exit_code = CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE
+        else:
+            __wlst_helper.save()
+            __wlst_helper.activate()
+            if restart_required:
+                exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
     except BundleAwareException, ex:
         __release_edit_session_and_disconnect()
         raise ex
@@ -270,7 +269,7 @@ def __deploy_online(model, model_context, aliases):
         # to indicate a failure...just log the error since the process is going to exit anyway.
         __logger.warning('WLSDPLY-09009', _program_name, ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
-    return
+    return exit_code
 
 
 def __deploy_offline(model, model_context, aliases):
@@ -303,7 +302,7 @@ def __deploy_offline(model, model_context, aliases):
         # a failure...just log the error since the process is going to exit anyway.
         __logger.warning('WLSDPLY-09011', _program_name, ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
-    return
+    return 0
 
 
 def __release_edit_session_and_disconnect():
@@ -389,9 +388,19 @@ def main(args):
         model_context = ModelContext(_program_name, dict())
         tool_exit.end(model_context, exit_code)
 
+    variable_map = {}
+    try:
+        if model_context.get_variable_file():
+            variable_map = variables.load_variables(model_context.get_variable_file())
+    except VariableException, ex:
+        __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+        cla_helper.clean_up_temp_files()
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
     model_file_value = model_context.get_model_file()
     try:
-        model_dictionary = cla_helper.merge_model_files(model_file_value)
+        model_dictionary = cla_helper.merge_model_files(model_file_value, variable_map)
     except TranslateException, te:
         __logger.severe('WLSDPLY-09014', _program_name, model_file_value, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
@@ -399,9 +408,6 @@ def main(args):
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     try:
-        variable_map = {}
-        if model_context.get_variable_file():
-            variable_map = variables.load_variables(model_context.get_variable_file())
         variables.substitute(model_dictionary, variable_map, model_context)
     except VariableException, ex:
         __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
@@ -418,7 +424,7 @@ def main(args):
 
     try:
         model = Model(model_dictionary)
-        __deploy(model, model_context, aliases)
+        exit_code = __deploy(model, model_context, aliases)
     except DeployException, ex:
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)

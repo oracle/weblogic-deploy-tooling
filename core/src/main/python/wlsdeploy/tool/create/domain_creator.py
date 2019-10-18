@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
@@ -246,6 +246,7 @@ class DomainCreator(Creator):
         java_home = self.model_context.get_java_home()
 
         if RCU_DB_INFO in self.model.get_model_domain_info():
+
             rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
             rcu_db_info = RcuDbInfo(self.alias_helper, rcu_properties_map)
 
@@ -807,6 +808,10 @@ class DomainCreator(Creator):
         _method_name = '__configure_fmw_infra_database'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
+        if not self._domain_typedef.is_jrf_domain_type():
+            self.logger.warning('WLSDPLY-12249')
+            return
+
         has_atp = 0
         # For ATP databases :  we need to set all the property for each datasource
         # load atp connection properties from properties file
@@ -1167,11 +1172,8 @@ class DomainCreator(Creator):
         domain_info = self._domain_info
         if OPSS_SECRETS in domain_info:
             opss_secret_password = domain_info[OPSS_SECRETS]
-            if self.model_context.get_archive_file_name() and opss_secret_password:
-                archive_file = WLSDeployArchive(self.model_context.get_archive_file_name())
-                extract_path = self._domain_home + os.sep + 'opsswallet'
-                zip_entry = archive_file.getOPSSWallet();
-                FileUtils.extractZipFileContent(archive_file, zip_entry, extract_path)
+            if self.archive_helper and opss_secret_password:
+                extract_path = self.archive_helper.extract_opss_wallet()
                 self.wlst_helper.setSharedSecretStoreWithPassword(extract_path, opss_secret_password)
         else:
             opss_secret_password = self.model_context.get_opss_wallet_passphrase()

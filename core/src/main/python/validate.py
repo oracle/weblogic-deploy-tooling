@@ -1,16 +1,19 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The WLS Deploy tooling entry point for the validateModel tool.
 """
 import os
 import sys
+from java.util.logging import Level
 
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
+
+from oracle.weblogic.deploy.logging import SummaryHandler
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
@@ -20,6 +23,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import tool_exit
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
@@ -167,17 +171,15 @@ def __perform_model_file_validation(model_file_name, model_context):
 
     _method_name = '__perform_model_file_validation'
 
-    print_usage = model_context.get_print_usage()
-
     __logger.entering(model_file_name,
                       class_name=_class_name, method_name=_method_name)
 
     try:
-        model_dictionary = cla_helper.merge_model_files(model_file_name)
         model_validator = Validator(model_context, logger=__logger)
-        validation_results = model_validator.validate_in_standalone_mode(model_dictionary,
-                                                                         model_context.get_variable_file(),
-                                                                         model_context.get_archive_file_name())
+        variable_map = model_validator.load_variables(model_context.get_variable_file())
+        model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
+        model_validator.validate_in_standalone_mode(model_dictionary, variable_map,
+                                                    model_context.get_archive_file_name())
     except TranslateException, te:
         __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
                         error=te, class_name=_class_name, method_name=_method_name)
@@ -185,18 +187,7 @@ def __perform_model_file_validation(model_file_name, model_context):
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 
-    if print_usage is None:
-        __logger.info('WLSDPLY-05403',
-                      model_file_name,
-                      validation_results.get_errors_count(),
-                      validation_results.get_warnings_count(),
-                      validation_results.get_infos_count(),
-                      class_name=_class_name, method_name=_method_name)
-
-    validation_results.print_details()
-
     __logger.exiting(class_name=_class_name, method_name=_method_name)
-    return validation_results
 
 
 def main(args):
@@ -213,6 +204,8 @@ def main(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), arg, class_name=_class_name, method_name=_method_name)
 
     wlst_helper.silence()
+
+    exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
 
     try:
         model_context = __process_args(args)
@@ -239,15 +232,15 @@ def main(args):
             model_file_name = model_context.get_model_file()
 
             if model_file_name is not None:
-                validation_results = __perform_model_file_validation(model_file_name, model_context)
+                __perform_model_file_validation(model_file_name, model_context)
 
-                if validation_results.get_errors_count() > 0:
-                    cla_helper.clean_up_temp_files()
-                    sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-                elif validation_results.get_warnings_count() > 0:
-                    cla_helper.clean_up_temp_files()
-                    sys.exit(CommandLineArgUtil.PROG_WARNING_EXIT_CODE)
-
+                summary_handler = SummaryHandler.findInstance()
+                if summary_handler is not None:
+                    summary_level = summary_handler.getMaximumMessageLevel()
+                    if summary_level == Level.SEVERE:
+                        exit_code = CommandLineArgUtil.PROG_ERROR_EXIT_CODE
+                    elif summary_level == Level.WARNING:
+                        exit_code = CommandLineArgUtil.PROG_WARNING_EXIT_CODE
 
         except ValidateException, ve:
             __logger.severe('WLSDPLY-20000', _program_name, ve.getLocalizedMessage(), error=ve,
@@ -255,8 +248,9 @@ def main(args):
             cla_helper.clean_up_temp_files()
             sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    cla_helper.clean_up_temp_files()
+        cla_helper.clean_up_temp_files()
 
+        tool_exit.end(model_context, exit_code)
     return
 
 

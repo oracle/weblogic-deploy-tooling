@@ -2,8 +2,8 @@
 @rem **************************************************************************
 @rem validateModel.cmd
 @rem
-@rem Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-@rem Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+@rem Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
 @rem       validateModel.cmd - WLS Deploy tool to validate artifacts and print usage
@@ -279,7 +279,8 @@ IF NOT EXIST "%WLST%" (
 )
 :found_wlst
 
-SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
+SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
+SET WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
 SET WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
 SET "WLST_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS% %WLST_PROPERTIES%"
 SET "WLST_PROPERTIES=%WLST_PROPERTIES% %WLSDEPLOY_PROPERTIES%"
@@ -289,6 +290,9 @@ IF NOT DEFINED WLSDEPLOY_LOG_PROPERTIES (
 )
 IF NOT DEFINED WLSDEPLOY_LOG_DIRECTORY (
   SET WLSDEPLOY_LOG_DIRECTORY=%WLSDEPLOY_HOME%\logs
+)
+IF NOT DEFINED WLSDEPLOY_LOG_HANDLERS (
+  SET WLSDEPLOY_LOG_HANDLERS=%WLSDEPLOY_LOG_HANDLER%
 )
 
 ECHO JAVA_HOME = %JAVA_HOME%
@@ -372,7 +376,9 @@ ECHO.
 ECHO         archive_file    - the path to the archive file to use if not using the
 ECHO                           -print_usage functionality.  If the archive file is
 ECHO                           not provided, validation will only validate the
-ECHO                           artifacts provided.
+ECHO                           artifacts provided.  This can also be specified as a
+ECHO                           comma-separated list of archive files.  The overlapping contents in
+ECHO                           each archive take precedence over previous archives in the list.
 ECHO.
 ECHO         target_version  - the target version of WebLogic Server the tool
 ECHO                           should use to validate the model content.  This

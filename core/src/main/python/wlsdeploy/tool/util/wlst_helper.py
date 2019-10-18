@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 from oracle.weblogic.deploy.util import PyWLSTException
@@ -654,6 +654,9 @@ class WlstHelper(object):
             raise ex
         return
 
+    def cancel_edit(self):
+        wlst_helper.cancel_edit()
+
     def save(self):
         """
         Save the outstanding Weblogic Server configuration changes for the current edit session.
@@ -709,6 +712,15 @@ class WlstHelper(object):
         _method_name = 'silence'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
         wlst_helper.silence()
+        return
+
+    def enable_stdout(self):
+        """
+        Performs the wlst commands to enable stdout
+        """
+        _method_name = 'enable_stdout'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        wlst_helper.enable_stdout()
         return
 
     def set_if_needed(self, wlst_name, wlst_value, model_type, model_name, masked=False):
@@ -974,6 +986,13 @@ class WlstHelper(object):
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return
+
+    def is_restart_required(self):
+        """
+        Return if the update changes require restart of the domain or servers.
+        :return: true if the changes require restart
+        """
+        return wlst_helper.is_restart_required()
 
     def is_connected(self):
         """

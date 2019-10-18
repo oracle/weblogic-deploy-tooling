@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import re
@@ -134,18 +134,17 @@ def get_variable_names(text):
     return names
 
 
-def substitute(dictionary, variables, model_context, validation_result=None):
+def substitute(dictionary, variables, model_context):
     """
     Substitute fields in the specified dictionary with variable values.
     :param dictionary: the dictionary in which to substitute variables
     :param variables: a dictionary of variables for substitution
     :param model_context: used to resolve variables in file paths
     """
-    _process_node(dictionary, variables, model_context, validation_result)
-    return validation_result
+    _process_node(dictionary, variables, model_context)
 
 
-def _process_node(nodes, variables, model_context, validation_result):
+def _process_node(nodes, variables, model_context):
     """
     Process variables in the node.
     :param nodes: the dictionary to process
@@ -161,18 +160,18 @@ def _process_node(nodes, variables, model_context, validation_result):
         value = nodes[key]
 
         # if the key changes with substitution, remove old key and map value to new key
-        new_key = _substitute(key, variables, model_context, validation_result)
+        new_key = _substitute(key, variables, model_context)
         if new_key is not key:
             nodes.pop(key)
             nodes[new_key] = value
 
         if isinstance(value, dict):
-            _process_node(value, variables, model_context, validation_result)
+            _process_node(value, variables, model_context)
         elif type(value) is str:
-            nodes[key] = _substitute(value, variables, model_context, validation_result)
+            nodes[key] = _substitute(value, variables, model_context)
 
 
-def _substitute(text, variables, model_context, validation_result):
+def _substitute(text, variables, model_context):
     """
     Substitute the variable placeholders with the variable value.
     :param text: the text to process for variable placeholders
@@ -206,15 +205,13 @@ def _substitute(text, variables, model_context, validation_result):
                 # for @@PROP:key@@ variables, throw an exception if key is not found.
                 if key not in variables:
                     if model_context.get_validation_method() == 'strict':
-                        if validation_result:
-                            validation_result.add_error('WLSDPLY-01732', key)
+                        _logger.severe('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
                         ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
                         _logger.throwing(ex, class_name=_class_name, method_name=method_name)
                         raise ex
                     else:
-                        if validation_result:
-                            validation_result.add_info('WLSDPLY-01732', key)
-                            continue
+                        _logger.info('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
+                        continue
                             
                 value = variables[key]
                 text = text.replace(token, value)
@@ -223,7 +220,7 @@ def _substitute(text, variables, model_context, validation_result):
         if tokens:
             for token in tokens:
                 path = token[7:-2]
-                value = _read_value_from_file(path, model_context, validation_result)
+                value = _read_value_from_file(path, model_context)
                 text = text.replace(token, value)
 
         # special case for @@FILE:@@ORACLE_HOME@@/dir/name.txt@@
@@ -232,13 +229,13 @@ def _substitute(text, variables, model_context, validation_result):
             for token in tokens:
                 path = token[7:-2]
                 path = model_context.replace_token_string(path)
-                value = _read_value_from_file(path, model_context, validation_result)
+                value = _read_value_from_file(path, model_context)
                 text = text.replace(token, value)
 
     return text
 
 
-def _read_value_from_file(file_path, model_context, validation_result):
+def _read_value_from_file(file_path, model_context):
     """
     Read a single text value from the first line in the specified file.
     :param file_path: the file from which to read the value
@@ -253,16 +250,14 @@ def _read_value_from_file(file_path, model_context, validation_result):
         file_reader.close()
     except IOException, e:
         if model_context.get_validation_method() == 'strict':
-            if validation_result:
-                validation_result.add_error('WLSDPLY-01733', file_path, e.getLocalizedMessage())
+            _logger.severe('WLSDPLY-01733', file_path, e.getLocalizedMessage(), class_name=_class_name,
+                           method_name=method_name)
             ex = exception_helper.create_variable_exception('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e)
             _logger.throwing(ex, class_name=_class_name, method_name=method_name)
             raise ex
         else:
-            if validation_result:
-                validation_result.add_info('WLSDPLY-01733', file_path, e.getLocalizedMessage())
-            _logger.info('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e,
-                            class_name=_class_name, method_name=method_name)
+            _logger.info('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e, class_name=_class_name,
+                         method_name=method_name)
             line = ''
 
     if line is None:
@@ -271,3 +266,22 @@ def _read_value_from_file(file_path, model_context, validation_result):
         raise ex
 
     return str(line).strip()
+
+
+def substitute_key(text, variables):
+    """
+    Substitute any @@PROP values in the text and return.
+    If the corresponding variable is not found, leave the @@PROP value in place.
+    The deprecated ${} notation is not resolved.
+    :param text: the text to be evaluated
+    :param variables: the variable map
+    :return: the substituted text value
+    """
+    tokens = _property_pattern.findall(text)
+    if tokens:
+        for token in tokens:
+            key = token[7:-2]
+            if key in variables:
+                value = variables[key]
+                text = text.replace(token, value)
+    return text

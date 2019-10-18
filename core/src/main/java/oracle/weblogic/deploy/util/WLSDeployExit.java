@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates. All rights reserved.
- * Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+ * Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
 
@@ -47,6 +47,22 @@ public class WLSDeployExit {
     public static void exit(int error_code) {
         // might want to validate the exit code first
         System.exit(error_code);
+    }
+
+    /**
+     * Returns the first handler that is assignment-compatible with the specified class.
+     * @param handlerClass the class to check for compatibility
+     * @return the first matching handler, or null if none is found
+     */
+    public static Handler findHandler(Class handlerClass) {
+        Stack<Handler> handlers = reduceList(traverseHandlers(getTopLogList(), new LinkedList<Handler>()));
+        while (handlers.size() > 0) {
+            Handler handler = handlers.pop();
+            if(handlerClass.isInstance(handler)) {
+                return handler;
+            }
+        }
+        return null;
     }
 
     /**

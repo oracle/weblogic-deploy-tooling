@@ -2,8 +2,8 @@
 @rem **************************************************************************
 @rem createDomain.cmd
 @rem
-@rem Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-@rem Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+@rem Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
 @rem       createDomain.cmd - WLS Deploy tool to create empty domains.
@@ -349,7 +349,9 @@ ECHO                           environment variable.
 ECHO.
 ECHO         archive_file    - the path to the archive file to use.  If the -model_file
 ECHO                           argument is not specified, the model file in this archive
-ECHO                           will be used.
+ECHO                           will be used.  This can also be specified as a
+ECHO                           comma-separated list of archive files.  The overlapping contents in
+ECHO                           each archive take precedence over previous archives in the list.
 ECHO.
 ECHO         model_file      - the location of the model file to use.  This can also be specified as a
 ECHO                           comma-separated list of model locations, where each successive model
