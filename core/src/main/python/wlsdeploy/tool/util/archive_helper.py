@@ -337,7 +337,7 @@ class ArchiveHelper(object):
 
         wallet_path = None
         for archive_file in self.__archive_files[::-1]:
-            atp_wallet_zipentry = archive_file.getATPWallet()
+            atp_wallet_zipentry = archive_file.getOPSSWallet()
             if atp_wallet_zipentry:
                 wallet_dir = File(self.__domain_home, 'opsswallet')
                 wallet_dir.mkdirs()
