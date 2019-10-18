@@ -32,7 +32,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'imagetool/target/surefire-reports/*.xml'
+                    junit 'core/target/surefire-reports/*.xml'
                 }
             }
         }
@@ -45,7 +45,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'core/target/surefire-reports/*.xml'
+                    junit 'core/target/failsafe-reports/*.xml'
                 }
             }
         }
