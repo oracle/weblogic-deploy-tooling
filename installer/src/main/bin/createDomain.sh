@@ -211,20 +211,23 @@ fi
 # Validate the JVM version based on whether or not the user asked us to use encryption
 #
 JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
-JVM_VERSION_PART_ONE=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $1 }'`
-JVM_VERSION_PART_TWO=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
+# set JVM version to the major version, unless equal to 1, like 1.8.0, then use the minor version
+JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $1 }'`
 
-if [ ${JVM_VERSION_PART_ONE} -le 1 ]; then
-  if [ ${JVM_VERSION_PART_TWO} -lt ${MIN_JDK_VERSION} ]; then
-    if [ ${JVM_VERSION_PART_TWO} -lt 7 ]; then
-      echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
-    else
-      echo "JDK version 1.8 or higher is required when using encryption" >&2
-    fi
-    exit 2
-  fi
+if [ "${JVM_VERSION}" -eq "1" ]; then
+  JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
 fi
-echo "JDK version is ${JVM_FULL_VERSION}"
+
+if [ ${JVM_VERSION} -lt ${MIN_JDK_VERSION} ]; then
+  if [ ${JVM_VERSION} -lt 7 ]; then
+    echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
+  else
+    echo "JDK version 1.8 or higher is required when using encryption" >&2
+  fi
+  exit 2
+else
+  echo "JDK version is ${JVM_FULL_VERSION}"
+fi
 
 #
 # Check for values of required arguments for this script to continue.
