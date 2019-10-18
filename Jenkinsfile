@@ -26,7 +26,20 @@ pipeline {
                 '''
             }
         }
+        stage ('Test') {
+            steps {
+                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} test'
+            }
+            post {
+                always {
+                    junit 'imagetool/target/surefire-reports/*.xml'
+                }
+            }
+        }
         stage ('Verify') {
+            when {
+                changeRequest()
+            }
             steps {
                 sh 'mvn -P system-test -Dunit-test-wlst-dir=${WLST_DIR} -Dmw_home=${ORACLE_HOME} verify'
             }
