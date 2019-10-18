@@ -534,6 +534,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
             case "long":
             case "NoneType":
             case "str":
+            case "unicode":
                 result = orig;
                 break;
 
