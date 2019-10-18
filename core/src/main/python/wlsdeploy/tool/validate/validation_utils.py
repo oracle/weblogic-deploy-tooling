@@ -25,13 +25,10 @@ def extract_path_tokens(tokenized_value):
     """
     path_pattern = _path_token_pattern
     path_value = tokenized_value
-    print 'path is ', path_value, ' and pattern is ', path_value
-    print dir(path_value)
     if tokenized_value.isunicode():
         path_pattern = unicode(_path_token_pattern)
     elif not isinstance(tokenized_value, basestring):
         path_value = str(tokenized_value)
-    print 'path is ', path_value, ' and pattern is ', path_value
     tokens = re.findall(path_pattern, path_value)
     if tokens is None:
         # tokenized_value didn't contain any variable expressions, so
@@ -74,7 +71,6 @@ def get_python_data_type(value):
         types.ListType: 'list'
     }
     data_type = type(value)
-    print ' *************************************************** the type is ', str(data_type)
     if data_type in data_types_map:
         rtnval = data_types_map[data_type]
     elif str(data_type) in data_types_map:

@@ -16,8 +16,6 @@
     </parent>
 
     <properties>
-        <jython.package>${jython.package}</jython.package>
-        <jython.version>${jython.version}</jython.version>
         <!--
             Hack to get around Maven bug so that we can inject the build timestamp into the version class
          -->

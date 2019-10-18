@@ -49,8 +49,8 @@
         <sonar.exclusions>.flattened-pom.xml,target/**</sonar.exclusions>
         <sonar.test.exclusions>src/test/**</sonar.test.exclusions>
         <unit-test-wlst-dir>${env.WLST_DIR}</unit-test-wlst-dir>
-        <jython.package>${jython.package}</jython.package>
-        <jython.version>${jython.version}</jython.version>
+        <jython.package>jython</jython.package>
+        <jython.version>2.2.1</jython.version>
     </properties>
 
     <modules>
