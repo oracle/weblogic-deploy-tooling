@@ -896,9 +896,6 @@ class Validator(object):
 
         value_data_type = validation_utils.get_python_data_type(attribute_value)
 
-        if value_data_type == 'string':
-            attribute_value = attribute_value.toString()
-
         self._logger.finest('value_data_type={0}', value_data_type,
                             class_name=_class_name, method_name=_method_name)
 
