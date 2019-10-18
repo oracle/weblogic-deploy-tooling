@@ -41,7 +41,7 @@ pipeline {
                 changeRequest()
             }
             steps {
-                sh 'mvn -P system-test -Dunit-test-wlst-dir=${WLST_DIR} -Dmw_home=${ORACLE_HOME} verify'
+                sh 'mvn -P system-test -Dmw_home=${ORACLE_HOME} test-compile failsafe:integration-test'
             }
             post {
                 always {
