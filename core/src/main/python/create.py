@@ -315,6 +315,8 @@ def validate_model(model_dictionary, model_context, aliases):
 
 
 def validate_rcu_args_and_model(model_context, model, archive_helper, alias_helper):
+    _method_name = 'validate_rcu_args_and_model'
+
     has_atpdbinfo = 0
     domain_info = model[model_constants.DOMAIN_INFO]
     if domain_info is not None:
@@ -337,8 +339,7 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, alias_help
                         model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
                             model_constants.DRIVER_PARAMS_NET_TNS_ADMIN] = wallet_path
                     else:
-                        __logger.severe('WLSDPLY-12411', error=None, class_name=_class_name,
-                                        method_name="validateRCUArgsAndModel")
+                        __logger.severe('WLSDPLY-12411', error=None, class_name=_class_name, method_name=_method_name)
                         cla_helper.clean_up_temp_files()
                         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
