@@ -22,13 +22,13 @@ pipeline {
         stage ('Build') {
             steps {
                 sh '''
-                    mvn -B -DskipTests -Dunit-test-wlst-dir=${WLST_DIR} clean package
+                    mvn -B -DskipTests clean package
                 '''
             }
         }
         stage ('Verify') {
             steps {
-                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} -Dmw_home=${ORACLE_HOME} verify'
+                sh 'mvn -P system-test -Dunit-test-wlst-dir=${WLST_DIR} -Dmw_home=${ORACLE_HOME} verify'
             }
             post {
                 always {
