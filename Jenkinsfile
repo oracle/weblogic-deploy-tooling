@@ -22,17 +22,30 @@ pipeline {
         stage ('Build') {
             steps {
                 sh '''
-                    mvn -B -DskipTests -Dunit-test-wlst-dir=${WLST_DIR} clean package
+                    mvn -B -DskipTests clean package
                 '''
             }
         }
-        stage ('Verify') {
+        stage ('Test') {
             steps {
-                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} -Dmw_home=${ORACLE_HOME} verify'
+                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} test'
             }
             post {
                 always {
                     junit 'core/target/surefire-reports/*.xml'
+                }
+            }
+        }
+        stage ('Verify') {
+            when {
+                changeRequest()
+            }
+            steps {
+                sh 'mvn -P system-test -Dmw_home=${ORACLE_HOME} test-compile failsafe:integration-test'
+            }
+            post {
+                always {
+                    junit 'system-test/target/failsafe-reports/*.xml'
                 }
             }
         }
