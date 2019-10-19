@@ -31,8 +31,7 @@
         <!-- Need to resolve Jython classes at compile time.  At runtime, WLST will provide the classes. -->
         <dependency>
             <groupId>org.python</groupId>
-            <artifactId>${jython.package}</artifactId>
-            <version>${jython.version}</version>
+            <artifactId>jython</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
