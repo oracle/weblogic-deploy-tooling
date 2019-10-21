@@ -1,3 +1,9 @@
+
+
+
+
+
+
 // Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
@@ -79,7 +85,8 @@ public class BaseTest {
         logger.info("cleaning up the test environment ...");
 
         // remove WDT script home directory
-        String cmd = "rm -rf " + getTargetDir() + FS + WDT_HOME_DIR;
+        String cmd = "tar -cvf" + getTargetDir() +FS
+
         executeNoVerify(cmd);
 
         // delete the domain directory created by the tests
@@ -89,7 +96,13 @@ public class BaseTest {
             FileUtils.deleteDirectory(domainParentDir);
         }
     }
+    protected static void saveLogFiles(testMethodName) throws Exception {
+        logger.info("saving log files ...");
 
+        // remove WDT script home directory
+        String cmd = "tar -cvf" + getTargetDir() +FS + "testMethodName.tar " +  getTargetDir() + FS + WDT_HOME_DIR;
+        executeNoVerify(cmd);
+    }
     protected static String getProjectRoot() {
         return projectRoot;
     }
