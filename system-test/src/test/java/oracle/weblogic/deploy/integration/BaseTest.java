@@ -1,9 +1,3 @@
-
-
-
-
-
-
 // Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
@@ -85,8 +79,7 @@ public class BaseTest {
         logger.info("cleaning up the test environment ...");
 
         // remove WDT script home directory
-        String cmd = "tar -cvf" + getTargetDir() +FS
-
+        String cmd = "rm -rf " + getTargetDir() + FS + WDT_HOME_DIR;
         executeNoVerify(cmd);
 
         // delete the domain directory created by the tests
