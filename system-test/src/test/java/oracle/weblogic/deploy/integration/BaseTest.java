@@ -89,7 +89,7 @@ public class BaseTest {
             FileUtils.deleteDirectory(domainParentDir);
         }
     }
-    protected static void saveLogFiles(testMethodName) throws Exception {
+    protected static void saveLogFiles(String testMethodName) throws Exception {
         logger.info("saving log files ...");
 
         // remove WDT script home directory
