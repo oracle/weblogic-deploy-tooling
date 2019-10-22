@@ -51,7 +51,7 @@ public class ITWdt extends BaseTest {
         @Override
         protected void failed(Throwable e, Description description) {
             if (e != null) {
-                logger.info("Method {0} Exception: {1}" description.getMethodName(), e.getLogMessage());
+                logger.info("Method {0} Exception: {1}", description.getMethodName(), e.getLogMessage());
             }
             saveLogFiles(description.getMethodName());
         }
@@ -360,8 +360,6 @@ public class ITWdt extends BaseTest {
         logTestEnd(testMethodName);
     }
 
-    @After
-    public void afterTestECreateRestrictedJRFDomain()
     /**
      * test discoverDomain.sh with required arguments
      * @throws Exception - if any error occurs
