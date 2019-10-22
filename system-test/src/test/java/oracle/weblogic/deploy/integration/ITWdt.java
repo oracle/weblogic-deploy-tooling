@@ -57,8 +57,8 @@ public class ITWdt extends BaseTest {
             }
             try {
                 saveLogFiles(description.getMethodName());
-            } catch (Exception e) {
-                logger.info("Unable to save log files : " + e.getLocalizedMessage());
+            } catch (Exception le) {
+                logger.info("Unable to save log files : " + le.getLocalizedMessage());
             }
         }
     };
