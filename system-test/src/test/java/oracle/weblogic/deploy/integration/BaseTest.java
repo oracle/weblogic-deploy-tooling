@@ -93,7 +93,8 @@ public class BaseTest {
         logger.info("saving log files ...");
 
         // remove WDT script home directory
-        String cmd = "tar -cvf" + getTargetDir() +FS + "testMethodName.tar " +  getTargetDir() + FS + WDT_HOME_DIR;
+        String cmd = "tar -cvf" + getTargetDir() +FS + testMethodName + ".tar " +  getTargetDir() + FS + WDT_HOME_DIR +
+            FS + logs;
         executeNoVerify(cmd);
     }
     protected static String getProjectRoot() {
