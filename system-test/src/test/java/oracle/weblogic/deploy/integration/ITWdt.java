@@ -362,7 +362,6 @@ public class ITWdt extends BaseTest {
 
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
-        saveLogFiles(testMethodName);
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // unzip discoveredArchive.zip
@@ -394,7 +393,6 @@ public class ITWdt extends BaseTest {
 
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
-        saveLogFiles(testMethodName);
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // verify model file
@@ -420,7 +418,6 @@ public class ITWdt extends BaseTest {
 
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
-        saveLogFiles(testMethodName);
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // verify model file

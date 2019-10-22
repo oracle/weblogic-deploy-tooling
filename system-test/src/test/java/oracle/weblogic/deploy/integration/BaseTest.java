@@ -89,14 +89,7 @@ public class BaseTest {
             FileUtils.deleteDirectory(domainParentDir);
         }
     }
-    protected static void saveLogFiles(String testMethodName) throws Exception {
-        logger.info("saving log files ...");
 
-        // remove WDT script home directory
-        String cmd = "tar -cvf" + getTargetDir() +FS + testMethodName + ".tar " +  getTargetDir() + FS + WDT_HOME_DIR +
-            FS + "logs";
-        executeNoVerify(cmd);
-    }
     protected static String getProjectRoot() {
         return projectRoot;
     }
