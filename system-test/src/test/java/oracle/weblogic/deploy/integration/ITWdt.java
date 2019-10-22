@@ -43,6 +43,14 @@ public class ITWdt extends BaseTest {
         cleanup();
     }
 
+    @After
+    public static void saveState() throws Exception {
+        logger.info('saving test state ...');
+        StackTraceElement[] stackE = Thread.currentThread().getStackTrace();
+        if (stackE != null and stackE.length > 0) {
+            saveLogFiles(stacke[0].getMethodName());
+        }
+    }
     /**
      * test createDomain.sh with only -oracle_home argument
      * @throws Exception - if any error occurs
@@ -346,6 +354,8 @@ public class ITWdt extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    @After
+    public void afterTestECreateRestrictedJRFDomain()
     /**
      * test discoverDomain.sh with required arguments
      * @throws Exception - if any error occurs
@@ -362,7 +372,7 @@ public class ITWdt extends BaseTest {
 
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
-        saveLogFiles(testMethodName);
+
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // unzip discoveredArchive.zip
@@ -394,7 +404,7 @@ public class ITWdt extends BaseTest {
 
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
-        saveLogFiles(testMethodName);
+
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // verify model file
@@ -420,7 +430,7 @@ public class ITWdt extends BaseTest {
 
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
-        saveLogFiles(testMethodName);
+
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // verify model file

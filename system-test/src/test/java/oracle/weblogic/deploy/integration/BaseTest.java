@@ -89,14 +89,16 @@ public class BaseTest {
             FileUtils.deleteDirectory(domainParentDir);
         }
     }
+
     protected static void saveLogFiles(String testMethodName) throws Exception {
         logger.info("saving log files ...");
 
-        // remove WDT script home directory
+        // save the logs for this test instance in the workspace target directory
         String cmd = "tar -cvf" + getTargetDir() +FS + testMethodName + ".tar " +  getTargetDir() + FS + WDT_HOME_DIR +
             FS + "logs";
         executeNoVerify(cmd);
     }
+
     protected static String getProjectRoot() {
         return projectRoot;
     }
@@ -184,6 +186,7 @@ public class BaseTest {
     protected void logTestEnd(String testMethodName) throws Exception {
         logger.info("SUCCESS - " + testMethodName);
         logger.info("=======================================");
+        saveLogFiles(testMethodName);
     }
 
     protected static String getResourcePath() {
