@@ -186,7 +186,6 @@ public class BaseTest {
     protected void logTestEnd(String testMethodName) throws Exception {
         logger.info("SUCCESS - " + testMethodName);
         logger.info("=======================================");
-        saveLogFiles(testMethodName);
     }
 
     protected static String getResourcePath() {
