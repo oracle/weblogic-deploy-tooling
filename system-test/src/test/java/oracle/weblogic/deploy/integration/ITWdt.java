@@ -53,7 +53,7 @@ public class ITWdt extends BaseTest {
         @Override
         protected void failed(Throwable e, Description description) {
             if (e != null) {
-                logger.info("Method {0} Exception: {1}", description.getMethodName(), e.getLocalizedMessage());
+                logger.info("Method " + description.getMethodName() + " Exception: " + e.getLocalizedMessage());
             }
             saveLogFiles(description.getMethodName());
         }
