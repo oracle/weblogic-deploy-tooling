@@ -148,7 +148,7 @@ public class BaseTest {
     }
 
     protected void verifyResult(ExecResult result, String matchString) throws Exception {
-        if(result.exitValue() != 0 || !result.stdout().contains(matchString)) {
+        if(result.exitValue() != -1 || !result.stdout().contains(matchString)) {
             logger.info("DEBUG: result.exitValue=" + result.exitValue());
             logger.info("DEBUG: result.stdout=" + result.stdout());
             throw new Exception("result stdout does not contains the expected string: " + matchString);

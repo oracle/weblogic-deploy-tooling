@@ -43,14 +43,18 @@ public class ITWdt extends BaseTest {
         cleanup();
     }
 
-    @After
-    public static void saveState() throws Exception {
-        logger.info('saving test state ...');
-        StackTraceElement[] stackE = Thread.currentThread().getStackTrace();
-        if (stackE != null and stackE.length > 0) {
-            saveLogFiles(stacke[0].getMethodName());
+
+    @Rule
+    public TestWatcher watcher = new TestWatcher() {
+        @Override
+        protected void failed(Throwable e, Description description) {
+            if (e != null) {
+                logger.info("Method {0} Exception: {1}" description.getMethodName(), e.getLogMessage());
+            }
+            saveLogFiles(description.getMethodName());
         }
-    }
+    };
+
     /**
      * test createDomain.sh with only -oracle_home argument
      * @throws Exception - if any error occurs
