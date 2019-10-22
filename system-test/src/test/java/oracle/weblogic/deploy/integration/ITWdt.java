@@ -55,7 +55,11 @@ public class ITWdt extends BaseTest {
             if (e != null) {
                 logger.info("Method " + description.getMethodName() + " Exception: " + e.getLocalizedMessage());
             }
-            saveLogFiles(description.getMethodName());
+            try {
+                saveLogFiles(description.getMethodName());
+            } catch (Exception e) {
+                logger.info("Unable to save log files : " + e.getLocalizedMessage());
+            }
         }
     };
 
