@@ -10,9 +10,11 @@ import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,7 +53,7 @@ public class ITWdt extends BaseTest {
         @Override
         protected void failed(Throwable e, Description description) {
             if (e != null) {
-                logger.info("Method {0} Exception: {1}", description.getMethodName(), e.getLogMessage());
+                logger.info("Method {0} Exception: {1}", description.getMethodName(), e.getLocalizedMessage());
             }
             saveLogFiles(description.getMethodName());
         }
