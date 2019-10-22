@@ -152,7 +152,7 @@ def _process_node(nodes, variables, model_context):
     :param model_context: used to resolve variables in file paths
     """
     # iterate over copy to avoid concurrent change for add/delete
-    if type(nodes) is OrderedDict:
+    if isinstance(nodes, OrderedDict):
         nodes_iterator = OrderedDict(nodes)
     else:
         nodes_iterator = dict(nodes)

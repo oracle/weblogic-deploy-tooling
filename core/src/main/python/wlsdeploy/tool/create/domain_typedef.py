@@ -2,7 +2,7 @@
 Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import javaos as os
+import os
 import re
 
 from java.lang import IllegalArgumentException
@@ -18,6 +18,7 @@ from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 CREATE_DOMAIN = 'createDomain'
 UPDATE_DOMAIN = 'updateDomain'
+NOT_SUPPORTED = 'NOT_SUPPORTED'
 
 
 class DomainTypedef(object):
@@ -370,6 +371,7 @@ class DomainTypedef(object):
             raise ex
 
         self._version_typedef_name = self.__match_version_typedef(self._domain_typedefs_dict['versions'])
+
         if self._version_typedef_name in self._domain_typedefs_dict['definitions']:
             result = self._domain_typedefs_dict['definitions'][self._version_typedef_name]
         else:
@@ -417,6 +419,10 @@ class DomainTypedef(object):
                                                               self._domain_typedef_filename, wls_version)
                 self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
+        if result == NOT_SUPPORTED:
+            ex = exception_helper.create_create_exception('WLSDPLY-12313', self._domain_type, wls_version)
+            self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
         self._logger.exiting(self.__class_name, _method_name, result)
         return result
 

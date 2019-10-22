@@ -280,9 +280,10 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         synchronized (this.linkedHashMap) {
             this.linkedHashMap.put(key, value);
         }
-        synchronized (super.table) {
-            super.table.put(key, value);
-        }
+        // do not access protected field directly.
+        // 2.7 version does not have table variable.
+        // Neither version has synchronization on the table.
+        super.__setitem__(key, value);
     }
 
     /**
@@ -291,7 +292,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
     @Override
     public void clear() {
         this.linkedHashMap.clear();
-        super.table.clear();;
+        super.clear();
     }
 
     /**
@@ -503,6 +504,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
             case "long":
             case "NoneType":
             case "str":
+            case "unicode":
                 result = orig;
                 break;
 

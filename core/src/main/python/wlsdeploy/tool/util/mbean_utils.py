@@ -340,16 +340,17 @@ class MBeanAttributes(object):
     specific information.
     """
 
-    __interface_matcher = re.compile('Bean$')
+    __interface_matcher = re.compile('Bean')
 
-    def __init__(self, model_context, alias_helper, exception_type, location, mbean_interface_name):
+    def __init__(self, model_context, alias_helper, exception_type, location):
         self.__model_context = model_context
         self.__exception_type = exception_type
         self.__location = location
         self.__alias_helper = alias_helper
-        self.__mbean_interface = mbean_interface_name
         self.__wlst_helper = WlstHelper(_logger, exception_type)
+        self.__mbean_interface_name = None
         self.__mbean_instance = None
+        self.__mbean_interface = None
         self.__mbean_name = ''
 
     def mbean_string(self):
@@ -371,10 +372,11 @@ class MBeanAttributes(object):
         Return the full name of the MBean interface class.
         :return: Interface name
         """
-        return self._get_mbean_interface()
+        self._get_mbean_interface()
+        return self.__mbean_interface_name
 
-    def _get_mbean_instance(self):
-        _method_name = '_get_mbean_instance'
+    def get_mbean_instance(self):
+        _method_name = 'get_mbean_instance'
         if self.__mbean_instance is None:
             attribute_path = self.__alias_helper.get_wlst_attributes_path(self.__location)
             self.__mbean_instance = self.__wlst_helper.get_mbean(attribute_path)
@@ -392,17 +394,18 @@ class MBeanAttributes(object):
                           if re.search(self.__interface_matcher, str(interface)) is not None]
             if len(interfaces) == 0:
                 ex = exception_helper.create_exception(self._get_exception_type(), 'WLSDPLY-01777',
-                                                       self._get_mbean_instance())
+                                                       str(self._get_mbean_interfaces()), self.get_mbean_instance())
                 _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
                 raise ex
             else:
                 if len(interfaces) > 1:
-                    _logger.fine('WLSDPLY-01770', interfaces, self._get_mbean_instance(),
+                    _logger.fine('WLSDPLY-01770', interfaces, self.get_mbean_instance(),
                                  class_name=self.__class__.__name__, method_name=_method_name)
-                interface = interfaces[0]
-                self.__mbean_name = interface.getSimpleName()
-                self.__mbean_interface = str(interface)
-            _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name, result=self.__mbean_interface)
+                self.__mbean_interface = interfaces[0]
+                self.__mbean_name = str(self.__mbean_interface.getSimpleName())
+                self.__mbean_interface_name = str(self.__mbean_interface.getTypeName())
+            _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name,
+                            result=self.__mbean_interface_name)
 
         return self.__mbean_interface
 
@@ -421,7 +424,7 @@ class MBeanAttributes(object):
     def __get_mbean_class(self):
         _method_name = '__get_mbean_class'
         mbean_class = None
-        mbean_instance = self._get_mbean_instance()
+        mbean_instance = self.get_mbean_instance()
         try:
             getter = getattr(mbean_instance, 'getClass')
             mbean_class = getter()
@@ -438,7 +441,7 @@ class MBeanAttributes(object):
         success = False
         value = None
         try:
-            get_method = getattr(self._get_mbean_instance(), getter)
+            get_method = getattr(self.get_mbean_instance(), getter)
             if get_method is not None:
                 value = get_method()
                 _logger.finest('WLSDPLY-01784', getter, self._get_mbean_name(),
@@ -466,8 +469,8 @@ class InterfaceAttributes(MBeanAttributes):
     attribute methods on the WLST CMO instance.
     """
 
-    def __init__(self,  model_context, alias_helper, exception_type, location, mbean_interface_name=None):
-        MBeanAttributes.__init__(self,  model_context, alias_helper, exception_type, location, mbean_interface_name)
+    def __init__(self,  model_context, alias_helper, exception_type, location):
+        MBeanAttributes.__init__(self,  model_context, alias_helper, exception_type, location)
 
         self.__interface_methods_list = None
         self.__interface_method_names_list = None
@@ -718,8 +721,8 @@ class MBeanInfoAttributes(MBeanAttributes):
 
     __class_name = 'MBeanInfoAttributes'
 
-    def __init__(self, model_context, alias_helper, exception_type, location, mbean_interface_name=None):
-        MBeanAttributes.__init__(self, model_context, alias_helper, exception_type, location, mbean_interface_name)
+    def __init__(self, model_context, alias_helper, exception_type, location):
+        MBeanAttributes.__init__(self, model_context, alias_helper, exception_type, location)
 
         self.__weblogic_helper = WebLogicHelper(_logger)
         self.__mbean_info_descriptors = None
@@ -886,10 +889,10 @@ class MBeanInfoAttributes(MBeanAttributes):
     def __get_mbean_descriptors(self):
         _method_name = '__get_mbean_descriptors'
         if self.__mbean_info_descriptors is None:
-            mbean_info = self.__weblogic_helper.get_bean_info_for_interface(self._get_mbean_interface())
+            mbean_info = self.__weblogic_helper.get_bean_info_for_interface(self.get_mbean_interface_name())
             if mbean_info is None:
                 ex = exception_helper.create_exception(self._get_exception_type(), 'WLSDPLY-01774',
-                                                       self._get_mbean_interface(), self.mbean_string())
+                                                       self.get_mbean_interface_name(), self.mbean_string())
                 _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
                 raise ex
             self.__mbean_info_descriptors = mbean_info.getPropertyDescriptors()

@@ -728,7 +728,7 @@ def _compile_pattern(pattern):
 
 
 def _already_property(check_string):
-    return type(check_string) == str and check_string.startswith('@@PROP:')
+    return isinstance(check_string, basestring) and check_string.startswith('@@PROP:')
 
 
 def _format_as_property(prop_name):

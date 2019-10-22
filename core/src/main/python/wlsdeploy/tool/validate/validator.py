@@ -827,7 +827,7 @@ class Validator(object):
         self._logger.finest('value_data_type={0}', value_data_type,
                             class_name=_class_name, method_name=_method_name)
 
-        valid_valus_data_types = ['list', 'string']
+        valid_valus_data_types = ['list', 'string', 'unicode']
         if value_data_type not in valid_valus_data_types:
             self._logger.severe('WLSDPLY-05023', attribute_name, model_folder_path, value_data_type,
                                 class_name=_class_name, method_name=_method_name)
@@ -837,7 +837,7 @@ class Validator(object):
             if value_data_type == 'string' and model_constants.MODEL_LIST_DELIMITER in attribute_value:
                 attr_values = attribute_value.split(model_constants.MODEL_LIST_DELIMITER)
 
-            elif value_data_type == 'string':
+            elif value_data_type in ['string', 'unicode']:
                 attr_values.append(attribute_value)
 
             else:
@@ -909,7 +909,7 @@ class Validator(object):
                         if '${' in key:
                             self._report_unsupported_variable_usage(key, model_folder_path)
 
-                    if type(value) is str and MODEL_LIST_DELIMITER in value:
+                    if isinstance(value, basestring) and MODEL_LIST_DELIMITER in value:
                         value = value.split(MODEL_LIST_DELIMITER)
 
                     if type(value) is list:

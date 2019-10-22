@@ -278,7 +278,6 @@ class VariableFileHelperTest(unittest.TestCase):
                          'JNDIProperty[java.naming.security.principal].Value'][
             variable_injector.VARIABLE_VALUE] = 'k8s'
         actual = self._helper.inject_variables(replacement_dict)
-        print actual
         self._compare_to_expected_dictionary(expected, actual)
 
     def testReplaceVariableValueSegmentInString(self):

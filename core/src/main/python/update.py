@@ -4,7 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the updateDomain tool.
 """
-import javaos as os
+import os
 import sys
 
 from java.io import IOException, PrintStream
@@ -454,6 +454,6 @@ def main(args):
     return
 
 
-if __name__ == "main":
+if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     main(sys.argv)

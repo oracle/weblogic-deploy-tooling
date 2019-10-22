@@ -2,7 +2,7 @@
 Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import javaos as os
+import os
 
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
@@ -612,7 +612,7 @@ class Discoverer(object):
         _method_name = '_find_mbean_interface'
         mbean_name = None
         for interface in interfaces:
-            interface_name = str(interface)
+            interface_name = str(interface.getTypeName())
             if 'MBean' in interface_name:
                 _logger.finer('WLSDPLY-06126', interface_name, self._alias_helper.get_model_folder_path(location),
                               class_name=_class_name, method_name=_method_name)
