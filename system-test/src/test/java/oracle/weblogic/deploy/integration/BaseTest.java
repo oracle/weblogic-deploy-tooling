@@ -94,7 +94,7 @@ public class BaseTest {
 
         // remove WDT script home directory
         String cmd = "tar -cvf" + getTargetDir() +FS + testMethodName + ".tar " +  getTargetDir() + FS + WDT_HOME_DIR +
-            FS + logs;
+            FS + "logs";
         executeNoVerify(cmd);
     }
     protected static String getProjectRoot() {
