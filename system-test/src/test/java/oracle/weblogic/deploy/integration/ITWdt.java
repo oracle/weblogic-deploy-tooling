@@ -10,7 +10,11 @@ import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,6 +46,22 @@ public class ITWdt extends BaseTest {
         logger.info("cleaning up after the test ...");
         cleanup();
     }
+
+
+    @Rule
+    public TestWatcher watcher = new TestWatcher() {
+        @Override
+        protected void failed(Throwable e, Description description) {
+            if (e != null) {
+                logger.info("Method " + description.getMethodName() + " Exception: " + e.getLocalizedMessage());
+            }
+            try {
+                saveLogFiles(description.getMethodName());
+            } catch (Exception le) {
+                logger.info("Unable to save log files : " + le.getLocalizedMessage());
+            }
+        }
+    };
 
     /**
      * test createDomain.sh with only -oracle_home argument
@@ -362,6 +382,7 @@ public class ITWdt extends BaseTest {
 
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
+
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // unzip discoveredArchive.zip
@@ -393,6 +414,7 @@ public class ITWdt extends BaseTest {
 
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
+
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // verify model file
@@ -418,6 +440,7 @@ public class ITWdt extends BaseTest {
 
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
+
         verifyResult(result, "discoverDomain.sh completed successfully");
 
         // verify model file
