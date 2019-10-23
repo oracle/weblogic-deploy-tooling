@@ -74,7 +74,7 @@ public class WLSDeployArchive {
     /**
      * Top-level archive subdirectory where the $DOMAIN_HOME/bin scripts are stored.
      */
-    public static final String ARCHIVE_DOMBIN_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/domainBin";
+    public static final String ARCHIVE_DOM_BIN_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/domainBin";
     /**
      * Top-level archive subdirectory where the FileStore directories are stored and the subdirectory
      * to which they will be extracted.
@@ -734,7 +734,7 @@ public class WLSDeployArchive {
         LOGGER.entering(CLASS, METHOD, domainBinPath);
         validateExistingFile(domainBinPath, "domainBinPath", getArchiveFileName(), METHOD);
 
-        String newName = addItemToZip(ARCHIVE_DOMBIN_TARGET_DIR, domainBinPath);
+        String newName = addItemToZip(ARCHIVE_DOM_BIN_TARGET_DIR, domainBinPath);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
@@ -749,9 +749,9 @@ public class WLSDeployArchive {
         final String METHOD = "listDomainBinScripts";
 
         LOGGER.entering(CLASS, METHOD);
-        List<String> result = getZipFile().listZipEntries(ARCHIVE_DOMBIN_TARGET_DIR + ZIP_SEP);
+        List<String> result = getZipFile().listZipEntries(ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP);
         // Remove the top-level directory entry from the list...
-        result.remove(ARCHIVE_DOMBIN_TARGET_DIR + ZIP_SEP);
+        result.remove(ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP);
         LOGGER.exiting(CLASS, METHOD, result);
         return result;
     }
