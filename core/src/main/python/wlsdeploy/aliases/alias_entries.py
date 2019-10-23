@@ -181,6 +181,7 @@ class AliasEntries(object):
         'AdminUserName': 'string',
         'AdminPassword': 'password',
         'ServerStartMode': 'string',
+        'domainBin': 'list',
         'domainLibraries': 'list',
         # A map of Server Group names to the list of servers/clusters to which they should
         # be targeted.  The ServerGroup must appear in the domain typedef definition.  If

@@ -30,6 +30,7 @@ from wlsdeploy.util import variables
 from wlsdeploy.util.enum import Enum
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
+from wlsdeploy.aliases.model_constants import DOMAIN_SCRIPTS
 from wlsdeploy.aliases.model_constants import DOMAIN_LIBRARIES
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import NAME
@@ -400,7 +401,7 @@ class Validator(object):
             if section_dict_key in valid_attr_infos:
                 # section_dict_key is an attribute under the model section, and
                 # also in valid_attr_infos.
-                if section_dict_key == DOMAIN_LIBRARIES:
+                if section_dict_key in [DOMAIN_LIBRARIES, DOMAIN_SCRIPTS]:
                     self.__validate_path_tokens_attribute(section_dict_key, section_dict_value, model_folder_path)
 
                 elif section_dict_key == SERVER_GROUP_TARGETING_LIMITS:
@@ -418,7 +419,7 @@ class Validator(object):
                 # section. Do not record this as an ERROR as this could be custom
                 # information that the user has written a filter to extract
                 self._logger.info('WLSDPLY-05029', section_dict_key, model_folder_path, valid_attr_infos.keys(),
-                                    class_name=_class_name, method_name=_method_name)
+                                  class_name=_class_name, method_name=_method_name)
 
     def __validate_model_section(self, model_section_key, model_dict, valid_section_folders):
         _method_name = '__validate_model_section'

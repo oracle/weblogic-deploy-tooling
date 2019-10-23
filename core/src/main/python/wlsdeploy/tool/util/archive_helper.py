@@ -280,6 +280,32 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=count)
         return count
 
+    def extract_domain_bin_script(self, script_path):
+        """
+        Extract the specified domain bin script to the $DOMAIN_HOME/bin directory.
+        :param script_path: the domain bin path and script into the archive file
+        :raises: BundleAwareException of the appropriate type: if an error occurs
+        """
+        _method_name = 'extract_domain_bin_script'
+
+        self.__logger.entering(script_path, class_name=self.__class_name, method_name=_method_name)
+        try:
+            archive = self._find_archive_for_path(script_path)
+            if archive is not None:
+                archive.extractDomainBinScript(script_path, File(self.__domain_home, 'bin'))
+            else:
+                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19308',
+                                                       script_path, self.__archive_files_text)
+                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+        except (WLSDeployArchiveIOException, IllegalArgumentException), e:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19309', script_path,
+                                                   self.__archive_files_text, e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
     def get_archive_entries(self):
         """
         Get the entries from all the archives.
