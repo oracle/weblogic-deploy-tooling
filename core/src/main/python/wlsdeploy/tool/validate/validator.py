@@ -415,9 +415,9 @@ class Validator(object):
                                               path_tokens_attr_keys, model_folder_path, validation_location)
             else:
                 # section_dict_key is not an attribute allowed under the model
-                # section, so record this as a validate ERROR in the validate
-                # results.
-                self._logger.severe('WLSDPLY-05029', section_dict_key, model_folder_path, valid_attr_infos.keys(),
+                # section. Do not record this as an ERROR as this could be custom
+                # information that the user has written a filter to extract
+                self._logger.info('WLSDPLY-05029', section_dict_key, model_folder_path, valid_attr_infos.keys(),
                                     class_name=_class_name, method_name=_method_name)
 
     def __validate_model_section(self, model_section_key, model_dict, valid_section_folders):
