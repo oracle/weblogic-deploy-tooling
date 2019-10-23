@@ -337,18 +337,18 @@ def equal_jarrays(array1, array2):
     return False
 
 
-def security_provider_interface_name(mbean_interface):
+def security_provider_interface_name(mbean_interface_name):
     """
     Return the name that is used to look up the custom Security Provider MBeanInfo.
 
     This is too tightly coupled to be in this class.
     This needs something more to differentiate Security Provider Interface which is formatted differently from other
     custom MBean Interface names.
-    :param mbean_interface: interface for the MBean
-    :return: massaged name specific to the Scurity Provider
+    :param mbean_interface_name: interface for the MBean
+    :return: provider class name returned from the massaged MBean name
     """
-    result = mbean_interface
-    idx = mbean_interface.rfind('MBean')
+    result = mbean_interface_name
+    idx = mbean_interface_name.rfind('MBean')
     if idx > 0:
         result = result[:idx]
     return result
@@ -422,7 +422,7 @@ def is_empty(value):
     :return: True if the attribute does not contain a value
     """
     return value is None or (type(value) in [list, dict] and len(value) == 0) or \
-        ((type(value) == str or isinstance(value, String)) and
+        ((isinstance(value, basestring) or isinstance(value, String)) and
             (len(value) == 0 or value == '[]' or value == 'null' or value == 'None'))
 
 

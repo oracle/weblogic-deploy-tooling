@@ -213,7 +213,12 @@ fi
 # Validate the JVM version based on whether or not the user asked us to use encryption
 #
 JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
-JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
+# set JVM version to the major version, unless equal to 1, like 1.8.0, then use the minor version
+JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $1 }'`
+
+if [ "${JVM_VERSION}" -eq "1" ]; then
+  JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
+fi
 
 if [ ${JVM_VERSION} -lt ${MIN_JDK_VERSION} ]; then
   if [ ${JVM_VERSION} -lt 7 ]; then

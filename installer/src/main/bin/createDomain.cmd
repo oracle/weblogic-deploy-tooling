@@ -164,15 +164,22 @@ IF "%DOMAIN_TYPE%"=="" (
 @rem
 FOR /F tokens^=2-5^ delims^=.-_^" %%j IN ('%JAVA_EXE% -fullversion 2^>^&1') DO (
   SET "JVM_FULL_VERSION=%%j.%%k.%%l_%%m"
-  SET "JVM_VERSION=%%k"
+  SET "JVM_VERSION_PART_ONE=%%j"
+  SET "JVM_VERSION_PART_TWO=%%k"
 )
 
-IF %JVM_VERSION% LSS %MIN_JDK_VERSION% (
-  IF %JVM_VERSION% LSS 7 (
-    ECHO You are using an unsupported JDK version %JVM_FULL_VERSION% >&2
-  ) ELSE (
-    ECHO JDK version 1.8 or higher is required when using encryption >&2
-  )
+SET JVM_SUPPORTED=1
+IF %JVM_VERSION_PART_ONE% LEQ 1 (
+    IF %JVM_VERSION_PART_TWO% LSS %MIN_JDK_VERSION% (
+		SET JVM_SUPPORTED=0
+        IF %JVM_VERSION_PART_TWO% LSS 7 (
+            ECHO You are using an unsupported JDK version %JVM_FULL_VERSION% >&2
+        ) ELSE (
+            ECHO JDK version 1.8 or higher is required when using encryption >&2
+        )
+    )
+)
+IF %JVM_SUPPORTED% NEQ 1 (
   SET RETURN_CODE=2
   GOTO exit_script
 ) ELSE (

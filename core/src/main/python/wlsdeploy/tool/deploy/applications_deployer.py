@@ -3,7 +3,7 @@ Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights 
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
-import javaos as os
+import os
 from java.io import ByteArrayOutputStream
 from java.io import File
 from java.io import FileNotFoundException
