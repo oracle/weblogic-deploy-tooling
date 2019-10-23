@@ -403,7 +403,7 @@ class MBeanAttributes(object):
                                  class_name=self.__class__.__name__, method_name=_method_name)
                 self.__mbean_interface = interfaces[0]
                 self.__mbean_name = str(self.__mbean_interface.getSimpleName())
-                self.__mbean_interface_name = str(self.__mbean_interface.getTypeName())
+                self.__mbean_interface_name = get_interface_name(self._get_mbean_interface())
             _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name,
                             result=self.__mbean_interface_name)
 
@@ -457,6 +457,15 @@ class MBeanAttributes(object):
 
     def _get_mbean_path(self):
         return self.__location.get_folder_path()
+
+
+def get_interface_name(mbean_interface):
+    try:
+        getname = getattr(mbean_interface, 'getTypeName')
+        result = getname()
+    except (Exception, JException):
+        result = str(mbean_interface)
+    return result
 
 
 def _is_empty(value):

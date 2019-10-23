@@ -4,6 +4,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import os
 
+import java.lang.Exception as JException
+
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -612,7 +614,7 @@ class Discoverer(object):
         _method_name = '_find_mbean_interface'
         mbean_name = None
         for interface in interfaces:
-            interface_name = str(interface.getTypeName())
+            interface_name = get_interface_name(interface)
             if 'MBean' in interface_name:
                 _logger.finer('WLSDPLY-06126', interface_name, self._alias_helper.get_model_folder_path(location),
                               class_name=_class_name, method_name=_method_name)
@@ -725,6 +727,15 @@ def _massage_online_folders(lsc_folders):
         _logger.fine('WLSDPLY-06145', folder_list, location, mbi_folder_list, class_name=_class_name,
                      method_name=_method_name)
     return folder_list
+
+
+def get_interface_name(mbean_interface):
+    try:
+        getname = getattr(mbean_interface, 'getTypeName')
+        result = getname()
+    except (Exception, JException):
+        result = str(mbean_interface)
+    return result
 
 
 def get_discover_logger_name():
