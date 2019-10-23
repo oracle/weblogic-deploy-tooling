@@ -305,25 +305,29 @@ If variable properties are used in element names, such as ```@@PROP:my-server@@`
 
 #### Multiple Models and Delete Notation
 
-A named element using [delete notation](#declaring-named-mbeans-to-delete) will completely replace an element with a matching name and no delete notation in a previous model. For example, if Model 1 looks like:
+A named element using [delete notation](#declaring-named-mbeans-to-delete) will completely delete an element with a matching name and no delete notation in a previous model. For example, if Model 1 looks like:
 ```yaml
 topology:
     Server:
         m1:
             ListenPort: 7000 
             Notes: "Server 1"
+        m2:
+            ListenPort: 9000
 ```
 and Model 2 looks like:
 ```yaml
 topology:
     Server:
-        !m1:
+        !m2:
 ```
 The resulting model would be:
 ```yaml
 topology:
     Server:
-        !m1:
+        m1:
+            ListenPort: 7000 
+            Notes: "Server 1"
 ```
 
 Similarly, an element without delete notation will completely replace an element with a matching name that has delete notation in a previous model. For example, if Model 1 looks like:
