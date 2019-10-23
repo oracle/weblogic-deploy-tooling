@@ -771,7 +771,7 @@ public class WLSDeployArchive {
         validateNonEmptyString(archivePath, "archivePath", METHOD);
         validateExistingDirectory(extractToLocation, "extractToLocation", getArchiveFileName(), METHOD);
 
-        extractFileFromZip(archivePath, ARCHIVE_DOMBIN_TARGET_DIR, "", extractToLocation);
+        extractFileFromZip(archivePath, ARCHIVE_DOM_BIN_TARGET_DIR, "", extractToLocation);
         LOGGER.exiting(CLASS, METHOD);
     }
     /**
