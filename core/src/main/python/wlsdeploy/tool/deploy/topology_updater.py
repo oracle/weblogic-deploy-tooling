@@ -140,6 +140,7 @@ class TopologyUpdater(Deployer):
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
+        self.library_helper.install_domain_scripts()
 
     def _process_section(self, folder_dict, folder_list, key, location):
         if key in folder_dict:

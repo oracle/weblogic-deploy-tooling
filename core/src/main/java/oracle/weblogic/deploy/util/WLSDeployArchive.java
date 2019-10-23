@@ -72,6 +72,10 @@ public class WLSDeployArchive {
     public static final String ARCHIVE_CPLIB_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/classpathLibraries";
 
     /**
+     * Top-level archive subdirectory where the $DOMAIN_HOME/bin scripts are stored.
+     */
+    public static final String ARCHIVE_DOM_BIN_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/domainBin";
+    /**
      * Top-level archive subdirectory where the FileStore directories are stored and the subdirectory
      * to which they will be extracted.
      */
@@ -714,6 +718,62 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD);
     }
 
+    /**
+     * Adds a $DOMAIN_HOME/bin script to the archive.  If a script with the same name already exists, this method
+     * assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding a
+     * numeric value onto the file's basename (e.g., myscript(1).cmd, myscript(2).cmd).
+     *
+     * @param domainBinPath - File representing the actual path of the script file in the file system
+     * @return the relative path where the script is stored within the archive
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     */
+    public String addDomainBinScript(File domainBinPath) throws WLSDeployArchiveIOException {
+        final String METHOD = "addDomainBinScript";
+
+        LOGGER.entering(CLASS, METHOD, domainBinPath);
+        validateExistingFile(domainBinPath, "domainBinPath", getArchiveFileName(), METHOD);
+
+        String newName = addItemToZip(ARCHIVE_DOM_BIN_TARGET_DIR, domainBinPath);
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Get the list of $DOMAIN_HOME/bin script names in the archive.
+     *
+     * @return the list of $DOMAIN_HOME/bin script names
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive
+     */
+    public List<String> listDomainBinScripts() throws WLSDeployArchiveIOException {
+        final String METHOD = "listDomainBinScripts";
+
+        LOGGER.entering(CLASS, METHOD);
+        List<String> result = getZipFile().listZipEntries(ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP);
+        // Remove the top-level directory entry from the list...
+        result.remove(ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP);
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
+     * Extract the specified domain bin user script to the specified location (e.g., $DOMAIN_HOME/bin).
+     *
+     * @param archivePath       the path of the script within the archive
+     * @param extractToLocation the location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while extracting or writing the file
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     */
+    public void extractDomainBinScript(String archivePath, File extractToLocation) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractDomainBinScript";
+
+        LOGGER.entering(CLASS, METHOD, archivePath, extractToLocation);
+        validateNonEmptyString(archivePath, "archivePath", METHOD);
+        validateExistingDirectory(extractToLocation, "extractToLocation", getArchiveFileName(), METHOD);
+
+        extractFileFromZip(archivePath, ARCHIVE_DOM_BIN_TARGET_DIR, "", extractToLocation);
+        LOGGER.exiting(CLASS, METHOD);
+    }
     /**
      * This method adds a classpath library to the archive.  If a library with the same name already exists, this
      * method assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding

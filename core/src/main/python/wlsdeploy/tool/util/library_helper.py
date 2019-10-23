@@ -6,6 +6,7 @@ from java.io import File
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from shutil import copy
 
+from wlsdeploy.aliases.model_constants import DOMAIN_SCRIPTS
 from wlsdeploy.aliases.model_constants import DOMAIN_LIBRARIES
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
@@ -86,6 +87,37 @@ class LibraryHelper(object):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
+    def install_domain_scripts(self):
+        """
+        Extract the scripts from domain bin listed in the model, if any, to the <DOMAIN_HOME>/bin directory.
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'install_domain_scripts'
+
+        self.logger.entering(self.domain_home, class_name=self.__class_name, method_name=_method_name)
+        domain_info_dict = self.model.get_model_domain_info()
+        if DOMAIN_SCRIPTS not in domain_info_dict or len(domain_info_dict[DOMAIN_SCRIPTS]) == 0:
+            self.logger.info('WLSDPLY-12241', class_name=self.__class_name, method_name=_method_name)
+        elif DOMAIN_SCRIPTS in domain_info_dict:
+            domain_scripts = dictionary_utils.get_dictionary_element(domain_info_dict, DOMAIN_SCRIPTS)
+            if self.archive_helper is None:
+                ex = exception_helper.create_create_exception('WLSDPLY-12250', domain_scripts)
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+            for domain_script in domain_scripts:
+                if WLSDeployArchive.isPathIntoArchive(domain_script):
+                    self.logger.info('WLSDPLY-12251', domain_script, self.domain_home,
+                                     class_name=self.__class_name, method_name=_method_name)
+                    self.archive_helper.extract_domain_bin_script(domain_script)
+                else:
+                    self.logger.info('WLSDPLY-12252', domain_script, self.domain_home,
+                                     class_name=self.__class_name, method_name=_method_name)
+                    self._copy_domain_bin(domain_script)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
     def _copy_domain_library(self, domain_lib):
         """
         Copy the specified domain library to the domain's lib directory.
@@ -100,5 +132,22 @@ class LibraryHelper(object):
             copy(str(source_path), str(target_dir))
         except IOError:
             ex = exception_helper.create_create_exception('WLSDPLY-12234', source_path, target_dir)
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+    def _copy_domain_bin(self, domain_bin):
+        """
+        Copy the specified domain user script to the domain's bin directory.
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = '_copy_domain_bin'
+
+        source_path = File(domain_bin).getAbsolutePath()
+        target_dir = File(self.domain_home, 'bin').getPath()
+
+        try:
+            copy(str(source_path), str(target_dir))
+        except IOError:
+            ex = exception_helper.create_create_exception('WLSDPLY-12253', source_path, target_dir)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
