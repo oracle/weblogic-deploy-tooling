@@ -345,6 +345,7 @@ class DomainCreator(Creator):
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
+        self.library_helper.install_domain_scripts()
         self.wlsroles_helper.process_roles()
         if os.environ.has_key('__WLSDEPLOY_STORE_MODEL__'):
             model_helper.persist_model(self.model_context, self.model)
