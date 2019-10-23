@@ -99,7 +99,7 @@ class ClaHelperTest(unittest.TestCase):
 
         self._check_merged_server(dictionary, '@@PROP:server1a@@')
 
-    # an element with delete notation should replace a base element with a matching name and no notation.
+    # an element with delete notation should remove a base element with a matching name.
     def testMergeDeletedNameToName(self):
         dictionary = _build_model_one('m1')
         new_dictionary = _build_delete_model('m1')
@@ -108,8 +108,20 @@ class ClaHelperTest(unittest.TestCase):
         cla_helper._merge_dictionaries(dictionary, new_dictionary, variables)
         # print("Merged model: " + str(dictionary))
 
+        servers = dictionary['Servers']
+        self.assertEquals(0, len(servers), "there should be no servers after delete")
+
+    # an element with delete notation should leave a base element with a matching delete notation.
+    def testMergeDeletedNameToDeleteName(self):
+        dictionary = _build_delete_model('m1')
+        new_dictionary = _build_delete_model('m1')
+        variables = {}
+
+        cla_helper._merge_dictionaries(dictionary, new_dictionary, variables)
+        # print("Merged model: " + str(dictionary))
+
         server = self._check_single_server(dictionary, '!m1')
-        self.assertEquals(0, len(server), "delete server should have no attributes")
+        self.assertEquals(0, len(server), "server should have no attributes")
 
     # an element should replace a base element with a matching name and delete notation.
     def testMergeNameToDeletedName(self):

@@ -150,7 +150,8 @@ def _merge_dictionaries(dictionary, new_dictionary, variable_map):
         # the new key should replace the existing one - delete the existing key and add the new one
         elif replace_key:
             del dictionary[dictionary_key]
-            dictionary[new_key] = new_value
+            if not deployer_utils.is_delete_name(new_key):
+                dictionary[new_key] = new_value
 
         # the key is in both dictionaries - merge if the values are dictionaries, otherwise replace the value
         else:
@@ -175,16 +176,15 @@ def _find_dictionary_merge_key(dictionary, new_key, variable_map):
     if new_key in dictionary:
         return new_key, False
 
-    if variable_map is not None:
-        new_is_delete = deployer_utils.is_delete_name(new_key)
-        match_new_key = _get_merge_match_key(new_key, variable_map)
+    new_is_delete = deployer_utils.is_delete_name(new_key)
+    match_new_key = _get_merge_match_key(new_key, variable_map)
 
-        for dictionary_key in dictionary.keys():
-            dictionary_is_delete = deployer_utils.is_delete_name(dictionary_key)
-            match_dictionary_key = _get_merge_match_key(dictionary_key, variable_map)
-            if match_dictionary_key == match_new_key:
-                replace_key = new_is_delete != dictionary_is_delete
-                return dictionary_key, replace_key
+    for dictionary_key in dictionary.keys():
+        dictionary_is_delete = deployer_utils.is_delete_name(dictionary_key)
+        match_dictionary_key = _get_merge_match_key(dictionary_key, variable_map)
+        if match_dictionary_key == match_new_key:
+            replace_key = new_is_delete != dictionary_is_delete
+            return dictionary_key, replace_key
 
     return None, False
 
@@ -197,7 +197,11 @@ def _get_merge_match_key(key, variable_map):
     :param variable_map: variable map to use for substitutions
     :return: the key to use for matching
     """
-    match_key = variables.substitute_key(key, variable_map)
+    if variable_map is not None:
+        match_key = variables.substitute_key(key, variable_map)
+    else:
+        match_key = key
+
     if deployer_utils.is_delete_name(match_key):
         match_key = deployer_utils.get_delete_item_name(match_key)
     return match_key

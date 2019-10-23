@@ -45,7 +45,6 @@ from wlsdeploy.util import wlst_extended
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
-from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 wlst_extended.wlst_functions = globals()
