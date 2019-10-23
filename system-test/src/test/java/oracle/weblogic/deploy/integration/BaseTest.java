@@ -90,6 +90,15 @@ public class BaseTest {
         }
     }
 
+    protected static void saveLogFiles(String testMethodName) throws Exception {
+        logger.info("saving log files ...");
+
+        // save the logs for this test instance in the workspace target directory
+        String cmd = "tar -cvf" + getTargetDir() +FS + testMethodName + ".tar " +  getTargetDir() + FS + WDT_HOME_DIR +
+            FS + "logs";
+        executeNoVerify(cmd);
+    }
+
     protected static String getProjectRoot() {
         return projectRoot;
     }
