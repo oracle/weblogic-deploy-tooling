@@ -10,6 +10,7 @@ from java.io import File
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.util import FileUtils
 
+from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -40,12 +41,17 @@ class DomainInfoDiscoverer(Discoverer):
         """
         _method_name = 'discover'
         _logger.entering(class_name=_class_name, method_name=_method_name)
+        self.add_admin_credentials()
         model_top_folder_name, result = self.get_domain_libs()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, result)
         model_top_folder_name, result = self.get_user_env_scripts()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, result)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
+
+    def add_admin_credentials(self):
+        self._dictionary[model_constants.ADMIN_USERNAME] = alias_constants.PASSWORD_TOKEN
+        self._dictionary[model_constants.ADMIN_PASSWORD] = alias_constants.PASSWORD_TOKEN
 
     def get_domain_libs(self):
         """
