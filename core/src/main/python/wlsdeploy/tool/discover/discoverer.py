@@ -20,6 +20,7 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 from wlsdeploy.tool.util.mbean_utils import MBeanUtils
+from wlsdeploy.tool.util.mbean_utils import get_interface_name
 from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
@@ -727,15 +728,6 @@ def _massage_online_folders(lsc_folders):
         _logger.fine('WLSDPLY-06145', folder_list, location, mbi_folder_list, class_name=_class_name,
                      method_name=_method_name)
     return folder_list
-
-
-def get_interface_name(mbean_interface):
-    try:
-        getname = getattr(mbean_interface, 'getTypeName')
-        result = getname()
-    except (Exception, JException):
-        result = str(mbean_interface)
-    return result
 
 
 def get_discover_logger_name():
