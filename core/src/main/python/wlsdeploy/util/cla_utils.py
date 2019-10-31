@@ -841,7 +841,7 @@ class CommandLineArgUtil(object):
         method_name = '_validate_variable_file_arg'
 
         try:
-            variable_file = JFileUtils.validateExistingFile(value)
+            variable_file = JFileUtils.validateWritableFile(value)
         except JIllegalArgumentException, iae:
             ex = exception_helper.create_cla_exception('WLSDPLY-01620', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)

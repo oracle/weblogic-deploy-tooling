@@ -192,17 +192,18 @@ def __process_variable_filename_arg(optional_arg_map):
     if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in optional_arg_map:
         variable_injector_file_name = variable_injector.get_default_variable_injector_file_name()
         try:
-            FileUtils.validateExistingFile(variable_injector_file_name)
+            FileUtils.validateWritableFile(variable_injector_file_name)
         except IllegalArgumentException, ie:
             ex = exception_helper.create_cla_exception('WLSDPLY-06021', optional_arg_map[
                 CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH], variable_injector_file_name,
                                                        ie.getLocalizedMessage(), error=ie)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
+        optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = variable_injector_file_name
     return
 
 
-def __discover(model_context, aliases):
+def __discover(model_context, aliases, injector):
     """
     Populate the model from the domain.
     :param model_context: the model context
@@ -216,14 +217,14 @@ def __discover(model_context, aliases):
     try:
         _add_domain_name(base_location, aliases)
         DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
-                             aliases=aliases).discover()
+                             aliases=aliases, variable_injector=injector).discover()
         TopologyDiscoverer(model_context, model.get_model_topology(), base_location, wlst_mode=__wlst_mode,
-                           aliases=aliases).discover()
+                           aliases=aliases, variable_injector=injector).discover()
         ResourcesDiscoverer(model_context, model.get_model_resources(), base_location, wlst_mode=__wlst_mode,
-                            aliases=aliases).discover()
+                            aliases=aliases, variable_injector=injector).discover()
         DeploymentsDiscoverer(model_context, model.get_model_app_deployments(), base_location, wlst_mode=__wlst_mode,
-                              aliases=aliases).discover()
-        __discover_multi_tenant(model, model_context, base_location, aliases)
+                              aliases=aliases, variable_injector=injector).discover()
+        __discover_multi_tenant(model, model_context, base_location, aliases, injector)
     except AliasException, ae:
         wls_version = WebLogicHelper(__logger).get_actual_weblogic_version()
         wlst_mode = WlstModes.from_value(__wlst_mode)
@@ -255,14 +256,15 @@ def _add_domain_name(location, aliases):
         raise de
 
 
-def __discover_multi_tenant(model, model_context, base_location, aliases):
+def __discover_multi_tenant(model, model_context, base_location, aliases, injector):
     """
     Discover the multi-tenant-related parts of the domain, if they exist.
     :param model: the model object to populate
     :param model_context: the model context object
     :raises DiscoverException: if an error occurs during discovery
     """
-    MultiTenantDiscoverer(model, model_context, base_location, wlst_mode=__wlst_mode, aliases=aliases).discover()
+    MultiTenantDiscoverer(model, model_context, base_location,
+                          wlst_mode=__wlst_mode, aliases=aliases, variable_injector=injector).discover()
     return
 
 
@@ -423,7 +425,7 @@ def __persist_model(model, model_context):
     return
 
 
-def __check_and_customize_model(model, model_context, aliases):
+def __check_and_customize_model(model, model_context, aliases, injector):
     """
     Customize the model dictionary before persisting. Validate the model after customization for informational
     purposes. Any validation errors will not stop the discovered model to be persisted.
@@ -435,10 +437,12 @@ def __check_and_customize_model(model, model_context, aliases):
     if filter_helper.apply_filters(model.get_model(), "discover"):
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
-    inserted, variable_model, variable_file_name = VariableInjector(_program_name, model.get_model(), model_context,
-                                                                    WebLogicHelper(
-                                                                        __logger).get_actual_weblogic_version()).\
-        inject_variables_keyword_file()
+    cache = None
+    if injector is not None:
+        cache = injector.get_variable_cache()
+    inserted, variable_model, variable_file_name = \
+        VariableInjector(_program_name, model.get_model(), model_context,
+                         WebLogicHelper(__logger).get_actual_weblogic_version(), cache).inject_variables_keyword_file()
     if inserted:
         model = Model(variable_model)
     try:
@@ -503,15 +507,23 @@ def main(args):
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     model = None
+    discover_injector = None
+    if model_context.get_variable_file() is not None:
+        discover_injector = VariableInjector(_program_name, dict(), model_context,
+                                             WebLogicHelper(__logger).get_actual_weblogic_version())
+
+        __logger.info('WLSDPLY-06025', class_name=_class_name, method_name=_method_name)
+    else:
+        __logger.info('WLSDPLY-06024', class_name=_class_name, method_name=_method_name)
     try:
-        model = __discover(model_context, aliases)
+        model = __discover(model_context, aliases, discover_injector)
     except DiscoverException, ex:
         __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
                         model_context.get_domain_home(), ex.getLocalizedMessage(),
                         error=ex, class_name=_class_name, method_name=_method_name)
         __log_and_exit(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
-        
-    model = __check_and_customize_model(model, model_context, aliases)
+
+    model = __check_and_customize_model(model, model_context, aliases, discover_injector)
     
     try:
         __persist_model(model, model_context)
@@ -524,6 +536,7 @@ def main(args):
     __close_archive(model_context)
 
     __log_and_exit(model_context, exit_code, _class_name, _method_name)
+
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)

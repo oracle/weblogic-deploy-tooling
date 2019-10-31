@@ -33,7 +33,8 @@ class TopologyDiscoverer(Discoverer):
     including clusters, servers, server templates, machines and migratable targets,
     """
 
-    def __init__(self, model_context, topology_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
+    def __init__(self, model_context, topology_dictionary, base_location,
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, variable_injector=None):
         """
         Instantiate an instance of the TopologyDiscoverer class with the runtime information provided by
         the init parameters.
@@ -41,7 +42,7 @@ class TopologyDiscoverer(Discoverer):
         :param topology_dictionary: dictionary in which to add discovered topology information
         :param wlst_mode: indicates whether this discover is run in online or offline mode
         """
-        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, variable_injector)
         self._dictionary = topology_dictionary
         self._add_att_handler(model_constants.CLASSPATH, self._add_classpath_libraries_to_archive)
         self._add_att_handler(model_constants.CUSTOM_IDENTITY_KEYSTORE_FILE, self._add_keystore_file_to_archive)

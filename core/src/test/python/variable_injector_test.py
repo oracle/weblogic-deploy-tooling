@@ -6,9 +6,12 @@ import unittest
 
 import wlsdeploy.util.variables as variables
 import wlsdeploy.tool.util.variable_injector as variable_injector
+from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
+from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util.model_translator import FileToPython
-
+from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 
 class VariableFileHelperTest(unittest.TestCase):
     _resources_dir = '../../test-classes'
@@ -18,7 +21,7 @@ class VariableFileHelperTest(unittest.TestCase):
     _keywords_file = 'keywords.json'
 
     def setUp(self):
-        self.name = VariableFileHelperTest
+        self.name = 'VariableFileHelperTest'
         self._model = FileToPython(self._model_file).parse()
         self._helper = VariableInjector(self.name, self._model, None, '12.2.1.3')
 
@@ -309,6 +312,18 @@ class VariableFileHelperTest(unittest.TestCase):
         replacement_dict['MailSession.Properties'][variable_injector.VARIABLE_VALUE] = 'localhost'
         actual = self._helper.inject_variables(replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
+
+    def testCustomPasswordInjection(self):
+        expected_model = dict()
+        expected_model[ADMIN_PASSWORD] = '@@PROP:' + ADMIN_PASSWORD + '@@'
+        expected_cache = dict()
+        expected_cache[ADMIN_PASSWORD] = ''
+        actual_model = dict()
+        actual_model[ADMIN_PASSWORD] = PASSWORD_TOKEN
+        self._helper.custom_injection(actual_model, ADMIN_PASSWORD, LocationContext(), STANDARD_PASSWORD_INJECTOR)
+        self._compare_to_expected_dictionary(expected_model, actual_model)
+        actual_cache = self._helper.get_variable_cache()
+        self._compare_to_expected_dictionary(expected_cache, actual_cache)
 
     def _compare_to_expected_dictionary(self, expected, actual):
         self.assertEqual(len(expected), len(actual),

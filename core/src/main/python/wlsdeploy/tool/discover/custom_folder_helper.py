@@ -22,6 +22,7 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.mbean_utils import MBeanUtils
+from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -39,7 +40,7 @@ class CustomFolderHelper(object):
     wrapper class.
     """
 
-    def __init__(self, aliases, logger, model_context, exception_type):
+    def __init__(self, aliases, logger, model_context, exception_type, variable_injector=None):
         global _logger
         self._exception_type = exception_type
         self._model_context = model_context
@@ -49,6 +50,7 @@ class CustomFolderHelper(object):
         self._weblogic_helper = WebLogicHelper(_logger)
         self._wlst_helper = WlstHelper(_logger, self._exception_type)
         self._info_helper = MBeanUtils(self._model_context, self._alias_helper, self._exception_type)
+        self._variable_injector = variable_injector
 
     def discover_custom_mbean(self, base_location, model_type, mbean_name):
         """
@@ -79,13 +81,14 @@ class CustomFolderHelper(object):
             _logger.info('WLSDPLY-06751', model_type, short_name, class_name=_class_name, method_name=_method_name)
             _logger.info('WLSDPLY-06752', mbean_name, model_type, short_name,
                          class_name=_class_name, method_name=_method_name)
-            subfolder_result[mbean_name][interface_name] = self.get_model_attribute_map(attribute_helper)
+            subfolder_result[mbean_name][interface_name] = self.get_model_attribute_map(location, attribute_helper)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return subfolder_result
 
-    def get_model_attribute_map(self, attribute_helper):
+    def get_model_attribute_map(self, location, attribute_helper):
         """
         Return a map of the MBean's attributes, in model format, which do not have default values.
+        :param location: location context for the current MBean
         :param attribute_helper: context for the current MBean
         :return: model ready dictionary of the discovered MBean
         """
@@ -96,6 +99,8 @@ class CustomFolderHelper(object):
             model_value = self.get_model_attribute_value(attribute_helper, attribute_name)
             if model_value is not None:
                 mbean_attributes[attribute_name] = model_value
+                self.__inject_token(location, mbean_attributes, attribute_name)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return mbean_attributes
 
@@ -129,6 +134,7 @@ class CustomFolderHelper(object):
                         add_value = model_value
                 if add_value is not None and model_type == alias_constants.PASSWORD:
                     add_value = alias_constants.PASSWORD_TOKEN
+
             else:
                 _logger.finer('WLSDPLY-06771', mbean_string, attribute_name, attribute_helper.get_type(attribute_name),
                               class_name=_class_name, method_name=_method_name)
@@ -291,6 +297,12 @@ class CustomFolderHelper(object):
                          class_name=_class_name, method_name=_method_name)
             return True
         return False
+
+    def __inject_token(self, location, model_section, attribute_name):
+        if self._variable_injector is not None:
+            if model_section[attribute_name] == alias_constants.PASSWORD_TOKEN:
+                self._variable_injector.custom_injection(model_section, attribute_name, location,
+                                                         STANDARD_PASSWORD_INJECTOR)
 
 
 def equal_dictionary(dict1, dict2):

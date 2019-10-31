@@ -11,19 +11,21 @@ from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import StringUtils
 
 from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-
-from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
+from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.alias_helper import AliasHelper
+from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import wlst_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
+
 
 _DISCOVER_LOGGER_NAME = 'wlsdeploy.discover'
 
@@ -36,7 +38,7 @@ class Discoverer(object):
     Discoverer contains the private methods used to facilitate discovery of the domain information by its subclasses.
     """
 
-    def __init__(self, model_context, base_location, wlst_mode, aliases=None):
+    def __init__(self, model_context, base_location, wlst_mode, aliases=None, variable_injector=None):
         """
 
         :param model_context: context about the model for this instance of discover domain
@@ -56,9 +58,9 @@ class Discoverer(object):
         self._wlst_helper = WlstHelper(_logger, ExceptionType.DISCOVER)
         self._mbean_utils = MBeanUtils(self._model_context, self._alias_helper, ExceptionType.DISCOVER)
         self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
+        self._variable_injector = variable_injector
 
     # methods for use only by the subclasses
-
     def _populate_model_parameters(self, dictionary, location):
         """
         Populate the model dictionary with the attribute values discovered at the current location. Perform
@@ -142,6 +144,8 @@ class Discoverer(object):
             _logger.finer('WLSDPLY-06107', model_param, model_value, class_name=_class_name,
                           method_name=_method_name)
             dictionary[model_param] = model_value
+            if model_value == PASSWORD_TOKEN:
+                self._inject_token(dictionary, model_param, location, STANDARD_PASSWORD_INJECTOR)
         elif model_param is None:
             _logger.finest('WLSDPLY-06108', model_param, class_name=_class_name, method_name=_method_name)
 
@@ -675,6 +679,29 @@ class Discoverer(object):
             raise exception_helper.create_discover_exception('WLSDPLY-06201', folder_name, location.get_folder_path())
 
         return folder_name
+
+    def _inject_token(self, model_section, attribute, location, injector_commands=OrderedDict()):
+        """
+        Retrieve a variable name and value from the variable injector using any special language.
+        Add the variable name and value to the variable dictionary cache. Create a property token
+        from the variable name and inject it into the model attribute value.
+        :param model_section: model section currently working on
+        :param attribute: name of the attribute in the model section to tokenize
+        :param location: current location context for the model_section
+        """
+        _method_name = '_inject_token'
+        _logger.entering(attribute, location.get_folder_path(), injector_commands,
+                         class_name=_class_name, method_name=_method_name)
+        # if not working with injector, do nothing. If attribute is not in model_section, not working with
+        # correct information.
+        if self._variable_injector is not None:
+            self._variable_injector.custom_injection(model_section, attribute, location, injector_commands)
+            _logger.fine('WLSDPLY-06155', attribute, location.get_folder_path(), model_section[attribute],
+                         class_name=_class_name, method_name=_method_name)
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+    def _get_variable_injector(self):
+        return self._variable_injector
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
