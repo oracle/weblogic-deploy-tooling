@@ -18,13 +18,14 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
-from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.alias_helper import AliasHelper
+from wlsdeploy.tool.util.mbean_utils import MBeanUtils
+from wlsdeploy.tool.util.mbean_utils import get_interface_name
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import wlst_helper
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 _DISCOVER_LOGGER_NAME = 'wlsdeploy.discover'
@@ -616,7 +617,7 @@ class Discoverer(object):
         _method_name = '_find_mbean_interface'
         mbean_name = None
         for interface in interfaces:
-            interface_name = str(interface.getTypeName())
+            interface_name = get_interface_name(interface)
             if 'MBean' in interface_name:
                 _logger.finer('WLSDPLY-06126', interface_name, self._alias_helper.get_model_folder_path(location),
                               class_name=_class_name, method_name=_method_name)
