@@ -53,13 +53,14 @@ class Discoverer(object):
         else:
             self._aliases = Aliases(self._model_context, wlst_mode=self._wlst_mode)
         self._alias_helper = AliasHelper(self._aliases, _logger, ExceptionType.DISCOVER)
+        self._variable_injector = variable_injector
         self._att_handler_map = OrderedDict()
-        self._custom_folder = CustomFolderHelper(self._aliases, _logger, self._model_context, ExceptionType.DISCOVER)
+        self._custom_folder = CustomFolderHelper(self._aliases, _logger,
+                                                 self._model_context, ExceptionType.DISCOVER, self._variable_injector)
         self._weblogic_helper = WebLogicHelper(_logger)
         self._wlst_helper = WlstHelper(_logger, ExceptionType.DISCOVER)
         self._mbean_utils = MBeanUtils(self._model_context, self._alias_helper, ExceptionType.DISCOVER)
         self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
-        self._variable_injector = variable_injector
 
     # methods for use only by the subclasses
     def _populate_model_parameters(self, dictionary, location):

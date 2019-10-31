@@ -141,6 +141,24 @@ class VariableInjector(object):
             cache[token_name] = token_value
         return cache
 
+    def remove_from_cache(self, location, attribute_name):
+        """
+        For special circumstances, when scrubbing data from the model, remove the property from the cache.
+        :param location: context for current location. This does not work for segmented properties.
+        :param attribute_name: attribute for which to remove property from the cache.
+        :return:
+        """
+        _method_name = 'remove_from_cache'
+        _logger.entering(attribute_name, class_name=_class_name, method_name=_method_name)
+        cache = self.get_variable_cache()
+        if len(cache) > 0:
+            property_name = self.__format_variable_name(location, attribute_name)
+            if property_name in cache:
+                _logger.fine('WLSDPLY-19545', property_name, class_name=_class_name, method_name=_method_name)
+                del cache[property_name]
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
     def custom_injection(self, model, attribute, location, injector_values=OrderedDict()):
         """
         Used by external processes to add to the  variable cache prior to persisting to the variables file. A token

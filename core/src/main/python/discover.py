@@ -71,7 +71,7 @@ __optional_arguments = [
     # Used by shell script to locate WLST
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
-    CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH,
+    CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.ADMIN_URL_SWITCH,
     CommandLineArgUtil.ADMIN_USER_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
@@ -189,17 +189,16 @@ def __process_variable_filename_arg(optional_arg_map):
     """
     _method_name = '__process_variable_filename_arg'
 
-    if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in optional_arg_map:
+    if CommandLineArgUtil.VARIABLE_FILE_SWITCH in optional_arg_map:
         variable_injector_file_name = variable_injector.get_default_variable_injector_file_name()
         try:
             FileUtils.validateWritableFile(variable_injector_file_name)
         except IllegalArgumentException, ie:
             ex = exception_helper.create_cla_exception('WLSDPLY-06021', optional_arg_map[
-                CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH], variable_injector_file_name,
+                CommandLineArgUtil.VARIABLE_FILE_SWITCH], variable_injector_file_name,
                                                        ie.getLocalizedMessage(), error=ie)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-        optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = variable_injector_file_name
     return
 
 

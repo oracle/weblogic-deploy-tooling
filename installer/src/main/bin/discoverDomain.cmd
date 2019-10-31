@@ -22,8 +22,39 @@
 @rem                           responsibility to verify that it does. This
 @rem                           argument is required.
 @rem
-@rem     - -domain_type        The type of domain to create. This argument is
-@rem                           is optional.  If not specified, it defaults to WLS.
+@rem     - -domain_home        The existing domain home to discover. This argument
+@rem                           is required.
+@rem
+@rem     - -domain_type        The type of domain to discover. If this is set to
+@rem                           other than WLS, it will use the black list components
+@rem                           section in the corresponding typedef file to remove
+@rem                           MBeans from the model that were added by a template.
+@rem                           This argument is optional.  If not specified, it
+@rem                           defaults to WLS.
+@rem
+@rem     - -model_file         The name of a file where to write the discovered domain model.
+@rem                           This argument is required.
+@rem
+@rem     - -archive_file       The name of a file where to archive the collected files from the
+@rem                           discovered domain. This argument is required. However, if no
+@rem                           files are collected from the domain, the tool will not create the file
+@rem
+@rem     - -variable_file      The name of a variable file where the variable injector will write
+@rem                           properties specified for the tool run. By default, if this file is
+@rem                           included on the command line, all credentials in the model will
+@rem                           be tokenized, with the variable name written to this file. This
+@rem                           argument is optional. If not specified, and directives for the
+@rem                           variable injector exist, the default file name will be created.
+@rem
+@rem     - -admin_user         User name for the admin Server to discover the specified domain in WLST
+@rem                           online mode. Note that the server must be running in the same location
+@rem                           as the discoverDomain so that any files can be collected
+@rem                           into the archive file. The user will be prompted for the admin password
+@rem                           from STDIN. This argument is optional. If not specified, the
+@rem                           discover tool will run in WLST offline mode.
+@rem
+@rem     - -admin_url          URL of the admin server for discovery of the domain in WLST online mode.
+@rem                           This argument is required if -admin_user is specified.
 @rem
 @rem     - -wlst_path          The path to the Oracle Home product directory under
 @rem                           which to find the wlst.cmd script.  This is only
@@ -307,6 +338,7 @@ ECHO Usage: %SCRIPT_NAME% -oracle_home ^<oracle_home^>
 ECHO              -domain_home ^<domain_home^>
 ECHO              -archive_file ^<archive_file^>
 ECHO              [-model_file ^<model_file^>]
+ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO              [-admin_url ^<admin_url^>
@@ -322,6 +354,11 @@ ECHO         archive_file   - the path to the archive file to create
 ECHO.
 ECHO         model_file     - the location to write the model file,
 ECHO                          the default is to write it inside the archive
+ECHO.
+ECHO         variable_file  - the location to write properties for attributes that
+ECHO                          have been replaced with tokens by the variable injector.
+ECHO                          If this is included, all credentials will automatically
+ECHO                          be replaced by tokens and the property written to this file.
 ECHO.
 ECHO         domain_type    - the type of domain (e.g., WLS, JRF).
 ECHO                          used to locate wlst.cmd if -wlst_path not specified

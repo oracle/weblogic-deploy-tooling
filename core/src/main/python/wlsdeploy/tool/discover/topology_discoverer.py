@@ -332,6 +332,9 @@ class TopologyDiscoverer(Discoverer):
             self._populate_model_parameters(result, location)
             # IFF credential is the only attribute, skip adding the Embedded LDAP server configuration
             if len(result) == 1 and model_constants.CREDENTIAL_ENCRYPTED in result:
+                injector = self._get_variable_injector()
+                if injector is not None:
+                    injector.remove_from_cache(location, model_constants.CREDENTIAL_ENCRYPTED)
                 result = OrderedDict()
                 _logger.info('WLSDPLY-06639', class_name=_class_name, method_name=_method_name)
             else:
