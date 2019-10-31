@@ -4,8 +4,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import os
 
-import java.lang.Exception as JException
-
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
