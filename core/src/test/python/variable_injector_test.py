@@ -13,6 +13,7 @@ from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 
+
 class VariableFileHelperTest(unittest.TestCase):
     _resources_dir = '../../test-classes'
     _variable_file = _resources_dir + '/variable.injector.test.properties'
@@ -325,6 +326,36 @@ class VariableFileHelperTest(unittest.TestCase):
         actual_cache = self._helper.get_variable_cache()
         self._compare_to_expected_dictionary(expected_cache, actual_cache)
 
+    def testJDBCPasswordWithJDBCSegment(self):
+        expected = dict()
+        expected['JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Host'] = \
+            'slc05til.us.oracle.com'
+        expected['JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Port'] = \
+            '1521'
+        expected['JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.PasswordEncrypted'] = ''
+        replacement_dict = dict()
+        replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.URL'] = dict()
+        list_entry1 = dict()
+        list_entry1[variable_injector.REGEXP_PATTERN] = '(?<=PORT=)[\w.-]+(?=\))'
+        list_entry1[variable_injector.REGEXP_SUFFIX] = 'Port'
+        list_entry2 = dict()
+        list_entry2[variable_injector.REGEXP_PATTERN] = '(?<=HOST=)[\w.-]+(?=\))'
+        list_entry2[variable_injector.REGEXP_SUFFIX] = 'Host'
+        replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.URL'][variable_injector.REGEXP] = [
+            list_entry1, list_entry2]
+        location = LocationContext()
+        location.add_name_token('%DATASOURCE%', 'Database2')
+        location.append_location('JDBCSystemResource').append_location('JdbcResource')\
+            .append_location('JDBCDriverParams')
+        print location.get_folder_path()
+        self._helper.custom_injection(self._model_file, 'PasswordEncrypted', location, STANDARD_PASSWORD_INJECTOR)
+        for item in self._helper.get_variable_cache():
+            print item
+        actual = self._helper.inject_variables(replacement_dict)
+        for item in actual:
+            print item
+        self._compare_to_expected_dictionary(expected, actual)
+
     def _compare_to_expected_dictionary(self, expected, actual):
         self.assertEqual(len(expected), len(actual),
                          'Not the same number of entries : expected=' + str(len(expected)) + ', actual=' + str(
@@ -336,3 +367,4 @@ class VariableFileHelperTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+cov

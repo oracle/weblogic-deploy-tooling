@@ -158,7 +158,6 @@ class VariableInjector(object):
                 del cache[property_name]
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
-
     def custom_injection(self, model, attribute, location, injector_values=OrderedDict()):
         """
         Used by external processes to add to the  variable cache prior to persisting to the variables file. A token
@@ -195,7 +194,6 @@ class VariableInjector(object):
         keywords_dictionary = _load_keywords_file(variable_keywords_location_file)
 
         return_model = self.__original
-        append = False
         variable_file_location = self._get_variable_file_name(**kwargs)
         variables_inserted = False
         if not variable_file_location:
@@ -620,7 +618,7 @@ class VariableInjector(object):
                 if check is not None:
                     value = check
                 _logger.finer('WLSDPLY-19542', value, variable_value, attribute, location.get_folder_path(),
-                             class_name=_class_name, method_name=_method_name)
+                              class_name=_class_name, method_name=_method_name)
             except AliasException, ae:
                 _logger.finer('WLSDPLY-19541', value, attribute, location, ae.getLocalizedMessage(),
                               class_name=_class_name, method_name=_method_name)
