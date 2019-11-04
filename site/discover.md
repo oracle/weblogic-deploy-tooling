@@ -2,7 +2,7 @@
 
 The Discover Domain Tool provides a bootstrapping mechanism to creating a model and archive file by inspecting an existing domain and gathering configuration and binaries from it.  Note that the model file produced by the tool is not directly usable by the Create Domain Tool or the Deploy Applications Tool because the Discover Domain Tool does not discover the passwords from the existing domain.  Instead, it puts a `--FIX ME--` placeholder for passwords it finds.  Domain users are also not discoverable so the tool injects the same placeholder value in the `AdminUserName` and `AdminPassword` fields in the `domainInfo` section. The idea of this tool is simply to provide a starting point where the user can edit the generated model and archive file to suit their needs for running one of the other tools.
 
-To run the Discover Domain Tool, simply provide the oracle home and domain location. Provide a location and file name for the model file and archive file where the discovered domain information will be written. The model can be generated in either yaml or json format. Simply label the file name with the correct suffix. Both a sh and cmd script are provided.
+To run the Discover Domain Tool, simply provide the Oracle home and domain location. Provide a location and file name for the model file and archive file where the discovered domain information will be written. The model can be generated in either YAML or JSON format. Simply label the file name with the correct suffix. Both a sh and cmd script are provided.
 
 Example of basic discoverDomain:
 
@@ -39,7 +39,7 @@ Before the model is persisted to the model file, any variable injectors or model
  - [Model Filters](site/tool_filters.md)
  - [Validate Model Tool](site/validate.md)
 
-Any problems (or success) will be listed in the discover tool summary. The summary will print the version of the tool and oracle home, and the WLST mode with which the tool was run (online or offline). A recap of all Warning and Severe messages will be listed, along with a total. 
+Any problems (or success) will be listed in the discover tool summary. The summary will print the version of the tool and Oracle home, and the WLST mode with which the tool was run (online or offline). A recap of all Warning and Severe messages will be listed, along with a total. 
 
 An example of a summary with a WARNING message:
 
