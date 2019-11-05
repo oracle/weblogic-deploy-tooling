@@ -6,6 +6,7 @@ The Universal Permissive License (UPL), Version 1.0
 import java.lang.Boolean as Boolean
 import java.lang.Double as Double
 import java.lang.Enum as Enum
+import java.lang.Exception as JException
 import java.lang.Integer as Integer
 import java.lang.Long as Long
 import java.lang.NumberFormatException as NumberFormatException
@@ -74,7 +75,8 @@ class CustomFolderHelper(object):
                           class_name=_class_name, method_name=_method_name)
             short_name = attribute_helper.get_mbean_name()
             # This is not like other custom interface names and should be changed to be more flexible
-            interface_name = security_provider_interface_name(attribute_helper.get_mbean_interface_name())
+            interface_name = security_provider_interface_name(attribute_helper.get_mbean_instance(),
+                                                              attribute_helper.get_mbean_interface_name())
             subfolder_result[mbean_name][interface_name] = PyOrderedDict()
             _logger.info('WLSDPLY-06751', model_type, short_name, class_name=_class_name, method_name=_method_name)
             _logger.info('WLSDPLY-06752', mbean_name, model_type, short_name,
@@ -337,20 +339,25 @@ def equal_jarrays(array1, array2):
     return False
 
 
-def security_provider_interface_name(mbean_interface_name):
+def security_provider_interface_name(mbean_instance, mbean_interface_name):
     """
     Return the name that is used to look up the custom Security Provider MBeanInfo.
 
     This is too tightly coupled to be in this class.
     This needs something more to differentiate Security Provider Interface which is formatted differently from other
     custom MBean Interface names.
+    :param mbean_instance: instance for the current custom MBean
     :param mbean_interface_name: interface for the MBean
     :return: provider class name returned from the massaged MBean name
     """
-    result = mbean_interface_name
-    idx = mbean_interface_name.rfind('MBean')
-    if idx > 0:
-        result = result[:idx]
+    try:
+        getter = getattr(mbean_instance, 'getProviderClassName')
+        result = getter()
+    except (Exception, JException):
+        result = mbean_interface_name
+        idx = mbean_interface_name.rfind('MBean')
+        if idx > 0:
+            result = result[:idx]
     return result
 
 
