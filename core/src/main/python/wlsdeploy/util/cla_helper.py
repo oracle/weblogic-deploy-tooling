@@ -102,6 +102,22 @@ def validate_model_present(program_name, optional_arg_map):
     return
 
 
+def validate_variable_file_exists(program_name, optional_arg_map):
+    method_name = '_validate_variable_file_arg'
+    if CommandLineArgUtil.VARIABLE_FILE_SWITCH in optional_arg_map:
+        value = optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
+        try:
+            variable_file = FileUtils.validateExistingFile(value)
+        except IllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-20031', program_name, value,
+                                                       iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+            __logger.throwing(ex, class_name=_class_name, method_name=method_name)
+            raise ex
+        optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = variable_file.getAbsolutePath()
+    return
+
+
 def clean_up_temp_files():
     """
     If a temporary directory was created to extract the model from the archive, delete the directory and its contents.

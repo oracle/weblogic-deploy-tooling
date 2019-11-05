@@ -16,7 +16,6 @@ from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
-from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
@@ -191,6 +190,7 @@ def __process_model_args(optional_arg_map):
     # this requirement is specific to create, other tools will verify it.
 
     cla_helper.validate_model_present(_program_name, optional_arg_map)
+    cla_helper.validate_variable_file_exists(_program_name, optional_arg_map)
     return
 
 

@@ -297,8 +297,7 @@ class CommandLineArgUtil(object):
             elif self.is_variable_file_key(key):
                 idx += 1
                 if idx < args_len:
-                    full_path = self._validate_variable_file_arg(args[idx])
-                    self._add_arg(key, full_path, True)
+                    self._add_arg(key, args[idx], True)
                 else:
                     ex = self._get_out_of_args_exception(key)
                     self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
@@ -836,18 +835,6 @@ class CommandLineArgUtil(object):
 
     def is_variable_file_key(self, key):
         return self.VARIABLE_FILE_SWITCH == key
-
-    def _validate_variable_file_arg(self, value):
-        method_name = '_validate_variable_file_arg'
-
-        try:
-            variable_file = JFileUtils.validateWritableFile(value)
-        except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01620', value, iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        return variable_file.getAbsolutePath()
 
     def get_rcu_database_key(self):
         return self.RCU_DB_SWITCH
