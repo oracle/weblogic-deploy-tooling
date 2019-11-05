@@ -841,6 +841,29 @@ class Aliases(object):
 
         return model_attribute_names
 
+    def is_model_password_attribute(self, location, model_name):
+        """
+        Determine if the attribute with the specified model_name is a password attribute.
+        :param location: current location context
+        :param model_name: specified model name to check if password
+        :return: True if the wlst type is password
+        """
+        _method_name = 'is_model_password_attribute'
+
+        is_password = False
+        module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
+
+        if ATTRIBUTES not in module_folder:
+            ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        if model_name in module_folder[ATTRIBUTES] and WLST_TYPE in module_folder[ATTRIBUTES][model_name] and \
+                module_folder[ATTRIBUTES][model_name][WLST_TYPE] == PASSWORD:
+            is_password = True
+
+        return is_password
+
     def get_model_uses_path_tokens_attribute_names(self, location):
         """
         Get the list of attribute names that "use path tokens" (i.e., ones whose values are file system paths).
