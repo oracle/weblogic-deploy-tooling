@@ -487,6 +487,24 @@ class AliasHelper(object):
             raise ex
         return password_attribute_names
 
+    def is_model_password_attribute(self, location, model_name):
+        """
+        Determine if the model attribute at the location is a password type.
+        :param location: current location context
+        :param model_name: attribute model name in alias definitions
+        :return: True if the attribute is a password type
+        """
+        _method_name = 'is_model_password_attribute'
+
+        try:
+            is_password = self.__aliases.is_model_password_attribute(location, model_name)
+        except AliasException, ae:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19040', model_name,
+                                                   location.get_folder_path(), ae.getLocalizedMessage(), error=ae)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return is_password
+
     def get_model_mbean_set_method_attribute_names_and_types(self, location):
         """
         Get the list of model attribute names and types where the set method requires an MBean.
