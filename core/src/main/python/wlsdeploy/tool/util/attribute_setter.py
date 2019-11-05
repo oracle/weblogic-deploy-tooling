@@ -40,6 +40,7 @@ from wlsdeploy.aliases.model_constants import JMX_NOTIFICATION
 from wlsdeploy.aliases.model_constants import LOG_ACTION
 from wlsdeploy.aliases.model_constants import LOG_FILTER
 from wlsdeploy.aliases.model_constants import MACHINE
+from wlsdeploy.aliases.model_constants import MASKED_PASSWORD
 from wlsdeploy.aliases.model_constants import MAX_THREADS_CONSTRAINT
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import MIN_THREADS_CONSTRAINT
@@ -660,6 +661,15 @@ class AttributeSetter(object):
             self.__logger.info('WLSDPLY-20012', model_key, str(model_value),
                                class_name=self._class_name, method_name=_method_name)
         else:
+            if self.__logger.is_finer_enabled():
+                print_model_value = model_value
+                print_wlst_value = wlst_value
+                if self.__alias_helper.is_model_password_attribute(location, model_key):
+                    print_model_value = MASKED_PASSWORD
+                    print_wlst_value = MASKED_PASSWORD
+                self.__logger.finer('WLSDPLY-19211', wlst_param, print_model_value, print_wlst_value,
+                                    location.get_folder_path(), class_name=self._class_name, method_name=_method_name)
+
             self.__wlst_helper.set(wlst_param, wlst_value)
         return
 
