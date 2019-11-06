@@ -206,8 +206,6 @@ class Deployer(object):
         :return: True if the attribute does not need to be set
         """
         _method_name = '_skip_setting_attribute'
-        self.logger.entering(str(key), str(value), str(wlst_merge_value), str(restart_attribute_names),
-                             class_name=self._class_name, method_name=_method_name)
 
         # Needs implementation. Return true if model key in restart attribute_names,
         # and WLST helper determines that set is required,
