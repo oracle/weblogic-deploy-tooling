@@ -173,6 +173,7 @@ NODE_MANAGER = 'NodeManager'
 NODE_MANAGER_PW_ENCRYPTED = 'NodeManagerPasswordEncrypted'
 NODE_MANAGER_USER_NAME = 'NodeManagerUsername'
 NOVELL_AUTHENTICATOR = 'NovellAuthenticator'
+ODL_INFO = 'odlInfo'
 OPEN_LDAP_AUTHENTICATOR = 'OpenLDAPAuthenticator'
 ORACLE_OID_AUTHENTICATOR = 'OracleInternetDirectoryAuthenticator'
 ORACLE_OUD_AUTHENTICATOR = 'OracleUnifiedDirectoryAuthenticator'
@@ -359,7 +360,8 @@ KNOWN_TOPLEVEL_MODEL_SECTIONS = [
     DOMAIN_INFO,
     TOPOLOGY,
     RESOURCES,
-    APP_DEPLOYMENTS
+    APP_DEPLOYMENTS,
+    ODL_INFO
 ]
 
 # these domain attributes have special processing in create,

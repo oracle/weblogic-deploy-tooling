@@ -20,6 +20,7 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlsroles_helper
+from wlsdeploy.tool.util import odl_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
@@ -28,6 +29,7 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
 from wlsdeploy.util import variables
 from wlsdeploy.util.enum import Enum
+from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 from wlsdeploy.aliases.model_constants import DOMAIN_SCRIPTS
@@ -264,6 +266,9 @@ class Validator(object):
 
         self.__validate_model_section(model.get_model_deployments_key(), model_dict,
                                       self._aliases.get_model_app_deployments_top_level_folder_names())
+
+        model_object = Model(model_dict, self._wls_version)
+        odl_helper.validate(model_object, self._model_context, self._wlst_mode, ExceptionType.VALIDATE, self._logger)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
         return

@@ -8,6 +8,7 @@ It has convenience methods for accessing top-level fields in the model.
 import pprint, os
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+from wlsdeploy.aliases.model_constants import ODL_INFO
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -26,6 +27,7 @@ class Model(object):
         self._resources = OrderedDict()
         self._deployments = OrderedDict()
         self._domain_info = OrderedDict()
+        self._odl_info = OrderedDict()
 
         if model_dictionary is not None:
             if 'topology' in model_dictionary:
@@ -39,6 +41,9 @@ class Model(object):
 
             if 'domainInfo' in model_dictionary:
                 self._domain_info = model_dictionary['domainInfo']
+
+            if ODL_INFO in model_dictionary:
+                self._odl_info = model_dictionary[ODL_INFO]
         return
 
     def get_model_resources(self):
@@ -68,6 +73,13 @@ class Model(object):
         :return: the domainInfo dictionary
         """
         return self._domain_info
+
+    def get_model_odl_info(self):
+        """
+        Get the odlInfo section of the model.
+        :return: the odlInfo dictionary
+        """
+        return self._odl_info
 
     def get_model(self):
         """
@@ -142,7 +154,8 @@ def get_model_top_level_keys():
         get_model_domain_info_key(),
         get_model_topology_key(),
         get_model_resources_key(),
-        get_model_deployments_key()
+        get_model_deployments_key(),
+        ODL_INFO
     ]
 
 

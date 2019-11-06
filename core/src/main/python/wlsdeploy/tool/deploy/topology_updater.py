@@ -14,8 +14,8 @@ from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import UNIX_MACHINE
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.tool.util import odl_helper
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.deployer import Deployer
@@ -141,6 +141,8 @@ class TopologyUpdater(Deployer):
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
         self.library_helper.install_domain_scripts()
+
+        odl_helper.configure(self.model, self.model_context, self.wlst_mode, self._exception_type, self.logger)
 
     def _process_section(self, folder_dict, folder_list, key, location):
         if key in folder_dict:
