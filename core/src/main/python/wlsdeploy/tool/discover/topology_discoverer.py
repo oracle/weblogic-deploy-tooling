@@ -256,7 +256,13 @@ class TopologyDiscoverer(Discoverer):
         """
         _method_name = 'discover_domain_parameters'
         _logger.entering(class_name=_class_name, method_name=_method_name)
+        domain_home = '/'
         location = LocationContext(self._base_location)
+        # This is temporary until a do not ignore is created for DomainName
+        success, wlst_value = self._get_attribute_value_with_get(model_constants.DOMAIN_NAME, domain_home)
+        if success and wlst_value:
+            self._dictionary[model_constants.DOMAIN_NAME] = wlst_value
+
         self._populate_model_parameters(self._dictionary, location)
 
         model_folder_name, folder_result = self._get_admin_console()
