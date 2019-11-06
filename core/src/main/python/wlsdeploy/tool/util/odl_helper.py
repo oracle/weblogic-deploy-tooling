@@ -55,7 +55,7 @@ _VALID_LOGGER_FIELDS = [
 
 class OdlHelper(object):
     """
-    Handle the WLSRoles section from the model domainInfo
+    Handle the ODL validation and configuration.
     """
     __class_name = 'OdlHelper'
 
