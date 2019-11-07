@@ -190,7 +190,7 @@ def __process_variable_filename_arg(optional_arg_map):
     _method_name = '__process_variable_filename_arg'
 
     if CommandLineArgUtil.VARIABLE_FILE_SWITCH in optional_arg_map:
-        variable_injector_file_name = variable_injector.get_default_variable_injector_file_name()
+        variable_injector_file_name = optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
         try:
             FileUtils.validateWritableFile(variable_injector_file_name)
         except IllegalArgumentException, ie:
@@ -484,7 +484,6 @@ def main(args):
 
     exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
 
-    model_context = None
     try:
         model_context = __process_args(args)
     except CLAException, ex:

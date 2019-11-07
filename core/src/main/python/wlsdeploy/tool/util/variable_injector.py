@@ -8,6 +8,7 @@ import re
 
 import java.lang.Boolean as Boolean
 import java.lang.IllegalArgumentException as IllegalArgumentException
+import java.util.TreeMap as TreeMap
 
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
 import oracle.weblogic.deploy.json.JsonException as JsonException
@@ -17,6 +18,7 @@ import oracle.weblogic.deploy.util.VariableException as VariableException
 import wlsdeploy.tool.util.variable_injector_functions as variable_injector_functions
 import wlsdeploy.util.model as model_sections
 import wlsdeploy.util.variables as variables
+from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -79,6 +81,9 @@ _fake_name_replacement = re.compile('.' + _fake_name_marker)
 _white_space_replacement = re.compile('\s')
 _split_around_special_names = re.compile('([\w]+\[[\w\.,]+\])|\.')
 
+TOP_FOLDER_SHORTS = {
+
+}
 _wlsdeploy_location = os.environ.get('WLSDEPLOY_HOME')
 _class_name = 'variable_injector'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -158,7 +163,6 @@ class VariableInjector(object):
                 del cache[property_name]
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
-
     def custom_injection(self, model, attribute, location, injector_values=OrderedDict()):
         """
         Used by external processes to add to the  variable cache prior to persisting to the variables file. A token
@@ -195,7 +199,6 @@ class VariableInjector(object):
         keywords_dictionary = _load_keywords_file(variable_keywords_location_file)
 
         return_model = self.__original
-        append = False
         variable_file_location = self._get_variable_file_name(**kwargs)
         variables_inserted = False
         if not variable_file_location:
@@ -342,8 +345,8 @@ class VariableInjector(object):
         else:
             return self._process_attribute(model, attribute, location, injector_values)
 
-    def __format_variable_name(self, location, attribute):
-        _method_name = '__format_variable_name'
+    def __format_variable_name_old(self, location, attribute):
+        _method_name = '__format_variable_name_old'
         variable_name = attribute
         make_path = None
         try:
@@ -357,6 +360,41 @@ class VariableInjector(object):
                 variable_name = make_path[1]
                 variable_name = variable_name[1:] + VARIABLE_SEP + attribute
         return _massage_name(variable_name)
+
+    def __format_variable_name(self, location, attribute):
+        _method_name = '__format_variable_name'
+
+        def __traverse_location(iterate_location, name_list, last_folder=None):
+            current_folder = iterate_location.get_current_model_folder()
+            if current_folder == model_constants.DOMAIN:
+                if last_folder is not None:
+                    top_name = self._match_short_top_folder(last_folder)
+                    if top_name is not None:
+                        last_folder = top_name
+                    name_list.insert(0, last_folder)
+            else:
+                try:
+                    if self.__aliases.supports_multiple_mbean_instances(iterate_location) or \
+                            self.__aliases.is_custom_folder_allowed(iterate_location):
+                        name_token = self.__aliases.get_name_token(iterate_location)
+                        name = iterate_location.get_name_for_token(name_token)
+                        name_list.insert(0, name)
+                        iterate_location.remove_name_token(name_token)
+                    iterate_location.pop_location()
+                except AliasException, ae:
+                    _logger.warning('WLSDPLY-19531', str(location), attribute, ae.getLocalizedMessage(), class_name=_class_name,
+                                    method_name=_method_name)
+                __traverse_location(iterate_location, name_list, current_folder)
+            return name_list
+
+        short_list = __traverse_location(LocationContext(location), list())
+        # short_list.append(attribute)
+
+        short_name = ''
+        for node in short_list:
+            short_name += node + '.'
+        short_name += attribute
+        return _massage_name(short_name)
 
     def __format_variable_name_segment(self, location, attribute, suffix):
         path = self.__format_variable_name(location, attribute)
@@ -566,8 +604,9 @@ class VariableInjector(object):
 
         written = False
         if variables_dictionary is not None:
+            sort_dictionary = sort_dictionary_by_keys(variables_dictionary)
             try:
-                variables.write_variables(self.__program_name, variables_dictionary, variables_file_name, append)
+                variables.write_variables(self.__program_name, sort_dictionary, variables_file_name, append)
                 written = True
             except VariableException, ve:
                 _logger.warning('WLSDPLY-19507', variables_file_name, ve.getLocalizedMessage(), class_name=_class_name,
@@ -620,11 +659,17 @@ class VariableInjector(object):
                 if check is not None:
                     value = check
                 _logger.finer('WLSDPLY-19542', value, variable_value, attribute, location.get_folder_path(),
-                             class_name=_class_name, method_name=_method_name)
+                              class_name=_class_name, method_name=_method_name)
             except AliasException, ae:
                 _logger.finer('WLSDPLY-19541', value, attribute, location, ae.getLocalizedMessage(),
                               class_name=_class_name, method_name=_method_name)
         return value
+
+    def _match_short_top_folder(self, top_folder_name):
+        _method_name = '_match_short_top_folder'
+        short_name = self.__aliases.get_folder_short_name(top_folder_name)
+        _logger.finer('WLSDPLY-19546', top_folder_name, short_name, class_name=_class_name, method_name=_method_name)
+        return short_name
 
 
 def get_default_variable_injector_file_name(variable_injector_file_name=VARIABLE_INJECTOR_FILE_NAME):
@@ -836,6 +881,15 @@ def _split_injector(injector_path):
     return mbean_list, attr
 
 
+def sort_dictionary_by_keys(dictionary):
+    sorted_dict = OrderedDict()
+    sorted_props = dictionary.keys()
+    sorted_props.sort()
+    for prop in sorted_props:
+        sorted_dict[prop] = dictionary[prop]
+    return sorted_dict
+
+
 def __temporary_fix(injector_dictionary):
     # this is very dangerous - for now, if you want to escape a backslash, need to do 4 backslash.
     _method_name = '__temporary_fix'
@@ -852,3 +906,5 @@ def __temporary_fix(injector_dictionary):
                         dict_entry[REGEXP_PATTERN] = newpattern
                 _logger.fine('Pattern after temporary fix {0}', dict_entry[REGEXP_PATTERN], class_name=_class_name,
                              method_name=_method_name)
+
+

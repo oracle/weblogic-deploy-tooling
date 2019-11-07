@@ -152,6 +152,9 @@ class Aliases(object):
         """
         return self._alias_entries.get_model_folder_path_for_location(location)
 
+    def get_folder_short_name(self, model_folder):
+        return self._alias_entries.get_top_folder_short_name(model_folder)
+
     ###########################################################################
     #                      WLST Path-related methods                          #
     ###########################################################################

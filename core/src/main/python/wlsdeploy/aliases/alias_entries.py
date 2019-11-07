@@ -110,7 +110,7 @@ class AliasEntries(object):
         'Server': 'Server',
         'ServerTemplate': 'ServerTemplate',
         'ShutdownClass': 'ShutdownClass',
-        'SingletonService' : 'SingletonService',
+        'SingletonService': 'SingletonService',
         'StartupClass': 'StartupClass',
         'UnixMachine': 'UnixMachine',
         'VirtualHost': 'VirtualHost',
@@ -118,6 +118,57 @@ class AliasEntries(object):
         'WebAppContainer': 'WebAppContainer',
         'WLDFSystemResource': 'WLDFSystemResource',
         'WSReliableDeliveryPolicy': 'WSReliableDeliveryPolicy',
+        'XMLEntityCache': 'XMLEntityCache',
+        'XMLRegistry': 'XMLRegistry'
+    }
+
+    __model_short_name_map = {
+        'AdminConsole': 'Console',
+        'Application': 'App',
+        'Cluster': 'Cluster',
+        'CoherenceClusterSystemResource': 'Coherence',
+        'Domain': 'Domain',
+        'EmbeddedLDAP': 'LDAP',
+        'FileStore': 'FS',
+        'ForeignJNDIProvider': 'ForeignJNDI',
+        'JDBCStore': 'JDBCStore',
+        'JDBCSystemResource': 'JDBC',
+        'JMSBridgeDestination': 'Bridge',
+        'JMSServer': 'JMSServer',
+        'JMSSystemResource': 'JMS',
+        'JMX': 'JMX',
+        'JTA': 'JTA',
+        'Library': 'Lib',
+        'Log': 'Log',
+        'LogFilter': 'Filter',
+        'Machine': 'Machine',
+        'MailSession': 'Mail',
+        'MessagingBridge': 'Messaging',
+        'MigratableTarget': 'Migratable',
+        'NMProperties': 'NMProps',
+        'Partition': 'Partition',
+        'PartitionWorkManager': 'PartitionWorkManager',
+        'PathService': 'PathService',
+        'ResourceGroup': 'RG',
+        'ResourceGroupTemplate': 'RGTemplate',
+        'ResourceManagement': 'RManagement',
+        'ResourceManager': 'RManager',
+        'RestfulManagementServices': 'Restful',
+        'SAFAgent': 'SAFAgent',
+        'Security': 'Security',
+        'SecurityConfiguration': 'SecurityConfig',
+        'SelfTuning': 'WorkManager',
+        'Server': 'Server',
+        'ServerTemplate': 'ServerTemplate',
+        'ShutdownClass': 'Shutdown',
+        'SingletonService': 'Singleton',
+        'StartupClass': 'Startup',
+        'UnixMachine': 'Unix',
+        'VirtualHost': 'VirtualHost',
+        'VirtualTarget': 'VirtualTarget',
+        'WebAppContainer': 'WebApp',
+        'WLDFSystemResource': 'Diagnostic',
+        'WSReliableDeliveryPolicy': 'WSPolicy',
         'XMLEntityCache': 'XMLEntityCache',
         'XMLRegistry': 'XMLRegistry'
     }
@@ -842,7 +893,7 @@ class AliasEntries(object):
         """
         _method_name = 'is_version_valid_location'
 
-        _logger.entering(str(location),class_name=_class_name, method_name=_method_name)
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
 
         code = ValidationCodes.VALID
         message = ''
@@ -885,6 +936,21 @@ class AliasEntries(object):
             result = ValidationCodes.INVALID
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[result, valid_version_range])
         return result, valid_version_range
+
+    def get_top_folder_short_name(self, model_folder):
+        """
+        Retrieve the shortened name for the model top folder .
+        :param model_folder: top folder for which to locate short name
+        :return: short name or model_folder contents if not short named assigned
+        """
+        _method_name = 'get_top_folder_short_name'
+        if model_folder in self.__model_short_name_map:
+            result = self.__model_short_name_map[model_folder]
+        else:
+            _logger.fine('WLSDPLY-08136', model_folder, class_name=_class_name, method_name=_method_name)
+            result = model_folder
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+        return result
 
     ###########################################################################
     #                         Private helper methods                          #
@@ -1288,7 +1354,7 @@ class AliasEntries(object):
                         add_entry = folder_set
                         break
                 for key, value in add_entry.iteritems():
-                    if key not in [ ATTRIBUTES, FOLDERS ]:
+                    if key not in [ATTRIBUTES, FOLDERS]:
                         alias_dict[key] = value
                     else:
                         _logger.fine('WLSDPLY-08136', path_name, value, class_name=_class_name,
