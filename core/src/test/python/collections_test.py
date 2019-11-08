@@ -197,5 +197,30 @@ class CollectionsTestCase(unittest.TestCase):
         self.assertEqual('entry1' in dict1 and 'entry2' in dict1, True,
                          "expected ordereddict1 to contain 'entry1' and 'entry2' keys")
 
+    # def testOrderedDictSort(self):
+    #     dict1 = OrderedDict()
+    #     dict1['SecurityConfig.myrealm.IoT-IDCS-Authenticator.ClientSecretEncrypted'] = ''
+    #     dict1['AdminUserName'] = ''
+    #     dict1['ServerTemp.ms-template.SSL.ListenPort'] = '8100'
+    #     dict1['AdminPassword'] = ''
+    #     dict1['JDBC.IoTServerDS.user.Value'] = 'admin'
+    #     dict1['SecurityConfig.CredentialEncrypted'] = ''
+    #     dict1['JDBC.IoTServerDS.PasswordEncrypted'] = ''
+    #     dict1['SecurityConfig.NodeManagerUsername'] = 'iot'
+    #
+    #
+    #     sorted_dict = OrderedDict()
+    #     sorted_keys = dict1.keys()
+    #     sorted_keys.sort()
+    #     print '######################     #################### ############################   ##############'
+    #     for key in sorted_keys:
+    #         sorted_dict[key] = dict1[key]
+    #         print key, dict1[key]
+    #
+    #     for key, value in sorted_dict.iteritems():
+    #         print key, value
+    #     self.assertEqual(sorted_dict[sorted_dict.__len__] == '8100',
+    #                      'expected dictionary to be sorted by name')
+
 if __name__ == '__main__':
     unittest.main()
