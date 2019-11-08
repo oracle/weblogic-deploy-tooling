@@ -40,6 +40,17 @@ class ResourcesDeployer(Deployer):
             MultiTenantResourcesDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
         multi_tenant_deployer.add_multi_tenant_objects(location)
 
+    def deploy_after_update(self, location):
+        """
+        Deploy resource model elements that must be done after WLST updateDomain.
+        :param location: the location to deploy elements (includes basic tokens)
+        """
+        domain_token = deployer_utils.get_domain_token(self.alias_helper)
+        location.add_name_token(domain_token, self.model_context.get_domain_name())
+
+        odl_deployer = OdlDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
+        odl_deployer.configure_odl(self._resources, location)
+
     def _add_resources(self, location):
         """
         Deploy resource model elements at the domain level, not including multi-tenant elements.
@@ -74,9 +85,6 @@ class ResourcesDeployer(Deployer):
         common_deployer.add_coherence_clusters(self._resources, location)
         common_deployer.add_webapp_container(self._resources, location)
         common_deployer.add_singleton_service(self._resources, location)
-
-        odl_deployer = OdlDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
-        odl_deployer.configure_odl(self._resources, location)
         return
 
     def _add_startup_classes(self, location):
