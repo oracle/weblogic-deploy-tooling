@@ -13,8 +13,13 @@ from oracle.weblogic.deploy.util import FileUtils
 from org.xml.sax import SAXException
 
 from wlsdeploy.aliases import alias_utils
-from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER, ODL_INFO
+from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import dictionary_utils
 
 from oracle.core.ojdl.weblogic.ODLConfiguration import CONFIG_DIR
@@ -33,68 +38,59 @@ _HANDLERS = "Handlers"
 _LEVEL = "Level"
 _LOGGER = "Logger"
 _PROPERTIES = "Properties"
+_SERVERS = "Servers"
 _USE_PARENT_HANDLERS = "UseParentHandlers"
 
-_VALID_TOP_FIELDS = [
-    _ADD_JVM_NUMBER,
-    _HANDLER,
-    _HANDLER_DEFAULTS,
-    _LOGGER
-]
 
-_VALID_HANDLER_FIELDS = [
-    _CLASS,
-    _ENCODING,
-    _ERROR_MANAGER,
-    _FILTER,
-    _FORMATTER,
-    _LEVEL,
-    _PROPERTIES
-]
-
-_VALID_LOGGER_FIELDS = [
-    _FILTER,
-    _HANDLERS,
-    _LEVEL,
-    _USE_PARENT_HANDLERS
-]
-
-
-class OdlHelper(object):
+class OdlDeployer(object):
     """
     Handle the ODL validation and configuration.
     """
     __class_name = 'OdlHelper'
 
-    def __init__(self, model, model_context, wlst_mode, exception_type, logger):
-        self.logger = logger
+    def __init__(self, model, model_context, aliases, wlst_mode):
         self.model = model
         self.model_context = model_context
-        self.wlst_mode = wlst_mode
-        self.exception_type = exception_type
-        self.logger = logger
 
-    def configure_odl(self):
+        self.logger = PlatformLogger('wlsdeploy.deploy')
+        self.alias_helper = AliasHelper(aliases, self.logger, ExceptionType.DEPLOY)
+        self.wlst_mode = wlst_mode
+
+    def configure_odl(self, parent_dict, parent_location):
         """
         Apply the ODL configuration section of the model.
         """
         _method_name = 'configure_odl'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        odl_info = self.model.get_model_odl_info()
+        odl_info = dictionary_utils.get_dictionary_element(parent_dict, ODL_CONFIGURATION)
         if len(odl_info):
             if self.wlst_mode == WlstModes.ONLINE:
                 self.logger.info('WLSDPLY-19700', class_name=self.__class_name, method_name=_method_name)
             else:
-                for server in odl_info:
-                    self.update_server(server, odl_info[server])
+                for config in odl_info:
+                    self._update_config(config, odl_info[config], parent_location)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def update_server(self, name, dictionary):
-        _method_name = 'update_server'
-        server_path = ODL_INFO + ":/" + name
+    def _update_config(self, config_name, config_dictionary, parent_location):
+        _method_name = '_update_config'
+
+        config_location = LocationContext(parent_location).append_location(ODL_CONFIGURATION)
+        token = self.alias_helper.get_name_token(config_location)
+        config_location.add_name_token(token, config_name)
+
+        servers = dictionary_utils.get_element(config_dictionary, _SERVERS)
+        if servers is not None:
+            servers_list = alias_utils.convert_to_type('list', servers, delimiter=MODEL_LIST_DELIMITER)
+            for server in servers_list:
+                self.logger.info('WLSDPLY-19708', ODL_CONFIGURATION, config_name, server,
+                                 class_name=self.__class_name, method_name=_method_name)
+                self._update_server(server, config_dictionary, config_location)
+
+    def _update_server(self, name, dictionary, config_location):
+        _method_name = '_update_server'
 
         config_dir = File(self.model_context.get_domain_home(), CONFIG_DIR)
         server_dir = File(config_dir, name)
@@ -123,7 +119,7 @@ class OdlHelper(object):
             if handlers is not None:
                 for handler_name in handlers:
                     handler = handlers[handler_name]
-                    self._configure_handler(handler_name, handler, document, existing_handler_names, server_path)
+                    self._configure_handler(handler_name, handler, document, existing_handler_names, config_location)
 
             # configure Loggers
             existing_logger_names = document.getLoggerNames()
@@ -131,7 +127,7 @@ class OdlHelper(object):
             if loggers is not None:
                 for logger_name in loggers:
                     logger = loggers[logger_name]
-                    self._configure_logger(logger_name, logger, document, existing_logger_names, server_path)
+                    self._configure_logger(logger_name, logger, document, existing_logger_names, config_location)
 
             document.writeDocument(FileOutputStream(config_file))
 
@@ -140,7 +136,7 @@ class OdlHelper(object):
                                class_name=self.__class_name, method_name=_method_name)
         return
 
-    def _configure_handler(self, handler_name, handler, document, existing_names, parent_path):
+    def _configure_handler(self, handler_name, handler, document, existing_names, config_location):
         """
         Configure the specified handler in the document.
         The handler will be added if it is not currently in the document.
@@ -148,10 +144,14 @@ class OdlHelper(object):
         :param handler: the dictionary of the handler to be configured
         :param document: the document to be updated
         :param existing_names: the names of existing handlers
-        :param parent_path: the parent path in the model, used for logging
+        :param config_location: the location of ODL configuration in the model
         """
         _method_name = '_configure_handler'
-        handler_path = parent_path + "/" + _HANDLER + "/" + handler_name
+
+        handler_location = LocationContext(config_location).append_location(_HANDLER)
+        token = self.alias_helper.get_name_token(handler_location)
+        handler_location.add_name_token(token, handler_name)
+        handler_path = self.alias_helper.get_model_folder_path(handler_location)
 
         handler_class = dictionary_utils.get_element(handler, _CLASS)
 
@@ -219,7 +219,7 @@ class OdlHelper(object):
                 self.logger.severe('WLSDPLY-19706', key, property_text, handler_path, iae.getLocalizedMessage(),
                                    class_name=self.__class_name, method_name=_method_name)
 
-    def _configure_logger(self, logger_name, logger, document, existing_names, parent_path):
+    def _configure_logger(self, logger_name, logger, document, existing_names, config_location):
         """
         Configure the specified logger in the document.
         The logger will be added if it is not currently in the document.
@@ -227,10 +227,14 @@ class OdlHelper(object):
         :param logger: the dictionary of the logger to be configured
         :param document: the document to be updated
         :param existing_names: the names of existing loggers
-        :param parent_path: the parent path in the model, used for logging
+        :param config_location: the location of ODL configuration in the model
         """
         _method_name = '_configure_logger'
-        logger_path = parent_path + "/" + _LOGGER + "/" + logger_name
+
+        logger_location = LocationContext(config_location).append_location(_LOGGER)
+        token = self.alias_helper.get_name_token(logger_location)
+        logger_location.add_name_token(token, logger_name)
+        logger_path = self.alias_helper.get_model_folder_path(logger_location)
 
         if logger_name not in existing_names:
             try:
@@ -265,8 +269,7 @@ class OdlHelper(object):
 
         logger_handlers = dictionary_utils.get_element(logger, _HANDLERS)
         if logger_handlers is not None:
-            handlers_list = alias_utils.convert_to_type('list', logger_handlers,
-                                                        delimiter=MODEL_LIST_DELIMITER)
+            handlers_list = alias_utils.convert_to_type('list', logger_handlers, delimiter=MODEL_LIST_DELIMITER)
             for logger_handler in handlers_list:
                 if logger_handler not in assigned_handlers:
                     try:
@@ -288,103 +291,12 @@ class OdlHelper(object):
         self.logger.severe('WLSDPLY-19703', key, value, model_path, exception.getLocalizedMessage(),
                            class_name=self.__class_name, method_name=method_name)
 
-    def validate_odl(self):
-        """
-        Validate the ODL configuration section of the model.
-        Because ODL structure is not alias-based, alias log messages are built manually,
-        and model path is constructed to match topology:/Server/m2 format.
-        """
-        _method_name = 'validate_odl'
-        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        odl_info = self.model.get_model_odl_info()
-        if self._check_dict(ODL_INFO, odl_info, "<root>"):
-            for server_name in odl_info:
-                server = odl_info[server_name]
-                server_path = ODL_INFO + ":/" + server_name
-                self._check_fields(server, _VALID_TOP_FIELDS, server_path)
-
-                handlers = dictionary_utils.get_dictionary_element(server, _HANDLER)
-                if self._check_dict(_HANDLER, handlers, server_path):
-                    for handler_name in handlers:
-                        handler = handlers[handler_name]
-                        handler_path = server_path + "/" + _HANDLER + "/" + handler_name
-                        self._check_fields(handler, _VALID_HANDLER_FIELDS, handler_path)
-
-                loggers = dictionary_utils.get_dictionary_element(server, _LOGGER)
-                if self._check_dict(_LOGGER, loggers, server_path):
-                    for logger_name in loggers:
-                        logger = loggers[logger_name]
-                        logger_path = server_path + "/" + _LOGGER + "/" + logger_name
-                        self._check_fields(logger, _VALID_LOGGER_FIELDS, logger_path)
-
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
-
-    def _check_dict(self, key, value, model_folder_path):
-        """
-        Determine if the specified value is a dictionary type.
-        If it is not, log an error and return False.
-        :param key: the key used for logging
-        :param value: the value to be checked
-        :param model_folder_path: the model path used for logging
-        :return: True if the value is a dictionary, False otherwise
-        """
-        _method_name = '_check_dict'
-
-        if not isinstance(value, dict):
-            self.logger.severe('WLSDPLY-05032', key, model_folder_path, str(type(value)),
-                               class_name=self.__class_name, method_name=_method_name)
-            return False
-
-        return True
-
-    def _check_fields(self, dictionary, valid_fields, model_folder_path):
-        """
-        Check that all the keys in the dictionary object are in the valid fields list.
-        If an invalid field is found, log errors matching those in alias framework.
-        :param dictionary: the dictionary to be checked
-        :param valid_fields: a list of valid field names
-        :param model_folder_path: a path describing the model location
-        """
-        _method_name = '_check_fields'
-
-        for field in dictionary:
-            if field not in valid_fields:
-                value = dictionary[field]
-                if isinstance(value, dict):
-                    self.logger.severe('WLSDPLY-05026', field, 'folder', model_folder_path,
-                                       class_name=self.__class_name, method_name=_method_name)
-                else:
-                    self.logger.severe('WLSDPLY-05029', field, model_folder_path,
-                                       class_name=self.__class_name, method_name=_method_name)
-
-
-def validate(model, model_context, wlst_mode, exception_type, logger):
+def _get_property_text(value):
     """
-    Static method to validate the ODL section of the model.
-    :param model: the model
-    :param model_context: the model context
-    :param wlst_mode: offline or online
-    :param exception_type: the exception type to be used
-    :param logger: the logger to be used
+    Return the text for the specified property value.
+    Some of these may require special processing.
+    :param value: the value to be evaluated
+    :return: the corresponding text value
     """
-    helper = OdlHelper(model, model_context, wlst_mode, exception_type, logger)
-    helper.validate_odl()
-
-
-def configure(model, model_context, wlst_mode, exception_type, logger):
-    """
-    Static method to configure the ODL section of the model.
-    :param model: the model
-    :param model_context: the model context
-    :param wlst_mode: offline or online
-    :param exception_type: the exception type to be used
-    :param logger: the logger to be used
-    """
-    helper = OdlHelper(model, model_context, wlst_mode, exception_type, logger)
-    helper.configure_odl()
-
-
-def _get_property_text(item):
-    return str(item)
+    return str(value)
