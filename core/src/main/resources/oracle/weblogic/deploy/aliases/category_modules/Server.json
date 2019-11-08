@@ -1027,6 +1027,7 @@
             "wlst_type": "SSL",
             "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
+            "short_name": "SSL",
             "folders": {},
             "attributes": {
                 "AcceptKssDemoCertsEnabled":               [ {"version": "[12.1.3,)",       "wlst_mode": "both", "wlst_name": "AcceptK${ss:SS}DemoCertsEnabled",         "wlst_path": "WP001", "value": {"default": "true"                }, "wlst_type": "boolean"           } ],

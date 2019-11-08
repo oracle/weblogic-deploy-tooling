@@ -81,9 +81,6 @@ _fake_name_replacement = re.compile('.' + _fake_name_marker)
 _white_space_replacement = re.compile('\s')
 _split_around_special_names = re.compile('([\w]+\[[\w\.,]+\])|\.')
 
-TOP_FOLDER_SHORTS = {
-
-}
 _wlsdeploy_location = os.environ.get('WLSDEPLOY_HOME')
 _class_name = 'variable_injector'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -338,6 +335,12 @@ class VariableInjector(object):
 
         return variable_dict
 
+    def get_folder_short_name(self, folder_name):
+        _method_name = '_match_short_top_folder'
+        short_name = self.__aliases.get_folder_short_name(folder_name)
+        _logger.finer('WLSDPLY-19546', folder_name, short_name, class_name=_class_name, method_name=_method_name)
+        return short_name
+
     def _add_variable_info(self, model, attribute, location, injector_values):
         # add code here to put in model if force in injector values
         if REGEXP in injector_values:
@@ -364,15 +367,19 @@ class VariableInjector(object):
     def __format_variable_name(self, location, attribute):
         _method_name = '__format_variable_name'
 
-        def __traverse_location(iterate_location, name_list, last_folder=None):
+        def __traverse_location(iterate_location, name_list, last_folder=None, last_folder_short=None):
             current_folder = iterate_location.get_current_model_folder()
             if current_folder == model_constants.DOMAIN:
                 if last_folder is not None:
-                    top_name = self._match_short_top_folder(last_folder)
-                    if top_name is not None:
-                        last_folder = top_name
-                    name_list.insert(0, last_folder)
+                    # If a short name is not defined for the top level folder, use the full name
+                    if len(last_folder_short) == 0:
+                        last_folder_short = last_folder
+                    name_list.insert(0, last_folder_short)
             else:
+                current_folder = iterate_location.get_current_model_folder()
+                short_folder = self.__aliases.get_folder_short_name(iterate_location)
+                if last_folder_short is not None:
+                    name_list.insert(0, last_folder_short)
                 try:
                     if self.__aliases.supports_multiple_mbean_instances(iterate_location) or \
                             self.__aliases.is_custom_folder_allowed(iterate_location):
@@ -384,15 +391,15 @@ class VariableInjector(object):
                 except AliasException, ae:
                     _logger.warning('WLSDPLY-19531', str(location), attribute, ae.getLocalizedMessage(), class_name=_class_name,
                                     method_name=_method_name)
-                __traverse_location(iterate_location, name_list, current_folder)
+                __traverse_location(iterate_location, name_list, current_folder, short_folder)
             return name_list
 
         short_list = __traverse_location(LocationContext(location), list())
-        # short_list.append(attribute)
 
         short_name = ''
         for node in short_list:
-            short_name += node + '.'
+            if node is not None and len(node) > 0:
+                short_name += node + '.'
         short_name += attribute
         return _massage_name(short_name)
 
@@ -665,11 +672,6 @@ class VariableInjector(object):
                               class_name=_class_name, method_name=_method_name)
         return value
 
-    def _match_short_top_folder(self, top_folder_name):
-        _method_name = '_match_short_top_folder'
-        short_name = self.__aliases.get_folder_short_name(top_folder_name)
-        _logger.finer('WLSDPLY-19546', top_folder_name, short_name, class_name=_class_name, method_name=_method_name)
-        return short_name
 
 
 def get_default_variable_injector_file_name(variable_injector_file_name=VARIABLE_INJECTOR_FILE_NAME):

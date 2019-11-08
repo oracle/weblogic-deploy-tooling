@@ -4,6 +4,7 @@
     "wlst_type": "ResourceGroupTemplate${:s}",
     "version": "[12.2.1,)",
     "child_folders_type": "multiple",
+    "short_name": "RGTemplate",
     "folders": {},
     "attributes": {
         "Immutable":                [ {"version": "[12.2.1,)", "wlst_mode": "offline", "wlst_name": "Immutable",                "wlst_path": "WP001", "value": {"default": "false"},  "wlst_type": "boolean", "access": "RO"   } ],

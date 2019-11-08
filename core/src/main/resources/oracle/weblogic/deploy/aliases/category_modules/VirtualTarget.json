@@ -4,6 +4,7 @@
     "wlst_type": "VirtualTarget${:s}",
     "version": "[12.2.1,)",
     "child_folders_type": "multiple",
+    "short_name": "VTarg",
     "folders": {
         "WebServer": {
             "wlst_type": "WebServer",

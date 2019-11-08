@@ -4,6 +4,7 @@
     "wlst_type": "ResourceGroup${:s}",
     "version": "[12.2.1,)",
     "child_folders_type": "multiple",
+    "short_name": "RG",
     "folders": {},
     "attributes": {
         "Administrative":          [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "Administrative",          "wlst_path": "WP001", "value": { "default": "false" }, "wlst_type": "boolean"          } ],

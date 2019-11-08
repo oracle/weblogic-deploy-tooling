@@ -27,24 +27,26 @@ class VariableFileHelperTest(unittest.TestCase):
 
     def testSingleVariableReplacement(self):
         replacement_dict = dict()
+        short_name = self._helper.get_folder_short_name('Machine')
         replacement_dict['Machine.NodeManager.ListenAddress'] = dict()
         expected = dict()
-        expected['Machine.machine1.NodeManager.ListenAddress'] = '127.0.0.1'
+        name = short_name + '.machine1.ListenAddress'
+        expected[name] = '127.0.0.1'
         actual = self._helper.inject_variables(replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testMultiplesReplacement(self):
         expected = dict()
-        expected['Server.AdminServer.SSL.ListenPort'] = '9002'
-        expected['Server.AdminServer.ListenPort'] = '9001'
-        expected['Server.m2.ListenPort'] = '9005'
-        expected['Server.m1.ListenPort'] = '9003'
-        expected['Server.m1.SSL.ListenPort'] = '9004'
-        expected['Server.m2.SSL.ListenPort'] = '9006'
-        expected['JMSSystemResource.MyJmsModule.JmsResource.ForeignServer.MyForeignServer.ConnectionURL'] \
+        short_name = self._helper.get_folder_short_name('Server')
+        expected[short_name + '.AdminServer.SSL.ListenPort'] = '9002'
+        expected[short_name + '.AdminServer.ListenPort'] = '9001'
+        expected[short_name + 'm2.ListenPort'] = '9005'
+        expected[short_name + '.m1.ListenPort'] = '9003'
+        expected[short_name + '.m1.SSL.ListenPort'] = '9004'
+        expected[short_name + '.m2.SSL.ListenPort'] = '9006'
+        expected[short_name + 'JMS.MyJmsModule.MyForeignServer.ConnectionURL'] \
             = 't3://my.other.cluster:7001'
-        expected['JMSSystemResource.MyJmsModule.JmsResource.ForeignServer.MyForeignServer.'
-                 'ForeignDestination.MyRemoteQ.LocalJNDIName'] = 'jms/remoteQ'
+        expected[short_name + 'JMS.MyJmsModule.MyForeignServer.MyRemoteQ.LocalJNDIName'] = 'jms/remoteQ'
         replacement_dict = dict()
         replacement_dict['Server.ListenPort'] = dict()
         replacement_dict['JMSSystemResource.JmsResource.ForeignServer.ConnectionURL'] = dict()

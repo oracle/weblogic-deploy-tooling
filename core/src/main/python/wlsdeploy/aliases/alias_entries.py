@@ -36,6 +36,7 @@ from wlsdeploy.aliases.alias_constants import NONE_CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_NAME_MAP
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
+from wlsdeploy.aliases.alias_constants import SHORT_NAME
 from wlsdeploy.aliases.alias_constants import SINGLE
 from wlsdeploy.aliases.alias_constants import UNRESOLVED_ATTRIBUTES_MAP
 from wlsdeploy.aliases.alias_constants import UNRESOLVED_FOLDERS_MAP
@@ -118,57 +119,6 @@ class AliasEntries(object):
         'WebAppContainer': 'WebAppContainer',
         'WLDFSystemResource': 'WLDFSystemResource',
         'WSReliableDeliveryPolicy': 'WSReliableDeliveryPolicy',
-        'XMLEntityCache': 'XMLEntityCache',
-        'XMLRegistry': 'XMLRegistry'
-    }
-
-    __model_short_name_map = {
-        'AdminConsole': 'Console',
-        'Application': 'App',
-        'Cluster': 'Cluster',
-        'CoherenceClusterSystemResource': 'Coherence',
-        'Domain': 'Domain',
-        'EmbeddedLDAP': 'LDAP',
-        'FileStore': 'FS',
-        'ForeignJNDIProvider': 'ForeignJNDI',
-        'JDBCStore': 'JDBCStore',
-        'JDBCSystemResource': 'JDBC',
-        'JMSBridgeDestination': 'Bridge',
-        'JMSServer': 'JMSServer',
-        'JMSSystemResource': 'JMS',
-        'JMX': 'JMX',
-        'JTA': 'JTA',
-        'Library': 'Lib',
-        'Log': 'Log',
-        'LogFilter': 'Filter',
-        'Machine': 'Machine',
-        'MailSession': 'Mail',
-        'MessagingBridge': 'Messaging',
-        'MigratableTarget': 'Migratable',
-        'NMProperties': 'NMProps',
-        'Partition': 'Partition',
-        'PartitionWorkManager': 'PartitionWorkManager',
-        'PathService': 'PathService',
-        'ResourceGroup': 'RG',
-        'ResourceGroupTemplate': 'RGTemplate',
-        'ResourceManagement': 'RManagement',
-        'ResourceManager': 'RManager',
-        'RestfulManagementServices': 'Restful',
-        'SAFAgent': 'SAFAgent',
-        'Security': 'Security',
-        'SecurityConfiguration': 'SecurityConfig',
-        'SelfTuning': 'WorkManager',
-        'Server': 'Server',
-        'ServerTemplate': 'ServerTemplate',
-        'ShutdownClass': 'Shutdown',
-        'SingletonService': 'Singleton',
-        'StartupClass': 'Startup',
-        'UnixMachine': 'Unix',
-        'VirtualHost': 'VirtualHost',
-        'VirtualTarget': 'VirtualTarget',
-        'WebAppContainer': 'WebApp',
-        'WLDFSystemResource': 'Diagnostic',
-        'WSReliableDeliveryPolicy': 'WSPolicy',
         'XMLEntityCache': 'XMLEntityCache',
         'XMLRegistry': 'XMLRegistry'
     }
@@ -937,18 +887,18 @@ class AliasEntries(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[result, valid_version_range])
         return result, valid_version_range
 
-    def get_top_folder_short_name(self, model_folder):
+    def get_folder_short_name_for_location(self, location):
         """
-        Retrieve the shortened name for the model top folder .
-        :param model_folder: top folder for which to locate short name
-        :return: short name or model_folder contents if not short named assigned
+        Retrieve the shortened name for the model folder at the provided location.
+        :param location: location context for the model folder
+        :return: short name or model_folder name if not short named assigned
         """
-        _method_name = 'get_top_folder_short_name'
-        if model_folder in self.__model_short_name_map:
-            result = self.__model_short_name_map[model_folder]
-        else:
-            _logger.fine('WLSDPLY-08136', model_folder, class_name=_class_name, method_name=_method_name)
-            result = model_folder
+        _method_name = 'get_folder_short_name'
+        _logger.entering(location.get_folder_path(), class_name=_class_name, method_name=_method_name)
+        folder_dict = self.__get_dictionary_for_location(location, True)
+        result = ''
+        if SHORT_NAME in folder_dict:
+            result = folder_dict[SHORT_NAME]
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
 
@@ -1192,6 +1142,9 @@ class AliasEntries(object):
 
         if DEFAULT_NAME_VALUE in alias_dict:
             result[DEFAULT_NAME_VALUE] = self._resolve_curly_braces(alias_dict[DEFAULT_NAME_VALUE])
+
+        if SHORT_NAME in alias_dict:
+            result[SHORT_NAME] = alias_dict[SHORT_NAME]
 
         if WLST_PATHS in alias_dict:
             wlst_paths = alias_dict[WLST_PATHS]

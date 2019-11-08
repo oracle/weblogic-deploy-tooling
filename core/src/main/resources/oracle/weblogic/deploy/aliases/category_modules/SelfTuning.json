@@ -4,6 +4,7 @@
     "wlst_type": "SelfTuning",
     "child_folders_type": "single_unpredictable",
     "default_name_value": "${NO_NAME_0:%DOMAIN%}",
+    "short_name": "WorkManager",
     "folders": {
         "Capacity": {
             "wlst_type": "Capacit${y:ies}",

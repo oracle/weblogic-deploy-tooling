@@ -152,8 +152,15 @@ class Aliases(object):
         """
         return self._alias_entries.get_model_folder_path_for_location(location)
 
-    def get_folder_short_name(self, model_folder):
-        return self._alias_entries.get_top_folder_short_name(model_folder)
+    def get_folder_short_name(self, location):
+        """
+        Return the short name for the folder at the provided location or an empty
+        string if the short name is not defined for the folder in the alias
+        definition.
+        :param location: location context for the folder
+        :return: short name or empty string if not found
+        """
+        return self._alias_entries.get_folder_short_name_for_location(location)
 
     ###########################################################################
     #                      WLST Path-related methods                          #

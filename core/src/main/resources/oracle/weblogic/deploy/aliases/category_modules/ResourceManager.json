@@ -4,6 +4,7 @@
     "wlst_type": "ResourceManager${:s}",
     "version": "[12.2.1,)",
     "child_folders_type": "multiple",
+    "short_name": "ResManager",
     "folders": {
         "CpuUtilization": {
             "wlst_type": "CpuUtilization",
