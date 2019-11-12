@@ -65,7 +65,8 @@ class OdlDeployer(object):
 
         odl_info = dictionary_utils.get_dictionary_element(parent_dict, ODL_CONFIGURATION)
         if len(odl_info):
-            if not self.model_context.get_domain_typedef().is_jrf_domain_type():
+            typedef = self.model_context.get_domain_typedef()
+            if not (typedef.is_jrf_domain_type() or typedef.is_restricted_jrf_domain_type):
                 self.logger.info('WLSDPLY-19709', class_name=self.__class_name, method_name=_method_name)
             elif self.wlst_mode == WlstModes.ONLINE:
                 self.logger.info('WLSDPLY-19700', class_name=self.__class_name, method_name=_method_name)
