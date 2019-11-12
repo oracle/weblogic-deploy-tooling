@@ -310,6 +310,7 @@ def main(args):
     __logger.exiting(result=exit_code, class_name=_class_name, method_name=_method_name)
     sys.exit(exit_code)
 
+
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     main(sys.argv)

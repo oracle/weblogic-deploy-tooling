@@ -36,6 +36,7 @@ from wlsdeploy.aliases.alias_constants import NONE_CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_NAME_MAP
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
+from wlsdeploy.aliases.alias_constants import SHORT_NAME
 from wlsdeploy.aliases.alias_constants import SINGLE
 from wlsdeploy.aliases.alias_constants import UNRESOLVED_ATTRIBUTES_MAP
 from wlsdeploy.aliases.alias_constants import UNRESOLVED_FOLDERS_MAP
@@ -110,7 +111,7 @@ class AliasEntries(object):
         'Server': 'Server',
         'ServerTemplate': 'ServerTemplate',
         'ShutdownClass': 'ShutdownClass',
-        'SingletonService' : 'SingletonService',
+        'SingletonService': 'SingletonService',
         'StartupClass': 'StartupClass',
         'UnixMachine': 'UnixMachine',
         'VirtualHost': 'VirtualHost',
@@ -842,7 +843,7 @@ class AliasEntries(object):
         """
         _method_name = 'is_version_valid_location'
 
-        _logger.entering(str(location),class_name=_class_name, method_name=_method_name)
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
 
         code = ValidationCodes.VALID
         message = ''
@@ -885,6 +886,21 @@ class AliasEntries(object):
             result = ValidationCodes.INVALID
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[result, valid_version_range])
         return result, valid_version_range
+
+    def get_folder_short_name_for_location(self, location):
+        """
+        Retrieve the shortened name for the model folder at the provided location.
+        :param location: location context for the model folder
+        :return: short name or model_folder name if not short named assigned
+        """
+        _method_name = 'get_folder_short_name'
+        _logger.entering(location.get_folder_path(), class_name=_class_name, method_name=_method_name)
+        folder_dict = self.__get_dictionary_for_location(location, False)
+        result = ''
+        if SHORT_NAME in folder_dict:
+            result = folder_dict[SHORT_NAME]
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+        return result
 
     ###########################################################################
     #                         Private helper methods                          #
@@ -1127,6 +1143,9 @@ class AliasEntries(object):
         if DEFAULT_NAME_VALUE in alias_dict:
             result[DEFAULT_NAME_VALUE] = self._resolve_curly_braces(alias_dict[DEFAULT_NAME_VALUE])
 
+        if SHORT_NAME in alias_dict:
+            result[SHORT_NAME] = alias_dict[SHORT_NAME]
+
         if WLST_PATHS in alias_dict:
             wlst_paths = alias_dict[WLST_PATHS]
             result_wlst_paths = dict()
@@ -1288,7 +1307,7 @@ class AliasEntries(object):
                         add_entry = folder_set
                         break
                 for key, value in add_entry.iteritems():
-                    if key not in [ ATTRIBUTES, FOLDERS ]:
+                    if key not in [ATTRIBUTES, FOLDERS]:
                         alias_dict[key] = value
                     else:
                         _logger.fine('WLSDPLY-08136', path_name, value, class_name=_class_name,

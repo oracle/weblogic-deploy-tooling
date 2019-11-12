@@ -4,6 +4,7 @@
     "wlst_type": "ResourceManagement",
     "version": "[12.2.1,)",
     "child_folders_type": "single",
+    "short_name": "ResManagement",
     "folders": { },
     "attributes": {
         "Notes":    [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"} ]

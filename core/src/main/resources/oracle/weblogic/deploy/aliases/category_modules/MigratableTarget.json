@@ -4,6 +4,7 @@
     "wlst_type": "MigratableTarget${:s}",
     "version": "[12.1.3,)",
     "child_folders_type": "multiple",
+    "short_name": "Migratable",
     "folders": {},
     "attributes": {
         "AdditionalMigrationAttempts":  [ {"version": "[12.1.3,)",     "wlst_mode": "both",    "wlst_name": "AdditionalMigrationAttempts",  "wlst_path": "WP001", "value": {"default": 2                    }, "wlst_type": "integer"           } ],

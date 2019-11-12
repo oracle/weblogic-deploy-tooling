@@ -153,7 +153,7 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
     elif 'list' in expected_data_type:
         retval = (actual_data_type in ["<type 'list'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type in ['password', 'credential', 'jarray']:
-        retval = (actual_data_type in ["<type 'str'>"])
+        retval = (actual_data_type in ["<type 'str'>", "<type 'unicode'>"])
     elif 'delimited_' in expected_data_type:
         retval = (actual_data_type in ["<type 'str'>", "<type 'list'>", "<type 'unicode'>"])
 

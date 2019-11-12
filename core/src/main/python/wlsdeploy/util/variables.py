@@ -71,8 +71,7 @@ def write_variables(program_name, variable_map, file_path, append=False):
     _method_name = 'write_variables'
     _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
     props = Properties()
-    for key in variable_map:
-        value = variable_map[key]
+    for key, value in variable_map.items():
         props.setProperty(key, value)
 
     comment = exception_helper.get_message('WLSDPLY-01731', program_name)
@@ -82,6 +81,7 @@ def write_variables(program_name, variable_map, file_path, append=False):
         props.store(output_stream, comment)
         output_stream.close()
     except IOException, ioe:
+        _logger.fine('WLSDPLY-20007', file_path, ioe.getLocalizedMessage())
         ex = exception_helper.create_variable_exception('WLSDPLY-20007', file_path,
                                                         ioe.getLocalizedMessage(), error=ioe)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)

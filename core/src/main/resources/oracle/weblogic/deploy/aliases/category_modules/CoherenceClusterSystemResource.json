@@ -4,6 +4,7 @@
     "wlst_type": "CoherenceClusterSystemResource${:s}",
     "child_folders_type": "multiple",
     "version" : "[12.1.2,)",
+    "short_name": "Coherence",
     "folders": {
         "CoherenceCacheConfig": {
             "wlst_type": "CoherenceCacheConfig${:s}",

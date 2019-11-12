@@ -4,6 +4,7 @@
     "wlst_type": "WebAppContainer",
     "child_folders_type": "single_unpredictable",
     "default_name_value": "${NO_NAME_0:%DOMAIN%}",
+    "short_name": "WebApp",
     "folders": {
         "GzipCompression" : {
             "wlst_type": "GzipCompression",

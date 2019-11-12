@@ -4,6 +4,7 @@
     "wlst_type": "Partition${:s}",
     "version": "[12.2.1,)",
     "child_folders_type": "multiple",
+    "short_name": "Part",
     "folders": {
         "PartitionWorkManager": {
             "wlst_type": "PartitionWorkManager",

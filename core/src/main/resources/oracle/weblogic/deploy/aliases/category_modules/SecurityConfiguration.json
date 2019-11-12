@@ -4,6 +4,7 @@
     "wlst_type": "SecurityConfiguration",
     "child_folders_type": "single_unpredictable",
     "default_name_value": "%DOMAIN%",
+    "short_name": "SecurityConfig",
     "folders": {
         "CertRevoc" : {
             "wlst_type": "CertRevoc",
