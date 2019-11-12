@@ -41,6 +41,9 @@ class AttributesTestCase(unittest.TestCase):
     # This test ensures that the attribute names match the WLST offline attribute names in 12.2.1.3.
     #
     def _check_folder(self, name, location, aliases):
+        if not is_wlst_location(location):
+            return
+
         wlst_name = aliases.get_wlst_mbean_type(location)
 
         if wlst_name is None:
@@ -102,6 +105,13 @@ class AttributesTestCase(unittest.TestCase):
         elif location.get_folder_path() == '/SecurityConfiguration/Realm/AuthenticationProvider/TrustServiceIdentityAsserter':
             result = True
         return result
+
+
+def is_wlst_location(location):
+    if location.get_folder_path() == '/ODLConfiguration':
+        return False
+    return True
+
 
 if __name__ == '__main__':
     unittest.main()

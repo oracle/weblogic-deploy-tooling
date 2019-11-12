@@ -8,6 +8,7 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.util.model_context import ModelContext
+import attributes_test
 
 
 class AttributesTypeTestCase(unittest.TestCase):
@@ -34,6 +35,9 @@ class AttributesTypeTestCase(unittest.TestCase):
             self._check_folder(location, aliases)
 
     def _check_folder(self, location, aliases):
+        if not attributes_test.is_wlst_location(location):
+            return
+
         wlst_name = aliases.get_wlst_mbean_type(location)
         if wlst_name is None:
             # folders added since 12.2.1.3 are not in the alias structure.
