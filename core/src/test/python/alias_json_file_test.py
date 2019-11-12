@@ -35,6 +35,7 @@ from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
+from wlsdeploy.aliases.alias_constants import SHORT_NAME
 from wlsdeploy.aliases.alias_constants import USES_PATH_TOKENS
 from wlsdeploy.aliases.alias_constants import VALUE
 from wlsdeploy.aliases.alias_constants import VERSION
@@ -78,6 +79,7 @@ class ListTestCase(unittest.TestCase):
         DEFAULT_NAME_VALUE,
         FLATTENED_FOLDER_DATA,
         FOLDER_PARAMS,
+        SHORT_NAME,
         VERSION,
         WLST_CREATE_PATH,
         WLST_LIST_PATH,
@@ -315,6 +317,12 @@ class ListTestCase(unittest.TestCase):
         result = []
         if type(attribute_value) is not str:
             result.append(self._get_invalid_string_type_message(folder_name, WLST_TYPE, attribute_value))
+        return result
+
+    def _verify_folder_short_name_attribute_value(self, folder_name, attribute_value):
+        result = []
+        if type(attribute_value) is not str:
+            result.append(self._get_invalid_string_type_message(folder_name, SHORT_NAME, attribute_value))
         return result
 
     def _verify_folder_wlst_attributes_path_attribute_type(self, folder_name, attribute_value):

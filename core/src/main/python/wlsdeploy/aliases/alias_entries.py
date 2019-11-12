@@ -39,6 +39,7 @@ from wlsdeploy.aliases.alias_constants import NONE_CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_NAME_MAP
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
+from wlsdeploy.aliases.alias_constants import SHORT_NAME
 from wlsdeploy.aliases.alias_constants import SINGLE
 from wlsdeploy.aliases.alias_constants import UNRESOLVED_ATTRIBUTES_MAP
 from wlsdeploy.aliases.alias_constants import UNRESOLVED_FOLDERS_MAP
@@ -73,6 +74,57 @@ class AliasEntries(object):
 
     __category_modules_dir_name = 'oracle/weblogic/deploy/aliases/category_modules/'
     __domain_category = 'Domain'
+
+    __model_categories_map = {
+        'AdminConsole': 'AdminConsole',
+        'Application': 'AppDeployment',
+        'Cluster': 'Cluster',
+        'CoherenceClusterSystemResource': 'CoherenceClusterSystemResource',
+        'Domain': 'Domain',
+        'EmbeddedLDAP': 'EmbeddedLDAP',
+        'FileStore': 'FileStore',
+        'ForeignJNDIProvider': 'ForeignJNDIProvider',
+        'JDBCStore': 'JDBCStore',
+        'JDBCSystemResource': 'JDBCSystemResource',
+        'JMSBridgeDestination': 'JMSBridgeDestination',
+        'JMSServer': 'JMSServer',
+        'JMSSystemResource': 'JMSSystemResource',
+        'JMX': 'JMX',
+        'JTA': 'JTA',
+        'Library': 'Library',
+        'Log': 'Log',
+        'LogFilter': 'LogFilter',
+        'Machine': 'Machine',
+        'MailSession': 'MailSession',
+        'MessagingBridge': 'MessagingBridge',
+        'MigratableTarget': 'MigratableTarget',
+        'NMProperties': 'NMProperties',
+        'Partition': 'Partition',
+        'PartitionWorkManager': 'PartitionWorkManager',
+        'PathService': 'PathService',
+        'ResourceGroup': 'ResourceGroup',
+        'ResourceGroupTemplate': 'ResourceGroupTemplate',
+        'ResourceManagement': 'ResourceManagement',
+        'ResourceManager': 'ResourceManager',
+        'RestfulManagementServices': 'RestfulManagementServices',
+        'SAFAgent': 'SAFAgent',
+        'Security': 'Security',
+        'SecurityConfiguration': 'SecurityConfiguration',
+        'SelfTuning': 'SelfTuning',
+        'Server': 'Server',
+        'ServerTemplate': 'ServerTemplate',
+        'ShutdownClass': 'ShutdownClass',
+        'SingletonService': 'SingletonService',
+        'StartupClass': 'StartupClass',
+        'UnixMachine': 'UnixMachine',
+        'VirtualHost': 'VirtualHost',
+        'VirtualTarget': 'VirtualTarget',
+        'WebAppContainer': 'WebAppContainer',
+        'WLDFSystemResource': 'WLDFSystemResource',
+        'WSReliableDeliveryPolicy': 'WSReliableDeliveryPolicy',
+        'XMLEntityCache': 'XMLEntityCache',
+        'XMLRegistry': 'XMLRegistry'
+    }
 
     __topology_top_level_folders = [
         'AdminConsole',
@@ -802,7 +854,7 @@ class AliasEntries(object):
         """
         _method_name = 'is_version_valid_location'
 
-        _logger.entering(str(location),class_name=_class_name, method_name=_method_name)
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
 
         code = ValidationCodes.VALID
         message = ''
@@ -845,6 +897,21 @@ class AliasEntries(object):
             result = ValidationCodes.INVALID
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[result, valid_version_range])
         return result, valid_version_range
+
+    def get_folder_short_name_for_location(self, location):
+        """
+        Retrieve the shortened name for the model folder at the provided location.
+        :param location: location context for the model folder
+        :return: short name or model_folder name if not short named assigned
+        """
+        _method_name = 'get_folder_short_name'
+        _logger.entering(location.get_folder_path(), class_name=_class_name, method_name=_method_name)
+        folder_dict = self.__get_dictionary_for_location(location, False)
+        result = ''
+        if SHORT_NAME in folder_dict:
+            result = folder_dict[SHORT_NAME]
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+        return result
 
     ###########################################################################
     #                         Private helper methods                          #
@@ -897,7 +964,7 @@ class AliasEntries(object):
             model_category_name = self.__domain_category
         else:
             model_category_name = location_folders[0]
-            if model_category_name not in self.__all_model_categories:
+            if model_category_name not in self.__model_categories_map:
                 ex = exception_helper.create_alias_exception('WLSDPLY-08116', model_category_name)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
@@ -949,7 +1016,7 @@ class AliasEntries(object):
         _method_name = '__load_category'
 
         _logger.entering(model_category_name, class_name=_class_name, method_name=_method_name)
-        model_category_file = self._get_category_file_prefix(model_category_name)
+        model_category_file = self.__model_categories_map[model_category_name]
         raw_category_dict = self.__load_category_file(model_category_file)
         _logger.fine('WLSDPLY-08118', model_category_name, class_name=_class_name, method_name=_method_name)
 
@@ -1039,8 +1106,8 @@ class AliasEntries(object):
 
             contained_folders = raw_model_dict[CONTAINS]
             for contained_folder in contained_folders:
-                if contained_folder in self.__all_model_categories:
-                    folder_file = self._get_category_file_prefix(contained_folder)
+                if contained_folder in self.__model_categories_map:
+                    folder_file = self.__model_categories_map[contained_folder]
                 else:
                     ex = exception_helper.create_alias_exception('WLSDPLY-08122', contained_folder, model_category_name)
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -1098,6 +1165,9 @@ class AliasEntries(object):
 
         if DEFAULT_NAME_VALUE in alias_dict:
             result[DEFAULT_NAME_VALUE] = self._resolve_curly_braces(alias_dict[DEFAULT_NAME_VALUE])
+
+        if SHORT_NAME in alias_dict:
+            result[SHORT_NAME] = alias_dict[SHORT_NAME]
 
         if WLST_PATHS in alias_dict:
             wlst_paths = alias_dict[WLST_PATHS]
@@ -1260,7 +1330,7 @@ class AliasEntries(object):
                         add_entry = folder_set
                         break
                 for key, value in add_entry.iteritems():
-                    if key not in [ ATTRIBUTES, FOLDERS ]:
+                    if key not in [ATTRIBUTES, FOLDERS]:
                         alias_dict[key] = value
                     else:
                         _logger.fine('WLSDPLY-08136', path_name, value, class_name=_class_name,

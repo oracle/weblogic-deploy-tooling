@@ -12,13 +12,14 @@ from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases import model_constants
+from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.util import path_utils
-
 _class_name = 'DomainInfoDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
 
@@ -29,8 +30,9 @@ class DomainInfoDiscoverer(Discoverer):
     configuration files, but extra information that is required for the completeness of the domain.
     """
 
-    def __init__(self, model_context, domain_info_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
-        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
+    def __init__(self, model_context, domain_info_dictionary, base_location,
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, variable_injector=None):
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, variable_injector)
         self._dictionary = domain_info_dictionary
 
     def discover(self):
@@ -50,8 +52,15 @@ class DomainInfoDiscoverer(Discoverer):
         return self._dictionary
 
     def add_admin_credentials(self):
+        injector = self._get_variable_injector()
         self._dictionary[model_constants.ADMIN_USERNAME] = alias_constants.PASSWORD_TOKEN
         self._dictionary[model_constants.ADMIN_PASSWORD] = alias_constants.PASSWORD_TOKEN
+        if injector is not None:
+            location = LocationContext()
+            injector.custom_injection(self._dictionary, model_constants.ADMIN_USERNAME, location,
+                                      STANDARD_PASSWORD_INJECTOR)
+            injector.custom_injection(self._dictionary, model_constants.ADMIN_PASSWORD, location,
+                                      STANDARD_PASSWORD_INJECTOR)
 
     def get_domain_libs(self):
         """

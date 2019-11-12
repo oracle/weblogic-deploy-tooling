@@ -792,6 +792,14 @@ class AliasHelper(object):
         self.__logger.finest('WLSDPLY-19038', result, class_name=self.__class_name, method_name=_method_name)
         return result
 
+    def get_folder_short_name(self, model_folder):
+        """
+        Return the short folder name for the provided model folder.
+        :param model_folder: folder to look up short name
+        :return: short name or model_folder if not short named assigned
+        """
+        return self.__aliases.get_folder_short_name(model_folder)
+
     ###########################################################################
     #                          Convenience Methods                            #
     ###########################################################################

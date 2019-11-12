@@ -30,14 +30,15 @@ class CoherenceResourcesDiscoverer(Discoverer):
     Discover the weblogic coherence resources from the domain.
     """
 
-    def __init__(self, model_context, resource_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
+    def __init__(self, model_context, resource_dictionary, base_location,
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, variable_injector=None):
         """
         Initialize this discoverer instance with the specific information needed to discover coherence resources.
         :param model_context: context about the model for this instance of discover domain
         :param resource_dictionary: was provided on the discover call, else use initialized resources
         :param base_location: current context for discover or new context if not provided
         """
-        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, variable_injector)
         self._dictionary = resource_dictionary
         self._add_att_handler(model_constants.COHERENCE_CUSTOM_CLUSTER_CONFIGURATION,
                               self._add_custom_configuration_to_archive)

@@ -4,6 +4,7 @@
     "wlst_type": "AdminConsole",
     "child_folders_type": "single_unpredictable",
     "default_name_value": "${NO_NAME_0:%DOMAIN%}",
+    "short_name": "Console",
     "folders": {},
     "attributes": {
         "CookieName":             [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "CookieName",                 "wlst_path": "WP001", "value": {"default": "ADMINCONSOLESESSION" }, "wlst_type": "string"  } ],

@@ -3,6 +3,7 @@
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "WSReliableDeliveryPolic${y:ies}",
     "child_folders_type": "multiple",
+    "short_name": "WSPolicy",
     "folders": {},
     "attributes": {
         "DefaultRetryCount":                   [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "DefaultRetryCount",               "wlst_path": "WP001", "value": {"default": 10                               }, "wlst_type": "integer"     } ],

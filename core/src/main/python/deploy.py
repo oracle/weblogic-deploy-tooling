@@ -126,6 +126,7 @@ def __process_model_args(optional_arg_map):
     """
     cla_helper.validate_optional_archive(_program_name, optional_arg_map)
     cla_helper.validate_model_present(_program_name, optional_arg_map)
+    cla_helper.validate_variable_file_exists(_program_name, optional_arg_map)
     return
 
 

@@ -22,8 +22,39 @@
 #                         responsibility to verify that it does. This
 #                         argument is required.
 #
-#     -domain_type        The type of domain to create. This argument is
-#                         is optional.  If not specified, it defaults to WLS.
+#     -domain_home        The existing domain home to discover. This argument
+#                         is required.
+#
+#     -domain_type        The type of domain to discover. If this is set to
+#                         other than WLS, it will use the black list components
+#                         section in the corresponding typedef file to remove
+#                         MBeans from the model that were added by a template.
+#                         This argument is optional.  If not specified, it
+#                         defaults to WLS.
+#
+#     -model_file         The name of a file where to write the discovered domain model.
+#                         This argument is required.
+#
+#     -archive_file       The name of a file where to archive the collected files from the
+#                         discovered domain. This argument is required. However, if no
+#                         files are collected from the domain, the tool will not create the file
+#
+#     -variable_file      The name of a variable file where the variable injector will write
+#                         properties specified for the tool run. By default, if this file is
+#                         included on the command line, all credentials in the model will
+#                         be tokenized, with the variable name written to this file. This
+#                         argument is optional. If not specified, and directives for the
+#                         variable injector exist, the default file name will be created.
+#
+#     -admin_user         User name for the admin Server to discover the specified domain in WLST
+#                         online mode. Note that the server must be running in the same location
+#                         as the discoverDomain so that any files can be collected
+#                         into the archive file. The user will be prompted for the admin password
+#                         from STDIN. This argument is optional. If not specified, the
+#                         discover tool will run in WLST offline mode.
+#
+#     -admin_url          URL of the admin server for discovery of the domain in WLST online mode.
+#                         This argument is required if -admin_user is specified.
 #
 #     -wlst_path          The path to the Oracle Home product directory under
 #                         which to find the wlst script.  This is only
@@ -55,6 +86,7 @@ usage() {
   echo "          -domain_home <domain_home>"
   echo "          -archive_file <archive_file>"
   echo "          [-model_file <model_file>]"
+  echo "          [-variable_file <variable_file>]"
   echo "          [-domain_type <domain_type>]"
   echo "          [-wlst_path <wlst_path>]"
   echo "          [-admin_url <admin_url>"
@@ -68,8 +100,14 @@ usage() {
   echo ""
   echo "        archive_file    - the path to the archive file to use"
   echo ""
-  echo "        model_file      - the location of the model file to use,"
+  echo "        model_file      - the location of the model file to use; "
   echo "                          the default is to get the model from the archive"
+  echo ""
+  echo "        variable_file   - the location of the variable file to write "
+  echo "                          properties by the variable injector. If this "
+  echo "                          argument is used, by default all the credentials "
+  echo "                          in the discovered model will be replaced by a token "
+  echo "                          and a property written to this file"
   echo ""
   echo "        domain_type     - the type of domain (e.g., WLS, JRF)."
   echo "                          Used to locate wlst.cmd if -wlst_path not specified"

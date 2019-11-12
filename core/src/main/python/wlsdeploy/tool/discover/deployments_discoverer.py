@@ -28,8 +28,9 @@ class DeploymentsDiscoverer(Discoverer):
     binaries and plans into the discovery archive file.
     """
 
-    def __init__(self, model_context, deployments_dictionary, base_location, wlst_mode=WlstModes.OFFLINE, aliases=None):
-        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases)
+    def __init__(self, model_context, deployments_dictionary, base_location,
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, variable_injector=None):
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, variable_injector)
         self._dictionary = deployments_dictionary
 
     def discover(self):

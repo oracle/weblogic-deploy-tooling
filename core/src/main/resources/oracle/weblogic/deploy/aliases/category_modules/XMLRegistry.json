@@ -3,6 +3,7 @@
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "XMLRegistr${y:ies}",
     "child_folders_type": "multiple",
+    "short_name": "XMLReg",
     "folders": {
         "XMLEntitySpecRegistryEntry": {
             "wlst_type": "XMLEntitySpecRegistryEntr${y:ies}",
