@@ -22,10 +22,6 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import dictionary_utils
 
-from oracle.core.ojdl.weblogic.ODLConfiguration import CONFIG_DIR
-from oracle.core.ojdl.weblogic.ODLConfiguration import CONFIG_FILE
-from oracle.core.ojdl.logging.config import LoggingConfigurationDocument
-
 _ADD_JVM_NUMBER = "AddJvmNumber"
 _CLASS = "Class"
 _ENCODING = "Encoding"
@@ -58,7 +54,9 @@ class OdlDeployer(object):
 
     def configure_odl(self, parent_dict, parent_location):
         """
-        Apply the ODL configuration section of the model.
+        Apply the ODL configuration section of the model, if present.
+        :param parent_dict: the model dictionary that may contains ODL configuration
+        :param parent_location: the alias location of the parent dictionary (used for logging paths)
         """
         _method_name = 'configure_odl'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -66,7 +64,7 @@ class OdlDeployer(object):
         odl_info = dictionary_utils.get_dictionary_element(parent_dict, ODL_CONFIGURATION)
         if len(odl_info):
             typedef = self.model_context.get_domain_typedef()
-            if not (typedef.is_jrf_domain_type() or typedef.is_restricted_jrf_domain_type):
+            if not (typedef.is_jrf_domain_type() or typedef.is_restricted_jrf_domain_type()):
                 self.logger.info('WLSDPLY-19709', class_name=self.__class_name, method_name=_method_name)
             elif self.wlst_mode == WlstModes.ONLINE:
                 self.logger.info('WLSDPLY-19700', class_name=self.__class_name, method_name=_method_name)
@@ -94,6 +92,12 @@ class OdlDeployer(object):
 
     def _update_server(self, name, dictionary, config_location):
         _method_name = '_update_server'
+
+        # these imports are local, since they are only present in JRF environments.
+        # this method is only called after that check has been made.
+        from oracle.core.ojdl.weblogic.ODLConfiguration import CONFIG_DIR
+        from oracle.core.ojdl.weblogic.ODLConfiguration import CONFIG_FILE
+        from oracle.core.ojdl.logging.config import LoggingConfigurationDocument
 
         config_dir = File(self.model_context.get_domain_home(), CONFIG_DIR)
         server_dir = File(config_dir, name)
