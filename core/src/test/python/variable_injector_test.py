@@ -27,9 +27,9 @@ class VariableFileHelperTest(unittest.TestCase):
 
     def testSingleVariableReplacement(self):
         replacement_dict = dict()
-        short_name = self._helper.get_folder_short_name('Machine')
         replacement_dict['Machine.NodeManager.ListenAddress'] = dict()
         expected = dict()
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('Machine'))
         name = short_name + '.machine1.ListenAddress'
         expected[name] = '127.0.0.1'
         actual = self._helper.inject_variables(replacement_dict)
@@ -37,16 +37,17 @@ class VariableFileHelperTest(unittest.TestCase):
 
     def testMultiplesReplacement(self):
         expected = dict()
-        short_name = self._helper.get_folder_short_name('Server')
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('Server'))
         expected[short_name + '.AdminServer.SSL.ListenPort'] = '9002'
         expected[short_name + '.AdminServer.ListenPort'] = '9001'
-        expected[short_name + 'm2.ListenPort'] = '9005'
+        expected[short_name + '.m2.ListenPort'] = '9005'
         expected[short_name + '.m1.ListenPort'] = '9003'
         expected[short_name + '.m1.SSL.ListenPort'] = '9004'
         expected[short_name + '.m2.SSL.ListenPort'] = '9006'
-        expected[short_name + 'JMS.MyJmsModule.MyForeignServer.ConnectionURL'] \
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('JMSSystemResource'))
+        expected[short_name + '.MyJmsModule.MyForeignServer.ConnectionURL'] \
             = 't3://my.other.cluster:7001'
-        expected[short_name + 'JMS.MyJmsModule.MyForeignServer.MyRemoteQ.LocalJNDIName'] = 'jms/remoteQ'
+        expected[short_name + '.MyJmsModule.MyForeignServer.MyRemoteQ.LocalJNDIName'] = 'jms/remoteQ'
         replacement_dict = dict()
         replacement_dict['Server.ListenPort'] = dict()
         replacement_dict['JMSSystemResource.JmsResource.ForeignServer.ConnectionURL'] = dict()
@@ -81,10 +82,9 @@ class VariableFileHelperTest(unittest.TestCase):
 
     def testWithSegment(self):
         expected = dict()
-        expected['JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Host'] = \
-            'slc05til.us.oracle.com'
-        expected['JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Port'] = \
-            '1521'
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('JDBCSystemResource'))
+        expected[short_name + '.Database2.URL--Host'] = 'slc05til.us.oracle.com'
+        expected[short_name + '.Database2.URL--Port'] = '1521'
         replacement_dict = dict()
         replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.URL'] = dict()
         list_entry1 = dict()
@@ -98,8 +98,8 @@ class VariableFileHelperTest(unittest.TestCase):
         actual = self._helper.inject_variables(replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
         db2 = 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)' \
-              '(HOST=@@PROP:JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Host@@)' \
-              '(PORT=@@PROP:JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Port@@)))' \
+              '(HOST=@@PROP:' + short_name + '.Database2.URL--Host@@)' \
+              '(PORT=@@PROP:' + short_name + '.Database2.URL--Port@@)))' \
               '(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
         db1 = 'jdbc:oracle:thin:@//den00chv.us.oracle.com:1521/PDBORCL'
         self.assertEqual(db2, self._model['resources']['JDBCSystemResource']['Database2']['JdbcResource'][
@@ -109,10 +109,11 @@ class VariableFileHelperTest(unittest.TestCase):
 
     def testWithSegmentInDictionary(self):
         expected = dict()
-        expected['MailSession.MailSession-0.Properties--SmtpHost'] = 'stbeehive.oracle.com'
-        expected['MailSession.MyMailSession.Properties--SmtpHost'] = 'stbeehive.oracle.com'
-        expected['MailSession.MailSession-0.Properties--ImapHost'] = 'stbeehive.oracle.com'
-        expected['MailSession.MyMailSession.Properties--ImapHost'] = 'stbeehive.oracle.com'
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('MailSession'))
+        expected[short_name + '.MailSession-0.Properties--SmtpHost'] = 'stbeehive.oracle.com'
+        expected[short_name + '.MyMailSession.Properties--SmtpHost'] = 'stbeehive.oracle.com'
+        expected[short_name + '.MailSession-0.Properties--ImapHost'] = 'stbeehive.oracle.com'
+        expected[short_name + '.MyMailSession.Properties--ImapHost'] = 'stbeehive.oracle.com'
         replacement_dict = dict()
         replacement_dict['MailSession.Properties'] = dict()
         list_entry1 = dict()
@@ -124,15 +125,16 @@ class VariableFileHelperTest(unittest.TestCase):
         replacement_dict['MailSession.Properties'][variable_injector.REGEXP] = [list_entry1, list_entry2]
         actual = self._helper.inject_variables(replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
-        self.assertEqual('@@PROP:MailSession.MyMailSession.Properties--SmtpHost@@',
+        self.assertEqual('@@PROP:' + short_name + '.MyMailSession.Properties--SmtpHost@@',
                          self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.smtp.host'])
-        self.assertEqual('@@PROP:MailSession.MyMailSession.Properties--ImapHost@@',
+        self.assertEqual('@@PROP:' + short_name + '.MyMailSession.Properties--ImapHost@@',
                          self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.imap.host'])
 
     def testWithSegmentInDictionaryAndAPattern(self):
         expected = dict()
-        expected['MailSession.MyMailSession.Properties--Host'] = 'stbeehive.oracle.com'
-        expected['MailSession.MailSession-0.Properties--Host'] = 'stbeehive.oracle.com'
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('MailSession'))
+        expected[short_name + '.MyMailSession.Properties--Host'] = 'stbeehive.oracle.com'
+        expected[short_name + '.MailSession-0.Properties--Host'] = 'stbeehive.oracle.com'
         replacement_dict = dict()
         replacement_dict['MailSession.Properties'] = dict()
         list_entry = dict()
@@ -141,17 +143,18 @@ class VariableFileHelperTest(unittest.TestCase):
         replacement_dict['MailSession.Properties'][variable_injector.REGEXP] = [list_entry]
         actual = self._helper.inject_variables(replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
-        self.assertEqual('@@PROP:MailSession.MyMailSession.Properties--Host@@',
+        self.assertEqual('@@PROP:' + short_name + '.MyMailSession.Properties--Host@@',
                          self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.imap.host'])
-        self.assertEqual('@@PROP:MailSession.MyMailSession.Properties--Host@@',
+        self.assertEqual('@@PROP:' + short_name + '.MyMailSession.Properties--Host@@',
                          self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.host'])
-        self.assertEqual('@@PROP:MailSession.MyMailSession.Properties--Host@@',
+        self.assertEqual('@@PROP:' + short_name + '.MyMailSession.Properties--Host@@',
                          self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.smtp.host'])
 
     def testWithSegmentInList(self):
         expected = dict()
-        expected['WLDFSystemResource.MyWldfModule.WLDFResource.Harvester.HarvestedType.weblogic.management.'
-                 'runtime.ServerRuntimeMBean.HarvestedAttribute'] = 'OracleHome'
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('WLDFSystemResource'))
+        expected[short_name + '.MyWldfModule.weblogic.management.runtime.ServerRuntimeMBean.HarvestedAttribute'] \
+            = 'OracleHome'
         replacement_dict = dict()
         replacement_dict['WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedAttribute'] = dict()
         list_entry = dict()
@@ -164,7 +167,7 @@ class VariableFileHelperTest(unittest.TestCase):
             'HarvestedType']['weblogic.management.runtime.ServerRuntimeMBean']['HarvestedAttribute']
         found = False
         for entry in wldf_list:
-            if entry == '@@PROP:WLDFSystemResource.MyWldfModule.WLDFResource.Harvester.HarvestedType.' \
+            if entry == '@@PROP:' + short_name + '.MyWldfModule.' \
                         'weblogic.management.runtime.ServerRuntimeMBean.HarvestedAttribute@@':
                 found = True
                 break
@@ -172,7 +175,8 @@ class VariableFileHelperTest(unittest.TestCase):
 
     def testWithSegmentInStringInList(self):
         expected = dict()
-        expected['WLDFSystemResource.MyWldfModule.WLDFResource.Harvester.HarvestedType.weblogic.management.'
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('WLDFSystemResource'))
+        expected[short_name + '.MyWldfModule.weblogic.management.'
                  'runtime.ServerRuntimeMBean.HarvestedInstance--ManagedServer'] = 'm1'
         replacement_dict = dict()
         replacement_dict['WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedInstance'] = dict()
@@ -187,7 +191,7 @@ class VariableFileHelperTest(unittest.TestCase):
             'HarvestedType']['weblogic.management.runtime.ServerRuntimeMBean']['HarvestedInstance']
         found = False
         for entry in wldf_list:
-            if entry == 'com.bea:Name=@@PROP:WLDFSystemResource.MyWldfModule.WLDFResource.Harvester.HarvestedType.' \
+            if entry == 'com.bea:Name=@@PROP:' + short_name + '.MyWldfModule.' \
                         'weblogic.management.runtime.ServerRuntimeMBean.HarvestedInstance--ManagedServer@@' \
                         ',Type=ServerRuntime':
                 found = True
@@ -196,8 +200,9 @@ class VariableFileHelperTest(unittest.TestCase):
 
     def testWithMBeanName(self):
         expected = dict()
-        expected['JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.Properties.user.Value'] = 'sys as dba'
-        expected['JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.Properties.user.Value'] = 'admin'
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('JDBCSystemResource'))
+        expected[short_name + '.Database2.user.Value'] = 'sys as dba'
+        expected[short_name + '.Database1.user.Value'] = 'admin'
         replacement_dict = dict()
         replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.Properties[user].Value'] = dict()
         actual = self._helper.inject_variables(replacement_dict)
@@ -205,17 +210,19 @@ class VariableFileHelperTest(unittest.TestCase):
 
     def testWithListMBeanName(self):
         expected = dict()
-        expected['Server.m1.SSL.Enabled'] = 'True'
-        expected['Server.m2.SSL.Enabled'] = 'True'
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('Server'))
+        expected[short_name + '.m1.SSL.Enabled'] = 'True'
+        expected[short_name + '.m2.SSL.Enabled'] = 'True'
         replacement_dict = dict()
         replacement_dict['Server[m1,m2].SSL.Enabled'] = dict()
         actual = self._helper.inject_variables(replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testWithManagedServerKeyword(self):
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('Server'))
         expected = dict()
-        expected['Server.m1.SSL.Enabled'] = 'True'
-        expected['Server.m2.SSL.Enabled'] = 'True'
+        expected[short_name + '.m1.SSL.Enabled'] = 'True'
+        expected[short_name + '.m2.SSL.Enabled'] = 'True'
         replacement_dict = dict()
         replacement_dict['Server[MANAGED_SERVERS].SSL.Enabled'] = dict()
         actual = self._helper.inject_variables(replacement_dict)
@@ -229,18 +236,22 @@ class VariableFileHelperTest(unittest.TestCase):
         replacement_dict = dict()
         replacement_dict['Server[MANAGED_SERVERS,ADMIN_SERVER].SSL.Enabled'] = dict()
         actual = self._helper.inject_variables(replacement_dict)
+        print 'actual ***', actual
         self._compare_to_expected_dictionary(expected, actual)
 
     def testWithVariableHelperKeywords(self):
         expected = dict()
-        expected['JMSSystemResource.MyJmsModule.JmsResource.ForeignServer.MyForeignServer.ConnectionURL'] \
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('JMSSystemResource'))
+        expected[short_name + '.MyJmsModule.MyForeignServer.ConnectionURL'] \
             = 't3://my.other.cluster:7001'
-        expected['Server.AdminServer.ListenPort'] = '9001'
-        expected['Server.m2.ListenPort'] = '9005'
-        expected['Server.m1.ListenPort'] = '9003'
-        expected['Machine.machine1.NodeManager.ListenPort'] = '5557'
-        expected['Machine.machine1.NodeManager.PasswordEncrypted'] = '--FIX ME--'
-        expected['Machine.machine1.NodeManager.UserName'] = 'admin'
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('Server'))
+        expected[short_name + '.AdminServer.ListenPort'] = '9001'
+        expected[short_name + '.m2.ListenPort'] = '9005'
+        expected[short_name + '.m1.ListenPort'] = '9003'
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('Machine'))
+        expected[short_name + '.machine1.ListenPort'] = '5557'
+        expected[short_name + '.machine1.PasswordEncrypted'] = '--FIX ME--'
+        expected[short_name + '.machine1.UserName'] = 'admin'
         inserted, model, variable_file_name = self._helper.inject_variables_keyword_file(
             variable_file_name=self._variable_file,
             variable_injector_path_name=self._resources_dir,
@@ -253,9 +264,11 @@ class VariableFileHelperTest(unittest.TestCase):
 
     def testForceAttribute(self):
         expected = dict()
-        expected['Server.AdminServer.SSL.HostnameVerificationIgnored'] = 'false'
-        expected['Server.m1.SSL.HostnameVerificationIgnored'] = 'false'
-        expected['Server.m2.SSL.HostnameVerificationIgnored'] = 'false'
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('Server'))
+        print '****** ', short_name
+        expected[short_name + '.AdminServer.SSL.HostnameVerificationIgnored'] = 'false'
+        expected[short_name + '.m1.SSL.HostnameVerificationIgnored'] = 'false'
+        expected[short_name + '.m2.SSL.HostnameVerificationIgnored'] = 'false'
         replacement_dict = dict()
         replacement_dict['Server.SSL.HostnameVerificationIgnored'] = dict()
         replacement_dict['Server.SSL.HostnameVerificationIgnored'][variable_injector.FORCE] = True
@@ -263,8 +276,9 @@ class VariableFileHelperTest(unittest.TestCase):
         self._compare_to_expected_dictionary(expected, actual)
 
     def testForceAttributeWithTwoDefaults(self):
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('JMSSystemResource'))
         expected = dict()
-        expected['JMSSystemResource.MyJmsModule.JmsResource.Template.JmsTemplate.MaximumMessageSize'] = '0'
+        expected[short_name + '.MyJmsModule.JmsTemplate.MaximumMessageSize'] = '0'
         replacement_dict = dict()
         replacement_dict['JMSSystemResource.JmsResource.Template.MaximumMessageSize'] = dict()
         replacement_dict['JMSSystemResource.JmsResource.Template.MaximumMessageSize'][variable_injector.FORCE] = True
@@ -272,10 +286,9 @@ class VariableFileHelperTest(unittest.TestCase):
         self._compare_to_expected_dictionary(expected, actual)
 
     def testReplaceVariableValueAttribute(self):
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('JMSSystemResource'))
         expected = dict()
-        expected[
-            'JMSSystemResource.MyJmsModule.JmsResource.ForeignServer.MyForeignServer.JNDIProperty'
-            '.java.naming.security.principal.Value'] = 'k8s'
+        expected[short_name + '.MyJmsModule.MyForeignServer.java.naming.security.principal.Value'] = 'k8s'
         replacement_dict = dict()
         replacement_dict['JMSSystemResource.JmsResource.ForeignServer.'
                          'JNDIProperty[java.naming.security.principal].Value'] = dict()
@@ -286,8 +299,9 @@ class VariableFileHelperTest(unittest.TestCase):
         self._compare_to_expected_dictionary(expected, actual)
 
     def testReplaceVariableValueSegmentInString(self):
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('JDBCSystemResource'))
         expected = dict()
-        expected['JDBCSystemResource.Database2.JdbcResource.JDBCDriverParams.URL--Host'] = \
+        expected[short_name + '.Database2.URL--Host'] = \
             'den00chv'
         replacement_dict = dict()
         replacement_dict['JDBCSystemResource[Database2].JdbcResource.JDBCDriverParams.URL'] = dict()
@@ -302,9 +316,10 @@ class VariableFileHelperTest(unittest.TestCase):
         self._compare_to_expected_dictionary(expected, actual)
 
     def testReplaceVariableValueSegmentInDictionary(self):
+        short_name = self._helper.get_folder_short_name(LocationContext().append_location('MailSession'))
         expected = dict()
-        expected['MailSession.MailSession-0.Properties--SmtpHost'] = 'localhost'
-        expected['MailSession.MyMailSession.Properties--SmtpHost'] = 'localhost'
+        expected[short_name + '.MailSession-0.Properties--SmtpHost'] = 'localhost'
+        expected[short_name + '.MyMailSession.Properties--SmtpHost'] = 'localhost'
         replacement_dict = dict()
         replacement_dict['MailSession.Properties'] = dict()
         list_entry = dict()

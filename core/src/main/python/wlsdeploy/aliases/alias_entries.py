@@ -895,7 +895,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_folder_short_name'
         _logger.entering(location.get_folder_path(), class_name=_class_name, method_name=_method_name)
-        folder_dict = self.__get_dictionary_for_location(location, True)
+        folder_dict = self.__get_dictionary_for_location(location, False)
         result = ''
         if SHORT_NAME in folder_dict:
             result = folder_dict[SHORT_NAME]
