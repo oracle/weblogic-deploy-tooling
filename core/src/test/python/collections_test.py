@@ -211,10 +211,8 @@ class CollectionsTestCase(unittest.TestCase):
         sorted_dict = OrderedDict()
         sorted_keys = dict1.keys()
         sorted_keys.sort()
-        # print '######################     #################### ############################   ##############'
         for key in sorted_keys:
             sorted_dict[key] = dict1[key]
-        #     print key, dict1[key]
 
         self.assertEqual(sorted_dict.values()[-1], '8100',
                          'expected dictionary to be sorted by name')
