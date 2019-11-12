@@ -335,10 +335,17 @@ class VariableInjector(object):
 
         return variable_dict
 
-    def get_folder_short_name(self, folder_name):
-        _method_name = '_match_short_top_folder'
-        short_name = self.__aliases.get_folder_short_name(folder_name)
-        _logger.finer('WLSDPLY-19546', folder_name, short_name, class_name=_class_name, method_name=_method_name)
+    def get_folder_short_name(self, location):
+        """
+        Return the short name for the MBean at the provided location
+        :param location: location context for the current folder
+        :return: Short name, or None if no short name
+        """
+        _method_name = 'get_folder_short_name'
+        short_name = self.__aliases.get_folder_short_name(location)
+        if short_name is not None:
+            _logger.finer('WLSDPLY-19546', location.get_folder_path(), short_name,
+                          class_name=_class_name, method_name=_method_name)
         return short_name
 
     def _add_variable_info(self, model, attribute, location, injector_values):
@@ -377,7 +384,7 @@ class VariableInjector(object):
                     name_list.insert(0, last_folder_short)
             else:
                 current_folder = iterate_location.get_current_model_folder()
-                short_folder = self.__aliases.get_folder_short_name(iterate_location)
+                short_folder = self.get_folder_short_name(iterate_location)
                 if last_folder_short is not None:
                     name_list.insert(0, last_folder_short)
                 try:
@@ -389,8 +396,8 @@ class VariableInjector(object):
                         iterate_location.remove_name_token(name_token)
                     iterate_location.pop_location()
                 except AliasException, ae:
-                    _logger.warning('WLSDPLY-19531', str(location), attribute, ae.getLocalizedMessage(), class_name=_class_name,
-                                    method_name=_method_name)
+                    _logger.warning('WLSDPLY-19531', str(location), attribute, ae.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name)
                 __traverse_location(iterate_location, name_list, current_folder, short_folder)
             return name_list
 
@@ -673,7 +680,6 @@ class VariableInjector(object):
         return value
 
 
-
 def get_default_variable_injector_file_name(variable_injector_file_name=VARIABLE_INJECTOR_FILE_NAME):
     """
     Return the default name and location of the model variable injector json file
@@ -888,7 +894,10 @@ def sort_dictionary_by_keys(dictionary):
     sorted_props = dictionary.keys()
     sorted_props.sort()
     for prop in sorted_props:
+        print '******* what is the order ? ', prop
         sorted_dict[prop] = dictionary[prop]
+    for key, value in sorted_dict.iteritems():
+        print key, '=', value
     return sorted_dict
 
 
@@ -908,5 +917,3 @@ def __temporary_fix(injector_dictionary):
                         dict_entry[REGEXP_PATTERN] = newpattern
                 _logger.fine('Pattern after temporary fix {0}', dict_entry[REGEXP_PATTERN], class_name=_class_name,
                              method_name=_method_name)
-
-
