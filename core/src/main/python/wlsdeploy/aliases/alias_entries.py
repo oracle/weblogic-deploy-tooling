@@ -75,57 +75,6 @@ class AliasEntries(object):
     __category_modules_dir_name = 'oracle/weblogic/deploy/aliases/category_modules/'
     __domain_category = 'Domain'
 
-    __model_categories_map = {
-        'AdminConsole': 'AdminConsole',
-        'Application': 'AppDeployment',
-        'Cluster': 'Cluster',
-        'CoherenceClusterSystemResource': 'CoherenceClusterSystemResource',
-        'Domain': 'Domain',
-        'EmbeddedLDAP': 'EmbeddedLDAP',
-        'FileStore': 'FileStore',
-        'ForeignJNDIProvider': 'ForeignJNDIProvider',
-        'JDBCStore': 'JDBCStore',
-        'JDBCSystemResource': 'JDBCSystemResource',
-        'JMSBridgeDestination': 'JMSBridgeDestination',
-        'JMSServer': 'JMSServer',
-        'JMSSystemResource': 'JMSSystemResource',
-        'JMX': 'JMX',
-        'JTA': 'JTA',
-        'Library': 'Library',
-        'Log': 'Log',
-        'LogFilter': 'LogFilter',
-        'Machine': 'Machine',
-        'MailSession': 'MailSession',
-        'MessagingBridge': 'MessagingBridge',
-        'MigratableTarget': 'MigratableTarget',
-        'NMProperties': 'NMProperties',
-        'Partition': 'Partition',
-        'PartitionWorkManager': 'PartitionWorkManager',
-        'PathService': 'PathService',
-        'ResourceGroup': 'ResourceGroup',
-        'ResourceGroupTemplate': 'ResourceGroupTemplate',
-        'ResourceManagement': 'ResourceManagement',
-        'ResourceManager': 'ResourceManager',
-        'RestfulManagementServices': 'RestfulManagementServices',
-        'SAFAgent': 'SAFAgent',
-        'Security': 'Security',
-        'SecurityConfiguration': 'SecurityConfiguration',
-        'SelfTuning': 'SelfTuning',
-        'Server': 'Server',
-        'ServerTemplate': 'ServerTemplate',
-        'ShutdownClass': 'ShutdownClass',
-        'SingletonService': 'SingletonService',
-        'StartupClass': 'StartupClass',
-        'UnixMachine': 'UnixMachine',
-        'VirtualHost': 'VirtualHost',
-        'VirtualTarget': 'VirtualTarget',
-        'WebAppContainer': 'WebAppContainer',
-        'WLDFSystemResource': 'WLDFSystemResource',
-        'WSReliableDeliveryPolicy': 'WSReliableDeliveryPolicy',
-        'XMLEntityCache': 'XMLEntityCache',
-        'XMLRegistry': 'XMLRegistry'
-    }
-
     __topology_top_level_folders = [
         'AdminConsole',
         'Cluster',
@@ -964,7 +913,7 @@ class AliasEntries(object):
             model_category_name = self.__domain_category
         else:
             model_category_name = location_folders[0]
-            if model_category_name not in self.__model_categories_map:
+            if model_category_name not in self.__all_model_categories:
                 ex = exception_helper.create_alias_exception('WLSDPLY-08116', model_category_name)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
@@ -1016,7 +965,7 @@ class AliasEntries(object):
         _method_name = '__load_category'
 
         _logger.entering(model_category_name, class_name=_class_name, method_name=_method_name)
-        model_category_file = self.__model_categories_map[model_category_name]
+        model_category_file = self._get_category_file_prefix(model_category_name)
         raw_category_dict = self.__load_category_file(model_category_file)
         _logger.fine('WLSDPLY-08118', model_category_name, class_name=_class_name, method_name=_method_name)
 
@@ -1106,8 +1055,8 @@ class AliasEntries(object):
 
             contained_folders = raw_model_dict[CONTAINS]
             for contained_folder in contained_folders:
-                if contained_folder in self.__model_categories_map:
-                    folder_file = self.__model_categories_map[contained_folder]
+                if contained_folder in self.__all_model_categories:
+                    folder_file = self._get_category_file_prefix(contained_folder)
                 else:
                     ex = exception_helper.create_alias_exception('WLSDPLY-08122', contained_folder, model_category_name)
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
