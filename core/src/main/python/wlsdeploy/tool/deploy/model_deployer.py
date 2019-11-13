@@ -73,6 +73,28 @@ def deploy_model_offline(model, model_context, aliases, wlst_mode=WlstModes.OFFL
     return
 
 
+def deploy_model_after_update(model, model_context, aliases, wlst_mode=WlstModes.OFFLINE):
+    """
+    Deploy the resources that must be done after WLST updateDomain.
+    :param model: the model
+    :param model_context: the model context
+    :param aliases: the aliases object
+    :param wlst_mode: the WLST mode to use
+    :raises DeployException: if an error occurs
+    """
+    _method_name = 'deploy_model_offline_after_update'
+
+    try:
+        location = LocationContext()
+        resources_deployer = ResourcesDeployer(model, model_context, aliases, wlst_mode=wlst_mode)
+        resources_deployer.deploy_after_update(location)
+    except PyWLSTException, pwe:
+        ex = exception_helper.create_deploy_exception('WLSDPLY-09650', pwe.getLocalizedMessage(), error=pwe)
+        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+    return
+
+
 def deploy_resources_and_apps_for_create(model, model_context, aliases):
     """
     Deploy the resources and appDeployments sections after create handles the topology section of the model.

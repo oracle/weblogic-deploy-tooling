@@ -313,6 +313,8 @@ def __update_offline(model, model_context, aliases):
         __close_domain_on_error()
         raise ex
 
+    model_deployer.deploy_model_after_update(model, model_context, aliases, wlst_mode=__wlst_mode)
+
     try:
         __wlst_helper.close_domain()
     except BundleAwareException, ex:

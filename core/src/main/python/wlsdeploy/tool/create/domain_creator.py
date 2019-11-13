@@ -364,6 +364,9 @@ class DomainCreator(Creator):
         self._configure_security_configuration()
         self.__deploy_resources_and_apps()
         self.wlst_helper.update_domain()
+
+        model_deployer.deploy_model_after_update(self.model, self.model_context, self.aliases)
+
         self.wlst_helper.close_domain()
         return
 

@@ -7,6 +7,7 @@ from wlsdeploy.aliases.model_constants import SHUTDOWN_CLASS
 from wlsdeploy.aliases.model_constants import STARTUP_CLASS
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.tool.deploy import deployer_utils
+from wlsdeploy.tool.deploy.odl_deployer import OdlDeployer
 from wlsdeploy.tool.deploy.common_resources_deployer import CommonResourcesDeployer
 from wlsdeploy.tool.deploy.datasource_deployer import DatasourceDeployer
 from wlsdeploy.tool.deploy.deployer import Deployer
@@ -38,6 +39,17 @@ class ResourcesDeployer(Deployer):
         multi_tenant_deployer = \
             MultiTenantResourcesDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
         multi_tenant_deployer.add_multi_tenant_objects(location)
+
+    def deploy_after_update(self, location):
+        """
+        Deploy resource model elements that must be done after WLST updateDomain.
+        :param location: the location to deploy elements (includes basic tokens)
+        """
+        domain_token = deployer_utils.get_domain_token(self.alias_helper)
+        location.add_name_token(domain_token, self.model_context.get_domain_name())
+
+        odl_deployer = OdlDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
+        odl_deployer.configure_odl(self._resources, location)
 
     def _add_resources(self, location):
         """

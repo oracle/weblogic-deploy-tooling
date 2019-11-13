@@ -23,6 +23,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
           - [JRF Trust Service Identity Asserter](site/security_providers.md#trust-service-identity-asserter)
           - [Custom Security Providers](site/security_providers.md#custom-security-providers)
       - [Modeling WebLogic Users, Groups, and Roles](site/security_users_groups_roles.md)
+    - [ODL Configuration](site/odl_configuration.md)
     - [Variable Injection](site/variable_injection.md)
     - [Model Filters](site/tool_filters.md)
 - [Downloading and Installing](#downloading-and-installing-the-software)

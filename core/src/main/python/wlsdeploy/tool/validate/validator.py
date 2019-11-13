@@ -441,7 +441,7 @@ class Validator(object):
             # section, or the name of an attribute in the section.
             validation_location = LocationContext()
 
-            model_folder_path = self._alias_helper.get_model_folder_path(validation_location)
+            model_folder_path = model_section_key + ":/"
 
             if '${' in section_dict_key:
                 self._report_unsupported_variable_usage(section_dict_key, model_folder_path)

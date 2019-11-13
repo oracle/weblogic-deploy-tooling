@@ -14,6 +14,9 @@ import wlsdeploy.aliases.alias_utils as alias_utils
 from wlsdeploy.aliases import password_utils
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
+from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -72,57 +75,6 @@ class AliasEntries(object):
     __category_modules_dir_name = 'oracle/weblogic/deploy/aliases/category_modules/'
     __domain_category = 'Domain'
 
-    __model_categories_map = {
-        'AdminConsole': 'AdminConsole',
-        'Application': 'AppDeployment',
-        'Cluster': 'Cluster',
-        'CoherenceClusterSystemResource': 'CoherenceClusterSystemResource',
-        'Domain': 'Domain',
-        'EmbeddedLDAP': 'EmbeddedLDAP',
-        'FileStore': 'FileStore',
-        'ForeignJNDIProvider': 'ForeignJNDIProvider',
-        'JDBCStore': 'JDBCStore',
-        'JDBCSystemResource': 'JDBCSystemResource',
-        'JMSBridgeDestination': 'JMSBridgeDestination',
-        'JMSServer': 'JMSServer',
-        'JMSSystemResource': 'JMSSystemResource',
-        'JMX': 'JMX',
-        'JTA': 'JTA',
-        'Library': 'Library',
-        'Log': 'Log',
-        'LogFilter': 'LogFilter',
-        'Machine': 'Machine',
-        'MailSession': 'MailSession',
-        'MessagingBridge': 'MessagingBridge',
-        'MigratableTarget': 'MigratableTarget',
-        'NMProperties': 'NMProperties',
-        'Partition': 'Partition',
-        'PartitionWorkManager': 'PartitionWorkManager',
-        'PathService': 'PathService',
-        'ResourceGroup': 'ResourceGroup',
-        'ResourceGroupTemplate': 'ResourceGroupTemplate',
-        'ResourceManagement': 'ResourceManagement',
-        'ResourceManager': 'ResourceManager',
-        'RestfulManagementServices': 'RestfulManagementServices',
-        'SAFAgent': 'SAFAgent',
-        'Security': 'Security',
-        'SecurityConfiguration': 'SecurityConfiguration',
-        'SelfTuning': 'SelfTuning',
-        'Server': 'Server',
-        'ServerTemplate': 'ServerTemplate',
-        'ShutdownClass': 'ShutdownClass',
-        'SingletonService': 'SingletonService',
-        'StartupClass': 'StartupClass',
-        'UnixMachine': 'UnixMachine',
-        'VirtualHost': 'VirtualHost',
-        'VirtualTarget': 'VirtualTarget',
-        'WebAppContainer': 'WebAppContainer',
-        'WLDFSystemResource': 'WLDFSystemResource',
-        'WSReliableDeliveryPolicy': 'WSReliableDeliveryPolicy',
-        'XMLEntityCache': 'XMLEntityCache',
-        'XMLRegistry': 'XMLRegistry'
-    }
-
     __topology_top_level_folders = [
         'AdminConsole',
         'Cluster',
@@ -158,6 +110,7 @@ class AliasEntries(object):
         'JMSSystemResource',
         'MailSession',
         'MessagingBridge',
+        ODL_CONFIGURATION,
         'Partition',
         'PartitionWorkManager',
         'PathService',
@@ -177,6 +130,8 @@ class AliasEntries(object):
         'Application',
         'Library'
     ]
+
+    __all_model_categories = []
 
     __domain_info_attributes_and_types = {
         'AdminUserName': 'string',
@@ -211,6 +166,11 @@ class AliasEntries(object):
             self._wls_helper = WebLogicHelper(_logger, wls_version)
             self._wls_version = wls_version
 
+        self.__all_model_categories.extend(self.__topology_top_level_folders)
+        self.__all_model_categories.extend(self.__resources_top_level_folders)
+        self.__all_model_categories.extend(self.__app_deployments_top_level_folders)
+        self.__all_model_categories.append(RESOURCE_MANAGER)
+
         return
 
     def get_dictionary_for_location(self, location, resolve=True):
@@ -241,7 +201,7 @@ class AliasEntries(object):
         _method_name = 'get_model_domain_subfolder_names'
 
         _logger.entering(class_name=_class_name, method_name=_method_name)
-        folder_list = list(self.__model_categories_map.keys())
+        folder_list = list(self.__all_model_categories)
         #
         # Remove all folders that do not appear at the WLST root level
         #
@@ -914,11 +874,23 @@ class AliasEntries(object):
         :return: blob of stuff
         """
         result = {}
-        for key, value in self.__model_categories_map.iteritems():
-            category_file_name = '%s.json' % value
+        for key in self.__all_model_categories:
+            category_file_name = '%s.json' % self._get_category_file_prefix(key)
             category_file_path = '%s%s' % (self.__category_modules_dir_name, category_file_name)
             result[key] = category_file_path
         return result
+
+    def _get_category_file_prefix(self, category_name):
+        """
+        Return the file prefix for the specified top-level category.
+        The file prefix should match the category name exactly.
+        File name for Application is different for some reason
+        :param category_name: the name to be checked
+        :return: the corressponding file name prefix
+        """
+        if category_name == APPLICATION:
+            return 'AppDeployment'
+        return category_name
 
     def __get_dictionary_for_location(self, location, resolve_path_tokens=True):
         """
@@ -941,7 +913,7 @@ class AliasEntries(object):
             model_category_name = self.__domain_category
         else:
             model_category_name = location_folders[0]
-            if model_category_name not in self.__model_categories_map:
+            if model_category_name not in self.__all_model_categories:
                 ex = exception_helper.create_alias_exception('WLSDPLY-08116', model_category_name)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
@@ -993,7 +965,7 @@ class AliasEntries(object):
         _method_name = '__load_category'
 
         _logger.entering(model_category_name, class_name=_class_name, method_name=_method_name)
-        model_category_file = self.__model_categories_map[model_category_name]
+        model_category_file = self._get_category_file_prefix(model_category_name)
         raw_category_dict = self.__load_category_file(model_category_file)
         _logger.fine('WLSDPLY-08118', model_category_name, class_name=_class_name, method_name=_method_name)
 
@@ -1083,8 +1055,8 @@ class AliasEntries(object):
 
             contained_folders = raw_model_dict[CONTAINS]
             for contained_folder in contained_folders:
-                if contained_folder in self.__model_categories_map:
-                    folder_file = self.__model_categories_map[contained_folder]
+                if contained_folder in self.__all_model_categories:
+                    folder_file = self._get_category_file_prefix(contained_folder)
                 else:
                     ex = exception_helper.create_alias_exception('WLSDPLY-08122', contained_folder, model_category_name)
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
