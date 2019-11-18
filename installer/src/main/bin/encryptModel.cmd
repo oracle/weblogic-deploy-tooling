@@ -112,6 +112,8 @@ FOR /F tokens^=2-5^ delims^=.-_^" %%j IN ('%JAVA_EXE% -fullversion 2^>^&1') DO (
   SET "JVM_VERSION_PART_TWO=%%k"
 )
 
+SET MIN_JDK_VERSION=8
+
 SET JVM_SUPPORTED=1
 IF %JVM_VERSION_PART_ONE% LEQ 1 (
     IF %JVM_VERSION_PART_TWO% LSS %MIN_JDK_VERSION% (
