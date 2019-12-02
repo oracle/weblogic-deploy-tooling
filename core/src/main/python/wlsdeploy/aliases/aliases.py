@@ -397,13 +397,7 @@ class Aliases(object):
         attribute_info = module_folder[ATTRIBUTES][model_attribute_name]
 
         if attribute_info and not self.__is_model_attribute_read_only(location, attribute_info):
-            password_attribute_name = \
-                password_utils.get_wlst_attribute_name(attribute_info, model_attribute_value, self._wlst_mode)
-
-            if password_attribute_name is not None:
-                wlst_attribute_name = password_attribute_name
-            else:
-                wlst_attribute_name = attribute_info[WLST_NAME]
+            wlst_attribute_name = attribute_info[WLST_NAME]
 
             if self._model_context and USES_PATH_TOKENS in attribute_info and \
                     string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
@@ -413,6 +407,14 @@ class Aliases(object):
             if data_type == 'password':
                 try:
                     wlst_attribute_value = self.decrypt_password(model_attribute_value)
+
+                    # the attribute name may change for special cases, check against decrypted value
+                    password_attribute_name = \
+                        password_utils.get_wlst_attribute_name(attribute_info, wlst_attribute_value, self._wlst_mode)
+
+                    if password_attribute_name is not None:
+                        wlst_attribute_name = password_attribute_name
+
                 except EncryptionException, ee:
                     ex = exception_helper.create_alias_exception('WLSDPLY-08402', model_attribute_name,
                                                                  location.get_folder_path(),
@@ -1200,7 +1202,7 @@ class Aliases(object):
 
     def decrypt_password(self, text):
         """
-        Encrypt the specified password if encryption is used and the password is encrypted.
+        Decrypt the specified password if model encryption is used and the password is encrypted.
         :param text: the text to check and decrypt, if needed
         :return: the clear text
         :raises EncryptionException: if an error occurs while decrypting the password
