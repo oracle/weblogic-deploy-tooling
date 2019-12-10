@@ -35,9 +35,9 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.domain_creator import DomainCreator
-from wlsdeploy.tool.create.domain_typedef import DomainTypedef
 from wlsdeploy.tool.create.domain_typedef import CREATE_DOMAIN
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate.validator import Validator
@@ -48,7 +48,6 @@ from wlsdeploy.util import variables
 from wlsdeploy.util import wlst_extended
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 
@@ -102,19 +101,15 @@ def __process_args(args):
     #
     # Verify that the domain type is a known type and load its typedef.
     #
-    domain_type = required_arg_map[CommandLineArgUtil.DOMAIN_TYPE_SWITCH]
-    domain_typedef = DomainTypedef(_program_name, domain_type)
-    optional_arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF] = domain_typedef
+    domain_typedef = model_context_helper.create_typedef(_program_name, required_arg_map)
 
-    __process_rcu_args(optional_arg_map, domain_type, domain_typedef)
+    __process_rcu_args(optional_arg_map, domain_typedef.get_domain_type(), domain_typedef)
     __process_encryption_args(optional_arg_map)
     __process_opss_args(optional_arg_map)
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
-    model_context = ModelContext(_program_name, combined_arg_map)
-    domain_typedef.set_model_context(model_context)
-    return model_context
+    return model_context_helper.create_context(_program_name, combined_arg_map, domain_typedef)
 
 
 def __verify_required_args_present(required_arg_map):
@@ -397,7 +392,7 @@ def main(args):
         cla_helper.clean_up_temp_files()
 
         # create a minimal model for summary logging
-        model_context = ModelContext(_program_name, dict())
+        model_context = model_context_helper.create_exit_context(_program_name)
         tool_exit.end(model_context, exit_code)
 
     variable_map = {}

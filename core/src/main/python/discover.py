@@ -28,12 +28,10 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
-import wlsdeploy.tool.util.variable_injector as variable_injector
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.create.domain_typedef import DomainTypedef
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
 from wlsdeploy.tool.discover.domain_info_discoverer import DomainInfoDiscoverer
@@ -41,9 +39,9 @@ from wlsdeploy.tool.discover.multi_tenant_discoverer import MultiTenantDiscovere
 from wlsdeploy.tool.discover.resources_discoverer import ResourcesDiscoverer
 from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.tool.validate.validator import Validator
-from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import tool_exit
@@ -51,7 +49,6 @@ from wlsdeploy.util import wlst_extended
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
-from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 wlst_extended.wlst_functions = globals()
@@ -90,12 +87,6 @@ def __process_args(args):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     required_arg_map, optional_arg_map = cla_util.process_args(args)
 
-    domain_type = dictionary_utils.get_element(optional_arg_map, CommandLineArgUtil.DOMAIN_TYPE_SWITCH)
-    if domain_type is None:
-        domain_type = 'WLS'
-    domain_typedef = DomainTypedef(_program_name, domain_type)
-    optional_arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF] = domain_typedef
-
     __verify_required_args_present(required_arg_map)
     __wlst_mode = __process_online_args(optional_arg_map)
     __process_archive_filename_arg(required_arg_map)
@@ -103,8 +94,7 @@ def __process_args(args):
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
-
-    return ModelContext(_program_name, combined_arg_map)
+    return model_context_helper.create_context(_program_name, combined_arg_map)
 
 
 def __verify_required_args_present(required_arg_map):
@@ -493,7 +483,7 @@ def main(args):
                             class_name=_class_name, method_name=_method_name)
 
         # create a minimal model for summary logging
-        model_context = ModelContext(_program_name, dict())
+        model_context = model_context_helper.create_exit_context(_program_name)
         __log_and_exit(model_context, exit_code, _class_name, _method_name)
 
     try:
