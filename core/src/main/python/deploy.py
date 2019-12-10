@@ -88,7 +88,6 @@ def __process_args(args):
 
     __verify_required_args_present(required_arg_map)
     __process_model_args(optional_arg_map)
-
     __wlst_mode = __process_online_args(optional_arg_map)
     __process_encryption_args(optional_arg_map)
 
