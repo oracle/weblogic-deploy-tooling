@@ -13,6 +13,7 @@ import java.util.Properties;
 
 import org.junit.Test;
 import org.python.core.PyDictionary;
+import org.python.core.PyLong;
 import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PyTuple;
@@ -133,5 +134,21 @@ public class TypeUtilsTest {
         map.put("key2", "value2");
         assertEquals("Properties from Map failed", expected, TypeUtils.convertToType(Properties.class, map, ";"));
 
+    }
+
+    @Test
+    public void convertDictToProperties() throws Exception {
+        PyDictionary dict = new PyDictionary();
+        // test special processing to remove trailing L from PyLong, such as 25L
+        dict.__setitem__("mail.smtp.port", new PyLong(25));
+        dict.__setitem__("mail.smtp.host", new PyString("192.168.56.1"));
+
+        Properties result = (Properties) TypeUtils.convertToType(Properties.class, dict);
+
+        Properties expected = new Properties();
+        expected.put("mail.smtp.port", "25");
+        expected.put("mail.smtp.host", "192.168.56.1");
+
+        assertEquals("Properties from dict failed", expected, result);
     }
 }

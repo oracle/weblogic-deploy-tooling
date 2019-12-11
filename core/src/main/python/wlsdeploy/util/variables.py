@@ -167,7 +167,7 @@ def _process_node(nodes, variables, model_context):
 
         if isinstance(value, dict):
             _process_node(value, variables, model_context)
-        elif type(value) is str:
+        elif type(value) in [str, unicode]:
             nodes[key] = _substitute(value, variables, model_context)
 
 

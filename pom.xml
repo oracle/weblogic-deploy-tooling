@@ -34,7 +34,7 @@
         <connection>scm:git:git@github.com:oracle/weblogic-deploy-tooling.git</connection>
         <developerConnection>scm:git:git@github.com:oracle/weblogic-deploy-tooling.git</developerConnection>
         <tag>HEAD</tag>
-  </scm>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -255,6 +255,15 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <tagNameFormat>weblogic-deploy-tooling-@{project.version}</tagNameFormat>
+                </configuration>
             </plugin>
         </plugins>
     </build>

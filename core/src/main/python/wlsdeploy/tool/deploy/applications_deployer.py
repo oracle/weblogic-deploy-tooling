@@ -495,7 +495,9 @@ class ApplicationsDeployer(Deployer):
                                         stop_app_list, update_library_list):
         if model_libs is not None:
             uses_path_tokens_model_attribute_names = self.__get_uses_path_tokens_attribute_names(location)
-            for lib, lib_dict in model_libs.iteritems():
+
+            # use items(), not iteritems(), to avoid ConcurrentModificationException if a lib is removed
+            for lib, lib_dict in model_libs.items():
                 for param in uses_path_tokens_model_attribute_names:
                     if param in lib_dict:
                         self.model_context.replace_tokens(LIBRARY, lib, param, lib_dict)
@@ -558,7 +560,8 @@ class ApplicationsDeployer(Deployer):
         if model_apps is not None:
             uses_path_tokens_model_attribute_names = self.__get_uses_path_tokens_attribute_names(location)
 
-            for app, app_dict in model_apps.iteritems():
+            # use items(), not iteritems(), to avoid ConcurrentModificationException if an app is removed
+            for app, app_dict in model_apps.items():
                 for param in uses_path_tokens_model_attribute_names:
                     if param in app_dict:
                         self.model_context.replace_tokens(APPLICATION, app, param, app_dict)

@@ -22,6 +22,7 @@ import oracle.weblogic.deploy.util.StringUtils;
 import org.python.core.Py;
 import org.python.core.PyDictionary;
 import org.python.core.PyException;
+import org.python.core.PyLong;
 import org.python.core.PyObject;
 import org.python.core.PyTuple;
 
@@ -323,7 +324,7 @@ public final class TypeUtils {
             properties = new Properties();
             for (Object obj : dict.items()) {
                 PyTuple po = (PyTuple) obj;
-                properties.put( po.__finditem__(0).toString(), po.__finditem__(1).toString() );
+                properties.put( po.__finditem__(0).toString(), getPropertyText(po.__finditem__(1)) );
             }
         } else {
             AliasException ae = new AliasException("WLSDPLY-08503", value.getClass().getName());
@@ -332,6 +333,20 @@ public final class TypeUtils {
         }
         return properties.isEmpty() ? null : properties;
     }
+
+    /**
+     * Returns text for the specified value, for use with property type.
+     * @param value the value to be examined
+     * @return text for the value
+     */
+    private static String getPropertyText(Object value) {
+        // toString() for PyLong includes trailing L, such as 25L
+        if(value instanceof PyLong) {
+            return ((PyLong) value).getValue().toString();
+        }
+        return value.toString();
+    }
+
     private static PyDictionary convertToDictionary(Object value, String delimiter, boolean useOrderedDict)
         throws AliasException {
         final String METHOD = "convertToDictionary";
