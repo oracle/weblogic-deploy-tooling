@@ -21,12 +21,12 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -71,8 +71,7 @@ def __process_args(args):
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
-
-    return ModelContext(_program_name, combined_arg_map)
+    return model_context_helper.create_context(_program_name, combined_arg_map)
 
 
 def __verify_required_args_present(required_arg_map):
