@@ -612,6 +612,13 @@ class AliasHelper(object):
         """
         return self.__aliases.get_model_app_deployments_top_level_folder_names()
 
+    def get_model_domain_info_top_level_folder_names(self):
+        """
+        Get the model domain info top-level folder names.
+        :return: the list of top-level domain info folders
+        """
+        return self.__aliases.get_model_domain_info_top_level_folder_names()
+
     def get_model_attribute_names(self, location):
         """
         Get the model attribute names.

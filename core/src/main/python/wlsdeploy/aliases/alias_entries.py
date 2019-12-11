@@ -131,6 +131,11 @@ class AliasEntries(object):
         'Library'
     ]
 
+    __domain_info_top_level_folders = [
+        'RCUDbInfo',
+        'WLSRoles'
+    ]
+
     __all_model_categories = []
 
     __domain_info_attributes_and_types = {
@@ -169,6 +174,7 @@ class AliasEntries(object):
         self.__all_model_categories.extend(self.__topology_top_level_folders)
         self.__all_model_categories.extend(self.__resources_top_level_folders)
         self.__all_model_categories.extend(self.__app_deployments_top_level_folders)
+        self.__all_model_categories.extend(self.__domain_info_top_level_folders)
         self.__all_model_categories.append(RESOURCE_MANAGER)
 
         return
@@ -248,6 +254,13 @@ class AliasEntries(object):
         :return: a list of the folder names
         """
         return list(self.__app_deployments_top_level_folders)
+
+    def get_model_domain_info_subfolder_names(self):
+        """
+        Get the top-level model folder names underneath the domain info section.
+        :return: a list of the folder names
+        """
+        return list(self.__domain_info_top_level_folders)
 
     def get_domain_info_attribute_names_and_types(self):
         return dict(self.__domain_info_attributes_and_types)

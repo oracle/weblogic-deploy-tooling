@@ -125,6 +125,14 @@ class Aliases(object):
         """
         return self._alias_entries.get_model_app_deployments_subfolder_names()
 
+    def get_model_domain_info_top_level_folder_names(self):
+        """
+        Returns a list of the recognized top-level model folders in the domainInfo section corresponding to the
+        known WLST top-level folders.
+        :return: a list of the recognized top-level model folder names
+        """
+        return self._alias_entries.get_model_domain_info_subfolder_names()
+
     def get_model_subfolder_names(self, location):
         """
         Get the list of model folder names for subfolders of the specified location.
