@@ -139,22 +139,6 @@ class AliasEntries(object):
 
     __all_model_categories = []
 
-    __domain_info_attributes_and_types = {
-        'AdminUserName': 'string',
-        'AdminPassword': 'password',
-        'ServerStartMode': 'string',
-        'domainBin': 'list',
-        'domainLibraries': 'list',
-        # A map of Server Group names to the list of servers/clusters to which they should
-        # be targeted.  The ServerGroup must appear in the domain typedef definition.  If
-        # the ServerGroup is not listed in this map, it will be targeted to all managed
-        # servers in the domain.
-        'ServerGroupTargetingLimits': 'dict',
-        'RCUDbInfo': 'dict',
-        'OPSSSecrets': 'password',
-        'WLSRoles': 'dict'
-    }
-
     __domain_name_token = 'DOMAIN'
 
     def __init__(self, wlst_mode=WlstModes.OFFLINE, wls_version=None):
@@ -266,9 +250,6 @@ class AliasEntries(object):
         :return: a list of the folder names
         """
         return list(self.__domain_info_top_level_folders)
-
-    def get_domain_info_attribute_names_and_types(self):
-        return dict(self.__domain_info_attributes_and_types)
 
     def get_model_subfolder_names_for_location(self, location):
         """

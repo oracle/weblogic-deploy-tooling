@@ -745,13 +745,6 @@ class AliasHelper(object):
             raise ex
         return result
 
-    def get_model_domain_info_attribute_names_and_types(self):
-        """
-        Get the attribute names and types for the domainInfo section of the model.
-        :return: a dictionary keyed on model attribute names with the type as the value
-        """
-        return self.__aliases.get_model_domain_info_attribute_names_and_types()
-
     def get_model_attribute_default_value(self, location, model_attribute_name):
         """
         Get the default value for the specified attribute.

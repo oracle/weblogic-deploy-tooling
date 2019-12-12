@@ -1045,13 +1045,6 @@ class Aliases(object):
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
 
-    def get_model_domain_info_attribute_names_and_types(self):
-        """
-        Get the attribute names and types for the domainInfo section of the model
-        :return: a dictionary keyed on model attribute names with the type as the value
-        """
-        return self._alias_entries.get_domain_info_attribute_names_and_types()
-
     def attribute_values_are_equal(self, location, model_attribute_name, model_attribute_value, wlst_attribute_value):
         """
         Returns whether or not the model and WLST values for a given model attribute,
