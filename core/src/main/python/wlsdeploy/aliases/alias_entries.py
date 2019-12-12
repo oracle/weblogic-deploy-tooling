@@ -12,20 +12,9 @@ from oracle.weblogic.deploy.util import FileUtils
 
 import wlsdeploy.aliases.alias_utils as alias_utils
 from wlsdeploy.aliases import password_utils
-from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
-from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import APPLICATION
-from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
-from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
-from wlsdeploy.aliases.validation_codes import ValidationCodes
-from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception import exception_helper
-from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
-
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.alias_constants import CHILD_FOLDERS_TYPE
+from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.alias_constants import CONTAINS
 from wlsdeploy.aliases.alias_constants import DEFAULT_NAME_VALUE
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
@@ -43,7 +32,6 @@ from wlsdeploy.aliases.alias_constants import SHORT_NAME
 from wlsdeploy.aliases.alias_constants import SINGLE
 from wlsdeploy.aliases.alias_constants import UNRESOLVED_ATTRIBUTES_MAP
 from wlsdeploy.aliases.alias_constants import UNRESOLVED_FOLDERS_MAP
-from wlsdeploy.aliases.alias_constants import VERSION
 from wlsdeploy.aliases.alias_constants import VERSION_RANGE
 from wlsdeploy.aliases.alias_constants import WLST_ATTRIBUTES_PATH
 from wlsdeploy.aliases.alias_constants import WLST_CREATE_PATH
@@ -56,6 +44,19 @@ from wlsdeploy.aliases.alias_constants import WLST_PATHS
 from wlsdeploy.aliases.alias_constants import WLST_SKIP_NAMES
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
+from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import RCU_DB_INFO
+from wlsdeploy.aliases.model_constants import WLS_ROLES
+from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
+from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
+from wlsdeploy.aliases.validation_codes import ValidationCodes
+from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 _class_name = 'AliasEntries'
 _logger = PlatformLogger('wlsdeploy.aliases')
@@ -132,8 +133,8 @@ class AliasEntries(object):
     ]
 
     __domain_info_top_level_folders = [
-        'RCUDbInfo',
-        'WLSRoles'
+        RCU_DB_INFO,
+        WLS_ROLES
     ]
 
     __all_model_categories = []
@@ -175,8 +176,12 @@ class AliasEntries(object):
         self.__all_model_categories.extend(self.__resources_top_level_folders)
         self.__all_model_categories.extend(self.__app_deployments_top_level_folders)
         self.__all_model_categories.extend(self.__domain_info_top_level_folders)
+
+        # ResourceManager is not a top-level folder, it's contained by ResourceManagement
         self.__all_model_categories.append(RESOURCE_MANAGER)
 
+        # DomainInfo is not a top-level folder, it defines domainInfo top-level attributes
+        self.__all_model_categories.append(DOMAIN_INFO_ALIAS)
         return
 
     def get_dictionary_for_location(self, location, resolve=True):

@@ -114,9 +114,14 @@ class UsagePrinter(object):
 
         validation_location = LocationContext()
 
-        # top level can have attributes (topology, for example)
+        # topology level has attributes, use empty location
         if top_level_key == model_constants.TOPOLOGY:
             self.__print_attributes_usage(validation_location, 1)
+
+        # domainInfo level has attributes, use special location
+        if top_level_key == model_constants.DOMAIN_INFO:
+            info_location = LocationContext().append_location("DomainInfo")
+            self.__print_attributes_usage(info_location, 1)
 
         if control_option == self.ControlOptions.FOLDERS_ONLY:
             validation_utils.print_indent(validation_utils.format_message('WLSDPLY-05105'), 1)

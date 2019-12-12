@@ -1,7 +1,7 @@
 {
     "copyright": "Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
-    "wlst_type": "",
+    "wlst_type": "DomainInfo",
     "folders": { },
     "attributes": {
         "AdminPassword":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AdminPassword",              "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "password"  } ],
