@@ -129,6 +129,7 @@ def validate_variable_file_exists(program_name, optional_arg_map):
 def verify_required_args_present(program_name, required_arguments, required_arg_map):
     """
     Verify that the required args are present.
+    :param program_name: the program name, for logging
     :param required_arguments: the required arguments to be checked
     :param required_arg_map: the required arguments map
     :raises CLAException: if one or more of the required arguments are missing
@@ -149,7 +150,7 @@ def process_encryption_args(optional_arg_map):
     If the user is using model encryption, get the passphrase from stdin, and put it in the argument map.
     If the passphrase switch was specified in the arg map, just use it directly.
     :param optional_arg_map: the optional arguments map
-    :raises CLAException: if an error occurs reading the passphrase inout from the user
+    :raises CLAException: if an error occurs reading the passphrase input from the user
     """
     _method_name = '__process_encryption_args'
 
@@ -170,11 +171,11 @@ def validate_model(program_name, model_dictionary, model_context, aliases, wlst_
     """
     Validate the model dictionary based on the specified model context and aliases.
     The tool will exit if exceptions are encountered, or the validation returns a STOP code.
-    :param program_name:
-    :param model_dictionary:
-    :param model_context:
-    :param aliases:
-    :param wlst_mode:
+    :param program_name: the program name, for logging
+    :param model_dictionary: the model dictionary
+    :param model_context: the model context
+    :param aliases: the aliases
+    :param wlst_mode: offline or online
     :return:
     """
     _method_name = 'validate_model'
@@ -206,8 +207,8 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
     :param program_name: the program name, for logging
     :param model_context: the model context
     :param aliases: the alias configuration
-    :param wlst_mode: offline or online
     :param filter_type: the type of any filters to be applied
+    :param wlst_mode: offline or online
     :return: the resulting model dictionary
     """
     _method_name = 'load_model'
