@@ -77,35 +77,13 @@ class UsagePrinter(object):
         if model_path_tokens[0] == model_constants.APP_DEPLOYMENTS:
             valid_section_folder_keys = self._aliases.get_model_app_deployments_top_level_folder_names()
 
+        if model_path_tokens[0] == model_constants.DOMAIN_INFO:
+            valid_section_folder_keys = self._aliases.get_model_domain_info_top_level_folder_names()
+
         if len(model_path_tokens) == 1:
-            if model_path_tokens[0] == model_constants.DOMAIN_INFO:
-                self.__print_domain_info_usage(model_path_tokens)
-            else:
-                self.__print_top_level_usage(top_level_key, valid_section_folder_keys, control_option)
+            self.__print_top_level_usage(top_level_key, valid_section_folder_keys, control_option)
         else:
             self.__print_model_section_usage(model_path_tokens, valid_section_folder_keys, control_option)
-
-        return
-
-    def __print_domain_info_usage(self, model_path_tokens):
-        """
-        Prints out the usage for the domainInfo section of a model
-        :param model_path_tokens: A Python list of path elements built from model path
-        :return:
-        """
-
-        _method_name = '__print_domain_info_usage'
-        self._logger.finest('1 model_path_tokens={0}', str(model_path_tokens),
-                            class_name=_class_name, method_name=_method_name)
-
-        model_path = validation_utils.format_message('WLSDPLY-05103', '%s:' % model_path_tokens[0])
-
-        # Print 'Path: <model_section>' label and field
-        validation_utils.print_indent(model_path, 0)
-        validation_utils.print_blank_lines()
-
-        attr_infos = self._alias_helper.get_model_domain_info_attribute_names_and_types()
-        _print_attr_infos(attr_infos, 1)
 
         return
 
@@ -132,15 +110,20 @@ class UsagePrinter(object):
 
         # Print 'Section: <model_section>' label and field
         validation_utils.print_indent(model_section, 0)
-
-        if control_option == self.ControlOptions.ATTRIBUTES_ONLY:
-            # Doing an ATTRIBUTES_ONLY on a top level key is a no-op
-            return
+        validation_utils.print_blank_lines()
 
         validation_location = LocationContext()
 
+        # topology level has attributes, use empty location
+        if top_level_key == model_constants.TOPOLOGY:
+            self.__print_attributes_usage(validation_location, 1)
+
+        # domainInfo level has attributes, use special location
+        if top_level_key == model_constants.DOMAIN_INFO:
+            info_location = LocationContext().append_location("DomainInfo")
+            self.__print_attributes_usage(info_location, 1)
+
         if control_option == self.ControlOptions.FOLDERS_ONLY:
-            validation_utils.print_blank_lines()
             validation_utils.print_indent(validation_utils.format_message('WLSDPLY-05105'), 1)
             valid_section_folder_keys.sort()
 

@@ -7,11 +7,7 @@ from oracle.weblogic.deploy.encrypt import EncryptionUtils
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
-from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
-from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
-from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
-from wlsdeploy.aliases.model_constants import RCU_DB_INFO
-from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import model
@@ -26,15 +22,6 @@ class _ModelEncrypter(object):
     """
     _class_name = '_ModelEncrypter'
     _logger = PlatformLogger('wlsdeploy.encrypt')
-
-    # these elements in the domainInfo/RCUDbInfo section are passwords,
-    # and may need to be encrypted.
-    _rcu_password_attributes = [
-        RCU_ADMIN_PASSWORD,
-        RCU_SCHEMA_PASSWORD,
-        DRIVER_PARAMS_KEYSTOREPWD_PROPERTY,
-        DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
-    ]
 
     def __init__(self, passphrase, alias_helper, variables=None):
         """
@@ -59,9 +46,8 @@ class _ModelEncrypter(object):
         """
 
         if model.get_model_domain_info_key() in model_dict:
-            info_name_map = self.alias_helper.get_model_domain_info_attribute_names_and_types()
             domain_info_dict = model_dict[model.get_model_domain_info_key()]
-            self._encrypt_info_nodes(domain_info_dict, info_name_map)
+            self._encrypt_info_nodes(domain_info_dict)
 
         if model.get_model_topology_key() in model_dict:
             top_folder_names = self.alias_helper.get_model_topology_top_level_folder_names()
@@ -83,24 +69,24 @@ class _ModelEncrypter(object):
 
         return self.model_changes, len(self.variables_changed)
 
-    def _encrypt_info_nodes(self, info_nodes, info_name_map):
+    def _encrypt_info_nodes(self, info_nodes):
         """
         Encrypt a set of nodes from the domainInfo section of the model.
         :param info_nodes: the model nodes
-        :param info_name_map: a map of model key names to type
         """
-        for key in info_nodes:
-            if key in info_name_map:
-                attribute_type = info_name_map[key]
-                if attribute_type == 'password':
-                    self._encrypt_attribute(DOMAIN_INFO, info_nodes, key)
+        info_location = LocationContext().append_location(DOMAIN_INFO_ALIAS)
+        password_attribute_names = self.alias_helper.get_model_password_type_attribute_names(info_location)
 
-        if RCU_DB_INFO in info_nodes:
-            rcu_nodes = info_nodes[RCU_DB_INFO]
-            folder_name = DOMAIN_INFO + '/' + RCU_DB_INFO
-            for key in rcu_nodes:
-                if key in self._rcu_password_attributes:
-                    self._encrypt_attribute(folder_name, rcu_nodes, key)
+        subfolder_names = self.alias_helper.get_model_domain_info_top_level_folder_names()
+
+        for node in info_nodes:
+            if node in subfolder_names:
+                child_location = LocationContext().append_location(node)
+                child_nodes = info_nodes[node]
+                self._encrypt_nodes(child_location, child_nodes)
+
+            elif node in password_attribute_names:
+                self._encrypt_attribute(DOMAIN_INFO, info_nodes, node)
 
     def _encrypt_nodes(self, location, model_nodes, subfolder_names=None):
         """
