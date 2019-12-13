@@ -274,7 +274,7 @@ ECHO WLST_PROPERTIES = %WLST_PROPERTIES%
 SET PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python
 ECHO %WLST% %PY_SCRIPTS_PATH%\extract_resource.py %SCRIPT_ARGS%
 
-"%WLST%" "%PY_SCRIPTS_PATH%\extract_resource.py" %SCRIPT_ARGS%
+CALL "%WLST%" "%PY_SCRIPTS_PATH%\extract_resource.py" %SCRIPT_ARGS%
 
 SET RETURN_CODE=%ERRORLEVEL%
 IF "%RETURN_CODE%" == "103" (
@@ -328,6 +328,7 @@ ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help] [-use_encryption]
 ECHO              -oracle_home ^<oracle_home^>
 ECHO              -domain_home ^<domain_home^>
+ECHO              -domain_resource_file ^<domain_resource_file^>
 ECHO              [-archive_file ^<archive_file^>]
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
@@ -338,6 +339,8 @@ ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain
 ECHO.
 ECHO         domain_home     - the domain home directory
+ECHO.
+ECHO         domain_resource_file - the location of the extracted domain resource file
 ECHO.
 ECHO         archive_file    - the path to the archive file to use.  If the -model_file
 ECHO                           argument is not specified, the model file in this archive
