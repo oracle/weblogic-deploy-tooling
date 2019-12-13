@@ -147,6 +147,7 @@ JTA = 'JTA'
 JTA_PARTITION = 'JtaPartition'
 JTA_MIGRATABLE_TARGET = 'JTAMigratableTarget'
 KEY = 'Key'
+KUBERNETES = 'kubernetes'
 LDAP_AUTHENTICATOR = 'LDAPAuthenticator'
 LDAP_X509_IDENTITY_ASSERTER = 'LDAPX509IdentityAsserter'
 LIBRARY = 'Library'
@@ -362,7 +363,8 @@ KNOWN_TOPLEVEL_MODEL_SECTIONS = [
     DOMAIN_INFO,
     TOPOLOGY,
     RESOURCES,
-    APP_DEPLOYMENTS
+    APP_DEPLOYMENTS,
+    KUBERNETES
 ]
 
 # these domain attributes have special processing in create,
