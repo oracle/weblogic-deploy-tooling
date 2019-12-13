@@ -10,7 +10,7 @@ domainInfo:
         useATP : true
         rcu_prefix : DEV
         rcu_schema_password : xxxxx
-        rcu_admin_user : admin
+        atp.admin.user : admin
         tns.alias : dbatp_tp
         javax.net.ssl.keyStorePassword : xxxx
         javax.net.ssl.trustStorePassword : xxxx

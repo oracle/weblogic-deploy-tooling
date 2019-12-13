@@ -1,0 +1,19 @@
+{
+    "copyright": "Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "DomainInfo",
+    "folders": { },
+    "attributes": {
+        "AdminPassword":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AdminPassword",              "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "password"  } ],
+        "AdminUserName":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AdminUserName",              "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "OPSSSecrets":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "OPSSSecrets",                "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "password" } ],
+        "ServerGroupTargetingLimits": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ServerGroupTargetingLimits", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "dict" } ],
+        "ServerStartMode":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ServerStartMode",            "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "domainBin":                  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "domainBin",                  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "list", "uses_path_tokens": "true" } ],
+        "domainLibraries":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "domainLibraries",            "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "list", "uses_path_tokens": "true" } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/NO_FOLDER"
+    }
+}
