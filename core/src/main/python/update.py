@@ -13,7 +13,6 @@ from java.lang import String, System
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.util import CLAException
-from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
@@ -27,24 +26,22 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.create.domain_typedef import DomainTypedef
 from wlsdeploy.tool.create.domain_typedef import UPDATE_DOMAIN
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.deploy.topology_updater import TopologyUpdater
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.util import cla_helper
-from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
 from wlsdeploy.util import wlst_extended
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
-from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import model as model_helper
 
@@ -96,18 +93,9 @@ def __process_args(args):
 
     __process_encryption_args(optional_arg_map)
 
-    domain_type = dictionary_utils.get_element(optional_arg_map, CommandLineArgUtil.DOMAIN_TYPE_SWITCH)
-    if domain_type is None:
-        domain_type = 'WLS'
-    domain_typedef = DomainTypedef(_program_name, domain_type)
-    optional_arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF] = domain_typedef
-
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
-
-    model_context = ModelContext(_program_name, combined_arg_map)
-    domain_typedef.set_model_context(model_context)
-    return model_context
+    return model_context_helper.create_context(_program_name, combined_arg_map)
 
 
 def __verify_required_args_present(required_arg_map):
@@ -405,7 +393,7 @@ def main(args):
         cla_helper.clean_up_temp_files()
 
         # create a minimal model for summary logging
-        model_context = ModelContext(_program_name, dict())
+        model_context = model_context_helper.create_exit_context(_program_name)
         tool_exit.end(model_context, exit_code)
 
     variable_map = {}

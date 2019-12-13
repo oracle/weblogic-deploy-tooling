@@ -26,6 +26,13 @@ class ModelContext(object):
     __TEMP_DIRECTORY_TOKEN = '@@TMP@@'
 
     def __init__(self, program_name, arg_map):
+        """
+        Create a new model context instance.
+        Tools should use model_context_helper.create_context(), to ensure that the typedef is initialized correctly.
+        Unit tests should use this constructor directly, since typedef files are not deployed.
+        :param program_name: the program name, used for logging
+        :param arg_map: all the arguments passed to the tool
+        """
         self._program_name = program_name
         self._logger = platform_logger.PlatformLogger('wlsdeploy.util')
         self._wls_helper = WebLogicHelper(self._logger)

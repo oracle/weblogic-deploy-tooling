@@ -8,19 +8,15 @@ import os
 import sys
 
 from java.io import IOException, PrintStream
-from java.lang import IllegalArgumentException
 from java.lang import String, System
 
 
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.util import CLAException
-from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
-from oracle.weblogic.deploy.util import WLSDeployArchive
-from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
@@ -35,6 +31,7 @@ from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import cla_helper
@@ -44,7 +41,6 @@ from wlsdeploy.util import variables
 from wlsdeploy.util import wlst_extended
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
-from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 wlst_extended.wlst_functions = globals()
@@ -97,8 +93,7 @@ def __process_args(args):
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
-
-    return ModelContext(_program_name, combined_arg_map)
+    return model_context_helper.create_context(_program_name, combined_arg_map)
 
 
 def __verify_required_args_present(required_arg_map):
@@ -387,7 +382,7 @@ def main(args):
         cla_helper.clean_up_temp_files()
 
         # create a minimal model for summary logging
-        model_context = ModelContext(_program_name, dict())
+        model_context = model_context_helper.create_exit_context(_program_name)
         tool_exit.end(model_context, exit_code)
 
     variable_map = {}

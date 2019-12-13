@@ -69,7 +69,7 @@ class Creator(object):
         create_path = self.alias_helper.get_wlst_create_path(location)
         list_path = self.alias_helper.get_wlst_list_path(location)
         existing_folder_names = self._get_existing_folders(list_path)
-        for model_name in model_nodes:
+        for model_name in model_nodes.keys():
             name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
             if deployer_utils.is_delete_name(name):
                 deployer_utils.delete_named_element(location, name, existing_folder_names, self.alias_helper)

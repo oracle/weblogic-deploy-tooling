@@ -24,12 +24,12 @@ import wlsdeploy.tool.util.variable_injector as variable_injector
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
-from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -73,8 +73,7 @@ def __process_args(args):
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
-
-    return ModelContext(_program_name, combined_arg_map)
+    return model_context_helper.create_context(_program_name, combined_arg_map)
 
 
 def __verify_required_args_present(required_arg_map):

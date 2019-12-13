@@ -43,7 +43,7 @@ class TopologyHelper(object):
         :raises: BundleAwareException of the specified type: if an error occurs
         """
         if type_name in self._coherence_cluster_elements:
-            for name in model_nodes:
+            for name in model_nodes.keys():
                 child_nodes = dictionary_utils.get_dictionary_element(model_nodes, name)
                 resource_name = dictionary_utils.get_element(child_nodes, COHERENCE_CLUSTER_SYSTEM_RESOURCE)
                 if resource_name is not None:
@@ -112,7 +112,7 @@ class TopologyHelper(object):
             existing_names = deployer_utils.get_existing_object_list(resource_location, self.alias_helper)
 
             name_nodes = dictionary_utils.get_dictionary_element(model_nodes, model_type)
-            for name in name_nodes:
+            for name in name_nodes.keys():
                 if deployer_utils.is_delete_name(name):
                     # don't create placeholder for delete names
                     continue
