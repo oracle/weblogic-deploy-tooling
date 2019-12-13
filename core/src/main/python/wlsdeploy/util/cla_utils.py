@@ -70,6 +70,8 @@ class CommandLineArgUtil(object):
     VARIABLE_INJECTOR_FILE_SWITCH   = '-variable_injector_file'
     VARIABLE_KEYWORDS_FILE_SWITCH   = '-variable_keywords_file'
     VARIABLE_PROPERTIES_FILE_SWITCH = '-variable_properties_file'
+    # extractDomainResource output file
+    DOMAIN_RESOURCE_FILE_SWITCH   = '-domain_resource_file'
 
     # a slot to stash the parsed domain typedef dictionary
     DOMAIN_TYPEDEF             = 'domain_typedef'
@@ -408,6 +410,15 @@ class CommandLineArgUtil(object):
                 idx += 1
                 if idx < args_len:
                     full_path = self._validate_variable_properties_file_arg(args[idx])
+                    self._add_arg(key, full_path, True)
+                else:
+                    ex = self._get_out_of_args_exception(key)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
+            elif self.is_domain_resource_file_key(key):
+                idx += 1
+                if idx < args_len:
+                    full_path = self._validate_domain_resource_file_arg(args[idx])
                     self._add_arg(key, full_path, True)
                 else:
                     ex = self._get_out_of_args_exception(key)
@@ -1072,6 +1083,21 @@ class CommandLineArgUtil(object):
             variables = JFileUtils.validateFileName(value)
         except JIllegalArgumentException, iae:
             ex = exception_helper.create_cla_exception('WLSDPLY-01620', value, iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return variables.getAbsolutePath()
+
+    def is_domain_resource_file_key(self, key):
+        return self.DOMAIN_RESOURCE_FILE_SWITCH == key
+
+    def _validate_domain_resource_file_arg(self, value):
+        method_name = '_validate_domain_resource_file_arg'
+
+        try:
+            variables = JFileUtils.validateFileName(value)
+        except JIllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01637', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex

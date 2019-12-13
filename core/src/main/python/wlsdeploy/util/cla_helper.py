@@ -4,14 +4,22 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 Utility CLS methods shared by multiple tools.
 """
+from java.io import IOException
 from java.lang import IllegalArgumentException
+from java.lang import String
 from oracle.weblogic.deploy.util import FileUtils
-
+from oracle.weblogic.deploy.util import VariableException
+from oracle.weblogic.deploy.util import TranslateException
+from oracle.weblogic.deploy.validate import ValidateException
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
+from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_utils
+from wlsdeploy.util import tool_exit
+from wlsdeploy.util import getcreds
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_translator import FileToPython
@@ -116,6 +124,126 @@ def validate_variable_file_exists(program_name, optional_arg_map):
             raise ex
         optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = variable_file.getAbsolutePath()
     return
+
+
+def verify_required_args_present(program_name, required_arguments, required_arg_map):
+    """
+    Verify that the required args are present.
+    :param required_arguments: the required arguments to be checked
+    :param required_arg_map: the required arguments map
+    :raises CLAException: if one or more of the required arguments are missing
+    """
+    _method_name = '__verify_required_args_present'
+
+    for req_arg in required_arguments:
+        if req_arg not in required_arg_map:
+            ex = exception_helper.create_cla_exception('WLSDPLY-20005', program_name, req_arg)
+            ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+    return
+
+
+def process_encryption_args(optional_arg_map):
+    """
+    If the user is using model encryption, get the passphrase from stdin, and put it in the argument map.
+    If the passphrase switch was specified in the arg map, just use it directly.
+    :param optional_arg_map: the optional arguments map
+    :raises CLAException: if an error occurs reading the passphrase inout from the user
+    """
+    _method_name = '__process_encryption_args'
+
+    if CommandLineArgUtil.USE_ENCRYPTION_SWITCH in optional_arg_map and \
+            CommandLineArgUtil.PASSPHRASE_SWITCH not in optional_arg_map:
+        try:
+            passphrase = getcreds.getpass('WLSDPLY-20002')
+        except IOException, ioe:
+            ex = exception_helper.create_cla_exception('WLSDPLY-20003', ioe.getLocalizedMessage(), error=ioe)
+            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+        optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
+    return
+
+
+def validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode):
+    """
+    Validate the model dictionary based on the specified model context and aliases.
+    The tool will exit if exceptions are encountered, or the validation returns a STOP code.
+    :param program_name:
+    :param model_dictionary:
+    :param model_context:
+    :param aliases:
+    :param wlst_mode:
+    :return:
+    """
+    _method_name = 'validate_model'
+
+    try:
+        validator = Validator(model_context, aliases, wlst_mode=wlst_mode)
+
+        # no need to pass the variable file for processing, substitution has already been performed
+        return_code = validator.validate_in_tool_mode(model_dictionary, variables_file_name=None,
+                                                      archive_file_name=model_context.get_archive_file_name())
+    except ValidateException, ex:
+        __logger.severe('WLSDPLY-20000', program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+        clean_up_temp_files()
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    if return_code == Validator.ReturnCode.STOP:
+        __logger.severe('WLSDPLY-20001', program_name, class_name=_class_name, method_name=_method_name)
+        clean_up_temp_files()
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+
+def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
+    """
+    Load the model based on the arguments in the model context.
+    Apply the variable substitution, if specified, and validate the model.
+    Apply any model filters of the specified type that are configured, and re-validate if necessary
+    The tool will exit if exceptions are encountered.
+    :param program_name: the program name, for logging
+    :param model_context: the model context
+    :param aliases: the alias configuration
+    :param wlst_mode: offline or online
+    :param filter_type: the type of any filters to be applied
+    :return: the resulting model dictionary
+    """
+    _method_name = 'load_model'
+
+    variable_map = {}
+    try:
+        if model_context.get_variable_file():
+            variable_map = variables.load_variables(model_context.get_variable_file())
+    except VariableException, ex:
+        __logger.severe('WLSDPLY-20004', program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+        clean_up_temp_files()
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    model_file_value = model_context.get_model_file()
+    try:
+        model_dictionary = merge_model_files(model_file_value, variable_map)
+    except TranslateException, te:
+        __logger.severe('WLSDPLY-09014', program_name, model_file_value, te.getLocalizedMessage(), error=te,
+                        class_name=_class_name, method_name=_method_name)
+        clean_up_temp_files()
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    try:
+        variables.substitute(model_dictionary, variable_map, model_context)
+    except VariableException, ex:
+        __logger.severe('WLSDPLY-20004', program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+        clean_up_temp_files()
+        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode)
+
+    if filter_helper.apply_filters(model_dictionary, filter_type):
+        # if any filters were applied, re-validate the model
+        validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode)
 
 
 def clean_up_temp_files():
