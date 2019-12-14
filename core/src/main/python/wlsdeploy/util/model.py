@@ -164,7 +164,7 @@ def get_model_top_level_keys():
     Get the known top-level model element keys.
     :return: a list of the known top-level model element keys
     """
-    return KNOWN_TOPLEVEL_MODEL_SECTIONS
+    return list(KNOWN_TOPLEVEL_MODEL_SECTIONS)
 
 
 def persist_model(model_context, model):
