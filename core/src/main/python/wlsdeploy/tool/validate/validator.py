@@ -31,7 +31,7 @@ from wlsdeploy.util.enum import Enum
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
-from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
+from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
@@ -255,7 +255,7 @@ class Validator(object):
         self.__validate_root_level(model_dict, model.get_model_top_level_keys())
 
         self.__validate_model_section(model.get_model_domain_info_key(), model_dict,
-                                      self._aliases.get_model_domain_info_top_level_folder_names())
+                                      self._aliases.get_model_section_top_level_folder_names(DOMAIN_INFO))
 
         self.__validate_model_section(model.get_model_topology_key(), model_dict,
                                       self._aliases.get_model_topology_top_level_folder_names())
@@ -265,6 +265,9 @@ class Validator(object):
 
         self.__validate_model_section(model.get_model_deployments_key(), model_dict,
                                       self._aliases.get_model_app_deployments_top_level_folder_names())
+
+        self.__validate_model_section(model.get_model_kubernetes_key(), model_dict,
+                                      self._aliases.get_model_section_top_level_folder_names(KUBERNETES))
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
         return
@@ -369,11 +372,7 @@ class Validator(object):
             return
 
         # only specific top-level sections have attributes
-        attribute_location = None
-        if model_section_key == TOPOLOGY:
-            attribute_location = LocationContext()
-        elif model_section_key == DOMAIN_INFO:
-            attribute_location = LocationContext().append_location(DOMAIN_INFO_ALIAS)
+        attribute_location = self._alias_helper.get_model_section_attribute_location(model_section_key)
 
         valid_attr_infos = []
         path_tokens_attr_keys = []
