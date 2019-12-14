@@ -125,13 +125,20 @@ class Aliases(object):
         """
         return self._alias_entries.get_model_app_deployments_subfolder_names()
 
-    def get_model_domain_info_top_level_folder_names(self):
+    def get_model_section_top_level_folder_names(self, section_name):
         """
-        Returns a list of the recognized top-level model folders in the domainInfo section corresponding to the
+        Returns a list of the recognized top-level model folders in the specified section corresponding to the
         known WLST top-level folders.
         :return: a list of the recognized top-level model folder names
         """
-        return self._alias_entries.get_model_domain_info_subfolder_names()
+        return self._alias_entries.get_model_section_subfolder_names(section_name)
+
+    def get_model_section_attribute_location(self, section_name):
+        """
+        Get the location containing the attributes for a model section (topology, domainInfo, etc.)
+        :return: a location, or None of the section does not have attributes.
+        """
+        return self._alias_entries.get_model_section_attribute_location(section_name)
 
     def get_model_subfolder_names(self, location):
         """

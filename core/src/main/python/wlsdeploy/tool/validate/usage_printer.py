@@ -4,7 +4,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import re
 
-from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.util import model
 from wlsdeploy.util.enum import Enum
@@ -66,19 +65,8 @@ class UsagePrinter(object):
 
         validation_utils.print_blank_lines()
 
-        valid_section_folder_keys = []
-
-        if model_path_tokens[0] == model_constants.TOPOLOGY:
-            valid_section_folder_keys = self._aliases.get_model_topology_top_level_folder_names()
-
-        if model_path_tokens[0] == model_constants.RESOURCES:
-            valid_section_folder_keys = self._aliases.get_model_resources_top_level_folder_names()
-
-        if model_path_tokens[0] == model_constants.APP_DEPLOYMENTS:
-            valid_section_folder_keys = self._aliases.get_model_app_deployments_top_level_folder_names()
-
-        if model_path_tokens[0] == model_constants.DOMAIN_INFO:
-            valid_section_folder_keys = self._aliases.get_model_domain_info_top_level_folder_names()
+        section_name = model_path_tokens[0]
+        valid_section_folder_keys = self._aliases.get_model_section_top_level_folder_names(section_name)
 
         if len(model_path_tokens) == 1:
             self.__print_top_level_usage(top_level_key, valid_section_folder_keys, control_option)
@@ -113,15 +101,10 @@ class UsagePrinter(object):
         validation_utils.print_blank_lines()
 
         validation_location = LocationContext()
+        attributes_location = self._alias_helper.get_model_section_attribute_location(top_level_key)
 
-        # topology level has attributes, use empty location
-        if top_level_key == model_constants.TOPOLOGY:
-            self.__print_attributes_usage(validation_location, 1)
-
-        # domainInfo level has attributes, use special location
-        if top_level_key == model_constants.DOMAIN_INFO:
-            info_location = LocationContext().append_location("DomainInfo")
-            self.__print_attributes_usage(info_location, 1)
+        if attributes_location is not None:
+            self.__print_attributes_usage(attributes_location, 1)
 
         if control_option == self.ControlOptions.FOLDERS_ONLY:
             validation_utils.print_indent(validation_utils.format_message('WLSDPLY-05105'), 1)

@@ -45,12 +45,18 @@ from wlsdeploy.aliases.alias_constants import WLST_SKIP_NAMES
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import APPLICATION
-from wlsdeploy.aliases.model_constants import RCU_DB_INFO
-from wlsdeploy.aliases.model_constants import WLS_ROLES
-from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
+from wlsdeploy.aliases.model_constants import KUBERNETES_ALIAS
+from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
+from wlsdeploy.aliases.model_constants import KUBERNETES
+from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
+from wlsdeploy.aliases.model_constants import RESOURCES
+from wlsdeploy.aliases.model_constants import TOPOLOGY
+from wlsdeploy.aliases.model_constants import WLS_ROLES
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -137,6 +143,18 @@ class AliasEntries(object):
         WLS_ROLES
     ]
 
+    __section_top_folders_map = {
+        DOMAIN_INFO: __domain_info_top_level_folders,
+        TOPOLOGY: __topology_top_level_folders,
+        RESOURCES: __resources_top_level_folders,
+        APP_DEPLOYMENTS: __app_deployments_top_level_folders,
+        KUBERNETES: []
+    }
+
+    # all the categories that appear at the top of model sections
+    __top_model_categories = []
+
+    # all the categories, including section-attribute and contained categories
     __all_model_categories = []
 
     __domain_name_token = 'DOMAIN'
@@ -156,16 +174,21 @@ class AliasEntries(object):
             self._wls_helper = WebLogicHelper(_logger, wls_version)
             self._wls_version = wls_version
 
-        self.__all_model_categories.extend(self.__topology_top_level_folders)
-        self.__all_model_categories.extend(self.__resources_top_level_folders)
-        self.__all_model_categories.extend(self.__app_deployments_top_level_folders)
-        self.__all_model_categories.extend(self.__domain_info_top_level_folders)
+        # top model categories
+        self.__top_model_categories.extend(self.__topology_top_level_folders)
+        self.__top_model_categories.extend(self.__resources_top_level_folders)
+        self.__top_model_categories.extend(self.__app_deployments_top_level_folders)
+        self.__top_model_categories.extend(self.__domain_info_top_level_folders)
 
-        # ResourceManager is not a top-level folder, it's contained by ResourceManagement
+        # all model categories
+        self.__all_model_categories.extend(self.__top_model_categories)
+
+        # include contained categories
         self.__all_model_categories.append(RESOURCE_MANAGER)
 
-        # DomainInfo is not a top-level folder, it defines domainInfo top-level attributes
+        # include section attribute categories
         self.__all_model_categories.append(DOMAIN_INFO_ALIAS)
+        self.__all_model_categories.append(KUBERNETES_ALIAS)
         return
 
     def get_dictionary_for_location(self, location, resolve=True):
@@ -196,15 +219,7 @@ class AliasEntries(object):
         _method_name = 'get_model_domain_subfolder_names'
 
         _logger.entering(class_name=_class_name, method_name=_method_name)
-        folder_list = list(self.__all_model_categories)
-        #
-        # Remove all folders that do not appear at the WLST root level
-        #
-        if 'Domain' in folder_list:
-            folder_list.remove('Domain')
-        if 'ResourceManager' in folder_list:
-            folder_list.remove('ResourceManager')
-
+        folder_list = list(self.__top_model_categories)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=folder_list)
         return folder_list
 
@@ -244,12 +259,31 @@ class AliasEntries(object):
         """
         return list(self.__app_deployments_top_level_folders)
 
-    def get_model_domain_info_subfolder_names(self):
+    def get_model_section_subfolder_names(self, section_name):
         """
-        Get the top-level model folder names underneath the domain info section.
+        Get the top-level model folder names underneath the specified section.
         :return: a list of the folder names
         """
-        return list(self.__domain_info_top_level_folders)
+        result = dictionary_utils.get_element(self.__section_top_folders_map, section_name)
+        if result is None:
+            result = []
+        return result
+
+    def get_model_section_attribute_location(self, section_name):
+        """
+        Get the location containing the attributes for a model section (topology, domainInfo, etc.)
+        :return: a location, or None of the section does not have attributes.
+        """
+        if section_name == TOPOLOGY:
+            return LocationContext()
+
+        if section_name == DOMAIN_INFO:
+            return LocationContext().append_location(DOMAIN_INFO_ALIAS)
+
+        if section_name == KUBERNETES:
+            return LocationContext().append_location(KUBERNETES_ALIAS)
+
+        return None
 
     def get_model_subfolder_names_for_location(self, location):
         """
