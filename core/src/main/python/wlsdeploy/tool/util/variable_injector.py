@@ -37,6 +37,7 @@ VARIABLE_INJECTOR_FILE_NAME_ARG = 'variable_injector_file_name'
 VARIABLE_KEYWORDS_FILE_NAME_ARG = 'variable_keywords_file_name'
 VARIABLE_INJECTOR_FILES_PATH_ARG = 'variable_injector_files_path_name'
 VARIABLE_FILE_NAME_ARG = 'variable_file_name'
+VARIABLE_FILE_SWITCH = 'variable_file'
 VARIABLE_FILE_NAME = 'variable.properties'
 VARIABLE_FILE_APPEND_ARG = 'append_to_variables'
 VARIABLE_FILE_APPEND = 'append'
@@ -603,7 +604,9 @@ class VariableInjector(object):
 
     def _get_variable_file_name(self, **kwargs):
         _method_name = '_get_variable_file_name'
-        if VARIABLE_FILE_NAME_ARG in kwargs:
+        if self.__model_context is not None and self.__model_context.get_variable_file() is not None:
+            variable_file_location = self.__model_context.get_variable_file()
+        elif VARIABLE_FILE_NAME_ARG in kwargs:
             variable_file_location = kwargs[VARIABLE_FILE_NAME_ARG]
             _logger.finer('WLSDPLY-19522', variable_file_location, class_name=_class_name, method_name=_method_name)
         else:
