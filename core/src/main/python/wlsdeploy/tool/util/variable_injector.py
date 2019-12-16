@@ -606,7 +606,6 @@ class VariableInjector(object):
         _method_name = '_get_variable_file_name'
         if self.__model_context is not None and self.__model_context.get_variable_file() is not None:
             variable_file_location = self.__model_context.get_variable_file()
-            print '********** variable file switch in the kwargs'
         elif VARIABLE_FILE_NAME_ARG in kwargs:
             variable_file_location = kwargs[VARIABLE_FILE_NAME_ARG]
             _logger.finer('WLSDPLY-19522', variable_file_location, class_name=_class_name, method_name=_method_name)
