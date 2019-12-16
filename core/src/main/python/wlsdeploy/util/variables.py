@@ -11,6 +11,7 @@ from java.io import File
 from java.io import FileInputStream
 from java.io import FileOutputStream
 from java.io import FileReader
+from java.io import PrintWriter
 from java.io import IOException
 from java.util import Properties
 
@@ -70,23 +71,56 @@ def write_variables(program_name, variable_map, file_path, append=False):
     """
     _method_name = 'write_variables'
     _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
-    props = Properties()
-    for key, value in variable_map.items():
-        props.setProperty(key, value)
+    if isinstance(variable_map, OrderedDict):
+        write_ordered_variables(program_name, variable_map, file_path, append)
+    else:
+        props = Properties()
+        for key, value in variable_map.items():
+            props.setProperty(key, value)
 
-    comment = exception_helper.get_message('WLSDPLY-01731', program_name)
-    output_stream = None
+        comment = exception_helper.get_message('WLSDPLY-01731', program_name)
+        output_stream = None
+        try:
+            output_stream = FileOutputStream(File(file_path), Boolean(append))
+            props.store(output_stream, comment)
+            output_stream.close()
+        except IOException, ioe:
+            _logger.fine('WLSDPLY-20007', file_path, ioe.getLocalizedMessage())
+            ex = exception_helper.create_variable_exception('WLSDPLY-20007', file_path,
+                                                            ioe.getLocalizedMessage(), error=ioe)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            if output_stream is not None:
+                output_stream.close()
+            raise ex
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+    return
+
+
+def write_ordered_variables(program_name, variable_map, file_path, append=False):
+    """
+    Write variables to file while preserving order of the variables.
+    :param program_name: name of the calling program
+    :param variable_map: map or variable properties to write to file
+    :param file_path: the file to which to write the properties
+    :param append: defaults to False. Append properties to the end of file
+    :raises VariableException if an error occurs while storing the variables in the file
+    """
+    _method_name = 'write_ordered_variables'
+    _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
+    pw = None
     try:
-        output_stream = FileOutputStream(File(file_path), Boolean(append))
-        props.store(output_stream, comment)
-        output_stream.close()
+        pw = PrintWriter(FileOutputStream(File(file_path), Boolean(append)), Boolean('true'))
+        for key, value in variable_map.iteritems():
+            formatted = '%s=%s' % (key, value)
+            pw.println(formatted)
+        pw.close()
     except IOException, ioe:
         _logger.fine('WLSDPLY-20007', file_path, ioe.getLocalizedMessage())
         ex = exception_helper.create_variable_exception('WLSDPLY-20007', file_path,
                                                         ioe.getLocalizedMessage(), error=ioe)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        if output_stream is not None:
-            output_stream.close()
+        if pw is not None:
+            pw.close()
         raise ex
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return

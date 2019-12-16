@@ -894,10 +894,7 @@ def sort_dictionary_by_keys(dictionary):
     sorted_props = dictionary.keys()
     sorted_props.sort()
     for prop in sorted_props:
-        print '******* what is the order ? ', prop
         sorted_dict[prop] = dictionary[prop]
-    for key, value in sorted_dict.iteritems():
-        print key, '=', value
     return sorted_dict
 
 
