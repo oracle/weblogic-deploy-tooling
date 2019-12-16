@@ -266,8 +266,8 @@ class Validator(object):
         self.__validate_model_section(model.get_model_deployments_key(), model_dict,
                                       self._aliases.get_model_app_deployments_top_level_folder_names())
 
-        # self.__validate_model_section(model.get_model_kubernetes_key(), model_dict,
-        #                               self._aliases.get_model_section_top_level_folder_names(KUBERNETES))
+        self.__validate_model_section(model.get_model_kubernetes_key(), model_dict,
+                                      self._aliases.get_model_section_top_level_folder_names(KUBERNETES))
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
         return
