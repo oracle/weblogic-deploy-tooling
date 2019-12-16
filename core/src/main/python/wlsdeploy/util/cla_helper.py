@@ -246,6 +246,8 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
         # if any filters were applied, re-validate the model
         validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode)
 
+    return model_dictionary
+
 
 def clean_up_temp_files():
     """
