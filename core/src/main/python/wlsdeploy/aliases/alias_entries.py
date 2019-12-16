@@ -143,12 +143,17 @@ class AliasEntries(object):
         WLS_ROLES
     ]
 
+    __kubernetes_top_level_folders = [
+        'metadata',
+        'spec'
+    ]
+
     __section_top_folders_map = {
         DOMAIN_INFO: __domain_info_top_level_folders,
         TOPOLOGY: __topology_top_level_folders,
         RESOURCES: __resources_top_level_folders,
         APP_DEPLOYMENTS: __app_deployments_top_level_folders,
-        KUBERNETES: []
+        KUBERNETES: __kubernetes_top_level_folders
     }
 
     # all the categories that appear at the top of model sections
@@ -179,6 +184,7 @@ class AliasEntries(object):
         self.__top_model_categories.extend(self.__resources_top_level_folders)
         self.__top_model_categories.extend(self.__app_deployments_top_level_folders)
         self.__top_model_categories.extend(self.__domain_info_top_level_folders)
+        self.__top_model_categories.extend(self.__kubernetes_top_level_folders)
 
         # all model categories
         self.__all_model_categories.extend(self.__top_model_categories)
@@ -923,6 +929,10 @@ class AliasEntries(object):
         """
         if category_name == APPLICATION:
             return 'AppDeployment'
+        if category_name == 'metadata':
+            return 'Metadata'
+        if category_name == 'spec':
+            return 'Spec'
         return category_name
 
     def __get_dictionary_for_location(self, location, resolve_path_tokens=True):

@@ -7,6 +7,7 @@ from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_constants import BOOLEAN
+from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -46,17 +47,10 @@ class DomainResourceExtractor:
         resource_dict = PyOrderedDict()
 
         location = self._aliases.get_model_section_attribute_location(KUBERNETES)
-        type_map = self._aliases.get_model_attribute_names_and_types(location)
+        self._process_attributes(kubernetes_map, location, resource_dict)
 
-        for key, model_value in kubernetes_map.items():
-            if key in type_map:
-                type_name = type_map[key]
-                if type_name == BOOLEAN:
-                    value = _get_boolean_text(model_value)
-                else:
-                    value = model_value
-
-                resource_dict[key] = value
+        top_folders = self._aliases.get_model_section_top_level_folder_names(KUBERNETES)
+        self._process_folders(kubernetes_map, top_folders, LocationContext(), resource_dict)
 
         resource_dir = File(resource_file).getParentFile()
         if (not resource_dir.isDirectory()) and (not resource_dir.mkdirs()):
@@ -66,6 +60,35 @@ class DomainResourceExtractor:
         writer = PythonToFile(resource_dict)
 
         writer.write_to_file(resource_file)
+        return
+
+    def _process_folders(self, model_dict, folder_names, location, parent_dict):
+        for key, model_value in model_dict.items():
+            if key in folder_names:
+                if not key in parent_dict:
+                    parent_dict[key] = dict()
+                target_dict = parent_dict[key]
+
+                target_location = LocationContext(location).append_location(key)
+                self._process_attributes(model_value, target_location, target_dict)
+
+                subfolder_names = self._aliases.get_model_subfolder_names(target_location)
+                self._process_folders(model_value, subfolder_names, target_location, target_dict)
+
+    def _process_attributes(self, model_dict, location, target_dict):
+        type_map = self._aliases.get_model_attribute_names_and_types(location)
+
+        for key, model_value in model_dict.items():
+            if key in type_map:
+                type_name = type_map[key]
+                if type_name == BOOLEAN:
+                    value = _get_boolean_text(model_value)
+                else:
+                    value = model_value
+
+                target_dict[key] = value
+
+
 
 
 def _get_boolean_text(model_value):

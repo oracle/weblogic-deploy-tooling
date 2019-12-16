@@ -4,14 +4,8 @@
     "wlst_type": "Kubernetes",
     "folders": { },
     "attributes": {
-        "adminNodePort":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "adminNodePort",                "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "integer" } ],
-        "configuredManagedServerCount": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "configuredManagedServerCount", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "integer" } ],
-        "exposeAdminNodePort":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "exposeAdminNodePort",          "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "boolean" } ],
-        "exposeAdminT3Channel":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "exposeAdminT3Channel",         "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "boolean" } ],
-        "initialManagedServerReplicas": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "initialManagedServerReplicas", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "integer" } ],
-        "loadBalancer":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "loadBalancer",                 "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"  } ],
-        "namespace":                    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "namespace",                    "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"  } ],
-        "t3ChannelPort":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "t3ChannelPort",                "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "integer" } ]
+        "apiVersion": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "apiVersion", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "kind":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "kind",       "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
