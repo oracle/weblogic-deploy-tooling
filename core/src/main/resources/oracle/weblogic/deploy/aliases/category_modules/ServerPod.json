@@ -1,0 +1,72 @@
+{
+    "copyright": "Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "serverPod",
+    "folders": {
+        "env": {
+            "wlst_type": "env",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "value": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "value", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/NO_FOLDER"
+            }
+        },
+        "volumeMounts": {
+            "wlst_type": "volumeMounts",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "mountPath":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "mountPath",        "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "mountPropagation": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "mountPropagation", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "name":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "name",             "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "readOnly":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "readOnly",         "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "boolean" } ],
+                "subPath":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "subPath",          "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/NO_FOLDER"
+            }
+        },
+        "volumes": {
+            "wlst_type": "volumes",
+            "child_folders_type": "multiple",
+            "folders": {
+                "persistentVolumeClaim": {
+                    "wlst_type": "persistentVolumeClaim",
+                    "folders": {},
+                    "attributes": {
+                        "claimName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "claimName", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/NO_FOLDER"
+                    }
+                }
+            },
+            "attributes": {},
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/NO_FOLDER"
+            }
+        }
+    },
+    "attributes": {
+        "annotations":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "annotations",        "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "dict" } ],
+        "labels":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "labels",             "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "dict" } ],
+        "nodeName":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "nodeName",           "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "nodeSelector":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "nodeSelector",       "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "dict" } ],
+        "priorityClassName":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "priorityClassName",  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "restartPolicy":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "restartPolicy",      "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "runtimeClassName":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "runtimeClassName",   "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "schedulerName":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "schedulerName",      "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "serviceAccountName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "serviceAccountName", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/NO_FOLDER"
+    }
+}

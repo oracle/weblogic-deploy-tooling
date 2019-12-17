@@ -1,7 +1,7 @@
 {
     "copyright": "Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
-    "wlst_type": "Spec",
+    "wlst_type": "spec",
     "folders": {
         "adminServer": {
             "wlst_type": "adminServer",
@@ -12,7 +12,7 @@
                         "channels": {
                             "wlst_type": "channels",
                             "child_folders_type": "multiple",
-                            "folders": { },
+                            "folders": {},
                             "attributes": {
                                 "nodePort": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "nodePort", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "integer" } ]
                             },
@@ -39,14 +39,22 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/NO_FOLDER"
-            }
+                "WP001": "/NO_ADMIN_FOLDER"
+            },
+            "contains": [
+                "serverPod"
+            ]
         },
         "clusters": {
-            "wlst_type": "adminServer",
+            "wlst_type": "clusters",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
+                "maxUnavailable":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "maxUnavailable",    "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "integer" } ],
+                "replicas":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "replicas",          "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "integer" } ],
+                "restartVersion":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "restartVersion",    "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "serverStartPolicy": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "serverStartPolicy", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "serverStartState":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "serverStartState",  "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -54,17 +62,30 @@
             }
         },
         "experimental": {
-            "wlst_type": "adminServer",
-            "folders": {},
-            "attributes": {
+            "wlst_type": "experimental",
+            "folders": {
+                "istio": {
+                    "wlst_type": "istio",
+                    "folders": {},
+                    "attributes": {
+                        "enabled":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "enabled",       "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "boolean" } ],
+                        "readinessPort": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "readinessPort", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "integer" } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/NO_FOLDER"
+                    }
+                }
+
             },
+            "attributes": {},
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
                 "WP001": "/NO_FOLDER"
             }
         },
         "imagePullSecrets": {
-            "wlst_type": "adminServer",
+            "wlst_type": "imagePullSecrets",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
@@ -86,7 +107,7 @@
             }
         },
         "serverService": {
-            "wlst_type": "managedServers",
+            "wlst_type": "serverService",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
@@ -97,10 +118,11 @@
             }
         },
         "webLogicCredentialsSecret": {
-            "wlst_type": "managedServers",
-            "child_folders_type": "multiple",
+            "wlst_type": "webLogicCredentialsSecret",
             "folders": {},
             "attributes": {
+                "name":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "name",      "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "namespace": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "namespace", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -122,12 +144,14 @@
         "logHomeEnabled":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "logHomeEnabled",           "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "boolean" } ],
         "replicas":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "replicas",                 "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "integer" } ],
         "restartVersion":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "restartVersion",           "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
-        "serverPod":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "serverPod",                "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "properties" } ],
         "serverStartPolicy":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "serverStartPolicy",        "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
         "serverStartState":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "serverStartState",         "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
         "WP001": "/NO_FOLDER"
-    }
+    },
+    "contains": [
+        "serverPod"
+    ]
 }

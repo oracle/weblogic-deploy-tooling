@@ -55,6 +55,7 @@ from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
+from wlsdeploy.aliases.model_constants import SERVER_POD
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WLS_ROLES
 from wlsdeploy.aliases.validation_codes import ValidationCodes
@@ -156,6 +157,14 @@ class AliasEntries(object):
         KUBERNETES: __kubernetes_top_level_folders
     }
 
+    # in rare cases, the alias file name does not match the folder name
+    __alternate_alias_file_name_map = {
+        APPLICATION: 'AppDeployment',
+        'metadata': 'Metadata',
+        'spec': 'Spec',
+        'serverPod': 'ServerPod'
+    }
+
     # all the categories that appear at the top of model sections
     __top_model_categories = []
 
@@ -191,6 +200,7 @@ class AliasEntries(object):
 
         # include contained categories
         self.__all_model_categories.append(RESOURCE_MANAGER)
+        self.__all_model_categories.append(SERVER_POD)
 
         # include section attribute categories
         self.__all_model_categories.append(DOMAIN_INFO_ALIAS)
@@ -922,17 +932,13 @@ class AliasEntries(object):
     def _get_category_file_prefix(self, category_name):
         """
         Return the file prefix for the specified top-level category.
-        The file prefix should match the category name exactly.
-        File name for Application is different for some reason
+        The file prefix should match the category name exactly, except in rare cases.
         :param category_name: the name to be checked
-        :return: the corressponding file name prefix
+        :return: the corresponding file name prefix
         """
-        if category_name == APPLICATION:
-            return 'AppDeployment'
-        if category_name == 'metadata':
-            return 'Metadata'
-        if category_name == 'spec':
-            return 'Spec'
+        alternate_name = dictionary_utils.get_element(self.__alternate_alias_file_name_map, category_name)
+        if alternate_name is not None:
+            return alternate_name
         return category_name
 
     def __get_dictionary_for_location(self, location, resolve_path_tokens=True):
