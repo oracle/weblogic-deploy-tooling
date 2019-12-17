@@ -12,10 +12,12 @@ from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.util.alias_helper import AliasHelper
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_translator import PythonToFile
+from wlsdeploy.yaml.dictionary_list import DictionaryList
 
-
-# model names and resource file names match
+CHANNELS = 'channels'
+CLUSTERS = 'clusters'
 EXPOSE_ADMIN_T3_CHANNEL = 'exposeAdminT3Channel'
 NAMESPACE = 'namespace'
 
@@ -25,6 +27,12 @@ class DomainResourceExtractor:
     Create a domain resource file for use with Kubernetes deployment.
     """
     _class_name = "DomainResourceExtractor"
+
+    # the name field keys corresponding to named model elements
+    NAME_KEY_MAP = {
+        CHANNELS: 'channelName',
+        CLUSTERS: 'clusterName'
+    }
 
     def __init__(self, model, model_context, aliases, logger):
         self._model = model
@@ -78,20 +86,14 @@ class DomainResourceExtractor:
                 target_dict[key] = _get_target_value(model_value, type_name)
 
             elif key in folder_names:
-                if key not in target_dict:
-                    target_dict[key] = PyOrderedDict()
-                target_child_dict = target_dict[key]
-
                 child_location = LocationContext(location).append_location(key)
 
                 if self._aliases.supports_multiple_mbean_instances(child_location):
-                    for name in model_value:
-                        if name not in target_child_dict:
-                            target_child_dict[name] = PyOrderedDict()
-                        model_named_dict = model_value[name]
-                        target_named_dict = target_child_dict[name]
-                        self._process_location_fields(model_named_dict, child_location, target_named_dict)
+                    target_dict[key] = self._build_dictionary_list(key, model_value, child_location)
                 else:
+                    if key not in target_dict:
+                        target_dict[key] = PyOrderedDict()
+                    target_child_dict = target_dict[key]
                     self._process_location_fields(model_value, child_location, target_child_dict)
         return
 
@@ -107,6 +109,34 @@ class DomainResourceExtractor:
         folder_names = self._aliases.get_model_subfolder_names(location)
         self._process_fields(model_dict, folder_names, attributes_map, location, target_dict)
         return
+
+    def _build_dictionary_list(self, model_key, name_dictionary, location):
+        """
+        Build a dictionary list object based on the name dictionary and location.
+        :param name_dictionary: a dictionary containing named levels
+        :param location: the location used for alias resolution
+        :return:
+        """
+        child_list = DictionaryList()
+        for name in name_dictionary:
+            model_named_dict = name_dictionary[name]
+            name_key = self._get_name_key(model_key)
+            target_list_dict = PyOrderedDict()
+            target_list_dict[name_key] = name
+            self._process_location_fields(model_named_dict, location, target_list_dict)
+            child_list.append(target_list_dict)
+        return child_list
+
+    def _get_name_key(self, key):
+        """
+        Return the key to be used for the name in a dictionary list element.
+        :param key: the folder key in the model
+        :return: the name key
+        """
+        key = dictionary_utils.get_element(self.NAME_KEY_MAP, key)
+        if key is not None:
+            return key
+        return 'name'
 
 
 def _get_target_value(model_value, type_name):
