@@ -46,11 +46,11 @@ class DomainResourceExtractor:
 
         resource_dict = PyOrderedDict()
 
-        location = self._aliases.get_model_section_attribute_location(KUBERNETES)
-        self._process_attributes(kubernetes_map, location, resource_dict)
-
+        attribute_location = self._aliases.get_model_section_attribute_location(KUBERNETES)
+        top_attributes_map = self._aliases.get_model_attribute_names_and_types(attribute_location)
         top_folders = self._aliases.get_model_section_top_level_folder_names(KUBERNETES)
-        self._process_folders(kubernetes_map, top_folders, LocationContext(), resource_dict)
+
+        self._process_fields(kubernetes_map, top_folders, top_attributes_map, LocationContext(), resource_dict)
 
         resource_dir = File(resource_file).getParentFile()
         if (not resource_dir.isDirectory()) and (not resource_dir.mkdirs()):
@@ -62,36 +62,63 @@ class DomainResourceExtractor:
         writer.write_to_file(resource_file)
         return
 
-    def _process_folders(self, model_dict, folder_names, location, parent_dict):
+    def _process_fields(self, model_dict, folder_names, attributes_map, location, target_dict):
+        """
+        Transfer folders and attributes from the model dictionary to the target domain resource dictionary.
+        For the top level, the folders and attributes are not derived directly from the location.
+        :param model_dict: the source model dictionary
+        :param folder_names: the names of the folders at this location
+        :param attributes_map: the map of attribute names to types for this location
+        :param location: the location used for alias processing
+        :param target_dict: the target dictionary for the domain resource file.
+       """
         for key, model_value in model_dict.items():
-            if key in folder_names:
-                if not key in parent_dict:
-                    parent_dict[key] = dict()
-                target_dict = parent_dict[key]
+            if key in attributes_map.keys():
+                type_name = attributes_map[key]
+                target_dict[key] = _get_target_value(model_value, type_name)
 
-                target_location = LocationContext(location).append_location(key)
-                self._process_attributes(model_value, target_location, target_dict)
+            elif key in folder_names:
+                if key not in target_dict:
+                    target_dict[key] = PyOrderedDict()
+                target_child_dict = target_dict[key]
 
-                subfolder_names = self._aliases.get_model_subfolder_names(target_location)
-                self._process_folders(model_value, subfolder_names, target_location, target_dict)
+                child_location = LocationContext(location).append_location(key)
 
-    def _process_attributes(self, model_dict, location, target_dict):
-        type_map = self._aliases.get_model_attribute_names_and_types(location)
-
-        for key, model_value in model_dict.items():
-            if key in type_map:
-                type_name = type_map[key]
-                if type_name == BOOLEAN:
-                    value = _get_boolean_text(model_value)
+                if self._aliases.supports_multiple_mbean_instances(child_location):
+                    for name in model_value:
+                        if name not in target_child_dict:
+                            target_child_dict[name] = PyOrderedDict()
+                        model_named_dict = model_value[name]
+                        target_named_dict = target_child_dict[name]
+                        self._process_location_fields(model_named_dict, child_location, target_named_dict)
                 else:
-                    value = model_value
+                    self._process_location_fields(model_value, child_location, target_child_dict)
+        return
 
-                target_dict[key] = value
+    def _process_location_fields(self, model_dict, location, target_dict):
+        """
+        Transfer folders and attributes from the model dictionary to the target domain resource dictionary.
+        Below the top level, the folders and attributes can be derived from the location.
+        :param model_dict: the source model dictionary
+        :param location: the location used for alias processing
+        :param target_dict: the target dictionary for the domain resource file.
+       """
+        attributes_map = self._aliases.get_model_attribute_names_and_types(location)
+        folder_names = self._aliases.get_model_subfolder_names(location)
+        self._process_fields(model_dict, folder_names, attributes_map, location, target_dict)
+        return
 
 
+def _get_target_value(model_value, type_name):
+    """
+    Return the value for the specified attribute value, to be used in the domain resource file.
+    :param model_value: the value to be checked
+    :param type_name: the alias type name of the value
+    :return: the formatted value
+    """
+    if type_name == BOOLEAN:
+        # the model values can be true, false, 1, 0, etc.
+        # target boolean values must be 'true' or 'false'
+        return alias_utils.convert_to_type('boolean', model_value)
 
-
-def _get_boolean_text(model_value):
-    # this method returns string 'true' or 'false'.
-    # the model values can be true, false, 1, 0, etc.
-    return alias_utils.convert_to_type('boolean', model_value)
+    return model_value
