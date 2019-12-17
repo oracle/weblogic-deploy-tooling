@@ -9,6 +9,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_utils
+from wlsdeploy.util import string_utils
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -578,18 +579,21 @@ class ModelContext(object):
         :return: tokenized path or original path
         """
         my_path = path_utils.fixup_path(path)
+        wl_home = path_utils.fixup_path(self.get_wl_home())
+        domain_home = path_utils.fixup_path(self.get_domain_home())
+        oracle_home = path_utils.fixup_path(self.get_oracle_home())
         tmp_dir = path_utils.fixup_path(tempfile.gettempdir())
         cwd = path_utils.fixup_path(os.path.dirname(os.path.abspath(__file__)))
 
         # decide later what is required to be in context home for appropriate exception prevention
         result = my_path
-        if my_path:
-            if self.get_wl_home() and my_path.startswith(self.get_wl_home()):
-                result = my_path.replace(self.get_wl_home(), self.__WL_HOME_TOKEN)
-            elif self.get_domain_home() and  my_path.startswith(self.get_domain_home()):
-                result = my_path.replace(self.get_domain_home(), self.__DOMAIN_HOME_TOKEN)
-            elif self.get_oracle_home() and my_path.startswith(self.get_oracle_home()):
-                result = my_path.replace(self.get_oracle_home(), self.__ORACLE_HOME_TOKEN)
+        if not string_utils.is_empty(my_path):
+            if wl_home is not None and my_path.startswith(wl_home):
+                result = my_path.replace(wl_home, self.__WL_HOME_TOKEN)
+            elif domain_home is not None and my_path.startswith(domain_home):
+                result = my_path.replace(domain_home, self.__DOMAIN_HOME_TOKEN)
+            elif oracle_home is not None and my_path.startswith(oracle_home):
+                result = my_path.replace(oracle_home, self.__ORACLE_HOME_TOKEN)
             elif my_path.startswith(cwd):
                 result = my_path.replace(cwd, self.__CURRENT_DIRECTORY_TOKEN)
             elif my_path.startswith(tmp_dir):
