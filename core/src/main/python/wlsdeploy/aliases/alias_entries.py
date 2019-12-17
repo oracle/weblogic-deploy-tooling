@@ -1090,9 +1090,9 @@ class AliasEntries(object):
                 for key, value in raw_folders_wlst_paths.iteritems():
                     raw_model_dict[WLST_PATHS][key] = base_path + value
 
-            for folder in raw_model_dict_folders:
-                raw_folder_dict = raw_model_dict_folders[folder]
-                self.__load_contains_categories(folder, raw_folder_dict, base_path)
+        for folder in raw_model_dict_folders:
+            raw_folder_dict = raw_model_dict_folders[folder]
+            self.__load_contains_categories(folder, raw_folder_dict, base_path)
 
         #
         # Now that the folder paths are all updated accordingly, load any contains folders, compute the
