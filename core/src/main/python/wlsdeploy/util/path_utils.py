@@ -41,7 +41,10 @@ def fixup_path(path):
     """
     result = path
     if path is not None:
-        result = path.replace('\\', '/')
+        if is_relative_path(path):
+            result = path.replace('\\', '/')
+        else:
+            result = get_canonical_path(path)
         if result.endswith('/'):
             result = result[:-1]
     return result
