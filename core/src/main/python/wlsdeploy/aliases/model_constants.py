@@ -316,7 +316,7 @@ DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY = 'oracle.net.ssl_server_dn_match'
 DRIVER_PARAMS_NET_SSL_VERSION = 'oracle.net.ssl_version'
 DRIVER_PARAMS_NET_TNS_ADMIN = 'oracle.net.tns_admin'
 DRIVER_PARAMS_NET_FAN_ENABLED = 'oracle.jdbc.fanEnabled'
-
+DYNAMIC_CLUSTER_SIZE = 'DynamicClusterSize'
 ENABLED = 'Enabled'
 HARVESTED_ATTRIBUTE = 'HarvestedAttribute'
 HARVESTED_INSTANCE = 'HarvestedInstance'
