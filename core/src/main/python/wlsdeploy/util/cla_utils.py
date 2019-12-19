@@ -20,6 +20,11 @@ from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
 from wlsdeploy.tool.validate.usage_printer import MODEL_PATH_PATTERN
 
+# tool type may indicate variations in argument processing
+TOOL_TYPE_CREATE = "create"
+TOOL_TYPE_DEFAULT = "default"
+TOOL_TYPE_EXTRACT = "extract"
+
 
 class CommandLineArgUtil(object):
     """
@@ -116,12 +121,12 @@ class CommandLineArgUtil(object):
         """
         self._allow_multiple_models = allow_multiple_models
 
-    def process_args(self, args, for_domain_create=False):
+    def process_args(self, args, tool_type=TOOL_TYPE_DEFAULT):
         """
         This method parses the command-line arguments and returns dictionaries of the required and optional args.
 
         :param args: sys.argv
-        :param for_domain_create: true if validating for domain creation
+        :param tool_type: optional, type of tool for special argument processing
         :return: the required and optional argument dictionaries
         :raises CLAException: if argument processing encounters a usage or validation exception
         """
@@ -170,8 +175,10 @@ class CommandLineArgUtil(object):
             elif self.is_domain_home_key(key):
                 idx += 1
                 if idx < args_len:
-                    if for_domain_create:
+                    if tool_type == TOOL_TYPE_CREATE:
                         full_path = self._validate_domain_home_arg_for_create(args[idx])
+                    elif tool_type == TOOL_TYPE_EXTRACT:
+                        full_path = self._validate_domain_home_arg_for_extract(args[idx])
                     else:
                         full_path = self._validate_domain_home_arg(args[idx])
                     self._add_arg(key, full_path, True)
@@ -556,6 +563,21 @@ class CommandLineArgUtil(object):
 
         home_dir = JFile(value)
         return home_dir.getAbsolutePath()
+
+    #
+    # The domain home arg used by extract domain resource does not have to exist on local system.
+    # Just check for non-empty value, and return exact text.
+    #
+    def _validate_domain_home_arg_for_extract(self, value):
+        method_name = '_validate_domain_home_arg_for_extract'
+
+        if value is None or len(value) == 0:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01620')
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+
+        return value
 
     def get_domain_parent_key(self):
         return self.DOMAIN_PARENT_SWITCH

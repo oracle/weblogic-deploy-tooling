@@ -25,6 +25,7 @@ from wlsdeploy.util import cla_helper
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import wlst_extended
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.cla_utils import TOOL_TYPE_EXTRACT
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -62,7 +63,7 @@ def __process_args(args):
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
-    required_arg_map, optional_arg_map = cla_util.process_args(args)
+    required_arg_map, optional_arg_map = cla_util.process_args(args, TOOL_TYPE_EXTRACT)
 
     cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
     cla_helper.validate_optional_archive(_program_name, optional_arg_map)
