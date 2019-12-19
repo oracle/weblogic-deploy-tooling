@@ -8,8 +8,13 @@ from oracle.weblogic.deploy.util import PyOrderedDict
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_constants import BOOLEAN
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import CLUSTER, DYNAMIC_SERVERS, DYNAMIC_CLUSTER_SIZE, SERVER
+from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SIZE
+from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import KUBERNETES
+from wlsdeploy.aliases.model_constants import NAME
+from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.util.alias_helper import AliasHelper
@@ -17,13 +22,20 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_translator import PythonToFile
 from wlsdeploy.yaml.dictionary_list import DictionaryList
 
+API_VERSION = 'apiVersion'
 CHANNELS = 'channels'
 CLUSTERS = 'clusters'
 CLUSTER_NAME = 'clusterName'
 DOMAIN_HOME = 'domainHome'
+K_NAME = 'name'
+KIND = 'kind'
+METADATA = 'metadata'
 NAMESPACE = 'namespace'
 REPLICAS = 'replicas'
 SPEC = 'spec'
+
+DEFAULT_API_VERSION = 'weblogic.oracle/v6'
+DEFAULT_KIND = 'Domain'
 
 
 class DomainResourceExtractor:
@@ -158,10 +170,30 @@ class DomainResourceExtractor:
 
     def _update_resource_dictionary(self, resource_dict):
         """
-        Revise the resource file structure with values from command line, and elsewhere in model
+        Revise the resource file structure with values from defaults, command line, and elsewhere in model
         :param resource_dict: the resource file dictionary
         """
         _method_name = '_update_resource_dictionary'
+
+        # add API version if not present
+        if API_VERSION not in resource_dict:
+            resource_dict[API_VERSION] = DEFAULT_API_VERSION
+
+        # add kind if not present
+        if KIND not in resource_dict:
+            resource_dict[KIND] = DEFAULT_KIND
+
+        # add a metadata section if not present, since we'll at least add name
+        if METADATA not in resource_dict:
+            resource_dict[METADATA] = PyOrderedDict()
+        metadata_section = resource_dict[METADATA]
+
+        # if metadata name not present, use the domain name from the model, or default
+        if K_NAME not in metadata_section:
+            domain_name = dictionary_utils.get_element(self._model.get_model_topology(), NAME)
+            if domain_name is None:
+                domain_name = DEFAULT_WLS_DOMAIN_NAME
+            metadata_section[K_NAME] = domain_name
 
         # add a spec section if not present, since we'll at least add domain home
         if SPEC not in resource_dict:
