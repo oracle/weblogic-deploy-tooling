@@ -99,7 +99,6 @@ public class UsagePrinter {
         // escape any apostrophe characters for JavaScript call
         json = json.replaceAll("'", "\\\\'");
 
-        // System.out.println("JAVA VERSION: " + System.getProperty("java.version"));
         // System.out.println("JSON: " + json);
 
         ScriptEngineManager sem = new ScriptEngineManager();
@@ -127,6 +126,10 @@ public class UsagePrinter {
     }
 
     public static void main(String[] args) {
+        System.out.println("JAVA VERSION: " + System.getProperty("java.version"));
+
+        System.setProperty("nashorn.args", "--no-deprecation-warning");
+
         UsagePrinter printer = new UsagePrinter();
 
         try {
