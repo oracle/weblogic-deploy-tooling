@@ -7,6 +7,7 @@ from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_constants import BOOLEAN
+from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
@@ -27,15 +28,18 @@ CHANNELS = 'channels'
 CLUSTERS = 'clusters'
 CLUSTER_NAME = 'clusterName'
 DOMAIN_HOME = 'domainHome'
+IMAGE_PULL_SECRETS = 'imagePullSecrets'
 K_NAME = 'name'
 KIND = 'kind'
 METADATA = 'metadata'
 NAMESPACE = 'namespace'
 REPLICAS = 'replicas'
 SPEC = 'spec'
+WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 
 DEFAULT_API_VERSION = 'weblogic.oracle/v6'
 DEFAULT_KIND = 'Domain'
+DEFAULT_WEBLOGIC_CREDENTIALS_SECRET = PASSWORD_TOKEN
 
 
 class DomainResourceExtractor:
@@ -203,6 +207,16 @@ class DomainResourceExtractor:
         # only set domain home if it is not present in spec section
         if DOMAIN_HOME not in spec_section:
             spec_section[DOMAIN_HOME] = self._model_context.get_domain_home()
+
+        # if imagePullSecrets not present, add a list with one FIX ME value
+        if IMAGE_PULL_SECRETS not in spec_section:
+            secrets_list = DictionaryList()
+            secrets_list.append({'name': DEFAULT_WEBLOGIC_CREDENTIALS_SECRET})
+            spec_section[IMAGE_PULL_SECRETS] = secrets_list
+
+        # if webLogicCredentialsSecret not present, add it using the FIX ME value
+        if WEBLOGIC_CREDENTIALS_SECRET not in spec_section:
+            spec_section[WEBLOGIC_CREDENTIALS_SECRET] = DEFAULT_WEBLOGIC_CREDENTIALS_SECRET
 
         # only update clusters if section is not present in spec section
         if CLUSTERS not in spec_section:
