@@ -15,6 +15,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging import platform_logger
+from wlsdeploy.util import model_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
@@ -177,32 +178,6 @@ def merge_lists(existing_list, model_list, separator=',', return_as_string=True)
     return result
 
 
-def is_delete_name(name):
-    """
-    Determines if the specified name is flagged for deletion with the "!" prefix.
-    :param name: the name to be checked
-    :return: True if the name is prefixed, false otherwise
-    """
-    return name.startswith("!")
-
-
-def get_delete_item_name(name):
-    """
-    Returns the WLST name of the item to be deleted.
-    Removes the "!" prefix from the name. An exception is thrown if the name is not prefixed.
-    :param name: the prefixed model name of the item to be deleted
-    :return: the model name of the item to be deleted
-    """
-    _method_name = 'get_delete_item_name'
-
-    if is_delete_name(name):
-        return name[1:]
-
-    ex = exception_helper.create_deploy_exception('WLSDPLY-09111', name)
-    _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-    raise ex
-
-
 def delete_named_element(location, delete_name, existing_names, alias_helper):
     """
     Delete the specified named element if present. If the name is not present, log a warning and return.
@@ -213,7 +188,7 @@ def delete_named_element(location, delete_name, existing_names, alias_helper):
     """
     _method_name = 'delete_named_element'
 
-    name = get_delete_item_name(delete_name)
+    name = model_helper.get_delete_item_name(delete_name)
     type_name = alias_helper.get_wlst_mbean_type(location)
 
     if name not in existing_names:

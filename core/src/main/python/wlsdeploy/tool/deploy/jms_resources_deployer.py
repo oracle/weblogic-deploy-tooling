@@ -28,6 +28,7 @@ from wlsdeploy.aliases.model_constants import UNIFORM_DISTRIBUTED_QUEUE
 from wlsdeploy.aliases.model_constants import UNIFORM_DISTRIBUTED_TOPIC
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.tool.deploy import deployer_utils
+from wlsdeploy.util import model_helper
 from wlsdeploy.tool.deploy import log_helper
 from wlsdeploy.tool.deploy.deployer import Deployer
 
@@ -155,8 +156,8 @@ class JmsResourcesDeployer(Deployer):
         mbean_type = self.alias_helper.get_wlst_mbean_type(properties_location)
 
         for property_name in property_name_nodes:
-            if deployer_utils.is_delete_name(property_name):
-                name = deployer_utils.get_delete_item_name(property_name)
+            if model_helper.is_delete_name(property_name):
+                name = model_helper.get_delete_item_name(property_name)
                 self._delete_mapped_mbean(properties_location, properties_token, mbean_type, name_attribute, name)
                 del remaining_name_nodes[property_name]
 
@@ -209,9 +210,9 @@ class JmsResourcesDeployer(Deployer):
         mbean_type = self.alias_helper.get_wlst_mbean_type(groups_location)
 
         for group_name in group_name_nodes:
-            if deployer_utils.is_delete_name(group_name):
+            if model_helper.is_delete_name(group_name):
                 group_nodes = group_name_nodes[group_name]
-                name = deployer_utils.get_delete_item_name(group_name)
+                name = model_helper.get_delete_item_name(group_name)
                 sub_name = self._get_subdeployment_name(group_nodes, name)
                 self._delete_mapped_mbean(groups_location, groups_token, mbean_type, name_attribute, sub_name)
                 del remaining_name_nodes[group_name]

@@ -14,6 +14,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
+from wlsdeploy.util import model_helper
 from wlsdeploy.tool.deploy import log_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
@@ -80,7 +81,7 @@ class Deployer(object):
 
         token = self.alias_helper.get_name_token(location)
         for name in model_nodes:
-            if deployer_utils.is_delete_name(name):
+            if model_helper.is_delete_name(name):
                 deployer_utils.delete_named_element(location, name, existing_names, self.alias_helper)
                 continue
 
