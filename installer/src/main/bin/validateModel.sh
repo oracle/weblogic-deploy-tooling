@@ -265,10 +265,22 @@ else
     fi
 fi
 
+ORACLE_SERVER_DIR=
+
+if [ -x ${ORACLE_HOME}/wlserver_10.3 ]; then
+    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver_10.3
+elif [ -x ${ORACLE_HOME}/wlserver_12.1 ]; then
+    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver_12.1
+else
+    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver
+fi
+
 LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
 WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
 WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
 WLST_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS} ${WLST_PROPERTIES} ${WLSDEPLOY_PROPERTIES}"
+WLST_PROPERTIES="-Dpython.cachedir.skip=true ${WLST_PROPERTIES}"
+WLST_PROPERTIES="-Dpython.path=${ORACLE_SERVER_DIR}/common/wlst/modules/jython-modules.jar/Lib ${WLST_PROPERTIES}"
 export WLST_PROPERTIES
 
 if [ -z "${WLSDEPLOY_LOG_PROPERTIES}" ]; then
@@ -283,15 +295,24 @@ if [ -z "${WLSDEPLOY_LOG_HANDLERS}" ]; then
     WLSDEPLOY_LOG_HANDLERS=${WLSDEPLOY_LOG_HANDLER}; export WLSDEPLOY_LOG_HANDLERS
 fi
 
+CLASSPATH=${CLASSPATH}:${ORACLE_SERVER_DIR}/server/lib/weblogic.jar
+
 echo "JAVA_HOME = ${JAVA_HOME}"
 echo "WLST_EXT_CLASSPATH = ${WLST_EXT_CLASSPATH}"
 echo "CLASSPATH = ${CLASSPATH}"
 echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
 
 PY_SCRIPTS_PATH=${WLSDEPLOY_HOME}/lib/python
-echo "${WLST} ${PY_SCRIPTS_PATH}/validate.py ${SCRIPT_ARGS}"
+echo \
+${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
+	${WLST_PROPERTIES} \
+	org.python.util.jython \
+	"${PY_SCRIPTS_PATH}/validate.py" ${SCRIPT_ARGS}
 
-"${WLST}" "${PY_SCRIPTS_PATH}/validate.py" ${SCRIPT_ARGS}
+${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
+	${WLST_PROPERTIES} \
+	org.python.util.jython \
+	"${PY_SCRIPTS_PATH}/validate.py" ${SCRIPT_ARGS}
 
 RETURN_CODE=$?
 if [ ${RETURN_CODE} -eq 100 ]; then
