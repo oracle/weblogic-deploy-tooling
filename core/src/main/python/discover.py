@@ -44,6 +44,7 @@ from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_translator
+from wlsdeploy.util import path_utils
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import wlst_extended
 from wlsdeploy.util import wlst_helper
@@ -159,6 +160,11 @@ def __process_archive_filename_arg(required_arg_map):
     _method_name = '__process_archive_filename_arg'
 
     archive_file_name = required_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
+    archive_dir_name = path_utils.get_parent_directory(archive_file_name)
+    if os.path.exists(archive_dir_name) is False:
+        ex = exception_helper.create_cla_exception('WLSDPLY-06026', archive_file_name)
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
     try:
         archive_file = WLSDeployArchive(archive_file_name)
     except (IllegalArgumentException, IllegalStateException), ie:
