@@ -281,6 +281,7 @@ WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
 WLST_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS} ${WLST_PROPERTIES} ${WLSDEPLOY_PROPERTIES}"
 WLST_PROPERTIES="-Dpython.cachedir.skip=true ${WLST_PROPERTIES}"
 WLST_PROPERTIES="-Dpython.path=${ORACLE_SERVER_DIR}/common/wlst/modules/jython-modules.jar/Lib ${WLST_PROPERTIES}"
+WLST_PROPERTIES="-Dpython.console= ${WLST_PROPERTIES}"
 export WLST_PROPERTIES
 
 if [ -z "${WLSDEPLOY_LOG_PROPERTIES}" ]; then
