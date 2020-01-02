@@ -17,6 +17,7 @@
                 "GzipCompressionContentType":          [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionContentType",         "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "${list:jarray}",  "wlst_read_type": "delimited_string[semicolon]", "get_method": "${LSA:GET}", "preferred_model_type": "list" } ],
                 "GzipCompressionEnabled":              [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionEnabled",             "wlst_path": "WP002", "value": {"default": false    }, "wlst_type": "boolean"           } ],
                 "GzipCompressionMinContentLength":     [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionMinContentLength",    "wlst_path": "WP002", "value": {"default": 2048     }, "wlst_type": "integer"           } ],
+                "Tag":                               [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "Tag",                              "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "string"            } ],
                 "Notes":                               [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "string"            } ]
             },
             "wlst_attributes_path": "WP002",
