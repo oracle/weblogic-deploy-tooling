@@ -23,6 +23,7 @@ class ModelContext(object):
     __ORACLE_HOME_TOKEN = '@@ORACLE_HOME@@'
     __WL_HOME_TOKEN = '@@WL_HOME@@'
     __DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
+    __JAVA_HOME_TOKEN = '@@JAVA_HOME@@'
     __CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
     __TEMP_DIRECTORY_TOKEN = '@@TMP@@'
 
@@ -501,10 +502,11 @@ class ModelContext(object):
         :return: true if the path begins with a known prefix, false otherwise
         """
         return path.startswith(self.__ORACLE_HOME_TOKEN) or \
-               path.startswith(self.__WL_HOME_TOKEN) or \
-               path.startswith(self.__DOMAIN_HOME_TOKEN) or \
-               path.startswith(self.__CURRENT_DIRECTORY_TOKEN) or \
-               path.startswith(self.__TEMP_DIRECTORY_TOKEN)
+            path.startswith(self.__WL_HOME_TOKEN) or \
+            path.startswith(self.__DOMAIN_HOME_TOKEN) or \
+            path.startswith(self.__JAVA_HOME_TOKEN) or \
+            path.startswith(self.__CURRENT_DIRECTORY_TOKEN) or \
+            path.startswith(self.__TEMP_DIRECTORY_TOKEN)
 
     def replace_tokens(self, resource_type, resource_name, attribute_name, resource_dict):
         """
@@ -532,6 +534,12 @@ class ModelContext(object):
                               self.get_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
             resource_dict[attribute_name] = attribute_value.replace(self.__DOMAIN_HOME_TOKEN,
                                                                     self.get_domain_home())
+        elif attribute_value.startswith(self.__JAVA_HOME_TOKEN):
+            message = "Replacing {0} in {1} {2} {3} with {4}"
+            self._logger.fine(message, self.__JAVA_HOME_TOKEN, resource_type, resource_name, attribute_name,
+                              self.get_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
+            resource_dict[attribute_name] = attribute_value.replace(self.__JAVA_HOME_TOKEN,
+                                                                    self.get_java_home())
         elif attribute_value.startswith(self.__CURRENT_DIRECTORY_TOKEN):
             cwd = path_utils.fixup_path(os.getcwd())
             message = "Replacing {0} in {1} {2} {3} with {4}"
@@ -561,6 +569,8 @@ class ModelContext(object):
             result = _replace(string_value, self.__WL_HOME_TOKEN, self.get_wl_home())
         elif string_value.startswith(self.__DOMAIN_HOME_TOKEN):
             result = _replace(string_value, self.__DOMAIN_HOME_TOKEN, self.get_domain_home())
+        elif string_value.startswith(self.__JAVA_HOME_TOKEN):
+            result = _replace(string_value, self.__JAVA_HOME_TOKEN, self.get_java_home())
         elif string_value.startswith(self.__CURRENT_DIRECTORY_TOKEN):
             result = _replace(string_value, self.__CURRENT_DIRECTORY_TOKEN, path_utils.fixup_path(os.getcwd()))
         elif string_value.startswith(self.__TEMP_DIRECTORY_TOKEN):
@@ -582,6 +592,7 @@ class ModelContext(object):
         wl_home = path_utils.fixup_path(self.get_wl_home())
         domain_home = path_utils.fixup_path(self.get_domain_home())
         oracle_home = path_utils.fixup_path(self.get_oracle_home())
+        java_home = path_utils.fixup_path(self.get_java_home())
         tmp_dir = path_utils.fixup_path(tempfile.gettempdir())
         cwd = path_utils.fixup_path(os.path.dirname(os.path.abspath(__file__)))
 
@@ -594,6 +605,8 @@ class ModelContext(object):
                 result = my_path.replace(domain_home, self.__DOMAIN_HOME_TOKEN)
             elif oracle_home is not None and my_path.startswith(oracle_home):
                 result = my_path.replace(oracle_home, self.__ORACLE_HOME_TOKEN)
+            elif java_home is not None and my_path.startswith(java_home):
+                result = my_path.replace(java_home, self.__JAVA_HOME_TOKEN)
             elif my_path.startswith(cwd):
                 result = my_path.replace(cwd, self.__CURRENT_DIRECTORY_TOKEN)
             elif my_path.startswith(tmp_dir):
