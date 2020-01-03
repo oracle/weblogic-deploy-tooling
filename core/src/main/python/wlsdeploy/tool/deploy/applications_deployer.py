@@ -6,11 +6,13 @@ import copy
 import os
 from java.io import ByteArrayOutputStream
 from java.io import File
+from java.io import FileInputStream
 from java.io import FileNotFoundException
 from java.io import IOException
 from java.lang import IllegalStateException
 from java.security import NoSuchAlgorithmException
 from java.util.jar import JarFile
+from java.util.jar import Manifest
 from java.util.zip import ZipException
 from sets import Set
 from wlsdeploy.aliases.location_context import LocationContext
@@ -567,14 +569,23 @@ class ApplicationsDeployer(Deployer):
                         self.model_context.replace_tokens(APPLICATION, app, param, app_dict)
 
                 if app in existing_apps:
+                    # Compare the hashes of the domain's existing apps to the model's apps.
+                    # If they match, remove them from the list to be deployed.
+                    # If they are different, stop and un-deploy the app, and leave it in the list.
+
                     existing_app_ref = dictionary_utils.get_dictionary_element(existing_app_refs, app)
                     plan_path = dictionary_utils.get_element(existing_app_ref, 'planPath')
                     src_path = dictionary_utils.get_element(existing_app_ref, 'sourcePath')
 
-                    model_src_hash = \
-                        self.__get_hash(dictionary_utils.get_element(app_dict, SOURCE_PATH))
-                    model_plan_hash = \
-                        self.__get_hash(dictionary_utils.get_element(app_dict, PLAN_PATH))
+                    model_src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
+
+                    if (model_src_path is not None) and deployer_utils.is_path_into_archive(model_src_path) \
+                            and self.archive_helper.contains_path(model_src_path):
+                        model_src_hash = -1  # don't calculate hash, just ensure that hashes will not match
+                    else:
+                        model_src_hash = self.__get_hash(model_src_path)
+
+                    model_plan_hash = self.__get_hash(dictionary_utils.get_element(app_dict, PLAN_PATH))
 
                     existing_src_hash = self.__get_file_hash(src_path)
                     existing_plan_hash = self.__get_file_hash(plan_path)
@@ -603,6 +614,10 @@ class ApplicationsDeployer(Deployer):
         try:
             if filename is None:
                 return None
+
+            if File(filename).isDirectory():  # can't calculate for exploded apps, libraries, etc.
+                return None
+
             hash_value = FileUtils.computeHash(filename)
         except (IOException, NoSuchAlgorithmException), e:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09309', filename, e.getLocalizedMessage(), error=e)
@@ -734,7 +749,8 @@ class ApplicationsDeployer(Deployer):
                 options = _get_deploy_options(model_apps, app_name, library_module='false')
                 for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
                     if uses_path_tokens_attribute_name in app_dict:
-                        self.__extract_file_from_archive(app_dict[uses_path_tokens_attribute_name])
+                        self.__extract_source_path_from_archive(app_dict[uses_path_tokens_attribute_name],
+                                                                APPLICATION, app_name)
 
                 location.add_name_token(token_name, app_name)
                 resource_group_template_name, resource_group_name, partition_name = \
@@ -937,8 +953,8 @@ class ApplicationsDeployer(Deployer):
 
         try:
             source_path = self.model_context.replace_token_string(source_path)
-            archive = JarFile(source_path)
-            manifest = archive.getManifest()
+            manifest = self.__get_manifest(source_path)
+
             if manifest is not None:
                 attributes = manifest.getMainAttributes()
                 application_version = attributes.getValue(self._APP_VERSION_MANIFEST_KEY)
@@ -954,6 +970,37 @@ class ApplicationsDeployer(Deployer):
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=versioned_name)
         return versioned_name
+
+    def __get_manifest(self, source_path):
+        """
+        Returns the manifest object for the specified path.
+        The source path may be a jar, or an exploded path.
+        :param source_path: the source path to be checked
+        :return: the manifest, or None if it is not present
+        :raises: IOException: if there are problems reading an existing manifest
+        """
+        source_path_file = File(source_path)
+        manifest = None
+
+        if source_path_file.isDirectory():
+            manifest_file = File(source_path_file, "META-INF/MANIFEST.MF")
+            if manifest_file.exists():
+                stream = None
+                try:
+                    stream = FileInputStream(manifest_file)
+                    manifest = Manifest(stream)
+                finally:
+                    if stream is not None:
+                        try:
+                            stream.close()
+                        except IOException:
+                            # nothing to report
+                            pass
+        else:
+            archive = JarFile(source_path)
+            manifest = archive.getManifest()
+
+        return manifest
 
     def __get_deployment_ordering(self, apps):
         _method_name = '__get_deployment_ordering'

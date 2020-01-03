@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -385,6 +385,9 @@ class Deployer(object):
                         # The file does not exist so extract it from the archive.
                         self.archive_helper.extract_file(value)
                         result = True
+        elif self.archive_helper.contains_path(value):
+            # contents should have been extracted elsewhere, such as for apps and shared libraries
+            result = self.__process_directory_entry(fullpath)
         elif value.endswith('/'):
             # If the path is a directory in the wlsdeploy directory tree
             # but not in the archive, just create it to help the user.
