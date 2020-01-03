@@ -881,49 +881,28 @@ class ApplicationsDeployer(Deployer):
 
         old_name_tuple = deployer_utils.get_library_name_components(model_name, self.wlst_mode)
         try:
+            versioned_name = old_name_tuple[self._EXTENSION_INDEX]
             source_path = self.model_context.replace_token_string(source_path)
-            archive = JarFile(source_path)
-            manifest_object = archive.getManifest()
-            tokens = []
-            if manifest_object is not None:
-                bao = ByteArrayOutputStream()
-                manifest_object.write(bao)
-                manifest = bao.toString('UTF-8')
-                tokens = manifest.split()
+            manifest = self.__get_manifest(source_path)
+            if manifest is not None:
+                attributes = manifest.getMainAttributes()
 
-            if 'Extension-Name:' in tokens:
-                extension_index = tokens.index('Extension-Name:')
-                if len(tokens) > extension_index:
-                    versioned_name = tokens[extension_index + 1]
-                else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09321', model_name, source_path, tokens)
-                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                    raise ex
-            else:
-                versioned_name = old_name_tuple[self._EXTENSION_INDEX]
+                extension_name = attributes.getValue("Extension-Name")
+                if not string_utils.is_empty(extension_name):
+                    versioned_name = extension_name
 
-            if 'Specification-Version:' in tokens:
-                spec_index = tokens.index('Specification-Version:')
-                if len(tokens) > spec_index:
-                    versioned_name += '#' + tokens[spec_index + 1]
+                specification_version = attributes.getValue("Specification-Version")
+                if not string_utils.is_empty(specification_version):
+                    versioned_name += '#' + specification_version
 
                     # Cannot specify an impl version without a spec version
-                    if 'Implementation-Version:' in tokens:
-                        impl_index = tokens.index('Implementation-Version:')
-                        if len(tokens) > impl_index:
-                            versioned_name += '@' + tokens[impl_index + 1]
-                        else:
-                            ex = exception_helper.create_deploy_exception('WLSDPLY-09322', model_name,
-                                                                          source_path, tokens)
-                            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                            raise ex
-                else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09323', model_name, source_path, tokens)
-                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                    raise ex
+                    implementation_version = attributes.getValue("Implementation-Version")
+                    if not string_utils.is_empty(implementation_version):
+                        versioned_name += '@' + implementation_version
 
-            self.logger.info('WLSDPLY-09324', model_name, versioned_name,
-                             class_name=self._class_name, method_name=_method_name)
+                self.logger.info('WLSDPLY-09324', model_name, versioned_name,
+                                 class_name=self._class_name, method_name=_method_name)
+
         except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09325', model_name, source_path, str(e), error=e)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
