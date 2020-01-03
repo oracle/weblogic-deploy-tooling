@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -164,7 +164,7 @@ class ApplicationsDeployer(Deployer):
 
             if deployer_utils.is_path_into_archive(app_source_path):
                 if self.archive_helper is not None:
-                    self.archive_helper.extract_file(app_source_path)
+                    self.__extract_source_path_from_archive(app_source_path, APPLICATION, application_name)
                 else:
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09303', application_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
@@ -821,6 +821,31 @@ class ApplicationsDeployer(Deployer):
     def __extract_file_from_archive(self, path):
         if path is not None and deployer_utils.is_path_into_archive(path):
             self.archive_helper.extract_file(path)
+        return
+
+    def __extract_source_path_from_archive(self, source_path, model_type, model_name):
+        """
+        Extract contents from the archive set for the specified source path.
+        The contents may be a single file, or a directory with exploded content.
+        :param source_path: the path to be extracted (previously checked to be under wlsdeploy)
+        :param model_type: the model type (Application, etc.), used for logging
+        :param model_name: the element name (my-app, etc.), used for logging
+        """
+        _method_name = '__extract_source_path_from_archive'
+
+        # source path may be may be a single file (jar, war, etc.)
+        if self.archive_helper.contains_file(source_path):
+            self.archive_helper.extract_file(source_path)
+
+        # source path may be exploded directory in archive
+        elif self.archive_helper.contains_path(source_path):
+            self.archive_helper.extract_directory(source_path)
+
+        else:
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09330', model_type, model_name, source_path)
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
         return
 
     def __get_deployable_library_versioned_name(self, source_path, model_name):
