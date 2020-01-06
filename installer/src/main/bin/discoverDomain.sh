@@ -2,7 +2,7 @@
 # *****************************************************************************
 # discoverDomain.sh
 #
-# Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -63,10 +63,15 @@
 #                         For example, for SOA 12.1.3, -wlst_path should be
 #                         specified as $ORACLE_HOME/soa
 #
+#     -wlst_path          The path to the Oracle Home product directory under
+#                         which to find the wlst script.  This is only
+#                         needed for pre-12.2.1 upper stack products like SOA.
+#
 # This script uses the following variables:
 #
-# JAVA_HOME             - The location of the JDK to use.  The caller must set
-#                         this variable to a valid Java 7 (or later) JDK.
+# JAVA_HOME             - The path to the Java Home directory used by the ORACLE HOME.
+#                         This overrides the JAVA_HOME value when locating attributes
+#                         which will be replaced with the java home global token in the model
 #
 # WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
 #                         If the caller sets this, the callers location will be
@@ -89,6 +94,7 @@ usage() {
   echo "          [-variable_file <variable_file>]"
   echo "          [-domain_type <domain_type>]"
   echo "          [-wlst_path <wlst_path>]"
+  echo "          [-java_home <java_home>]"
   echo "          [-admin_url <admin_url>"
   echo "           -admin_user <admin_user>"
   echo "          ]"
@@ -114,6 +120,9 @@ usage() {
   echo ""
   echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
+  echo ""
+  echo "        java_home       - overrides the JAVA_HOME value when discovering"
+  echo "                          domain values to be replaced with the java home global token"
   echo ""
   echo "        admin_url       - the admin server URL (used for online deploy)"
   echo ""

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the discoverDomain tool.
@@ -44,6 +44,7 @@ from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_translator
+from wlsdeploy.util import path_utils
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import wlst_extended
 from wlsdeploy.util import wlst_helper
@@ -68,6 +69,7 @@ __optional_arguments = [
     # Used by shell script to locate WLST
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
+    CommandLineArgUtil.JAVA_HOME_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.ADMIN_URL_SWITCH,
     CommandLineArgUtil.ADMIN_USER_SWITCH,
@@ -91,6 +93,7 @@ def __process_args(args):
     __wlst_mode = __process_online_args(optional_arg_map)
     __process_archive_filename_arg(required_arg_map)
     __process_variable_filename_arg(optional_arg_map)
+    __process_java_home(optional_arg_map)
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
@@ -159,6 +162,11 @@ def __process_archive_filename_arg(required_arg_map):
     _method_name = '__process_archive_filename_arg'
 
     archive_file_name = required_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
+    archive_dir_name = path_utils.get_parent_directory(archive_file_name)
+    if os.path.exists(archive_dir_name) is False:
+        ex = exception_helper.create_cla_exception('WLSDPLY-06026', archive_file_name)
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
     try:
         archive_file = WLSDeployArchive(archive_file_name)
     except (IllegalArgumentException, IllegalStateException), ie:
@@ -191,6 +199,22 @@ def __process_variable_filename_arg(optional_arg_map):
             raise ex
     return
 
+
+def __process_java_home(optional_arg_map):
+    _method_name = '__process_java_home'
+    if CommandLineArgUtil.JAVA_HOME_SWITCH in optional_arg_map:
+        java_home_name = optional_arg_map[CommandLineArgUtil.JAVA_HOME_SWITCH]
+    else:
+        java_home_name = os.environ.get('JAVA_HOME')
+
+    try:
+        FileUtils.validateExistingDirectory(java_home_name)
+    except IllegalArgumentException, iae:
+        # this value is used for java home global token in attributes.
+        # If this was passed as command line, it might no longer exist.
+        # The JAVA_HOME environment variable was validated by script.
+        __logger.info('WLSDPLY-06027', java_home_name, iae.getLocalizedMessage(),
+                      class_name=_class_name, method_name=_method_name)
 
 def __discover(model_context, aliases, injector):
     """

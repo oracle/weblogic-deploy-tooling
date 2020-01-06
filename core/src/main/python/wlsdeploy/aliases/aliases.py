@@ -951,6 +951,9 @@ class Aliases(object):
                 # always the model delimiter
                 default_value = alias_utils.convert_to_type(model_type, default_value, delimiter=MODEL_LIST_DELIMITER)
 
+            if attribute_info[WLST_TYPE] == STRING:
+                default_value = alias_utils.replace_tokens_in_path(location, default_value)
+
             if model_type == 'password':
                 if string_utils.is_empty(wlst_attribute_value) or converted_value == default_value:
                     model_attribute_value = None

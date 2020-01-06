@@ -62,7 +62,7 @@ class CommonResourcesDiscoverer(Discoverer):
         model_folder_name, folder_result = self.get_path_services()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         JmsResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, wlst_mode=self._wlst_mode,
-                               aliases=self._aliases).discover()
+                               aliases=self._aliases, variable_injector=self._get_variable_injector()).discover()
         model_folder_name, folder_result = self.get_wldf_system_resources()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         CoherenceResourcesDiscoverer(self._model_context, self._dictionary, self._base_location,

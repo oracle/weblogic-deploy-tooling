@@ -389,8 +389,9 @@ class VariableInjector(object):
                 if last_folder_short is not None:
                     name_list.insert(0, last_folder_short)
                 try:
-                    if self.__aliases.supports_multiple_mbean_instances(iterate_location) or \
-                            self.__aliases.is_custom_folder_allowed(iterate_location):
+                    if not self.__aliases.is_artificial_type_folder(location) and \
+                              (self.__aliases.supports_multiple_mbean_instances(iterate_location) or
+                                self.__aliases.is_custom_folder_allowed(iterate_location)):
                         name_token = self.__aliases.get_name_token(iterate_location)
                         name = iterate_location.get_name_for_token(name_token)
                         name_list.insert(0, name)
