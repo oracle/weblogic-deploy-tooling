@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem discoverDomain.cmd
 @rem
-@rem Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -62,6 +62,11 @@
 @rem
 @rem                           For example, for SOA 12.1.3, -wlst_path should be
 @rem                           specified as %ORACLE_HOME%\soa
+@rem
+@rem     - -java_home          The path to the Java Home directory used for the
+@rem                           Oracle Home. This overrides the JAVA_HOME environment variable
+@rem                           when discovering attributes with a java home. Any attribute with this
+@rem                           value will be replaced with a java home global token in the model.
 @rem
 @rem This script uses the following variables:
 @rem
@@ -169,7 +174,6 @@ IF "%~1" == "" (
 SET ORACLE_HOME=
 SET DOMAIN_TYPE=
 SET WLST_PATH_DIR=
-
 :arg_loop
 IF "%1" == "-help" (
   SET RETURN_CODE=0
@@ -190,7 +194,7 @@ IF "%1" == "-wlst_path" (
   SHIFT
   GOTO arg_continue
 )
-@REM If none of the above, unknown argument so skip it
+@REM If none of the above, a general argument so skip collecting it
 :arg_continue
 SHIFT
 IF NOT "%~1" == "" (
@@ -341,6 +345,7 @@ ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-wlst_path ^<wlst_path^>]
+ECHO              [-java_home ^<java_home^>]
 ECHO              [-admin_url ^<admin_url^>
 ECHO               -admin_user ^<admin_user^>
 ECHO              ]
@@ -365,6 +370,9 @@ ECHO                          used to locate wlst.cmd if -wlst_path not specifie
 ECHO.
 ECHO         wlst_path      - the Oracle Home subdirectory of the wlst.cmd
 ECHO                          script to use (e.g., ^<ORACLE_HOME^>\soa)
+ECHO.
+ECHO         java_home      - overrides the JAVA_HOME value when discovering
+ECHO                          domain values to be replaced with the java home global token
 ECHO.
 ECHO         admin_url      - the admin server URL (used for online discovery)
 ECHO.
