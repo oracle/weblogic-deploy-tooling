@@ -30,6 +30,7 @@ from wlsdeploy.tool.encrypt import encryption_utils
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import variables as variable_helper
+from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
@@ -278,6 +279,7 @@ def main(args):
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
+    wlst_helper.silence()
     exit_code = _process_request(args)
     __logger.exiting(class_name=_class_name, method_name=_method_name, result=exit_code)
     sys.exit(exit_code)
