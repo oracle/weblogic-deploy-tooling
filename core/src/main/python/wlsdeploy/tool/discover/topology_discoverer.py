@@ -14,6 +14,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
+from wlsdeploy.aliases.model_constants import KSS_KEYSTORE_FILE_INDICATOR
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -664,13 +665,19 @@ class TopologyDiscoverer(Discoverer):
         _logger.entering(model_name, str(location), class_name=_class_name, method_name=_method_name)
         new_name = None
         if not string_utils.is_empty(model_value):
-            server_name = self._get_server_name_from_location(location)
-            archive_file = self._model_context.get_archive_file()
-            file_path = self._convert_path(model_value)
-            if server_name:
-                new_name = self._add_server_keystore_file_to_archive(server_name, archive_file, file_path)
+            _logger.finer('WLSDPLY-06641', location.get_folder_path(), model_value,
+                          class_name=_class_name, method_name=_method_name)
+            if _kss_file_type(model_value):
+                _logger.warning('WLSDPLY-06642', model_value, location.get_folder_path(),
+                                class_name=_class_name, method_name=_method_name)
             else:
-                new_name = self._add_node_manager_keystore_file_to_archive(archive_file, file_path)
+                server_name = self._get_server_name_from_location(location)
+                archive_file = self._model_context.get_archive_file()
+                file_path = self._convert_path(model_value)
+                if server_name:
+                    new_name = self._add_server_keystore_file_to_archive(server_name, archive_file, file_path)
+                else:
+                    new_name = self._add_node_manager_keystore_file_to_archive(archive_file, file_path)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
@@ -732,3 +739,9 @@ class TopologyDiscoverer(Discoverer):
         temp = LocationContext()
         temp.append_location(model_constants.SERVER)
         return location.get_name_for_token(self._alias_helper.get_name_token(temp))
+
+
+def _kss_file_type(file_name):
+    if file_name.startswith(KSS_KEYSTORE_FILE_INDICATOR):
+        return True
+    return False
