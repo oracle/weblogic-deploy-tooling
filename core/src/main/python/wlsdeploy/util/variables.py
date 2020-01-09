@@ -293,3 +293,23 @@ def substitute_key(text, variables):
             value = variables[key]
             text = text.replace(token, value)
     return text
+
+
+def has_variables(text):
+    """
+    Determine if the specified text contains any variable references.
+    :param text: the text to be evaluated
+    :return: True if the text contains variable references, False otherwise
+    """
+    matches = _property_pattern.findall(text)
+    return len(matches) > 0
+
+
+def get_variable_matches(text):
+    """
+    Return a list containing a tuple for each property key in the specified text.
+    Each tuple contains the full expression (@@PROP:<key>@@) and just the key (<key>).
+    :param text: the text to be evaluated
+    :return: a list of tuples
+    """
+    return _property_pattern.findall(text)
