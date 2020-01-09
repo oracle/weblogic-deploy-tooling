@@ -23,9 +23,8 @@ from wlsdeploy.logging import platform_logger
 
 _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
-_variable_pattern = re.compile("\\$\\{[\w.-]+\\}")
 _file_variable_pattern = re.compile("@@FILE:[\w.\\\/:-]+@@")
-_property_pattern = re.compile("@@PROP:[\w.-]+@@")
+_property_pattern = re.compile("(@@PROP:([\\w.-]+)@@)")
 _file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
 
 
@@ -153,17 +152,10 @@ def get_variable_names(text):
     :return: a list of variable names
     """
     names = []
-    if '${' in text:
-        tokens = _variable_pattern.findall(text)
-        if tokens is not None:
-            for token in tokens:
-                names.append(token[2:-1])
-
     if '@@' in text:
-        tokens = _property_pattern.findall(text)
-        if tokens:
-            for token in tokens:
-                names.append(token[7:-2])
+        matches = _property_pattern.findall(text)
+        for token, key in matches:
+            names.append(key)
 
     return names
 
@@ -215,40 +207,25 @@ def _substitute(text, variables, model_context):
     """
     method_name = '_substitute'
 
-    if '${' in text:
-        tokens = _variable_pattern.findall(text)
-        if tokens:
-            for token in tokens:
-                key = token[2:-1]
-                # for ${key} variables, leave them in place if not defined.
-                # there are cases where WebLogic allows ${key} values, such as server templates.
-                # ${key} substitution is deprecated, so log if replacement occurs.
-                if key in variables:
-                    value = variables[key]
-                    text = text.replace(token, value)
-                    _logger.info('WLSDPLY-01735', token, key, method_name=method_name, class_name=_class_name)
-
     # skip lookups for text with no @@
     if '@@' in text:
 
         # do properties first, to cover the case @@FILE:/dir/@@PROP:name@@.txt@@
-        tokens = _property_pattern.findall(text)
-        if tokens:
-            for token in tokens:
-                key = token[7:-2]
-                # for @@PROP:key@@ variables, throw an exception if key is not found.
-                if key not in variables:
-                    if model_context.get_validation_method() == 'strict':
-                        _logger.severe('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
-                        ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
-                        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-                        raise ex
-                    else:
-                        _logger.info('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
-                        continue
-                            
-                value = variables[key]
-                text = text.replace(token, value)
+        matches = _property_pattern.findall(text)
+        for token, key in matches:
+            # log, or throw an exception if key is not found.
+            if key not in variables:
+                if model_context.get_validation_method() == 'strict':
+                    _logger.severe('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
+                    ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
+                    _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+                    raise ex
+                else:
+                    _logger.info('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
+                    continue
+
+            value = variables[key]
+            text = text.replace(token, value)
 
         tokens = _file_variable_pattern.findall(text)
         if tokens:
@@ -306,16 +283,13 @@ def substitute_key(text, variables):
     """
     Substitute any @@PROP values in the text and return.
     If the corresponding variable is not found, leave the @@PROP value in place.
-    The deprecated ${} notation is not resolved.
     :param text: the text to be evaluated
     :param variables: the variable map
     :return: the substituted text value
     """
-    tokens = _property_pattern.findall(text)
-    if tokens:
-        for token in tokens:
-            key = token[7:-2]
-            if key in variables:
-                value = variables[key]
-                text = text.replace(token, value)
+    matches = _property_pattern.findall(text)
+    for token, key in matches:
+        if key in variables:
+            value = variables[key]
+            text = text.replace(token, value)
     return text
