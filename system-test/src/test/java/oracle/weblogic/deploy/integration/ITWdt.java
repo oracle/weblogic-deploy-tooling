@@ -576,9 +576,9 @@ public class ITWdt extends BaseTest {
                 getSampleModelFile("1");
         logger.info("Executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
-        logger.info("NEGATIVE TEST: returned msg: " + result.stdout());
+        logger.info("NEGATIVE TEST: returned msg: " + result.stderr());
         String expectedWarningMsg = ", but no variables file was specified";
-        verifyResult(result, expectedWarningMsg);
+        verifyErrorMsg(result, expectedWarningMsg);
 
         logTestEnd(testMethodName);
     }
