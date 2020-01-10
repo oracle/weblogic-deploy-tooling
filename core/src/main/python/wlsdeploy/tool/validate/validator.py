@@ -754,13 +754,18 @@ class Validator(object):
                 else:
                     # FIXME(mwooten) - the cla_utils should be fixing all windows paths to use forward slashes already
                     # assuming that the value is not None
+
+                    logger_method = self._logger.info
+                    if self._model_context.get_validation_method() == 'strict':
+                        logger_method = self._logger.warning
+
                     variables_file_name = self._model_context.get_variable_file()
                     if variables_file_name is None:
-                        self._logger.warning('WLSDPLY-05021', model_folder_path, property_name,
-                                             class_name=_class_name, method_name=_method_name)
+                        logger_method('WLSDPLY-05021', model_folder_path, property_name,
+                                      class_name=_class_name, method_name=_method_name)
                     else:
-                        self._logger.warning('WLSDPLY-05022', model_folder_path, property_name, variables_file_name,
-                                             class_name=_class_name, method_name=_method_name)
+                        logger_method('WLSDPLY-05022', model_folder_path, property_name, variables_file_name,
+                                      class_name=_class_name, method_name=_method_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name, result=untokenized_value)
         return untokenized_value
