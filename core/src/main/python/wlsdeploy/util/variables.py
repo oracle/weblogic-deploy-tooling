@@ -193,6 +193,13 @@ def _process_node(nodes, variables, model_context):
 
         if isinstance(value, dict):
             _process_node(value, variables, model_context)
+
+        elif isinstance(value, list):
+            for member in value:
+                if type(member) in [str, unicode]:
+                    index = value.index(member)
+                    value[index] = _substitute(member, variables, model_context)
+
         elif type(value) in [str, unicode]:
             nodes[key] = _substitute(value, variables, model_context)
 
