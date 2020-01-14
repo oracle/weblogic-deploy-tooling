@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The WLS Deploy tooling entry point for the validateModel tool.
@@ -25,7 +25,6 @@ from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import tool_exit
-from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -201,8 +200,6 @@ def main(args):
     __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), arg, class_name=_class_name, method_name=_method_name)
-
-    wlst_helper.silence()
 
     exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
 
