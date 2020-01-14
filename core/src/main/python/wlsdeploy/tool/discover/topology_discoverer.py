@@ -595,14 +595,15 @@ class TopologyDiscoverer(Discoverer):
 
         classpath_string = None
         if not StringUtils.isEmpty(model_value):
-            classpath = path_utils.fixup_path(model_value)
+            #classpath = path_utils.fixup_path(model_value)
 
             # model values are comma-separated
-            classpath_entries = classpath.split(MODEL_LIST_DELIMITER)
+            classpath_entries = model_value.split(MODEL_LIST_DELIMITER)
 
             if classpath_entries:
                 classpath_list = []
                 for classpath_entry in classpath_entries:
+                    classpath_entry = self._model_context.replace_token_string(classpath_entry)
                     new_source_name = self._add_library(server_name, classpath_entry)
                     if new_source_name is not None:
                         classpath_list.append(new_source_name)
