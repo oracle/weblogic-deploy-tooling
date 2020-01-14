@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -236,14 +236,8 @@ class Validator(object):
         if self._model_file_name is not None:
             self._logger.info('WLSDPLY-05003', self._model_file_name, class_name=_class_name, method_name=_method_name)
 
-        try:
-            self._variable_properties = variables_map
-            variables.substitute(model_dict, self._variable_properties, self._model_context)
-        except VariableException, ve:
-            ex = exception_helper.create_validate_exception('WLSDPLY-20004', 'validateModel',
-                                                            ve.getLocalizedMessage(), error=ve)
-            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
+        self._variable_properties = variables_map
+        # don't substitute model here, it should be validated with variables intact
 
         if archive_file_name is not None:
             self._logger.info('WLSDPLY-05005', archive_file_name, class_name=_class_name, method_name=_method_name)
@@ -394,7 +388,7 @@ class Validator(object):
 
             model_folder_path = model_section_key + ":/"
 
-            if '${' in section_dict_key:
+            if variables.has_variables(section_dict_key):
                 self._report_unsupported_variable_usage(section_dict_key, model_folder_path)
 
             self._logger.finer('WLSDPLY-05011', section_dict_key, section_dict_value,
@@ -474,7 +468,7 @@ class Validator(object):
 
             for name in model_node:
                 expanded_name = name
-                if '${' in name:
+                if variables.has_variables(name):
                     expanded_name = self.__validate_variable_substitution(name, model_folder_path)
 
                 self._logger.finest('2 expanded_name={0}', expanded_name,
@@ -503,7 +497,7 @@ class Validator(object):
 
             for name in model_node:
                 expanded_name = name
-                if '${' in name:
+                if variables.has_variables(name):
                     self._report_unsupported_variable_usage(name, model_folder_path)
 
                 self._logger.finest('3 expanded_name={0}', expanded_name,
@@ -566,7 +560,7 @@ class Validator(object):
                             method_name=_method_name)
 
         for key, value in model_node.iteritems():
-            if '${' in key:
+            if variables.has_variables(key):
                 self._report_unsupported_variable_usage(key, model_folder_path)
 
             self._logger.finer('5 key={0}', key,
@@ -673,10 +667,10 @@ class Validator(object):
                               model_folder_path, str(validation_location),
                               class_name=_class_name, method_name=_method_name)
 
-        if '${' in attribute_name:
+        if variables.has_variables(attribute_name):
             self._report_unsupported_variable_usage(attribute_name, model_folder_path)
 
-        if '${' in str(attribute_value):
+        if variables.has_variables(str(attribute_value)):
             attribute_value = self.__validate_variable_substitution(attribute_value, model_folder_path)
 
         if attribute_name in valid_attr_infos:
@@ -720,10 +714,10 @@ class Validator(object):
         self._logger.entering(property_name, property_value, str(valid_prop_infos), model_folder_path,
                               class_name=_class_name, method_name=_method_name)
 
-        if '${' in property_name:
+        if variables.has_variables(property_name):
             property_name = self.__validate_variable_substitution(property_name, model_folder_path)
 
-        if '${' in str(property_value):
+        if variables.has_variables(str(property_value)):
             property_value = self.__validate_variable_substitution(property_value, model_folder_path)
 
         if property_name in valid_prop_infos:
@@ -750,9 +744,8 @@ class Validator(object):
 
         if not isinstance(untokenized_value, dict):
             # Extract the variable substitution variables from tokenized_value
-            tokens = validation_utils.extract_substitution_tokens(tokenized_value)
-            for token in tokens:
-                property_name = token[2:len(token)-1]
+            matches = variables.get_variable_matches(tokenized_value)
+            for token, property_name in matches:
                 property_value = None
                 if property_name in self._variable_properties:
                     property_value = self._variable_properties[property_name]
@@ -761,13 +754,18 @@ class Validator(object):
                 else:
                     # FIXME(mwooten) - the cla_utils should be fixing all windows paths to use forward slashes already
                     # assuming that the value is not None
+
+                    logger_method = self._logger.info
+                    if self._model_context.get_validation_method() == 'strict':
+                        logger_method = self._logger.warning
+
                     variables_file_name = self._model_context.get_variable_file()
                     if variables_file_name is None:
-                        self._logger.warning('WLSDPLY-05021', model_folder_path, property_name,
-                                             class_name=_class_name, method_name=_method_name)
+                        logger_method('WLSDPLY-05021', model_folder_path, property_name,
+                                      class_name=_class_name, method_name=_method_name)
                     else:
-                        self._logger.warning('WLSDPLY-05022', model_folder_path, property_name, variables_file_name,
-                                             class_name=_class_name, method_name=_method_name)
+                        logger_method('WLSDPLY-05022', model_folder_path, property_name, variables_file_name,
+                                      class_name=_class_name, method_name=_method_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name, result=untokenized_value)
         return untokenized_value
@@ -882,7 +880,7 @@ class Validator(object):
                         self._logger.severe('WLSDPLY-05033', key, model_folder_path, str(type(key)),
                                             class_name=_class_name, method_name=__method_name)
                     else:
-                        if '${' in key:
+                        if variables.has_variables(key):
                             self._report_unsupported_variable_usage(key, model_folder_path)
 
                     if isinstance(value, basestring) and MODEL_LIST_DELIMITER in value:
@@ -904,7 +902,7 @@ class Validator(object):
         _method_name = '_validate_single_server_group_target_limits_value'
 
         if type(value) is str:
-            if '${' in str(value):
+            if variables.has_variables(str(value)):
                 self._report_unsupported_variable_usage(str(value), model_folder_path)
         else:
             self._logger.severe('WLSDPLY-05035', key, str(value), model_folder_path, str(type(value)),
@@ -922,7 +920,7 @@ class Validator(object):
 
     def _report_unsupported_variable_usage(self, tokenized_value, model_folder_path):
         _method_name = '_report_unsupported_variable_usage'
-        tokens = validation_utils.extract_substitution_tokens(tokenized_value)
+        tokens = variables.get_variable_names(tokenized_value)
         for token in tokens:
             self._logger.severe('WLSDPLY-05030', model_folder_path, token,
                                 class_name=_class_name, method_name=_method_name)

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -10,8 +10,6 @@ from oracle.weblogic.deploy.exception import ExceptionHelper
 divider_string = '-----------------------------------------------'
 
 _class_name = "validation_utils"
-_variable_pattern = re.compile('\$\{[\w.-]+\}')
-_property_pattern = re.compile('@@PROP:[\w.-]+@@')
 _path_token_pattern = re.compile('@@[\w._]+@@')
 
 
@@ -105,27 +103,6 @@ def get_properties(value):
         rtnval = {'Value': value}
 
     return rtnval
-
-
-def extract_substitution_tokens(tokenized_value):
-    """
-    Returns a Python list containing the substitution variable expressions found in the
-    tokenized_value argument
-
-    :param tokenized_value:
-    :return:
-    """
-    tokens = re.findall(_property_pattern, str(tokenized_value))
-    if tokens is None:
-        # tokenized_value didn't contain any variable expressions, so
-        # return an empty list
-        return []
-    else:
-        # tokenized_value contained at least 1 variable expressions, so
-        # create a map of all the tokens and return the keys from that
-        map_entry = {}
-        map(map_entry.__setitem__, tokens, [])
-        return map_entry.keys()
 
 
 def is_compatible_data_type(expected_data_type, actual_data_type):
