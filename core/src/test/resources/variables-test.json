@@ -1,8 +1,8 @@
 {
     "topology": {
-        "Name": "${my-abc}${my_arf}",
+        "Name": "@@PROP:my-abc@@@@PROP:my_arf@@",
         "Cluster": {
-            "${my.cluster}": {
+            "@@PROP:my.cluster@@": {
                 "ClientCertProxyEnabled": true
             }
         },
@@ -13,8 +13,8 @@
             },
             "s1": {
                 "ListenAddress": "127.0.0.1",
-                "ListenPort": "${my.port}",
-                "Cluster": "${my.cluster}"
+                "ListenPort": "@@PROP:my.port@@",
+                "Cluster": "@@PROP:my.cluster@@"
             },
             "s2": {
                 "ListenAddress": "127.0.0.1",
