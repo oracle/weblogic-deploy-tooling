@@ -102,6 +102,8 @@ obj_block
     | NEWLINE                                    // Handle an object with no attributes specified
     ;
 
+// the prefix for an assignment or open block, such as "domainInfo: ".
+// an extra level is needed here to prevent ambiguity in those two cases.
 prefix
     : name ASSIGN_OP
     ;
@@ -131,6 +133,8 @@ inline_list_item
     : (NEWLINE (INDENT)?)? value
     ;
 
+// look for trailing comments after assignment or open block.
+// don't close with NEWLINE, since we don't want to dedent yet.
 COMMENT
     : '#' ~[\r\n\f]* -> skip
     ;
