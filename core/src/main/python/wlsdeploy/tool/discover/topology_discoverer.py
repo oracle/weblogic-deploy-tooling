@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -595,8 +595,6 @@ class TopologyDiscoverer(Discoverer):
 
         classpath_string = None
         if not StringUtils.isEmpty(model_value):
-            #classpath = path_utils.fixup_path(model_value)
-
             # model values are comma-separated
             classpath_entries = model_value.split(MODEL_LIST_DELIMITER)
 
