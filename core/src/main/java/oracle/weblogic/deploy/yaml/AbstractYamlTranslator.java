@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.yaml;
@@ -68,7 +68,7 @@ public abstract class AbstractYamlTranslator extends YamlBaseListener {
      */
     @Override
     public void enterAssign(YamlParser.AssignContext ctx) {
-        String name = getQuotedStringText(ctx.name().getText());
+        String name = getQuotedStringText(ctx.prefix().name().getText());
         PyObject value = getAssignValue(name, ctx);
 
         PyDictionary container = currentDict.peek();
@@ -119,7 +119,7 @@ public abstract class AbstractYamlTranslator extends YamlBaseListener {
      */
     @Override
     public void enterObject(YamlParser.ObjectContext ctx) {
-        String name = getQuotedStringText(ctx.name().getText());
+        String name = getQuotedStringText(ctx.prefix().name().getText());
         PyDictionary objDict;
         if (useOrderedDict) {
             objDict = new PyOrderedDict();

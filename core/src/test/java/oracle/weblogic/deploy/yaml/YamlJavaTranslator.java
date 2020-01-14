@@ -45,22 +45,24 @@ public class YamlJavaTranslator extends YamlBaseListener {
     private String[] ruleNames;
 
     /**
-     * Constructor for parsing YAML file into a Python dictionary and controlling ordering.
+     * Constructor for parsing YAML file into a Java map.
      *
      * @param fileName the name of the existing YAML file to parse
      * @throws IllegalArgumentException if the file name is null or does not point to a valid, existing file.
      */
+    @SuppressWarnings("WeakerAccess")
     public YamlJavaTranslator(String fileName) {
         this.yamlFile = FileUtils.validateExistingFile(fileName);
         this.errorListener = new YamlErrorListener(fileName, false);
     }
 
     /**
-     * This method triggers parsing of the file and conversion into the Python dictionary.
+     * This method triggers parsing of the file and conversion into the Java map.
      *
-     * @return the python dictionary corresponding to the YAML input file
+     * @return the Java map corresponding to the YAML input file
      * @throws YamlException if an error occurs while reading the input file
      */
+    @SuppressWarnings("WeakerAccess")
     public Map<String, Object> parse() throws YamlException {
         final String METHOD = "parse";
         LOGGER.entering(CLASS, METHOD);
@@ -94,12 +96,12 @@ public class YamlJavaTranslator extends YamlBaseListener {
         return fileDict;
     }
 
-    public void checkForParseErrors() throws Exception {
+    void checkForParseErrors() {
         int errorCount = errorListener.getErrorCount();
         Assert.assertEquals("Parser error count was " + errorCount, 0, errorCount);
     }
 
-    public void ensureStackIsEmpty() {
+    void ensureStackIsEmpty() {
         Assert.assertTrue("currentDict stack is not empty", currentDict.isEmpty());
     }
 
@@ -157,7 +159,7 @@ public class YamlJavaTranslator extends YamlBaseListener {
 
     @Override
     public void enterObject(YamlParser.ObjectContext ctx) {
-        String name = StringUtils.stripQuotes(ctx.name().getText());
+        String name = StringUtils.stripQuotes(ctx.prefix().name().getText());
         Map<String, Object> objDict = new HashMap<>();
 
         Map<String, Object> container = currentDict.peek();
@@ -191,7 +193,7 @@ public class YamlJavaTranslator extends YamlBaseListener {
 
     @Override public void enterEveryRule(ParserRuleContext ctx) {
         if(DEBUG) {
-            System.err.println("RULE: " + ctx.toString(Arrays.asList(ruleNames))
+            LOGGER.info("RULE: " + ctx.toString(Arrays.asList(ruleNames))
                     + " " + ctx.getText() + " " + ctx.getStart() + " " + ctx.getChildCount());
         }
     }
@@ -202,7 +204,7 @@ public class YamlJavaTranslator extends YamlBaseListener {
 
     private String getAssignName(YamlParser.AssignContext ctx) {
         String name = null;
-        String text = ctx.name().getText();
+        String text = ctx.prefix().name().getText();
         if (!StringUtils.isEmpty(text)) {
             name = StringUtils.stripQuotes(text.trim());
         }

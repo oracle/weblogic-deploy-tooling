@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
 grammar Yaml;
@@ -84,7 +84,7 @@ statement
     ;
 
 assign
-    : name ASSIGN_OP value WS? COMMENT? NEWLINE?
+    : prefix value WS? COMMENT? COMMENT_LINE* NEWLINE
     ;
 
 list_item
@@ -94,12 +94,16 @@ list_item
     ;
 
 object
-    : name BLOCK_OP COMMENT? obj_block
+    : prefix COMMENT? COMMENT_LINE* obj_block
     ;
 
 obj_block
     : NEWLINE INDENT statement+ DEDENT
     | NEWLINE                                    // Handle an object with no attributes specified
+    ;
+
+prefix
+    : name ASSIGN_OP
     ;
 
 name
@@ -128,7 +132,13 @@ inline_list_item
     ;
 
 COMMENT
-    : '# ' ~[\r\n\f]+ NEWLINE -> skip
+    : '#' ~[\r\n\f]* -> skip
+    ;
+
+// look for new lines with comments.
+// don't close with NEWLINE, since we don't want to dedent yet.
+COMMENT_LINE
+    : NEWLINE WS? '#' ~('\n' | '\r' | '\f')* -> skip
     ;
 
 NULL
@@ -192,6 +202,10 @@ NEWLINE
         String spaces = getText().replaceAll("[\r\n\f]+", "");
 
         int next = _input.LA(1);
+
+        // if opened > 0, we're in a square-bracket list.
+        // if next character is end-of-line, this was a blank line.
+        // in either case, don't check for indent, dedent.
         if (opened > 0 || next == '\r' || next == '\n' || next == '\f') {
             skip();
         } else {
@@ -233,10 +247,6 @@ LIST_ITEM_OP
     ;
 
 ASSIGN_OP
-    : WS? ': ' WS?
-    ;
-
-BLOCK_OP
     : WS? ':' WS?
     ;
 
