@@ -1,9 +1,7 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-
-import oracle.weblogic.deploy.util.StringUtils as StringUtils
 
 import wlsdeploy.tool.deploy.deployer_utils as deployer_utils
 import wlsdeploy.util.dictionary_utils as dictionary_utils
@@ -17,6 +15,7 @@ from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
+from wlsdeploy.util import model_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
@@ -113,7 +112,7 @@ class TopologyHelper(object):
 
             name_nodes = dictionary_utils.get_dictionary_element(model_nodes, model_type)
             for name in name_nodes.keys():
-                if deployer_utils.is_delete_name(name):
+                if model_helper.is_delete_name(name):
                     # don't create placeholder for delete names
                     continue
 
