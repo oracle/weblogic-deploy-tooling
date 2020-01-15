@@ -84,7 +84,7 @@ statement
     ;
 
 assign
-    : prefix value WS? COMMENT? COMMENT_LINE* NEWLINE
+    : name ASSIGN_OP value WS? COMMENT? COMMENT_LINE* NEWLINE
     ;
 
 list_item
@@ -94,7 +94,7 @@ list_item
     ;
 
 object
-    : prefix COMMENT? COMMENT_LINE* obj_block
+    : name ASSIGN_OP COMMENT? COMMENT_LINE* obj_block
     ;
 
 obj_block
@@ -104,9 +104,9 @@ obj_block
 
 // the prefix for an assignment or open block, such as "domainInfo: ".
 // an extra level is needed here to prevent ambiguity in those two cases.
-prefix
-    : name ASSIGN_OP
-    ;
+//prefix
+//    : name ASSIGN_OP
+//    ;
 
 name
     : NAME

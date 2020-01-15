@@ -68,7 +68,7 @@ public abstract class AbstractYamlTranslator extends YamlBaseListener {
      */
     @Override
     public void enterAssign(YamlParser.AssignContext ctx) {
-        String name = getQuotedStringText(ctx.prefix().name().getText());
+        String name = getQuotedStringText(ctx.name().getText());
         PyObject value = getAssignValue(name, ctx);
 
         PyDictionary container = currentDict.peek();
@@ -119,7 +119,7 @@ public abstract class AbstractYamlTranslator extends YamlBaseListener {
      */
     @Override
     public void enterObject(YamlParser.ObjectContext ctx) {
-        String name = getQuotedStringText(ctx.prefix().name().getText());
+        String name = getQuotedStringText(ctx.name().getText());
         PyDictionary objDict;
         if (useOrderedDict) {
             objDict = new PyOrderedDict();

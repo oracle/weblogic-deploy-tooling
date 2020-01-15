@@ -159,7 +159,7 @@ public class YamlJavaTranslator extends YamlBaseListener {
 
     @Override
     public void enterObject(YamlParser.ObjectContext ctx) {
-        String name = StringUtils.stripQuotes(ctx.prefix().name().getText());
+        String name = StringUtils.stripQuotes(ctx.name().getText());
         Map<String, Object> objDict = new HashMap<>();
 
         Map<String, Object> container = currentDict.peek();
@@ -204,7 +204,7 @@ public class YamlJavaTranslator extends YamlBaseListener {
 
     private String getAssignName(YamlParser.AssignContext ctx) {
         String name = null;
-        String text = ctx.prefix().name().getText();
+        String text = ctx.name().getText();
         if (!StringUtils.isEmpty(text)) {
             name = StringUtils.stripQuotes(text.trim());
         }
