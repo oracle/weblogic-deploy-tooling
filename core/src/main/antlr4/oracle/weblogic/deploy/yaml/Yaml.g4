@@ -102,12 +102,6 @@ obj_block
     | NEWLINE                                    // Handle an object with no attributes specified
     ;
 
-// the prefix for an assignment or open block, such as "domainInfo: ".
-// an extra level is needed here to prevent ambiguity in those two cases.
-//prefix
-//    : name ASSIGN_OP
-//    ;
-
 name
     : NAME
     ;
