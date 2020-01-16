@@ -186,7 +186,7 @@ class PythonToYaml(object):
                 subkey1: value1
                 subkey2: value2
 
-        :param dictionary: the Python dictionarhy to converty
+        :param dictionary: the Python dictionary to convert
         :param writer: the java.io.PrintWriter for the output file
         :param indent: the amount of indent to use (based on the level of recursion)
         :raises: IOException: if an error occurs while writing the output
