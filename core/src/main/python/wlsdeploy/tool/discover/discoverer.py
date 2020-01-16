@@ -390,8 +390,8 @@ class Discoverer(object):
                     if self._alias_helper.is_custom_folder_allowed(location):
                         _logger.fine('WLSDPLY-06148', model_subfolder_type, massaged, location.get_folder_path(),
                                      class_name=_class_name, method_name=_method_name)
-                        subfolder_result = self._custom_folder.discover_custom_mbean(location, model_subfolder_type,
-                                                                                     massaged)
+                        subfolder_result.update(
+                            self._custom_folder.discover_custom_mbean(location, model_subfolder_type, massaged))
                     else:
                         _logger.warning('WLSDPLY-06123', self._alias_helper.get_model_folder_path(location),
                                         class_name=_class_name, method_name=_method_name)
