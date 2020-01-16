@@ -1,10 +1,12 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 # lists may be represented in the model as comma-separated strings
 MODEL_LIST_DELIMITER = ','
+KSS_KEYSTORE_TYPE = 'kss'
+KSS_KEYSTORE_FILE_INDICATOR = 'kss:'
 
 
 # names of model elements, alphabetically

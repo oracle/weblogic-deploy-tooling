@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -9,6 +9,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_utils
+from wlsdeploy.util import string_utils
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -22,6 +23,7 @@ class ModelContext(object):
     __ORACLE_HOME_TOKEN = '@@ORACLE_HOME@@'
     __WL_HOME_TOKEN = '@@WL_HOME@@'
     __DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
+    __JAVA_HOME_TOKEN = '@@JAVA_HOME@@'
     __CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
     __TEMP_DIRECTORY_TOKEN = '@@TMP@@'
 
@@ -511,10 +513,11 @@ class ModelContext(object):
         :return: true if the path begins with a known prefix, false otherwise
         """
         return path.startswith(self.__ORACLE_HOME_TOKEN) or \
-               path.startswith(self.__WL_HOME_TOKEN) or \
-               path.startswith(self.__DOMAIN_HOME_TOKEN) or \
-               path.startswith(self.__CURRENT_DIRECTORY_TOKEN) or \
-               path.startswith(self.__TEMP_DIRECTORY_TOKEN)
+            path.startswith(self.__WL_HOME_TOKEN) or \
+            path.startswith(self.__DOMAIN_HOME_TOKEN) or \
+            path.startswith(self.__JAVA_HOME_TOKEN) or \
+            path.startswith(self.__CURRENT_DIRECTORY_TOKEN) or \
+            path.startswith(self.__TEMP_DIRECTORY_TOKEN)
 
     def replace_tokens(self, resource_type, resource_name, attribute_name, resource_dict):
         """
@@ -542,6 +545,12 @@ class ModelContext(object):
                               self.get_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
             resource_dict[attribute_name] = attribute_value.replace(self.__DOMAIN_HOME_TOKEN,
                                                                     self.get_domain_home())
+        elif attribute_value.startswith(self.__JAVA_HOME_TOKEN):
+            message = "Replacing {0} in {1} {2} {3} with {4}"
+            self._logger.fine(message, self.__JAVA_HOME_TOKEN, resource_type, resource_name, attribute_name,
+                              self.get_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
+            resource_dict[attribute_name] = attribute_value.replace(self.__JAVA_HOME_TOKEN,
+                                                                    self.get_java_home())
         elif attribute_value.startswith(self.__CURRENT_DIRECTORY_TOKEN):
             cwd = path_utils.fixup_path(os.getcwd())
             message = "Replacing {0} in {1} {2} {3} with {4}"
@@ -571,6 +580,8 @@ class ModelContext(object):
             result = _replace(string_value, self.__WL_HOME_TOKEN, self.get_wl_home())
         elif string_value.startswith(self.__DOMAIN_HOME_TOKEN):
             result = _replace(string_value, self.__DOMAIN_HOME_TOKEN, self.get_domain_home())
+        elif string_value.startswith(self.__JAVA_HOME_TOKEN):
+            result = _replace(string_value, self.__JAVA_HOME_TOKEN, self.get_java_home())
         elif string_value.startswith(self.__CURRENT_DIRECTORY_TOKEN):
             result = _replace(string_value, self.__CURRENT_DIRECTORY_TOKEN, path_utils.fixup_path(os.getcwd()))
         elif string_value.startswith(self.__TEMP_DIRECTORY_TOKEN):
@@ -589,18 +600,24 @@ class ModelContext(object):
         :return: tokenized path or original path
         """
         my_path = path_utils.fixup_path(path)
+        wl_home = path_utils.fixup_path(self.get_wl_home())
+        domain_home = path_utils.fixup_path(self.get_domain_home())
+        oracle_home = path_utils.fixup_path(self.get_oracle_home())
+        java_home = path_utils.fixup_path(self.get_java_home())
         tmp_dir = path_utils.fixup_path(tempfile.gettempdir())
         cwd = path_utils.fixup_path(os.path.dirname(os.path.abspath(__file__)))
 
         # decide later what is required to be in context home for appropriate exception prevention
         result = my_path
-        if my_path:
-            if self.get_wl_home() and my_path.startswith(self.get_wl_home()):
-                result = my_path.replace(self.get_wl_home(), self.__WL_HOME_TOKEN)
-            elif self.get_domain_home() and  my_path.startswith(self.get_domain_home()):
-                result = my_path.replace(self.get_domain_home(), self.__DOMAIN_HOME_TOKEN)
-            elif self.get_oracle_home() and my_path.startswith(self.get_oracle_home()):
-                result = my_path.replace(self.get_oracle_home(), self.__ORACLE_HOME_TOKEN)
+        if not string_utils.is_empty(my_path):
+            if wl_home is not None and my_path.startswith(wl_home):
+                result = my_path.replace(wl_home, self.__WL_HOME_TOKEN)
+            elif domain_home is not None and my_path.startswith(domain_home):
+                result = my_path.replace(domain_home, self.__DOMAIN_HOME_TOKEN)
+            elif oracle_home is not None and my_path.startswith(oracle_home):
+                result = my_path.replace(oracle_home, self.__ORACLE_HOME_TOKEN)
+            elif java_home is not None and my_path.startswith(java_home):
+                result = my_path.replace(java_home, self.__JAVA_HOME_TOKEN)
             elif my_path.startswith(cwd):
                 result = my_path.replace(cwd, self.__CURRENT_DIRECTORY_TOKEN)
             elif my_path.startswith(tmp_dir):

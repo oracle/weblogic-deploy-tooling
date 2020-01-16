@@ -43,6 +43,7 @@ from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
+from wlsdeploy.aliases.alias_constants import STRING
 from wlsdeploy.aliases.alias_constants import USES_PATH_TOKENS
 from wlsdeploy.aliases.alias_constants import VALUE
 from wlsdeploy.aliases.alias_constants import WLST_NAME
@@ -957,6 +958,9 @@ class Aliases(object):
                 # always the model delimiter
                 default_value = alias_utils.convert_to_type(model_type, default_value, delimiter=MODEL_LIST_DELIMITER)
 
+            if attribute_info[WLST_TYPE] == STRING:
+                default_value = alias_utils.replace_tokens_in_path(location, default_value)
+
             if model_type == 'password':
                 if string_utils.is_empty(wlst_attribute_value) or converted_value == default_value:
                     model_attribute_value = None
@@ -976,13 +980,18 @@ class Aliases(object):
                 if default_value == '[]' or default_value == 'None':
                     model_attribute_value = None
 
+            elif self._model_context is not None and USES_PATH_TOKENS in attribute_info:
+                if attribute_info[WLST_TYPE] == STRING:
+                    model_attribute_value = self._model_context.tokenize_path(converted_value)
+                else:
+                    model_attribute_value = self._model_context.tokenize_classpath(converted_value)
+                if model_attribute_value == default_value:
+                    model_attribute_value = None
             elif str(converted_value) != str(default_value):
                 if _strings_are_empty(converted_value, default_value):
                     model_attribute_value = None
                 else:
                     model_attribute_value = converted_value
-                    if self._model_context and USES_PATH_TOKENS in attribute_info:
-                        model_attribute_value = self._model_context.tokenize_path(model_attribute_value)
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name,
                              result={model_attribute_name: model_attribute_value})
@@ -1252,6 +1261,14 @@ class Aliases(object):
         return rtnval
 
 
+def _convert_to_string(value):
+    if type(value) in [str, unicode]:
+        str_converted_value = value
+    else:
+        str_converted_value = str(value)
+    return str_converted_value
+
+
 def _strings_are_empty(converted_value, default_value):
     """
     Test converted and default values to see if they are both either None or an empty string
@@ -1259,15 +1276,8 @@ def _strings_are_empty(converted_value, default_value):
     :param default_value: the default value
     :return:
     """
-    if type(converted_value) is str:
-        str_converted_value = converted_value
-    else:
-        str_converted_value = str(converted_value)
-
-    if type(default_value) is str:
-        str_default_value = default_value
-    else:
-        str_default_value = str(default_value)
+    str_converted_value = _convert_to_string(converted_value)
+    str_default_value = _convert_to_string(default_value)
 
     if str_default_value == 'None':
         str_default_value = None

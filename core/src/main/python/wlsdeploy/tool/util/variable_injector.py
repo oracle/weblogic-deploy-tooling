@@ -37,6 +37,7 @@ VARIABLE_INJECTOR_FILE_NAME_ARG = 'variable_injector_file_name'
 VARIABLE_KEYWORDS_FILE_NAME_ARG = 'variable_keywords_file_name'
 VARIABLE_INJECTOR_FILES_PATH_ARG = 'variable_injector_files_path_name'
 VARIABLE_FILE_NAME_ARG = 'variable_file_name'
+VARIABLE_FILE_SWITCH = 'variable_file'
 VARIABLE_FILE_NAME = 'variable.properties'
 VARIABLE_FILE_APPEND_ARG = 'append_to_variables'
 VARIABLE_FILE_APPEND = 'append'
@@ -388,8 +389,9 @@ class VariableInjector(object):
                 if last_folder_short is not None:
                     name_list.insert(0, last_folder_short)
                 try:
-                    if self.__aliases.supports_multiple_mbean_instances(iterate_location) or \
-                            self.__aliases.is_custom_folder_allowed(iterate_location):
+                    if not self.__aliases.is_artificial_type_folder(location) and \
+                              (self.__aliases.supports_multiple_mbean_instances(iterate_location) or
+                                self.__aliases.is_custom_folder_allowed(iterate_location)):
                         name_token = self.__aliases.get_name_token(iterate_location)
                         name = iterate_location.get_name_for_token(name_token)
                         name_list.insert(0, name)
@@ -603,7 +605,9 @@ class VariableInjector(object):
 
     def _get_variable_file_name(self, **kwargs):
         _method_name = '_get_variable_file_name'
-        if VARIABLE_FILE_NAME_ARG in kwargs:
+        if self.__model_context is not None and self.__model_context.get_variable_file() is not None:
+            variable_file_location = self.__model_context.get_variable_file()
+        elif VARIABLE_FILE_NAME_ARG in kwargs:
             variable_file_location = kwargs[VARIABLE_FILE_NAME_ARG]
             _logger.finer('WLSDPLY-19522', variable_file_location, class_name=_class_name, method_name=_method_name)
         else:
@@ -894,10 +898,7 @@ def sort_dictionary_by_keys(dictionary):
     sorted_props = dictionary.keys()
     sorted_props.sort()
     for prop in sorted_props:
-        print '******* what is the order ? ', prop
         sorted_dict[prop] = dictionary[prop]
-    for key, value in sorted_dict.iteritems():
-        print key, '=', value
     return sorted_dict
 
 

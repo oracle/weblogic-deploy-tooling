@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -11,6 +11,7 @@ from java.io import File
 from java.io import FileInputStream
 from java.io import FileOutputStream
 from java.io import FileReader
+from java.io import PrintWriter
 from java.io import IOException
 from java.util import Properties
 
@@ -22,9 +23,8 @@ from wlsdeploy.logging import platform_logger
 
 _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
-_variable_pattern = re.compile("\\$\\{[\w.-]+\\}")
 _file_variable_pattern = re.compile("@@FILE:[\w.\\\/:-]+@@")
-_property_pattern = re.compile("@@PROP:[\w.-]+@@")
+_property_pattern = re.compile("(@@PROP:([\\w.-]+)@@)")
 _file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
 
 
@@ -70,23 +70,56 @@ def write_variables(program_name, variable_map, file_path, append=False):
     """
     _method_name = 'write_variables'
     _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
-    props = Properties()
-    for key, value in variable_map.items():
-        props.setProperty(key, value)
+    if isinstance(variable_map, OrderedDict):
+        write_ordered_variables(program_name, variable_map, file_path, append)
+    else:
+        props = Properties()
+        for key, value in variable_map.items():
+            props.setProperty(key, value)
 
-    comment = exception_helper.get_message('WLSDPLY-01731', program_name)
-    output_stream = None
+        comment = exception_helper.get_message('WLSDPLY-01731', program_name)
+        output_stream = None
+        try:
+            output_stream = FileOutputStream(File(file_path), Boolean(append))
+            props.store(output_stream, comment)
+            output_stream.close()
+        except IOException, ioe:
+            _logger.fine('WLSDPLY-20007', file_path, ioe.getLocalizedMessage())
+            ex = exception_helper.create_variable_exception('WLSDPLY-20007', file_path,
+                                                            ioe.getLocalizedMessage(), error=ioe)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            if output_stream is not None:
+                output_stream.close()
+            raise ex
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+    return
+
+
+def write_ordered_variables(program_name, variable_map, file_path, append=False):
+    """
+    Write variables to file while preserving order of the variables.
+    :param program_name: name of the calling program
+    :param variable_map: map or variable properties to write to file
+    :param file_path: the file to which to write the properties
+    :param append: defaults to False. Append properties to the end of file
+    :raises VariableException if an error occurs while storing the variables in the file
+    """
+    _method_name = 'write_ordered_variables'
+    _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
+    pw = None
     try:
-        output_stream = FileOutputStream(File(file_path), Boolean(append))
-        props.store(output_stream, comment)
-        output_stream.close()
+        pw = PrintWriter(FileOutputStream(File(file_path), Boolean(append)), Boolean('true'))
+        for key, value in variable_map.iteritems():
+            formatted = '%s=%s' % (key, value)
+            pw.println(formatted)
+        pw.close()
     except IOException, ioe:
         _logger.fine('WLSDPLY-20007', file_path, ioe.getLocalizedMessage())
         ex = exception_helper.create_variable_exception('WLSDPLY-20007', file_path,
                                                         ioe.getLocalizedMessage(), error=ioe)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        if output_stream is not None:
-            output_stream.close()
+        if pw is not None:
+            pw.close()
         raise ex
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
@@ -119,17 +152,10 @@ def get_variable_names(text):
     :return: a list of variable names
     """
     names = []
-    if '${' in text:
-        tokens = _variable_pattern.findall(text)
-        if tokens is not None:
-            for token in tokens:
-                names.append(token[2:-1])
-
     if '@@' in text:
-        tokens = _property_pattern.findall(text)
-        if tokens:
-            for token in tokens:
-                names.append(token[7:-2])
+        matches = _property_pattern.findall(text)
+        for token, key in matches:
+            names.append(key)
 
     return names
 
@@ -167,6 +193,13 @@ def _process_node(nodes, variables, model_context):
 
         if isinstance(value, dict):
             _process_node(value, variables, model_context)
+
+        elif isinstance(value, list):
+            for member in value:
+                if type(member) in [str, unicode]:
+                    index = value.index(member)
+                    value[index] = _substitute(member, variables, model_context)
+
         elif type(value) in [str, unicode]:
             nodes[key] = _substitute(value, variables, model_context)
 
@@ -181,40 +214,25 @@ def _substitute(text, variables, model_context):
     """
     method_name = '_substitute'
 
-    if '${' in text:
-        tokens = _variable_pattern.findall(text)
-        if tokens:
-            for token in tokens:
-                key = token[2:-1]
-                # for ${key} variables, leave them in place if not defined.
-                # there are cases where WebLogic allows ${key} values, such as server templates.
-                # ${key} substitution is deprecated, so log if replacement occurs.
-                if key in variables:
-                    value = variables[key]
-                    text = text.replace(token, value)
-                    _logger.info('WLSDPLY-01735', token, key, method_name=method_name, class_name=_class_name)
-
     # skip lookups for text with no @@
     if '@@' in text:
 
         # do properties first, to cover the case @@FILE:/dir/@@PROP:name@@.txt@@
-        tokens = _property_pattern.findall(text)
-        if tokens:
-            for token in tokens:
-                key = token[7:-2]
-                # for @@PROP:key@@ variables, throw an exception if key is not found.
-                if key not in variables:
-                    if model_context.get_validation_method() == 'strict':
-                        _logger.severe('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
-                        ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
-                        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-                        raise ex
-                    else:
-                        _logger.info('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
-                        continue
-                            
-                value = variables[key]
-                text = text.replace(token, value)
+        matches = _property_pattern.findall(text)
+        for token, key in matches:
+            # log, or throw an exception if key is not found.
+            if key not in variables:
+                if model_context.get_validation_method() == 'strict':
+                    _logger.severe('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
+                    ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
+                    _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+                    raise ex
+                else:
+                    _logger.info('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
+                    continue
+
+            value = variables[key]
+            text = text.replace(token, value)
 
         tokens = _file_variable_pattern.findall(text)
         if tokens:
@@ -272,16 +290,33 @@ def substitute_key(text, variables):
     """
     Substitute any @@PROP values in the text and return.
     If the corresponding variable is not found, leave the @@PROP value in place.
-    The deprecated ${} notation is not resolved.
     :param text: the text to be evaluated
     :param variables: the variable map
     :return: the substituted text value
     """
-    tokens = _property_pattern.findall(text)
-    if tokens:
-        for token in tokens:
-            key = token[7:-2]
-            if key in variables:
-                value = variables[key]
-                text = text.replace(token, value)
+    matches = _property_pattern.findall(text)
+    for token, key in matches:
+        if key in variables:
+            value = variables[key]
+            text = text.replace(token, value)
     return text
+
+
+def has_variables(text):
+    """
+    Determine if the specified text contains any variable references.
+    :param text: the text to be evaluated
+    :return: True if the text contains variable references, False otherwise
+    """
+    matches = _property_pattern.findall(text)
+    return len(matches) > 0
+
+
+def get_variable_matches(text):
+    """
+    Return a list containing a tuple for each property key in the specified text.
+    Each tuple contains the full expression (@@PROP:<key>@@) and just the key (<key>).
+    :param text: the text to be evaluated
+    :return: a list of tuples
+    """
+    return _property_pattern.findall(text)

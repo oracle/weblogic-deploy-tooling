@@ -78,7 +78,7 @@ class AliasEntries(object):
     This class is intended only for use by aliases.py.  Other uses of this class violate
     encapsulation and should be avoided.
     """
-    IGNORE_FOR_MODEL_LIST = ['DynamicallyCreated', 'Id', 'Tag', 'Tags', 'Type', 'Name', 'Parent']
+    IGNORE_FOR_MODEL_LIST = ['DescriptorFileName', 'DynamicallyCreated', 'Id', 'Tag', 'Tags', 'Type', 'Name', 'Parent']
 
     __category_modules_dir_name = 'oracle/weblogic/deploy/aliases/category_modules/'
     __domain_category = 'Domain'
@@ -761,7 +761,8 @@ class AliasEntries(object):
 
         _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
-        if self._is_wlst_attribute_skipped(folder_dict, wlst_attribute_name):
+        if self._is_wlst_attribute_skipped(folder_dict, wlst_attribute_name) or \
+                self._is_wlst_attribute_ignored(wlst_attribute_name):
             result = None
         elif folder_dict is not None and WLST_NAMES_MAP in folder_dict:
             if wlst_attribute_name in folder_dict[WLST_NAMES_MAP]:
@@ -1512,6 +1513,11 @@ class AliasEntries(object):
         skip_names = dictionary_utils.get_element(folder_dict, WLST_SKIP_NAMES)  # type: list
         if skip_names is not None:
             return wlst_attribute_name in skip_names
+        return False
+
+    def _is_wlst_attribute_ignored(self, wlst_attribute_name):
+        if wlst_attribute_name in self.IGNORE_FOR_MODEL_LIST:
+            return True
         return False
 
     def __get_path_for_location(self, location, path_type=WLST_ATTRIBUTES_PATH):

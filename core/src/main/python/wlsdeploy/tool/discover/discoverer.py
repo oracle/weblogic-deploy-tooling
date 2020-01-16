@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -390,8 +390,8 @@ class Discoverer(object):
                     if self._alias_helper.is_custom_folder_allowed(location):
                         _logger.fine('WLSDPLY-06148', model_subfolder_type, massaged, location.get_folder_path(),
                                      class_name=_class_name, method_name=_method_name)
-                        subfolder_result = self._custom_folder.discover_custom_mbean(location, model_subfolder_type,
-                                                                                     massaged)
+                        subfolder_result.update(
+                            self._custom_folder.discover_custom_mbean(location, model_subfolder_type, massaged))
                     else:
                         _logger.warning('WLSDPLY-06123', self._alias_helper.get_model_folder_path(location),
                                         class_name=_class_name, method_name=_method_name)
@@ -578,7 +578,7 @@ class Discoverer(object):
         :param file_name: to check for oracle home or weblogic home
         :return: true if in oracle home location
         """
-        py_str = str(file_name)
+        py_str = path_utils.fixup_path(str(file_name))
         return (not py_str.startswith(self._model_context.get_domain_home())) and \
             (py_str.startswith(self._model_context.get_oracle_home()) or
              py_str.startswith(self._model_context.get_wl_home()))

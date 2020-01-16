@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
@@ -47,17 +47,6 @@ class VariablesTestCase(unittest.TestCase):
         self.assertEqual(True, 'myCluster' in model['topology']['Cluster'])
         self.assertEqual(True, 's3' in model['topology']['Server'])
 
-    def testVariableNotFound(self):
-        """
-        For ${key} substitution, no replacement is done, and no error is reported, if variable not found.
-        ${key} substitution is deprecated.
-        """
-        model = FileToPython(self._resources_dir + '/variables-test.json', self._use_ordering).parse()
-        model['topology']['Name'] = '${bad.variable}'
-        variable_map = variables.load_variables(self._variables_file)
-        variables.substitute(model, variable_map, self.model_context)
-        self.assertEqual(model['topology']['Name'], '${bad.variable}')
-
     def testPropertyNotFound(self):
         """
         For @@PROP:key@@ substitution, an exception is thrown if variable not found.
@@ -79,7 +68,7 @@ class VariablesTestCase(unittest.TestCase):
         self.assertEqual(model['domainInfo']['AdminUserName'], 'file-variable-value')
 
     def testFileVariableWithVariable(self):
-        model = {'domainInfo': {'AdminUserName': '@@FILE:${variable_dir}/' + self._file_variable_name + '@@'}}
+        model = {'domainInfo': {'AdminUserName': '@@FILE:@@PROP:variable_dir@@/' + self._file_variable_name + '@@'}}
         variables.substitute(model, {'variable_dir': self._resources_dir}, self.model_context)
         self.assertEqual(model['domainInfo']['AdminUserName'], 'file-variable-value')
 

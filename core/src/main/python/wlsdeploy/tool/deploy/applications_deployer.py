@@ -1,16 +1,18 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
 import os
 from java.io import ByteArrayOutputStream
 from java.io import File
+from java.io import FileInputStream
 from java.io import FileNotFoundException
 from java.io import IOException
 from java.lang import IllegalStateException
 from java.security import NoSuchAlgorithmException
 from java.util.jar import JarFile
+from java.util.jar import Manifest
 from java.util.zip import ZipException
 from sets import Set
 from wlsdeploy.aliases.location_context import LocationContext
@@ -164,7 +166,7 @@ class ApplicationsDeployer(Deployer):
 
             if deployer_utils.is_path_into_archive(app_source_path):
                 if self.archive_helper is not None:
-                    self.archive_helper.extract_file(app_source_path)
+                    self.__extract_source_path_from_archive(app_source_path, APPLICATION, application_name)
                 else:
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09303', application_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
@@ -567,14 +569,23 @@ class ApplicationsDeployer(Deployer):
                         self.model_context.replace_tokens(APPLICATION, app, param, app_dict)
 
                 if app in existing_apps:
+                    # Compare the hashes of the domain's existing apps to the model's apps.
+                    # If they match, remove them from the list to be deployed.
+                    # If they are different, stop and un-deploy the app, and leave it in the list.
+
                     existing_app_ref = dictionary_utils.get_dictionary_element(existing_app_refs, app)
                     plan_path = dictionary_utils.get_element(existing_app_ref, 'planPath')
                     src_path = dictionary_utils.get_element(existing_app_ref, 'sourcePath')
 
-                    model_src_hash = \
-                        self.__get_hash(dictionary_utils.get_element(app_dict, SOURCE_PATH))
-                    model_plan_hash = \
-                        self.__get_hash(dictionary_utils.get_element(app_dict, PLAN_PATH))
+                    model_src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
+
+                    if (model_src_path is not None) and deployer_utils.is_path_into_archive(model_src_path) \
+                            and self.archive_helper.contains_path(model_src_path):
+                        model_src_hash = -1  # don't calculate hash, just ensure that hashes will not match
+                    else:
+                        model_src_hash = self.__get_hash(model_src_path)
+
+                    model_plan_hash = self.__get_hash(dictionary_utils.get_element(app_dict, PLAN_PATH))
 
                     existing_src_hash = self.__get_file_hash(src_path)
                     existing_plan_hash = self.__get_file_hash(plan_path)
@@ -603,6 +614,10 @@ class ApplicationsDeployer(Deployer):
         try:
             if filename is None:
                 return None
+
+            if File(filename).isDirectory():  # can't calculate for exploded apps, libraries, etc.
+                return None
+
             hash_value = FileUtils.computeHash(filename)
         except (IOException, NoSuchAlgorithmException), e:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09309', filename, e.getLocalizedMessage(), error=e)
@@ -734,7 +749,8 @@ class ApplicationsDeployer(Deployer):
                 options = _get_deploy_options(model_apps, app_name, library_module='false')
                 for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
                     if uses_path_tokens_attribute_name in app_dict:
-                        self.__extract_file_from_archive(app_dict[uses_path_tokens_attribute_name])
+                        self.__extract_source_path_from_archive(app_dict[uses_path_tokens_attribute_name],
+                                                                APPLICATION, app_name)
 
                 location.add_name_token(token_name, app_name)
                 resource_group_template_name, resource_group_name, partition_name = \
@@ -823,6 +839,31 @@ class ApplicationsDeployer(Deployer):
             self.archive_helper.extract_file(path)
         return
 
+    def __extract_source_path_from_archive(self, source_path, model_type, model_name):
+        """
+        Extract contents from the archive set for the specified source path.
+        The contents may be a single file, or a directory with exploded content.
+        :param source_path: the path to be extracted (previously checked to be under wlsdeploy)
+        :param model_type: the model type (Application, etc.), used for logging
+        :param model_name: the element name (my-app, etc.), used for logging
+        """
+        _method_name = '__extract_source_path_from_archive'
+
+        # source path may be may be a single file (jar, war, etc.)
+        if self.archive_helper.contains_file(source_path):
+            self.archive_helper.extract_file(source_path)
+
+        # source path may be exploded directory in archive
+        elif self.archive_helper.contains_path(source_path):
+            self.archive_helper.extract_directory(source_path)
+
+        else:
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09330', model_type, model_name, source_path)
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        return
+
     def __get_deployable_library_versioned_name(self, source_path, model_name):
         """
         Get the proper name of the deployable library that WLST requires in the target domain.  This method is
@@ -840,49 +881,28 @@ class ApplicationsDeployer(Deployer):
 
         old_name_tuple = deployer_utils.get_library_name_components(model_name, self.wlst_mode)
         try:
+            versioned_name = old_name_tuple[self._EXTENSION_INDEX]
             source_path = self.model_context.replace_token_string(source_path)
-            archive = JarFile(source_path)
-            manifest_object = archive.getManifest()
-            tokens = []
-            if manifest_object is not None:
-                bao = ByteArrayOutputStream()
-                manifest_object.write(bao)
-                manifest = bao.toString('UTF-8')
-                tokens = manifest.split()
+            manifest = self.__get_manifest(source_path)
+            if manifest is not None:
+                attributes = manifest.getMainAttributes()
 
-            if 'Extension-Name:' in tokens:
-                extension_index = tokens.index('Extension-Name:')
-                if len(tokens) > extension_index:
-                    versioned_name = tokens[extension_index + 1]
-                else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09321', model_name, source_path, tokens)
-                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                    raise ex
-            else:
-                versioned_name = old_name_tuple[self._EXTENSION_INDEX]
+                extension_name = attributes.getValue("Extension-Name")
+                if not string_utils.is_empty(extension_name):
+                    versioned_name = extension_name
 
-            if 'Specification-Version:' in tokens:
-                spec_index = tokens.index('Specification-Version:')
-                if len(tokens) > spec_index:
-                    versioned_name += '#' + tokens[spec_index + 1]
+                specification_version = attributes.getValue("Specification-Version")
+                if not string_utils.is_empty(specification_version):
+                    versioned_name += '#' + specification_version
 
                     # Cannot specify an impl version without a spec version
-                    if 'Implementation-Version:' in tokens:
-                        impl_index = tokens.index('Implementation-Version:')
-                        if len(tokens) > impl_index:
-                            versioned_name += '@' + tokens[impl_index + 1]
-                        else:
-                            ex = exception_helper.create_deploy_exception('WLSDPLY-09322', model_name,
-                                                                          source_path, tokens)
-                            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                            raise ex
-                else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09323', model_name, source_path, tokens)
-                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                    raise ex
+                    implementation_version = attributes.getValue("Implementation-Version")
+                    if not string_utils.is_empty(implementation_version):
+                        versioned_name += '@' + implementation_version
 
-            self.logger.info('WLSDPLY-09324', model_name, versioned_name,
-                             class_name=self._class_name, method_name=_method_name)
+                self.logger.info('WLSDPLY-09324', model_name, versioned_name,
+                                 class_name=self._class_name, method_name=_method_name)
+
         except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09325', model_name, source_path, str(e), error=e)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
@@ -912,8 +932,8 @@ class ApplicationsDeployer(Deployer):
 
         try:
             source_path = self.model_context.replace_token_string(source_path)
-            archive = JarFile(source_path)
-            manifest = archive.getManifest()
+            manifest = self.__get_manifest(source_path)
+
             if manifest is not None:
                 attributes = manifest.getMainAttributes()
                 application_version = attributes.getValue(self._APP_VERSION_MANIFEST_KEY)
@@ -929,6 +949,37 @@ class ApplicationsDeployer(Deployer):
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=versioned_name)
         return versioned_name
+
+    def __get_manifest(self, source_path):
+        """
+        Returns the manifest object for the specified path.
+        The source path may be a jar, or an exploded path.
+        :param source_path: the source path to be checked
+        :return: the manifest, or None if it is not present
+        :raises: IOException: if there are problems reading an existing manifest
+        """
+        source_path_file = File(source_path)
+        manifest = None
+
+        if source_path_file.isDirectory():
+            manifest_file = File(source_path_file, "META-INF/MANIFEST.MF")
+            if manifest_file.exists():
+                stream = None
+                try:
+                    stream = FileInputStream(manifest_file)
+                    manifest = Manifest(stream)
+                finally:
+                    if stream is not None:
+                        try:
+                            stream.close()
+                        except IOException:
+                            # nothing to report
+                            pass
+        else:
+            archive = JarFile(source_path)
+            manifest = archive.getManifest()
+
+        return manifest
 
     def __get_deployment_ordering(self, apps):
         _method_name = '__get_deployment_ordering'

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -377,6 +377,24 @@ public class WLSDeployArchive {
      */
     public String extractFile(String path, File extractToLocation) throws WLSDeployArchiveIOException {
         return extractFile(path, extractToLocation, false);
+    }
+
+    /**
+     * Extract the specified directory to the specified location (which is typically the domain home).  For example,
+     * if the path is wlsdeploy/applications/myapp and the extractToLocation is the domain home, the directory
+     * will be written to $DOMAIN_HOME/wlsdeploy/applications/myapp .
+     *
+     * @param path              the path into the archive file to extract
+     * @param extractToLocation the base directory to which to write the extracted directory.
+     * @return the canonical extracted directory name
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive or writing the directory
+     * @throws IllegalArgumentException    if the path is null or empty or the extractToLocation
+     *                                     was not a valid, existing directory
+     */
+    public String extractDirectory(String path, File extractToLocation) throws WLSDeployArchiveIOException {
+        String result = FileUtils.getCanonicalFile(new File(extractToLocation, path)).getAbsolutePath();
+        this.extractDirectoryFromZip(path, extractToLocation);
+        return result;
     }
 
     /**

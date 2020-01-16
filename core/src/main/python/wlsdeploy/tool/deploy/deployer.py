@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -14,6 +14,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
+from wlsdeploy.util import model_helper
 from wlsdeploy.tool.deploy import log_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
@@ -80,7 +81,7 @@ class Deployer(object):
 
         token = self.alias_helper.get_name_token(location)
         for name in model_nodes:
-            if deployer_utils.is_delete_name(name):
+            if model_helper.is_delete_name(name):
                 deployer_utils.delete_named_element(location, name, existing_names, self.alias_helper)
                 continue
 
@@ -385,6 +386,9 @@ class Deployer(object):
                         # The file does not exist so extract it from the archive.
                         self.archive_helper.extract_file(value)
                         result = True
+        elif self.archive_helper.contains_path(value):
+            # contents should have been extracted elsewhere, such as for apps and shared libraries
+            result = self.__process_directory_entry(fullpath)
         elif value.endswith('/'):
             # If the path is a directory in the wlsdeploy directory tree
             # but not in the archive, just create it to help the user.
