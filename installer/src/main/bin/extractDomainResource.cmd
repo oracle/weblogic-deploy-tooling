@@ -332,7 +332,6 @@ ECHO              -domain_resource_file ^<domain_resource_file^>
 ECHO              [-archive_file ^<archive_file^>]
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
-ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO.
 ECHO     where:
@@ -355,9 +354,6 @@ ECHO.
 ECHO         variable_file   - the location of the property file containing
 ECHO                           the variable values for all variables used in
 ECHO                           the model
-ECHO.
-ECHO         domain_type     - the type of domain (e.g., WLS, JRF).
-ECHO                           Used to locate wlst.cmd if -wlst_path not specified
 ECHO.
 ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa)
