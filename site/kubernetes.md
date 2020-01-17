@@ -19,6 +19,7 @@ metadata:
     name: DemoDomain
 spec:
     domainHome: /u01/mydomain
+    image: '--FIX ME--'
     imagePullSecrets:
     -   name: '--FIX ME--'
     webLogicCredentialsSecret: '--FIX ME--'
@@ -29,7 +30,7 @@ spec:
         replicas: 4
 ```
 
-For this example, the user is expected to fill in the secrets information identified by `--FIX ME--` in the domain resource output. The value for `domainHome` was set from the command line. The `kind` and `name` were set to the domain name derived from the topology section of the model, or the default `base_domain`. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.
+For this example, the user is expected to fill in the image and secrets information identified by `--FIX ME--` in the domain resource output. The value for `domainHome` was set from the command line. The `kind` and `name` were set to the domain name derived from the topology section of the model, or the default `base_domain`. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.
 
 For more advanced configurations, the user can populate the `kubernetes` section of the WDT model, and those values will appear in the resulting domain resources file. This model section overrides and adds some values to the result.
 ```yaml
@@ -38,6 +39,7 @@ kubernetes:
         name: myName
         namespace: myNamespace
     spec:
+        image: 'my.repo/my-image:2.0'
         imagePullSecrets:
             WEBLOGIC_IMAGE_PULL_SECRET_NAME:
         webLogicCredentialsSecret:
@@ -56,6 +58,7 @@ metadata:
     name: myName
     namespace: myNamespace
 spec:
+    image: 'my.repo/my-image:2.0'
     imagePullSecrets:
     -   name: WEBLOGIC_IMAGE_PULL_SECRET_NAME
     webLogicCredentialsSecret:
