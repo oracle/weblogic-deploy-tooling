@@ -28,6 +28,7 @@ CHANNELS = 'channels'
 CLUSTERS = 'clusters'
 CLUSTER_NAME = 'clusterName'
 DOMAIN_HOME = 'domainHome'
+IMAGE = 'image'
 IMAGE_PULL_SECRETS = 'imagePullSecrets'
 K_NAME = 'name'
 KIND = 'kind'
@@ -40,6 +41,7 @@ WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 DEFAULT_API_VERSION = 'weblogic.oracle/v6'
 DEFAULT_KIND = 'Domain'
 DEFAULT_WEBLOGIC_CREDENTIALS_SECRET = PASSWORD_TOKEN
+DEFAULT_IMAGE = PASSWORD_TOKEN
 
 
 class DomainResourceExtractor:
@@ -207,6 +209,10 @@ class DomainResourceExtractor:
         # only set domain home if it is not present in spec section
         if DOMAIN_HOME not in spec_section:
             spec_section[DOMAIN_HOME] = self._model_context.get_domain_home()
+
+        # only set image if it is not present in spec section
+        if IMAGE not in spec_section:
+            spec_section[IMAGE] = DEFAULT_IMAGE
 
         # if imagePullSecrets not present, add a list with one FIX ME value
         if IMAGE_PULL_SECRETS not in spec_section:
