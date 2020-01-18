@@ -133,7 +133,7 @@ ATSTART
     : {atStartOfInput()}? ( (COMMENT | WS*) ('\r'? '\n' | '\r' | '\f') )+  -> skip
     ;
 
-// comments may appear on separate lines, or on the same line as an assignments or object starts.
+// comments may appear on separate lines, or on the same line as assignments or object starts.
 // don't close with NEWLINE here, needed to distinguish assign from object declaration.
 COMMENT
     : WS? '#' ~[\r\n\f]*  -> skip
