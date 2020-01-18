@@ -35,7 +35,7 @@ public class YamlParserCommentTest {
     }
 
     @Test
-    public void testParseComments() throws Exception {
+    public void testParseComments() {
         translator.checkForParseErrors();
         if (DEBUG) {
             StringBuilder builder = new StringBuilder("\n");
@@ -49,10 +49,10 @@ public class YamlParserCommentTest {
         for(Object key: map.keySet()) {
             Object value = map.get(key);
             if(value instanceof Map) {
-                builder.append(indent + key + ":\n");
+                builder.append(indent).append(key).append(":\n");
                 dumpMap((Map<?, ?>) value, builder, indent + "    ");
             } else {
-                builder.append(indent + key + ": " + value + "\n");
+                builder.append(indent).append(key).append(": ").append(value).append("\n");
             }
         }
     }
