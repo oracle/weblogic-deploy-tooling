@@ -84,17 +84,17 @@ statement
     ;
 
 assign
-    : name ASSIGN_OP value WS? COMMENT? COMMENT_LINE* NEWLINE
+    : name ASSIGN_OP value COMMENT? NEWLINE
     ;
 
 list_item
     : LIST_ITEM_OP assign                         # YamlListItemAssign
-    | LIST_ITEM_OP value WS? COMMENT? NEWLINE?    # YamlListItemValue
+    | LIST_ITEM_OP value COMMENT? NEWLINE?        # YamlListItemValue
     | LIST_ITEM_OP object                         # YamlListItemObject
     ;
 
 object
-    : name ASSIGN_OP COMMENT? COMMENT_LINE* obj_block
+    : name ASSIGN_OP COMMENT? obj_block
     ;
 
 obj_block
@@ -127,16 +127,16 @@ inline_list_item
     : (NEWLINE (INDENT)?)? value
     ;
 
-// look for trailing comments after assignment or open block.
-// don't close with NEWLINE, since we don't want to dedent yet.
-COMMENT
-    : '#' ~[\r\n\f]* -> skip
+// comments and blank lines before the first element avoid use of NEWLINE so there is no indent/dedent.
+// this rule should be one of the first in this file, to override later definitions.
+ATSTART
+    : {atStartOfInput()}? ( (COMMENT | WS*) ('\r'? '\n' | '\r' | '\f') )+  -> skip
     ;
 
-// look for new lines with comments.
-// don't close with NEWLINE, since we don't want to dedent yet.
-COMMENT_LINE
-    : NEWLINE WS? '#' ~('\n' | '\r' | '\f')* -> skip
+// comments may appear on separate lines, or on the same line as an assignments or object starts.
+// don't close with NEWLINE here, needed to distinguish assign from object declaration.
+COMMENT
+    : WS? '#' ~[\r\n\f]*  -> skip
     ;
 
 NULL
@@ -203,8 +203,9 @@ NEWLINE
 
         // if opened > 0, we're in a square-bracket list.
         // if next character is end-of-line, this was a blank line.
-        // in either case, don't check for indent, dedent.
-        if (opened > 0 || next == '\r' || next == '\n' || next == '\f') {
+        // if next character is #, this is a comment line.
+        // for these cases, don't check for indent, dedent.
+        if (opened > 0 || next == '\r' || next == '\n' || next == '\f' || next == '#') {
             skip();
         } else {
             emit(commonToken(NEWLINE, newLine));

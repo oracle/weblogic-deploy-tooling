@@ -1,3 +1,13 @@
+# Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+#  there can be comments and blank lines at the top
+
+  #
+   #  indent is OK
+
+#
+
 domainInfo:  # used for create
     #
     # these should be in properties file
@@ -32,4 +42,6 @@ topology:  # beta test
         m1:
           ListenPort: 9003
       # ListenAddress: 123.0.0.546
+
+
           Cluster: mycluster
