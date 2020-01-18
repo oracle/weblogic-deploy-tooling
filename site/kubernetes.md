@@ -2,16 +2,18 @@
 
 The Extract Domain Resource Tool can be used to create a domain resource file for use with the Oracle WebLogic Server Kubernetes Operator. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
 
-The Extract Domain Resource Tool is available with WDT releases 1.7.0 and later.
+This is especially useful when making configuration changes to the domain that also need to be reflected in the domain resource file. For example, adding a cluster to the domain only requires that it be added to the `topology` section of the WDT model, then a new domain resource file can be generated to apply to Kubernetes.
 
-More information about the Oracle WebLogic Server Kubernetes Operator can be found [here](https://github.com/oracle/weblogic-kubernetes-operator).
+More information about the Oracle WebLogic Server Kubernetes Operator can be found [here](https://oracle.github.io/weblogic-kubernetes-operator).
+
+NOTE: The Extract Domain Resource Tool is available with WDT releases 1.7.0 and later.
 
 Here is an example command line for the Extract Domain Resource Tool:
 ```
-<wls-deploy-home>/bin/extractDomainResource.sh -oracle_home /tmp/oracle	-domain_home /u01/mydomain -model_file /tmp/mymodel.yaml -domain_resource_file /tmp/operator/domain-resource.yaml
+<wls-deploy-home>/bin/extractDomainResource.sh -oracle_home /tmp/oracle	-domain_home /u01/mydomain -model_file /tmp/mymodel.yaml -variable_file /tmp/my.properties -domain_resource_file /tmp/operator/domain-resource.yaml
 ```
 
-For the simplest case, the Extract Domain Resource Tool will create a sparse domain file. This is what is generated when there is not `kubernetes` section in the model, or that section is empty.
+For the simplest case, the Extract Domain Resource Tool will create a sparse domain file. This is what is generated when there is not a `kubernetes` section in the model, or that section is empty.
 ```yaml
 apiVersion: weblogic.oracle/v6
 kind: Domain
@@ -30,9 +32,11 @@ spec:
         replicas: 4
 ```
 
-For this example, the user is expected to fill in the image and secrets information identified by `--FIX ME--` in the domain resource output. The value for `domainHome` was set from the command line. The `kind` and `name` were set to the domain name derived from the topology section of the model, or the default `base_domain`. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.
+In this example, the value for `domainHome` was set from the command line. The `kind` and `name` were set to the domain name derived from the topology section of the model, or the default `base_domain`. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.
 
-For more advanced configurations, the user can populate the `kubernetes` section of the WDT model, and those values will appear in the resulting domain resources file. This model section overrides and adds some values to the result.
+The user is expected to fill in the image and secrets information identified by `--FIX ME--` in the domain resource output.
+
+For more advanced configurations, including pre-populating the `--FIX ME--` values, the user can populate the `kubernetes` section of the WDT model, and those values will appear in the resulting domain resources file. This model section overrides and adds some values to the result.
 ```yaml
 kubernetes:
     metadata:
@@ -43,7 +47,7 @@ kubernetes:
         imagePullSecrets:
             WEBLOGIC_IMAGE_PULL_SECRET_NAME:
         webLogicCredentialsSecret:
-            name: WEBLOGIC_CREDENTIALS_SECRET_NAME
+            name: '@@PROP:mySecret@@'
         serverPod:
             env:
                 USER_MEM_ARGS:
@@ -51,6 +55,7 @@ kubernetes:
                 JAVA_OPTIONS:
                     value: '-Dmydir=/home/me'
 ```
+This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the `kubernetes` section of the model. More details about using model variables can be found [here](../README.md/#simple-example).
 
 For this example, the resulting domain resource file would contain:
 ```yaml
