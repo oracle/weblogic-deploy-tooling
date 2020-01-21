@@ -1,4 +1,4 @@
-// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 // Licensed under the Universal Permissive License v 1.0 as shown at
 // http://oss.oracle.com/licenses/upl.
 
@@ -12,7 +12,6 @@ import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import java.nio.file.Files;
@@ -569,7 +568,7 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @Test
-    public void testNValidateModelWithoutVariablefile() throws Exception {
+    public void testNValidateModelWithoutVariableFile() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
 
@@ -577,9 +576,9 @@ public class ITWdt extends BaseTest {
                 getSampleModelFile("1");
         logger.info("Executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
-        logger.info("NEGATIVE TEST: returned error msg: " + result.stderr());
-        String expectedErrorMsg = "validateModel variable substitution failed";
-        verifyErrorMsg(result, expectedErrorMsg);
+        logger.info("NEGATIVE TEST: returned msg: " + result.stderr());
+        String expectedWarningMsg = ", but no variables file was specified";
+        verifyErrorMsg(result, expectedWarningMsg);
 
         logTestEnd(testMethodName);
     }

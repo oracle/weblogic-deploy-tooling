@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -14,6 +14,7 @@ from wlsdeploy.tool.create.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import model_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -71,7 +72,7 @@ class Creator(object):
         existing_folder_names = self._get_existing_folders(list_path)
         for model_name in model_nodes.keys():
             name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
-            if deployer_utils.is_delete_name(name):
+            if model_helper.is_delete_name(name):
                 deployer_utils.delete_named_element(location, name, existing_folder_names, self.alias_helper)
                 continue
 

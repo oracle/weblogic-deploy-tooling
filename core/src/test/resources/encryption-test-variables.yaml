@@ -1,7 +1,7 @@
 domainInfo:
     DOMAIN_TYPE: 'WLS'
     AdminUserName: 'weblogic'
-    AdminPassword: '${admin.password}'
+    AdminPassword: '@@PROP:admin.password@@'
     ServerStartMode: 'prod'
 
 topology:
@@ -30,8 +30,8 @@ topology:
                 ListenAddress: 127.0.0.1
                 ListenPort: 5556
     SecurityConfiguration:
-        NodeManagerUsername: '${nm.user}'
-        NodeManagerPasswordEncrypted: '${nm.password}'
+        NodeManagerUsername: '@@PROP:nm.user@@'
+        NodeManagerPasswordEncrypted: '@@PROP:nm.password@@'
 
 resources:
     JDBCSystemResource:
@@ -63,7 +63,7 @@ resources:
                     OnsNodeList:
                         - 'slc05til.us.oracle.com:6200'
                         - 'slc05til.us.oracle.com:6201'
-                    OnsWalletPasswordEncrypted: '${slc05til.ons.pass}'
+                    OnsWalletPasswordEncrypted: '@@PROP:slc05til.ons.pass@@'
         Generic2:
             Target: mycluster
             JdbcResource:
