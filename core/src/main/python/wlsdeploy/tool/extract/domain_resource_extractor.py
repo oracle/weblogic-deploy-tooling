@@ -29,11 +29,13 @@ CLUSTERS = 'clusters'
 CLUSTER_NAME = 'clusterName'
 DOMAIN_HOME = 'domainHome'
 IMAGE = 'image'
+IMAGE_PULL_POLICY = 'imagePullPolicy'
 IMAGE_PULL_SECRETS = 'imagePullSecrets'
 K_NAME = 'name'
 KIND = 'kind'
 METADATA = 'metadata'
 NAMESPACE = 'namespace'
+NEVER = 'Never'
 REPLICAS = 'replicas'
 SPEC = 'spec'
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
@@ -42,6 +44,7 @@ DEFAULT_API_VERSION = 'weblogic.oracle/v6'
 DEFAULT_KIND = 'Domain'
 DEFAULT_WEBLOGIC_CREDENTIALS_SECRET = PASSWORD_TOKEN
 DEFAULT_IMAGE = PASSWORD_TOKEN
+DEFAULT_IMAGE_PULL_SECRETS = PASSWORD_TOKEN
 
 
 class DomainResourceExtractor:
@@ -214,10 +217,16 @@ class DomainResourceExtractor:
         if IMAGE not in spec_section:
             spec_section[IMAGE] = DEFAULT_IMAGE
 
-        # if imagePullSecrets not present, add a list with one FIX ME value
-        if IMAGE_PULL_SECRETS not in spec_section:
+        # imagePullSecrets is required unless imagePullPolicy is Never
+        pull_secrets_required = True
+        if IMAGE_PULL_POLICY in spec_section:
+            policy = str(spec_section[IMAGE_PULL_POLICY])
+            pull_secrets_required = (policy != NEVER)
+
+        # if imagePullSecrets required and not present, add a list with one FIX ME value
+        if pull_secrets_required and (IMAGE_PULL_SECRETS not in spec_section):
             secrets_list = DictionaryList()
-            secrets_list.append({'name': DEFAULT_WEBLOGIC_CREDENTIALS_SECRET})
+            secrets_list.append({'name': DEFAULT_IMAGE_PULL_SECRETS})
             spec_section[IMAGE_PULL_SECRETS] = secrets_list
 
         # if webLogicCredentialsSecret not present, add it using the FIX ME value
