@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module to handle translating between Yaml files and Python dictionaries.
@@ -18,6 +18,7 @@ import oracle.weblogic.deploy.yaml.YamlTranslator as JYamlTranslator
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.yaml.dictionary_list import DictionaryList
 
 
 class YamlToPython(object):
@@ -163,12 +164,51 @@ class PythonToYaml(object):
 
         for key, value in dictionary.iteritems():
             quoted_key = self._quotify_string(key)
-            if isinstance(value, dict):
+            if isinstance(value, DictionaryList):
+                writer.println(indent + quoted_key + ':')
+                self._write_dictionary_list_to_yaml_file(value, writer, indent)
+            elif isinstance(value, dict):
                 writer.println(indent + quoted_key + ':')
                 self._write_dictionary_to_yaml_file(value, writer, indent + self._indent_unit)
             else:
                 writer.println(indent + quoted_key + ': ' + self._get_value_string(value))
 
+        return
+
+    def _write_dictionary_list_to_yaml_file(self, dictionary_list, writer, indent=''):
+        """
+        Dictionary list is a special case for YAML. The result should look like:
+
+        items:
+        -   key1: value1
+            key2: value2
+            key3:
+                subkey1: value1
+                subkey2: value2
+
+        :param dictionary: the Python dictionary to convert
+        :param writer: the java.io.PrintWriter for the output file
+        :param indent: the amount of indent to use (based on the level of recursion)
+        :raises: IOException: if an error occurs while writing the output
+        """
+        if dictionary_list is None:
+            return
+
+        for dictionary in dictionary_list:
+            first = True
+            for key, value in dictionary.items():
+                quoted_key = self._quotify_string(key)
+                this_indent = indent + self._indent_unit
+                if first:
+                    this_indent = indent + "-   "
+
+                if isinstance(value, dict):
+                    writer.println(this_indent + quoted_key + ':')
+                    self._write_dictionary_to_yaml_file(value, writer, this_indent + self._indent_unit)
+                else:
+                    writer.println(this_indent + quoted_key + ': ' + self._get_value_string(value))
+
+                first = False
         return
 
     def _get_value_string(self, value):

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import String
@@ -7,7 +7,6 @@ from oracle.weblogic.deploy.encrypt import EncryptionUtils
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
-from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import model
@@ -74,10 +73,10 @@ class _ModelEncrypter(object):
         Encrypt a set of nodes from the domainInfo section of the model.
         :param info_nodes: the model nodes
         """
-        info_location = LocationContext().append_location(DOMAIN_INFO_ALIAS)
+        info_location = self.alias_helper.get_model_section_attribute_location(DOMAIN_INFO)
         password_attribute_names = self.alias_helper.get_model_password_type_attribute_names(info_location)
 
-        subfolder_names = self.alias_helper.get_model_domain_info_top_level_folder_names()
+        subfolder_names = self.alias_helper.get_model_section_top_level_folder_names(DOMAIN_INFO)
 
         for node in info_nodes:
             if node in subfolder_names:
