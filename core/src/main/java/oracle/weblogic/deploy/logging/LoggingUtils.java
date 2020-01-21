@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -17,7 +17,9 @@ public class LoggingUtils {
         Class<T> handler = null;
         try {
             Class<?> checkClass = Class.forName(handlerName);
-            handler = (Class<T>)checkClass.asSubclass(Class.forName(handlerName));
+            @SuppressWarnings("unchecked")
+            Class<T> castHandler = (Class<T>)checkClass.asSubclass(Class.forName(handlerName));
+            handler = castHandler;
         } catch(ClassNotFoundException | ClassCastException cnf) {
             exitWithError(
                     MessageFormat.format("Unable to find handler class {0} so skipping logging configuration",

@@ -1,0 +1,47 @@
+# Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+#  there can be comments and blank lines at the top
+
+  #
+   #  indent is OK
+
+#
+
+domainInfo:  # used for create
+    #
+    # these should be in properties file
+    #
+    AdminUserName: 'weblogic'
+    AdminPassword: 'welcome1'  # sample only
+# configure for your database configuration
+    RCUDbInfo:
+      useATP : 1
+      rcu_prefix : DEV
+      rcu_schema_password : xxxxx
+#
+# different password
+      rcu_admin_password : xxxx  # from sys admin
+      tns.alias : dbatp_tp
+
+# the topology section
+# do not delete
+   # without permission
+topology:  # beta test
+  # don't change without permission
+    Cluster:
+        mycluster: # no customized properties
+    Server:
+        AdminServer:
+            ListenPort: 9001
+            SSL:
+               Enabled: true
+            ServerStart:
+              # system dependent
+              Arguments: '-Dosgi=true'
+        m1:
+          ListenPort: 9003
+      # ListenAddress: 123.0.0.546
+
+
+          Cluster: mycluster
