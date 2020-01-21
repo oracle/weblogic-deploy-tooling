@@ -88,6 +88,8 @@ The syntax of the `spec/serverPod/env` and other list sections in the WDT model 
 
 If clusters are specified in the `kubernetes/spec` section of the model, those clusters will be configured in the domain resource file, and clusters from the `topology` section will be disregarded.
 
+If the WDT model has a value of `Never` for `spec/imagePullPolicy`, the `imagePullSecrets` default value will not be added. 
+ 
 A full list of sections and variables supported by the Oracle WebLogic Server Kubernetes Operator is available [here](https://github.com/oracle/weblogic-kubernetes-operator/blob/master/docs/domains/Domain.md).
 
 The Extract Domain Resource Tool supports a subset of these sections, including `metadata`, `serverPod`, and `spec`. 
