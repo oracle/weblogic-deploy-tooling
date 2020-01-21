@@ -1,10 +1,12 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 # lists may be represented in the model as comma-separated strings
 MODEL_LIST_DELIMITER = ','
+KSS_KEYSTORE_TYPE = 'kss'
+KSS_KEYSTORE_FILE_INDICATOR = 'kss:'
 
 
 # names of model elements, alphabetically
@@ -148,6 +150,8 @@ JTA = 'JTA'
 JTA_PARTITION = 'JtaPartition'
 JTA_MIGRATABLE_TARGET = 'JTAMigratableTarget'
 KEY = 'Key'
+KUBERNETES = 'kubernetes'
+KUBERNETES_ALIAS = 'Kubernetes'
 LDAP_AUTHENTICATOR = 'LDAPAuthenticator'
 LDAP_X509_IDENTITY_ASSERTER = 'LDAPX509IdentityAsserter'
 LIBRARY = 'Library'
@@ -232,6 +236,7 @@ SELF_TUNING = 'SelfTuning'
 SERVER = 'Server'
 SERVER_FAILURE_TRIGGER = 'ServerFailureTrigger'
 SERVER_GROUP_TARGETING_LIMITS = 'ServerGroupTargetingLimits'
+SERVER_POD = 'serverPod'
 SERVER_START = 'ServerStart'
 SERVER_START_MODE = 'ServerStartMode'
 SERVER_TEMPLATE = 'ServerTemplate'
@@ -313,7 +318,7 @@ DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY = 'oracle.net.ssl_server_dn_match'
 DRIVER_PARAMS_NET_SSL_VERSION = 'oracle.net.ssl_version'
 DRIVER_PARAMS_NET_TNS_ADMIN = 'oracle.net.tns_admin'
 DRIVER_PARAMS_NET_FAN_ENABLED = 'oracle.jdbc.fanEnabled'
-
+DYNAMIC_CLUSTER_SIZE = 'DynamicClusterSize'
 ENABLED = 'Enabled'
 HARVESTED_ATTRIBUTE = 'HarvestedAttribute'
 HARVESTED_INSTANCE = 'HarvestedInstance'
@@ -363,7 +368,8 @@ KNOWN_TOPLEVEL_MODEL_SECTIONS = [
     DOMAIN_INFO,
     TOPOLOGY,
     RESOURCES,
-    APP_DEPLOYMENTS
+    APP_DEPLOYMENTS,
+    KUBERNETES
 ]
 
 # these domain attributes have special processing in create,

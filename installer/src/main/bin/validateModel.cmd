@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem validateModel.cmd
 @rem
-@rem Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -279,10 +279,24 @@ IF NOT EXIST "%WLST%" (
 )
 :found_wlst
 
+SET ORACLE_SERVER_DIR=
+
+IF EXIST "%ORACLE_HOME%\wlserver_10.3" (
+    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_10.3"
+    GOTO found_wlst
+) ELSE IF EXIST "%ORACLE_HOME%\wlserver_12.1" (
+    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_12.1"
+) ELSE (
+    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver
+)
+
 SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
 SET WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
 SET WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
 SET "WLST_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS% %WLST_PROPERTIES%"
+SET "WLST_PROPERTIES=-Dpython.cachedir.skip=true %WLST_PROPERTIES%"
+SET "WLST_PROPERTIES=-Dpython.path=%ORACLE_SERVER_DIR%/common/wlst/modules/jython-modules.jar/Lib %WLST_PROPERTIES%"
+SET "WLST_PROPERTIES=-Dpython.console= %WLST_PROPERTIES%"
 SET "WLST_PROPERTIES=%WLST_PROPERTIES% %WLSDEPLOY_PROPERTIES%"
 
 IF NOT DEFINED WLSDEPLOY_LOG_PROPERTIES (
@@ -295,15 +309,25 @@ IF NOT DEFINED WLSDEPLOY_LOG_HANDLERS (
   SET WLSDEPLOY_LOG_HANDLERS=%WLSDEPLOY_LOG_HANDLER%
 )
 
+set CLASSPATH=%CLASSPATH%;%ORACLE_SERVER_DIR%\server\lib\weblogic.jar
+
 ECHO JAVA_HOME = %JAVA_HOME%
 ECHO WLST_EXT_CLASSPATH = %WLST_EXT_CLASSPATH%
 ECHO CLASSPATH = %CLASSPATH%
 ECHO WLST_PROPERTIES = %WLST_PROPERTIES%
 
 SET PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python
-ECHO %WLST% %PY_SCRIPTS_PATH%\validate.py %SCRIPT_ARGS%
 
-"%WLST%" "%PY_SCRIPTS_PATH%\validate.py" %SCRIPT_ARGS%
+ECHO ^
+%JAVA_HOME%/bin/java -cp %CLASSPATH% ^
+	%WLST_PROPERTIES% ^
+	org.python.util.jython ^
+	"%PY_SCRIPTS_PATH%\validate.py" %SCRIPT_ARGS%
+
+%JAVA_HOME%/bin/java -cp %CLASSPATH% ^
+	%WLST_PROPERTIES% ^
+	org.python.util.jython ^
+	"%PY_SCRIPTS_PATH%\validate.py" %SCRIPT_ARGS%
 
 SET RETURN_CODE=%ERRORLEVEL%
 IF "%RETURN_CODE%" == "100" (

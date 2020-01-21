@@ -1,15 +1,15 @@
 #!/bin/sh
 # *****************************************************************************
-# validateModel.sh
+# extractDomainResource.sh
 #
-# Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
-#       validateModel.sh - WLS Deploy tool to validate artifacts and print usage
+#       extractDomainResource.sh - Create a domain resource file for Kubernetes deployment.
 #
 #     DESCRIPTION
-#       This script validates the model, archive structure and print usage
+#       This script creates a domain resource file for Kubernetes deployment.
 #
 #
 # This script uses the following command-line arguments directly, the rest
@@ -48,73 +48,49 @@
 
 usage() {
   echo ""
-  echo "Usage: $1 [-help]"
+  echo "Usage: $1 [-help] [-use_encryption]"
   echo "          -oracle_home <oracle_home>"
-  echo "          [-print_usage <context> [-attributes_only|-folders_only|-recursive] ]"
+  echo "          -domain_home <domain_home>"
+  echo "          -domain_resource_file <domain_resource_file>"
+  echo "          [-archive_file <archive_file>]"
   echo "          [-model_file <model_file>]"
   echo "          [-variable_file <variable_file>]"
-  echo "          [-archive_file <archive_file>]"
-  echo "          [-target_version <target_version>]"
-  echo "          [-target_mode <target_mode>]"
-  echo "          [-domain_type <domain_type>]"
   echo "          [-wlst_path <wlst_path>]"
-  echo "          [-method <method>]"
   echo ""
   echo "    where:"
   echo "        oracle_home     - the existing Oracle Home directory for the domain"
   echo ""
-  echo "        print_usage     - specify the context for printing out the model structure."
-  echo "                          By default, the specified folder attributes and subfolder"
-  echo "                          names are printed.  Use one of the optional control"
-  echo "                          switches to customize the behavior.  Note that the"
-  echo "                          control switches are mutually exclusive."
+  echo "        domain_home     - the domain home directory"
   echo ""
-  echo "        model_file      - the location of the model file to use if not using"
-  echo "                          the -print_usage functionality.  This can also be specified as a"
-  echo "                          comma-separated list of model locations, where each successive model layers"
-  echo "                          on top of the previous ones.  If not specified, the tool will look for the"
-  echo "                          model in the archive.  If the model is not found, validation will only"
-  echo "                          validate the artifacts provided."
+  echo "        domain_resource_file - the location of the extracted domain resource file"
   echo ""
-  echo "        variable_file   - the location of the property file containing"
-  echo "                          the variable values for all variables used in"
-  echo "                          the model if not using the -print_usage functionality."
-  echo "                          If the variable file is not provided, validation will"
-  echo "                          only validate the artifacts provided."
-  echo ""
-  echo "        archive_file    - the path to the archive file to use if not using the"
-  echo "                          -print_usage functionality.  If the archive file is"
-  echo "                          not provided, validation will only validate the"
-  echo "                          artifacts provided.  This can also be specified as a"
+  echo "        archive_file    - the path to the archive file to use  If the -model_file"
+  echo "                          argument is not specified, the model file in this archive"
+  echo "                          will be used.  This can also be specified as a"
   echo "                          comma-separated list of archive files.  The overlapping contents in"
   echo "                          each archive take precedence over previous archives in the list."
   echo ""
-  echo "        target_version  - the target version of WebLogic Server the tool"
-  echo "                          should use to validate the model content.  This"
-  echo "                          version number can be different than the version"
-  echo "                          being used to run the tool.  If not specified, the"
-  echo "                          tool will validate against the version being used"
-  echo "                          to run the tool."
+  echo "        model_file      - the location of the model file to use.  This can also be specified as a"
+  echo "                          comma-separated list of model locations, where each successive model layers"
+  echo "                          on top of the previous ones."
   echo ""
-  echo "        target_mode     - the target WLST mode that the tool should use to"
-  echo "                          validate the model content.  The only valid values"
-  echo "                          are online or offline.  If not specified, the tool"
-  echo "                          defaults to WLST offline mode."
-  echo ""
-  echo "        domain_type     - the type of domain (e.g., WLS, JRF)."
-  echo "                          Used to locate wlst.cmd if -wlst_path not specified"
+  echo "        variable_file   - the location of the property file containing"
+  echo "                          the variable values for all variables used in"
+  echo "                          the model"
   echo ""
   echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
   echo ""
-  echo "        method          - the validation method to apply. Options: lax, strict. "
-  echo "                          The lax method will skip validation of external model references like @@FILE@@"
+  echo "    The -use_encryption switch tells the program that one or more of the"
+  echo "    passwords in the model or variables files are encrypted.  The program will"
+  echo "    prompt for the decryption passphrase to use to decrypt the passwords."
+  echo "    Please note that Java 8 or higher is required when using this feature."
   echo ""
 }
 
 umask 27
 
-WLSDEPLOY_PROGRAM_NAME="validateModel"; export WLSDEPLOY_PROGRAM_NAME
+WLSDEPLOY_PROGRAM_NAME="extractDomainResource"; export WLSDEPLOY_PROGRAM_NAME
 
 if [ -z "${WLSDEPLOY_HOME}" ]; then
     BASEDIR="$( cd "$( dirname $0 )" && pwd )"
@@ -152,21 +128,6 @@ case "${JVM_OUTPUT}" in
     ;;
 esac
 
-JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
-# set JVM version to the major version, unless equal to 1, like 1.8.0, then use the minor version
-JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $1 }'`
-
-if [ "${JVM_VERSION}" -eq "1" ]; then
-  JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
-fi
-
-if [ ${JVM_VERSION} -lt 7 ]; then
-  echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
-  exit 2
-else
-  echo "JDK version is ${JVM_FULL_VERSION}"
-fi
-
 #
 # Check to see if no args were given and print the usage message
 #
@@ -176,12 +137,12 @@ if [ "$#" -eq "0" ]; then
 fi
 
 SCRIPT_ARGS="$*"
-
+MIN_JDK_VERSION=7
 #
 # Find the args required to determine the WLST script to run
 #
 
-while [ "$#" -gt "1" ]; do
+while [ "$#" -gt 1 ]; do
     key="$1"
     case $key in
         -help)
@@ -200,6 +161,9 @@ while [ "$#" -gt "1" ]; do
         WLST_PATH_DIR="$2"
         shift
         ;;
+        -use_encryption)
+        MIN_JDK_VERSION=8
+        ;;
         *)
         # unknown option
         ;;
@@ -207,11 +171,35 @@ while [ "$#" -gt "1" ]; do
     shift # past arg or value
 done
 
+
 # default DOMAIN_TYPE
 
 if [ -z "${DOMAIN_TYPE}" ]; then
     DOMAIN_TYPE="WLS"
     SCRIPT_ARGS="${SCRIPT_ARGS} -domain_type $DOMAIN_TYPE"
+fi
+
+
+#
+# Validate the JVM version based on whether or not the user asked us to use encryption
+#
+JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
+# set JVM version to the major version, unless equal to 1, like 1.8.0, then use the minor version
+JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $1 }'`
+
+if [ "${JVM_VERSION}" -eq "1" ]; then
+  JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
+fi
+
+if [ ${JVM_VERSION} -lt ${MIN_JDK_VERSION} ]; then
+  if [ ${JVM_VERSION} -lt 7 ]; then
+    echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
+  else
+    echo "JDK version 1.8 or higher is required when using encryption" >&2
+  fi
+  exit 2
+else
+  echo "JDK version is ${JVM_FULL_VERSION}"
 fi
 
 #
@@ -228,7 +216,7 @@ elif [ ! -d ${ORACLE_HOME} ]; then
 fi
 
 #
-# If the WLST_PATH_DIR is specified, validate that it contains the wlst.cmd script
+# If the WLST_PATH_DIR is specified, validate that it contains the wlst.sh script
 #
 if [ -n "${WLST_PATH_DIR}" ]; then
     if [ ! -d ${WLST_PATH_DIR} ]; then
@@ -265,23 +253,10 @@ else
     fi
 fi
 
-ORACLE_SERVER_DIR=
-
-if [ -x ${ORACLE_HOME}/wlserver_10.3 ]; then
-    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver_10.3
-elif [ -x ${ORACLE_HOME}/wlserver_12.1 ]; then
-    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver_12.1
-else
-    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver
-fi
-
 LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
 WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
 WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
 WLST_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS} ${WLST_PROPERTIES} ${WLSDEPLOY_PROPERTIES}"
-WLST_PROPERTIES="-Dpython.cachedir.skip=true ${WLST_PROPERTIES}"
-WLST_PROPERTIES="-Dpython.path=${ORACLE_SERVER_DIR}/common/wlst/modules/jython-modules.jar/Lib ${WLST_PROPERTIES}"
-WLST_PROPERTIES="-Dpython.console= ${WLST_PROPERTIES}"
 export WLST_PROPERTIES
 
 if [ -z "${WLSDEPLOY_LOG_PROPERTIES}" ]; then
@@ -296,48 +271,48 @@ if [ -z "${WLSDEPLOY_LOG_HANDLERS}" ]; then
     WLSDEPLOY_LOG_HANDLERS=${WLSDEPLOY_LOG_HANDLER}; export WLSDEPLOY_LOG_HANDLERS
 fi
 
-CLASSPATH=${CLASSPATH}:${ORACLE_SERVER_DIR}/server/lib/weblogic.jar
-
 echo "JAVA_HOME = ${JAVA_HOME}"
 echo "WLST_EXT_CLASSPATH = ${WLST_EXT_CLASSPATH}"
 echo "CLASSPATH = ${CLASSPATH}"
 echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
 
 PY_SCRIPTS_PATH=${WLSDEPLOY_HOME}/lib/python
-echo \
-${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
-	${WLST_PROPERTIES} \
-	org.python.util.jython \
-	"${PY_SCRIPTS_PATH}/validate.py" ${SCRIPT_ARGS}
+echo "${WLST} ${PY_SCRIPTS_PATH}/extract_resource.py ${SCRIPT_ARGS}"
 
-${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
-	${WLST_PROPERTIES} \
-	org.python.util.jython \
-	"${PY_SCRIPTS_PATH}/validate.py" ${SCRIPT_ARGS}
+"${WLST}" "${PY_SCRIPTS_PATH}/extract_resource.py" ${SCRIPT_ARGS}
 
 RETURN_CODE=$?
-if [ ${RETURN_CODE} -eq 100 ]; then
+if [ ${RETURN_CODE} -eq 103 ]; then
+  echo ""
+  echo "extractDomainResource.sh completed successfully but the domain requires a restart for the changes to take effect (exit code = ${RETURN_CODE})"
+elif [ ${RETURN_CODE} -eq 102 ]; then
+  echo ""
+  echo "extractDomainResource.sh completed successfully but the affected servers require a restart (exit code = ${RETURN_CODE})"
+elif [ ${RETURN_CODE} -eq 101 ]; then
+  echo ""
+  echo "extractDomainResource.sh was unable to complete due to configuration changes that require a domain restart.  Please restart the domain and re-invoke the extractDomainResource.sh script with the same arguments (exit code = ${RETURN_CODE})"
+elif [ ${RETURN_CODE} -eq 100 ]; then
   usage `basename $0`
   RETURN_CODE=0
 elif [ ${RETURN_CODE} -eq 99 ]; then
   usage `basename $0`
   echo ""
-  echo "validateModel.sh failed due to the usage error shown above" >&2
+  echo "extractDomainResource.sh failed due to the usage error shown above" >&2
 elif [ ${RETURN_CODE} -eq 98 ]; then
   echo ""
-  echo "validateModel.sh failed due to a parameter validation error" >&2
+  echo "extractDomainResource.sh failed due to a parameter validation error" >&2
 elif [ ${RETURN_CODE} -eq 2 ]; then
   echo ""
-  echo "validateModel.sh failed (exit code = ${RETURN_CODE})" >&2
+  echo "extractDomainResource.sh failed (exit code = ${RETURN_CODE})" >&2
 elif [ ${RETURN_CODE} -eq 1 ]; then
   echo ""
-  echo "validateModel.sh completed but with some issues (exit code = ${RETURN_CODE})" >&2
+  echo "extractDomainResource.sh completed but with some issues (exit code = ${RETURN_CODE})" >&2
 elif [ ${RETURN_CODE} -eq 0 ]; then
   echo ""
-  echo "validateModel.sh completed successfully (exit code = ${RETURN_CODE})"
+  echo "extractDomainResource.sh completed successfully (exit code = ${RETURN_CODE})"
 else
   # Unexpected return code so just print the message and exit...
   echo ""
-  echo "validateModel.sh failed (exit code = ${RETURN_CODE})" >&2
+  echo "extractDomainResource.sh failed (exit code = ${RETURN_CODE})" >&2
 fi
 exit ${RETURN_CODE}
