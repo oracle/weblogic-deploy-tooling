@@ -1,0 +1,14 @@
+{
+    "copyright": "Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "Kubernetes",
+    "folders": { },
+    "attributes": {
+        "apiVersion": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "apiVersion", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "kind":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "kind",       "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/NO_FOLDER"
+    }
+}

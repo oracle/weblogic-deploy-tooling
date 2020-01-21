@@ -74,6 +74,7 @@ class ModelContext(object):
         self._opss_wallet = None
         self._validation_method = None
         self._rollback_if_restart_required = None
+        self._domain_resource_file = None
 
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
@@ -173,6 +174,9 @@ class ModelContext(object):
         if CommandLineArgUtil.TARGET_VERSION_SWITCH in arg_map:
             self._wl_version = arg_map[CommandLineArgUtil.TARGET_VERSION_SWITCH]
 
+        if CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH in arg_map:
+            self._domain_resource_file = arg_map[CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH]
+
         if CommandLineArgUtil.TARGET_MODE_SWITCH in arg_map:
             wlst_mode_string = arg_map[CommandLineArgUtil.TARGET_MODE_SWITCH]
             if wlst_mode_string.lower() == 'online':
@@ -261,6 +265,13 @@ class ModelContext(object):
         :return: the domain typedef
         """
         return self._domain_typedef
+
+    def get_domain_resource_file(self):
+        """
+        Get the domain resource file.
+        :return: the domain resource file
+        """
+        return self._domain_resource_file
 
     def get_admin_url(self):
         """
