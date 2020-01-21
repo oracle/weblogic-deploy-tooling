@@ -1,14 +1,16 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 This module serves as a wrapper for the model dictionary.
 It has convenience methods for accessing top-level fields in the model.
 """
-import pprint, os
+import os
+import pprint
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
-
+from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
+from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -26,6 +28,7 @@ class Model(object):
         self._resources = OrderedDict()
         self._deployments = OrderedDict()
         self._domain_info = OrderedDict()
+        self._kubernetes = OrderedDict()
 
         if model_dictionary is not None:
             if 'topology' in model_dictionary:
@@ -39,6 +42,9 @@ class Model(object):
 
             if 'domainInfo' in model_dictionary:
                 self._domain_info = model_dictionary['domainInfo']
+
+            if KUBERNETES in model_dictionary:
+                self._kubernetes = model_dictionary[KUBERNETES]
         return
 
     def get_model_resources(self):
@@ -68,6 +74,13 @@ class Model(object):
         :return: the domainInfo dictionary
         """
         return self._domain_info
+
+    def get_model_kubernetes(self):
+        """
+        Get the kubernetes section of the model.
+        :return: the kubernetes dictionary
+        """
+        return self._kubernetes
 
     def get_model(self):
         """
@@ -105,12 +118,14 @@ class Model(object):
                          method_name=method_name, class_name=class_name)
         return
 
+
 def get_model_resources_key():
     """
     Get the model resources element key
     :return: the model resources element key
     """
     return 'resources'
+
 
 def get_model_deployments_key():
     """
@@ -119,12 +134,14 @@ def get_model_deployments_key():
     """
     return 'appDeployments'
 
+
 def get_model_topology_key():
     """
     Get the model topology element key
     :return: the model topology element key
     """
     return 'topology'
+
 
 def get_model_domain_info_key():
     """
@@ -133,20 +150,24 @@ def get_model_domain_info_key():
     """
     return 'domainInfo'
 
+
+def get_model_kubernetes_key():
+    """
+    Get the model kubernetes element key
+    :return: the model kubernetes element key
+    """
+    return KUBERNETES
+
+
 def get_model_top_level_keys():
     """
     Get the known top-level model element keys.
     :return: a list of the known top-level model element keys
     """
-    return [
-        get_model_domain_info_key(),
-        get_model_topology_key(),
-        get_model_resources_key(),
-        get_model_deployments_key()
-    ]
+    return list(KNOWN_TOPLEVEL_MODEL_SECTIONS)
 
 
-def persist_model(model_context,model):
+def persist_model(model_context, model):
     base_dir = model_context.get_domain_home() + os.sep + 'wlsdeploy'
     if not os.path.exists(base_dir):
         os.makedirs(base_dir)
