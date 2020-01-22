@@ -10,7 +10,7 @@ NOTE: The Extract Domain Resource Tool is available with WDT releases 1.7.0 and 
 
 Here is an example command line for the Extract Domain Resource Tool:
 ```
-<wls-deploy-home>/bin/extractDomainResource.sh -oracle_home /tmp/oracle	-domain_home /u01/mydomain -model_file /tmp/mymodel.yaml -variable_file /tmp/my.properties -domain_resource_file /tmp/operator/domain-resource.yaml
+<wls-deploy-home>/bin/extractDomainResource.sh -oracle_home /tmp/oracle -domain_home /u01/mydomain -model_file /tmp/mymodel.yaml -variable_file /tmp/my.properties -domain_resource_file /tmp/operator/domain-resource.yaml
 ```
 
 For the simplest case, the Extract Domain Resource Tool will create a sparse domain file. This is what is generated when there is not a `kubernetes` section in the model, or that section is empty.
@@ -32,7 +32,7 @@ spec:
         replicas: 4
 ```
 
-In this example, the value for `domainHome` was set from the command line. The `kind` and `name` were set to the domain name derived from the topology section of the model, or the default `base_domain`. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.
+In this example, the value for `domainHome` was set as an input parameter to the extractDomainResource script from the command line. The `kind` and `name` were set to the domain name derived from the topology section of the model, or the default `base_domain`. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.
 
 The user is expected to fill in the image and secrets information identified by `--FIX ME--` in the domain resource output.
 
