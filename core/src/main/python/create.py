@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The main module for the WLSDeploy tool to create empty domains.
@@ -48,6 +48,7 @@ from wlsdeploy.util import variables
 from wlsdeploy.util import wlst_extended
 from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.cla_utils import TOOL_TYPE_CREATE
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 
@@ -92,7 +93,7 @@ def __process_args(args):
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
-    required_arg_map, optional_arg_map = cla_util.process_args(args, True)
+    required_arg_map, optional_arg_map = cla_util.process_args(args, TOOL_TYPE_CREATE)
     __verify_required_args_present(required_arg_map)
     __process_java_home_arg(optional_arg_map)
     __process_domain_location_args(optional_arg_map)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
  * The Universal Permissive License (UPL), Version 1.0
  */
 grammar Yaml;
@@ -84,17 +84,17 @@ statement
     ;
 
 assign
-    : name ASSIGN_OP value WS? COMMENT? NEWLINE?
+    : name ASSIGN_OP value COMMENT? NEWLINE
     ;
 
 list_item
     : LIST_ITEM_OP assign                         # YamlListItemAssign
-    | LIST_ITEM_OP value WS? COMMENT? NEWLINE?    # YamlListItemValue
+    | LIST_ITEM_OP value COMMENT? NEWLINE?        # YamlListItemValue
     | LIST_ITEM_OP object                         # YamlListItemObject
     ;
 
 object
-    : name BLOCK_OP COMMENT? obj_block
+    : name ASSIGN_OP COMMENT? obj_block
     ;
 
 obj_block
@@ -127,8 +127,16 @@ inline_list_item
     : (NEWLINE (INDENT)?)? value
     ;
 
+// comments and blank lines before the first element avoid use of NEWLINE so there is no indent/dedent.
+// this rule should be one of the first in this file, to override later definitions.
+ATSTART
+    : {atStartOfInput()}? ( (COMMENT | WS*) ('\r'? '\n' | '\r' | '\f') )+  -> skip
+    ;
+
+// comments may appear on separate lines, or on the same line as assignments or object starts.
+// don't close with NEWLINE here, needed to distinguish assign from object declaration.
 COMMENT
-    : '# ' ~[\r\n\f]+ NEWLINE -> skip
+    : WS? '#' ~[\r\n\f]*  -> skip
     ;
 
 NULL
@@ -192,7 +200,12 @@ NEWLINE
         String spaces = getText().replaceAll("[\r\n\f]+", "");
 
         int next = _input.LA(1);
-        if (opened > 0 || next == '\r' || next == '\n' || next == '\f') {
+
+        // if opened > 0, we're in a square-bracket list.
+        // if next character is end-of-line, this was a blank line.
+        // if next character is #, this is a comment line.
+        // for these cases, don't check for indent, dedent.
+        if (opened > 0 || next == '\r' || next == '\n' || next == '\f' || next == '#') {
             skip();
         } else {
             emit(commonToken(NEWLINE, newLine));
@@ -233,10 +246,6 @@ LIST_ITEM_OP
     ;
 
 ASSIGN_OP
-    : WS? ': ' WS?
-    ;
-
-BLOCK_OP
     : WS? ':' WS?
     ;
 

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import imp
@@ -12,7 +12,7 @@ from wlsdeploy.util.model_translator import FileToPython
 
 __class_name = 'filter_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
-__filter_file_location = os.path.join(os.environ.get('WLSDEPLOY_HOME'), 'lib', 'model_filters.json')
+__filter_file_location = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'model_filters.json')
 
 __id_filter_map = {
     # 'filterId': filter_method
