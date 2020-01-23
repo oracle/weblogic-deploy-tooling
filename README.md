@@ -24,8 +24,10 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
           - [Custom Security Providers](site/security_providers.md#custom-security-providers)
       - [Modeling WebLogic Users, Groups, and Roles](site/security_users_groups_roles.md)
     - [ODL Configuration](site/odl_configuration.md)
+    - [Configuring Oracle WebLogic Server Kubernetes Operator](site/kubernetes.md)
     - [Variable Injection](site/variable_injection.md)
     - [Model Filters](site/tool_filters.md)
+    - [The Archive File](site/archive.md)
 - [Downloading and Installing](#downloading-and-installing-the-software)
 - [Developer Guide](site/developer/developer_guide.md)
 - [Known Issues](KnownIssues.md)
@@ -134,20 +136,7 @@ Second, notice that the `jsf#2.0` shared library `SourcePath` attribute value st
 - `@@PWD@@`         - The current working directory from which the tool was invoked.
 - `@@TMP@@`         - The location of the temporary directory, as controlled by the `java.io.tmpdir` system property.
 
-All binaries needed to supplement the model must be specified in an archive file, which is just a ZIP file with a specified directory structure.  For convenience, the model can also be stored inside the ZIP file, if desired.  Any binaries not already on the target system at the model-specified location must be stored in the correct location in the ZIP file and the model must reflect the path into the ZIP file.  For example, the example above shows the `simpleear` application `SourcePath` value of `wlsdeploy/applications/simpleear.ear`.  This is the location of the application binary within the archive file.  It will also be the location of the binary in the target environment; that location is relative to the domain home directory.  The archive structure is as follows:
-
-- `model`     - The directory where the model is optionally located.  Only one model file, either in YAML or JSON, is allowed and it must have the appropriate YAML or JSON file extension.
-- `wlsdeploy` - The root directory of all binaries, scripts, and directories created by the Oracle WebLogic Server Deploy Tooling.
-
-Within the `wlsdeploy` directory, the binaries are further segregated as follows:
-
-- `wlsdeploy/applications`       - The root directory under which all applications are stored.
-- `wlsdeploy/sharedLibraries`    - The root directory under which all shared libraries are stored.
-- `wlsdeploy/domainLibraries`    - The root directory under which all `$DOMAIN_HOME/lib` libraries are stored.
-- `wlsdeploy/classpathLibraries` - The root directory under which all JARs/directories that are to be added to the server classpath are stored.
-- `wlsdeploy/stores`             - The root directory under which empty File Store directories must exist.
-- `wlsdeploy/coherence`          - The root directory under which empty Coherence persistent store directories must exist.
-- `wlsdeploy/scripts`            - The root directory under which any scripts are stored.
+The example above shows the attribute `SourcePath` of the `simpleear` application with a value of `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory within the domain, in this case `<domain-home>/wlsdeploy/applications/simpleear.ear`. See [The Archive File](site/archive.md) for more details about using the archive file.
 
 Users can create further directory structures underneath the above locations to organize the files and directories as they see fit.  Note that any binary that already exists on the target system need not be included in the archive provided that the model specified the correct location on the target system.
 
