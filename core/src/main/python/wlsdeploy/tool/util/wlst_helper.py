@@ -882,7 +882,7 @@ class WlstHelper(object):
                              class_name=self.__class_name, method_name=_method_name)
         return result
 
-    def subfolder_exists(self, wlst_objects_path, wlst_mbean_type):
+    def subfolder_exists(self, wlst_mbean_type, wlst_objects_path=None):
         """
         Determine if the child exists in the current mbean.
         :param wlst_objects_path: if not None, the wlst mbean attributes path. Current path if none
