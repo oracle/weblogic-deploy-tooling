@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -13,12 +13,12 @@ from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.coherence_resources_discoverer import CoherenceResourcesDiscoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.tool.discover.jms_resources_discoverer import JmsResourcesDiscoverer
-from wlsdeploy.util import wlst_helper
 
 _class_name = 'CommonResourcesDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())

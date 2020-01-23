@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 
@@ -49,7 +49,7 @@ class CustomFolderHelper(object):
             _logger = logger
         self._alias_helper = AliasHelper(aliases, _logger, self._exception_type)
         self._weblogic_helper = WebLogicHelper(_logger)
-        self._wlst_helper = WlstHelper(_logger, self._exception_type)
+        self._wlst_helper = WlstHelper(self._exception_type)
         self._info_helper = MBeanUtils(self._model_context, self._alias_helper, self._exception_type)
         self._variable_injector = variable_injector
 

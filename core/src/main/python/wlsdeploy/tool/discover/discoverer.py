@@ -24,7 +24,6 @@ from wlsdeploy.tool.util.mbean_utils import get_interface_name
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import path_utils
-from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -58,7 +57,7 @@ class Discoverer(object):
         self._custom_folder = CustomFolderHelper(self._aliases, _logger,
                                                  self._model_context, ExceptionType.DISCOVER, self._variable_injector)
         self._weblogic_helper = WebLogicHelper(_logger)
-        self._wlst_helper = WlstHelper(_logger, ExceptionType.DISCOVER)
+        self._wlst_helper = WlstHelper(ExceptionType.DISCOVER)
         self._mbean_utils = MBeanUtils(self._model_context, self._alias_helper, ExceptionType.DISCOVER)
         self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
 
@@ -162,10 +161,10 @@ class Discoverer(object):
         attributes = []
         path = self._alias_helper.get_wlst_attributes_path(location)
         try:
-            attributes = wlst_helper.lsa(path)
-        except PyWLSTException, pe:
+            attributes = self._wlst_helper.lsa(path)
+        except DiscoverException, de:
             name = location.get_model_folders()[-1]
-            _logger.fine('WLSDPLY-06109', name, str(location), pe.getLocalizedMessage(), class_name=_class_name,
+            _logger.fine('WLSDPLY-06109', name, str(location), de.getLocalizedMessage(), class_name=_class_name,
                          method_name=_method_name)
         return attributes
 
@@ -217,7 +216,7 @@ class Discoverer(object):
         path = self._alias_helper.get_wlst_list_path(location)
         mbean_name_map = None
         try:
-            mbean_name_map = wlst_helper.lsc(path)
+            mbean_name_map = self._wlst_helper.lsc(path)
         except DiscoverException, de:
             _logger.warning('WLSDPLY-06130', path, de.getLocalizedMessage())
         if mbean_name_map:
@@ -258,7 +257,7 @@ class Discoverer(object):
         else:
             folder_path = self._alias_helper.get_wlst_list_path(location)
             _logger.finest('WLSDPLY-06111', folder_path, class_name=_class_name, method_name=_method_name)
-            if wlst_helper.path_exists(folder_path):
+            if self._wlst_helper.path_exists(folder_path):
                 self.wlst_cd(folder_path, location)
                 names = self._wlst_helper.lsc()
                 _logger.finest('WLSDPLY-06146', names, location, class_name=_class_name, method_name=_method_name)
@@ -314,7 +313,7 @@ class Discoverer(object):
         wlst_path = self._alias_helper.get_wlst_subfolders_path(location)
         wlst_subfolders = []
         if self.wlst_cd(wlst_path, location):
-            wlst_subfolders = _massage_online_folders(self._wlst_helper.lsc())
+            wlst_subfolders = self._massage_online_folders(self._wlst_helper.lsc())
             if wlst_subfolders:
                 new_subfolders = []
                 for wlst_subfolder in wlst_subfolders:
@@ -658,8 +657,8 @@ class Discoverer(object):
         _method_name = 'wlst_cd'
         result = None
         try:
-            result = wlst_helper.cd(path)
-        except PyWLSTException, pe:
+            result = self._wlst_helper.cd(path)
+        except DiscoverException, pe:
             _logger.warning('WLSDPLY-06140', path, str(location), pe.getLocalizedMessage(), class_name=_class_name,
                             method_name=_method_name)
         return result
@@ -705,6 +704,24 @@ class Discoverer(object):
     def _get_variable_injector(self):
         return self._variable_injector
 
+    def _massage_online_folders(self, lsc_folders):
+        _method_name = '_massage_online_folders'
+        location = self._wlst_helper.get_pwd()
+        folder_list = []
+        mbi_folder_list = []
+        for mbean_attribute_info in self._wlst_helper.get_mbi(location).getAttributes():
+            if _is_containment(mbean_attribute_info):
+                mbi_folder_list.append(mbean_attribute_info.getName())
+        for lsc_folder in lsc_folders:
+            if lsc_folder in mbi_folder_list:
+                folder_list.append(lsc_folder)
+            else:
+                _logger.finer('WLSDPLY-06144', lsc_folder, location, class_name=_class_name, method_name=_method_name)
+        if len(folder_list) != len(mbi_folder_list):
+            _logger.fine('WLSDPLY-06145', folder_list, location, mbi_folder_list, class_name=_class_name,
+                         method_name=_method_name)
+        return folder_list
+
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
     """
@@ -735,25 +752,6 @@ def convert_to_absolute_path(relative_to, file_name):
 
 def _is_containment(mbean_attribute_info):
     return mbean_attribute_info.getDescriptor().getFieldValue('com.bea.relationship') == 'containment'
-
-
-def _massage_online_folders(lsc_folders):
-    _method_name = '_massage_online_folders'
-    location = wlst_helper.get_pwd()
-    folder_list = []
-    mbi_folder_list = []
-    for mbean_attribute_info in wlst_helper.get_mbi(location).getAttributes():
-        if _is_containment(mbean_attribute_info):
-            mbi_folder_list.append(mbean_attribute_info.getName())
-    for lsc_folder in lsc_folders:
-        if lsc_folder in mbi_folder_list:
-            folder_list.append(lsc_folder)
-        else:
-            _logger.finer('WLSDPLY-06144', lsc_folder, location, class_name=_class_name, method_name=_method_name)
-    if len(folder_list) != len(mbi_folder_list):
-        _logger.fine('WLSDPLY-06145', folder_list, location, mbi_folder_list, class_name=_class_name,
-                     method_name=_method_name)
-    return folder_list
 
 
 def get_discover_logger_name():

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -32,7 +32,7 @@ class TargetHelper(object):
         self.model = model
         self.model_context = model_context
         self.alias_helper = AliasHelper(aliases, self.logger, exception_type)
-        self.wlst_helper = WlstHelper(self.logger, exception_type)
+        self.wlst_helper = WlstHelper(exception_type)
         self.exception_type = exception_type
 
         topology = model.get_model_topology()

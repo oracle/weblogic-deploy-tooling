@@ -1,228 +1,264 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
-from oracle.weblogic.deploy.util import PyWLSTException
+import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
+import oracle.weblogic.deploy.util.StringUtils as StringUtils
+import weblogic.management.mbeanservers.edit.ValidationException as ValidationException
 
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.util import wlst_extended
-from wlsdeploy.util import wlst_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
+
+wlst_functions = None
+wlst_state = None
 
 
 class WlstHelper(object):
-    """
-    This class simply wraps the wlst_helper methods to catch exceptions and convert them into
-    BundleAwareException of the specified types.
-    """
     __class_name = 'WlstHelper'
+    __logger = PlatformLogger('wlsdeploy.wlst')
 
-    def __init__(self, logger, exception_type):
-        self.__logger = logger
+    def __init__(self, exception_type):
         self.__exception_type = exception_type
         return
 
     def assign(self, source_type, source_name, target_type, target_name):
         """
         Assign target entity to source entity
+
         :param source_type: source entity type
         :param source_name: entity name
         :param target_type: target type
         :param target_name: target name
-        :raises: BundleAwareException of the specified type: if an error occurs
+        :raises: tool Exception: if a WLST error occurs
         """
-
         _method_name = 'assign'
+        self.__logger.entering(source_type, source_name, target_type, target_name,
+                               class_name=self.__class_name, method_name=_method_name)
 
         try:
-            wlst_helper.assign(source_type, source_name, target_type, target_name)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19143',
-                                                   target_type, target_name, source_type, source_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
-    def apply_jrf(self, jrf_target, model_context, should_update=False):
-        """
-        For those installs that require populating the JRF server group information to the managed servers
-        :param jrf_target: The entity to which to target the JRF applications and services
-        :param model_context: The context containing the tool session information needed for the applyJRF
-        :param should_update: If True the applyJRF will update the domain after apply
-        :raises: Exception specific to tool type
-        """
-        _method_name = 'apply_jrf'
-
-      
-        try:
-            wlst_extended.session_start(model_context.is_wlst_online(), jrf_target, 
-                                        model_context.get_admin_user(),
-                                        model_context.get_admin_password(),
-                                        model_context.get_admin_url(),
-                                        model_context.get_domain_home())
-            wlst_extended.apply_jrf(jrf_target, domain_home=model_context.get_domain_home(),
-                                    should_update=should_update)
-            wlst_extended.session_end(model_context.is_wlst_online(), jrf_target)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19146',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
-    def apply_jrf_control_updates(self, jrf_targets, model_context):
-        """
-        For those installs that require populating the JRF server group information to the managed servers. Control
-        the session updates within the global context. Save the updates in the current context.
-        :param jrf_targets: The list of entities to which to target the JRF applications and services
-        :param model_context: The context containing the tool session information needed for the applyJRF
-        :raises: Exception specific to tool type
-        """
-        _method_name = 'apply_jrf_control_updates'
-
-
-        try:
-            wlst_extended.apply_jrf_global_updates(model_context.is_wlst_online(),
-                                                   jrf_targets,
-                                                   admin_user=model_context.get_admin_user(),
-                                                   admin_pass=model_context.get_admin_password(),
-                                                   admin_url=model_context.get_admin_url(),
-                                                   domain_home=model_context.get_domain_home())
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19146',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
-
+            self.__load_global('assign')(source_type, source_name, target_type, target_name)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00002', source_type, source_name,
+                                                    target_type, target_name, self.__get_exception_mode(e),
+                                                    _format_exception(e), error=e)
+        self.__logger.finest('WLSDPLY-00003', source_type, source_name, target_type, target_name,
+                             class_name=self.__class_name, method_name=_method_name)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def cd(self, wlst_path):
+    def cd(self, path):
         """
-        Change WLST directories to the specified path
-        :param wlst_path: the WLST path
-        :return: the return value from the cd()
-        :raises: BundleAwareException of the specified type: if an error occurs
+        Change location to the provided path.
+
+        :param path: wlst directory to which to change location
+        :return: cmo object reference of the new location
+        :raises: tool Exception: if a WLST error occurs
         """
+
         _method_name = 'cd'
+        self.__logger.finest('WLSDPLY-00001', path, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            result = wlst_helper.cd(wlst_path)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19100',
-                                                   wlst_path, pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            result = self.__load_global('cd')(path)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00002', path,
+                                                   self.__get_exception_mode(e), _format_exception(e), error=e)
             raise ex
+        self.__logger.finest('WLSDPLY-00003', path, result, class_name=self.__class_name, method_name=_method_name)
         return result
 
-    def get(self, attribute_name):
+    def get(self, attribute):
         """
         Return the value for the attribute at the current location
 
-        :param attribute_name: name of the wlst attribute
+        :param attribute: name of the wlst attribute
         :return: value set for the attribute
-        :raises: BundleAwareException of the specified type: if an error occurs
+        :raises: tool Exception: if a WLST error occurs
         """
         _method_name = 'get'
+        self.__logger.finest('WLSDPLY-00004', attribute, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            result = wlst_helper.get(attribute_name)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19101', attribute_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
+            result = self.__load_global('get')(attribute)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00005', attribute,
+                                                    self.__get_exception_mode(e), _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.finest('WLSDPLY-00006', attribute, class_name=self.__class_name, method_name=_method_name)
         return result
 
-    def set(self, attribute_name, attribute_value, masked=False):
+    def set_if_needed(self, wlst_name, wlst_value, masked=False):
+        """
+        Set the WLST attribute to the specified value if the name and value are not None.
+        :param wlst_name: the WLST attribute name
+        :param wlst_value: the WLST attribute value
+        :param masked: whether or not to mask the value in the logs, default value is False
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = 'set_if_needed'
+
+        if wlst_name is not None and wlst_value is not None:
+            self.set(wlst_name, wlst_value, masked)
+
+    def set(self, attribute, value, masked=False):
         """
         Set the configuration for the indicated attribute to the provided value.
 
-        :param attribute_name: attribute name at the current location
-        :param attribute_value: to configure the attribute
-        :param masked: whether the attribute value should be masked from the log file, default is False
-        :raises: BundleAwareException of the specified type: if an error occurs
+        :param attribute: attribute name at the current location
+        :param value: to configure the attribute
+        :param masked: if the value is encrypted mask the value in log streams
+        :raises: tool Exception: if a WLST error occurs
         """
         _method_name = 'set'
-
+        log_value = value
+        if masked:
+            log_value = '<masked>'
+        self.__logger.finest('WLSDPLY-00007', attribute, log_value, self.get_pwd(),
+                             class_name=self.__class_name, method_name=_method_name)
         try:
-            wlst_helper.set(attribute_name, attribute_value)
-        except PyWLSTException, pwe:
+            self.__load_global('set')(attribute, value)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
             path = self.get_pwd()
-            log_value = attribute_value
-            if masked:
-                log_value = '<masked>'
-
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19102', attribute_name, path,
-                                                   log_value, pwe.getLocalizedMessage(), error=pwe)
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-0100', attribute, path,
+                                                   log_value, _format_exception(e), error=e)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
-        return
 
-    def set_with_cmo(self, attribute_name, attribute_value, masked=False):
+        self.__logger.finest('WLSDPLY-00009', class_name=self.__class_name, method_name=_method_name)
+
+    def set_with_cmo(self, wlst_name, wlst_value, masked=False):
         """
         Set the specified attribute using the corresponding cmo set method (e.g., cmo.setListenPort()).
-        :param attribute_name: the WLST attribute name
-        :param attribute_value: the WLST value
-        :param masked: whether or not to mask the attribute_value from the log files.
-        :raises: BundleAwareException of the specified type: if an error occurs
+        :param wlst_name: the WLST attribute name
+        :param wlst_value: the WLST value
+        :param masked: whether or not to mask the wlst_value from the log files.
+        :raises: tool Exception: if a WLST error occurs
         """
         _method_name = 'set_with_cmo'
+        value = wlst_value
+        if masked:
+            value = '<masked>'
+
+        self.__logger.finest('WLSDPLY-00010', wlst_name, value, class_name=self.__class_name, method_name=_method_name)
+
+        set_method_name = 'set' + wlst_name
+        self.__logger.finest('WLSDPLY-00011', set_method_name, class_name=self.__class_name, method_name=_method_name)
+
+        current_cmo = self.get_cmo()
+        if current_cmo is None:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00012', set_method_name,
+                                                    value, self._get_wlst_mode())
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
 
         try:
-            wlst_helper.set_with_cmo(attribute_name, attribute_value, masked=masked)
-        except PyWLSTException, pwe:
-            path = self.get_pwd()
-            log_value = attribute_value
-            if masked:
-                log_value = '<masked>'
-
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19136', attribute_name, path,
-                                                   log_value, pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
+            set_method = getattr(current_cmo, set_method_name)
+            set_method(wlst_value)
+        except AttributeError, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00013', set_method_name,
+                                                    self.__get_exception_mode(e), _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00014', set_method_name, value,
+                                                    self.__get_exception_mode(e), _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.finest('WLSDPLY-00015', wlst_name, value, class_name=self.__class_name, method_name=_method_name)
         return
 
-    def create(self, wlst_name, wlst_type, base_provider_type=None):
+    def _get_wlst_mode(self):
+        """
+        Get the text to describe the current WLST mode.
+        :return: online, if connected, offline if not
+        """
+        if self.__check_online_connection:
+            result = 'online'
+        else:
+            result = 'offline'
+        return result
+
+    def get_cmo(self):
+        """
+        update the Current Management Object (cmo) to current mbean in self.__load_global('
+        :return: updated cmo
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'get_cmo'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        load_cmo = self.__load_global('cmo')
+        if self.is_connected():
+            if load_cmo is None:
+                pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00070')
+                self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+                raise pwe
+        else:
+            load_update_cmo = self.__load_global('updateCmo')
+            try:
+                load_update_cmo()
+            except offlineWLSTException, e:
+                pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00036', self.get_pwd(),
+                                                        self.__get_exception_mode(e), _format_exception(e), error=e)
+                self.__logger.throwing(class_name=self.__class_name, method_name='get_cmo', error=pwe)
+                raise pwe
+            self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=load_cmo)
+        return load_cmo
+
+    def is_connected(self):
+        """
+        Determine if wlst is currently connected to the admin server - from the WlstContext
+        :return: Return True if currently connected
+        """
+        return self.__load_global('connected') == 'true'
+
+    def is_restart_required(self):
+        """
+        Return if the update changes require restart of the domain or servers.
+        :return: true if the changes require restart
+        """
+        return self.__load_global('isRestartRequired')()
+
+    def cancel_edit(self):
+        """
+        Cancel current edit session
+        """
+        self.__load_global('cancelEdit')('y')
+
+    def create(self, name, folder, base_provider_type=None):
         """
         Create the mbean folder with the provided name at the current location.
-        :param wlst_name: the MBean name
-        :param wlst_type: the MBean type
-        :param base_provider_type: the base security provider type, if required
+
+        :param name: to create under the folder
+        :param folder: name of the mbean folder
+        :param base_provider_type: the name of the security provider base type
         :return: the MBean object returned by the underlying WLST create() method
-        :raises: BundleAwareException of the specified type: if an error occurs
+        :raises: tool Exception: if a WLST error occurs
         """
         _method_name = 'create'
+        self.__logger.entering(name, folder, base_provider_type, class_name=self.__class_name, method_name=_method_name)
 
+        load_create = self.__load_global('create')
         try:
-            mbean = wlst_helper.create(wlst_name, wlst_type, base_provider_type)
-        except PyWLSTException, pwe:
             if base_provider_type is None:
-                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19103', wlst_type, wlst_name,
-                                                       pwe.getLocalizedMessage(), error=pwe)
-                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                result = load_create(name, folder)
             else:
-                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19134', base_provider_type,
-                                                       wlst_type, wlst_name, pwe.getLocalizedMessage(), error=pwe)
-            raise ex
-        return mbean
-
-    def delete(self, wlst_name, wlst_type):
-        """
-        Delete an MBean of the specified name and type at the current location.
-        :param wlst_name: the MBean name
-        :param wlst_type: the MBean type
-        :raises: PyWLSTException: if a WLST error occurs
-        """
-        _method_name = 'delete'
-
-        try:
-            wlst_helper.delete(wlst_name, wlst_type)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19135', wlst_type, wlst_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+                if not self.__check_online_connection():
+                    result = self.__load_global('WLS').create(name, folder, base_provider_type)
+                else:
+                    result = load_create(name, folder, base_provider_type)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00017', name, folder,
+                                                    base_provider_type, self.__get_exception_mode(e),
+                                                    _format_exception(e), self.get_pwd(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.finest('WLSDPLY-00018', name, folder, base_provider_type, result,
+                             class_name=self.__class_name, method_name=_method_name)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return result
 
     def create_and_cd(self, alias_helper, type_name, name, location, create_path=None):
         """
@@ -236,112 +272,72 @@ class WlstHelper(object):
         :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'create_and_cd'
-
-        try:
-            if create_path is not None:
-                wlst_helper.cd(create_path)
-            wlst_helper.create(name, type_name)
-            result = wlst_helper.cd(alias_helper.get_wlst_attributes_path(location))
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19104', type_name, name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
+        self.__logger.entering(name, location.get_folder_path(), create_path,
+                               class_name=self.__class_name, method_name=_method_name)
+        if create_path is not None:
+            self.cd(create_path)
+        self.create(name, type_name)
+        result = self.cd(alias_helper.get_wlst_attributes_path(location))
+        self.__logger.exiting(result=result, class_name=self.__class_name, method_name=_method_name)
         return result
 
-    def lsc(self, path=None, log_throwing=True):
+    def delete(self, name, folder):
         """
-        Get the list of child folders from WLST.
-        :param path: the WLST path, by default it uses the current location
-        :param log_throwing: whether to log throwing if the path does not exist, the default is True
-        :return: the list of folder names
-        :raises: BundleAwareException of the specified type: if an error occurs
+        Delete an MBean of the specified name and type at the current location.
+        :param name: the MBean name
+        :param folder: the MBean type
+        :raises: tool Exception: if a WLST error occurs
         """
-        _method_name = 'lsc'
+        _method_name = 'delete'
+        self.__logger.entering(name, folder, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            result = wlst_helper.lsc(path=path, log_throwing=log_throwing)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19105',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return result
+            self.__load_global('delete')(name, folder)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00020', name, folder,
+                                                    self.__get_exception_mode(e), _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.finest('WLSDPLY-00021', name, folder, class_name=self.__class_name, method_name=_method_name)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
 
-    def lsa(self, path=None, log_throwing=True):
+    def get_database_defaults(self):
         """
-        Get the map of attributes and their values from WLST.
-        :param path: the WLST path, by default it uses the current location
-        :param log_throwing: whether to log throwing if the path does not exist, the default is True
-        :return: the map of attributes and their values
-        :raises: BundleAwareException of the specified type: if an error occurs
+        sets the database defaults indicated by RCU.
+        :raises: tool Exception: if a WLST error occurs
         """
-        _method_name = 'lsa'
-
-        try:
-            result = wlst_helper.lsa(path=path, log_throwing=log_throwing)
-        except PyWLSTException, pwe:
-            if path is None:
-                path = self.get_pwd()
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19106', path,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return result
-
-    def get_pwd(self):
-        """
-        Get the current WLST directory path.
-        :return: the WLST path
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'get_pwd'
+        _method_name = 'get_database_defaults'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         try:
-            result = wlst_helper.get_pwd()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19107',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return result
+            self.__load_global('getDatabaseDefaults')()
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00022',
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(pwe, class_name=self.__class_name, method_name=_method_name)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def get_existing_object_list(self, wlst_path=None):
+    def set_server_groups(self, server, server_groups):
         """
-        Get the existing directory list at the provided WLST path.
-        :param wlst_path: the WLST path, by default it uses the current location
-        :return: the list of folder names
-        :raises: BundleAwareException of the specified type: if an error occurs
+        Sets the database defaults indicated by RCU.
+
+        :param server: the name of the new server
+        :param server_groups: the list of template-defined server groups to target to the server
+        :raises: tool Exception: if a WLST error occurs
         """
-        _method_name = 'get_existing_object_list'
+        _method_name = 'set_server_groups'
+        self.__logger.entering(server_groups, server, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            result = wlst_helper.get_existing_object_list(wlst_path)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19108',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return result
-
-    def subfolder_exists(self, wlst_mbean_type, wlst_path=None):
-        """
-        Determine if the child exists in the current mbean.
-        :param wlst_path: This will be the MBean attributes path, or current path in WLST session if Noe
-        :param wlst_mbean_type: WLST child MBean to search for
-        :return: True if the child folder exists for the MBean
-        """
-        _method_name = 'subfolder_exists'
-
-        # Exception not currently thrown.
-        try:
-            result = wlst_helper.subfolder_exists(wlst_path, wlst_mbean_type)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19108',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return result
+            self.__load_global('setServerGroups')(server, server_groups)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00023', server_groups, server,
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def set_option_if_needed(self, option_name, option_value):
         """
@@ -349,673 +345,465 @@ class WlstHelper(object):
 
         :param option_name: attribute name at the current location
         :param option_value: to configure the attribute
+
         :raises: BundleAwareException of the specified type: if an error occurs
         """
         _method_name = 'set_option_if_needed'
 
-        try:
-            wlst_helper.set_option(option_name, option_value)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19109', option_name, option_value,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+        self.set_option(option_name, option_value)
 
-    def set_server_groups(self, server_name, server_groups_to_target):
+    def set_option(self, option, value):
         """
-        Target the server groups to the specified server.
+        Set the configuration for the indicated option to the provided value.
 
-        :param server_name: the server name
-        :param server_groups_to_target: the list of server groups to target
-        :param current_edit: if True and online, perform the set in the current edit session
-        :raises: BundleAwareException of the specified type: if an error occurs
+        :param option: domain option to set
+        :param value: to which to set the option
+        :raises: tool Exception: if a WLST error occurs
         """
-        _method_name = 'set_server_groups'
+        _method_name = 'set_option'
+        self.__logger.entering(option, value, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            wlst_helper.set_server_groups(server_name, server_groups_to_target)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19110', server_name,
-                                                   server_groups_to_target, pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
+            self.__load_global('setOption')(option, value)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00024', option,
+                                                    self.__get_exception_mode(e), _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-        return
-
-    def get_database_defaults(self):
+    def lsa(self, path=None, log_throwing=True):
         """
-        Assign the database defaults based on the service table data source.
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'get_database_defaults'
+        Return a map of weblogic attributes found at the wlst path or the current path.
 
+        In online mode, clean up the return values to strip off trailing spaces and
+        convert the string 'null' into None.
+        :param path: for which to return a map of attributes. If None, the current path is searched
+        :param log_throwing: whether or not to log the throwing message if the path location is not found
+        :return: map of weblogic attributes
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'lsa'
+        result = self.__ls(_method_name, 'a', path, log_throwing)
+        make_dict = dict()
+        if result and len(result) > 0:
+            for entry in result.entrySet():
+                key = entry.getKey()
+                value = entry.getValue()
+                if value and type(value) is str:
+                    new_value = value.rstrip()
+                    if new_value == 'null' or new_value == 'none':
+                        make_dict[key] = None
+                    else:
+                        make_dict[key] = new_value
+                else:
+                    make_dict[key] = value
+        return make_dict
+
+    def lsc(self, path=None, log_throwing=True):
+        """
+        Return a map of weblogic folders found at the wlst path or the current path.
+        :param path: for which to return a map of folders. If None, the current path is searched
+        :param log_throwing: whether or not to log the throwing message if the path location is not found
+        :return: list of weblogic folders
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'lsc'
+        return self.__ls(_method_name, 'c', path, log_throwing)
+
+    def path_exists(self, path):
+        """
+        Determine if the provided path exists in the domain. This can be a path relative to the
+        current location or a fully qualified path.
+        :param path: path to validate.
+        :return: True if path exists; false otherwise
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'path_exists'
+        self.__logger.finest('WLSDPLY-00025', path, class_name=self.__class_name, method_name=_method_name)
+
+        exists = True
         try:
-            wlst_helper.get_database_defaults()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19111',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+            self.__load_global('ls')(path)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            self.__logger.finest('WLSDPLY-00026', path, e.getLocalizedMessage(),
+                                 class_name=self.__class_name, method_name=_method_name)
+            exists = False
+        self.__logger.finest('WLSDPLY-00027', path, exists, class_name=self.__class_name, method_name=_method_name)
+        return exists
 
-    def get_quoted_name_for_wlst(self, model_value):
+    def get_singleton_name(self, path=None):
         """
-        Get the quoted MBean name to use in WLST.
-        This method checks for slashes in the name and quotes the name accordingly.
-        :param model_value: the model value
-        :return: the quoted value to pass to WLST
+        Return the name at the current location or at the provided path. This location represents
+        the name of an MBean that is a singleton. None will be returned if a location is provided and
+        it does not exist.
+        :param path: location to retrieve the singleton name, or the current location if no path is provided
+        :return: name of the MBean
+        :throws: tool Exception: if there is either no name or more than one name found at the location
+                                  or if a WLST error occurs
         """
-        return wlst_helper.get_quoted_name_for_wlst(model_value)
+        _method_name = 'get_singleton_name'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-    def read_domain(self, domain_home):
-        """
-        Read the domain from the specified location.
-        :param domain_home: the domain directory to read
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'read_domain'
+        mbean_name = None
+        if path is None or self.path_exists(path):
+            print_path = path
+            if path is None:
+                print_path = self.get_pwd()
+            name_list = self.lsc(path)
+            nbr_names = 0
+            if name_list is not None:
+                nbr_names = len(name_list)
+            if not nbr_names == 1:
+                pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00031',
+                                                        print_path, nbr_names, name_list)
+                self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+                raise pwe
+            mbean_name = name_list[0]
+            self.__logger.finest('WLSDPLY-00032', print_path, mbean_name,
+                                 class_name=self.__class_name, method_name=_method_name)
 
-        try:
-            wlst_helper.read_domain(domain_home)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19112', domain_home,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=mbean_name)
+        return mbean_name
 
-    def update_domain(self):
+    def get_mbean(self, wlst_path):
         """
-        Update the domain.
-        :raises: BundleAwareException of the specified type: if an error occurs
+        Return the current CMO or the proxy instance for the MBean of the current folder.
+        There are certain directories in offline that will not deliver a cmo, but will
+        give an MBean proxy for a cd to a fully qualified path
+        :param wlst_path: path of the named MBean
+        :return: CMO or MBean proxy for the current location
         """
-        _method_name = 'update_domain'
+        _method_name = 'get_mbean'
+        self.__logger.entering(wlst_path, class_name=self.__class_name, method_name=_method_name)
+        current_dir = self.get_pwd()
+        mbean_path = wlst_path
+        if mbean_path is None:
+            mbean_path = current_dir
+        self.__logger.finest('WLSDPLY-00097', mbean_path, class_name=self.__class_name, method_name=_method_name)
+        self.cd(current_dir)
+        cmo = self.get_cmo()
+        if cmo is None:
+            cmo = self.get_mbean_for_wlst_path(mbean_path)
+        if cmo is None:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00096', mbean_path)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        if wlst_path is None:
+            self.cd(current_dir)
 
-        try:
-            wlst_helper.update_domain()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19113',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=cmo)
+        return cmo
 
-    def write_domain(self, domain_home):
+    def get_mbean_for_wlst_path(self, path):
         """
-        Write the domain to the specified location.
-        :param domain_home: the domain directory to which to write
-        :raises: BundleAwareException of the specified type: if an error occurs
+        Return the mbean object for the provided path.
+        :param path: to return mbean object
+        :return: mbean object
+        :raises: tool Exception: if a WLST error occurs
         """
-        _method_name = 'write_domain'
+        _method_name = 'get_mbean_for_wlst_path'
+        self.__logger.finest(path, class_name=self.__class_name, method_name=_method_name)
 
-        try:
-            wlst_helper.write_domain(domain_home)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19114', domain_home,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+        current_dir = self.get_pwd()
+        the_object = self.cd(path)
+        self.cd(current_dir)
 
-    def close_domain(self):
-        """
-        Close the domain.
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'close_domain'
+        self.__logger.finest(self.__class_name, _method_name, the_object)
+        return the_object
 
-        try:
-            wlst_helper.close_domain()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19115',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def read_template(self, template_name):
+    def read_template(self, template):
         """
-        Read the domain template from the specified location.
-        :param template_name: the domain template to read
-        :raises: BundleAwareException of the specified type: if an error occurs
+        Read the server template into the weblogic domain for domain creation.
+        :param template: name of the template to load for domain creation
+        :raises: tool Exception: if a WLST error occurs
         """
         _method_name = 'read_template'
+        self.__logger.entering(template, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            wlst_helper.read_template(template_name)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19116', template_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+            self.__load_global('readTemplate')(template)
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00037', template,
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def select_template(self, template_name):
+    def add_template(self, template):
         """
-        Select the domain template from the specified location.
-        :param template_name: the domain template to select
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'select_template'
-
-        try:
-            wlst_helper.select_template(template_name)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19117', template_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def select_custom_template(self, template_name):
-        """
-        Select the custom template from the specified location.
-        :param template_name: the custom template to select
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'select_custom_template'
-
-        try:
-            wlst_helper.select_custom_template(template_name)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19148', template_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def add_template(self, template_name):
-        """
-        Add the domain extension template from the specified location.
-        :param template_name: the domain extension template to add
-        :raises: BundleAwareException of the specified type: if an error occurs
+        Extend the domain with the server template.
+        :param template: name of the template to load for domain extension
+        :raises: tool Exception: if a WLST error occurs
         """
         _method_name = 'add_template'
+        self.__logger.entering(template, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            wlst_helper.add_template(template_name)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19118', template_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def load_templates(self):
-        """
-        Load the selected domain templates into the domain.
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'load_templates'
-
-        try:
-            wlst_helper.load_templates()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19119',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+            self.__load_global('addTemplate')(template)
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00038', template,
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def close_template(self):
         """
-        Close the domain template.
-        :raises: BundleAwareException of the specified type: if an error occurs
+        Close the template that is currently loaded for domain creation.
+        :raises: tool Exception: if a WLST error occurs
         """
         _method_name = 'close_template'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         try:
-            wlst_helper.close_template()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19120',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+            self.__load_global('closeTemplate')()
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00039',
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def connect(self, admin_user, admin_pwd, admin_url):
+    def select_template(self, template):
         """
-        Connects to the domain at the specified URL with the specified credentials.
-        :raises: BundleAwareException of the specified type: if an error occurs
+        Select an existing domain template or application template for create a domain. This is
+        available only in weblogic 12c versions
+        :param template: to be selected and loaded into the current session
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'select_template'
+        self.__logger.entering(template, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('selectTemplate')(template)
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00040', template,
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def select_custom_template(self, template):
+        """
+        Select an existing custom domain template or application template for create a domain. This is
+        available only in WebLogic 12c versions
+        :param template: to be selected and loaded into the current session
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'select_custom_template'
+        self.__logger.entering(template, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('selectCustomTemplate')(template)
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00095', template,
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def load_templates(self):
+        """
+        Load all the selected templates.
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'load_templates'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('loadTemplates')()
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00041',
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def read_domain(self, domain_home):
+        """
+        Read the domain indicated by the domain_home name in offline mode.
+        :param domain_home: domain to read and load into the current offline session
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'read_domain'
+        self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('readDomain')(domain_home)
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00042', domain_home,
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def write_domain(self, domain_home):
+        """
+        Persist the newly created domain configuration to the provided location. This will automatically
+        overwrite an existing domain at this location.
+        :param domain_home: path location to write the domain and its configuration
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'write_domain'
+        self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('setOption')('OverwriteDomain', 'true')
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00043', domain_home,
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+
+        try:
+            self.__load_global('writeDomain')(domain_home)
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00044', domain_home,
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def update_domain(self):
+        """
+        Update the existing domain configuration with the edits made during the offline session.
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'update_domain'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('updateDomain')()
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00045',
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def close_domain(self):
+        """
+        Close the domain currently loaded into the offline wlst session.
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'close_domain'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('closeDomain')()
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00046',
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def connect(self, username, password, url):
+        """
+        Connect WLST to a WebLogic Server instance at the provided url with the provided credentials.
+        :param username: WebLogic user name
+        :param password: WebLogic password
+        :param url: WebLogic Server URL
+        :raises: tool Exception: if a WLST error occurs
         """
         _method_name = 'connect'
+        self.__logger.entering(username, url, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            wlst_helper.connect(admin_user, admin_pwd, admin_url)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19127', admin_url, admin_user,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+            self.__load_global('connect')(username=username, password=password, url=url)
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00047', username, url,
+                                                    self.__get_exception_mode(e), _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
 
-    def edit(self):
-        """
-        Edit the current Weblogic Server configuration.
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'edit'
-
-        try:
-            wlst_helper.edit()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19128',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def start_edit(self):
-        """
-        Start an edit session with the Weblogic Server for the currently connected user.
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'start_edit'
-
-        try:
-            wlst_helper.start_edit()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19129',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def stop_edit(self):
-        """
-        Stop the current edit session and discard all unsaved changes.
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'stop_edit'
-
-        try:
-            wlst_helper.stop_edit()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19130',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def undo(self):
-        """
-        Revert all unsaved or unactivated edits.
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'undo'
-
-        try:
-            wlst_helper.undo()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19142',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def cancel_edit(self):
-        wlst_helper.cancel_edit()
-
-    def save(self):
-        """
-        Save the outstanding Weblogic Server configuration changes for the current edit session.
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'save'
-
-        try:
-            wlst_helper.save()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19131',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def activate(self):
-        """
-        Activate changes saved during the current edit session but not yet deployed.
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'activate'
-
-        try:
-            wlst_helper.activate()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19132',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def disconnect(self):
         """
         Disconnects WLST from the current connected WebLogic Server instance.
-        :raises: BundleAwareException of the specified type: if an error occurs
+        :raises: tool Exception: if a WLST error occurs
         """
         _method_name = 'disconnect'
-
-        try:
-            wlst_helper.disconnect()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19133',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def silence(self):
-        """
-        Performs the wlst commands to suppress stdout and stderr chatter.
-        """
-        _method_name = 'silence'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        wlst_helper.silence()
-        return
 
-    def enable_stdout(self):
+        try:
+            self.__load_global('disconnect')()
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00048',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def edit(self):
         """
-        Performs the wlst commands to enable stdout
+        Edit the current WebLogic Server configuration.
+        :raises: tool Exception: if a WLST error occurs
         """
-        _method_name = 'enable_stdout'
+        _method_name = 'edit'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        wlst_helper.enable_stdout()
-        return
-
-    def set_if_needed(self, wlst_name, wlst_value, model_type, model_name, masked=False):
-        """
-        Set the WLST attribute to the specified value if the name and value are not None.
-        :param wlst_name: the WLST attribute name
-        :param wlst_value: the WLST attribute value
-        :param model_type: the model type
-        :param model_name: the model MBean name
-        :param masked: whether or not to mask the value in the logs, default value is False
-        :raises: CreateException: if an error occurs
-        """
-        _method_name = 'set_if_needed'
-
-        if wlst_name is not None and wlst_value is not None:
-            try:
-                wlst_helper.set(wlst_name, wlst_value)
-            except PyWLSTException, pwe:
-                value = wlst_value
-                if masked:
-                    value = '<masked>'
-                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19121', model_type, model_name,
-                                                       wlst_name, value, pwe.getLocalizedMessage(), error=pwe)
-                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-        return
-
-    def get_mbean(self, wlst_path):
-        """
-        Get the cmo or the MBean instance for the named MBean at the wlst_path or current directory.
-        :param wlst_path: path to the name MBean or None for current directory
-        :return: mbean instance
-        """
-        _method_name = 'get_mbean'
 
         try:
-            wlst_value = wlst_helper.get_mbean(wlst_path)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19122',
-                                                   wlst_path, pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
+            self.__load_global('edit')()
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00049',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-        return wlst_value
-
-    def get_mbean_for_wlst_path(self, wlst_path):
+    def start_edit(self):
         """
-        Get the MBean for the specified location.
-        :param wlst_path: the WLST path
-        :return: the MBean or None
-        :raises: CreateException: if an error occurs
+        Start an edit session with the WebLogic Server for the currently connected user.
+        :raises: tool Exception: if a WLST error occurs
         """
-        _method_name = 'get_mbean_for_wlst_path'
+        _method_name = 'start_edit'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         try:
-            wlst_value = wlst_helper.get_mbean_for_wlst_path(wlst_path)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19122',
-                                                   wlst_path, pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return wlst_value
+            self.__load_global('startEdit')()
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00050',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def get_config_manager(self):
+    def stop_edit(self):
         """
-        Returns the online configuration manager
-        :return: online configuration manager
-        :raises: BundleAwareException: if an error occurs
+        Stop the current edit session and discard all unsaved changes.
+        :raises: tool Exception: if a WLST error occurs
         """
-        _method_name = 'get_config_manager'
-
-        try:
-            wlst_value = wlst_helper.get_config_manager()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19123',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return wlst_value
-
-    def get_active_activation_tasks(self, config_manager):
-        """
-        Return list of active activation tasks.
-        :param config_manager: configuration manager
-        :return: list of active activation tasks
-        :raises: BundleAwareException: if an error occurs
-        """
-        _method_name = 'get_active_activation_tasks'
+        _method_name = 'stop_edit'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         try:
-            active_tasks = wlst_helper.get_active_activation_tasks(config_manager)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19124',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return active_tasks
+            self.__load_global('stopEdit')('y')
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00051',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def get_current_editor(self, config_manager):
+    def undo(self):
         """
-        Return current editor
-        :param config_manager: configuration manager
-        :return: current editor of the domain
-        :raises: BundleAwareException: if an error occurs
+        Revert all unsaved or unactivated edits.
+        :raises: tool Exception: if a WLST error occurs
         """
-        _method_name = 'get_current_editor'
-
-        try:
-            editor = wlst_helper.get_current_editor(config_manager)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19125',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return editor
-
-    def have_unactivated_changes(self, config_manager):
-        """
-        Return True if there is any unactivated changes in the domain
-        :param config_manager: configuration manager
-        :return: True if there are any unactivated changes in the domain
-        :raises: BundleAwareException: if an error occurs
-        """
-        _method_name = 'have_unactivated_changes'
+        _method_name = 'undo'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         try:
-            have_changes = wlst_helper.have_unactivated_changes(config_manager)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19126',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return have_changes
-
-    def start_application(self, application_name, *args, **kwargs):
-        """
-        Start the application in the connected domain.
-        :param application_name: the application name
-        :param args: the positional arguments to the WLST function
-        :param kwargs: the keywork arguments to the WLST function
-        :return: progress object (depends on whether it is blocked)
-        :raises: BundleAwareException: if an error occurs
-        """
-        _method_name = 'start_application'
-
-        try:
-            result = wlst_helper.start_application(application_name, *args, **kwargs)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19139', application_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return result
-
-    def stop_application(self, application_name, *args, **kwargs):
-        """
-        Stop the application in the connected domain.
-        :param application_name: the application name
-        :param args: the positional arguments to the WLST function
-        :param kwargs: the keywork arguments to the WLST function
-        :return: progress object (depends on whether it is blocked)
-        :raises: BundleAwareException: if an error occurs
-        """
-        _method_name = 'stop_application'
-
-        try:
-            result = wlst_helper.stop_application(application_name, *args, **kwargs)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19140', application_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return result
-
-    def deploy_application(self, application_name, *args, **kwargs):
-        """
-        Deploy the application in the connected domain.
-        :param application_name: the application name
-        :param args: the positional arguments to the WLST function
-        :param kwargs: the keywork arguments to the WLST function
-        :return: progress object (depends on whether it is blocked)
-        :raises: BundleAwareException: if an error occurs
-        """
-        _method_name = 'deploy_application'
-
-        try:
-            result = wlst_helper.deploy_application(application_name, *args, **kwargs)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19137', application_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return result
-
-    def redeploy_application(self, application_name, *args, **kwargs):
-        """
-        Redeploy the application in the connected domain.
-        :param application_name: the application name
-        :param args: the positional arguments to the WLST function
-        :param kwargs: the keywork arguments to the WLST function
-        :return: progress object (depends on whether it is blocked)
-        :raises: BundleAwareException: if an error occurs
-        """
-        _method_name = 'redeploy_application'
-
-        try:
-            result = wlst_helper.redeploy_application(application_name, *args, **kwargs)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19138', application_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return result
-
-    def undeploy_application(self, application_name, *args, **kwargs):
-        """
-        Undeploy the application in the connected domain.
-        :param application_name: the application name
-        :param args: the positional arguments to the WLST function
-        :param kwargs: the keywork arguments to the WLST function
-        :return: progress object (depends on whether it is blocked)
-        :raises: BundleAwareException: if an error occurs
-        """
-        _method_name = 'undeploy_application'
-
-        try:
-            result = wlst_helper.undeploy_application(application_name, *args, **kwargs)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19141', application_name,
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return result
-
-    def server_config(self):
-        """
-        Change to the serverConfig MBean tree.
-        :raises: BundleAwareException: if an error occurs
-        """
-        _method_name = 'server_config'
-
-        try:
-            wlst_helper.server_config()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19137',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def domain_runtime(self):
-        """
-        Change to the domainRuntime MBean tree.
-        :raises: BundleAwareException: if an error occurs
-        """
-        _method_name = 'domain_runtime'
-
-        try:
-            wlst_helper.domain_runtime()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19137',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
-
-    def is_restart_required(self):
-        """
-        Return if the update changes require restart of the domain or servers.
-        :return: true if the changes require restart
-        """
-        return wlst_helper.is_restart_required()
-
-    def is_connected(self):
-        """
-        Determine if the wlst session is currently connected to the admin server.
-        :return: True if connected
-        """
-        return wlst_helper.is_connected()
-
-    def custom(self):
-        """
-        Change to the custom MBean tree.
-        :raises: BundleAwareException: if an error occurs
-        """
-        _method_name = 'domain_runtime'
-
-        try:
-            wlst_helper.custom()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19137',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        return
+            self.__load_global('undo')('true', 'y')
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00069',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def save_and_close(self, model_context):
         """
@@ -1024,16 +812,10 @@ class WlstHelper(object):
         :param model_context: Contains information about the session, including the WlstMode
         """
         _method_name = 'save_and_close'
-        try:
-            if model_context.is_wlst_online():
-                wlst_helper.save_and_close_online()
-            else:
-                wlst_helper.save_and_close_offline()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19145', pwe.getLocalizedMessage(),
-                                                   error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
+        if model_context.is_wlst_online():
+            self.save_and_close_online()
+        else:
+            self.save_and_close_offline()
 
     def save_and_activate(self, model_context):
         """
@@ -1042,16 +824,790 @@ class WlstHelper(object):
         :param model_context: Contains information about the session, including the WlstMode
         """
         _method_name = 'save_and_activate'
+        if model_context.is_wlst_online():
+            self.save_and_activate_online()
+        else:
+            self.save_and_activate_offline()
+
+    def save(self):
+        """
+        Save the outstanding WebLogic Server configuration changes for the current edit session.
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'save'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
         try:
-            if model_context.is_wlst_online():
-                wlst_helper.save_and_activate_online()
-            else:
-                wlst_helper.save_and_activate_offline()
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19147', pwe.getLocalizedMessage(),
-                                                   error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
+            self.__load_global('save')()
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00052',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def activate(self):
+        """
+        Activate changes saved during the current edit session but not yet deployed.
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'activate'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.__load_global('activate')()
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00053',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def get_existing_object_list(self, wlst_objects_path):
+        """
+        Get the existing directory list at the provided WLST path.
+        :param wlst_objects_path:
+        :return: the list of directory objects
+        """
+        _method_name = 'get_existing_object_list'
+        self.__logger.finest('WLSDPLY-00054', wlst_objects_path, class_name=self.__class_name, method_name=_method_name)
+        current_dir = self.get_pwd()
+        exception_class = exception_helper.get_exception_class(self.__exception_type)
+        try:
+            result = self.lsc(wlst_objects_path, log_throwing=False)
+        except exception_class:
+            # if the ls() failed, directory does not exist
+            result = []
+        self.cd(current_dir)
+        self.__logger.finest('WLSDPLY-00055', wlst_objects_path, result,
+                             class_name=self.__class_name, method_name=_method_name)
+        return result
+
+    def subfolder_exists(self, wlst_objects_path, wlst_mbean_type):
+        """
+        Determine if the child exists in the current mbean.
+        :param wlst_objects_path: if not None, the wlst mbean attributes path. Current path if none
+        :param wlst_mbean_type: wlst child mbean to search for
+        :return: True if the child folder exists under the wlst mbean
+        """
+        _method_name = 'subfolder_exists'
+        child_folder_list = self.get_existing_object_list(wlst_objects_path)
+        if child_folder_list is not None and wlst_mbean_type in child_folder_list:
+            self.__logger.finest('WLSDPLY-00074', wlst_mbean_type, wlst_objects_path, class_name=self.__class_name,
+                                 _method_name=_method_name)
+            exists = True
+        else:
+            self.__logger.finest('WLSDPLY-00075', wlst_mbean_type, wlst_objects_path, class_name=self.__class_name,
+                                 method_name=_method_name)
+            exists = False
+        return exists
+
+    def start_application(self, application_name, *args, **kwargs):
+        """
+        Start the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keyword arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'start_application'
+        self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            result = self.__load_global('startApplication')(application_name, *args, **kwargs)
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00056', application_name,
+                                                    args, kwargs, _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def stop_application(self, application_name, *args, **kwargs):
+        """
+        Stop the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keyword arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'stop_application'
+        self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            result = self.__load_global('stopApplication')(application_name, *args, **kwargs)
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00057', application_name,
+                                                    args, kwargs, _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def deploy_application(self, application_name, *args, **kwargs):
+        """
+        Deploy the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keyword arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'deploy_application'
+        self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            result = self.__load_global('deploy')(application_name, *args, **kwargs)
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00058', application_name,
+                                                    args, kwargs, _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def undeploy_application(self, application_name, *args, **kwargs):
+        """
+        Undeploy the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keyword arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'undeploy_application'
+        self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            result = self.__load_global('undeploy')(application_name, *args, **kwargs)
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00059', application_name,
+                                                    args, kwargs, _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def redeploy_application(self, application_name, *args, **kwargs):
+        """
+        Redeploy the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keyword arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'redeploy_application'
+        self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            result = self.__load_global('redeploy')(application_name, *args, **kwargs)
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00060', application_name,
+                                                    args, kwargs, _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def apply_jrf_with_context(self, jrf_target, model_context, should_update=False):
+        """
+        Apply JRF server groups to targeted servers.
+        :param jrf_target: Server or cluster to target server groups
+        :param model_context: context with current tool parameters
+        :param should_update: update the domain context with the apply jrf updates
+        """
+        self.session_start(model_context.is_wlst_online(),
+                           model_context.get_admin_user(),
+                           model_context.get_admin_password(),
+                           model_context.get_admin_url(),
+                           model_context.get_domain_home())
+        self.__apply_jrf(jrf_target, domain_home=model_context.get_domain_home(),
+                         should_update=should_update)
+        self.session_end(model_context.is_wlst_online())
+
+    def apply_jrf_control_updates(self, jrf_targets, model_context):
+        """
+        For those installs that require populating the JRF server group information to the managed servers. Control
+        the session updates within the global context. Save the updates in the current context.
+        :param jrf_targets: The list of entities to which to target the JRF applications and services
+        :param model_context: The context containing the tool session information needed for the applyJRF
+        :raises: Exception specific to tool type
+        """
+        _method_name = 'apply_jrf_control_updates'
+
+        self.apply_jrf_global_updates(model_context.is_wlst_online(),
+                                      jrf_targets,
+                                      admin_user=model_context.get_admin_user(),
+                                      admin_pass=model_context.get_admin_password(),
+                                      admin_url=model_context.get_admin_url(),
+                                      domain_home=model_context.get_domain_home())
+
+    def __apply_jrf(self, jrf_target, domain_home=None, should_update=False):
+        """
+        For installs that need to connect extension template server groups to servers
+
+        :param jrf_target: entity (cluster, server) to target JRF applications and service
+        :param domain_home: the domain home directory
+        :param should_update: If true, update the domain - it will check if in online or offline mode
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'apply_jrf'
+        self.__logger.entering(jrf_target, domain_home, should_update,
+                               class_name=self.__class_name, method_name=_method_name)
+        self.__logger.fine('WLSDPLY-00073', jrf_target, domain_home, should_update,
+                           class_name=self.__class_name, method_name=_method_name)
+
+        load_apply_jrf = self.__load_global('applyJRF')
+        try:
+            load_apply_jrf(jrf_target, domain_home, should_update)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00071', jrf_target, domain_home,
+                                                    should_update, _format_exception(e), error=e)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def apply_jrf_global_updates(self, online, jrf_targets, admin_user=None, admin_pass=None,
+                                 admin_url=None, domain_home=None):
+        """
+        For installs that will control locally any updates from the apply_jrf
+        :param online: True if the tool session is in online mode
+        :param jrf_targets: the list target for the JRF resources
+        :param admin_user: admin user if online session
+        :param admin_pass: admin password if online session
+        :param admin_url: admin url if online session
+        :param domain_home: domain home if offline session
+        :raises: tool Exception: If a WLST exception occurs
+        """
+        _method_name = 'apply_jrf_global_updates'
+        self.__logger.entering(StringUtils.stringForBoolean(online), jrf_targets, domain_home,
+                               class_name=self.__class_name, method_name=_method_name)
+
+        self.session_start(online, admin_user, admin_pass, admin_url, domain_home)
+        for jrf_target in jrf_targets:
+            self.__apply_jrf(jrf_target, domain_home, False)
+
+        self.session_end(online)
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def session_start(self, online, admin_user, admin_pass, admin_url, domain_home):
+        """
+        Start the edit session in the global context
+        :param online: True if the tool session is in online mode
+        :param admin_user: admin user if online session
+        :param admin_pass: admin password if online session
+        :param admin_url: admin url if online session
+        :param domain_home: domain home if offline session
+        """
+        _method_name = 'session_start'
+        self.__logger.entering(online, admin_user, admin_url, domain_home,
+                               class_name=self.__class_name, method_name=_method_name)
+        if online:
+            self.global_connect(admin_user, admin_pass, admin_url)
+            self.global_edit()
+            self.global_start_edit()
+        else:
+            self.global_read_domain(domain_home)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def session_end(self, online):
+        """
+        End the edit session in the global context
+        :param online: True if the tool session is in online mode
+        """
+        _method_name = 'session_end'
+        self.__logger.entering(online, class_name=self.__class_name, method_name=_method_name)
+        if online:
+            self.online_session_end()
+        else:
+            self.offline_session_end()
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def global_connect(self, user, upass, url):
+        """
+        Connect to the domain AdminServer to create a WLST online context for the domain.
+        :param user: admin user name
+        :param upass: admin password
+        :param url: url of the admin server
+        :raises: tool Exception: If a WLST exception occurs
+        """
+        _method_name = 'global_connect'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.__load_global('connect')(user, upass, url)
+        except self.__load_global('WLSTException'), e:
+            connect_string = 'connect(' + user + ', password hidden, ' + url + ')'
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', connect_string,
+                                                    _format_exception(e), error=e)
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def global_edit(self):
+        """
+        Start an edit session in the current connected online domain session context.
+        :raises: tool Exception: Thrown if a WLST exception occurs
+        """
+        _method_name = 'global_edit'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.__load_global('edit')()
+        except self.__load_global('WLSTException'), e:
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'edit()',
+                                                    _format_exception(e), error=e)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def global_start_edit(self):
+        """
+        Start edit - this starts an online WLST edit within the current global context.
+        :raises: tool Exception: When a WLST exception occurs
+        """
+        _method_name = 'global_start_edit'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.__load_global('startEdit')()
+        except self.__load_global('WLSTException'), e:
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'startEdit()',
+                                                    _format_exception(e), error=e)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def global_read_domain(self, domain_home):
+        """
+        Read the domain with WLST offline which loads the domain and creates a global context.
+        :param domain_home: domain home to read and load
+        :throws tool Exception if the readDomain fails with a WLST Exception
+        """
+        _method_name = 'global_read_domain'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.__load_global('readDomain')(domain_home)
+        except offlineWLSTException, e:
+            read_string = 'readDomain(' + domain_home + ')'
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', read_string,
+                                                    _format_exception(e), error=e)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def online_session_end(self):
+        """
+        Save and activate the current online session if one is in progress and disconnect from the current
+        WLST online domain session.
+        :raises: tool Exception: If a WLST Exception occurs
+        """
+        _method_name = '__online_session_end'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        self.__logger.finest('WLSDPLY-00085', class_name=self.__class_name, method_name=_method_name)
+        cmgr = self.get_config_manager()
+        if self.is_editor(cmgr):
+            self.global_save()
+            self.global_activate()
+        self.global_disconnect()
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def global_save(self):
+        """
+        Save all edits that are in progress in the current online domain session context
+        :raises: tool Exception: When a WLST exception occurs
+        """
+        _method_name = 'global_save'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.__load_global('save')()
+        except self.__load_global('WLSTException'), e:
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'save()',
+                                                    _format_exception(e), error=e)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def global_activate(self):
+        """
+        Activate all saved updates maded in the current online domain session context.
+        :raises: tool Exception: When a WLST exception occurs
+        """
+        _method_name = 'global_activate'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.__load_global('activate')()
+        except self.__load_global('WLSTException'), e:
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'activate()',
+                                                    _format_exception(e), error=e)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def global_disconnect(self):
+        """
+        Disconnect from the current online WLST domain session.
+        :raises: tool Exception: when a WLST exception occurs
+        """
+        _method_name = 'global_disconnect'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.__load_global('disconnect')()
+        except self.__load_global('WLSTException'), e:
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'disconnect()',
+                                                    _format_exception(e), error=e)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def offline_session_end(self):
+        """
+        Update the domain with all changes in progress and close the domain current context.
+        :raises: tool Exception: When a WLST exception occurs
+        """
+        _method_name = '__offline_session_end'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        self.__logger.finest('WLSDPLY-00085', class_name=self.__class_name, method_name=_method_name)
+        self.global_update_domain()
+        self.global_close_domain()
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def global_update_domain(self):
+        """
+        Update the domain with all changes in progress for the offline WLST domain context.
+        :raises: tool Exception: When a WLST exception occurs
+        """
+        _method_name = 'global_update_domain'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.__load_global('updateDomain')()
+        except offlineWLSTException, e:
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'updateDomain()',
+                                                    _format_exception(e), error=e)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def global_close_domain(self):
+        """
+        Close the current WLST offline session with the domain.
+        :raises: tool Exception: When a WLST exception occurs
+        """
+        _method_name = 'global_close_domain'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.__load_global('closeDomain')()
+        except offlineWLSTException, e:
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'closeDomain()',
+                                                    _format_exception(e), error=e)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def get_config_manager(self):
+        """
+        Return the online configuration manager
+        :return: configuration manager
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'get_config_manager'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            result = self.__load_global('getConfigManager')()
+        except (offlineWLSTException, self.__load_global('WLSTException')), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'getConfigManager()',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def get_current_editor(self, cmgr):
+        """
+        Return current editor
+        :param cmgr: configuration manager
+        :return: current editor of the domain
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'get_current_editor'
+        self.__logger.entering(cmgr, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            result = cmgr.getCurrentEditor()
+        except (offlineWLSTException, self.__load_global('WLSTException')), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'cmgr.getCurrentEditor()',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def is_editor(self, cmgr):
+        """
+        Determine if an edit is in progress and if this context is the current editor.
+        :param cmgr: current configuration manager
+        :return: True if context is current editor
+        """
+        _method_name = 'is_editor'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            result = cmgr.isEditor()
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00094',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name,
+                              result=StringUtils.stringForBoolean(result))
+        return result
+
+    def have_unactivated_changes(self, cmgr):
+        """
+        Return True if there is any unactivated changes in the domain
+        :param cmgr: configuration manager
+        :return: True if there is any unactivated changes in the domain
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'have_unactivated_changes'
+        self.__logger.entering(cmgr, class_name=self.__class_name, method_name=_method_name)
+        try:
+            result = cmgr.haveUnactivatedChanges()
+        except (offlineWLSTException, self.__load_global('WLSTException')), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086',
+                                                    'cmgr.haveUnactivatedChanges()', _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def get_active_activation_tasks(self, cmgr):
+        """
+        Return list of active activation tasks
+        :param cmgr: configuration manager
+        :return: list of active activation tasks
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'get_active_activation_tasks'
+        self.__logger.entering(cmgr, class_name=self.__class_name, method_name=_method_name)
+        try:
+            result = cmgr.getActiveActivationTasks()
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00062',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def cm_save(self, cmgr):
+        """
+        Use the Configuration Manager to save the unsaved changes in online mode.
+        :param cmgr: Current Configuration Manager
+        :throws: tool Exception if unable to perform the online save
+        """
+        _method_name = 'cm_save'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            cmgr.save()
+        except (self.__load_global('WLSTException'), ValidationException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00090',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def cm_activate(self, cmgr):
+        """
+        Use the configuration manager to activate the saved changes
+        :param cmgr: current configuration manager
+        :throws tool Exception: if in the wrong state to activate the changes
+        """
+        _method_name = 'cm_activate'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        timeout = 300000L
+        try:
+            cmgr.activate(timeout)
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00091',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def cm_start_edit(self, cmgr):
+        """
+        Use the configuration manager to start an edit session
+        :param cmgr: current configuration manager
+        :throws tool Exception: in wrong state to start an edit session
+        """
+        _method_name = 'cm_edit'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            cmgr.startEdit(0, -1, False)
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00093',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def get_unsaved_changes(self, cmgr):
+        """
+        Return the current edit session unsaved changes
+        :param cmgr: current configuration manager
+        :return: unsaved changes as Change[]
+        """
+        _method_name = 'get_changes'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            changes = cmgr.getChanges()
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00092',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=len(changes))
+        return changes
+
+    def have_unsaved_changes(self, cmgr):
+        """
+        Return true if the current edit session contains unsaved changes
+        :param cmgr: Current Configuration Manager of the connected
+        :throws tool Exception:
+        """
+        _method_name = 'have_unsaved_changes'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        changes = self.get_unsaved_changes(cmgr)
+        unsaved = changes is not None and len(changes) > 0
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name,
+                              result=StringUtils.stringForBoolean(unsaved))
+        return unsaved
+
+    def server_config(self):
+        """
+        Change to the serverConfig MBean tree.
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'server_config'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('serverConfig')()
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00065',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def domain_runtime(self):
+        """
+        Change to the domainRuntime MBean tree.
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'domain_runtime'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('domainRuntime')()
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00066',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def custom(self):
+        """
+        Change to the custom MBean tree.
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'custom'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('custom')()
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00067',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def get_mbi(self, path=None):
+        """
+        Get the MBeanInfo for the current or specified MBean location.
+        :param path: optionally specify path to check
+        :return: javax.management.modelmbean.ModelMBeanInfo instance for the current location
+        """
+        _method_name = 'get_mbi'
+        self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
+
+        current_path = None
+        if path is not None:
+            current_path = self.get_pwd()
+            self.cd(path)
+
+        result = self.__load_global('getMBI')()
+
+        if current_path is not None:
+            self.cd(current_path)
+
+        self.__logger.exiting(result=str(result), class_name=self.__class_name, method_name=_method_name)
+        return result
+
+    def save_and_close_online(self):
+        """
+        Call this if necessary to save changes and disconnect from the domain
+        midstream through the tool session. If not connected, do
+        nothing.
+        """
+        _method_name = 'save_and_close_online'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        if self.is_connected():
+            self.__logger.fine('WLSDPLY-00077', class_name=self.__class_name, method_name=_method_name)
+            self.save_and_activate_online()
+            self.disconnect()
+        else:
+            self.__logger.fine('WLSDPLY-00076', class_name=self.__class_name, method_name=_method_name)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def save_and_close_offline(self):
+        """
+        Update the domain to save any active changes and close the domain. For use in middle of tool session.
+        """
+        _method_name = 'save_and_close_offline'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        self.update_domain()
+        self.close_domain()
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def save_and_activate_online(self):
+        """
+        Call this if necessary to save changes midstream through the tool session. If not connected, do
+        nothing.
+        """
+        _method_name = 'save_and_activate_online'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        if self.is_connected():
+            self.__logger.fine('WLSDPLY-00077', class_name=self.__class_name, method_name=_method_name)
+            # The setServerGroups cmgr.reload() lost the saved and unactivated changes marker
+            # Don't even check for outstanding changes or saved but not activated. Just
+            # do this and hope for the best
+            self.save()
+            self.activate()
+        else:
+            self.__logger.fine('WLSDPLY-00076', class_name=self.__class_name, method_name=_method_name)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def save_and_activate_offline(self):
+        """
+        Update the domain to save any active changes. For use in middle of tool session.
+        """
+        _method_name = 'save_and_close_offline'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        self.update_domain()
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def reopen(self, model_context):
         """
@@ -1059,29 +1615,210 @@ class WlstHelper(object):
         :param model_context: contains the information needed for the reopen, including the WlstMode
         """
         _method_name = 'reopen'
-        try:
-            if model_context.is_wlst_online():
-                wlst_helper.reopen_online(model_context.get_admin_user(), model_context.get_admin_password(),
-                                          model_context.get_admin_url())
-            else:
-                wlst_helper.reopen_offline(model_context.get_domain_home())
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19144',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
+        if model_context.is_wlst_online():
+            self.reopen_online(model_context.get_admin_user(), model_context.get_admin_password(),
+                               model_context.get_admin_url())
+        else:
+            self.reopen_offline(model_context.get_domain_home())
 
-    def setSharedSecretStoreWithPassword(self, wallet_path, password):
+    def reopen_online(self, admin_user, admin_pass, admin_url):
         """
-        set the shared secret store opss password
-        :param wallet_path: opss extracted wallet dir
-        :param password: extract time password
+        Establish connection with the domain and start editing..
+        :param admin_user: admin userid
+        :param admin_pass: admin_password
+        :param admin_url: url of the admin server
         """
-        _method_name = 'setSharedSecretStoreWithPassword'
+        _method_name = 'reopen_online'
+        self.__logger.entering(admin_user, admin_url, class_name=self.__class_name, method_name=_method_name)
+        if not self.is_connected():
+            self.__logger.fine('WLSDPLY-00080', class_name=self.__class_name, method_name=_method_name)
+            self.connect(admin_user, admin_pass, admin_url)
+        else:
+            self.__logger.fine('WLSDPLY-00079', class_name=self.__class_name, method_name=_method_name)
+
+        self.edit()
+        self.start_edit()
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def reopen_offline(self, domain_home):
+        """
+        Read the domain in offline.
+        :param domain_home:
+        """
+        _method_name = 'reopen_offline'
+        self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
+        self.__logger.fine('WLSDPLY-00081', class_name=self.__class_name, method_name=_method_name)
+        self.read_domain(domain_home)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def set_shared_secret_store_with_password(self, wallet_path, password):
+        """
+        Set opss store password
+        :param wallet_path: opss extracted wallet
+        :param password:  opss store extraction time password
+        """
+        _method_name = 'set_shared_secret_store_with_password'
+        self.__logger.entering(wallet_path, class_name=self.__class_name, method_name=_method_name)
+        self.__load_global('setSharedSecretStoreWithPassword')(wallet_path, password)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def get_pwd(self):
+        """
+        Return the current weblogic path. The domain name is stripped from this path.
+        :return: path of current location.
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = 'get_pwd'
+        self.__logger.finest('WLSDPLY-00033', class_name=self.__class_name, method_name=_method_name)
+
         try:
-            wlst_helper.set_shared_secret_store_with_password(wallet_path, password)
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19144',
-                                                   pwe.getLocalizedMessage(), error=pwe)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
+            path = self.__load_global('pwd')()[1:]
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00034',
+                                                    self.__get_exception_mode(e), _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+
+        second_slash = path.find('/')
+        if second_slash != -1:
+            path = path[second_slash:]
+        else:
+            path = '/'
+        self.__logger.finest('WLSDPLY-00035', path, class_name=self.__class_name, method_name=_method_name)
+        return path
+
+    def silence(self):
+        _method_name = 'silence'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        """
+        Silence the chatter that wlst generates by default.
+        """
+        local_wls = self.__load_global('WLS')
+        local_wls_on = self.__load_global('WLS_ON')
+        local_wls.setLogToStdOut(False)
+        local_wls.setShowLSResult(False)
+        local_wls_on.setlogToStandardOut(False)
+        local_wls_on.setHideDumpStack('true')
+        local_wls.getCommandExceptionHandler().setMode(True)
+        local_wls.getCommandExceptionHandler().setSilent(True)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def enable_stdout(self):
+        """
+        Performs the wlst commands to enable stdout
+        """
+        local_wls = self.__load_global('WLS')
+        local_wls_on = self.__load_global('WLS_ON')
+        local_wls.setLogToStdOut(True)
+        local_wls.setShowLSResult(True)
+        local_wls_on.setlogToStandardOut(True)
+
+    def get_quoted_name_for_wlst(self, name):
+        """
+        Return a wlst required string for a name value in format ('<name>')
+        :param name: to represent in the formatted string
+        :return: formatted string
+        """
+        _method_name = 'get_quoted_name_for_wlst'
+        result = name
+        if name is not None and '/' in name:
+            result = '(' + name + ')'
+        self.__logger.finest('WLSDPLY-0098', class_name=self.__class_name, method_name=_method_name)
+        return result
+
+    def __ls(self, method_name, ls_type, path=None, log_throwing=True):
+        """
+        Private helper method shared by various API methods
+        :param method_name: calling method name
+        :param ls_type: the WLST return type requested
+        :param path: the path (default is the current path)
+        :param log_throwing: whether or not to log the throwing message if the path location is not found
+        :return: the result of the WLST ls(returnMap='true') call
+        :raises: tool Exception: if a WLST error occurs
+        """
+        _method_name = method_name
+        self.__logger.finest('WLSDPLY-00028', method_name, ls_type, path,
+                             class_name=self.__class_name, method_name=_method_name)
+
+        load_ls = self.__load_global('ls')
+        if path is not None:
+            # ls(path, returnMap='true') is busted in earlier versions of WLST so go ahead and
+            # change directories to the specified path to workaround this
+            current_path = self.get_pwd()
+            self.cd(path)
+            try:
+                result = load_ls(ls_type, returnMap='true', returnType=ls_type)
+            except (self.__load_global('WLSTException'), offlineWLSTException), e:
+                pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00029', path, ls_type,
+                                                        self.__get_exception_mode(e), _format_exception(e), error=e)
+                if log_throwing:
+                    self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+                self.cd(current_path)
+                raise pwe
+            self.cd(current_path)
+        else:
+            current_path = self.get_pwd()
+            try:
+                result = load_ls(ls_type, returnMap='true', returnType=ls_type)
+            except (self.__load_global('WLSTException'), offlineWLSTException), e:
+                pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00029', current_path, ls_type,
+                                                        self.__get_exception_mode(e), _format_exception(e), error=e)
+                self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+                raise pwe
+        self.__logger.finest('WLSDPLY-00030', method_name, ls_type, current_path, result,
+                             class_name=self.__class_name, method_name=_method_name)
+        return result
+
+    def __check_online_connection(self):
+        return self.__load_global('WLS_ON').isConnected()
+
+    def __load_global(self, global_name):
+        """
+        The WLST globals were stored on entry into the tool instance. Look for the provided name in the
+        globals and return the corresponding function or variable.
+        :param global_name: Name to look up in the globals
+        :return: the function or variable associated with the name from the globals
+        :raises: tool Exception: If the global name is not found in the globals
+        """
+        member = None
+        if wlst_functions is not None and global_name in wlst_functions:
+            member = wlst_functions[global_name]
+
+        if member is None:
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00087', global_name)
+        return member
+
+    def __get_exception_mode(self, e):
+        """
+        Return a text value dependent on online or offline mode. The wlst exception messages differ between offline
+        and online, and this can provide clarity to our exception. This value is not internationalized.
+        :param e: The exception instance. The class of this instance determines whether the exception was thrown
+                    in offline or online mode
+        :return: The text value online, offline or unknown
+        """
+        if isinstance(e, self.__load_global('WLSTException')):
+            return 'online'
+        if isinstance(e, offlineWLSTException):
+            return 'offline'
+        return 'unknown'
+
+
+def _format_exception(e):
+    """
+    Format the exception
+    :param e: the exception
+    :return: the formatted exception message
+    """
+    if isinstance(e, offlineWLSTException):
+        message = e.getLocalizedMessage()
+        #
+        # Try to find a message that is not empty
+        #
+        if message is None:
+            cause = e.getCause()
+            while message is None and cause is not None:
+                message = cause.getLocalizedMessage()
+                cause = cause.getCause()
+        return message
+    return str(e)

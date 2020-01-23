@@ -23,7 +23,7 @@ from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 
 _class_name = "deployer_utils"
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy.utils')
-_wlst_helper = WlstHelper(_logger, ExceptionType.DEPLOY)
+_wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 
 
 def get_existing_object_list(location, alias_helper):

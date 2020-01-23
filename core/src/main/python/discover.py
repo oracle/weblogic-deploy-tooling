@@ -31,6 +31,7 @@ from wlsdeploy.aliases.location_context import LocationContext
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
@@ -41,18 +42,18 @@ from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
+from wlsdeploy.tool.util import wlst_helper
+from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import tool_exit
-from wlsdeploy.util import wlst_extended
-from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
-wlst_extended.wlst_functions = globals()
+wlst_helper.wlst_functions = globals()
 
 _program_name = 'discoverDomain'
 _class_name = 'discover'
@@ -216,19 +217,23 @@ def __process_java_home(optional_arg_map):
         __logger.info('WLSDPLY-06027', java_home_name, iae.getLocalizedMessage(),
                       class_name=_class_name, method_name=_method_name)
 
-def __discover(model_context, aliases, injector):
+
+def __discover(model_context, aliases, injector, helper):
     """
     Populate the model from the domain.
     :param model_context: the model context
+    :param aliases: aliases instance for discover
+    :param injector: variable injector instance
+    :param helper: wlst_helper instance
     :return: the fully-populated model
     :raises DiscoverException: if an error occurred while discover the domain
     """
     _method_name = '__discover'
     model = Model()
     base_location = LocationContext()
-    __connect_to_domain(model_context)
+    __connect_to_domain(model_context, helper)
     try:
-        _add_domain_name(base_location, aliases)
+        _add_domain_name(base_location, aliases, helper)
         DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
                              aliases=aliases, variable_injector=injector).discover()
         TopologyDiscoverer(model_context, model.get_model_topology(), base_location, wlst_mode=__wlst_mode,
@@ -247,15 +252,15 @@ def __discover(model_context, aliases, injector):
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 
-    __disconnect_domain()
+    __disconnect_domain(helper)
     return model
 
 
-def _add_domain_name(location, aliases):
+def _add_domain_name(location, aliases, helper):
     _method_name = '_get_domain_name'
     try:
-        wlst_helper.cd('/')
-        domain_name = wlst_helper.get(model_constants.DOMAIN_NAME)
+        helper.cd('/')
+        domain_name = helper.get(model_constants.DOMAIN_NAME)
     except PyWLSTException, pe:
         de = exception_helper.create_discover_exception('WLSDPLY-06020', pe.getLocalizedMessage())
         __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
@@ -281,10 +286,11 @@ def __discover_multi_tenant(model, model_context, base_location, aliases, inject
     return
 
 
-def __connect_to_domain(model_context):
+def __connect_to_domain(model_context, helper):
     """
     Connects WLST to the domain by either connecting to the Admin Server or reading the domain from disk.
     :param model_context: the model context
+    :param helper: wlst helper instance
     :raises DiscoverException: if a WLST error occurs while connecting to or reading the domain
     """
     _method_name = '__connect_to_domain'
@@ -292,8 +298,8 @@ def __connect_to_domain(model_context):
     __logger.entering(class_name=_class_name, method_name=_method_name)
     if __wlst_mode == WlstModes.ONLINE:
         try:
-            wlst_helper.connect(model_context.get_admin_user(), model_context.get_admin_password(),
-                                model_context.get_admin_url())
+            helper.connect(model_context.get_admin_user(), model_context.get_admin_password(),
+                           model_context.get_admin_url())
         except PyWLSTException, wlst_ex:
             ex = exception_helper.create_discover_exception('WLSDPLY-06001', model_context.get_admin_url(),
                                                             model_context.get_admin_user(),
@@ -302,7 +308,7 @@ def __connect_to_domain(model_context):
             raise ex
     else:
         try:
-            wlst_helper.read_domain(model_context.get_domain_home())
+            helper.read_domain(model_context.get_domain_home())
         except PyWLSTException, wlst_ex:
             wls_version = WebLogicHelper(__logger).get_actual_weblogic_version()
             ex = exception_helper.create_discover_exception('WLSDPLY-06002', model_context.get_domain_home(),
@@ -354,9 +360,10 @@ def __close_archive(model_context):
     return
 
 
-def __disconnect_domain():
+def __disconnect_domain(helper):
     """
     Disconnects WLST from the domain by either disconnecting from the Admin Server or closing the domain read from disk.
+    :param helper: wlst_helper instance
     :raises DiscoverException: if a WLST error occurred while disconnecting or closing the domain
     """
     _method_name = '__disconnect_domain'
@@ -364,7 +371,7 @@ def __disconnect_domain():
     __logger.entering(class_name=_class_name, method_name=_method_name)
     if __wlst_mode == WlstModes.ONLINE:
         try:
-            wlst_helper.disconnect()
+            helper.disconnect()
         except PyWLSTException, wlst_ex:
             ex = exception_helper.create_discover_exception('WLSDPLY-06006',
                                                             wlst_ex.getLocalizedMessage(), error=wlst_ex)
@@ -372,7 +379,7 @@ def __disconnect_domain():
             raise ex
     else:
         try:
-            wlst_helper.close_domain()
+            helper.close_domain()
         except PyWLSTException, wlst_ex:
             ex = exception_helper.create_discover_exception('WLSDPLY-06007',
                                                             wlst_ex.getLocalizedMessage(), error=wlst_ex)
@@ -494,7 +501,8 @@ def main(args):
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
-    wlst_helper.silence()
+    helper = WlstHelper(ExceptionType.DISCOVER)
+    helper.silence()
 
     exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
 
@@ -528,7 +536,7 @@ def main(args):
     else:
         __logger.info('WLSDPLY-06024', class_name=_class_name, method_name=_method_name)
     try:
-        model = __discover(model_context, aliases, discover_injector)
+        model = __discover(model_context, aliases, discover_injector, helper)
     except DiscoverException, ex:
         __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
                         model_context.get_domain_home(), ex.getLocalizedMessage(),

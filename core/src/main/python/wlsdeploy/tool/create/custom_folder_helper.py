@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import IllegalArgumentException
@@ -28,7 +28,7 @@ class CustomFolderHelper(object):
         self.exception_type = exception_type
         self.alias_helper = AliasHelper(aliases, self.logger, self.exception_type)
         self.weblogic_helper = WebLogicHelper(self.logger)
-        self.wlst_helper = WlstHelper(self.logger, self.exception_type)
+        self.wlst_helper = WlstHelper(self.exception_type)
 
     def update_security_folder(self, location, model_type, model_subtype, model_name, model_nodes):
         """

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the updateDomain tool.
@@ -33,25 +33,25 @@ from wlsdeploy.tool.deploy.topology_updater import TopologyUpdater
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
+from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
-from wlsdeploy.util import wlst_extended
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import model as model_helper
 
-wlst_extended.wlst_functions = globals()
+wlst_helper.wlst_functions = globals()
 
 _program_name = UPDATE_DOMAIN
 _class_name = 'update'
 __logger = PlatformLogger('wlsdeploy.update')
 __wls_helper = WebLogicHelper(__logger)
-__wlst_helper = WlstHelper(__logger, ExceptionType.DEPLOY)
+__wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
