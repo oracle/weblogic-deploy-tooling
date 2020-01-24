@@ -272,8 +272,6 @@ def main(args):
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
-    WlstHelper(ExceptionType.VARIABLE).silence()
-
     exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
 
     model_context = None
