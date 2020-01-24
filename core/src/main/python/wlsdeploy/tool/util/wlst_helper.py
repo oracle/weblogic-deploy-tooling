@@ -4,8 +4,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
-import oracle.WebLogic.deploy.util.StringUtils as StringUtils
-import WebLogic.management.mbeanservers.edit.ValidationException as ValidationException
+import oracle.weblogic.deploy.util.StringUtils as StringUtils
+import weblogic.management.mbeanservers.edit.ValidationException as ValidationException
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
