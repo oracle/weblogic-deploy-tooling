@@ -4,17 +4,20 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
-import oracle.weblogic.deploy.util.StringUtils as StringUtils
-import weblogic.management.mbeanservers.edit.ValidationException as ValidationException
+import oracle.WebLogic.deploy.util.StringUtils as StringUtils
+import WebLogic.management.mbeanservers.edit.ValidationException as ValidationException
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 wlst_functions = None
-wlst_state = None
 
 
 class WlstHelper(object):
+    """
+    The helper class to execute all WLST commands. The class uses the globals
+    loaded by WLST and stored in the wlst_functions global variable.
+    """
     __class_name = 'WlstHelper'
     __logger = PlatformLogger('wlsdeploy.wlst')
 
@@ -30,7 +33,7 @@ class WlstHelper(object):
         :param source_name: entity name
         :param target_type: target type
         :param target_name: target name
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'assign'
         self.__logger.entering(source_type, source_name, target_type, target_name,
@@ -53,7 +56,7 @@ class WlstHelper(object):
 
         :param path: wlst directory to which to change location
         :return: cmo object reference of the new location
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
 
         _method_name = 'cd'
@@ -74,7 +77,7 @@ class WlstHelper(object):
 
         :param attribute: name of the wlst attribute
         :return: value set for the attribute
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'get'
         self.__logger.finest('WLSDPLY-00004', attribute, class_name=self.__class_name, method_name=_method_name)
@@ -95,7 +98,7 @@ class WlstHelper(object):
         :param wlst_name: the WLST attribute name
         :param wlst_value: the WLST attribute value
         :param masked: whether or not to mask the value in the logs, default value is False
-        :raises: CreateException: if an error occurs
+        :raises: Exception for the specified tool type: if an error occurs
         """
         _method_name = 'set_if_needed'
 
@@ -109,7 +112,7 @@ class WlstHelper(object):
         :param attribute: attribute name at the current location
         :param value: to configure the attribute
         :param masked: if the value is encrypted mask the value in log streams
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'set'
         log_value = value
@@ -134,7 +137,7 @@ class WlstHelper(object):
         :param wlst_name: the WLST attribute name
         :param wlst_value: the WLST value
         :param masked: whether or not to mask the wlst_value from the log files.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'set_with_cmo'
         value = wlst_value
@@ -184,7 +187,7 @@ class WlstHelper(object):
         """
         update the Current Management Object (cmo) to current mbean in self.__load_global('
         :return: updated cmo
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'get_cmo'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -235,7 +238,7 @@ class WlstHelper(object):
         :param folder: name of the mbean folder
         :param base_provider_type: the name of the security provider base type
         :return: the MBean object returned by the underlying WLST create() method
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'create'
         self.__logger.entering(name, folder, base_provider_type, class_name=self.__class_name, method_name=_method_name)
@@ -269,7 +272,7 @@ class WlstHelper(object):
         :param location: the location
         :param create_path: the WLST path from which to create the new MBean
         :return: the result from cd()
-        :raises: BundleAwareException of the specified type: if an error occurs
+        :raises: Exception for the specified tool type: if an error occurs
         """
         _method_name = 'create_and_cd'
         self.__logger.entering(name, location.get_folder_path(), create_path,
@@ -286,7 +289,7 @@ class WlstHelper(object):
         Delete an MBean of the specified name and type at the current location.
         :param name: the MBean name
         :param folder: the MBean type
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'delete'
         self.__logger.entering(name, folder, class_name=self.__class_name, method_name=_method_name)
@@ -305,7 +308,7 @@ class WlstHelper(object):
     def get_database_defaults(self):
         """
         sets the database defaults indicated by RCU.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'get_database_defaults'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -325,7 +328,7 @@ class WlstHelper(object):
 
         :param server: the name of the new server
         :param server_groups: the list of template-defined server groups to target to the server
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'set_server_groups'
         self.__logger.entering(server_groups, server, class_name=self.__class_name, method_name=_method_name)
@@ -345,8 +348,7 @@ class WlstHelper(object):
 
         :param option_name: attribute name at the current location
         :param option_value: to configure the attribute
-
-        :raises: BundleAwareException of the specified type: if an error occurs
+        :raises: Exception for the specified tool type: if an error occurs
         """
         _method_name = 'set_option_if_needed'
 
@@ -358,7 +360,7 @@ class WlstHelper(object):
 
         :param option: domain option to set
         :param value: to which to set the option
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'set_option'
         self.__logger.entering(option, value, class_name=self.__class_name, method_name=_method_name)
@@ -374,14 +376,14 @@ class WlstHelper(object):
 
     def lsa(self, path=None, log_throwing=True):
         """
-        Return a map of weblogic attributes found at the wlst path or the current path.
+        Return a map of WebLogic attributes found at the wlst path or the current path.
 
         In online mode, clean up the return values to strip off trailing spaces and
         convert the string 'null' into None.
         :param path: for which to return a map of attributes. If None, the current path is searched
         :param log_throwing: whether or not to log the throwing message if the path location is not found
-        :return: map of weblogic attributes
-        :raises: tool Exception: if a WLST error occurs
+        :return: map of WebLogic attributes
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'lsa'
         result = self.__ls(_method_name, 'a', path, log_throwing)
@@ -402,11 +404,11 @@ class WlstHelper(object):
 
     def lsc(self, path=None, log_throwing=True):
         """
-        Return a map of weblogic folders found at the wlst path or the current path.
+        Return a map of WebLogic folders found at the wlst path or the current path.
         :param path: for which to return a map of folders. If None, the current path is searched
         :param log_throwing: whether or not to log the throwing message if the path location is not found
-        :return: list of weblogic folders
-        :raises: tool Exception: if a WLST error occurs
+        :return: list of WebLogic folders
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'lsc'
         return self.__ls(_method_name, 'c', path, log_throwing)
@@ -417,7 +419,7 @@ class WlstHelper(object):
         current location or a fully qualified path.
         :param path: path to validate.
         :return: True if path exists; false otherwise
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'path_exists'
         self.__logger.finest('WLSDPLY-00025', path, class_name=self.__class_name, method_name=_method_name)
@@ -439,8 +441,8 @@ class WlstHelper(object):
         it does not exist.
         :param path: location to retrieve the singleton name, or the current location if no path is provided
         :return: name of the MBean
-        :throws: tool Exception: if there is either no name or more than one name found at the location
-                                  or if a WLST error occurs
+        :raises Exception for the specified tool type: if there is either no name or more than one name found at the
+                      location or if a WLST error occurs
         """
         _method_name = 'get_singleton_name'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -473,6 +475,7 @@ class WlstHelper(object):
         give an MBean proxy for a cd to a fully qualified path
         :param wlst_path: path of the named MBean
         :return: CMO or MBean proxy for the current location
+        ":raises Exception for the specified tool type: If cmo is not present or WLST error occurs.
         """
         _method_name = 'get_mbean'
         self.__logger.entering(wlst_path, class_name=self.__class_name, method_name=_method_name)
@@ -500,7 +503,7 @@ class WlstHelper(object):
         Return the mbean object for the provided path.
         :param path: to return mbean object
         :return: mbean object
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'get_mbean_for_wlst_path'
         self.__logger.finest(path, class_name=self.__class_name, method_name=_method_name)
@@ -514,9 +517,9 @@ class WlstHelper(object):
 
     def read_template(self, template):
         """
-        Read the server template into the weblogic domain for domain creation.
+        Read the server template into the WebLogic domain for domain creation.
         :param template: name of the template to load for domain creation
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'read_template'
         self.__logger.entering(template, class_name=self.__class_name, method_name=_method_name)
@@ -534,7 +537,7 @@ class WlstHelper(object):
         """
         Extend the domain with the server template.
         :param template: name of the template to load for domain extension
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'add_template'
         self.__logger.entering(template, class_name=self.__class_name, method_name=_method_name)
@@ -551,7 +554,7 @@ class WlstHelper(object):
     def close_template(self):
         """
         Close the template that is currently loaded for domain creation.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'close_template'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -568,9 +571,9 @@ class WlstHelper(object):
     def select_template(self, template):
         """
         Select an existing domain template or application template for create a domain. This is
-        available only in weblogic 12c versions
+        available only in WebLogic 12c versions
         :param template: to be selected and loaded into the current session
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'select_template'
         self.__logger.entering(template, class_name=self.__class_name, method_name=_method_name)
@@ -589,7 +592,7 @@ class WlstHelper(object):
         Select an existing custom domain template or application template for create a domain. This is
         available only in WebLogic 12c versions
         :param template: to be selected and loaded into the current session
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'select_custom_template'
         self.__logger.entering(template, class_name=self.__class_name, method_name=_method_name)
@@ -606,7 +609,7 @@ class WlstHelper(object):
     def load_templates(self):
         """
         Load all the selected templates.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'load_templates'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -624,7 +627,7 @@ class WlstHelper(object):
         """
         Read the domain indicated by the domain_home name in offline mode.
         :param domain_home: domain to read and load into the current offline session
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'read_domain'
         self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
@@ -643,7 +646,7 @@ class WlstHelper(object):
         Persist the newly created domain configuration to the provided location. This will automatically
         overwrite an existing domain at this location.
         :param domain_home: path location to write the domain and its configuration
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'write_domain'
         self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
@@ -668,7 +671,7 @@ class WlstHelper(object):
     def update_domain(self):
         """
         Update the existing domain configuration with the edits made during the offline session.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'update_domain'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -685,7 +688,7 @@ class WlstHelper(object):
     def close_domain(self):
         """
         Close the domain currently loaded into the offline wlst session.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'close_domain'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -705,7 +708,7 @@ class WlstHelper(object):
         :param username: WebLogic user name
         :param password: WebLogic password
         :param url: WebLogic Server URL
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'connect'
         self.__logger.entering(username, url, class_name=self.__class_name, method_name=_method_name)
@@ -723,7 +726,7 @@ class WlstHelper(object):
     def disconnect(self):
         """
         Disconnects WLST from the current connected WebLogic Server instance.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'disconnect'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -740,7 +743,7 @@ class WlstHelper(object):
     def edit(self):
         """
         Edit the current WebLogic Server configuration.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'edit'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -757,7 +760,7 @@ class WlstHelper(object):
     def start_edit(self):
         """
         Start an edit session with the WebLogic Server for the currently connected user.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'start_edit'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -774,7 +777,7 @@ class WlstHelper(object):
     def stop_edit(self):
         """
         Stop the current edit session and discard all unsaved changes.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'stop_edit'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -791,7 +794,7 @@ class WlstHelper(object):
     def undo(self):
         """
         Revert all unsaved or unactivated edits.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'undo'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -810,6 +813,7 @@ class WlstHelper(object):
         Call this if necessary to save changes and disconnect from the domain in the middle of the session.
         This works in both offline and online.
         :param model_context: Contains information about the session, including the WlstMode
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'save_and_close'
         if model_context.is_wlst_online():
@@ -822,6 +826,7 @@ class WlstHelper(object):
         Call this if necessary to save and activate changes in the middle of the session.
         This works in both offline and online.
         :param model_context: Contains information about the session, including the WlstMode
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'save_and_activate'
         if model_context.is_wlst_online():
@@ -832,7 +837,7 @@ class WlstHelper(object):
     def save(self):
         """
         Save the outstanding WebLogic Server configuration changes for the current edit session.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'save'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -849,7 +854,7 @@ class WlstHelper(object):
     def activate(self):
         """
         Activate changes saved during the current edit session but not yet deployed.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'activate'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -908,7 +913,7 @@ class WlstHelper(object):
         :param args: the positional arguments to the WLST function
         :param kwargs: the keyword arguments to the WLST function
         :return: progress object (depends on whether it is blocked)
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'start_application'
         self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
@@ -930,7 +935,7 @@ class WlstHelper(object):
         :param args: the positional arguments to the WLST function
         :param kwargs: the keyword arguments to the WLST function
         :return: progress object (depends on whether it is blocked)
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'stop_application'
         self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
@@ -952,7 +957,7 @@ class WlstHelper(object):
         :param args: the positional arguments to the WLST function
         :param kwargs: the keyword arguments to the WLST function
         :return: progress object (depends on whether it is blocked)
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'deploy_application'
         self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
@@ -974,7 +979,7 @@ class WlstHelper(object):
         :param args: the positional arguments to the WLST function
         :param kwargs: the keyword arguments to the WLST function
         :return: progress object (depends on whether it is blocked)
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'undeploy_application'
         self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
@@ -996,7 +1001,7 @@ class WlstHelper(object):
         :param args: the positional arguments to the WLST function
         :param kwargs: the keyword arguments to the WLST function
         :return: progress object (depends on whether it is blocked)
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'redeploy_application'
         self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
@@ -1017,6 +1022,7 @@ class WlstHelper(object):
         :param jrf_target: Server or cluster to target server groups
         :param model_context: context with current tool parameters
         :param should_update: update the domain context with the apply jrf updates
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         self.session_start(model_context.is_wlst_online(),
                            model_context.get_admin_user(),
@@ -1033,7 +1039,7 @@ class WlstHelper(object):
         the session updates within the global context. Save the updates in the current context.
         :param jrf_targets: The list of entities to which to target the JRF applications and services
         :param model_context: The context containing the tool session information needed for the applyJRF
-        :raises: Exception specific to tool type
+        :raises: Exception specific to tool type: If a WLST error occurs
         """
         _method_name = 'apply_jrf_control_updates'
 
@@ -1051,7 +1057,7 @@ class WlstHelper(object):
         :param jrf_target: entity (cluster, server) to target JRF applications and service
         :param domain_home: the domain home directory
         :param should_update: If true, update the domain - it will check if in online or offline mode
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'apply_jrf'
         self.__logger.entering(jrf_target, domain_home, should_update,
@@ -1078,7 +1084,7 @@ class WlstHelper(object):
         :param admin_pass: admin password if online session
         :param admin_url: admin url if online session
         :param domain_home: domain home if offline session
-        :raises: tool Exception: If a WLST exception occurs
+        :raises: Exception for the specified tool type: If a WLST exception occurs
         """
         _method_name = 'apply_jrf_global_updates'
         self.__logger.entering(StringUtils.stringForBoolean(online), jrf_targets, domain_home,
@@ -1101,6 +1107,7 @@ class WlstHelper(object):
         :param admin_pass: admin password if online session
         :param admin_url: admin url if online session
         :param domain_home: domain home if offline session
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'session_start'
         self.__logger.entering(online, admin_user, admin_url, domain_home,
@@ -1118,6 +1125,7 @@ class WlstHelper(object):
         """
         End the edit session in the global context
         :param online: True if the tool session is in online mode
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'session_end'
         self.__logger.entering(online, class_name=self.__class_name, method_name=_method_name)
@@ -1133,7 +1141,7 @@ class WlstHelper(object):
         :param user: admin user name
         :param upass: admin password
         :param url: url of the admin server
-        :raises: tool Exception: If a WLST exception occurs
+        :raises: Exception for the specified tool type: If a WLST exception occurs
         """
         _method_name = 'global_connect'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1149,7 +1157,7 @@ class WlstHelper(object):
     def global_edit(self):
         """
         Start an edit session in the current connected online domain session context.
-        :raises: tool Exception: Thrown if a WLST exception occurs
+        :raises: Exception for the specified tool type: Thrown if a WLST exception occurs
         """
         _method_name = 'global_edit'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1163,7 +1171,7 @@ class WlstHelper(object):
     def global_start_edit(self):
         """
         Start edit - this starts an online WLST edit within the current global context.
-        :raises: tool Exception: When a WLST exception occurs
+        :raises: Exception for the specified tool type: When a WLST exception occurs
         """
         _method_name = 'global_start_edit'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1178,7 +1186,7 @@ class WlstHelper(object):
         """
         Read the domain with WLST offline which loads the domain and creates a global context.
         :param domain_home: domain home to read and load
-        :throws tool Exception if the readDomain fails with a WLST Exception
+        :raises Exception for the specified tool type: if the readDomain fails with a WLST Exception
         """
         _method_name = 'global_read_domain'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1194,7 +1202,7 @@ class WlstHelper(object):
         """
         Save and activate the current online session if one is in progress and disconnect from the current
         WLST online domain session.
-        :raises: tool Exception: If a WLST Exception occurs
+        :raises: Exception for the specified tool type: If a WLST Exception occurs
         """
         _method_name = '__online_session_end'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1211,7 +1219,7 @@ class WlstHelper(object):
     def global_save(self):
         """
         Save all edits that are in progress in the current online domain session context
-        :raises: tool Exception: When a WLST exception occurs
+        :raises: Exception for the specified tool type: When a WLST exception occurs
         """
         _method_name = 'global_save'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1225,7 +1233,7 @@ class WlstHelper(object):
     def global_activate(self):
         """
         Activate all saved updates maded in the current online domain session context.
-        :raises: tool Exception: When a WLST exception occurs
+        :raises: Exception for the specified tool type: When a WLST exception occurs
         """
         _method_name = 'global_activate'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1239,7 +1247,7 @@ class WlstHelper(object):
     def global_disconnect(self):
         """
         Disconnect from the current online WLST domain session.
-        :raises: tool Exception: when a WLST exception occurs
+        :raises: Exception for the specified tool type: when a WLST exception occurs
         """
         _method_name = 'global_disconnect'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1253,7 +1261,7 @@ class WlstHelper(object):
     def offline_session_end(self):
         """
         Update the domain with all changes in progress and close the domain current context.
-        :raises: tool Exception: When a WLST exception occurs
+        :raises: Exception for the specified tool type: When a WLST exception occurs
         """
         _method_name = '__offline_session_end'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1267,7 +1275,7 @@ class WlstHelper(object):
     def global_update_domain(self):
         """
         Update the domain with all changes in progress for the offline WLST domain context.
-        :raises: tool Exception: When a WLST exception occurs
+        :raises: Exception for the specified tool type: When a WLST exception occurs
         """
         _method_name = 'global_update_domain'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1281,7 +1289,7 @@ class WlstHelper(object):
     def global_close_domain(self):
         """
         Close the current WLST offline session with the domain.
-        :raises: tool Exception: When a WLST exception occurs
+        :raises: Exception for the specified tool type: When a WLST exception occurs
         """
         _method_name = 'global_close_domain'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1296,7 +1304,7 @@ class WlstHelper(object):
         """
         Return the online configuration manager
         :return: configuration manager
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'get_config_manager'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1316,7 +1324,7 @@ class WlstHelper(object):
         Return current editor
         :param cmgr: configuration manager
         :return: current editor of the domain
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'get_current_editor'
         self.__logger.entering(cmgr, class_name=self.__class_name, method_name=_method_name)
@@ -1337,6 +1345,7 @@ class WlstHelper(object):
         Determine if an edit is in progress and if this context is the current editor.
         :param cmgr: current configuration manager
         :return: True if context is current editor
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'is_editor'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1357,7 +1366,7 @@ class WlstHelper(object):
         Return True if there is any unactivated changes in the domain
         :param cmgr: configuration manager
         :return: True if there is any unactivated changes in the domain
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'have_unactivated_changes'
         self.__logger.entering(cmgr, class_name=self.__class_name, method_name=_method_name)
@@ -1377,7 +1386,7 @@ class WlstHelper(object):
         Return list of active activation tasks
         :param cmgr: configuration manager
         :return: list of active activation tasks
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'get_active_activation_tasks'
         self.__logger.entering(cmgr, class_name=self.__class_name, method_name=_method_name)
@@ -1395,7 +1404,7 @@ class WlstHelper(object):
         """
         Use the Configuration Manager to save the unsaved changes in online mode.
         :param cmgr: Current Configuration Manager
-        :throws: tool Exception if unable to perform the online save
+        :raises Exception for the specified tool type: If unable to perform the online save
         """
         _method_name = 'cm_save'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1412,7 +1421,7 @@ class WlstHelper(object):
         """
         Use the configuration manager to activate the saved changes
         :param cmgr: current configuration manager
-        :throws tool Exception: if in the wrong state to activate the changes
+        :throws Exception for the specified tool type: if in the wrong state to activate the changes
         """
         _method_name = 'cm_activate'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1430,7 +1439,7 @@ class WlstHelper(object):
         """
         Use the configuration manager to start an edit session
         :param cmgr: current configuration manager
-        :throws tool Exception: in wrong state to start an edit session
+        :raises Exception for the specified tool type: If in wrong state to start an edit session
         """
         _method_name = 'cm_edit'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1450,6 +1459,7 @@ class WlstHelper(object):
         Return the current edit session unsaved changes
         :param cmgr: current configuration manager
         :return: unsaved changes as Change[]
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'get_changes'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1468,7 +1478,7 @@ class WlstHelper(object):
         """
         Return true if the current edit session contains unsaved changes
         :param cmgr: Current Configuration Manager of the connected
-        :throws tool Exception:
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'have_unsaved_changes'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1482,7 +1492,7 @@ class WlstHelper(object):
     def server_config(self):
         """
         Change to the serverConfig MBean tree.
-        :raises: tool Exception: if a WLST error occurs
+        :raises Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'server_config'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1500,7 +1510,7 @@ class WlstHelper(object):
     def domain_runtime(self):
         """
         Change to the domainRuntime MBean tree.
-        :raises: tool Exception: if a WLST error occurs
+        :raises Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'domain_runtime'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1518,7 +1528,7 @@ class WlstHelper(object):
     def custom(self):
         """
         Change to the custom MBean tree.
-        :raises: tool Exception: if a WLST error occurs
+        :raises Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'custom'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1560,6 +1570,7 @@ class WlstHelper(object):
         Call this if necessary to save changes and disconnect from the domain
         midstream through the tool session. If not connected, do
         nothing.
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'save_and_close_online'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1575,6 +1586,7 @@ class WlstHelper(object):
     def save_and_close_offline(self):
         """
         Update the domain to save any active changes and close the domain. For use in middle of tool session.
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'save_and_close_offline'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1586,6 +1598,7 @@ class WlstHelper(object):
         """
         Call this if necessary to save changes midstream through the tool session. If not connected, do
         nothing.
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'save_and_activate_online'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1603,6 +1616,7 @@ class WlstHelper(object):
     def save_and_activate_offline(self):
         """
         Update the domain to save any active changes. For use in middle of tool session.
+        :raises Exception for the specified tool type: If WLST error occurs
         """
         _method_name = 'save_and_close_offline'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
@@ -1613,6 +1627,7 @@ class WlstHelper(object):
         """
         Establish connection with the domain and start editing in both online and offline wlst mode.
         :param model_context: contains the information needed for the reopen, including the WlstMode
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'reopen'
         if model_context.is_wlst_online():
@@ -1627,6 +1642,7 @@ class WlstHelper(object):
         :param admin_user: admin userid
         :param admin_pass: admin_password
         :param admin_url: url of the admin server
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'reopen_online'
         self.__logger.entering(admin_user, admin_url, class_name=self.__class_name, method_name=_method_name)
@@ -1645,6 +1661,7 @@ class WlstHelper(object):
         """
         Read the domain in offline.
         :param domain_home:
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         _method_name = 'reopen_offline'
         self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
@@ -1665,9 +1682,9 @@ class WlstHelper(object):
 
     def get_pwd(self):
         """
-        Return the current weblogic path. The domain name is stripped from this path.
+        Return the current WebLogic path. The domain name is stripped from this path.
         :return: path of current location.
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'get_pwd'
         self.__logger.finest('WLSDPLY-00033', class_name=self.__class_name, method_name=_method_name)
@@ -1689,6 +1706,10 @@ class WlstHelper(object):
         return path
 
     def silence(self):
+        """
+        Silence the STDOUT chatter from WLST.
+        :raises Exception for the specified tool type: If WLST error occurs
+        """
         _method_name = 'silence'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
         """
@@ -1706,7 +1727,8 @@ class WlstHelper(object):
 
     def enable_stdout(self):
         """
-        Performs the wlst commands to enable stdout
+        Performs the wlst commands to enable stdout.
+        :raises Exception for the specified tool type: If a WLST error occurs
         """
         local_wls = self.__load_global('WLS')
         local_wls_on = self.__load_global('WLS_ON')
@@ -1732,10 +1754,10 @@ class WlstHelper(object):
         Private helper method shared by various API methods
         :param method_name: calling method name
         :param ls_type: the WLST return type requested
-        :param path: the path (default is the current path)
+        :param path: if not None the path (default is the current path)
         :param log_throwing: whether or not to log the throwing message if the path location is not found
         :return: the result of the WLST ls(returnMap='true') call
-        :raises: tool Exception: if a WLST error occurs
+        :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = method_name
         self.__logger.finest('WLSDPLY-00028', method_name, ls_type, path,
@@ -1779,7 +1801,7 @@ class WlstHelper(object):
         globals and return the corresponding function or variable.
         :param global_name: Name to look up in the globals
         :return: the function or variable associated with the name from the globals
-        :raises: tool Exception: If the global name is not found in the globals
+        :raises: Exception for the specified tool type: If the global name is not found in the globals
         """
         member = None
         if wlst_functions is not None and global_name in wlst_functions:

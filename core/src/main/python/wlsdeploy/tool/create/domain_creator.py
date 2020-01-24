@@ -958,7 +958,7 @@ class DomainCreator(Creator):
             self.wlst_helper.cd(wlst_path)
             wlst_name, wlst_value = \
                 self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE, stb_user)
-            self.wlst_helper.set_if_needed(wlst_name, wlst_value,)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
             self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
             if self.wls_helper.is_database_defaults_supported():
