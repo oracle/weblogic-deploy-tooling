@@ -41,14 +41,14 @@ class TargetHelper(object):
         else:
             self._admin_server_name = DEFAULT_ADMIN_SERVER_NAME
 
-    def target_jrf_groups_to_clusters_servers(self, should_update=True):
+    def target_jrf_groups_to_clusters_servers(self, should_update=False):
         """
         Call applyJRF to for those versions of wlst that cannot target servers to server groups.
         This assigns the JRF resources to all managed servers. If the managed server is in a
         cluster, this method assigns the JRF resources are assigned to the cluster. Else, if
         the managed server is stand-alone, the resources are assigned to the managed server.
-        :param should_update: Control how the applyJRF applies the changes. By default, allow
-        the applyJRF to automatically update the values
+        :param should_update: Control how the applyJRF applies the changes. By default, don't allow applyJRF
+        to automatically update the domain.
         """
         _method_name = 'target_jrf_groups_to_clusters_servers'
         self.logger.entering(should_update, class_name=self.__class_name,
@@ -244,7 +244,7 @@ class TargetHelper(object):
         else:
             self.logger.info('WLSDPLY-12236', str(names_only),
                              class_name=self.__class_name, method_name=_method_name)
-            self.wlst_helper.apply_jrf_control_updates(names_only, self.model_context)
+            self.wlst_helper.apply_jrf_with_context(names_only, self.model_context)
 
     def _get_existing_server_names(self):
         """

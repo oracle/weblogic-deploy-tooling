@@ -630,6 +630,7 @@ class WlstHelper(object):
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'read_domain'
+        print '[ [ [ [ READ DOMAIN'
         self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
 
         try:
@@ -650,7 +651,7 @@ class WlstHelper(object):
         """
         _method_name = 'write_domain'
         self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
-
+        print '        WRITE DOMAIN ] ] ] ]'
         try:
             self.__load_global('setOption')('OverwriteDomain', 'true')
         except offlineWLSTException, e:
@@ -674,6 +675,7 @@ class WlstHelper(object):
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'update_domain'
+        print '        UPDATE DOMAIN ] ] ] ]'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         try:
@@ -1016,22 +1018,16 @@ class WlstHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
-    def apply_jrf_with_context(self, jrf_target, model_context, should_update=False):
+    def apply_jrf_with_context(self, jrf_targets, model_context, should_update=False):
         """
         Apply JRF server groups to targeted servers.
-        :param jrf_target: Server or cluster to target server groups
+        :param jrf_targets: list of Server or cluster to target server groups
         :param model_context: context with current tool parameters
         :param should_update: update the domain context with the apply jrf updates
         :raises Exception for the specified tool type: If a WLST error occurs
         """
-        self.session_start(model_context.is_wlst_online(),
-                           model_context.get_admin_user(),
-                           model_context.get_admin_password(),
-                           model_context.get_admin_url(),
-                           model_context.get_domain_home())
-        self.__apply_jrf(jrf_target, domain_home=model_context.get_domain_home(),
-                         should_update=should_update)
-        self.session_end(model_context.is_wlst_online())
+        for jrf_target in jrf_targets:
+            self.__apply_jrf(jrf_target, model_context.get_domain_home(), False)
 
     def apply_jrf_control_updates(self, jrf_targets, model_context):
         """
@@ -1065,9 +1061,8 @@ class WlstHelper(object):
         self.__logger.fine('WLSDPLY-00073', jrf_target, domain_home, should_update,
                            class_name=self.__class_name, method_name=_method_name)
 
-        load_apply_jrf = self.__load_global('applyJRF')
         try:
-            load_apply_jrf(jrf_target, domain_home, should_update)
+            self.__load_global('applyJRF')(jrf_target, domain_home, should_update)
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
             raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00071', jrf_target, domain_home,
                                                     should_update, _format_exception(e), error=e)

@@ -459,7 +459,7 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __create_domain_with_select_template(self, domain_home):
+    def __create_base_domain_with_select_template(self, domain_home):
         """
         Create and extend the domain, as needed, for WebLogic Server versions 12.2.1 and above.
         :param domain_home: the domain home directory
@@ -473,31 +473,11 @@ class DomainCreator(Creator):
                          class_name=self.__class_name, method_name=_method_name)
 
         self.wlst_helper.select_template(base_template)
-
-        extension_templates = self._domain_typedef.get_extension_templates()
-        for extension_template in extension_templates:
-            self.logger.info('WLSDPLY-12211', extension_template,
-                             class_name=self.__class_name, method_name=_method_name)
-            self.wlst_helper.select_template(extension_template)
-
-        custom_templates = self._domain_typedef.get_custom_extension_templates()
-        for custom_template in custom_templates:
-            self.logger.info('WLSDPLY-12245', custom_template,
-                             class_name=self.__class_name, method_name=_method_name)
-            self.wlst_helper.select_custom_template(custom_template)
-
-        self.logger.info('WLSDPLY-12212', class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.load_templates()
+
 
         topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
         self.__apply_base_domain_config(topology_folder_list)
-
-        if len(extension_templates) > 0:
-            self.__set_app_dir()
-            self.__configure_fmw_infra_database()
-
-        self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
-                         class_name=self.__class_name, method_name=_method_name)
 
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
         server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
@@ -514,6 +494,36 @@ class DomainCreator(Creator):
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    def __extend_domain_with_select_template(self, domain_home):
+        """
+        Create and extend the domain, as needed, for WebLogic Server versions 12.2.1 and above.
+        :param domain_home: the domain home directory
+        :raises: CreateException: if an error occurs
+        """
+
+        extension_templates = self._domain_typedef.get_extension_templates()
+        for extension_template in extension_templates:
+            self.logger.info('WLSDPLY-12211', extension_template,
+                             class_name=self.__class_name, method_name=_method_name)
+            self.wlst_helper.select_template(extension_template)
+
+        custom_templates = self._domain_typedef.get_custom_extension_templates()
+        for custom_template in custom_templates:
+            self.logger.info('WLSDPLY-12245', custom_template,
+                             class_name=self.__class_name, method_name=_method_name)
+            self.wlst_helper.select_custom_template(custom_template)
+
+
+        if len(extension_templates) > 0:
+            self.__set_app_dir()
+            self.__configure_fmw_infra_database()
+
+        self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
+                         class_name=self.__class_name, method_name=_method_name)
+        self.logger.info('WLSDPLY-12212', class_name=self.__class_name, method_name=_method_name)
+        self.wlst_helper.load_templates()
+        self.wlst_helper.close_template()
 
     def __apply_base_domain_config(self, topology_folder_list):
         """
