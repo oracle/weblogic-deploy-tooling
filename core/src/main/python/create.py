@@ -40,19 +40,19 @@ from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.util.wlst_helper import WlstHelper
+from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
-from wlsdeploy.util import wlst_extended
-from wlsdeploy.util import wlst_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_CREATE
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 
-wlst_extended.wlst_functions = globals()
+wlst_helper.wlst_functions = globals()
 
 _program_name = CREATE_DOMAIN
 
@@ -379,7 +379,7 @@ def main(args):
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
-    wlst_helper.silence()
+    WlstHelper(ExceptionType.CREATE).silence()
 
     exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
 

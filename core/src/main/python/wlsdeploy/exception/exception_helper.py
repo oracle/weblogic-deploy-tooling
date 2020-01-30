@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import sys
@@ -45,6 +45,12 @@ _EXCEPTION_TYPE_MAP = {
     ExceptionType.WLS_DEPLOY_ARCHIVE_IO: 'create_archive_ioexception',
     ExceptionType.YAML:                  'create_yaml_exception'
 }
+
+
+def get_exception_class(exception_type):
+    ex = create_exception(exception_type, 'Find the class')
+    return ex.getClass()
+
 
 def create_exception(exception_type, key, *args, **kwargs):
     """
@@ -123,6 +129,7 @@ def create_deploy_exception(key, *args, **kwargs):
         else:
             ex = DeployException(key)
     return ex
+
 
 def create_discover_exception(key, *args, **kwargs):
     """
@@ -365,6 +372,7 @@ def create_encryption_exception(key, *args, **kwargs):
     else:
         ex = JEncryptionException(key)
     return ex
+
 
 def convert_error_to_exception():
     """

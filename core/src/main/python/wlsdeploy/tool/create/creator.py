@@ -34,7 +34,7 @@ class Creator(object):
         self.aliases = aliases
         self._exception_type = exception_type
         self.alias_helper = AliasHelper(self.aliases, self.logger, exception_type)
-        self.wlst_helper = WlstHelper(self.logger, exception_type)
+        self.wlst_helper = WlstHelper(exception_type)
         self.model = Model(model)
         self.model_context = model_context
         self.wls_helper = WebLogicHelper(self.logger)

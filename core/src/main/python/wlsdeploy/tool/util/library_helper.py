@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -28,7 +28,7 @@ class LibraryHelper(object):
         self.model_context = model_context
         self.domain_home = domain_home
         self.alias_helper = AliasHelper(aliases, self.logger, exception_type)
-        self.wlst_helper = WlstHelper(self.logger, exception_type)
+        self.wlst_helper = WlstHelper(exception_type)
 
         self.archive_helper = None
         archive_file_name = self.model_context.get_archive_file_name()

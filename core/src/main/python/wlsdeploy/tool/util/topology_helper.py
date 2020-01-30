@@ -29,7 +29,7 @@ class TopologyHelper(object):
     def __init__(self, aliases, exception_type, logger):
         self.logger = logger
         self.alias_helper = AliasHelper(aliases, self.logger, exception_type)
-        self.wlst_helper = WlstHelper(self.logger, exception_type)
+        self.wlst_helper = WlstHelper(exception_type)
 
         self._coherence_cluster_elements = [CLUSTER, SERVER, SERVER_TEMPLATE]
 

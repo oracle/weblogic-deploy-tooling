@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from sets import Set
@@ -150,7 +150,7 @@ class AttributeSetter(object):
         self.__exception_type = exception_type
         self.__wlst_mode = wlst_mode
         self.__alias_helper = AliasHelper(aliases, self.__logger, exception_type)
-        self.__wlst_helper = WlstHelper(self.__logger, exception_type)
+        self.__wlst_helper = WlstHelper(exception_type)
         return
 
     #

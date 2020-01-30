@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -30,7 +30,7 @@ class MBeanUtils(object):
         self.__model_context = model_context
         self.__exception_type = exception_type
         self.__alias_helper = alias_helper
-        self.__wlst_helper = WlstHelper(_logger, exception_type)
+        self.__wlst_helper = WlstHelper(exception_type)
         self.__helper = self.__get_helper()
         self.__ignore_list = None
 
@@ -347,7 +347,7 @@ class MBeanAttributes(object):
         self.__exception_type = exception_type
         self.__location = location
         self.__alias_helper = alias_helper
-        self.__wlst_helper = WlstHelper(_logger, exception_type)
+        self.__wlst_helper = WlstHelper(exception_type)
         self.__mbean_interface_name = None
         self.__mbean_instance = None
         self.__mbean_interface = None
