@@ -630,7 +630,6 @@ class WlstHelper(object):
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'read_domain'
-        print '[ [ [ [ READ DOMAIN'
         self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
 
         try:
@@ -651,7 +650,6 @@ class WlstHelper(object):
         """
         _method_name = 'write_domain'
         self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
-        print '        WRITE DOMAIN ] ] ] ]'
         try:
             self.__load_global('setOption')('OverwriteDomain', 'true')
         except offlineWLSTException, e:
@@ -675,7 +673,6 @@ class WlstHelper(object):
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'update_domain'
-        print '        UPDATE DOMAIN ] ] ] ]'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         try:
@@ -1027,7 +1024,7 @@ class WlstHelper(object):
         :raises Exception for the specified tool type: If a WLST error occurs
         """
         for jrf_target in jrf_targets:
-            self.__apply_jrf(jrf_target, model_context.get_domain_home(), False)
+            self.__apply_jrf(jrf_target, model_context.get_domain_home(), should_update)
 
     def apply_jrf_control_updates(self, jrf_targets, model_context):
         """
