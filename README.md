@@ -10,6 +10,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Discover Domain Tool](site/discover.md)
     - [Encrypt Model Tool](site/encrypt.md)
     - [Validate Model Tool](site/validate.md)
+    - [Extract Domain Resource Tool](site/kubernetes.md)
 - [The Model](#the-metadata-model)
     - [Top-Level Sections](#top-level-model-sections)
     - [Simple Example](#simple-example)
@@ -91,7 +92,7 @@ The tooling has four top-level model sections:
 - `topology`       - The location where servers, clusters, machines, server templates, and other domain-level configuration is specified.
 - `resources`      - The location where resources and services are specified (for example, data sources, JMS, WLDF).
 - `appDeployments` - The location where shared libraries and applications are specified.
-- `kubernetes`     - The location where WLS Kubernetes Operator domain configuration is specified.
+- `kubernetes`     - The location where the WLS Kubernetes Operator domain configuration is specified.
 
 ##### Simple Example
 Here is a simple example of a model to deploy an application and its data source:
