@@ -116,13 +116,19 @@ class TopologyHelper(object):
                     # don't create placeholder for delete names
                     continue
 
-                if name not in existing_names:
+                if name not in existing_names or model_type == JDBC_SYSTEM_RESOURCE:
                     self.logger.info('WLSDPLY-19403', model_type, name, class_name=self.__class_name,
                                      method_name=_method_name)
 
                     token = self.alias_helper.get_name_token(resource_location)
                     resource_location.add_name_token(token, name)
                     deployer_utils.create_and_cd(resource_location, existing_names, self.alias_helper)
+                    if model_type == JDBC_SYSTEM_RESOURCE:
+                        print_value = self.wlst_helper.get('Target')
+                        print '^^^^^^^^^ Target at ', self.wlst_helper.get_pwd(), ' ', print_value
+                        map = self.wlst_helper.lsa()
+                        for key,value in map.iteritems():
+                            print '******* ', key, '=', value
 
         self.wlst_helper.cd(original_location)
 

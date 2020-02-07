@@ -174,6 +174,8 @@ class DomainCreator(Creator):
         self.__create_domain()
         self.__deploy()
         self.__create_boot_dot_properties()
+        self.wlst_helper.write_domain(self._domain_home)
+        self.wlst_helper.close_template()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -359,15 +361,15 @@ class DomainCreator(Creator):
         :raises: CreateException: if an error occurs while reading or updating the domain.
         """
         self.model_context.set_domain_home(self._domain_home)
-        self.wlst_helper.read_domain(self._domain_home)
+        #self.wlst_helper.read_domain(self._domain_home)
         self.__set_domain_attributes()
         self._configure_security_configuration()
         self.__deploy_resources_and_apps()
-        self.wlst_helper.update_domain()
+        #self.wlst_helper.update_domain()
 
         model_deployer.deploy_model_after_update(self.model, self.model_context, self.aliases)
 
-        self.wlst_helper.close_domain()
+        #self.wlst_helper.close_domain()
         return
 
     def __deploy_resources_and_apps(self):
@@ -459,7 +461,7 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __create_base_domain_with_select_template(self, domain_home):
+    def __create_domain_with_select_template(self, domain_home):
         """
         Create and extend the domain, as needed, for WebLogic Server versions 12.2.1 and above.
         :param domain_home: the domain home directory
@@ -473,34 +475,6 @@ class DomainCreator(Creator):
                          class_name=self.__class_name, method_name=_method_name)
 
         self.wlst_helper.select_template(base_template)
-        self.wlst_helper.load_templates()
-
-
-        topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
-        self.__apply_base_domain_config(topology_folder_list)
-
-        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-        server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-        if len(server_assigns) > 0:
-            self.target_helper.target_server_groups(server_assigns)
-
-        self.__configure_opss_secrets()
-
-        self.wlst_helper.write_domain(domain_home)
-        self.wlst_helper.close_template()
-
-        if len(dynamic_assigns) > 0:
-            self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
-
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
-
-    def __extend_domain_with_select_template(self, domain_home):
-        """
-        Create and extend the domain, as needed, for WebLogic Server versions 12.2.1 and above.
-        :param domain_home: the domain home directory
-        :raises: CreateException: if an error occurs
-        """
 
         extension_templates = self._domain_typedef.get_extension_templates()
         for extension_template in extension_templates:
@@ -514,6 +488,15 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.select_custom_template(custom_template)
 
+        self.logger.info('WLSDPLY-12212', class_name=self.__class_name, method_name=_method_name)
+        self.wlst_helper.load_templates()
+        self.__set_core_domain_params()
+        # self.wlst_helper.write_domain(domain_home)
+        #self.wlst_helper.close_template()
+        #self.wlst_helper.read_domain(domain_home)
+
+        topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
+        self.__apply_base_domain_config(topology_folder_list)
 
         if len(extension_templates) > 0:
             self.__set_app_dir()
@@ -521,9 +504,19 @@ class DomainCreator(Creator):
 
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
-        self.logger.info('WLSDPLY-12212', class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.load_templates()
-        self.wlst_helper.close_template()
+
+        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+        server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        if len(server_assigns) > 0:
+            self.target_helper.target_server_groups(server_assigns)
+
+        self.__configure_opss_secrets()
+
+        if len(dynamic_assigns) > 0:
+            self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
 
     def __apply_base_domain_config(self, topology_folder_list):
         """
@@ -540,7 +533,7 @@ class DomainCreator(Creator):
         domain_name_token = self.alias_helper.get_name_token(location)
         location.add_name_token(domain_name_token, self._domain_name)
 
-        self.__set_core_domain_params()
+        #self.__set_core_domain_params()
 
         self.__create_security_folder(location)
         topology_folder_list.remove(SECURITY)
@@ -724,11 +717,19 @@ class DomainCreator(Creator):
 
         # create placeholders for JDBC resources that may be referenced in cluster definition.
         resources_dict = self.model.get_model_resources()
+        print '******* before create 1 jdbc placeholders'
         self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
-
+        print '******* after create 1 jdbc placeholders'
+        print '******* before create 2 jdbc placeholders'
+        self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+        print '******* after create 2 jdbc placeholders'
         cluster_nodes = dictionary_utils.get_dictionary_element(self._topology, CLUSTER)
         if len(cluster_nodes) > 0:
             self._create_named_mbeans(CLUSTER, cluster_nodes, location, log_created=True)
+
+        print '******* before create 3 jdbc placeholders'
+        self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+        print '******* after create 3 jdbc placeholders'
 
         #
         # Now, fully populate the ServerTemplates, if any.
@@ -746,6 +747,9 @@ class DomainCreator(Creator):
         if len(server_nodes) > 0:
             self._create_named_mbeans(SERVER, server_nodes, location, log_created=True)
 
+        print '******* before 4 create jdbc placeholders'
+        self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+        print '******* after 4 create jdbc placeholders'
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 

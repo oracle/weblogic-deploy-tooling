@@ -69,7 +69,7 @@ class TargetHelper(object):
         # Get the clusters and and their members
         cluster_map = self._get_clusters_and_members_map()
 
-        self.wlst_helper.save_and_close(self.model_context)
+        #self.wlst_helper.save_and_close(self.model_context)
         
         # Get the clusters and and their members
         for cluster_name, cluster_servers in cluster_map.iteritems():
@@ -84,7 +84,7 @@ class TargetHelper(object):
                              method_name=_method_name)
             self.wlst_helper.apply_jrf(ms_name, self.model_context, should_update=should_update)
 
-        self.wlst_helper.reopen(self.model_context)
+        #self.wlst_helper.reopen(self.model_context)
         
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
