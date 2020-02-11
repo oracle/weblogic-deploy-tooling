@@ -202,7 +202,7 @@
             "wlst_type": "JTAMigratableTarget",
             "version": "[12.1.2,)",
             "child_folders_type": "single_unpredictable",
-            "default_name_value": "%SERVERTEMPLATE%",
+            "default_name_value": "${serverName}",
             "folders": {},
             "attributes": {
                 "AdditionalMigrationAttempts":  [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "AdditionalMigrationAttempts",  "wlst_path": "WP001", "value": {"default": 2       }, "wlst_type": "integer"  } ],
