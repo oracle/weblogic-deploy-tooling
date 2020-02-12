@@ -287,6 +287,24 @@ public class YamlParserTest {
         Assert.assertEquals("S2 Cluster not correct", EXPECTED_S2_CLUSTER, s2Cluster);
     }
 
+    @Test
+    public void testEmptyStringKey() {
+        Map<String, Object> topology = getMap(fileDict, "topology");
+        Assert.assertNotNull("Failed to get topology from yaml", topology);
+
+        Map<String, Object> servers = getMap(topology, "Server");
+        Assert.assertNotNull("Failed to get topology/Server from yaml", servers);
+
+        Map<String, Object> adminServer = getMap(servers, "AdminServer");
+        Assert.assertNotNull("Failed to get topology/Server/AdminServer from yaml", adminServer);
+
+        Map<String, Object> log = getMap(adminServer, "Log");
+        Assert.assertNotNull("Failed to get Log in AdminServer from yaml", adminServer);
+
+        Map<String, Object> properties = getMap(log, "LoggerSeverityProperties");
+        Assert.assertEquals("Size of logging properties", 3, properties.size());
+        Assert.assertTrue("Could not find empty string key in properties", properties.containsKey(""));
+    }
     ///////////////////////////////////////////////////////////////////////////
     //                            End of tests                               //
     ///////////////////////////////////////////////////////////////////////////

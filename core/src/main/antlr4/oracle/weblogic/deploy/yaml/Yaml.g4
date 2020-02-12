@@ -176,6 +176,8 @@ FLOAT
 
 NAME
     : ID_START ID_CONTINUE* WS?
+    | '""' WS?
+    | '\'\'' WS?
     | '\'' QUOTED_ID_START QUOTED_ID_CONTINUE* '\'' WS?
     | '"' QUOTED_ID_START QUOTED_ID_CONTINUE* '"' WS?
     ;

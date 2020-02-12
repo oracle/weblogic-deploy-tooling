@@ -154,7 +154,7 @@ class PythonToYaml(object):
         """
         Do the actual heavy lifting of converting a dictionary and writing it to the file.  This method is
         called recursively when a value of the dictionary entry is itself a dictionary.
-        :param dictionary: the Python dictionarhy to converty
+        :param dictionary: the Python dictionary to convert
         :param writer: the java.io.PrintWriter for the output file
         :param indent: the amount of indent to use (based on the level of recursion)
         :raises: IOException: if an error occurs while writing the output
@@ -254,12 +254,15 @@ class PythonToYaml(object):
 
     def _quotify_string(self, text):
         """
-        Insert quotes around the string value if it contains Yaml special characters that require it.
+        Insert quotes around the string value if it contains Yaml special characters that require it,
+        or if the string is zero length.
         :param text: the input string
         :return: the quoted string, or the original string if no quoting was required
         """
         if bool(re.search(self._requires_quotes_chars_regex, text)):
             result = '\'' + _quote_embedded_quotes(text) + '\''
+        elif len(text) == 0:
+            result = '\'\''
         else:
             result = _quote_embedded_quotes(text)
         return result
