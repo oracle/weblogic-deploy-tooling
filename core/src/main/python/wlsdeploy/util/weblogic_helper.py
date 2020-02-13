@@ -190,7 +190,7 @@ class WebLogicHelper(object):
                 wl_home = oracle_home + '/wlserver_10.3'
 
             # if the path is not a valid directory, try to infer it from the pattern
-            if not os.path.isdir(wl_home):
+            if os.path.isdir(oracle_home) and not os.path.isdir(wl_home):
                 dirs = [f for f in os.listdir(oracle_home) if re.match(r'wlserver.*', f)]
                 if len(dirs) > 0:
                     wl_home = oracle_home + '/' + dirs[0]
