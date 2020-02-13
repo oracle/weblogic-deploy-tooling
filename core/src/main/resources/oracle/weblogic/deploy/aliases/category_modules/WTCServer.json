@@ -1,0 +1,231 @@
+{
+  "copyright": "Copyright (c) 2020, Oracle Corporation and/or its affiliates.",
+  "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+  "wlst_type": "WTCServer${:s}",
+  "child_folders_type": "multiple",
+  "short_name": "WTC",
+  "folders": {
+    "WTCExport": {
+      "wlst_type": "WTCExport${:s}",
+      "child_folders_type": "multiple",
+      "folders": {},
+      "attributes": {
+        "EJBName":                             [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "EJBName",                             "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ],
+        "LocalAccessPoint":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalAccessPoint",                    "wlst_path": "WP001", "value": {"default": "myLAP"        }, "wlst_type": "string"   } ],
+        "Notes":                               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                               "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ],
+        "RemoteName":                          [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemoteName",                          "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ],
+        "ResourceName":                        [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ResourceName",                        "wlst_path": "WP001", "value": {"default": "myExport"     }, "wlst_type": "string"   } ],
+        "TargetClass":                         [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetClass",                         "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ],
+        "TargetJar":                           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetJar",                           "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ]
+      },
+      "wlst_attributes_path": "WP001",
+      "wlst_paths": {
+        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCExport${:s}/%WTCEXPORT%"
+      }
+    },
+    "WTCImport": {
+      "wlst_type": "WTCImport${:s}",
+      "child_folders_type": "multiple",
+      "short_name": "Import",
+      "folders": {},
+      "attributes": {
+        "LocalAccessPoint":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalAccessPoint",                    "wlst_path": "WP001", "value": {"default": "myLAP"        }, "wlst_type": "string"   } ],
+        "Notes":                               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                               "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ],
+        "RemoteAccessPointList":               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemoteAccessPointList",               "wlst_path": "WP001", "value": {"default": "myRAP"        }, "wlst_type": "string"   } ],
+        "RemoteName":                          [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemoteName",                          "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ],
+        "ResourceName":                        [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ResourceName",                        "wlst_path": "WP001", "value": {"default": "myImport"     }, "wlst_type": "string"   } ],
+        "TargetClass":                         [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetClass",                         "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ],
+        "TargetJar":                           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetJar",                           "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ]
+      },
+      "wlst_attributes_path": "WP001",
+      "wlst_paths": {
+             "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCImport${:s}/%WTCIMPORT%"
+      }
+    },
+    "WTCLocalTuxDom": {
+        "wlst_type": "WTCLocalTuxDom${:s}",
+        "child_folders_type": "multiple",
+        "short_name": "LocalTuxDom",
+        "folders": {},
+        "attributes": {
+          "AccessPoint":                         [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AccessPoint",                         "wlst_path": "WP001", "value": {"default": "myLAP"                   }, "wlst_type": "string"               } ],
+          "AccessPointId":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AccessPointId",                       "wlst_path": "WP001", "value": {"default": "myLAPId"                 }, "wlst_type": "string"               } ],
+          "BlockTime":                           [ {"version": "[10,12.2.1)",       "wlst_mode": "both",   "wlst_name": "BlockTime",                           "wlst_path": "WP001", "value": {"default": 60                        }, "wlst_type": "${integer:long}",     "get_method": "${LSA:GET}" } ,
+                                                   {"version": "[12.2.1,)",         "wlst_mode": "both",   "wlst_name": "BlockTime",                           "wlst_path": "WP001", "value": {"default": 60                        }, "wlst_type": "long",                "get_method":  "GET"} ],
+          "CmpLimit":                            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "CmpLimit",                            "wlst_path": "WP001", "value": {"default": 2147483647                }, "wlst_type": "integer"               } ],
+          "ConnPrincipalName":                   [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ConnPrincipalName",                   "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"                } ],
+          "ConnectionPolicy":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ConnectionPolicy",                    "wlst_path": "WP001", "value": {"default": "${None:ON_DEMAND}"       }, "wlst_type": "string"                } ],
+          "IdentityKeyStoreFileName":            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "IdentityKeyStoreFileName",            "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"                } ],
+          "IdentityKeyStorePassPhraseEncrypted": [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "IdentityKeyStorePassPhraseEncrypted", "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "password",             "get_method": "GET" } ],
+          "Interoperate":                        [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Interoperate",                        "wlst_path": "WP001", "value": {"default": "${None:No}"              }, "wlst_type": "string"                } ],
+          "KeepAlive":                           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "KeepAlive",                           "wlst_path": "WP001", "value": {"default": 0                         }, "wlst_type": "integer"               } ],
+          "KeepAliveWait":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "KeepAliveWait",                       "wlst_path": "WP001", "value": {"default": 0                         }, "wlst_type": "integer"               } ],
+          "KeyStoresLocation":                   [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "KeyStoresLocation",                   "wlst_path": "WP001", "value": {"default": "${None:Custom Stores}"   }, "wlst_type": "string",               "get_method": "${LSA:GET}"  } ],
+          "MaxEncryptBits":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MaxEncryptBits",                      "wlst_path": "WP001", "value": {"default": "${None:128}"             }, "wlst_type": "string"                } ],
+          "MaxRetries":                          [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MaxRetries",                          "wlst_path": "WP001", "value": {"default": 9223372036854775807       }, "wlst_type": "long",                 "get_method": "GET"  } ],
+          "MinEncryptBits":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MinEncryptBits",                      "wlst_path": "WP001", "value": {"default": "${None:0}"               }, "wlst_type": "string"                } ],
+          "NWAddr":                              [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "NWAddr",                              "wlst_path": "WP001", "value": {"default": "//localhost:8901"        }, "wlst_type": "string"                } ],
+          "Notes":                               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                               "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"                } ],
+          "PrivateKeyAlias":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "PrivateKeyAlias",                     "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"                } ],
+          "PrivateKeyPassPhraseEncrypted":       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "PrivateKeyPassPhraseEncrypted",       "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "password",             "get_method": "GET" } ],
+          "RetryInterval":                       [ {"version": "[10,12.2.1)",       "wlst_mode": "both",   "wlst_name": "RetryInterval",                       "wlst_path": "WP001", "value": {"default": 60                        }, "wlst_type": "${integer:long}",      "get_method": "${LSA:GET}"   } ,
+                                                   {"version": "[12.2.1,)",         "wlst_mode": "both",   "wlst_name": "RetryInterval",                       "wlst_path": "WP001", "value": {"default": 60                        }, "wlst_type": "long",                 "get_method": "GET"          } ],
+          "Security":                            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Security",                            "wlst_path": "WP001", "value": {"default": "${None:NONE}"            }, "wlst_type": "string"                } ],
+          "SslProtocolVersion":                  [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",   "wlst_name": "S${sl:SL}ProtocolVersion",            "wlst_path": "WP001", "value": {"default": "${None:TLSv1.2}"         }, "wlst_type": "string"                } ],
+          "TrustKeyStoreFileName":               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TrustKeyStoreFileName",               "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"                } ],
+          "TrustKeyStorePassPhraseEncrypted":    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TrustKeyStorePassPhraseEncrypted",    "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "password",             "get_method": "GET" } ],
+          "UseSsl":                              [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "UseS${sl:SL}",                        "wlst_path": "WP001", "value": {"default": "${None:Off}"             }, "wlst_type": "string"                } ]
+      },
+      "wlst_attributes_path": "WP001",
+      "wlst_paths": {
+        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCLocalTuxDom${:s}/%WTCLOCALTUXDOM%"
+      }
+    },
+    "WTCPassword": {
+      "wlst_type": "WTCPassword${:s}",
+      "child_folders_type": "multiple",
+      "short_name": "Password",
+      "folders": {},
+      "attributes": {
+        "LocalAccessPoint":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalAccessPoint",                 "wlst_path": "WP001", "value": {"default": "myLAP"              }, "wlst_type": "string"      } ],
+        "LocalPassword":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalPassword",                    "wlst_path": "WP001", "value": {"default": "${None:myLPWD}"     }, "wlst_type": "password",   "get_method": "GET"} ],
+        "LocalPasswordIV":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalPasswordIV",                  "wlst_path": "WP001", "value": {"default": "myLPWDIV"           }, "wlst_type": "password",   "get_method": "GET"} ],
+        "Notes":                               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                            "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string"      } ],
+        "RemoteAccessPoint":                   [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemoteAccessPoint",                "wlst_path": "WP001", "value": {"default": "myRAP"              }, "wlst_type": "string"      } ],
+        "RemotePassword":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemotePassword",                   "wlst_path": "WP001", "value": {"default": "${None:myRPWD}"     }, "wlst_type": "password",   "get_method": "GET"} ],
+        "RemotePasswordIV":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemotePasswordIV",                 "wlst_path": "WP001", "value": {"default": "myRPWDIV"           }, "wlst_type": "password",   "get_method": "GET" } ]
+      },
+      "wlst_attributes_path": "WP001",
+      "wlst_paths": {
+        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCPassword${:s}/%WTCPASSWORD%"
+      }
+    },
+    "WTCRemoteTuxDom": {
+      "wlst_type": "WTCRemoteTuxDom${:s}",
+      "child_folders_type": "multiple",
+      "short_name": "RemoteTuxDom",
+      "folders": {},
+      "attributes": {
+        "AccessPoint":                         [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AccessPoint",                         "wlst_path": "WP001", "value": {"default": "myRAP"                   }, "wlst_type": "string"                } ],
+        "AccessPointId":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AccessPointId",                       "wlst_path": "WP001", "value": {"default": "myRAPId"                 }, "wlst_type": "string"                } ],
+        "AclPolicy":                           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AclPolicy",                           "wlst_path": "WP001", "value": {"default": "${None:LOCAL}"           }, "wlst_type": "string"                } ],
+        "AllowAnonymous":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AllowAnonymous",                      "wlst_path": "WP001", "value": {"default": "false"                   }, "wlst_type": "boolean"               } ],
+        "AppKey":                              [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppKey",                              "wlst_path": "WP001", "value": {"default": "${None:TpUsrFile}"       }, "wlst_type": "string"                } ],
+        "CmpLimit":                            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "CmpLimit",                            "wlst_path": "WP001", "value": {"default": 2147483647                }, "wlst_type": "integer"               } ],
+        "ConnPrincipalName":                   [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ConnPrincipalName",                   "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"              } ],
+        "ConnectionPolicy":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ConnectionPolicy",                    "wlst_path": "WP001", "value": {"default": "${None:LOCAL}"           }, "wlst_type": "string"                } ],
+        "CredentialPolicy":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "CredentialPolicy",                    "wlst_path": "WP001", "value": {"default": "${None:LOCAL}"           }, "wlst_type": "string"                } ],
+        "CustomAppKeyClass":                   [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "CustomAppKeyClass",                   "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"                } ],
+        "CustomAppKeyClassParam":              [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "CustomAppKeyClassParam",              "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"                } ],
+        "DefaultAppKey":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "DefaultAppKey",                       "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "integer"               } ],
+        "FederationName":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "FederationName",                      "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"                } ],
+        "FederationURL":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "FederationURL",                       "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"                } ],
+        "KeepAlive":                           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "KeepAlive",                           "wlst_path": "WP001", "value": {"default": 0                         }, "wlst_type": "integer"               } ],
+        "KeepAliveWait":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "KeepAliveWait",                       "wlst_path": "WP001", "value": {"default": 0                         }, "wlst_type": "integer"               } ],
+        "LocalAccessPoint":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalAccessPoint",                    "wlst_path": "WP001", "value": {"default": "myLAP"                   }, "wlst_type": "string"                } ],
+        "MaxEncryptBits":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MaxEncryptBits",                      "wlst_path": "WP001", "value": {"default": "${None:128}"             }, "wlst_type": "string"                } ],
+        "MaxRetries":                          [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MaxRetries",                          "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "long"                  } ],
+        "MinEncryptBits":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MinEncryptBits",                      "wlst_path": "WP001", "value": {"default": "${None:0}"               }, "wlst_type": "string"                } ],
+        "NWAddr":                              [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "NWAddr",                              "wlst_path": "WP001", "value": {"default": "//localhost:8902"        }, "wlst_type": "string"                } ],
+        "Notes":                               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                               "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"                } ],
+        "RetryInterval":                       [ {"version": "[10,12.2.1)",       "wlst_mode": "both",   "wlst_name": "RetryInterval",                       "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "${integer:long}",      "get_method": "${LSA:GET}"          } ,
+                                                 {"version": "[12.2.1,)",         "wlst_mode": "both",   "wlst_name": "RetryInterval",                       "wlst_path": "WP001", "value": {"default": -1                        }, "wlst_type": "long",                 "get_method": "GET"          } ],
+        "TpUsrFile":                           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TpUsrFile",                           "wlst_path": "WP001", "value": {"default": "None"                    }, "wlst_type": "string"                } ],
+        "SslProtocolVersion":                  [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",   "wlst_name": "S${sl:SL}ProtocolVersion",            "wlst_path": "WP001", "value": {"default": "${None:TLSv1.2}"         }, "wlst_type": "string"                } ],
+        "TuxedoGidKw":                         [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TuxedoGidKw",                         "wlst_path": "WP001", "value": {"default": "TUXEDO_GID"              }, "wlst_type": "string"                } ],
+        "TuxedoUidKw":                         [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TuxedoUidKw",                         "wlst_path": "WP001", "value": {"default": "TUXEDO_UID"              }, "wlst_type": "string"                } ]
+      },
+      "wlst_attributes_path": "WP001",
+      "wlst_paths": {
+        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCRemoteTuxDom${:s}/%WTCREMOTETUXDOM%"
+      }
+    },
+    "WTCResources": {
+      "wlst_type": "WTCResources",
+      "child_folders_type": "single_unpredictable",
+      "default_name_value": "${NO_NAME_0:%WTCRESOURCES%}",
+      "short_name": "Resources",
+      "folders": {},
+      "attributes": {
+        "AppPassword":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPassword",                      "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "password",                       "get_method": "GET"} ],
+        "AppPasswordIV":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPasswordIV",                    "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "password",                       "get_method": "GET"} ],
+        "FldTbl16Class":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "FldTbl16Class${:es}",              "wlst_path": "WP001", "value": {"default": "[]"                 }, "wlst_type": "${delimited_string:jarray}",     "get_method": "${LSA:GET}" } ],
+        "FldTbl32Class":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "FldTbl32Class${:es}",              "wlst_path": "WP001", "value": {"default": "[]"                 }, "wlst_type": "${delimited_string:jarray}",     "get_method": "${LSA:GET}" } ],
+        "MBEncodingMapFile":                 [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MBEncodingMapFile",                "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string"                          } ],
+        "Notes":                             [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                            "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string"                          } ],
+        "RemoteMBEncoding":                  [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemoteMBEncoding",                 "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string"                          } ],
+        "TpUsrFile":                         [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TpUsrFile",                        "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string"                          } ],
+        "ViewTbl16Class":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ViewTbl16Class${:es}",             "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "${delimited_string:jarray}",     "get_method":  "${LSA:GET}"} ],
+        "ViewTbl32Class":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ViewTbl32Class${:es}",             "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "${delimited_string:jarray}",     "get_method":  "${LSA:GET}"} ]
+      },
+      "wlst_attributes_path": "WP001",
+      "wlst_paths": {
+        "WP001": "/WTCServer{:s}/%WTCSERVER%/WTCResources/%WTCRESOURCES%"
+      }
+    },
+    "WTCtBridgeGlobal": {
+      "wlst_type": "WTCtBridgeGlobal",
+      "child_folders_type": "single_unpredictable",
+      "default_name_value": "${NO_NAME_0:%WTCGLOBAL%}",
+      "short_name": "Global",
+      "folders": {},
+      "attributes": {
+        "AllowNonStandardTypes":          [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AllowNonStandardTypes",         "wlst_path": "WP001", "value": {"default": "${None:NO}"                             }, "wlst_type": "string"   } ],
+        "DefaultReplyDeliveryMode":       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "DefaultReplyDeliveryMode",      "wlst_path": "WP001", "value": {"default": "${None:DEFAULT}"                        }, "wlst_type": "string"   } ],
+        "DeliveryModeOverride":           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "DeliveryModeOverride",          "wlst_path": "WP001", "value": {"default": "${None:NONPERSIST}"                     }, "wlst_type": "string"   } ],
+        "JmsFactory":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "JmsFactory",                    "wlst_path": "WP001", "value": {"default": "weblogic.jms.XAConnectionFactory"       }, "wlst_type": "string"   } ],
+        "JmsToTuxPriorityMap":            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "JmsToTuxPriorityMap",           "wlst_path": "WP001", "value": {"default": "None"                                   }, "wlst_type": "string"   } ],
+        "JndiFactory":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "JndiFactory",                   "wlst_path": "WP001", "value": {"default": "weblogic.jndi.WLInitialContextFactory"  }, "wlst_type": "string"   } ],
+        "Notes":                          [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                         "wlst_path": "WP001", "value": {"default": "None"                                   }, "wlst_type": "string"   } ],
+        "Retries":                        [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Retries",                       "wlst_path": "WP001", "value": {"default": 0                                        }, "wlst_type": "integer"  } ],
+        "RetryDelay":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RetryDelay",                    "wlst_path": "WP001", "value": {"default": 10                                       }, "wlst_type": "integer"  } ],
+        "Timeout":                        [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Timeout",                       "wlst_path": "WP001", "value": {"default": 60                                       }, "wlst_type": "integer"  } ],
+        "Transactional":                  [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Transactional",                 "wlst_path": "WP001", "value": {"default": "${None:NO}"                             }, "wlst_type": "integer"  } ],
+        "TuxErrorQueue":                  [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TuxErrorQueue",                 "wlst_path": "WP001", "value": {"default": "None"                                   }, "wlst_type": "string"   } ],
+        "TuxFactory":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TuxFactory",                    "wlst_path": "WP001", "value": {"default": "tuxedo.services.TuxedoConnection"       }, "wlst_type": "string"   } ],
+        "TuxToJmsPriorityMap":            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TuxToJmsPriorityMap",           "wlst_path": "WP001", "value": {"default": "None"                                   }, "wlst_type": "string"   } ],
+        "UserId":                         [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "UserId",                        "wlst_path": "WP001", "value": {"default": "None"                                   }, "wlst_type": "string"   } ],
+        "WlsErrorDestination":            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "WlsErrorDestination",           "wlst_path": "WP001", "value": {"default": "None"                                   }, "wlst_type":  "string"  } ]
+      },
+      "wlst_attributes_path": "WP001",
+      "wlst_paths": {
+        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCBridgeGlobal/%WTCGLOBAL%"
+      }
+    },
+    "WTCtBridgeRedirect": {
+      "wlst_type": "WTCtBridgeRedirect${:s}",
+      "child_folders_type": "multiple",
+      "short_name": "Resources",
+      "folders": {},
+      "attributes": {
+        "Direction":                        [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Direction",                       "wlst_path": "WP001", "value": {"default": "${None:JmsQ2TuxQ}"               }, "wlst_type": "string"   } ],
+        "MetaDataFile":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MetaDataFile",                    "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string" } ],
+        "Notes":                            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                           "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
+        "ReplyQ":                           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ReplyQ",                          "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
+        "SourceAccessPoint":                [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "SourceAccessPoint",               "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
+        "SourceName":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "SourceName",                      "wlst_path": "WP001", "value": {"default": "${None:mySource}"                }, "wlst_type": "string"   } ],
+        "SourceQspace":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "SourceQspace",                    "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
+        "TargetAccessPoint":                [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetAccessPoint",               "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
+        "TargetName":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetName",                      "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
+        "TargetQspace":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetQspace",                    "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
+        "TranslateFML":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TranslateFML",                    "wlst_path": "WP001", "value": {"default": "${None:NO}"                      }, "wlst_type": "string"   } ]
+      },
+      "wlst_attributes_path": "WP001",
+      "wlst_paths": {
+        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCtBridgeRedirect$(:s}/%WTCREDIRECT%"
+      }
+    }
+  },
+  "attributes": {
+    "DeploymentOrder":                            [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "DeploymentOrder",                    "wlst_path": "WP001", "value": {"default": 1000                 }, "wlst_type": "integer"                        } ],
+    "Notes":                                      [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string"                         } ],
+    "Resource":                                   [ {"version": "[10,)",         "wlst_mode": "online",  "wlst_name": "Resource",                           "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string",                        "get_method": "${LSA:GET}" } ],
+    "Target":                                     [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "Target${:s}",                        "wlst_path": "WP003", "value": {"default": "None"               }, "wlst_type": "${delimited_string:jarray}",    "preferred_model_type": "delimited_string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+    "tBridgeGlobal":                              [ {"version": "[10,)",         "wlst_mode": "online",  "wlst_name": "tBridgeGlobal",                      "wlst_path": "WP003", "value": {"default": "None"               }, "wlst_type": "string",                        "get_method": "${LSA:GET}"} ]
+  },
+  "wlst_attributes_path": "WP001",
+  "wlst_paths": {
+    "WP001": "/WTCServer${:s}/%WTCSERVER%",
+    "WP003": "/WTCServer${:s}/%WTCSERVER%/Targets"
+  }
+}

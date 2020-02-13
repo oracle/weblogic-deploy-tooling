@@ -52,6 +52,10 @@ class GlobalResourcesDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, web_app_container)
         model_top_folder_name, singleton_services = self.get_singleton_service()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, singleton_services)
+        model_top_folder_name, jolt_pools = self.get_jolt_connection_pool()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, jolt_pools)
+        model_top_folder_name, wtc_servers = self.get_wtc_servers()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, wtc_servers)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
@@ -202,4 +206,55 @@ class GlobalResourcesDiscoverer(Discoverer):
                 location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
+    def get_jolt_connection_pool(self):
+        """
+        Discover the global resource Jolt Connection Pool
+        :return: model name for the folder: dictionary containing the discovered JoltConnectionPool
+        """
+        _method_name = 'get_jolt_connection_pool'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.JOLT_CONNECTION_POOL
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        jolt_pools = self._find_names_in_folder(location)
+        if jolt_pools is not None:
+            _logger.info('WLSDPLY-06449', len(jolt_pools), class_name=_class_name, method_name=_method_name)
+            name_token = self._alias_helper.get_name_token(location)
+            for jolt_pool in jolt_pools:
+                _logger.info('WLSDPLY-06450', jolt_pool, class_name=_class_name, method_name=_method_name)
+                result[jolt_pool] = OrderedDict()
+                location.add_name_token(name_token, jolt_pool)
+                self._populate_model_parameters(result[jolt_pool], location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
+    def get_wtc_servers(self):
+        """
+        Discover the WTC servers from the domain.
+        :return: model folder name: dictionary containing the discovered WTCServers
+        """
+        _method_name = 'get_wtc_servers'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.WTC_SERVER
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        wtc_servers = self._find_names_in_folder(location)
+        if wtc_servers is not None:
+            _logger.info('WLSDPLY-06451', len(wtc_servers), class_name=_class_name, method_name=_method_name)
+            name_token = self._alias_helper.get_name_token(location)
+            for wtc_server in wtc_servers:
+                _logger.info('WLSDPLY-06452', wtc_server, class_name=_class_name, method_name=_method_name)
+                result[wtc_server] = OrderedDict()
+                location.add_name_token(name_token, wtc_server)
+                self._populate_model_parameters(result[wtc_server], location)
+                self._discover_subfolders(result, location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
