@@ -10,6 +10,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Discover Domain Tool](site/discover.md)
     - [Encrypt Model Tool](site/encrypt.md)
     - [Validate Model Tool](site/validate.md)
+    - [Extract Domain Resource Tool](site/kubernetes.md)
 - [The Model](#the-metadata-model)
     - [Top-Level Sections](#top-level-model-sections)
     - [Simple Example](#simple-example)
@@ -53,6 +54,7 @@ Currently, the project provides five single-purpose tools, all exposed as shell 
 - The [Discover Domain Tool](site/discover.md) (`discoverDomain`) introspects an existing domain and creates a model file describing the domain and an archive file of the binaries deployed to the domain.
 - The [Encrypt Model Tool](site/encrypt.md) (`encryptModel`) encrypts the passwords in a model (or its variable file) using a user-provided passphrase.
 - The [Validate Model Tool](site/validate.md) (`validateModel`) provides both standalone validation of a model as well as model usage information to help users write or edit their models.
+- The [Extract Domain Resource Tool](site/kubernetes.md) (`extractDomainResource`) generates a domain resource YAML for use with the Oracle WebLogic Server Kubernetes Operator.
 
 As new use cases are discovered, new tools will likely be added to cover those operations but all will use the metadata model to describe what needs to be done.
 
@@ -90,6 +92,7 @@ The tooling has four top-level model sections:
 - `topology`       - The location where servers, clusters, machines, server templates, and other domain-level configuration is specified.
 - `resources`      - The location where resources and services are specified (for example, data sources, JMS, WLDF).
 - `appDeployments` - The location where shared libraries and applications are specified.
+- `kubernetes`     - The location where the WLS Kubernetes Operator domain configuration is specified.
 
 ##### Simple Example
 Here is a simple example of a model to deploy an application and its data source:
