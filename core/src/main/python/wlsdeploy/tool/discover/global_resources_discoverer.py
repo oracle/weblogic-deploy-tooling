@@ -253,7 +253,7 @@ class GlobalResourcesDiscoverer(Discoverer):
                 result[wtc_server] = OrderedDict()
                 location.add_name_token(name_token, wtc_server)
                 self._populate_model_parameters(result[wtc_server], location)
-                self._discover_subfolders(result, location)
+                self._discover_subfolders(result[wtc_server], location)
                 location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)

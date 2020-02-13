@@ -143,7 +143,7 @@
     "WTCResources": {
       "wlst_type": "WTCResources",
       "child_folders_type": "single_unpredictable",
-      "default_name_value": "${NO_NAME_0:%WTCRESOURCES%}",
+      "default_name_value": "${NO_NAME_0:%WTCSERVER%}",
       "short_name": "Resources",
       "folders": {},
       "attributes": {
@@ -160,13 +160,13 @@
       },
       "wlst_attributes_path": "WP001",
       "wlst_paths": {
-        "WP001": "/WTCServer{:s}/%WTCSERVER%/WTCResources/%WTCRESOURCES%"
+        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCResources/%WTCRESOURCES%"
       }
     },
     "WTCtBridgeGlobal": {
       "wlst_type": "WTCtBridgeGlobal",
       "child_folders_type": "single_unpredictable",
-      "default_name_value": "${NO_NAME_0:%WTCGLOBAL%}",
+      "default_name_value": "${NO_NAME_0:%WTCSERVER%}",
       "short_name": "Global",
       "folders": {},
       "attributes": {
@@ -189,13 +189,13 @@
       },
       "wlst_attributes_path": "WP001",
       "wlst_paths": {
-        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCBridgeGlobal/%WTCGLOBAL%"
+        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCtBridgeGlobal/%WTCBRIDGEGLOBAL%"
       }
     },
     "WTCtBridgeRedirect": {
       "wlst_type": "WTCtBridgeRedirect${:s}",
       "child_folders_type": "multiple",
-      "short_name": "Resources",
+      "short_name": "Redirect",
       "folders": {},
       "attributes": {
         "Direction":                        [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Direction",                       "wlst_path": "WP001", "value": {"default": "${None:JmsQ2TuxQ}"               }, "wlst_type": "string"   } ],
@@ -203,16 +203,16 @@
         "Notes":                            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                           "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
         "ReplyQ":                           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ReplyQ",                          "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
         "SourceAccessPoint":                [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "SourceAccessPoint",               "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
-        "SourceName":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "SourceName",                      "wlst_path": "WP001", "value": {"default": "${None:mySource}"                }, "wlst_type": "string"   } ],
+        "SourceName":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "SourceName",                      "wlst_path": "WP001", "value": {"default": "mySource"                        }, "wlst_type": "string"   } ],
         "SourceQspace":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "SourceQspace",                    "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
         "TargetAccessPoint":                [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetAccessPoint",               "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
-        "TargetName":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetName",                      "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
+        "TargetName":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetName",                      "wlst_path": "WP001", "value": {"default": "myTarget"                        }, "wlst_type": "string"   } ],
         "TargetQspace":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetQspace",                    "wlst_path": "WP001", "value": {"default": "None"                            }, "wlst_type": "string"   } ],
         "TranslateFML":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TranslateFML",                    "wlst_path": "WP001", "value": {"default": "${None:NO}"                      }, "wlst_type": "string"   } ]
       },
       "wlst_attributes_path": "WP001",
       "wlst_paths": {
-        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCtBridgeRedirect$(:s}/%WTCREDIRECT%"
+        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCtBridgeRedirect${:s}/%WTCREDIRECT%"
       }
     }
   },
@@ -220,8 +220,9 @@
     "DeploymentOrder":                            [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "DeploymentOrder",                    "wlst_path": "WP001", "value": {"default": 1000                 }, "wlst_type": "integer"                        } ],
     "Notes":                                      [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string"                         } ],
     "Resource":                                   [ {"version": "[10,)",         "wlst_mode": "online",  "wlst_name": "Resource",                           "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string",                        "get_method": "${LSA:GET}" } ],
-    "Target":                                     [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "Target${:s}",                        "wlst_path": "WP003", "value": {"default": "None"               }, "wlst_type": "${delimited_string:jarray}",    "preferred_model_type": "delimited_string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
-    "tBridgeGlobal":                              [ {"version": "[10,)",         "wlst_mode": "online",  "wlst_name": "tBridgeGlobal",                      "wlst_path": "WP003", "value": {"default": "None"               }, "wlst_type": "string",                        "get_method": "${LSA:GET}"} ]
+    "Target":                                     [ {"version": "[10,)",         "wlst_mode": "offline", "wlst_name": "Target",                             "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "delimited_string"               } ,
+                                                    {"version": "[10,)",         "wlst_mode": "online",  "wlst_name": "Targets",                            "wlst_path": "WP003", "value": {"default": "None"               }, "wlst_type": "jarray",                        "preferred_model_type": "delimited_string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+    "tBridgeGlobal":                              [ {"version": "[10,)",         "wlst_mode": "online",  "wlst_name": "tBridgeGlobal",                      "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string",                        "get_method": "${LSA:GET}"} ]
   },
   "wlst_attributes_path": "WP001",
   "wlst_paths": {
