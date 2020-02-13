@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -863,12 +863,12 @@ class DomainCreator(Creator):
 
                     wlst_name, wlst_value = \
                         self.alias_helper.get_wlst_attribute_name_and_value(location, URL, fmw_database)
-                    self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, ds_name)
+                    self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
                     wlst_name, wlst_value = \
                         self.alias_helper.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
                                                                             rcu_schema_pwd, masked=True)
-                    self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, ds_name, masked=True)
+                    self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
                     location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
                     token_name = self.alias_helper.get_name_token(location)
@@ -882,8 +882,7 @@ class DomainCreator(Creator):
                     wlst_name, wlst_value = \
                         self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE,
                                                                             stb_user)
-                    self.wlst_helper.set_if_needed(wlst_name, wlst_value,
-                                                   JDBC_DRIVER_PARAMS_PROPERTIES, DRIVER_PARAMS_USER_PROPERTY)
+                    self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
                     # need to set other properties
 
@@ -936,16 +935,16 @@ class DomainCreator(Creator):
             svc_table_driver_name = self.wls_helper.get_stb_data_source_jdbc_driver_name()
             wlst_name, wlst_value = \
                 self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_NAME, svc_table_driver_name)
-            self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
             wlst_name, wlst_value = \
                 self.alias_helper.get_wlst_attribute_name_and_value(location, URL, fmw_database)
-            self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
             wlst_name, wlst_value = \
                 self.alias_helper.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
                                                                     rcu_schema_pwd, masked=True)
-            self.wlst_helper.set_if_needed(wlst_name, wlst_value, JDBC_DRIVER_PARAMS, svc_table_ds_name, masked=True)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
             location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
             token_name = self.alias_helper.get_name_token(location)
@@ -959,8 +958,7 @@ class DomainCreator(Creator):
             self.wlst_helper.cd(wlst_path)
             wlst_name, wlst_value = \
                 self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE, stb_user)
-            self.wlst_helper.set_if_needed(wlst_name, wlst_value,
-                                           JDBC_DRIVER_PARAMS_PROPERTIES, DRIVER_PARAMS_USER_PROPERTY)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
             self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
             if self.wls_helper.is_database_defaults_supported():
@@ -1012,7 +1010,7 @@ class DomainCreator(Creator):
             # We cannot use the aliases for the Server Name attribute since we
             # filter out any name fields.
             #
-            self.wlst_helper.set_if_needed(DOMAIN_NAME, self._domain_name, DOMAIN_NAME, self._domain_name)
+            self.wlst_helper.set_if_needed(DOMAIN_NAME, self._domain_name)
             self.logger.info('WLSDPLY-12227', self.__default_domain_name, self._domain_name,
                              class_name=self.__class_name, method_name=_method_name)
         return
@@ -1044,10 +1042,10 @@ class DomainCreator(Creator):
             self.wlst_helper.cd(admin_user_path)
             wlst_name, wlst_value = \
                 self.alias_helper.get_wlst_attribute_name_and_value(location, NAME, admin_username)
-            self.wlst_helper.set_if_needed(wlst_name, wlst_value, NAME, admin_username)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value)
             wlst_name, wlst_value = \
                 self.alias_helper.get_wlst_attribute_name_and_value(location, PASSWORD, admin_password, masked=True)
-            self.wlst_helper.set_if_needed(wlst_name, wlst_value, PASSWORD, '<masked>', masked=True)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
         else:
             ex = exception_helper.create_create_exception('WLSDPLY-12228', 'AdminPassword',
@@ -1078,7 +1076,7 @@ class DomainCreator(Creator):
             # We cannot use the aliases for the Server Name attribute since we
             # filter out any name fields.
             #
-            self.wlst_helper.set_if_needed(NAME, self._admin_server_name, SERVER, self.__default_admin_server_name)
+            self.wlst_helper.set_if_needed(NAME, self._admin_server_name)
             self.logger.info('WLSDPLY-12229', self.__default_admin_server_name, self._admin_server_name,
                              class_name=self.__class_name, method_name=_method_name)
         else:
@@ -1114,7 +1112,6 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         # SecurityConfiguration is special since the subfolder name does not change when you change the domain name.
         # It only changes once the domain is written and re-read...
-        location = LocationContext()
         domain_name_token = deployer_utils.get_domain_token(self.alias_helper)
         security_config_location = LocationContext().add_name_token(domain_name_token, self._domain_name)
         self.security_provider_creator.create_security_configuration(security_config_location)
@@ -1150,7 +1147,7 @@ class DomainCreator(Creator):
 
         admin_username = self.aliases.decrypt_password(admin_username)
         admin_password = self.aliases.decrypt_password(admin_password)
-        encrypted_username =  encryptionService.encrypt(admin_username)
+        encrypted_username = encryptionService.encrypt(admin_username)
         encrypted_password = encryptionService.encrypt(admin_password)
         for server in servers:
             properties = Properties()
@@ -1178,12 +1175,12 @@ class DomainCreator(Creator):
             opss_secret_password = domain_info[OPSS_SECRETS]
             if self.archive_helper and opss_secret_password:
                 extract_path = self.archive_helper.extract_opss_wallet()
-                self.wlst_helper.setSharedSecretStoreWithPassword(extract_path, opss_secret_password)
+                self.wlst_helper.set_shared_secret_store_with_password(extract_path, opss_secret_password)
         else:
             opss_secret_password = self.model_context.get_opss_wallet_passphrase()
             opss_wallet = self.model_context.get_opss_wallet()
             if opss_wallet is not None and opss_secret_password is not None:
-                self.wlst_helper.setSharedSecretStoreWithPassword(opss_wallet, opss_secret_password)
+                self.wlst_helper.set_shared_secret_store_with_password(opss_wallet, opss_secret_password)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

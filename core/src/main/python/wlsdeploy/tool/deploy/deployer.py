@@ -46,7 +46,7 @@ class Deployer(object):
         self.logger = PlatformLogger('wlsdeploy.deploy')
         self.alias_helper = AliasHelper(aliases, self.logger, ExceptionType.DEPLOY)
         self.wls_helper = WebLogicHelper(self.logger)
-        self.wlst_helper = WlstHelper(self.logger, ExceptionType.DEPLOY)
+        self.wlst_helper = WlstHelper(ExceptionType.DEPLOY)
         self.attribute_setter = AttributeSetter(self.aliases, self.logger, ExceptionType.DEPLOY, wlst_mode=wlst_mode)
         self.topology_helper = TopologyHelper(self.aliases, ExceptionType.DEPLOY, self.logger)
 

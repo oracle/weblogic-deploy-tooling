@@ -17,12 +17,13 @@ from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import KSS_KEYSTORE_FILE_INDICATOR
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
-from wlsdeploy.util import wlst_helper
 
 _class_name = 'TopologyDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -48,6 +49,7 @@ class TopologyDiscoverer(Discoverer):
         self._add_att_handler(model_constants.CLASSPATH, self._add_classpath_libraries_to_archive)
         self._add_att_handler(model_constants.CUSTOM_IDENTITY_KEYSTORE_FILE, self._add_keystore_file_to_archive)
         self._add_att_handler(model_constants.CUSTOM_TRUST_KEYSTORE_FILE, self._add_keystore_file_to_archive)
+        self._wlst_helper = WlstHelper(ExceptionType.DISCOVER)
 
     def discover(self):
         """
@@ -567,11 +569,11 @@ class TopologyDiscoverer(Discoverer):
         :param base_folder: the folder name to check
         :return: true, if the Machine folder exists, false otherwise
         """
-        if base_folder in wlst_helper.lsc():
+        if base_folder in self._wlst_helper.lsc():
             result = True
         elif self._wlst_mode == WlstModes.OFFLINE:
             try:
-                wlst_helper.cd(base_folder)
+                self._wlst_helper.cd(base_folder)
                 result = True
             except PyWLSTException:
                 result = False

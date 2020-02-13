@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from org.python.modules import jarray
@@ -249,7 +249,7 @@ class AliasesTestCase(unittest.TestCase):
         if token:
             location.add_name_token(token, 'simpleear')
 
-        model_attribute_name = 'SourcePath'
+        model_attribute_name = 'AbsoluteSourcePath'
         model_attribute_value = '@@PWD@@/target/applications/simpleear.ear'
         wlst_attribute_name, wlst_attribute_value = \
             self.online_aliases.get_wlst_attribute_name_and_value(location, model_attribute_name, model_attribute_value)

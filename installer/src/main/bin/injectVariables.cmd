@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem injectVariables.cmd
 @rem
-@rem Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -263,7 +263,7 @@ ECHO WLST_PROPERTIES = %WLST_PROPERTIES%
 SET PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python
 ECHO %WLST% %PY_SCRIPTS_PATH%\variable_inject.py %SCRIPT_ARGS%
 
-"%WLST%" "%PY_SCRIPTS_PATH%\variable_inject.py" %SCRIPT_ARGS%
+CALL "%WLST%" "%PY_SCRIPTS_PATH%\variable_inject.py" %SCRIPT_ARGS%
 
 SET RETURN_CODE=%ERRORLEVEL%
 IF "%RETURN_CODE%" == "100" (

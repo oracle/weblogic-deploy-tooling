@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the discoverDomain tool.
@@ -23,10 +23,11 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 import wlsdeploy.tool.util.variable_injector as variable_injector
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
-from wlsdeploy.util import wlst_helper
+from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
@@ -270,8 +271,6 @@ def main(args):
     __logger.entering(class_name=_class_name, method_name=_method_name)
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
-
-    wlst_helper.silence()
 
     exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
 
