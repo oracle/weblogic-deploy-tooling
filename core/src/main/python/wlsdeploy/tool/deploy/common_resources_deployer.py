@@ -9,6 +9,7 @@ from wlsdeploy.aliases.model_constants import FOREIGN_JNDI_PROVIDER
 from wlsdeploy.aliases.model_constants import JDBC_STORE
 from wlsdeploy.aliases.model_constants import JMS_BRIDGE_DESTINATION
 from wlsdeploy.aliases.model_constants import JMS_SERVER
+from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import MAIL_SESSION
 from wlsdeploy.aliases.model_constants import MESSAGING_BRIDGE
 from wlsdeploy.aliases.model_constants import PATH_SERVICE
@@ -16,6 +17,7 @@ from wlsdeploy.aliases.model_constants import SAF_AGENT
 from wlsdeploy.aliases.model_constants import SELF_TUNING
 from wlsdeploy.aliases.model_constants import WORK_MANAGER
 from wlsdeploy.aliases.model_constants import WEBAPP_CONTAINER
+from wlsdeploy.aliases.model_constants import WTC_SERVER
 from wlsdeploy.aliases.model_constants import SINGLETON_SERVICE
 from wlsdeploy.aliases.model_constants import MIME_MAPPING_FILE
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -119,6 +121,16 @@ class CommonResourcesDeployer(Deployer):
         self._add_named_elements(JMS_SERVER, servers, location)
         return
 
+    def add_jolt_connection_pools(self, parent_dict, location):
+        """
+        Add each named Jolt connection pool from the specified nodes in WLST and set its attributes.
+        :param parent_dict: the Jolt connection pool nodes from the model
+        :param location: the location where elements should be added
+        """
+        servers = dictionary_utils.get_dictionary_element(parent_dict, JOLT_CONNECTION_POOL)
+        self._add_named_elements(JOLT_CONNECTION_POOL, servers, location)
+        return
+
     def add_mail_sessions(self, parent_dict, location):
         """
         Deploy the mail session elements in the dictionary at the specified location.
@@ -185,6 +197,15 @@ class CommonResourcesDeployer(Deployer):
                         self.archive_helper.extract_file(file_path)
 
         return
+
+    def add_wtc_servers(self, parent_dict, location):
+        """
+        Deploy the WTC server elements in the dictionary at the specified location.
+        :param parent_dict: the dictionary possibly containing WTC server elements
+        :param location: the location to deploy the elements
+        """
+        wtc_servers = dictionary_utils.get_dictionary_element(parent_dict, WTC_SERVER)
+        self._add_named_elements(WTC_SERVER, wtc_servers, location)
 
     def add_singleton_service(self, parent_dict, location):
         """

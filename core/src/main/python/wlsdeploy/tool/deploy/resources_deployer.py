@@ -71,6 +71,8 @@ class ResourcesDeployer(Deployer):
         common_deployer.add_jms_servers(self._resources, location)
         common_deployer.add_saf_agents(self._resources, location)
         common_deployer.add_path_services(self._resources, location)
+        common_deployer.add_jolt_connection_pools(self._resources, location)
+        common_deployer.add_wtc_servers(self._resources, location)
 
         jms_deployer = JmsResourcesDeployer(self.model, self.model_context, self.aliases, wlst_mode=self.wlst_mode)
         jms_deployer.add_jms_system_resources(self._resources, location)
