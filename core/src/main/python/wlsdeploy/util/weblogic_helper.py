@@ -195,7 +195,7 @@ class WebLogicHelper(object):
                 if len(dirs) > 0:
                     wl_home = oracle_home + '/' + dirs[0]
                 else:
-                    raise Exception("Can't find proper folder for WLS")
+                    wl_home = None
                 
         return wl_home
 
