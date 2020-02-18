@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -347,8 +347,6 @@ class DomainCreator(Creator):
         self.library_helper.extract_classpath_libraries()
         self.library_helper.install_domain_scripts()
         self.wlsroles_helper.process_roles()
-        if os.environ.has_key('__WLSDEPLOY_STORE_MODEL__'):
-            model_helper.persist_model(self.model_context, self.model)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

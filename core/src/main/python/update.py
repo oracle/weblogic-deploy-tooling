@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the updateDomain tool.
@@ -197,9 +197,6 @@ def __update(model, model_context, aliases):
         ret_code = __update_online(model, model_context, aliases)
     else:
         ret_code = __update_offline(model, model_context, aliases)
-
-    if os.environ.has_key('__WLSDEPLOY_STORE_MODEL__'):
-        model_helper.persist_model(model_context, model)
 
     return ret_code
 
@@ -422,6 +419,8 @@ def main(args):
                         class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    cla_helper.persist_model(model_context, model_dictionary)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     validate_model(model_dictionary, model_context, aliases)
