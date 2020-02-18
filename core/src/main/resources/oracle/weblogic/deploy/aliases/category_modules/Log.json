@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Log",
     "child_folders_type": "single_unpredictable",
@@ -33,8 +33,7 @@
         "LogMonitoringThrottleThreshold":                [ {"version": "[12.2.1,)", "wlst_mode": "both",    "wlst_name": "LogMonitoringThrottleThreshold",                "wlst_path": "WP001", "value": {"default": 1500    }, "wlst_type": "integer"} ],
         "LoggerSeverity":                                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "LoggerSeverity",                                "wlst_path": "WP001", "value": {"default": "${None:Info}" }, "wlst_type": "string" } ],
         "LoggerSeverityProperties":                      [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "LoggerSeverityProperties",                      "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "properties",   "preferred_model_type": "dict", "get_method": "GET" } ],
-        "MemoryBufferFilter":                            [ {"version": "[10,12.1.3)", "wlst_mode": "both",  "wlst_name": "MemoryBufferFilter",                            "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string", "set_method": "MBEAN.set_log_filter_mbean", "set_mbean_type": "weblogic.management.configuration.LogFilterMBean"} ,
-                                                           {"version": "[12.1.3,)", "wlst_mode": "offline", "wlst_name": "MemoryBufferFilter",                            "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string", "set_method": "MBEAN.set_log_filter_mbean", "set_mbean_type": "weblogic.management.configuration.LogFilterMBean"} ],
+        "MemoryBufferFilter":                            [ {"version": "[10,)",     "wlst_mode": "both",  "wlst_name": "MemoryBufferFilter",                            "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string", "set_method": "MBEAN.set_log_filter_mbean", "set_mbean_type": "weblogic.management.configuration.LogFilterMBean"} ],
         "MemoryBufferSeverity":                          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MemoryBufferSeverity",                          "wlst_path": "WP001", "value": {"default": "${None:Trace}"}, "wlst_type": "string" } ],
         "MemoryBufferSize":                              [ {"version": "[10,12.2.1.3)","wlst_mode": "both", "wlst_name": "MemoryBufferSize",                              "wlst_path": "WP001", "value": {"default": 10      }, "wlst_type": "integer"} ,
                                                            {"version": "[12.2.1.3,)","wlst_mode": "both",   "wlst_name": "MemoryBufferSize",                              "wlst_path": "WP001", "value": {"default": "${10:500}"}, "wlst_type": "integer"} ],
