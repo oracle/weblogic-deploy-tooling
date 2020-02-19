@@ -28,6 +28,7 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.encrypt import encryption_utils
 from wlsdeploy.tool.util.alias_helper import AliasHelper
+from wlsdeploy.util import cla_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import variables as variable_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -64,7 +65,7 @@ def __process_args(args):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     required_arg_map, optional_arg_map = cla_util.process_args(args)
 
-    __verify_required_args_present(required_arg_map)
+    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
     __validate_mode_args(optional_arg_map)
     __process_passphrase_arg(optional_arg_map)
 
@@ -85,23 +86,6 @@ def __process_args(args):
     combined_arg_map.update(required_arg_map)
     model_context = ModelContext(_program_name, combined_arg_map)
     return model_context
-
-
-def __verify_required_args_present(required_arg_map):
-    """
-    Verify that the required args are present.
-    :param required_arg_map: the required arguments map
-    :raises CLAException: if one or more of the required arguments are missing
-    """
-    _method_name = '__verify_required_args_present'
-
-    for req_arg in __required_arguments:
-        if req_arg not in required_arg_map:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20005', _program_name, req_arg)
-            ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    return
 
 
 def __validate_mode_args(optional_arg_map):
