@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -174,8 +174,7 @@ class DomainCreator(Creator):
         self.__create_domain()
         self.__deploy()
         self.__create_boot_dot_properties()
-        self.wlst_helper.write_domain(self._domain_home)
-        self.wlst_helper.close_template()
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -361,15 +360,17 @@ class DomainCreator(Creator):
         :raises: CreateException: if an error occurs while reading or updating the domain.
         """
         self.model_context.set_domain_home(self._domain_home)
-        #self.wlst_helper.read_domain(self._domain_home)
         self.__set_domain_attributes()
         self._configure_security_configuration()
         self.__deploy_resources_and_apps()
-        #self.wlst_helper.update_domain()
+        if self.wls_helper.is_select_template_supported():
+            self.wlst_helper.write_domain(self._domain_home)
+            self.wlst_helper.close_template()
+        else:
+            self.wlst_helper.update_domain()
 
         model_deployer.deploy_model_after_update(self.model, self.model_context, self.aliases)
 
-        #self.wlst_helper.close_domain()
         return
 
     def __deploy_resources_and_apps(self):
@@ -396,7 +397,7 @@ class DomainCreator(Creator):
         base_template = self._domain_typedef.get_base_template()
         self.logger.info('WLSDPLY-12204', base_template, class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.read_template(base_template)
-        self.__apply_base_domain_config(self.__topology_folder_list)
+        self.__set_core_domain_params()
 
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
@@ -417,10 +418,9 @@ class DomainCreator(Creator):
         _method_name = '__extend_domain'
 
         self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
+
         extension_templates = self._domain_typedef.get_extension_templates()
         custom_templates = self._domain_typedef.get_custom_extension_templates()
-        if (len(extension_templates) == 0) and (len(custom_templates) == 0):
-            return
 
         self.logger.info('WLSDPLY-12207', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
@@ -437,24 +437,19 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.add_template(custom_template)
 
+        self.__apply_base_domain_config(self.__topology_folder_list)
         self.__configure_fmw_infra_database()
 
         if self.wls_helper.is_set_server_groups_supported():
             # 12c versions set server groups directly
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
             self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-            self.wlst_helper.update_domain()
 
         elif self._domain_typedef.is_jrf_domain_type() or \
                 (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
             # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
             self.target_helper.target_jrf_groups_to_clusters_servers(domain_home)
 
-        else:
-            # for 11g, if no targeting was needed, just update the domain
-            self.wlst_helper.update_domain()
-
-        self.wlst_helper.close_domain()
         self.logger.info('WLSDPLY-12209', self._domain_name,
                          class_name=self.__class_name, method_name=_method_name)
 
@@ -491,9 +486,6 @@ class DomainCreator(Creator):
         self.logger.info('WLSDPLY-12212', class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.load_templates()
         self.__set_core_domain_params()
-        # self.wlst_helper.write_domain(domain_home)
-        #self.wlst_helper.close_template()
-        #self.wlst_helper.read_domain(domain_home)
 
         topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
         self.__apply_base_domain_config(topology_folder_list)
@@ -532,8 +524,6 @@ class DomainCreator(Creator):
         location = LocationContext()
         domain_name_token = self.alias_helper.get_name_token(location)
         location.add_name_token(domain_name_token, self._domain_name)
-
-        #self.__set_core_domain_params()
 
         self.__create_security_folder(location)
         topology_folder_list.remove(SECURITY)
@@ -717,19 +707,10 @@ class DomainCreator(Creator):
 
         # create placeholders for JDBC resources that may be referenced in cluster definition.
         resources_dict = self.model.get_model_resources()
-        print '******* before create 1 jdbc placeholders'
         self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
-        print '******* after create 1 jdbc placeholders'
-        print '******* before create 2 jdbc placeholders'
-        self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
-        print '******* after create 2 jdbc placeholders'
         cluster_nodes = dictionary_utils.get_dictionary_element(self._topology, CLUSTER)
         if len(cluster_nodes) > 0:
             self._create_named_mbeans(CLUSTER, cluster_nodes, location, log_created=True)
-
-        print '******* before create 3 jdbc placeholders'
-        self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
-        print '******* after create 3 jdbc placeholders'
 
         #
         # Now, fully populate the ServerTemplates, if any.
@@ -747,9 +728,6 @@ class DomainCreator(Creator):
         if len(server_nodes) > 0:
             self._create_named_mbeans(SERVER, server_nodes, location, log_created=True)
 
-        print '******* before 4 create jdbc placeholders'
-        self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
-        print '******* after 4 create jdbc placeholders'
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 

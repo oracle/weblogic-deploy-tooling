@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -315,8 +315,6 @@ class Creator(object):
             self._extract_archive_files(location, model_name, model_value)
 
         wlst_name, wlst_value = self.alias_helper.get_wlst_attribute_name_and_value(location, model_name, model_value)
-        if wlst_name == 'Target':
-            print '########## Target at location ', location.get_folder_path(), ' has value ', wlst_value
 
         if wlst_name is None:
             self.logger.info('WLSDPLY-12106', model_name, self.alias_helper.get_model_folder_path(location),

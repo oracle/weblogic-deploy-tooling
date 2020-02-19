@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -123,12 +123,6 @@ class TopologyHelper(object):
                     token = self.alias_helper.get_name_token(resource_location)
                     resource_location.add_name_token(token, name)
                     deployer_utils.create_and_cd(resource_location, existing_names, self.alias_helper)
-                    if model_type == JDBC_SYSTEM_RESOURCE:
-                        print_value = self.wlst_helper.get('Target')
-                        print '^^^^^^^^^ Target at ', self.wlst_helper.get_pwd(), ' ', print_value
-                        map = self.wlst_helper.lsa()
-                        for key,value in map.iteritems():
-                            print '******* ', key, '=', value
 
         self.wlst_helper.cd(original_location)
 

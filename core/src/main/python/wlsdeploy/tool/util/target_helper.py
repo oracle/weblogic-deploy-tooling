@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -69,8 +69,6 @@ class TargetHelper(object):
         # Get the clusters and and their members
         cluster_map = self._get_clusters_and_members_map()
 
-        #self.wlst_helper.save_and_close(self.model_context)
-        
         # Get the clusters and and their members
         for cluster_name, cluster_servers in cluster_map.iteritems():
             self.logger.info('WLSDPLY-12233', 'Cluster', cluster_name, class_name=self.__class_name,
@@ -84,8 +82,6 @@ class TargetHelper(object):
                              method_name=_method_name)
             self.wlst_helper.apply_jrf(ms_name, self.model_context, should_update=should_update)
 
-        #self.wlst_helper.reopen(self.model_context)
-        
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 

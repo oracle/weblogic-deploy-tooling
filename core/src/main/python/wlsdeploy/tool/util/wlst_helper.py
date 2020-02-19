@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -558,7 +558,6 @@ class WlstHelper(object):
         """
         _method_name = 'close_template'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        print '**************** closeTemplate'
         try:
             self.__load_global('closeTemplate')()
         except offlineWLSTException, e:
@@ -577,7 +576,6 @@ class WlstHelper(object):
         """
         _method_name = 'select_template'
         self.__logger.entering(template, class_name=self.__class_name, method_name=_method_name)
-        print '*************** selectTemplate'
         try:
             self.__load_global('selectTemplate')(template)
         except offlineWLSTException, e:
@@ -613,7 +611,6 @@ class WlstHelper(object):
         """
         _method_name = 'load_templates'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        print '****************** loadTemplates'
         try:
             self.__load_global('loadTemplates')()
         except offlineWLSTException, e:
@@ -631,7 +628,6 @@ class WlstHelper(object):
         """
         _method_name = 'read_domain'
         self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
-        print '************ readDomain'
         try:
             self.__load_global('readDomain')(domain_home)
         except offlineWLSTException, e:
@@ -650,7 +646,6 @@ class WlstHelper(object):
         """
         _method_name = 'write_domain'
         self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
-        print '***************** write templates'
         try:
             self.__load_global('setOption')('OverwriteDomain', 'true')
         except offlineWLSTException, e:
@@ -675,7 +670,6 @@ class WlstHelper(object):
         """
         _method_name = 'update_domain'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        print '******************** upddateDomain'
         try:
             self.__load_global('updateDomain')()
         except offlineWLSTException, e:
@@ -692,7 +686,6 @@ class WlstHelper(object):
         """
         _method_name = 'close_domain'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        print '************* closeDomain'
         try:
             self.__load_global('closeDomain')()
         except offlineWLSTException, e:
