@@ -218,7 +218,7 @@ class VariableInjector(object):
                              method_name=_method_name)
 
             variable_dictionary = self.get_variable_cache()
-            if variable_dictionary is not None:
+            if variable_dictionary is not None and len(variable_dictionary) > 0:
                 variables_inserted = self._write_variables_file(variable_dictionary, variable_file_location, append)
             if variables_inserted:
                 _logger.info('WLSDPLY-19518', variable_file_location, class_name=_class_name,
