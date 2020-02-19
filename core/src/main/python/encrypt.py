@@ -30,14 +30,10 @@ from wlsdeploy.tool.encrypt import encryption_utils
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import variables as variable_helper
-from wlsdeploy.tool.util import wlst_helper
-from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.model_translator import PythonToFile
-
-wlst_helper.wlst_functions = globals()
 
 _program_name = 'encryptModel'
 _class_name = 'encrypt'
@@ -281,7 +277,6 @@ def main(args):
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
-    WlstHelper(ExceptionType.ENCRYPTION).silence()
     exit_code = _process_request(args)
     __logger.exiting(class_name=_class_name, method_name=_method_name, result=exit_code)
     sys.exit(exit_code)
