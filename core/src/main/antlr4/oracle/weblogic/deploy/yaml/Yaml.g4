@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
  * The Universal Permissive License (UPL), Version 1.0
  */
 grammar Yaml;
@@ -176,6 +176,8 @@ FLOAT
 
 NAME
     : ID_START ID_CONTINUE* WS?
+    | '""' WS?
+    | '\'\'' WS?
     | '\'' QUOTED_ID_START QUOTED_ID_CONTINUE* '\'' WS?
     | '"' QUOTED_ID_START QUOTED_ID_CONTINUE* '"' WS?
     ;

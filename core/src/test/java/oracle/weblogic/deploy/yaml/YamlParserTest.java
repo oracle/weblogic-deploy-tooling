@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.yaml;
@@ -287,6 +287,24 @@ public class YamlParserTest {
         Assert.assertEquals("S2 Cluster not correct", EXPECTED_S2_CLUSTER, s2Cluster);
     }
 
+    @Test
+    public void testEmptyStringKey() {
+        Map<String, Object> topology = getMap(fileDict, "topology");
+        Assert.assertNotNull("Failed to get topology from yaml", topology);
+
+        Map<String, Object> servers = getMap(topology, "Server");
+        Assert.assertNotNull("Failed to get topology/Server from yaml", servers);
+
+        Map<String, Object> adminServer = getMap(servers, "AdminServer");
+        Assert.assertNotNull("Failed to get topology/Server/AdminServer from yaml", adminServer);
+
+        Map<String, Object> log = getMap(adminServer, "Log");
+        Assert.assertNotNull("Failed to get Log in AdminServer from yaml", adminServer);
+
+        Map<String, Object> properties = getMap(log, "LoggerSeverityProperties");
+        Assert.assertEquals("Size of logging properties", 3, properties.size());
+        Assert.assertTrue("Could not find empty string key in properties", properties.containsKey(""));
+    }
     ///////////////////////////////////////////////////////////////////////////
     //                            End of tests                               //
     ///////////////////////////////////////////////////////////////////////////

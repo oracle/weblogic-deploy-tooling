@@ -1,33 +1,39 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Utility CLS methods shared by multiple tools.
 """
+import os
+
+from java.io import File
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import String
 from oracle.weblogic.deploy.util import FileUtils
-from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import TranslateException
+from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.validate import ValidateException
+
+import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_utils
-from wlsdeploy.util import model_helper
-from wlsdeploy.util import tool_exit
 from wlsdeploy.util import getcreds
+from wlsdeploy.util import model_helper
+from wlsdeploy.util import model_translator, path_utils
+from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_translator import FileToPython
 
-import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
-
 __logger = PlatformLogger('wlsdeploy.util')
 _class_name = 'cla_helper'
+
+_store_environment_variable = '__WLSDEPLOY_STORE_MODEL__'
 
 __tmp_model_dir = None
 
@@ -240,6 +246,8 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
         clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
+    persist_model(model_context, model_dictionary)
+
     validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode)
 
     if filter_helper.apply_filters(model_dictionary, filter_type):
@@ -352,3 +360,41 @@ def _get_merge_match_key(key, variable_map):
     if model_helper.is_delete_name(match_key):
         match_key = model_helper.get_delete_item_name(match_key)
     return match_key
+
+
+def persist_model(model_context, model_dictionary):
+    """
+    If environment variable __WLSDEPLOY_STORE_MODEL__ is set, save the specified model.
+    If the variable's value starts with a slash, save to that file, otherwise use a default location.
+    :param model_context: the model context
+    :param model_dictionary: the model to be saved
+    """
+    _method_name = 'persist_model'
+
+    if check_persist_model():
+        store_value = os.environ.get(_store_environment_variable)
+
+        if store_value.startswith('/') or store_value.startswith('\\'):
+            file_path = store_value
+        elif model_context.get_domain_home() is not None:
+            file_path = model_context.get_domain_home() + os.sep + 'wlsdeploy' + os.sep + 'domain_model.json'
+        else:
+            file_dir = FileUtils.createTempDirectory('wlsdeploy')
+            file_path = File(file_dir, 'domain_model.json').getAbsolutePath()
+
+        __logger.info('WLSDPLY-01650', file_path, class_name=_class_name, method_name=_method_name)
+
+        persist_dir = path_utils.get_parent_directory(file_path)
+        if not os.path.exists(persist_dir):
+            os.makedirs(persist_dir)
+
+        model_file = FileUtils.getCanonicalFile(File(file_path))
+        model_translator.PythonToFile(model_dictionary).write_to_file(model_file.getAbsolutePath())
+
+
+def check_persist_model():
+    """
+    Determine if the model should be persisted, based on the environment variable __WLSDEPLOY_STORE_MODEL__
+    :return: True if the model should be persisted
+    """
+    return os.environ.has_key(_store_environment_variable)

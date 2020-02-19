@@ -188,7 +188,7 @@ def _process_node(nodes, variables, model_context):
         # if the key changes with substitution, remove old key and map value to new key
         new_key = _substitute(key, variables, model_context)
         if new_key is not key:
-            nodes.pop(key)
+            del nodes[key]
             nodes[new_key] = value
 
         if isinstance(value, dict):

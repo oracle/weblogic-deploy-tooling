@@ -50,6 +50,7 @@ from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import KUBERNETES_ALIAS
+from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
@@ -58,6 +59,7 @@ from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import SERVER_POD
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WLS_ROLES
+from wlsdeploy.aliases.model_constants import WTC_SERVER
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -116,6 +118,7 @@ class AliasEntries(object):
         'JMSBridgeDestination',
         'JMSServer',
         'JMSSystemResource',
+        JOLT_CONNECTION_POOL,
         'MailSession',
         'MessagingBridge',
         ODL_CONFIGURATION,
@@ -131,7 +134,8 @@ class AliasEntries(object):
         'SingletonService',
         'StartupClass',
         'WebAppContainer',
-        'WLDFSystemResource'
+        'WLDFSystemResource',
+        WTC_SERVER
     ]
 
     __app_deployments_top_level_folders = [

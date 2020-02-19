@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 This module serves as a wrapper for the model dictionary.
@@ -165,12 +165,3 @@ def get_model_top_level_keys():
     :return: a list of the known top-level model element keys
     """
     return list(KNOWN_TOPLEVEL_MODEL_SECTIONS)
-
-
-def persist_model(model_context, model):
-    base_dir = model_context.get_domain_home() + os.sep + 'wlsdeploy'
-    if not os.path.exists(base_dir):
-        os.makedirs(base_dir)
-    fh = open(base_dir + os.sep + 'domain_model.json', 'w')
-    fh.write(str(model.get_model()))
-    fh.close()
