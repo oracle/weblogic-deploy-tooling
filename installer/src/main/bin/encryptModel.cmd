@@ -20,12 +20,13 @@
 @rem
 @rem This script uses the following command-line arguments directly, the rest
 @rem of the arguments are passed down to the underlying python program:
-@rem   -oracle_home
+@rem
+@rem     -oracle_home
 @rem
 @rem This script uses the following variables:
 @rem
-@rem JAVA_HOME            - The location of the JDK to use.  The caller must set
-@rem                        this variable to a valid Java 7 (or later) JDK.
+@rem JAVA_HOME             - The location of the JDK to use.  The caller must set
+@rem                         this variable to a valid Java 8 (or later) JDK.
 @rem
 @rem WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
 @rem                         If the caller sets this, the callers location will be
@@ -37,99 +38,39 @@
 @rem                         can use this environment variable to add additional
 @rem                         system properties to the Java environment.
 @rem
+
 SETLOCAL
 
 SET WLSDEPLOY_PROGRAM_NAME=encryptModel
 
 SET SCRIPT_NAME=%~nx0
+SET SCRIPT_ARGS=%*
 SET SCRIPT_PATH=%~dp0
 FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi
 IF %SCRIPT_PATH:~-1%==\ SET SCRIPT_PATH=%SCRIPT_PATH:~0,-1%
 
-IF NOT DEFINED WLSDEPLOY_HOME (
-  SET WLSDEPLOY_HOME=%SCRIPT_PATH%\..
-) ELSE (
-  IF NOT EXIST "%WLSDEPLOY_HOME%" (
-    ECHO Specified WLSDEPLOY_HOME of "%WLSDEPLOY_HOME%" does not exist >&2
-    SET RETURN_CODE=2
-    GOTO exit_script
-  )
+call "%SCRIPT_PATH%\shared.cmd" :checkJythonArgs %SCRIPT_ARGS%
+SET RETURN_CODE=%ERRORLEVEL%
+if %RETURN_CODE% NEQ 0 (
+  GOTO done
 )
-FOR %%i IN ("%WLSDEPLOY_HOME%") DO SET WLSDEPLOY_HOME=%%~fsi
-IF %WLSDEPLOY_HOME:~-1%==\ SET WLSDEPLOY_HOME=%WLSDEPLOY_HOME:~0,-1%
 
 @rem Java 8 is required for encryption library
 call "%SCRIPT_PATH%\shared.cmd" :javaSetup 8
-if %ERRORLEVEL% NEQ 0 (
-  GOTO exit_script
-)
-
-@rem
-@rem Check to see if no args were given and print the usage message
-@rem
-IF "%~1" == "" (
-  SET RETURN_CODE=0
-  GOTO usage
-)
-
-@rem
-@rem Find the args required to determine the tool script to run
-@rem
-
-SET ORACLE_HOME=
-
-:arg_loop
-IF "%1" == "-help" (
-  SET RETURN_CODE=0
-  GOTO usage
-)
-IF "%1" == "-oracle_home" (
-  SET ORACLE_HOME=%2
-  SHIFT
-  GOTO arg_continue
-)
-@REM If none of the above, unknown argument so skip it
-:arg_continue
-SHIFT
-IF NOT "%~1" == "" (
-  GOTO arg_loop
-)
-
-SET SCRIPT_ARGS=%*
-
-@rem
-@rem Check for values of required arguments for this script to continue.
-@rem The underlying tool script has other required arguments.
-@rem
-IF "%ORACLE_HOME%" == "" (
-  ECHO Required argument -oracle_home not provided >&2
-  SET RETURN_CODE=99
-  GOTO usage
-)
-
-call "%SCRIPT_PATH%\shared.cmd" :jythonSetup
-
-ECHO JAVA_HOME = %JAVA_HOME%
-ECHO CLASSPATH = %CLASSPATH%
-ECHO JAVA_PROPERTIES = %JAVA_PROPERTIES%
-
-SET PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python
-
-ECHO ^
-%JAVA_HOME%/bin/java -cp %CLASSPATH% ^
-	%JAVA_PROPERTIES% ^
-	org.python.util.jython ^
-	"%PY_SCRIPTS_PATH%\encrypt.py" %SCRIPT_ARGS%
-
-%JAVA_HOME%/bin/java -cp %CLASSPATH% ^
-	%JAVA_PROPERTIES% ^
-	org.python.util.jython ^
-	"%PY_SCRIPTS_PATH%\encrypt.py" %SCRIPT_ARGS%
-
 SET RETURN_CODE=%ERRORLEVEL%
-call "%SCRIPT_PATH%\shared.cmd" :checkExitCode %RETURN_CODE%
-if %ERRORLEVEL% EQU 0 (
-  GOTO exit_script
+if %RETURN_CODE% NEQ 0 (
+  GOTO done
+)
+
+call "%SCRIPT_PATH%\shared.cmd" :runJython encrypt.py
+SET RETURN_CODE=%ERRORLEVEL%
+
+:done
+set SHOW_USAGE=false
+if %RETURN_CODE% == 100 set SHOW_USAGE=true
+if %RETURN_CODE% == 99 set SHOW_USAGE=true
+if "%SHOW_USAGE%" == "false" (
+    GOTO exit_script
 )
 
 :usage

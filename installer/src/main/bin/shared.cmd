@@ -19,6 +19,7 @@ GOTO :ENDFUNCTIONS
 :javaSetup
     @rem Make sure that the JAVA_HOME environment variable is set to point to a
     @rem JDK with the specified level or higher (and that it isn't OpenJDK).
+    @rem read: JAVA_HOME
 
     SET MIN_JDK_VERSION=%1
 
@@ -74,6 +75,42 @@ GOTO :ENDFUNCTIONS
     )
 GOTO :EOF
 
+:checkJythonArgs
+    @REM verify that required arg -oracle_home is set.
+
+    @rem if no args were given and print the usage message
+    IF "%~1" == "" (
+      EXIT /B 100
+    )
+
+    @rem check for -help and -oracle_home
+    SET ORACLE_HOME=
+
+    :arg_loop
+    IF "%1" == "-help" (
+      EXIT /B 100
+    )
+
+    IF "%1" == "-oracle_home" (
+      SET ORACLE_HOME=%2
+      SHIFT
+      GOTO arg_continue
+    )
+
+    @REM if none of the above, skip this argument
+    :arg_continue
+    SHIFT
+    IF NOT "%~1" == "" (
+      GOTO arg_loop
+    )
+
+    @rem verify that ORACLE_HOME was set.
+    IF "%ORACLE_HOME%" == "" (
+      ECHO Required argument -oracle_home not provided >&2
+      EXIT /B 99
+    )
+GOTO :EOF
+
 :loggerSetup
     @REM set up variables for logger configuration. see WLSDeployLoggingConfig.java
 
@@ -91,11 +128,29 @@ GOTO :EOF
     )
 GOTO :EOF
 
-:jythonSetup
-    @REM setup up logger, classpath for Jython-based script
+:wlsDeployHomeSetup
+    @REM set the WLSDEPLOY_HOME variable. if it was already set, verify that it is valid
+
+    IF NOT DEFINED WLSDEPLOY_HOME (
+      SET WLSDEPLOY_HOME=%SCRIPT_PATH%\..
+    ) ELSE (
+      IF NOT EXIST "%WLSDEPLOY_HOME%" (
+        ECHO Specified WLSDEPLOY_HOME of "%WLSDEPLOY_HOME%" does not exist >&2
+        SET RETURN_CODE=2
+        GOTO exit_script
+      )
+    )
+    FOR %%i IN ("%WLSDEPLOY_HOME%") DO SET WLSDEPLOY_HOME=%%~fsi
+    IF %WLSDEPLOY_HOME:~-1%==\ SET WLSDEPLOY_HOME=%WLSDEPLOY_HOME:~0,-1%
+GOTO :EOF
+
+:runJython
+    @REM run a jython script, without WLST.
+    SET JYTHON_SCRIPT=%1
+
+    @REM set up Oracle directory, logger, classpath
 
     SET ORACLE_SERVER_DIR=
-
     IF EXIST "%ORACLE_HOME%\wlserver_10.3" (
         SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_10.3"
     ) ELSE IF EXIST "%ORACLE_HOME%\wlserver_12.1" (
@@ -104,7 +159,9 @@ GOTO :EOF
         SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver
     )
 
+    CALL :wlsDeployHomeSetup
     CALL :loggerSetup
+
     SET "JAVA_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS%"
     SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.cachedir.skip=true"
     SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.path=%ORACLE_SERVER_DIR%/common/wlst/modules/jython-modules.jar/Lib"
@@ -113,6 +170,28 @@ GOTO :EOF
 
     SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
     SET CLASSPATH=%CLASSPATH%;%ORACLE_SERVER_DIR%\server\lib\weblogic.jar
+
+    @REM print the configuration, and run the script
+
+    ECHO JAVA_HOME = %JAVA_HOME%
+    ECHO CLASSPATH = %CLASSPATH%
+    ECHO JAVA_PROPERTIES = %JAVA_PROPERTIES%
+
+    SET PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python
+
+    ECHO ^
+    %JAVA_HOME%/bin/java -cp %CLASSPATH% ^
+        %JAVA_PROPERTIES% ^
+        org.python.util.jython ^
+        "%PY_SCRIPTS_PATH%\%JYTHON_SCRIPT%" %SCRIPT_ARGS%
+
+    %JAVA_HOME%/bin/java -cp %CLASSPATH% ^
+        %JAVA_PROPERTIES% ^
+        org.python.util.jython ^
+        "%PY_SCRIPTS_PATH%\%JYTHON_SCRIPT%" %SCRIPT_ARGS%
+
+    call :checkExitCode %ERRORLEVEL%
+    EXIT /B %ERRORLEVEL%
 GOTO :EOF
 
 :checkExitCode
@@ -124,47 +203,48 @@ GOTO :EOF
     IF "%RETURN_CODE%" == "103" (
       ECHO.
       ECHO %SCRIPT_NAME% completed successfully but the domain requires a restart for the changes to take effect ^(exit code = %RETURN_CODE%^)
-      EXIT /B 0
+      EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "102" (
       ECHO.
       ECHO %SCRIPT_NAME% completed successfully but the effected servers require a restart ^(exit code = %RETURN_CODE%^)
-      EXIT /B 0
+      EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "101" (
       ECHO.
       ECHO %SCRIPT_NAME% was unable to complete due to configuration changes that require a domain restart.  Please restart the domain and re-invoke the %SCRIPT_NAME% script with the same arguments ^(exit code = %RETURN_CODE%^)
-      EXIT /B 0
+      EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "100" (
-      EXIT /B 100
+      EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "99" (
-      EXIT /B 100
+      EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "98" (
       ECHO.
       ECHO %SCRIPT_NAME% failed due to a parameter validation error >&2
-      EXIT /B 0
+      EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "2" (
       ECHO.
       ECHO %SCRIPT_NAME% failed ^(exit code = %RETURN_CODE%^)
-      EXIT /B 0
+      EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "1" (
       ECHO.
       ECHO %SCRIPT_NAME% completed but with some issues ^(exit code = %RETURN_CODE%^) >&2
-      EXIT /B 0
+      EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "0" (
       ECHO.
       ECHO %SCRIPT_NAME% completed successfully ^(exit code = %RETURN_CODE%^)
-      EXIT /B 0
+      EXIT /B %RETURN_CODE%
     )
     @REM Unexpected return code so just print the message and exit...
     ECHO.
     ECHO %SCRIPT_NAME% failed ^(exit code = %RETURN_CODE%^) >&2
+    EXIT /B %RETURN_CODE%
 GOTO :EOF
 
 :ENDFUNCTIONS
