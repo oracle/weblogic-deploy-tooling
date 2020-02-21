@@ -19,7 +19,6 @@ GOTO :ENDFUNCTIONS
 :javaSetup
     @rem Make sure that the JAVA_HOME environment variable is set to point to a
     @rem JDK with the specified level or higher (and that it isn't OpenJDK).
-    @rem read: JAVA_HOME
 
     SET MIN_JDK_VERSION=%1
 
@@ -111,8 +110,23 @@ GOTO :EOF
     )
 GOTO :EOF
 
-:loggerSetup
-    @REM set up variables for logger configuration. see WLSDeployLoggingConfig.java
+:variableSetup
+    @REM set up variables for WLST or Jython execution
+
+    @REM set the WLSDEPLOY_HOME variable. if it was already set, verify that it is valid
+
+    IF NOT DEFINED WLSDEPLOY_HOME (
+      SET WLSDEPLOY_HOME=%SCRIPT_PATH%\..
+    ) ELSE (
+      IF NOT EXIST "%WLSDEPLOY_HOME%" (
+        ECHO Specified WLSDEPLOY_HOME of "%WLSDEPLOY_HOME%" does not exist >&2
+        EXIT /B 2
+      )
+    )
+    FOR %%i IN ("%WLSDEPLOY_HOME%") DO SET WLSDEPLOY_HOME=%%~fsi
+    IF %WLSDEPLOY_HOME:~-1%==\ SET WLSDEPLOY_HOME=%WLSDEPLOY_HOME:~0,-1%
+
+    @REM set up logger configuration, see WLSDeployLoggingConfig.java
 
     SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
     SET WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
@@ -126,22 +140,6 @@ GOTO :EOF
     IF NOT DEFINED WLSDEPLOY_LOG_HANDLERS (
       SET WLSDEPLOY_LOG_HANDLERS=%WLSDEPLOY_LOG_HANDLER%
     )
-GOTO :EOF
-
-:wlsDeployHomeSetup
-    @REM set the WLSDEPLOY_HOME variable. if it was already set, verify that it is valid
-
-    IF NOT DEFINED WLSDEPLOY_HOME (
-      SET WLSDEPLOY_HOME=%SCRIPT_PATH%\..
-    ) ELSE (
-      IF NOT EXIST "%WLSDEPLOY_HOME%" (
-        ECHO Specified WLSDEPLOY_HOME of "%WLSDEPLOY_HOME%" does not exist >&2
-        SET RETURN_CODE=2
-        GOTO exit_script
-      )
-    )
-    FOR %%i IN ("%WLSDEPLOY_HOME%") DO SET WLSDEPLOY_HOME=%%~fsi
-    IF %WLSDEPLOY_HOME:~-1%==\ SET WLSDEPLOY_HOME=%WLSDEPLOY_HOME:~0,-1%
 GOTO :EOF
 
 :runJython
@@ -159,8 +157,10 @@ GOTO :EOF
         SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver
     )
 
-    CALL :wlsDeployHomeSetup
-    CALL :loggerSetup
+    CALL :variableSetup
+    if %ERRORLEVEL% NEQ 0 (
+        EXIT /B %ERRORLEVEL%
+    )
 
     SET "JAVA_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS%"
     SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.cachedir.skip=true"
@@ -195,8 +195,8 @@ GOTO :EOF
 GOTO :EOF
 
 :checkExitCode
-    @REM print a message for the exit code passed in, and set ERRORLEVEL to 100 if usage should be printed.
-    @REM assume that SCRIPT_NAME environment variable was set by the caller.
+    @REM print a message for the exit code passed in.
+    @REM calling script must have assigned the SCRIPT_NAME variable.
 
     SET RETURN_CODE=%1
 

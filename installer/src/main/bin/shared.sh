@@ -15,7 +15,6 @@
 javaSetup() {
     # Make sure that the JAVA_HOME environment variable is set to point to a
     # JDK with the specified level or higher (and that it isn't OpenJDK).
-    # read: JAVA_HOME
 
     minJdkVersion=$1
 
@@ -60,6 +59,7 @@ javaSetup() {
 
 checkJythonArgs() {
     # verify that required arg -oracle_home is set.
+    # the calling script must have a usage() method.
 
     # if no args were given and print the usage message
     if [ "$#" -eq "0" ]; then
@@ -100,8 +100,21 @@ checkJythonArgs() {
     fi
 }
 
-loggerSetup() {
-    # set up variables for logger configuration. see WLSDeployLoggingConfig.java
+variableSetup() {
+    # set up variables for WLST or Jython execution
+
+    # set the WLSDEPLOY_HOME variable. if it was already set, verify that it is valid
+
+    if [ -z "${WLSDEPLOY_HOME}" ]; then
+        BASEDIR="$( cd "$( dirname $0 )" && pwd )"
+        WLSDEPLOY_HOME=`cd "${BASEDIR}/.." ; pwd`
+        export WLSDEPLOY_HOME
+    elif [ ! -d ${WLSDEPLOY_HOME} ]; then
+        echo "Specified WLSDEPLOY_HOME of ${WLSDEPLOY_HOME} does not exist" >&2
+        exit 2
+    fi
+
+    # set up logger configuration, see WLSDeployLoggingConfig.java
 
     LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
     WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
@@ -116,19 +129,6 @@ loggerSetup() {
 
     if [ -z "${WLSDEPLOY_LOG_HANDLERS}" ]; then
         WLSDEPLOY_LOG_HANDLERS=${WLSDEPLOY_LOG_HANDLER}; export WLSDEPLOY_LOG_HANDLERS
-    fi
-}
-
-wlsDeployHomeSetup() {
-    # set the WLSDEPLOY_HOME variable. if it was already set, verify that it is valid
-
-    if [ -z "${WLSDEPLOY_HOME}" ]; then
-        BASEDIR="$( cd "$( dirname $0 )" && pwd )"
-        WLSDEPLOY_HOME=`cd "${BASEDIR}/.." ; pwd`
-        export WLSDEPLOY_HOME
-    elif [ ! -d ${WLSDEPLOY_HOME} ]; then
-        echo "Specified WLSDEPLOY_HOME of ${WLSDEPLOY_HOME} does not exist" >&2
-        exit 2
     fi
 }
 
@@ -147,8 +147,7 @@ runJython() {
         ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver
     fi
 
-    wlsDeployHomeSetup
-    loggerSetup
+    variableSetup
 
     JAVA_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
     JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.cachedir.skip=true"
@@ -186,7 +185,9 @@ runJython() {
 
 checkExitCode() {
     # print a message for the exit code passed in.
-    # assume that SCRIPT_NAME environment variable was set by the caller.
+    # calling script must have assigned the scriptName variable.
+    # calling script must have a usage() method.
+
     returnCode=$1
 
     if [ $returnCode -eq 103 ]; then
