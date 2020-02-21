@@ -28,9 +28,9 @@
 #                         Otherwise, the location will be calculated from the
 #                         location of this script.
 #
-# WLSDEPLOY_PROPERTIES  - Extra system properties to pass to WLST.  The caller
+# WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
 #                         can use this environment variable to add additional
-#                         system properties to the WLST environment.
+#                         system properties to the Java environment.
 #
 
 usage() {
@@ -43,8 +43,6 @@ usage() {
   echo "          [-archive_file <archive_file>]"
   echo "          [-target_version <target_version>]"
   echo "          [-target_mode <target_mode>]"
-  echo "          [-domain_type <domain_type>]"
-  echo "          [-wlst_path <wlst_path>]"
   echo "          [-method <method>]"
   echo ""
   echo "    where:"
