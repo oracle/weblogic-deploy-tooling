@@ -303,12 +303,13 @@ class DomainCreator(Creator):
 
     def __fail_mt_1221_domain_creation(self):
         """
-        Abort create if domain contains MT artifacts that cannot be created in the version of WLST offline being used.
+        Abort create if domain contains MT artifacts that cannot be created in the version of WLST offline being used
+        or if the version of WebLogic no longer supports MT.
         :raises: CreateException: if the MT domain cannot be provision on the specified version of WLST offline
         """
         _method_name = '__fail_mt_1221_domain_creation'
 
-        if self.wls_helper.is_mt_offline_provisioning_supported():
+        if self.wls_helper.is_mt_offline_provisioning_supported() and self.wls_helper.is_mt_provisioning_supported():
             return
 
         resources_dict = self.model.get_model_resources()
@@ -316,7 +317,10 @@ class DomainCreator(Creator):
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, RESOURCE_GROUP_TEMPLATE)) or \
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, RESOURCE_GROUP)) or \
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, PARTITION)):
-            ex = exception_helper.create_create_exception('WLSDPLY-12202', self.wls_helper.wl_version)
+            if not self.wls_helper.is_mt_provisioning_supported():
+                ex = exception_helper.create_create_exception('WLSDPLY-12254', self.wls_helper.wl_version)
+            else:
+                ex = exception_helper.create_create_exception('WLSDPLY-12202', self.wls_helper.wl_version)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return
