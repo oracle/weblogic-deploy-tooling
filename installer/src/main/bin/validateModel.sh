@@ -109,4 +109,3 @@ checkJythonArgs "$@"
 javaSetup 7
 
 runJython validate.py
-SET RETURN_CODE=%ERRORLEVEL%
