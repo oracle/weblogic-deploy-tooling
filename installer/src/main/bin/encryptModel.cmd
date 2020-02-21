@@ -92,7 +92,7 @@ ECHO.
 ECHO     The -manual switch can be used to run the tool without a model and get
 ECHO     the encrypted value for a single password.
 ECHO.
-ECHO     NOTE: The encryption feature requires the use of JDK version 1.8 or higher.
+ECHO     NOTE: This tool requires the use of JDK version 1.8 or higher.
 ECHO.
 
 :exit_script
