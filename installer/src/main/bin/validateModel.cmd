@@ -22,9 +22,9 @@
 @rem                         Otherwise, the location will be calculated from the
 @rem                         location of this script.
 @rem
-@rem WLSDEPLOY_PROPERTIES  - Extra system properties to pass to WLST.  The caller
+@rem WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
 @rem                         can use this environment variable to add additional
-@rem                         system properties to the WLST environment.
+@rem                         system properties to the Java environment.
 @rem
 
 SETLOCAL
