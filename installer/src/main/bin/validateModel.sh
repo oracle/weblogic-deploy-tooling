@@ -11,12 +11,6 @@
 #     DESCRIPTION
 #       This script validates the model, archive structure and print usage
 #
-#
-# This script uses the following command-line arguments directly, the rest
-# of the arguments are passed down to the underlying python program:
-#
-#     -oracle_home
-#
 # This script uses the following variables:
 #
 # JAVA_HOME             - The location of the JDK to use.  The caller must set

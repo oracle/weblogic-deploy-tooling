@@ -17,12 +17,6 @@
 @rem       this feature requires JDK 1.8 or higher due to the encryption
 @rem       algorithms selected.
 @rem
-@rem
-@rem This script uses the following command-line arguments directly, the rest
-@rem of the arguments are passed down to the underlying python program:
-@rem
-@rem     -oracle_home
-@rem
 @rem This script uses the following variables:
 @rem
 @rem JAVA_HOME             - The location of the JDK to use.  The caller must set
@@ -34,7 +28,7 @@
 @rem                         Otherwise, the location will be calculated from the
 @rem                         location of this script.
 @rem
-@rem JAVA_PROPERTIES       - Extra system properties to pass to Java.  The caller
+@rem WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
 @rem                         can use this environment variable to add additional
 @rem                         system properties to the Java environment.
 @rem

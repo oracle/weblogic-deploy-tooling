@@ -11,12 +11,6 @@
 @rem     DESCRIPTION
 @rem        This script validates the model, archive structure and print usage
 @rem
-@rem
-@rem This script uses the following command-line arguments directly, the rest
-@rem of the arguments are passed down to the underlying python program:
-@rem
-@rem     -oracle_home
-@rem
 @rem This script uses the following variables:
 @rem
 @rem JAVA_HOME             - The location of the JDK to use.  The caller must set
