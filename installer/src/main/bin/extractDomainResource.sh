@@ -82,7 +82,7 @@ if [ "$USE_ENCRYPTION" == "true" ]; then
   minJdkVersion=8
 fi
 
-# Java 7 is required, no encryption is used
+# required Java version is dependent on use of encryption
 javaSetup $minJdkVersion
 
 runJython extract_resource.py

@@ -48,7 +48,7 @@ if "%USE_ENCRYPTION%" == "true" (
   SET MIN_JDK_VERSION=8
 )
 
-@rem Java 7 is required, no encryption is used
+@rem required Java version is dependent on use of encryption
 call "%SCRIPT_PATH%\shared.cmd" :javaSetup %MIN_JDK_VERSION%
 SET RETURN_CODE=%ERRORLEVEL%
 if %RETURN_CODE% NEQ 0 (
