@@ -2,7 +2,7 @@
 Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-The entry point for the discoverDomain tool.
+The entry point for the injectVariables tool.
 """
 import os
 import sys
