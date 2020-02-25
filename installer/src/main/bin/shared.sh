@@ -58,7 +58,9 @@ javaSetup() {
 }
 
 checkJythonArgs() {
-    # verify that required arg -oracle_home is set.
+    # verify that required arg -oracle_home is provided, and set ORACLE_HOME.
+    # if -help is provided, display usage.
+    # if -use_encryption is provided, set USE_ENCRYPTION to true
     # the calling script must have a usage() method.
 
     # if no args were given and print the usage message
@@ -78,6 +80,9 @@ checkJythonArgs() {
             -oracle_home)
             ORACLE_HOME="$2"
             shift
+            ;;
+            -use_encryption)
+            USE_ENCRYPTION="true"
             ;;
             *)
             # unknown option

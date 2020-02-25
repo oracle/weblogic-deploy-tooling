@@ -75,7 +75,9 @@ GOTO :ENDFUNCTIONS
 GOTO :EOF
 
 :checkJythonArgs
-    @REM verify that required arg -oracle_home is set.
+    @REM verify that required arg -oracle_home is provided, and set ORACLE_HOME.
+    @REM if -help is provided, return usage exit code.
+    @REM if -use_encryption is provided, set USE_ENCRYPTION to true
 
     @rem if no args were given and print the usage message
     IF "%~1" == "" (
@@ -93,6 +95,11 @@ GOTO :EOF
     IF "%1" == "-oracle_home" (
       SET ORACLE_HOME=%2
       SHIFT
+      GOTO arg_continue
+    )
+
+    IF "%1" == "-use_encryption" (
+      SET USE_ENCRYPTION=true
       GOTO arg_continue
     )
 
