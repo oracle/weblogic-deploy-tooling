@@ -129,15 +129,9 @@ appDeployments:
             ModuleType: war
 ```
 
-The above example shows two important features of the framework.  First, notice that the `URL`, `PasswordEncrypted`, `user` property `Value` and all `Target` fields contain values that have a `@@PROP:<name>@@` pattern.  This syntax denotes a variable placeholder whose value is specified at runtime using a variables file (in a standard Java properties file format).  Variables can be used for any value and even for some names.  For example, to automate standing up an environment with one or more applications in the Oracle Java Cloud Service, service provisioning does not allow the provisioning script to specify the server names.  For example, if the application being deployed immediately following provisioning needs to tweak the Server Start arguments to specify a Java system property, the model can use a variable placeholder in place of the server name and populate the variable file with the provisioned server names dynamically between provisioning and application deployment.
+The above example shows two important features of the framework.  First, notice that the `URL`, `PasswordEncrypted`, `user` property `Value` and all `Target` fields contain values that have a `@@PROP:<name>@@` pattern.  This indicates a variable placeholder whose value is specified at runtime using a variables file. See [Model Tokens](#model-tokens) for more information about this and other token types.
 
-Second, notice that the `jsf#2.0` shared library `SourcePath` attribute value starts with `@@WL_HOME@@`.  This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  This path token is automatically resolved to the proper location when the tool runs.  The tooling supports path tokens at any location in the model that specifies a file or directory location.  The supported tokens are:
-
-- `@@ORACLE_HOME@@` - The location where WebLogic Server and any other FMW products are installed (in older versions, this was known as the `MW_HOME`).
-- `@@WL_HOME@@`     - The location within the Oracle Home where WebLogic Server is installed (for example, the `$ORACLE_HOME/wlserver` directory in 12.1.2+).
-- `@@DOMAIN_HOME@@` - The location of the domain home directory on which the tool is working.
-- `@@PWD@@`         - The current working directory from which the tool was invoked.
-- `@@TMP@@`         - The location of the temporary directory, as controlled by the `java.io.tmpdir` system property.
+Second, notice that the `jsf#2.0` shared library `SourcePath` attribute value starts with `@@WL_HOME@@`. This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  See [Model Tokens](#model-tokens) for more information and a list of available path tokens.
 
 The example above shows the attribute `SourcePath` of the `simpleear` application with a value of `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory within the domain, in this case `<domain-home>/wlsdeploy/applications/simpleear.ear`. See [The Archive File](site/archive.md) for more details about using the archive file.
 
@@ -177,6 +171,40 @@ topology:
 ```
 
 As the example above shows, the `SecurityConfiguration` element has no named sub-element, as there is with `JDBCSystemResource`, even though the WLST path to the `SecurityConfiguration` attributes is `/SecurityConfiguration/<domain-name>`.  The WebLogic Deploy Tooling has built-in rules and a knowledge base that controls how these names are handled so that it can complete the configuration of these artifacts.  As with the previous class of configuration artifact, the folder almost always contains a ` Name` attribute that, in WLST, could be used to change the name.  As with the previous class of artifact, the WebLogic Deploy Tooling does not support the use of the `Name` attribute in these folders and any attempt to set the `Name` attribute will not be honored.  In general, the only model location that uses the `Name` attribute is the top-level topology section, because this maps to where WLST stores the domain name.
+
+### Model Tokens
+
+The model allows the use of tokens that are substituted with text values as the model is processed. This section describes several types of tokens.
+
+**Variable placeholders** are declared with the syntax `@@PROP:<variable>@@`. This type of token represents a value that is resolved at runtime using a variables file in a standard Java properties file format.  Variables can be used for any value and for some names.  For example, to automate standing up an environment with one or more applications in the Oracle Java Cloud Service, service provisioning does not allow the provisioning script to specify the server names.  For example, if the application being deployed immediately following provisioning needs to tweak the Server Start arguments to specify a Java system property, the model can use a variable placeholder in place of the server name and populate the variable file with the provisioned server names dynamically between provisioning and application deployment.
+
+**File placeholders** are declared with the syntax `@@FILE:<filename>@@`. This type of token is similar to a variable placeholder, but the token references a single value that is read from the specified file. For example, the model may reference a password attribute as follows:
+```yaml
+PasswordEncrypted: '@@FILE:/home/me/dbcs1.txt@@'
+```
+The file `/home/me/dbcs1.txt` would then contain this single line:
+```yaml
+password#123
+```
+As the model is processed, the value for the `PasswordEncrypted` would resolve to `password#123`. It is also possible to combine file placeholders with other types of tokens, to allow for variations in the name and location of the file, such as: 
+```yaml
+PasswordEncrypted: '@@FILE:/dir/@@PROP:name@@.txt@@'
+```
+```yaml
+PasswordEncrypted: '@@FILE:@@ORACLE_HOME@@/dir/name.txt@@'
+```
+
+**Path tokens** are tokens that reference known values, and can be used to make the model more portable. For example, a model may reference a WebLogic library source path as:
+```yaml
+SourcePath: '@@WL_HOME@@/common/deployable-libraries/jsf-2.0.war'
+```
+Using the path token `@@WL_HOME@@` allows the model to be used across multiple environments, even if the WebLogic installation directory is different. Path tokens can be used at any location in the model that specifies a file or directory location.  The supported tokens are:
+
+- `@@ORACLE_HOME@@` - The location where WebLogic Server and any other FMW products are installed (in older versions, this was known as the `MW_HOME`).
+- `@@WL_HOME@@`     - The location within the Oracle Home where WebLogic Server is installed (for example, the `$ORACLE_HOME/wlserver` directory in 12.1.2+).
+- `@@DOMAIN_HOME@@` - The location of the domain home directory on which the tool is working.
+- `@@PWD@@`         - The current working directory from which the tool was invoked.
+- `@@TMP@@`         - The location of the temporary directory, as controlled by the `java.io.tmpdir` system property.
 
 ### Model Semantics
 
