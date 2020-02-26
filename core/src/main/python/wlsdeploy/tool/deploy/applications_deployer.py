@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -377,7 +377,7 @@ class ApplicationsDeployer(Deployer):
 
         self.wlst_helper.server_config()
         self.wlst_helper.cd(wlst_list_path)
-        apps = self.wlst_helper.get_existing_object_list()
+        apps = self.wlst_helper.get_existing_object_list(wlst_list_path)
 
         self.wlst_helper.domain_runtime()
         #

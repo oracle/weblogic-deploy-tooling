@@ -11,25 +11,6 @@
 #     DESCRIPTION
 #       This script validates the model, archive structure and print usage
 #
-#
-# This script uses the following command-line arguments directly, the rest
-# of the arguments are passed down to the underlying python program:
-#
-#     -oracle_home        The directory of the existing Oracle Home to use.
-#                         This directory must exist and it is the caller's
-#                         responsibility to verify that it does. This
-#                         argument is required.
-#
-#     -domain_type        The type of domain to create. This argument is
-#                         is optional.  If not specified, it defaults to WLS.
-#
-#     -wlst_path          The path to the Oracle Home product directory under
-#                         which to find the wlst script.  This is only
-#                         needed for pre-12.2.1 upper stack products like SOA.
-#
-#                         For example, for SOA 12.1.3, -wlst_path should be
-#                         specified as $ORACLE_HOME/soa
-#
 # This script uses the following variables:
 #
 # JAVA_HOME             - The location of the JDK to use.  The caller must set
@@ -41,9 +22,9 @@
 #                         Otherwise, the location will be calculated from the
 #                         location of this script.
 #
-# WLSDEPLOY_PROPERTIES  - Extra system properties to pass to WLST.  The caller
+# WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
 #                         can use this environment variable to add additional
-#                         system properties to the WLST environment.
+#                         system properties to the Java environment.
 #
 
 usage() {
@@ -56,8 +37,6 @@ usage() {
   echo "          [-archive_file <archive_file>]"
   echo "          [-target_version <target_version>]"
   echo "          [-target_mode <target_mode>]"
-  echo "          [-domain_type <domain_type>]"
-  echo "          [-wlst_path <wlst_path>]"
   echo "          [-method <method>]"
   echo ""
   echo "    where:"
@@ -101,243 +80,24 @@ usage() {
   echo "                          are online or offline.  If not specified, the tool"
   echo "                          defaults to WLST offline mode."
   echo ""
-  echo "        domain_type     - the type of domain (e.g., WLS, JRF)."
-  echo "                          Used to locate wlst.cmd if -wlst_path not specified"
-  echo ""
-  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
-  echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
-  echo ""
   echo "        method          - the validation method to apply. Options: lax, strict. "
   echo "                          The lax method will skip validation of external model references like @@FILE@@"
   echo ""
 }
 
-umask 27
-
 WLSDEPLOY_PROGRAM_NAME="validateModel"; export WLSDEPLOY_PROGRAM_NAME
 
-if [ -z "${WLSDEPLOY_HOME}" ]; then
-    BASEDIR="$( cd "$( dirname $0 )" && pwd )"
-    WLSDEPLOY_HOME=`cd "${BASEDIR}/.." ; pwd`
-    export WLSDEPLOY_HOME
-elif [ ! -d ${WLSDEPLOY_HOME} ]; then
-    echo "Specified WLSDEPLOY_HOME of ${WLSDEPLOY_HOME} does not exist" >&2
-    exit 2
-fi
+scriptName=`basename $0`
+scriptPath=$(dirname "$0")
+scriptArgs=$*
 
-#
-# Make sure that the JAVA_HOME environment variable is set to point to a
-# JDK 7 or higher JVM (and that it isn't OpenJDK).
-#
-if [ -z "${JAVA_HOME}" ]; then
-  echo "Please set the JAVA_HOME environment variable to point to a Java 7 installation" >&2
-  exit 2
-elif [ ! -d "${JAVA_HOME}" ]; then
-  echo "Your JAVA_HOME environment variable to points to a non-existent directory: ${JAVA_HOME}" >&2
-  exit 2
-fi
+. $scriptPath/shared.sh
 
-if [ -x "${JAVA_HOME}/bin/java" ]; then
-  JAVA_EXE=${JAVA_HOME}/bin/java
-else
-  echo "Java executable at ${JAVA_HOME}/bin/java either does not exist or is not executable" >&2
-  exit 2
-fi
+umask 27
 
-JVM_OUTPUT=`${JAVA_EXE} -version 2>&1`
-case "${JVM_OUTPUT}" in
-  *OpenJDK*)
-    echo "JAVA_HOME ${JAVA_HOME} contains OpenJDK, which is not supported" >&2
-    exit 2
-    ;;
-esac
+checkJythonArgs "$@"
 
-JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
-# set JVM version to the major version, unless equal to 1, like 1.8.0, then use the minor version
-JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $1 }'`
+# Java 7 is required, no encryption is used
+javaSetup 7
 
-if [ "${JVM_VERSION}" -eq "1" ]; then
-  JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
-fi
-
-if [ ${JVM_VERSION} -lt 7 ]; then
-  echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
-  exit 2
-else
-  echo "JDK version is ${JVM_FULL_VERSION}"
-fi
-
-#
-# Check to see if no args were given and print the usage message
-#
-if [ "$#" -eq "0" ]; then
-  usage `basename $0`
-  exit 0
-fi
-
-SCRIPT_ARGS="$*"
-
-#
-# Find the args required to determine the WLST script to run
-#
-
-while [ "$#" -gt "1" ]; do
-    key="$1"
-    case $key in
-        -help)
-        usage `basename $0`
-        exit 0
-        ;;
-        -oracle_home)
-        ORACLE_HOME="$2"
-        shift
-        ;;
-        -domain_type)
-        DOMAIN_TYPE="$2"
-        shift
-        ;;
-        -wlst_path)
-        WLST_PATH_DIR="$2"
-        shift
-        ;;
-        *)
-        # unknown option
-        ;;
-    esac
-    shift # past arg or value
-done
-
-# default DOMAIN_TYPE
-
-if [ -z "${DOMAIN_TYPE}" ]; then
-    DOMAIN_TYPE="WLS"
-    SCRIPT_ARGS="${SCRIPT_ARGS} -domain_type $DOMAIN_TYPE"
-fi
-
-#
-# Check for values of required arguments for this script to continue.
-# The underlying WLST script has other required arguments.
-#
-if [ -z "${ORACLE_HOME}" ]; then
-    echo "Required argument -oracle_home not provided" >&2
-    usage `basename $0`
-    exit 99
-elif [ ! -d ${ORACLE_HOME} ]; then
-    echo "The specified -oracle_home directory does not exist: ${ORACLE_HOME}" >&2
-    exit 98
-fi
-
-#
-# If the WLST_PATH_DIR is specified, validate that it contains the wlst.cmd script
-#
-if [ -n "${WLST_PATH_DIR}" ]; then
-    if [ ! -d ${WLST_PATH_DIR} ]; then
-        echo "Specified -wlst_path directory does not exist: ${WLST_PATH_DIR}" >&2
-        exit 98
-    fi
-    WLST=${WLST_PATH_DIR}/common/bin/wlst.sh
-    if [ ! -x "${WLST}" ]; then
-        echo "WLST executable ${WLST} not found under -wlst_path directory: ${WLST_PATH_DIR}" >&2
-        exit 98
-    fi
-    CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-    WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
-else
-    WLST=""
-    if [ -x ${ORACLE_HOME}/oracle_common/common/bin/wlst.sh ]; then
-        WLST=${ORACLE_HOME}/oracle_common/common/bin/wlst.sh
-        CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-        WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
-    elif [ -x ${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh ]; then
-        WLST=${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh
-        CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-    elif [ -x ${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh ]; then
-        WLST=${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh
-        CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-    elif [ -x ${ORACLE_HOME}/wlserver/common/bin/wlst.sh -a -f ${ORACLE_HOME}/wlserver/.product.properties ]; then
-        WLST=${ORACLE_HOME}/wlserver/common/bin/wlst.sh
-        CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-    fi
-
-    if [ -z "${WLST}" ]; then
-        echo "Unable to determine WLS version in ${ORACLE_HOME} to determine WLST shell script to call" >&2
-        exit 98
-    fi
-fi
-
-ORACLE_SERVER_DIR=
-
-if [ -x ${ORACLE_HOME}/wlserver_10.3 ]; then
-    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver_10.3
-elif [ -x ${ORACLE_HOME}/wlserver_12.1 ]; then
-    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver_12.1
-else
-    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver
-fi
-
-LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
-WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
-WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
-WLST_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS} ${WLST_PROPERTIES} ${WLSDEPLOY_PROPERTIES}"
-WLST_PROPERTIES="-Dpython.cachedir.skip=true ${WLST_PROPERTIES}"
-WLST_PROPERTIES="-Dpython.path=${ORACLE_SERVER_DIR}/common/wlst/modules/jython-modules.jar/Lib ${WLST_PROPERTIES}"
-WLST_PROPERTIES="-Dpython.console= ${WLST_PROPERTIES}"
-export WLST_PROPERTIES
-
-if [ -z "${WLSDEPLOY_LOG_PROPERTIES}" ]; then
-    WLSDEPLOY_LOG_PROPERTIES=${WLSDEPLOY_HOME}/etc/logging.properties; export WLSDEPLOY_LOG_PROPERTIES
-fi
-
-if [ -z "${WLSDEPLOY_LOG_DIRECTORY}" ]; then
-    WLSDEPLOY_LOG_DIRECTORY=${WLSDEPLOY_HOME}/logs; export WLSDEPLOY_LOG_DIRECTORY
-fi
-
-if [ -z "${WLSDEPLOY_LOG_HANDLERS}" ]; then
-    WLSDEPLOY_LOG_HANDLERS=${WLSDEPLOY_LOG_HANDLER}; export WLSDEPLOY_LOG_HANDLERS
-fi
-
-CLASSPATH=${CLASSPATH}:${ORACLE_SERVER_DIR}/server/lib/weblogic.jar
-
-echo "JAVA_HOME = ${JAVA_HOME}"
-echo "WLST_EXT_CLASSPATH = ${WLST_EXT_CLASSPATH}"
-echo "CLASSPATH = ${CLASSPATH}"
-echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
-
-PY_SCRIPTS_PATH=${WLSDEPLOY_HOME}/lib/python
-echo \
-${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
-	${WLST_PROPERTIES} \
-	org.python.util.jython \
-	"${PY_SCRIPTS_PATH}/validate.py" ${SCRIPT_ARGS}
-
-${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
-	${WLST_PROPERTIES} \
-	org.python.util.jython \
-	"${PY_SCRIPTS_PATH}/validate.py" ${SCRIPT_ARGS}
-
-RETURN_CODE=$?
-if [ ${RETURN_CODE} -eq 100 ]; then
-  usage `basename $0`
-  RETURN_CODE=0
-elif [ ${RETURN_CODE} -eq 99 ]; then
-  usage `basename $0`
-  echo ""
-  echo "validateModel.sh failed due to the usage error shown above" >&2
-elif [ ${RETURN_CODE} -eq 98 ]; then
-  echo ""
-  echo "validateModel.sh failed due to a parameter validation error" >&2
-elif [ ${RETURN_CODE} -eq 2 ]; then
-  echo ""
-  echo "validateModel.sh failed (exit code = ${RETURN_CODE})" >&2
-elif [ ${RETURN_CODE} -eq 1 ]; then
-  echo ""
-  echo "validateModel.sh completed but with some issues (exit code = ${RETURN_CODE})" >&2
-elif [ ${RETURN_CODE} -eq 0 ]; then
-  echo ""
-  echo "validateModel.sh completed successfully (exit code = ${RETURN_CODE})"
-else
-  # Unexpected return code so just print the message and exit...
-  echo ""
-  echo "validateModel.sh failed (exit code = ${RETURN_CODE})" >&2
-fi
-exit ${RETURN_CODE}
+runJython validate.py
