@@ -24,8 +24,7 @@ class RCUHelper(Deployer):
     def __init__(self, model, model_context, aliases, modifyBootStrapCredential=True):
         Deployer.__init__(self, model, model_context, aliases, wlst_mode=WlstModes.OFFLINE)
         self._exception_type = ExceptionType.DEPLOY
-        self._modifyBootStrapCredential=modifyBootStrapCredential
-        self._modifyBootStrapCredential=modifyBootStrapCredential
+        self._modifyBootStrapCredential = modifyBootStrapCredential
 
     def update_rcu_password(self):
         """
