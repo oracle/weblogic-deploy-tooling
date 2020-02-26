@@ -72,6 +72,7 @@ class ModelContext(object):
         self._folders_only = False
         self._opss_wallet_passphrase = None
         self._opss_wallet = None
+        self._update_rcu_schema_pass = False
         self._validation_method = None
         self._rollback_if_restart_required = None
         self._domain_resource_file = None
@@ -167,6 +168,9 @@ class ModelContext(object):
 
         if CommandLineArgUtil.OPSS_WALLET_SWITCH in arg_map:
             self._opss_wallet = arg_map[CommandLineArgUtil.OPSS_WALLET_SWITCH]
+
+        if CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH in arg_map:
+            self._update_rcu_schema_pass = True
 
         if CommandLineArgUtil.VALIDATION_METHOD in arg_map:
             self._validation_method = arg_map[CommandLineArgUtil.VALIDATION_METHOD]
@@ -321,6 +325,12 @@ class ModelContext(object):
         :return: the wallet passphrase
         """
         return self._opss_wallet_passphrase
+
+    def get_update_rcu_schema_pass(self):
+        """
+        Get the update rcu schema password flag
+        """
+        return self._update_rcu_schema_pass
 
     def get_validation_method(self):
         """
