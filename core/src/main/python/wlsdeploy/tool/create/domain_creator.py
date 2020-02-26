@@ -967,7 +967,7 @@ class DomainCreator(Creator):
             if self.wls_helper.is_database_defaults_supported():
                 self.wlst_helper.get_database_defaults()
 
-            if model_context.get_update_rcu_schema_pass() is True:
+            if self.model_context.get_update_rcu_schema_pass() is True:
                 rcu_helper = RCUHelper(self.model, self.model_context, self.aliases, modifyBootStrapCredential=False)
                 rcu_helper.update_rcu_password()
 

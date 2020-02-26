@@ -46,19 +46,6 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import model as model_helper
-# from wlsdeploy.aliases.model_constants import RCU_DB_INFO
-# from wlsdeploy.aliases.model_constants import RCU_PREFIX
-# from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
-# from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
-# from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
-# from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
-# from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
-# from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
-# from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
-#
-#
-# from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
-# from wlsdeploy.aliases.location_context import LocationContext
 
 
 wlst_helper.wlst_functions = globals()
@@ -200,82 +187,6 @@ def __process_encryption_args(optional_arg_map):
             raise ex
         optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
     return
-
-# def __process_update_rcu_schema_password_args(model, model_context, aliases):
-#     """
-#     If the flag is set, it will update the password of each rcu schema and then update the bootstrap password
-#     """
-#
-#     _method_name = '__process_update_rcu_schema_password_args'
-#
-#     # construct the partial dictionary of the JRF schema and just the password
-#     # call the database deployer add_data_sources
-#     # update the bootrap with the new password
-#     # modifyBootStrapCredential(jpsConfigFile=model_context.get_domain_home() +
-#     #   '/config/fmwconfig/jps-config-jse.xml',
-#     #  username='schema_prefix_OPSS',password='new_password')
-#
-#     domain_info = model.get_model_domain_info()
-#     if RCU_DB_INFO in domain_info:
-#         alias_helper = AliasHelper(aliases, __logger, ExceptionType.CREATE)
-#         rcu_db_info = RcuDbInfo(alias_helper, domain_info[RCU_DB_INFO])
-#         rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
-#         rcu_prefix = rcu_db_info.get_rcu_prefix()
-#
-#         location = LocationContext()
-#         location.append_location(JDBC_SYSTEM_RESOURCE)
-#
-#         folder_path = alias_helper.get_wlst_list_path(location)
-#         __wlst_helper.cd(folder_path)
-#         ds_names = __wlst_helper.lsc()
-#         domain_typedef = model_context.get_domain_typedef()
-#         rcu_schemas = domain_typedef.get_rcu_schemas()
-#         if len(rcu_schemas) == 0:
-#             return
-#         schemas_len = len(rcu_schemas)
-#
-#         for i in range(0,schemas_len):
-#             rcu_schemas[i] = rcu_prefix + '_' + rcu_schemas[i]
-#
-#         for ds_name in ds_names:
-#             location = LocationContext()
-#             location.append_location(JDBC_SYSTEM_RESOURCE)
-#             token_name = alias_helper.get_name_token(location)
-#             location.add_name_token(token_name, ds_name)
-#
-#             location.append_location(JDBC_RESOURCE)
-#             location.append_location(JDBC_DRIVER_PARAMS)
-#             password_location = LocationContext(location)
-#
-#             wlst_path = alias_helper.get_wlst_attributes_path(location)
-#             __wlst_helper.cd(wlst_path)
-#
-#             location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
-#             token_name = alias_helper.get_name_token(location)
-#             if token_name is not None:
-#                 location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
-#             wlst_path = alias_helper.get_wlst_attributes_path(location)
-#             __wlst_helper.cd(wlst_path)
-#             ds_user = __wlst_helper.get('Value')
-#
-#             if ds_user in rcu_schemas:
-#                 print ds_user
-#                 print password_location
-#                 wlst_path = alias_helper.get_wlst_attributes_path(password_location)
-#                 __wlst_helper.cd(wlst_path)
-#                 print wlst_path
-#                 print 'rcu pwd is now'
-#                 print rcu_schema_pass
-#
-#                 wlst_name, wlst_value = \
-#                     alias_helper.get_wlst_attribute_name_and_value(password_location, PASSWORD_ENCRYPTED,
-#                                                                         rcu_schema_pass, masked=True)
-#                 __wlst_helper.set(wlst_name, wlst_value, masked=True)
-#
-#             domain_home = model_context.get_domain_home()
-#             config_file = domain_home + '/config/fmwconfig/jps-config-jse.xml'
-#             opss_user = rcu_prefix + '_OPSS'
-#             modifyBootStrapCredential(jpsConfigFile=config_file, username=opss_user, password=rcu_schema_pass)
 
 def __update(model, model_context, aliases):
     """
