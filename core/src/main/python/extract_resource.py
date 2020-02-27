@@ -16,12 +16,9 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract.domain_resource_extractor import DomainResourceExtractor
 from wlsdeploy.tool.util import model_context_helper
-from wlsdeploy.tool.util import wlst_helper
-from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -29,13 +26,10 @@ from wlsdeploy.util.cla_utils import TOOL_TYPE_EXTRACT
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
-wlst_helper.wlst_functions = globals()
-
 _program_name = 'extractDomainResource'
 _class_name = 'extract_resource'
 __logger = PlatformLogger('wlsdeploy.extract')
 __wls_helper = WebLogicHelper(__logger)
-__wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
@@ -103,8 +97,6 @@ def main(args):
     __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
-
-    __wlst_helper.silence()
 
     exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
 
