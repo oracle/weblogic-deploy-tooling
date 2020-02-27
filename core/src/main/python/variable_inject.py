@@ -2,33 +2,28 @@
 Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-The entry point for the discoverDomain tool.
+The entry point for the injectVariables tool.
 """
 import os
 import sys
 
 from java.io import File
 from java.lang import IllegalArgumentException
-from java.lang import IllegalStateException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
-from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
-
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
 import wlsdeploy.tool.util.variable_injector as variable_injector
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
-from wlsdeploy.tool.util.wlst_helper import WlstHelper
-from wlsdeploy.util import model_translator
+from wlsdeploy.util import model_translator, cla_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_translator import FileToPython
@@ -67,7 +62,10 @@ def __process_args(args):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     required_arg_map, optional_arg_map = cla_util.process_args(args)
 
-    __process_model_args(optional_arg_map)
+    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
+
+    # determine if the model file was passed separately or requires extraction from the archive.
+    cla_helper.validate_model_present(_program_name, optional_arg_map)
     __process_injector_file(optional_arg_map)
     __process_keywords_file(optional_arg_map)
     __process_properties_file(optional_arg_map)
@@ -75,76 +73,6 @@ def __process_args(args):
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
     return model_context_helper.create_context(_program_name, combined_arg_map)
-
-
-def __verify_required_args_present(required_arg_map):
-    """
-    Verify that the required args are present.
-    :param required_arg_map: the required arguments map
-    :raises CLAException: if one or more of the required arguments are missing
-    """
-    _method_name = '__verify_required_args_present'
-
-    for req_arg in __required_arguments:
-        if req_arg not in required_arg_map:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20005', _program_name, req_arg)
-            ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    return
-
-
-def __process_model_args(optional_arg_map):
-    """
-    Verify that either the model_file or archive_file was provided and exists.
-    If the model_file was not provided, the archive_file must be provided and the indicated archive file
-    must contain a model file. Extract the model file if the archive_file was provided.
-    :param optional_arg_map: the optional arguments map
-    :raises CLAException: if the arguments are invalid or an error occurs extracting the model from the archive
-    """
-    _method_name = '__process_model_args'
-    global __tmp_model_dir
-
-    if CommandLineArgUtil.MODEL_FILE_SWITCH in optional_arg_map:
-        model_file_name = optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
-
-        try:
-            FileUtils.validateExistingFile(model_file_name)
-        except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20006', _program_name, model_file_name,
-                                                       iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    elif CommandLineArgUtil.ARCHIVE_FILE_SWITCH in optional_arg_map:
-        archive_file_name = optional_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-
-        try:
-            archive_file = WLSDeployArchive(archive_file_name)
-            contains_model = archive_file.containsModel()
-            if not contains_model:
-                ex = exception_helper.create_cla_exception('WLSDPLY-19603', archive_file_name)
-                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-            else:
-                __tmp_model_dir = FileUtils.createTempDirectory(_program_name)
-                tmp_model_file = \
-                    FileUtils.fixupFileSeparatorsForJython(archive_file.extractModel(__tmp_model_dir).getAbsolutePath())
-        except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20010', _program_name, archive_file_name,
-                                                       archex.getLocalizedMessage(), error=archex)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-        optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = FileUtils.fixupFileSeparatorsForJython(tmp_model_file)
-    else:
-        ex = exception_helper.create_cla_exception('WLSDPLY-20015', _program_name, CommandLineArgUtil.MODEL_FILE_SWITCH,
-                                                   CommandLineArgUtil.ARCHIVE_FILE_SWITCH)
-        ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
-    return
 
 
 def __process_injector_file(optional_arg_map):
