@@ -322,6 +322,23 @@ class WlstHelper(object):
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
+    def modify_bootstrap_credentials(self, jps_configfile, username, password):
+        """
+        modify the boot strap credentials in a JRF domain
+        :raises: Exception for the specified tool type: if a WLST error occurs
+        """
+        _method_name = 'modifyBootStrapCredentials'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('modifyBootStrapCredential')(jps_configfile, username, password)
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00101',
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(pwe, class_name=self.__class_name, method_name=_method_name)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
     def set_server_groups(self, server, server_groups):
         """
         Sets the database defaults indicated by RCU.
