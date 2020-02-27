@@ -815,8 +815,9 @@ class DomainCreator(Creator):
         _method_name = '__configure_fmw_infra_database'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
+        # only continue with RCU configuration for a JRF domain.
         if not self._domain_typedef.is_jrf_domain_type():
-            self.logger.warning('WLSDPLY-12249')
+            self.logger.finer('WLSDPLY-12249', class_name=self.__class_name, method_name=_method_name)
             return
 
         has_atp = 0
