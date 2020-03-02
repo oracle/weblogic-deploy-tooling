@@ -357,6 +357,7 @@ class DomainCreator(Creator):
     def __deploy(self):
         """
         Update the domain with domain attributes, resources and deployments.
+        Check for the correct method of updating the domain for creation.
         :raises: CreateException: if an error occurs while reading or updating the domain.
         """
         self.model_context.set_domain_home(self._domain_home)
