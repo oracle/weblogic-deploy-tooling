@@ -84,6 +84,7 @@ from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
+from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
@@ -806,8 +807,9 @@ class DomainCreator(Creator):
         _method_name = '__configure_fmw_infra_database'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
+        # only continue with RCU configuration for a JRF domain.
         if not self._domain_typedef.is_jrf_domain_type():
-            self.logger.warning('WLSDPLY-12249')
+            self.logger.finer('WLSDPLY-12249', class_name=self.__class_name, method_name=_method_name)
             return
 
         has_atp = 0
@@ -957,6 +959,10 @@ class DomainCreator(Creator):
             self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
             if self.wls_helper.is_database_defaults_supported():
                 self.wlst_helper.get_database_defaults()
+
+            if self.model_context.get_update_rcu_schema_pass() is True:
+                rcu_helper = RCUHelper(self.model, self.model_context, self.aliases, modifyBootStrapCredential=False)
+                rcu_helper.update_rcu_password()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
