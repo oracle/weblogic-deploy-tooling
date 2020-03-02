@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the updateDomain tool.
@@ -22,6 +22,7 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -35,6 +36,7 @@ from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import getcreds
@@ -44,6 +46,7 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import model as model_helper
+
 
 wlst_helper.wlst_functions = globals()
 
@@ -71,7 +74,8 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
-    CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH
+    CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH,
+    CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH
 ]
 
 
@@ -184,7 +188,6 @@ def __process_encryption_args(optional_arg_map):
         optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
     return
 
-
 def __update(model, model_context, aliases):
     """
     The method that does the heavy lifting for update.
@@ -197,9 +200,6 @@ def __update(model, model_context, aliases):
         ret_code = __update_online(model, model_context, aliases)
     else:
         ret_code = __update_offline(model, model_context, aliases)
-
-    if os.environ.has_key('__WLSDEPLOY_STORE_MODEL__'):
-        model_helper.persist_model(model_context, model)
 
     return ret_code
 
@@ -294,6 +294,9 @@ def __update_offline(model, model_context, aliases):
     topology_updater.update()
 
     model_deployer.deploy_model_offline(model, model_context, aliases, wlst_mode=__wlst_mode)
+    if model_context.get_update_rcu_schema_pass() is True:
+        rcu_helper = RCUHelper(model, model_context, aliases)
+        rcu_helper.update_rcu_password()
 
     try:
         __wlst_helper.update_domain()
@@ -422,6 +425,8 @@ def main(args):
                         class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    cla_helper.persist_model(model_context, model_dictionary)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     validate_model(model_dictionary, model_context, aliases)

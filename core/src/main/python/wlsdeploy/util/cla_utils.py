@@ -70,6 +70,7 @@ class CommandLineArgUtil(object):
     ATTRIBUTES_ONLY_SWITCH     = '-attributes_only'
     FOLDERS_ONLY_SWITCH        = '-folders_only'
     RECURSIVE_SWITCH           = '-recursive'
+    UPDATE_RCU_SCHEMA_PASS_SWITCH = '-updateRCUSchemaPassword'
     VALIDATION_METHOD          = '-method'
     # overrides for the variable injector
     VARIABLE_INJECTOR_FILE_SWITCH   = '-variable_injector_file'
@@ -394,6 +395,8 @@ class CommandLineArgUtil(object):
             elif self.is_folders_only_switch(key):
                 self._add_arg(key, True)
             elif self.is_recursive_switch(key):
+                self._add_arg(key, True)
+            elif self.is_update_rcu_schema_pass_switch(key):
                 self._add_arg(key, True)
             elif self.is_variable_injector_file_key(key):
                 idx += 1
@@ -1039,6 +1042,12 @@ class CommandLineArgUtil(object):
 
     def is_recursive_switch(self, key):
         return self.RECURSIVE_SWITCH == key
+
+    def is_update_rcu_schema_pass_switch(self, key):
+        return self.UPDATE_RCU_SCHEMA_PASS_SWITCH == key
+
+    def get_is_update_rcu_schema_pass_switch(self):
+        return self.UPDATE_RCU_SCHEMA_PASS_SWITCH
 
     def _validate_target_mode_arg(self, value):
         method_name = '_validate_target_mode_arg'

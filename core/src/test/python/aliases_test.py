@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from org.python.modules import jarray
@@ -900,6 +900,19 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(value, Boolean('true'))
         return
 
+    def testGetWlstAttributeJavaBooleanNewIssue157(self):
+        location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'my-domain')
+        location.append_location(FOLDERS.REALM, REALM="myrealm"). \
+            append_location(FOLDERS.AUTHENTICATION_PROVIDER, PROVIDER='myprovider'). \
+            append_location(FOLDERS.ACTIVE_DIRECTORY_AUTHENTICATOR)
+        name, value = self.aliases.get_wlst_attribute_name_and_value(location, 'UseTokenGroupsForGroupMembershipLookup',
+                                                                     'true')
+        self.assertEqual(name, 'UseTokenGroupsForGroupMembershipLookup')
+        self.assertEqual(value, Boolean('true'))
+        return
+
     def testSecurityProviderTypeHandling(self):
         location = LocationContext().append_location(FOLDERS.SECURITY_CONFIGURATION)
         token = self.aliases.get_name_token(location)
@@ -1231,7 +1244,7 @@ class AliasesTestCase(unittest.TestCase):
         token = self.aliases.get_name_token(location)
         location.add_name_token(token, 'DemoDomain')
 
-        expected = 'false'
+        expected = 'true'
         default_value = self.online_aliases.get_model_attribute_default_value(location, 'RotateLogOnStartup')
         self.assertEqual(default_value, expected)
 

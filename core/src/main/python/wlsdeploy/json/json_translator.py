@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 This model provider translation classes that convert between JSON and Python Dictionaries.
@@ -170,12 +170,33 @@ class PythonToJson(object):
             writer.write(indent + '"' + _quote_embedded_quotes(key) + '" : ')
             if isinstance(value, dict):
                 self._write_dictionary_to_json_file(value, writer, indent)
+            elif isinstance(value, list):
+                self._write_list_to_json_file(value, writer, indent)
             else:
                 writer.write(_format_json_value(value))
         writer.println()
         writer.write(end_indent + _end_dict)
 
         return
+
+    def _write_list_to_json_file(self, alist, writer, indent=''):
+        """
+        Write the python list in json syntax using the provided writer stream.
+        :param alist: python list to convert to json syntax
+        :param writer: where to write the list into json syntax
+        :param indent: current string indention of the json syntax. If not provided, indent is an empty string
+        """
+        writer.write('[')
+        end_line = ''
+        list_indent = indent + self._indent_unit
+        for value in alist:
+            writer.write(end_line)
+            writer.println()
+            writer.write(list_indent)
+            writer.write(_format_json_value(value))
+            end_line = ','
+        writer.println()
+        writer.write(indent + ']')
 
     def _close_streams(self, fos, writer):
         """

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.lang.Exception as JException
@@ -13,6 +13,8 @@ import weblogic.version as version_helper
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.util import string_utils
 
+import os
+import re
 
 class WebLogicHelper(object):
     """
@@ -65,6 +67,13 @@ class WebLogicHelper(object):
         :return: true if MT offline provisioning is supported; false otherwise
         """
         return self.is_weblogic_version_or_above('12.2.1.1') or not self.is_weblogic_version_or_above('12.2.1')
+
+    def is_mt_provisioning_supported(self):
+        """
+        Is MultiTenant offline provisioning in a version that is still supports MT?
+        :return: true if MT provisioning is supported; false otherwise
+        """
+        return not self.is_weblogic_version_or_above('14.1.1')
 
     def is_select_template_supported(self):
         """
@@ -187,6 +196,14 @@ class WebLogicHelper(object):
             else:
                 wl_home = oracle_home + '/wlserver_10.3'
 
+            # if the path is not a valid directory, try to infer it from the pattern
+            if os.path.isdir(oracle_home) and not os.path.isdir(wl_home):
+                dirs = [f for f in os.listdir(oracle_home) if re.match(r'wlserver.*', f)]
+                if len(dirs) > 0:
+                    wl_home = oracle_home + '/' + dirs[0]
+                else:
+                    wl_home = None
+                
         return wl_home
 
     def is_weblogic_version_or_above(self, str_version, use_actual_version=False):

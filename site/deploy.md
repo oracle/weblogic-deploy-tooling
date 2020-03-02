@@ -17,7 +17,7 @@ Running the Deploy Applications Tool in WLST offline mode is very similar to run
 
     weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties
 
-In WLST online mode, simply replace the `-domain_home` argument with the information on how to connect to the WebLogic Server Administration Server, for example:
+To run the tool in online mode, add the `-admin_url` and `admin_user` arguments with the necessary values to connect to the WebLogic Server Administration Server. For example:
 
     weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties -admin_url t3://127.0.0.1:7001 -admin_user weblogic
 

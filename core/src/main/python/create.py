@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The main module for the WLSDeploy tool to create empty domains.
@@ -81,7 +81,8 @@ __optional_arguments = [
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
     CommandLineArgUtil.OPSS_WALLET_SWITCH,
-    CommandLineArgUtil.OPSS_WALLET_PASSPHRASE
+    CommandLineArgUtil.OPSS_WALLET_PASSPHRASE,
+    CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH
 ]
 
 
@@ -422,6 +423,8 @@ def main(args):
                         class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    cla_helper.persist_model(model_context, model)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
     alias_helper = AliasHelper(aliases, __logger, ExceptionType.CREATE)

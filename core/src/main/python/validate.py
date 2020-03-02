@@ -1,9 +1,10 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The WLS Deploy tooling entry point for the validateModel tool.
 """
+import copy
 import os
 import sys
 from java.util.logging import Level
@@ -25,6 +26,7 @@ from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import tool_exit
+from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -176,6 +178,12 @@ def __perform_model_file_validation(model_file_name, model_context):
         model_validator = Validator(model_context, logger=__logger)
         variable_map = model_validator.load_variables(model_context.get_variable_file())
         model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
+
+        if cla_helper.check_persist_model():
+            persist_model_dict = copy.deepcopy(model_dictionary)
+            variables.substitute(persist_model_dict, variable_map, model_context)
+            cla_helper.persist_model(model_context, persist_model_dict)
+
         model_validator.validate_in_standalone_mode(model_dictionary, variable_map,
                                                     model_context.get_archive_file_name())
     except TranslateException, te:

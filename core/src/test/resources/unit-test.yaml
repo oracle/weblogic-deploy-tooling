@@ -8,12 +8,19 @@ domainInfo:
 
 topology:
     Name: simple_domain
+    '': nokey
     Cluster:
         mycluster:
     Server:
         AdminServer:
             ListenAddress: 127.0.0.1
             ListenPort: 7001
+            Log:
+                LoggerSeverityProperties:
+                    com.oracle.something: Debug
+                    # Adding test case for empty property key.  Logging properties can have an empty key
+                    '': Info
+                    com.oracle.something.else: Debug
         s1:
             ListenAddress: 127.0.0.1
             ListenPort: 8001
