@@ -84,6 +84,7 @@ from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
+from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
@@ -303,12 +304,13 @@ class DomainCreator(Creator):
 
     def __fail_mt_1221_domain_creation(self):
         """
-        Abort create if domain contains MT artifacts that cannot be created in the version of WLST offline being used.
+        Abort create if domain contains MT artifacts that cannot be created in the version of WLST offline being used
+        or if the version of WebLogic no longer supports MT.
         :raises: CreateException: if the MT domain cannot be provision on the specified version of WLST offline
         """
         _method_name = '__fail_mt_1221_domain_creation'
 
-        if self.wls_helper.is_mt_offline_provisioning_supported():
+        if self.wls_helper.is_mt_offline_provisioning_supported() and self.wls_helper.is_mt_provisioning_supported():
             return
 
         resources_dict = self.model.get_model_resources()
@@ -316,7 +318,10 @@ class DomainCreator(Creator):
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, RESOURCE_GROUP_TEMPLATE)) or \
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, RESOURCE_GROUP)) or \
                 (not dictionary_utils.is_empty_dictionary_element(resources_dict, PARTITION)):
-            ex = exception_helper.create_create_exception('WLSDPLY-12202', self.wls_helper.wl_version)
+            if not self.wls_helper.is_mt_provisioning_supported():
+                ex = exception_helper.create_create_exception('WLSDPLY-12254', self.wls_helper.wl_version)
+            else:
+                ex = exception_helper.create_create_exception('WLSDPLY-12202', self.wls_helper.wl_version)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return
@@ -810,8 +815,9 @@ class DomainCreator(Creator):
         _method_name = '__configure_fmw_infra_database'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
+        # only continue with RCU configuration for a JRF domain.
         if not self._domain_typedef.is_jrf_domain_type():
-            self.logger.warning('WLSDPLY-12249')
+            self.logger.finer('WLSDPLY-12249', class_name=self.__class_name, method_name=_method_name)
             return
 
         has_atp = 0
@@ -961,6 +967,10 @@ class DomainCreator(Creator):
             self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
             if self.wls_helper.is_database_defaults_supported():
                 self.wlst_helper.get_database_defaults()
+
+            if self.model_context.get_update_rcu_schema_pass() is True:
+                rcu_helper = RCUHelper(self.model, self.model_context, self.aliases, modifyBootStrapCredential=False)
+                rcu_helper.update_rcu_password()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
