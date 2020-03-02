@@ -1000,37 +1000,36 @@ class WlstHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
-    def apply_jrf_with_context(self, jrf_targets, model_context, should_update=False):
+    def apply_jrf_with_context(self, jrf_targets, model_context):
         """
         Apply JRF server groups to targeted servers.
         :param jrf_targets: list of Server or cluster to target server groups
         :param model_context: context with current tool parameters
-        :param should_update: update the domain context with the apply jrf updates
         :raises Exception for the specified tool type: If a WLST error occurs
         """
         for jrf_target in jrf_targets:
-            self.apply_jrf(jrf_target, model_context.get_domain_home(), should_update)
+            self.apply_jrf(jrf_target, model_context.get_domain_home())
 
-    def apply_jrf(self, jrf_target, domain_home=None, should_update=False):
+    def apply_jrf(self, jrf_target, domain_home=None):
         """
         For installs that need to connect extension template server groups to servers
-
+        The applyJRF always updates the domain before returning
         :param jrf_target: entity (cluster, server) to target JRF applications and service
         :param domain_home: the domain home directory
-        :param should_update: If true, update the domain - it will check if in online or offline mode
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'apply_jrf'
-        self.__logger.entering(jrf_target, domain_home, should_update,
-                               class_name=self.__class_name, method_name=_method_name)
-        self.__logger.fine('WLSDPLY-00073', jrf_target, domain_home, should_update,
+        self.__logger.entering(jrf_target, domain_home, class_name=self.__class_name, method_name=_method_name)
+        self.__logger.fine('WLSDPLY-00073', jrf_target, domain_home,
                            class_name=self.__class_name, method_name=_method_name)
 
         try:
-            self.__load_global('applyJRF')(jrf_target, domain_home, should_update)
+            # It does not matter what value you pass to applyJRF, it will always update the domain.
+            # You must arrange your updates around this fact.
+            self.__load_global('applyJRF')(jrf_target, domain_home, shouldUpdateDomain=False)
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
             raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00071', jrf_target, domain_home,
-                                                    should_update, _format_exception(e), error=e)
+                                                    _format_exception(e), error=e)
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 

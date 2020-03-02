@@ -41,18 +41,16 @@ class TargetHelper(object):
         else:
             self._admin_server_name = DEFAULT_ADMIN_SERVER_NAME
 
-    def target_jrf_groups_to_clusters_servers(self, should_update=False):
+    def target_jrf_groups_to_clusters_servers(self):
         """
         Call applyJRF to for those versions of wlst that cannot target servers to server groups.
         This assigns the JRF resources to all managed servers. If the managed server is in a
         cluster, this method assigns the JRF resources are assigned to the cluster. Else, if
         the managed server is stand-alone, the resources are assigned to the managed server.
-        :param should_update: Control how the applyJRF applies the changes. By default, don't allow applyJRF
         to automatically update the domain.
         """
         _method_name = 'target_jrf_groups_to_clusters_servers'
-        self.logger.entering(should_update, class_name=self.__class_name,
-                             method_name=_method_name)
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         location = LocationContext()
         root_path = self.alias_helper.get_wlst_attributes_path(location)
@@ -73,14 +71,14 @@ class TargetHelper(object):
         for cluster_name, cluster_servers in cluster_map.iteritems():
             self.logger.info('WLSDPLY-12233', 'Cluster', cluster_name, class_name=self.__class_name,
                              method_name=_method_name)
-            self.wlst_helper.apply_jrf(cluster_name, self.model_context, should_update=should_update)
+            self.wlst_helper.apply_jrf(cluster_name, self.model_context)
             for member in cluster_servers:
                 if member in server_names:
                     server_names.remove(member)
         for ms_name in server_names:
             self.logger.info('WLSDPLY-12233', 'Managed Server', ms_name, class_name=self.__class_name,
                              method_name=_method_name)
-            self.wlst_helper.apply_jrf(ms_name, self.model_context, should_update=should_update)
+            self.wlst_helper.apply_jrf(ms_name, self.model_context)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
