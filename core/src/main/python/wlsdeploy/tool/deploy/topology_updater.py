@@ -125,6 +125,11 @@ class TopologyUpdater(Deployer):
         for folder_name in remaining:
             self._process_section(self._topology, folder_list, folder_name, location)
 
+        self.library_helper.install_domain_libraries()
+        self.library_helper.extract_classpath_libraries()
+        self.library_helper.install_domain_scripts()
+
+    def set_server_groups(self):
         if self.wls_helper.is_set_server_groups_supported():
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
             server_assigns, dynamic_assigns = \
@@ -135,10 +140,6 @@ class TopologyUpdater(Deployer):
                 self.target_helper.target_server_groups(server_assigns)
         elif self._domain_typedef.is_jrf_domain_type():
             self.target_helper.target_jrf_groups_to_clusters_servers()
-
-        self.library_helper.install_domain_libraries()
-        self.library_helper.extract_classpath_libraries()
-        self.library_helper.install_domain_scripts()
 
     def _process_section(self, folder_dict, folder_list, key, location):
         if key in folder_dict:
