@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -575,7 +575,6 @@ class WlstHelper(object):
         """
         _method_name = 'close_template'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-
         try:
             self.__load_global('closeTemplate')()
         except offlineWLSTException, e:
@@ -594,7 +593,6 @@ class WlstHelper(object):
         """
         _method_name = 'select_template'
         self.__logger.entering(template, class_name=self.__class_name, method_name=_method_name)
-
         try:
             self.__load_global('selectTemplate')(template)
         except offlineWLSTException, e:
@@ -630,7 +628,6 @@ class WlstHelper(object):
         """
         _method_name = 'load_templates'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-
         try:
             self.__load_global('loadTemplates')()
         except offlineWLSTException, e:
@@ -648,7 +645,6 @@ class WlstHelper(object):
         """
         _method_name = 'read_domain'
         self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
-
         try:
             self.__load_global('readDomain')(domain_home)
         except offlineWLSTException, e:
@@ -667,7 +663,6 @@ class WlstHelper(object):
         """
         _method_name = 'write_domain'
         self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
-
         try:
             self.__load_global('setOption')('OverwriteDomain', 'true')
         except offlineWLSTException, e:
@@ -692,7 +687,6 @@ class WlstHelper(object):
         """
         _method_name = 'update_domain'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-
         try:
             self.__load_global('updateDomain')()
         except offlineWLSTException, e:
@@ -709,7 +703,6 @@ class WlstHelper(object):
         """
         _method_name = 'close_domain'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-
         try:
             self.__load_global('closeDomain')()
         except offlineWLSTException, e:
@@ -824,32 +817,6 @@ class WlstHelper(object):
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def save_and_close(self, model_context):
-        """
-        Call this if necessary to save changes and disconnect from the domain in the middle of the session.
-        This works in both offline and online.
-        :param model_context: Contains information about the session, including the WlstMode
-        :raises Exception for the specified tool type: If a WLST error occurs
-        """
-        _method_name = 'save_and_close'
-        if model_context.is_wlst_online():
-            self.save_and_close_online()
-        else:
-            self.save_and_close_offline()
-
-    def save_and_activate(self, model_context):
-        """
-        Call this if necessary to save and activate changes in the middle of the session.
-        This works in both offline and online.
-        :param model_context: Contains information about the session, including the WlstMode
-        :raises Exception for the specified tool type: If a WLST error occurs
-        """
-        _method_name = 'save_and_activate'
-        if model_context.is_wlst_online():
-            self.save_and_activate_online()
-        else:
-            self.save_and_activate_offline()
 
     def save(self):
         """
@@ -1033,289 +1000,38 @@ class WlstHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
-    def apply_jrf_with_context(self, jrf_target, model_context, should_update=False):
+    def apply_jrf_with_context(self, jrf_targets, model_context):
         """
         Apply JRF server groups to targeted servers.
-        :param jrf_target: Server or cluster to target server groups
+        :param jrf_targets: list of Server or cluster to target server groups
         :param model_context: context with current tool parameters
-        :param should_update: update the domain context with the apply jrf updates
         :raises Exception for the specified tool type: If a WLST error occurs
         """
-        self.session_start(model_context.is_wlst_online(),
-                           model_context.get_admin_user(),
-                           model_context.get_admin_password(),
-                           model_context.get_admin_url(),
-                           model_context.get_domain_home())
-        self.__apply_jrf(jrf_target, domain_home=model_context.get_domain_home(),
-                         should_update=should_update)
-        self.session_end(model_context.is_wlst_online())
+        for jrf_target in jrf_targets:
+            self.apply_jrf(jrf_target, model_context.get_domain_home())
 
-    def apply_jrf_control_updates(self, jrf_targets, model_context):
-        """
-        For those installs that require populating the JRF server group information to the managed servers. Control
-        the session updates within the global context. Save the updates in the current context.
-        :param jrf_targets: The list of entities to which to target the JRF applications and services
-        :param model_context: The context containing the tool session information needed for the applyJRF
-        :raises: Exception specific to tool type: If a WLST error occurs
-        """
-        _method_name = 'apply_jrf_control_updates'
-
-        self.apply_jrf_global_updates(model_context.is_wlst_online(),
-                                      jrf_targets,
-                                      admin_user=model_context.get_admin_user(),
-                                      admin_pass=model_context.get_admin_password(),
-                                      admin_url=model_context.get_admin_url(),
-                                      domain_home=model_context.get_domain_home())
-
-    def __apply_jrf(self, jrf_target, domain_home=None, should_update=False):
+    def apply_jrf(self, jrf_target, domain_home=None):
         """
         For installs that need to connect extension template server groups to servers
-
+        The applyJRF always updates the domain before returning
         :param jrf_target: entity (cluster, server) to target JRF applications and service
         :param domain_home: the domain home directory
-        :param should_update: If true, update the domain - it will check if in online or offline mode
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'apply_jrf'
-        self.__logger.entering(jrf_target, domain_home, should_update,
-                               class_name=self.__class_name, method_name=_method_name)
-        self.__logger.fine('WLSDPLY-00073', jrf_target, domain_home, should_update,
+        self.__logger.entering(jrf_target, domain_home, class_name=self.__class_name, method_name=_method_name)
+        self.__logger.fine('WLSDPLY-00073', jrf_target, domain_home,
                            class_name=self.__class_name, method_name=_method_name)
 
-        load_apply_jrf = self.__load_global('applyJRF')
         try:
-            load_apply_jrf(jrf_target, domain_home, should_update)
+            # It does not matter what value you pass to applyJRF, it will always update the domain.
+            # You must arrange your updates around this fact.
+            self.__load_global('applyJRF')(jrf_target, domain_home, shouldUpdateDomain=False)
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
             raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00071', jrf_target, domain_home,
-                                                    should_update, _format_exception(e), error=e)
+                                                    _format_exception(e), error=e)
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
-
-    def apply_jrf_global_updates(self, online, jrf_targets, admin_user=None, admin_pass=None,
-                                 admin_url=None, domain_home=None):
-        """
-        For installs that will control locally any updates from the apply_jrf
-        :param online: True if the tool session is in online mode
-        :param jrf_targets: the list target for the JRF resources
-        :param admin_user: admin user if online session
-        :param admin_pass: admin password if online session
-        :param admin_url: admin url if online session
-        :param domain_home: domain home if offline session
-        :raises: Exception for the specified tool type: If a WLST exception occurs
-        """
-        _method_name = 'apply_jrf_global_updates'
-        self.__logger.entering(StringUtils.stringForBoolean(online), jrf_targets, domain_home,
-                               class_name=self.__class_name, method_name=_method_name)
-
-        self.session_start(online, admin_user, admin_pass, admin_url, domain_home)
-        for jrf_target in jrf_targets:
-            self.__apply_jrf(jrf_target, domain_home, False)
-
-        self.session_end(online)
-
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
-
-    def session_start(self, online, admin_user, admin_pass, admin_url, domain_home):
-        """
-        Start the edit session in the global context
-        :param online: True if the tool session is in online mode
-        :param admin_user: admin user if online session
-        :param admin_pass: admin password if online session
-        :param admin_url: admin url if online session
-        :param domain_home: domain home if offline session
-        :raises Exception for the specified tool type: If a WLST error occurs
-        """
-        _method_name = 'session_start'
-        self.__logger.entering(online, admin_user, admin_url, domain_home,
-                               class_name=self.__class_name, method_name=_method_name)
-        if online:
-            self.global_connect(admin_user, admin_pass, admin_url)
-            self.global_edit()
-            self.global_start_edit()
-        else:
-            self.global_read_domain(domain_home)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
-
-    def session_end(self, online):
-        """
-        End the edit session in the global context
-        :param online: True if the tool session is in online mode
-        :raises Exception for the specified tool type: If a WLST error occurs
-        """
-        _method_name = 'session_end'
-        self.__logger.entering(online, class_name=self.__class_name, method_name=_method_name)
-        if online:
-            self.online_session_end()
-        else:
-            self.offline_session_end()
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def global_connect(self, user, upass, url):
-        """
-        Connect to the domain AdminServer to create a WLST online context for the domain.
-        :param user: admin user name
-        :param upass: admin password
-        :param url: url of the admin server
-        :raises: Exception for the specified tool type: If a WLST exception occurs
-        """
-        _method_name = 'global_connect'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        try:
-            self.__load_global('connect')(user, upass, url)
-        except self.__load_global('WLSTException'), e:
-            connect_string = 'connect(' + user + ', password hidden, ' + url + ')'
-            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', connect_string,
-                                                    _format_exception(e), error=e)
-
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def global_edit(self):
-        """
-        Start an edit session in the current connected online domain session context.
-        :raises: Exception for the specified tool type: Thrown if a WLST exception occurs
-        """
-        _method_name = 'global_edit'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        try:
-            self.__load_global('edit')()
-        except self.__load_global('WLSTException'), e:
-            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'edit()',
-                                                    _format_exception(e), error=e)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def global_start_edit(self):
-        """
-        Start edit - this starts an online WLST edit within the current global context.
-        :raises: Exception for the specified tool type: When a WLST exception occurs
-        """
-        _method_name = 'global_start_edit'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        try:
-            self.__load_global('startEdit')()
-        except self.__load_global('WLSTException'), e:
-            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'startEdit()',
-                                                    _format_exception(e), error=e)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def global_read_domain(self, domain_home):
-        """
-        Read the domain with WLST offline which loads the domain and creates a global context.
-        :param domain_home: domain home to read and load
-        :raises Exception for the specified tool type: if the readDomain fails with a WLST Exception
-        """
-        _method_name = 'global_read_domain'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        try:
-            self.__load_global('readDomain')(domain_home)
-        except offlineWLSTException, e:
-            read_string = 'readDomain(' + domain_home + ')'
-            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', read_string,
-                                                    _format_exception(e), error=e)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def online_session_end(self):
-        """
-        Save and activate the current online session if one is in progress and disconnect from the current
-        WLST online domain session.
-        :raises: Exception for the specified tool type: If a WLST Exception occurs
-        """
-        _method_name = '__online_session_end'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-
-        self.__logger.finest('WLSDPLY-00085', class_name=self.__class_name, method_name=_method_name)
-        cmgr = self.get_config_manager()
-        if self.is_editor(cmgr):
-            self.global_save()
-            self.global_activate()
-        self.global_disconnect()
-
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def global_save(self):
-        """
-        Save all edits that are in progress in the current online domain session context
-        :raises: Exception for the specified tool type: When a WLST exception occurs
-        """
-        _method_name = 'global_save'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        try:
-            self.__load_global('save')()
-        except self.__load_global('WLSTException'), e:
-            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'save()',
-                                                    _format_exception(e), error=e)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def global_activate(self):
-        """
-        Activate all saved updates maded in the current online domain session context.
-        :raises: Exception for the specified tool type: When a WLST exception occurs
-        """
-        _method_name = 'global_activate'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        try:
-            self.__load_global('activate')()
-        except self.__load_global('WLSTException'), e:
-            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'activate()',
-                                                    _format_exception(e), error=e)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def global_disconnect(self):
-        """
-        Disconnect from the current online WLST domain session.
-        :raises: Exception for the specified tool type: when a WLST exception occurs
-        """
-        _method_name = 'global_disconnect'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        try:
-            self.__load_global('disconnect')()
-        except self.__load_global('WLSTException'), e:
-            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'disconnect()',
-                                                    _format_exception(e), error=e)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def offline_session_end(self):
-        """
-        Update the domain with all changes in progress and close the domain current context.
-        :raises: Exception for the specified tool type: When a WLST exception occurs
-        """
-        _method_name = '__offline_session_end'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-
-        self.__logger.finest('WLSDPLY-00085', class_name=self.__class_name, method_name=_method_name)
-        self.global_update_domain()
-        self.global_close_domain()
-
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def global_update_domain(self):
-        """
-        Update the domain with all changes in progress for the offline WLST domain context.
-        :raises: Exception for the specified tool type: When a WLST exception occurs
-        """
-        _method_name = 'global_update_domain'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        try:
-            self.__load_global('updateDomain')()
-        except offlineWLSTException, e:
-            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'updateDomain()',
-                                                    _format_exception(e), error=e)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def global_close_domain(self):
-        """
-        Close the current WLST offline session with the domain.
-        :raises: Exception for the specified tool type: When a WLST exception occurs
-        """
-        _method_name = 'global_close_domain'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        try:
-            self.__load_global('closeDomain')()
-        except offlineWLSTException, e:
-            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00086', 'closeDomain()',
-                                                    _format_exception(e), error=e)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def get_config_manager(self):
         """
@@ -1581,110 +1297,6 @@ class WlstHelper(object):
 
         self.__logger.exiting(result=str(result), class_name=self.__class_name, method_name=_method_name)
         return result
-
-    def save_and_close_online(self):
-        """
-        Call this if necessary to save changes and disconnect from the domain
-        midstream through the tool session. If not connected, do
-        nothing.
-        :raises Exception for the specified tool type: If a WLST error occurs
-        """
-        _method_name = 'save_and_close_online'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-
-        if self.is_connected():
-            self.__logger.fine('WLSDPLY-00077', class_name=self.__class_name, method_name=_method_name)
-            self.save_and_activate_online()
-            self.disconnect()
-        else:
-            self.__logger.fine('WLSDPLY-00076', class_name=self.__class_name, method_name=_method_name)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def save_and_close_offline(self):
-        """
-        Update the domain to save any active changes and close the domain. For use in middle of tool session.
-        :raises Exception for the specified tool type: If a WLST error occurs
-        """
-        _method_name = 'save_and_close_offline'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        self.update_domain()
-        self.close_domain()
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def save_and_activate_online(self):
-        """
-        Call this if necessary to save changes midstream through the tool session. If not connected, do
-        nothing.
-        :raises Exception for the specified tool type: If a WLST error occurs
-        """
-        _method_name = 'save_and_activate_online'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        if self.is_connected():
-            self.__logger.fine('WLSDPLY-00077', class_name=self.__class_name, method_name=_method_name)
-            # The setServerGroups cmgr.reload() lost the saved and unactivated changes marker
-            # Don't even check for outstanding changes or saved but not activated. Just
-            # do this and hope for the best
-            self.save()
-            self.activate()
-        else:
-            self.__logger.fine('WLSDPLY-00076', class_name=self.__class_name, method_name=_method_name)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def save_and_activate_offline(self):
-        """
-        Update the domain to save any active changes. For use in middle of tool session.
-        :raises Exception for the specified tool type: If WLST error occurs
-        """
-        _method_name = 'save_and_close_offline'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-        self.update_domain()
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def reopen(self, model_context):
-        """
-        Establish connection with the domain and start editing in both online and offline wlst mode.
-        :param model_context: contains the information needed for the reopen, including the WlstMode
-        :raises Exception for the specified tool type: If a WLST error occurs
-        """
-        _method_name = 'reopen'
-        if model_context.is_wlst_online():
-            self.reopen_online(model_context.get_admin_user(), model_context.get_admin_password(),
-                               model_context.get_admin_url())
-        else:
-            self.reopen_offline(model_context.get_domain_home())
-
-    def reopen_online(self, admin_user, admin_pass, admin_url):
-        """
-        Establish connection with the domain and start editing..
-        :param admin_user: admin userid
-        :param admin_pass: admin_password
-        :param admin_url: url of the admin server
-        :raises Exception for the specified tool type: If a WLST error occurs
-        """
-        _method_name = 'reopen_online'
-        self.__logger.entering(admin_user, admin_url, class_name=self.__class_name, method_name=_method_name)
-        if not self.is_connected():
-            self.__logger.fine('WLSDPLY-00080', class_name=self.__class_name, method_name=_method_name)
-            self.connect(admin_user, admin_pass, admin_url)
-        else:
-            self.__logger.fine('WLSDPLY-00079', class_name=self.__class_name, method_name=_method_name)
-
-        self.edit()
-        self.start_edit()
-
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def reopen_offline(self, domain_home):
-        """
-        Read the domain in offline.
-        :param domain_home:
-        :raises Exception for the specified tool type: If a WLST error occurs
-        """
-        _method_name = 'reopen_offline'
-        self.__logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
-        self.__logger.fine('WLSDPLY-00081', class_name=self.__class_name, method_name=_method_name)
-        self.read_domain(domain_home)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def set_shared_secret_store_with_password(self, wallet_path, password):
         """

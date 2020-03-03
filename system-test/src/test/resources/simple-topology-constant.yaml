@@ -7,7 +7,7 @@ topology:
     AdminServerName: 'admin-server'
     ProductionModeEnabled: true
     Cluster:
-        'cluster-1':
+        'cluster1':
             ClientCertProxyEnabled: true
             DynamicServers:
                 ServerTemplate: template1
@@ -32,7 +32,7 @@ appDeployments:
         # Quote needed because of hyphen in string
         'simple-app':
             SourcePath: 'wlsdeploy/applications/simple-app.war'
-            Target: 'cluster-1'
+            Target: 'cluster1'
             ModuleType: war
             StagingMode: nostage
             PlanStagingMode: nostage
