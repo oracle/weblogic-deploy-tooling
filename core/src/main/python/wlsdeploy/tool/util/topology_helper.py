@@ -116,7 +116,7 @@ class TopologyHelper(object):
                     # don't create placeholder for delete names
                     continue
 
-                if name not in existing_names or model_type == JDBC_SYSTEM_RESOURCE:
+                if name not in existing_names:
                     self.logger.info('WLSDPLY-19403', model_type, name, class_name=self.__class_name,
                                      method_name=_method_name)
 
