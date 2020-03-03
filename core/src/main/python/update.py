@@ -239,6 +239,23 @@ def __update_online(model, model_context, aliases):
 
     exit_code = 0
 
+    __update_online_domain(model_context)
+
+    topology_updater.set_server_groups()
+    __update_online_domain(model_context)
+    model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
+
+    try:
+        __wlst_helper.disconnect()
+    except BundleAwareException, ex:
+        # All the changes are made and active so don't raise an error that causes the program
+        # to indicate a failure...just log the error since the process is going to exit anyway.
+        __logger.warning('WLSDPLY-09009', _program_name, ex.getLocalizedMessage(), error=ex,
+                         class_name=_class_name, method_name=_method_name)
+    return exit_code
+
+
+def __update_online_domain(model_context):
     try:
         # First we enable the stdout again and then redirect the stdoout to a string output stream
         # call isRestartRequired to get the output, capture the string and then silence wlst output again
@@ -262,17 +279,6 @@ def __update_online(model, model_context, aliases):
     except BundleAwareException, ex:
         __release_edit_session_and_disconnect()
         raise ex
-
-    model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
-
-    try:
-        __wlst_helper.disconnect()
-    except BundleAwareException, ex:
-        # All the changes are made and active so don't raise an error that causes the program
-        # to indicate a failure...just log the error since the process is going to exit anyway.
-        __logger.warning('WLSDPLY-09009', _program_name, ex.getLocalizedMessage(), error=ex,
-                         class_name=_class_name, method_name=_method_name)
-    return exit_code
 
 
 def __update_offline(model, model_context, aliases):
@@ -298,11 +304,11 @@ def __update_offline(model, model_context, aliases):
         rcu_helper = RCUHelper(model, model_context, aliases)
         rcu_helper.update_rcu_password()
 
-    try:
-        __wlst_helper.update_domain()
-    except BundleAwareException, ex:
-        __close_domain_on_error()
-        raise ex
+    __update_offline_domain()
+
+    topology_updater.set_server_groups()
+
+    __update_offline_domain()
 
     model_deployer.deploy_model_after_update(model, model_context, aliases, wlst_mode=__wlst_mode)
 
@@ -315,6 +321,14 @@ def __update_offline(model, model_context, aliases):
                          class_name=_class_name, method_name=_method_name)
     return 0
 
+
+def __update_offline_domain():
+
+    try:
+        __wlst_helper.update_domain()
+    except BundleAwareException, ex:
+        __close_domain_on_error()
+        raise ex
 
 def __release_edit_session_and_disconnect():
     """
