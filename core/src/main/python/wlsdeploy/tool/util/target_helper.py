@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -41,18 +41,16 @@ class TargetHelper(object):
         else:
             self._admin_server_name = DEFAULT_ADMIN_SERVER_NAME
 
-    def target_jrf_groups_to_clusters_servers(self, should_update=True):
+    def target_jrf_groups_to_clusters_servers(self):
         """
         Call applyJRF to for those versions of wlst that cannot target servers to server groups.
         This assigns the JRF resources to all managed servers. If the managed server is in a
         cluster, this method assigns the JRF resources are assigned to the cluster. Else, if
         the managed server is stand-alone, the resources are assigned to the managed server.
-        :param should_update: Control how the applyJRF applies the changes. By default, allow
-        the applyJRF to automatically update the values
+        to automatically update the domain.
         """
         _method_name = 'target_jrf_groups_to_clusters_servers'
-        self.logger.entering(should_update, class_name=self.__class_name,
-                             method_name=_method_name)
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         location = LocationContext()
         root_path = self.alias_helper.get_wlst_attributes_path(location)
@@ -69,23 +67,19 @@ class TargetHelper(object):
         # Get the clusters and and their members
         cluster_map = self._get_clusters_and_members_map()
 
-        self.wlst_helper.save_and_close(self.model_context)
-        
         # Get the clusters and and their members
         for cluster_name, cluster_servers in cluster_map.iteritems():
             self.logger.info('WLSDPLY-12233', 'Cluster', cluster_name, class_name=self.__class_name,
                              method_name=_method_name)
-            self.wlst_helper.apply_jrf(cluster_name, self.model_context, should_update=should_update)
+            self.wlst_helper.apply_jrf(cluster_name, self.model_context)
             for member in cluster_servers:
                 if member in server_names:
                     server_names.remove(member)
         for ms_name in server_names:
             self.logger.info('WLSDPLY-12233', 'Managed Server', ms_name, class_name=self.__class_name,
                              method_name=_method_name)
-            self.wlst_helper.apply_jrf(ms_name, self.model_context, should_update=should_update)
+            self.wlst_helper.apply_jrf(ms_name, self.model_context)
 
-        self.wlst_helper.reopen(self.model_context)
-        
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -244,7 +238,7 @@ class TargetHelper(object):
         else:
             self.logger.info('WLSDPLY-12236', str(names_only),
                              class_name=self.__class_name, method_name=_method_name)
-            self.wlst_helper.apply_jrf_control_updates(names_only, self.model_context)
+            self.wlst_helper.apply_jrf_with_context(names_only, self.model_context)
 
     def _get_existing_server_names(self):
         """
