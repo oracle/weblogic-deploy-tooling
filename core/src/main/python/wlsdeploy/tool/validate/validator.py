@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -32,6 +32,7 @@ from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import KUBERNETES
+from wlsdeploy.aliases.model_constants import MASKED_PASSWORD
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
@@ -390,7 +391,8 @@ class Validator(object):
             if variables.has_variables(section_dict_key):
                 self._report_unsupported_variable_usage(section_dict_key, model_folder_path)
 
-            self._logger.finer('WLSDPLY-05011', section_dict_key, section_dict_value,
+            # don't log section_dict_value here, it may be a password or dict with password
+            self._logger.finer('WLSDPLY-05011', section_dict_key, MASKED_PASSWORD,
                                class_name=_class_name, method_name=_method_name)
 
             if section_dict_key in valid_attr_infos:

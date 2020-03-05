@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.yaml;
@@ -199,7 +199,9 @@ public abstract class AbstractYamlTranslator extends YamlBaseListener {
                 throw ye;
             }
         }
-        getLogger().exiting(getClassName(), METHOD, fileDict);
+
+        // don't log the value on exit, it may be a password
+        getLogger().exiting(getClassName(), METHOD);
         return fileDict;
     }
 
@@ -274,7 +276,9 @@ public abstract class AbstractYamlTranslator extends YamlBaseListener {
         } else {
             getLogger().severe("WLSDPLY-18006", name, valueClazz.getName());
         }
-        getLogger().exiting(getClassName(), METHOD, value);
+
+        // don't log the value on exit, it may be a password
+        getLogger().exiting(getClassName(), METHOD);
         return value;
     }
 
