@@ -407,15 +407,15 @@ class DomainCreator(Creator):
         base_template = self._domain_typedef.get_base_template()
         self.logger.info('WLSDPLY-12204', base_template, class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.read_template(base_template)
-        self.__set_core_domain_params()
+        # self.__set_core_domain_params()
 
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.write_domain(domain_home)
-
-        self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.close_template()
-        self.wlst_helper.read_domain(domain_home)
+        # self.wlst_helper.write_domain(domain_home)
+        #
+        # self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
+        # self.wlst_helper.close_template()
+        # self.wlst_helper.read_domain(domain_home)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -431,13 +431,14 @@ class DomainCreator(Creator):
 
         extension_templates = self._domain_typedef.get_extension_templates()
         custom_templates = self._domain_typedef.get_custom_extension_templates()
-        if (len(extension_templates) == 0) and (len(custom_templates) == 0):
-            return
+        # if (len(extension_templates) == 0) and (len(custom_templates) == 0):
+        #     return
 
         self.logger.info('WLSDPLY-12207', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
-        self.__set_app_dir()
 
+        if len(extension_templates) > 0:
+            self.__set_app_dir()
         for extension_template in extension_templates:
             self.logger.info('WLSDPLY-12208', extension_template,
                              class_name=self.__class_name, method_name=_method_name)
@@ -448,8 +449,15 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.add_template(custom_template)
 
+        self.__set_core_domain_params()
+        self.wlst_helper.write_domain(domain_home)
 
-        self.__configure_fmw_infra_database()
+        self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
+        self.wlst_helper.close_template()
+        self.wlst_helper.read_domain(domain_home)
+
+        if len(extension_templates) > 0 or len(custom_templates) > 0:
+            self.__configure_fmw_infra_database()
 
         self.logger.info('WLSDPLY-12209', self._domain_name,
                          class_name=self.__class_name, method_name=_method_name)
@@ -471,16 +479,15 @@ class DomainCreator(Creator):
                          class_name=self.__class_name, method_name=_method_name)
 
         self.wlst_helper.select_template(base_template)
-        self.wlst_helper.load_templates()
+        # self.wlst_helper.load_templates()
 
-        self.__set_core_domain_params()
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.write_domain(domain_home)
-        self.wlst_helper.close_template()
-        self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
-                         class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.read_domain(domain_home)
+        # self.wlst_helper.write_domain(domain_home)
+        # self.wlst_helper.close_template()
+        # self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
+        #                  class_name=self.__class_name, method_name=_method_name)
+        # self.wlst_helper.read_domain(domain_home)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -497,8 +504,8 @@ class DomainCreator(Creator):
 
         extension_templates = self._domain_typedef.get_extension_templates()
         custom_templates = self._domain_typedef.get_custom_extension_templates()
-        if (len(extension_templates) == 0) and (len(custom_templates) == 0):
-            return
+        # if (len(extension_templates) == 0) and (len(custom_templates) == 0):
+        #     return
 
         for extension_template in extension_templates:
             self.logger.info('WLSDPLY-12211', extension_template,
@@ -511,14 +518,21 @@ class DomainCreator(Creator):
             self.wlst_helper.select_custom_template(custom_template)
 
         self.logger.info('WLSDPLY-12212', class_name=self.__class_name, method_name=_method_name)
+        # if len(extension_templates) > 0 or len(custom_templates) > 0:
+        #     self.wlst_helper.load_templates()
+        self.wlst_helper.load_templates()
+        self.__set_core_domain_params()
         if len(extension_templates) > 0 or len(custom_templates) > 0:
-            self.wlst_helper.load_templates()
-
-        if len(extension_templates) > 0:
             self.__set_app_dir()
+        if len(extension_templates) > 0 :
             self.__configure_fmw_infra_database()
+            self.__configure_opss_secrets()
+        self.wlst_helper.write_domain(domain_home)
 
-        self.__configure_opss_secrets()
+        self.logger.info('WLSDPLY-12206', self._domain_name, class_name=self.__class_name, method_name=_method_name)
+        self.wlst_helper.close_template()
+        self.wlst_helper.read_domain(domain_home)
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
