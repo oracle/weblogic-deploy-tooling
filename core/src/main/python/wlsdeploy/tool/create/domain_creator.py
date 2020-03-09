@@ -174,6 +174,7 @@ class DomainCreator(Creator):
         self.__fail_mt_1221_domain_creation()
         self.__create_domain()
         self.__deploy()
+        self.__update_domain()
         self.__set_server_groups()
         self.__update_domain()
         self.__deploy_after_update()
@@ -447,6 +448,7 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.add_template(custom_template)
 
+
         self.__configure_fmw_infra_database()
 
         self.logger.info('WLSDPLY-12209', self._domain_name,
@@ -523,14 +525,21 @@ class DomainCreator(Creator):
     def __set_server_groups(self):
         _method_name = '__set_server_groups'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-        server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-        if len(server_assigns) > 0:
-            self.target_helper.target_server_groups(server_assigns)
+        self.wlst_helper.read_domain(self._domain_home)
+        if self.wls_helper.is_set_server_groups_supported():
+            # 12c versions set server groups directly
+            server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+            server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+            if len(server_assigns) > 0:
+                self.target_helper.target_server_groups(server_assigns)
 
-        if len(dynamic_assigns) > 0:
-            self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
+            if len(dynamic_assigns) > 0:
+                self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
 
+        elif self._domain_typedef.is_jrf_domain_type() or \
+                (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
+            # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
+            self.target_helper.target_jrf_groups_to_clusters_servers()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __update_domain(self):
