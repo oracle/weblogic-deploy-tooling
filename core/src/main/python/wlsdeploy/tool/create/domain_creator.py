@@ -374,7 +374,6 @@ class DomainCreator(Creator):
         self.__set_domain_attributes()
         self._configure_security_configuration()
         self.__deploy_resources_and_apps()
-
         return
 
     def __deploy_after_update(self):
@@ -467,16 +466,6 @@ class DomainCreator(Creator):
                          class_name=self.__class_name, method_name=_method_name)
 
         self.wlst_helper.select_template(base_template)
-        # self.wlst_helper.load_templates()
-
-        self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
-                         class_name=self.__class_name, method_name=_method_name)
-        # self.wlst_helper.write_domain(domain_home)
-        # self.wlst_helper.close_template()
-        # self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
-        #                  class_name=self.__class_name, method_name=_method_name)
-        # self.wlst_helper.read_domain(domain_home)
-
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 

@@ -21,7 +21,7 @@ The database wallet can be included in the archive file under `atpwallet` zipent
         
 Using the Create Domain Tool with the `-run_rcu` flag will create the RCU schemas against the Oracle Autonomous Transaction Processing Cloud Database and configure the datasources in the JRF domain to use the database.  For example:
 
-    weblogic-deploy/bin/updateDomain.sh -oracle_home /u01/wls12213 -domain_type JRF -domain_home /u01/data/domains/demodomain -archive_file DemoDomain.zip -run_rcu 
+    weblogic-deploy/bin/createDomain.sh -oracle_home /u01/wls12213 -domain_type JRF -domain_home /u01/data/domains/demodomain -archive_file DemoDomain.zip -run_rcu 
 
 For a non-ATP database, use the following example:
 
