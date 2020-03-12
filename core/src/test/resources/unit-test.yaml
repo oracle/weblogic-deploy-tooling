@@ -20,7 +20,7 @@ topology:
                     com.oracle.something: Debug
                     # Adding test case for empty property key.  Logging properties can have an empty key
                     '': Info
-                    com.oracle.something.else: Debug
+                    'com.oracle.something.else.*': Debug
         s1:
             ListenAddress: 127.0.0.1
             ListenPort: 8001
