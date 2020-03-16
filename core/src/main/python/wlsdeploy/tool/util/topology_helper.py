@@ -11,6 +11,7 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import COHERENCE_CLUSTER_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import CUSTOM_IDENTITY_KEYSTORE_FILE
+from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import SERVER
@@ -123,8 +124,29 @@ class TopologyHelper(object):
                     token = self.alias_helper.get_name_token(resource_location)
                     resource_location.add_name_token(token, name)
                     deployer_utils.create_and_cd(resource_location, existing_names, self.alias_helper)
+                    self._update_placeholder(model_type, name, resource_location)
 
         self.wlst_helper.cd(original_location)
+
+    def _update_placeholder(self, type_name, name, location):
+        """
+        Make any required updates to a newly-created placeholder.
+        :param type_name: the type name of the placeholder
+        :param name: the name of the placeholder MBean
+        :param location: the location of the placeholder
+        """
+        if type_name == JDBC_SYSTEM_RESOURCE:
+            # for online update, Name must be assigned to each JDBCSystemResource / JdbcResource MBean.
+            # (see datasource_deployer.set_attributes())
+            child_location = LocationContext(location).append_location(JDBC_RESOURCE)
+            wlst_path = self.alias_helper.get_wlst_attributes_path(child_location)
+            if self.wlst_helper.path_exists(wlst_path):
+                original_location = self.wlst_helper.get_pwd()
+                self.wlst_helper.cd(wlst_path)
+                existing_name = self.wlst_helper.get('Name')
+                if existing_name is None:
+                    self.wlst_helper.set('Name', name)
+                self.wlst_helper.cd(original_location)
 
     def qualify_nm_properties(self, type_name, model_nodes, base_location, model_context, attribute_setter):
         """
