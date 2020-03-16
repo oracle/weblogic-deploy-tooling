@@ -25,6 +25,7 @@ _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
 _file_variable_pattern = re.compile("@@FILE:[\w.\\\/:-]+@@")
 _property_pattern = re.compile("(@@PROP:([\\w.-]+)@@)")
+_environment_pattern = re.compile("(@@ENV:([\\w.-]+)@@)")
 _file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
 
 
@@ -232,6 +233,23 @@ def _substitute(text, variables, model_context):
                     continue
 
             value = variables[key]
+            text = text.replace(token, value)
+
+        # check environment variables before @@FILE:/dir/@@ENV:name@@.txt@@
+        matches = _environment_pattern.findall(text)
+        for token, key in matches:
+            # log, or throw an exception if key is not found.
+            if not os.environ.has_key(key):
+                if model_context.get_validation_method() == 'strict':
+                    _logger.severe('WLSDPLY-01737', key, class_name=_class_name, method_name=method_name)
+                    ex = exception_helper.create_variable_exception('WLSDPLY-01737', key)
+                    _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+                    raise ex
+                else:
+                    _logger.info('WLSDPLY-01737', key, class_name=_class_name, method_name=method_name)
+                    continue
+
+            value = os.environ.get(key)
             text = text.replace(token, value)
 
         tokens = _file_variable_pattern.findall(text)
