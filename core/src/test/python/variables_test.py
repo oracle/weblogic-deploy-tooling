@@ -4,6 +4,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import unittest
 
+import os
+
 import wlsdeploy.util.variables as variables
 from oracle.weblogic.deploy.util import VariableException
 from wlsdeploy.util.model_context import ModelContext
@@ -83,6 +85,27 @@ class VariablesTestCase(unittest.TestCase):
             model = {'domainInfo': {'AdminUserName': '@@FILE:' + path + '@@'}}
             variables.substitute(model, {}, self.model_context)
             self.assertEqual(model['domainInfo']['AdminUserName'], 'file-variable-value')
+        except VariableException:
+            pass
+        else:
+            self.fail('Test must raise VariableException when variable file is not found')
+
+    def testEnvironmentVariable(self):
+        os.environ['envVariable'] = 'the-admin-user'
+        model = {'domainInfo': {'AdminUserName': '@@ENV:envVariable@@'}}
+        variables.substitute(model, {}, self.model_context)
+        self.assertEqual(model['domainInfo']['AdminUserName'], 'the-admin-user')
+
+    def testFileVariableWithEnvironmentVariable(self):
+        os.environ['variableDir'] = self._resources_dir
+        model = {'domainInfo': {'AdminUserName': '@@FILE:@@ENV:variableDir@@/' + self._file_variable_name + '@@'}}
+        variables.substitute(model, {}, self.model_context)
+        self.assertEqual(model['domainInfo']['AdminUserName'], 'file-variable-value')
+
+    def testEnvironmentVariableNotFound(self):
+        try:
+            model = {'domainInfo': {'AdminUserName': '@@ENV:notaVariable@@'}}
+            variables.substitute(model, {}, self.model_context)
         except VariableException:
             pass
         else:
