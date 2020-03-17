@@ -20,14 +20,20 @@ from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from wlsdeploy.util import path_utils
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging import platform_logger
+from wlsdeploy.util import dictionary_utils
 
 _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
 _file_variable_pattern = re.compile("@@FILE:[\w.\\\/:-]+@@")
 _property_pattern = re.compile("(@@PROP:([\\w.-]+)@@)")
 _environment_pattern = re.compile("(@@ENV:([\\w.-]+)@@)")
+_secret_pattern = re.compile("(@@SECRET:([\\w.-]+):([\\w.-]+)@@)")
 _file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
 
+_secret_dirs_variable = "WDT_MODEL_SECRETS_DIRS"
+_secret_dirs_default = "/weblogic-operator/config-overrides-secrets"
+
+_secret_token_map = None
 
 def load_variables(file_path):
     """
@@ -207,10 +213,10 @@ def _process_node(nodes, variables, model_context):
 
 def _substitute(text, variables, model_context):
     """
-    Substitute the variable placeholders with the variable value.
-    :param text: the text to process for variable placeholders
+    Substitute token placeholders with their derived values.
+    :param text: the text to process for token placeholders
     :param variables: the variables to use
-    :param model_context: used to resolve variables in file paths
+    :param model_context: used to determine the validation method (strict, lax, etc.)
     :return: the replaced text
     """
     method_name = '_substitute'
@@ -223,14 +229,8 @@ def _substitute(text, variables, model_context):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if key not in variables:
-                if model_context.get_validation_method() == 'strict':
-                    _logger.severe('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
-                    ex = exception_helper.create_variable_exception('WLSDPLY-01732', key)
-                    _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-                    raise ex
-                else:
-                    _logger.info('WLSDPLY-01732', key, class_name=_class_name, method_name=method_name)
-                    continue
+                _report_token_issue('WLSDPLY-01732', method_name, model_context, key)
+                continue
 
             value = variables[key]
             text = text.replace(token, value)
@@ -240,16 +240,22 @@ def _substitute(text, variables, model_context):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if not os.environ.has_key(key):
-                if model_context.get_validation_method() == 'strict':
-                    _logger.severe('WLSDPLY-01737', key, class_name=_class_name, method_name=method_name)
-                    ex = exception_helper.create_variable_exception('WLSDPLY-01737', key)
-                    _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-                    raise ex
-                else:
-                    _logger.info('WLSDPLY-01737', key, class_name=_class_name, method_name=method_name)
-                    continue
+                _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
+                continue
 
             value = os.environ.get(key)
+            text = text.replace(token, value)
+
+        # check secret variables before @@FILE:/dir/@@SECRET:name:key@@.txt@@
+        matches = _secret_pattern.findall(text)
+        for token, name, key in matches:
+            value = _resolve_secret_token(name, key, model_context)
+            if value is None:
+                secret_token = name + ':' + key
+                known_tokens = _list_known_secret_tokens()
+                _report_token_issue('WLSDPLY-01739', method_name, model_context, secret_token, known_tokens)
+                continue
+
             text = text.replace(token, value)
 
         tokens = _file_variable_pattern.findall(text)
@@ -285,16 +291,8 @@ def _read_value_from_file(file_path, model_context):
         line = file_reader.readLine()
         file_reader.close()
     except IOException, e:
-        if model_context.get_validation_method() == 'strict':
-            _logger.severe('WLSDPLY-01733', file_path, e.getLocalizedMessage(), class_name=_class_name,
-                           method_name=method_name)
-            ex = exception_helper.create_variable_exception('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e)
-            _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-            raise ex
-        else:
-            _logger.info('WLSDPLY-01733', file_path, e.getLocalizedMessage(), error=e, class_name=_class_name,
-                         method_name=method_name)
-            line = ''
+        _report_token_issue('WLSDPLY-01733', method_name, model_context, file_path, e.getLocalizedMessage())
+        line = ''
 
     if line is None:
         ex = exception_helper.create_variable_exception('WLSDPLY-01734', file_path)
@@ -302,6 +300,95 @@ def _read_value_from_file(file_path, model_context):
         raise ex
 
     return str(line).strip()
+
+
+def _resolve_secret_token(name, key, model_context):
+    """
+    Return the value associated with the specified secret name and key.
+    If the name and key are found in the directory map, return the associated value.
+    :param name: the name of the secret (a directory name or mapped name)
+    :param key: the name of the file containing the secret
+    :param model_context: used to determine the validation method (strict, lax, etc.)
+    :return: the secret value, or None if it is not found
+    """
+    method_name = '_resolve_secret_token'
+    global _secret_token_map
+
+    if _secret_token_map is None:
+        _init_secret_token_map(model_context)
+
+    secret_token = name + ':' + key
+    return dictionary_utils.get_element(_secret_token_map, secret_token)
+
+
+def _init_secret_token_map(model_context):
+    """
+    Initialize a global map of name/value tokens to secret values.
+    The map includes secrets found below the directories specified in WDT_MODEL_SECRETS_DIRS.
+    :param model_context: used to determine the validation method (strict, lax, etc.)
+    """
+    method_name = '_init_secret_token_map'
+    global _secret_token_map
+
+    log_method = _logger.info
+    if model_context.get_validation_method() == 'strict':
+        log_method = _logger.warning
+
+    _secret_token_map = dict()
+    locations = os.environ.get(_secret_dirs_variable, _secret_dirs_default)
+    for dir in locations.split(","):
+         if not os.path.isdir(dir):
+             # for problems with WDT_MODEL_SECRETS_DIRS, log at WARN or INFO, but no exception is thrown
+             log_method('WLSDPLY-01738', _secret_dirs_variable, dir, class_name=_class_name, method_name=method_name)
+             continue
+
+         for dir_name in os.listdir(dir):
+             dir_path = os.path.join(dir, dir_name)
+             if os.path.isdir(dir_path):
+                 for file_name in os.listdir(dir_path):
+                     file_path = os.path.join(dir_path, file_name)
+                     if os.path.isfile(file_path):
+                         token = dir_name + ":" + file_name
+                         _secret_token_map[token] = _read_value_from_file(file_path, model_context)
+
+
+def _list_known_secret_tokens():
+    """
+    Returns a string representation of the available secret name/path tokens.
+    """
+    global _secret_token_map
+
+    keys = list(_secret_token_map.keys())
+    keys.sort()
+
+    ret = ''
+    for key in keys:
+        if ret != '':
+            ret += ', '
+        ret += "'" + key + "'"
+    return ret
+
+
+def _report_token_issue(message_key, method_name, model_context, *args):
+    """
+    Log a message at the level corresponding to the validation method (SEVERE for strict, INFO otherwise).
+    Throw a variable exception if the level is strict.
+    The lax validation method can be used to verify the model without resolving tokens.
+    :param message_key: the message key to be logged and used for exceptions
+    :param method_name: the name of the calling method for logging
+    :param model_context: used to determine the validation method
+    :param args: arguments for use in the message
+    """
+    log_method = _logger.info
+    if model_context.get_validation_method() == 'strict':
+        log_method = _logger.severe
+
+    log_method(message_key, *args, class_name=_class_name, method_name=method_name)
+
+    if model_context.get_validation_method() == 'strict':
+        ex = exception_helper.create_variable_exception(message_key, *args)
+        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+        raise ex
 
 
 def substitute_key(text, variables):
