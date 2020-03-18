@@ -32,8 +32,10 @@ _file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
 
 _secret_dirs_variable = "WDT_MODEL_SECRETS_DIRS"
 _secret_dirs_default = "/weblogic-operator/config-overrides-secrets"
+_secret_dir_pairs_variable="WDT_MODEL_SECRETS_NAME_DIR_PAIRS"
 
 _secret_token_map = None
+
 
 def load_variables(file_path):
     """
@@ -324,7 +326,8 @@ def _resolve_secret_token(name, key, model_context):
 def _init_secret_token_map(model_context):
     """
     Initialize a global map of name/value tokens to secret values.
-    The map includes secrets found below the directories specified in WDT_MODEL_SECRETS_DIRS.
+    The map includes secrets found below the directories specified in WDT_MODEL_SECRETS_DIRS,
+    and in WDT_MODEL_SECRETS_NAME_DIR_PAIRS assignments.
     :param model_context: used to determine the validation method (strict, lax, etc.)
     """
     method_name = '_init_secret_token_map'
@@ -335,21 +338,66 @@ def _init_secret_token_map(model_context):
         log_method = _logger.warning
 
     _secret_token_map = dict()
+
+    # add name/key pairs for files in sub-directories of directories in WDT_MODEL_SECRETS_DIRS.
+
     locations = os.environ.get(_secret_dirs_variable, _secret_dirs_default)
     for dir in locations.split(","):
          if not os.path.isdir(dir):
-             # for problems with WDT_MODEL_SECRETS_DIRS, log at WARN or INFO, but no exception is thrown
+             # log at WARN or INFO, but no exception is thrown
              log_method('WLSDPLY-01738', _secret_dirs_variable, dir, class_name=_class_name, method_name=method_name)
              continue
 
-         for dir_name in os.listdir(dir):
-             dir_path = os.path.join(dir, dir_name)
-             if os.path.isdir(dir_path):
-                 for file_name in os.listdir(dir_path):
-                     file_path = os.path.join(dir_path, file_name)
-                     if os.path.isfile(file_path):
-                         token = dir_name + ":" + file_name
-                         _secret_token_map[token] = _read_value_from_file(file_path, model_context)
+         for subdir_name in os.listdir(dir):
+             subdir_path = os.path.join(dir, subdir_name)
+             if os.path.isdir(subdir_path):
+                 _add_file_secrets_to_map(subdir_path, subdir_name, model_context)
+
+    # add name/key pairs for files in directories assigned in WDT_MODEL_SECRETS_NAME_DIR_PAIRS.
+    # these pairs will override if they were previously added as sub-directory pairs.
+
+    dir_pairs_text = os.environ.get(_secret_dir_pairs_variable, None)
+    if dir_pairs_text is not None:
+        dir_pairs = dir_pairs_text.split(',')
+        for dir_pair in dir_pairs:
+            result = dir_pair.split('=')
+            if len(result) != 2:
+                log_method('WLSDPLY-01735', _secret_dir_pairs_variable, dir_pair, class_name=_class_name,
+                           method_name=method_name)
+                continue
+
+            dir = result[1]
+            if not os.path.isdir(dir):
+                log_method('WLSDPLY-01738', _secret_dir_pairs_variable, dir, class_name=_class_name,
+                           method_name=method_name)
+                continue
+
+            name = result[0]
+            _add_file_secrets_to_map(dir, name, model_context)
+
+
+def _clear_secret_token_map():
+    """
+    Used by unit tests to force reload of map.
+    """
+    global _secret_token_map
+    _secret_token_map = None
+
+
+def _add_file_secrets_to_map(dir, name, model_context):
+    """
+    Add the secret from each file in the specified directory to the map.
+    :param dir: the directory to be examined
+    :param name: the name to be used in the map token
+    :param model_context: used to determine the validation method (strict, lax, etc.)
+    """
+    global _secret_token_map
+
+    for file_name in os.listdir(dir):
+        file_path = os.path.join(dir, file_name)
+        if os.path.isfile(file_path):
+            token = name + ":" + file_name
+            _secret_token_map[token] = _read_value_from_file(file_path, model_context)
 
 
 def _list_known_secret_tokens():
@@ -383,7 +431,7 @@ def _report_token_issue(message_key, method_name, model_context, *args):
     if model_context.get_validation_method() == 'strict':
         log_method = _logger.severe
 
-    log_method(message_key, *args, class_name=_class_name, method_name=method_name)
+    log_method(message_key, class_name=_class_name, method_name=method_name, *args)
 
     if model_context.get_validation_method() == 'strict':
         ex = exception_helper.create_variable_exception(message_key, *args)

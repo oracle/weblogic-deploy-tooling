@@ -176,9 +176,9 @@ As the example above shows, the `SecurityConfiguration` element has no named sub
 
 The model allows the use of tokens that are substituted with text values as the model is processed. This section describes several types of tokens.
 
-**Variable placeholders** are declared with the syntax `@@PROP:<variable>@@`. This type of token represents a value that is resolved at runtime using a variables file in a standard Java properties file format.  Variables can be used for any value and for some names.  For example, to automate standing up an environment with one or more applications in the Oracle Java Cloud Service, service provisioning does not allow the provisioning script to specify the server names.  For example, if the application being deployed immediately following provisioning needs to tweak the Server Start arguments to specify a Java system property, the model can use a variable placeholder in place of the server name and populate the variable file with the provisioned server names dynamically between provisioning and application deployment.
+**Variable tokens** are declared with the syntax `@@PROP:<variable>@@`. This type of token represents a value that is resolved at runtime using a variables file in a standard Java properties file format.  Variables can be used for any value and for some names.  For example, to automate standing up an environment with one or more applications in the Oracle Java Cloud Service, service provisioning does not allow the provisioning script to specify the server names.  For example, if the application being deployed immediately following provisioning needs to tweak the Server Start arguments to specify a Java system property, the model can use a variable placeholder in place of the server name and populate the variable file with the provisioned server names dynamically between provisioning and application deployment.
 
-**File placeholders** are declared with the syntax `@@FILE:<filename>@@`. This type of token is similar to a variable placeholder, but the token references a single value that is read from the specified file. For example, the model may reference a password attribute as follows:
+**File tokens** are declared with the syntax `@@FILE:<filename>@@`. This type of token is similar to a variable token, but it references a single value that is read from the specified file. For example, the model may reference a password attribute as follows:
 ```yaml
 PasswordEncrypted: '@@FILE:/home/me/dbcs1.txt@@'
 ```
@@ -193,6 +193,27 @@ PasswordEncrypted: '@@FILE:/dir/@@PROP:name@@.txt@@'
 ```yaml
 PasswordEncrypted: '@@FILE:@@ORACLE_HOME@@/dir/name.txt@@'
 ```
+
+**Environment tokens** are declared with the syntax `@@ENV:<name>@@`. This type of token is resolved by looking up the system environment variable `<name>`, and substituting that value for the token.
+
+**Secret tokens** are declared with the syntax `@@SECRET:<name>:<key>@@`. This type of token is resolved by determining the location of a Kubernetes secret file, and reading the first line from that file. That line is substituted for the token.
+
+There are two methods for deriving the location of the Kubernetes secret file. The first method involves using one or more configured root directories, and looking for the secret file in the paths `<root-directory>/<name>/<key>`.
+
+The root directories are configured as a comma-separated list of directories, using the environment variable `WDT_MODEL_SECRETS_DIRS`. For example, `WDT_MODEL_SECRETS_DIRS` is set to `/etc/my-secrets,/etc/your-secrets`, the token `@@SECRET:secrets:the-secret@@` will search the following locations:
+```
+/etc/my-secrets/secrets/the-secret
+/etc/your-secrets/secrets/the-secret
+``` 
+If either of these files is found, the secret is read from that file and substituted in the model.
+
+The second method for locating the Kubernetes secret file is to use the environment variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` to map `<name>` values to specific directory locations. For example, if `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is set to `my-root=/etc/my-secrets,your-root=/etc/your-secrets`, the token `@@SECRET:your-root:the-secret@@` will look for the secrets file at: 
+```
+/etc/your-secrets/the-secret
+```
+If the `<name>` value has a corresponding mapped directory in `WDT_MODEL_SECRETS_NAME_DIR_PAIRS`, that directory will take precedence over any roots specified in `WDT_MODEL_SECRETS_DIRS`. 
+
+NOTE: it is important that the secrets directories contain only secrets files, since those files are examined to create a list of available name/key pairs.  
 
 **Path tokens** are tokens that reference known values, and can be used to make the model more portable. For example, a model may reference a WebLogic library source path as:
 ```yaml
