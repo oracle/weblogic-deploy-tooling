@@ -540,10 +540,10 @@ class DomainCreator(Creator):
         #if len(extension_templates) > 0 or len(custom_templates) > 0:
         self.wlst_helper.load_templates()
 
+        self.__set_core_domain_params()
         if len(extension_templates) > 0:
             self.__set_app_dir()
             self.__configure_fmw_infra_database()
-        self.__set_core_domain_params()
         topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
         self.__apply_base_domain_config(topology_folder_list)
 
