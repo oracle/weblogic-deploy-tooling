@@ -93,8 +93,9 @@ class TopologyHelper(object):
         Create a placeholder JDBC resource for each name in the resources section.
         This is necessary because cluster attributes may reference JDBC resources.
         :param resources: the resource model nodes
+        :return: a list of names of created placeholders
         """
-        self.create_placeholder_named_elements(LocationContext(), JDBC_SYSTEM_RESOURCE, resources)
+        return self.create_placeholder_named_elements(LocationContext(), JDBC_SYSTEM_RESOURCE, resources)
 
     def create_placeholder_named_elements(self, location, model_type, model_nodes):
         """
@@ -103,8 +104,10 @@ class TopologyHelper(object):
         :param location: the location for the nodes to be added
         :param model_type: the type of the specified model nodes
         :param model_nodes: the model nodes
+        :return: a list of names of created placeholders
         """
         _method_name = 'create_placeholder_named_elements'
+        holder_names = []
         original_location = self.wlst_helper.get_pwd()
         resource_location = LocationContext(location).append_location(model_type)
 
@@ -125,8 +128,10 @@ class TopologyHelper(object):
                     resource_location.add_name_token(token, name)
                     deployer_utils.create_and_cd(resource_location, existing_names, self.alias_helper)
                     self._update_placeholder(model_type, name, resource_location)
+                    holder_names.append(name)
 
         self.wlst_helper.cd(original_location)
+        return holder_names
 
     def _update_placeholder(self, type_name, name, location):
         """
@@ -147,6 +152,26 @@ class TopologyHelper(object):
                 if existing_name is None:
                     self.wlst_helper.set('Name', name)
                 self.wlst_helper.cd(original_location)
+
+    def clear_jdbc_placeholder_targeting(self, jdbc_names):
+        """
+        Remove any targets for the JDBC resources in the specified list of names.
+        Targets may have been inadvertently assigned when clusters were added after JDBC placeholders.
+        :param jdbc_names: names of placeholders to clear
+        """
+        _method_name = 'clear_jdbc_placeholder_targeting'
+        resource_location = LocationContext().append_location(JDBC_SYSTEM_RESOURCE)
+        token = self.alias_helper.get_name_token(resource_location)
+
+        for name in jdbc_names:
+            self.logger.info('WLSDPLY-19404', JDBC_SYSTEM_RESOURCE, name, class_name=self.__class_name,
+                             method_name=_method_name)
+
+            resource_location.add_name_token(token, name)
+            wlst_path = self.alias_helper.get_wlst_attributes_path(resource_location)
+            if self.wlst_helper.path_exists(wlst_path):
+                mbean = self.wlst_helper.get_mbean_for_wlst_path(wlst_path)
+                mbean.setTargets(None)
 
     def qualify_nm_properties(self, type_name, model_nodes, base_location, model_context, attribute_setter):
         """

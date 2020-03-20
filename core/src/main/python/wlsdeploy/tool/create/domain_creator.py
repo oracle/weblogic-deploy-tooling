@@ -758,7 +758,7 @@ class DomainCreator(Creator):
 
         # create placeholders for JDBC resources that may be referenced in cluster definition.
         resources_dict = self.model.get_model_resources()
-        self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+        jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
         cluster_nodes = dictionary_utils.get_dictionary_element(self._topology, CLUSTER)
         if len(cluster_nodes) > 0:
             self._create_named_mbeans(CLUSTER, cluster_nodes, location, log_created=True)
@@ -778,6 +778,9 @@ class DomainCreator(Creator):
         self.topology_helper.create_placeholder_servers_in_cluster(self._topology)
         if len(server_nodes) > 0:
             self._create_named_mbeans(SERVER, server_nodes, location, log_created=True)
+
+        # targets may have been inadvertently assigned when clusters were added
+        self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
