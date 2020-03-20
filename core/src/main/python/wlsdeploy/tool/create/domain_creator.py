@@ -174,6 +174,9 @@ class DomainCreator(Creator):
         self.__fail_mt_1221_domain_creation()
         self.__create_domain()
         self.__deploy()
+        #self.__update_domain()
+        self.__set_server_groups()
+        self.__update_domain()
         self.__deploy_after_update()
         self.__create_boot_dot_properties()
 
@@ -342,11 +345,12 @@ class DomainCreator(Creator):
 
         if self.wls_helper.is_select_template_supported():
             self.__create_base_domain_with_select_template(self._domain_home)
+            self.__extend_domain_with_select_template(self._domain_home)
         else:
             self.__create_base_domain(self._domain_home)
+            self.__extend_domain(self._domain_home)
 
-        topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
-        self.__apply_base_domain_config(topology_folder_list)
+
         if len(self.files_to_extract_from_archive) > 0:
             for file_to_extract in self.files_to_extract_from_archive:
                 self.archive_helper.extract_file(file_to_extract)
@@ -397,9 +401,10 @@ class DomainCreator(Creator):
         return
 
     def __deploy_after_update(self):
-
-        self.__extend_domain_svrgrps()
+        _method_name = '__deploy_after_update'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         model_deployer.deploy_model_after_update(self.model, self.model_context, self.aliases)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __deploy_resources_and_apps(self):
         """
@@ -449,8 +454,8 @@ class DomainCreator(Creator):
 
         extension_templates = self._domain_typedef.get_extension_templates()
         custom_templates = self._domain_typedef.get_custom_extension_templates()
-        if (len(extension_templates) == 0) and (len(custom_templates) == 0):
-            return
+        # if (len(extension_templates) == 0) and (len(custom_templates) == 0):
+        #     return
 
         self.logger.info('WLSDPLY-12207', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
@@ -466,17 +471,19 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.add_template(custom_template)
 
+        topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
+        self.__apply_base_domain_config(topology_folder_list)
         self.__configure_fmw_infra_database()
-
-        if self.wls_helper.is_set_server_groups_supported():
-            # 12c versions set server groups directly
-            server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-            self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-
-        elif self._domain_typedef.is_jrf_domain_type() or \
-                (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
-            # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
-            self.target_helper.target_jrf_groups_to_clusters_servers()
+        #
+        # if self.wls_helper.is_set_server_groups_supported():
+        #     # 12c versions set server groups directly
+        #     server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+        #     self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        #
+        # elif self._domain_typedef.is_jrf_domain_type() or \
+        #         (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
+        #     # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
+        #     self.target_helper.target_jrf_groups_to_clusters_servers()
 
         self.logger.info('WLSDPLY-12209', self._domain_name,
                          class_name=self.__class_name, method_name=_method_name)
@@ -498,16 +505,8 @@ class DomainCreator(Creator):
                          class_name=self.__class_name, method_name=_method_name)
 
         self.wlst_helper.select_template(base_template)
-        self.wlst_helper.load_templates()
+        #self.wlst_helper.load_templates()
 
-        self.__set_core_domain_params()
-        self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
-                         class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.write_domain(domain_home)
-        self.wlst_helper.close_template()
-        self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
-                         class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.read_domain(domain_home)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -524,8 +523,8 @@ class DomainCreator(Creator):
 
         extension_templates = self._domain_typedef.get_extension_templates()
         custom_templates = self._domain_typedef.get_custom_extension_templates()
-        if (len(extension_templates) == 0) and (len(custom_templates) == 0):
-            return
+        # if (len(extension_templates) == 0) and (len(custom_templates) == 0):
+        #     return
 
         for extension_template in extension_templates:
             self.logger.info('WLSDPLY-12211', extension_template,
@@ -538,28 +537,65 @@ class DomainCreator(Creator):
             self.wlst_helper.select_custom_template(custom_template)
 
         self.logger.info('WLSDPLY-12212', class_name=self.__class_name, method_name=_method_name)
-        if len(extension_templates) > 0 or len(custom_templates) > 0:
-            self.wlst_helper.load_templates()
+        #if len(extension_templates) > 0 or len(custom_templates) > 0:
+        self.wlst_helper.load_templates()
 
         if len(extension_templates) > 0:
             self.__set_app_dir()
             self.__configure_fmw_infra_database()
+        self.__set_core_domain_params()
+        topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
+        self.__apply_base_domain_config(topology_folder_list)
 
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
 
-        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-        server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-        if len(server_assigns) > 0:
-            self.target_helper.target_server_groups(server_assigns)
+        # server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+        # server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        # if len(server_assigns) > 0:
+        #     self.target_helper.target_server_groups(server_assigns)
+        #
+        # self.__configure_opss_secrets()
+        #
+        # if len(dynamic_assigns) > 0:
+        #     self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
 
-        self.__configure_opss_secrets()
-
-        if len(dynamic_assigns) > 0:
-            self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
-
+        self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
+                         class_name=self.__class_name, method_name=_method_name)
+        self.wlst_helper.write_domain(domain_home)
+        self.wlst_helper.close_template()
+        self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
+                         class_name=self.__class_name, method_name=_method_name)
+        self.wlst_helper.read_domain(domain_home)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    def __set_server_groups(self):
+        _method_name = '__set_server_groups'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        self.wlst_helper.read_domain(self._domain_home)
+        if self.wls_helper.is_set_server_groups_supported():
+            # 12c versions set server groups directly
+            server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+            server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+            if len(server_assigns) > 0:
+                self.target_helper.target_server_groups(server_assigns)
+
+            if len(dynamic_assigns) > 0:
+                self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
+
+        elif self._domain_typedef.is_jrf_domain_type() or \
+                (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
+            # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
+            self.target_helper.target_jrf_groups_to_clusters_servers()
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def __update_domain(self):
+        _method_name = '__update_domain'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        self.wlst_helper.update_domain()
+        self.wlst_helper.close_domain()
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __apply_base_domain_config(self, topology_folder_list):
         """
