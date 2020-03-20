@@ -4,6 +4,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import unittest
 
+import os
+
 import wlsdeploy.util.variables as variables
 from oracle.weblogic.deploy.util import VariableException
 from wlsdeploy.util.model_context import ModelContext
@@ -87,6 +89,60 @@ class VariablesTestCase(unittest.TestCase):
             pass
         else:
             self.fail('Test must raise VariableException when variable file is not found')
+
+    def testEnvironmentVariable(self):
+        os.environ['envVariable'] = 'the-admin-user'
+        model = {'domainInfo': {'AdminUserName': '@@ENV:envVariable@@'}}
+        variables.substitute(model, {}, self.model_context)
+        self.assertEqual(model['domainInfo']['AdminUserName'], 'the-admin-user')
+
+    def testFileVariableWithEnvironmentVariable(self):
+        os.environ['variableDir'] = self._resources_dir
+        model = {'domainInfo': {'AdminUserName': '@@FILE:@@ENV:variableDir@@/' + self._file_variable_name + '@@'}}
+        variables.substitute(model, {}, self.model_context)
+        self.assertEqual(model['domainInfo']['AdminUserName'], 'file-variable-value')
+
+    def testEnvironmentVariableNotFound(self):
+        try:
+            model = {'domainInfo': {'AdminUserName': '@@ENV:notaVariable@@'}}
+            variables.substitute(model, {}, self.model_context)
+        except VariableException:
+            pass
+        else:
+            self.fail('Test must raise VariableException when variable file is not found')
+
+    def testSecretToken(self):
+        """
+        Verify that the WDT_MODEL_SECRETS_DIRS variable can be used to find a secret.
+        Put two paths in the variable, the second is .../resources/secrets.
+        It should find the file .../resources/secrets/my-secrets/secret2, containing "mySecret2".
+        """
+        os.environ['WDT_MODEL_SECRETS_DIRS'] = "/noDir/noSubdir," + self._resources_dir + "/secrets"
+        model = {'domainInfo': {'AdminUserName': '@@SECRET:my-secrets:secret2@@'}}
+        variables._clear_secret_token_map()
+        variables.substitute(model, {}, self.model_context)
+        self.assertEqual(model['domainInfo']['AdminUserName'], 'mySecret2')
+
+    def testSecretTokenPairs(self):
+        """
+        Verify that the WDT_MODEL_SECRETS_NAME_DIR_PAIRS variable can be used to find a secret.
+        Put two path assignments in the variable, the second is dirY=.../resources/secrets.
+        It should find the file .../resources/secrets/secret1, containing "mySecret1".
+        """
+        os.environ['WDT_MODEL_SECRETS_NAME_DIR_PAIRS'] = "dirX=/noDir,dirY=" + self._resources_dir + "/secrets"
+        model = {'domainInfo': {'AdminUserName': '@@SECRET:dirY:secret1@@'}}
+        variables._clear_secret_token_map()
+        variables.substitute(model, {}, self.model_context)
+        self.assertEqual(model['domainInfo']['AdminUserName'], 'mySecret1')
+
+    def testSecretTokenNotFound(self):
+        try:
+            model = {'domainInfo': {'AdminUserName': '@@SECRET:noName:noKey@@'}}
+            variables.substitute(model, {}, self.model_context)
+        except VariableException:
+            pass
+        else:
+            self.fail('Test must raise VariableException when secret token is not found')
 
 
 if __name__ == '__main__':

@@ -11,6 +11,7 @@ from java.util.logging import Level
 
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import TranslateException
+from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
@@ -186,7 +187,7 @@ def __perform_model_file_validation(model_file_name, model_context):
 
         model_validator.validate_in_standalone_mode(model_dictionary, variable_map,
                                                     model_context.get_archive_file_name())
-    except TranslateException, te:
+    except (TranslateException, VariableException), te:
         __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
                         error=te, class_name=_class_name, method_name=_method_name)
         ex = exception_helper.create_validate_exception(te.getLocalizedMessage(), error=te)
