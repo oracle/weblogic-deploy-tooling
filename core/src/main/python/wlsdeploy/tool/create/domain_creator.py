@@ -175,7 +175,7 @@ class DomainCreator(Creator):
         self.__create_domain()
         self.__deploy()
         #self.__update_domain()
-        self.__set_server_groups()
+        #self.__set_server_groups()
         self.__update_domain()
         self.__deploy_after_update()
         self.__create_boot_dot_properties()
@@ -349,7 +349,6 @@ class DomainCreator(Creator):
         else:
             self.__create_base_domain(self._domain_home)
             self.__extend_domain(self._domain_home)
-
 
         if len(self.files_to_extract_from_archive) > 0:
             for file_to_extract in self.files_to_extract_from_archive:
@@ -549,17 +548,17 @@ class DomainCreator(Creator):
 
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
+        #self.__set_server_groups()
+        server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
+        server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        if len(server_assigns) > 0:
+            self.target_helper.target_server_groups(server_assigns)
 
-        # server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-        # server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-        # if len(server_assigns) > 0:
-        #     self.target_helper.target_server_groups(server_assigns)
-        #
-        # self.__configure_opss_secrets()
-        #
-        # if len(dynamic_assigns) > 0:
-        #     self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
 
+        if len(dynamic_assigns) > 0:
+            self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
+
+        self.__configure_opss_secrets()
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.write_domain(domain_home)
@@ -573,7 +572,7 @@ class DomainCreator(Creator):
     def __set_server_groups(self):
         _method_name = '__set_server_groups'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.read_domain(self._domain_home)
+        #self.wlst_helper.read_domain(self._domain_home)
         if self.wls_helper.is_set_server_groups_supported():
             # 12c versions set server groups directly
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
