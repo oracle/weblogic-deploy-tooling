@@ -31,7 +31,7 @@ _secret_pattern = re.compile("(@@SECRET:([\\w.-]+):([\\w.-]+)@@)")
 _file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
 
 # if this pattern is found, token substitution was incomplete
-_unresolved_variable_pattern = re.compile("(@@(PROP|FILE|ENV|SECRET):)")
+_unresolved_token_pattern = re.compile("(@@(PROP|FILE|ENV|SECRET):)")
 
 _secret_dirs_variable = "WDT_MODEL_SECRETS_DIRS"
 _secret_dirs_default = "/weblogic-operator/config-overrides-secrets"
@@ -280,7 +280,7 @@ def _substitute(text, variables, model_context):
                 text = text.replace(token, value)
 
         # if any @@TOKEN: remains in the value, throw an exception
-        matches = _unresolved_variable_pattern.findall(text)
+        matches = _unresolved_token_pattern.findall(text)
         if matches:
             match = matches[0]
             token = match[1]
