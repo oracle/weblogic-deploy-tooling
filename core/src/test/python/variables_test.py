@@ -144,6 +144,29 @@ class VariablesTestCase(unittest.TestCase):
         else:
             self.fail('Test must raise VariableException when secret token is not found')
 
+    def testTokenSyntaxErrors(self):
+        """
+        Test that exceptions are thrown for token syntax errors.
+        """
+        self._test_token_syntax_error("@@SECRET:my-secret/my-key@@")
+        self._test_token_syntax_error("@@SECRET:@@ENVmy-secret:-my-key@@-some-more-text")
+        self._test_token_syntax_error("@@ENV:my-secret!@@")
+        self._test_token_syntax_error("@@FILE:@@ORACLE_HOME@@/my-file")
+        self._test_token_syntax_error("@@PROP:")
+
+    def _test_token_syntax_error(self, value):
+        """
+        Test that an exception is thrown for a token syntax error in the specified value.
+        :param value: the text value to be checked
+        """
+        try:
+            model = {'domainInfo': {'AdminUserName': value}}
+            variables.substitute(model, {}, self.model_context)
+        except VariableException, e:
+            pass
+        else:
+            self.fail('Test must raise VariableException when token has a syntax error')
+
 
 if __name__ == '__main__':
     unittest.main()
