@@ -26,6 +26,51 @@ class RCUHelper(Deployer):
         self._exception_type = ExceptionType.DEPLOY
         self._modifyBootStrapCredential = modifyBootStrapCredential
 
+    def update_stb_password(self):
+        """
+        Update the stb datasource password
+        """
+
+        _method_name = 'update_stb_password'
+
+        domain_info = self.model.get_model_domain_info()
+        if RCU_DB_INFO in domain_info:
+            rcu_db_info = RcuDbInfo(self.alias_helper, domain_info[RCU_DB_INFO])
+            rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
+            rcu_prefix = rcu_db_info.get_rcu_prefix()
+
+            location = LocationContext()
+            location.append_location(JDBC_SYSTEM_RESOURCE)
+
+            folder_path = self.alias_helper.get_wlst_list_path(location)
+            self.wlst_helper.cd(folder_path)
+            rcu_schemas = [ rcu_prefix + '_STB' ]
+
+            location = LocationContext()
+            location.append_location(JDBC_SYSTEM_RESOURCE)
+            token_name = self.alias_helper.get_name_token(location)
+            location.add_name_token(token_name, 'LocalSvcTblDataSource')
+
+            location.append_location(JDBC_RESOURCE)
+            location.append_location(JDBC_DRIVER_PARAMS)
+            password_location = LocationContext(location)
+
+            wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+            self.wlst_helper.cd(wlst_path)
+
+            location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+            token_name = self.alias_helper.get_name_token(location)
+            if token_name is not None:
+                location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
+            wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+            self.wlst_helper.cd(wlst_path)
+            wlst_path = self.alias_helper.get_wlst_attributes_path(password_location)
+            self.wlst_helper.cd(wlst_path)
+            wlst_name, wlst_value = \
+                self.alias_helper.get_wlst_attribute_name_and_value(password_location, PASSWORD_ENCRYPTED,
+                                                                    rcu_schema_pass, masked=True)
+            self.wlst_helper.set(wlst_name, wlst_value, masked=True)
+
     def update_rcu_password(self):
         """
         Update the password of each rcu schema and then update the bootstrap password

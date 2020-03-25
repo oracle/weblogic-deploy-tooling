@@ -1010,11 +1010,18 @@ class DomainCreator(Creator):
             self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
             self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
+            rcu_helper = None
             if self.wls_helper.is_database_defaults_supported():
+                # Need to update the shadow table password first, so that the get_database_default will setup
+                # all the datasource parameters correctly.
+
+                if self.model_context.get_update_rcu_schema_pass() is True:
+                    rcu_helper = RCUHelper(self.model, self.model_context, self.aliases, modifyBootStrapCredential=False)
+                    rcu_helper.update_stb_password()
                 self.wlst_helper.get_database_defaults()
 
-            if self.model_context.get_update_rcu_schema_pass() is True:
-                rcu_helper = RCUHelper(self.model, self.model_context, self.aliases, modifyBootStrapCredential=False)
+            # If there is an updated rcu schema, proceed to update all other passwords
+            if rcu_helper is not None:
                 rcu_helper.update_rcu_password()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
