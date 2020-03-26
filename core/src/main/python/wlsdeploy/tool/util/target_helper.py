@@ -207,7 +207,7 @@ class TargetHelper(object):
         If JRF or RestrictedJRF skip the check and do the applyJRF function to automatically target to the cluster.
         :param dynamic_cluster_assigns: The assignments from domainInfo targeting limits applied to dynamic lusters
         """
-        _method_name = 'target_server_group_resources_to_dyanamic_cluster'
+        _method_name = 'target_server_groups_to_dynamic_clusters'
         self.logger.entering(str(dynamic_cluster_assigns), class_name=self.__class_name, method_name=_method_name)
 
         domain_typedef = self.model_context.get_domain_typedef()

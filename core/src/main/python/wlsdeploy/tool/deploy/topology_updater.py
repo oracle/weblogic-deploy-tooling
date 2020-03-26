@@ -102,7 +102,7 @@ class TopologyUpdater(Deployer):
         self._topology_helper.create_placeholder_server_templates(self._topology)
 
         # create placeholders for JDBC resources that may be referenced in cluster definition.
-        self._topology_helper.create_placeholder_jdbc_resources(self._resources)
+        jdbc_names = self._topology_helper.create_placeholder_jdbc_resources(self._resources)
 
         self._process_section(self._topology, folder_list, CLUSTER, location)
         self._process_section(self._topology, folder_list, SERVER_TEMPLATE, location)
@@ -112,6 +112,9 @@ class TopologyUpdater(Deployer):
         self._topology_helper.create_placeholder_servers_in_cluster(self._topology)
 
         self._process_section(self._topology, folder_list, SERVER, location)
+
+        # targets may have been inadvertently assigned when clusters were added
+        self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
 
         self._process_section(self._topology, folder_list, MIGRATABLE_TARGET, location)
 
