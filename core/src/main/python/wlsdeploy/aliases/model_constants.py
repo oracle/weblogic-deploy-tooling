@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -66,6 +66,7 @@ COHERENCE_WELL_KNOWN_ADDRESSES = 'CoherenceClusterWellKnownAddresses'
 COHERENCE_WELL_KNOWN_ADDRESS = 'CoherenceClusterWellKnownAddress'
 CONFIGURATION_PROPERTY = 'ConfigurationProperty'
 CONNECTION_FACTORY = 'ConnectionFactory'
+CONNECTION_URL = 'ConnectionURL'
 CONTEXT_CASE = 'ContextCase'
 CONTEXT_REQUEST_CLASS = 'ContextRequestClass'
 CPU_UTILIZATION = 'CpuUtilization'
