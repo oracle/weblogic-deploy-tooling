@@ -103,6 +103,17 @@ public class WLSDeployArchive {
      */
     public static final String ARCHIVE_SCRIPTS_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/scripts";
 
+    /**
+     * Top-level archive subdirectory for JMS and in which its sub-directories will be separated.
+     */
+    public static final String ARCHIVE_JMS_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/jms";
+
+    /**
+     * Top-level archive subdirectory where the JMS Foreign Server bindings files are stored and the
+     * subdirectory to which they will be extracted.
+     */
+    public static final String ARCHIVE_JMS_FOREIGN_SERVER_DIR = ARCHIVE_JMS_DIR + "/foreignServer";
+
     // Used by the unit tests so it requires package level scoping...
     //
     /* package */
@@ -952,22 +963,22 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Add a Coherence configuration file to the archive.
+     * Add a Foreign Server binding file to the archive
      *
-     * @param clusterName the Coherence cluster name used to segregate the directories
+     * @param foreignServer the Foreign Server name used to segregate the directories
      * @param configFile  the file to add
-     * @return thje new location of the file to use in the model
+     * @return the new location of the file to use in the model
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
-     * @throws IllegalArgumentException    if the file does not exist or the clusterName is empty or null
+     * @throws IllegalArgumentException    if the file does not exist or the foreignServer is empty or null
      */
-    public String addCoherenceConfigFile(String clusterName, File configFile) throws WLSDeployArchiveIOException {
-        final String METHOD = "addCoherenceConfigFile";
+    public String addForeignServerFile(String foreignServer, File configFile) throws WLSDeployArchiveIOException {
+        final String METHOD = "addForeignServerFile";
 
-        LOGGER.entering(CLASS, METHOD, clusterName, configFile);
+        LOGGER.entering(CLASS, METHOD, foreignServer, configFile);
 
-        validateNonEmptyString(clusterName, "clusterName", METHOD);
+        validateNonEmptyString(foreignServer, "foreignServerName", METHOD);
         validateExistingFile(configFile, "configFile", getArchiveFileName(), METHOD);
-        String newName = addItemToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, configFile);
+        String newName = addItemToZip(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServer, configFile);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }

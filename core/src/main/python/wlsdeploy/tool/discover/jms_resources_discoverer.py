@@ -2,7 +2,11 @@
 Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+from java.io import File
+from java.lang import IllegalArgumentException
+
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
@@ -10,6 +14,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.util import path_utils
 
 _class_name = 'JmsResourcesDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -244,6 +249,11 @@ class JmsResourcesDiscoverer(Discoverer):
                 result[server] = OrderedDict()
                 location.add_name_token(name_token, server)
                 self._populate_model_parameters(result[server], location)
+                if model_constants.CONNECTION_URL in result[server]:
+                    _logger.finer('WLSDPLY-06494', server, class_name=_class_name, method_name=_method_name)
+                    result[server][model_constants.CONNECTION_URL] = \
+                        self._add_foreign_server_binding(server, model_constants.CONNECTION_URL,
+                                                         result[server][model_constants.CONNECTION_URL])
                 wlst_subfolders = self._find_subfolders(location)
                 if wlst_subfolders is not None:
                     for wlst_subfolder in wlst_subfolders:
@@ -371,3 +381,32 @@ class JmsResourcesDiscoverer(Discoverer):
         location.pop_location()
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=subfolder_result)
         return model_subfolder_name, subfolder_result
+
+    def _add_foreign_server_binding(self, server_name, model_name, model_value):
+        """
+        If the foreign server connection URL contains a file URI, then collect the file into the archive.
+        The attribute value will be updated to point to the location where the file will
+        exist after the archive file is deployed.
+        :param model_name: name of the foreign server connection URL name attribute
+        :param model_value: containing the foreign connection URI value
+        :return: updated foreign server file value or original URL
+        """
+        _method_name = '_add_foreign_server_binding'
+        _logger.entering(server_name, model_name, model_value, class_name=_class_name, method_name=_method_name)
+        new_name = model_value
+        if model_value is not None:
+            success, _, file_name = self._get_from_url('Foreign Server ' + server_name + ' Connection URL', model_value)
+            archive_file = self._model_context.get_archive_file()
+            if success and file_name is not None:
+                file_name = self._convert_path(file_name)
+                _logger.finer('WLSDPLY-06495', server_name, file_name, class_name=_class_name, method_name=_method_name)
+                try:
+                    new_name = archive_file.addForeignServerFile(server_name, File(file_name))
+                    _logger.info('WLSDPLY-06492', server_name, file_name, new_name, class_name=_class_name,
+                                 method_name=_method_name)
+                except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
+                    _logger.warning('WLSDPLY-06493', server_name, file_name, wioe.getLocalizedMessage())
+                    new_name = None
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
+        return new_name

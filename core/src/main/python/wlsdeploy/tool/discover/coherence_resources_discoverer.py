@@ -6,9 +6,7 @@ from java.io import File
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import SecurityException
-from java.net import URI
-from java.net import URISyntaxException
-from java.net import MalformedURLException
+
 
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -200,8 +198,8 @@ class CoherenceResourcesDiscoverer(Discoverer):
         _logger.entering(cluster_name, model_name, model_value, class_name=_class_name, method_name=_method_name)
         new_name = model_value
         if model_value is not None:
+            success, url, file_name = self._get_from_url('Coherence Cluster ' + cluster_name + ' Cache Configuration', model_value)
             archive_file = self._model_context.get_archive_file()
-            success, url = _get_from_url(cluster_name, model_value)
             if success:
                 if url is not None:
                     try:
@@ -212,8 +210,8 @@ class CoherenceResourcesDiscoverer(Discoverer):
                         _logger.warning('WLSDPLY-06318', cluster_name, model_value, 'url', wioe.getLocalizedMessage(),
                                         class_name=_class_name, method_name=_method_name)
                         new_name = None
-                else:
-                    file_name = self._convert_path(model_value)
+                elif file_name is not None:
+                    file_name = self._convert_path(file_name)
                     try:
                         new_name = archive_file.addCoherenceConfigFile(cluster_name, File(file_name))
                         _logger.info('WLSDPLY-06319', cluster_name, file_name, new_name, class_name=_class_name,
@@ -263,23 +261,3 @@ class CoherenceResourcesDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
-
-
-def _get_from_url(cluster_name, file_name):
-    """
-    Determine if the provided file name is a URL location where the file is hosted. If it is a URL, return
-    a URL stream that can be used to retrieve the file from the hosted location.
-    :param cluster_name: of the coherence cluster being discovered
-    :param file_name: of the file to be tested as a URL
-    :return: True if the file is hosted at a URL: URL file handle for the archive file to retrieve the file
-    """
-    url = None
-    try:
-        uri = URI(file_name)
-        if 'http' == uri.getScheme():
-            url = uri.toURL()
-    except (URISyntaxException, MalformedURLException), e:
-        _logger.warning('WLSDPLY-06321', cluster_name, file_name, e.getLocalizedMessage)
-        return False, None
-
-    return True, url

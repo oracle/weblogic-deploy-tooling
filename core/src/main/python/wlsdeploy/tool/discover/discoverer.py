@@ -4,10 +4,13 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import os
 
+from java.net import URI
+from java.net import URISyntaxException
+from java.net import MalformedURLException
+
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
-from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import StringUtils
 
 from wlsdeploy.aliases.aliases import Aliases
@@ -722,6 +725,29 @@ class Discoverer(object):
                          method_name=_method_name)
         return folder_list
 
+
+    def _get_from_url(self, owner_name, file_name):
+        """
+        Determine if the provided file name is a URL location where the file is hosted. If it is a URL, return
+        a URL stream that can be used to retrieve the file from the hosted location.
+        :param owner_name: of the file being discovered
+        :param file_name: of the file to be tested as a URL
+        :return: True if the file is hosted at a URL: URL file handle for the archive file to retrieve the file, or path
+                 from file name
+        """
+        url = None
+        path = None
+        try:
+            uri = URI(file_name)
+            if 'http' == uri.getScheme():
+                url = uri.toURL()
+            elif 'file' == uri.getScheme() or uri.getScheme() is None:
+                path = uri.getPath()
+        except (URISyntaxException, MalformedURLException), e:
+            _logger.warning('WLSDPLY-06321', owner_name, file_name, e.getLocalizedMessage)
+            return False, None, None
+
+        return True, url, path
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
     """
