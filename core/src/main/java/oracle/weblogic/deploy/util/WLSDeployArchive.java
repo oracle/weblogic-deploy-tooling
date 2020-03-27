@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -958,6 +958,26 @@ public class WLSDeployArchive {
 
         validateExistingFile(mimeMappingFile, "mimeMappingFile", getArchiveFileName(), METHOD);
         String newName = addItemToZip(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP, mimeMappingFile);
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+    /**
+     * Add a Coherence configuration file to the archive.
+     *
+     * @param clusterName the Coherence cluster name used to segregate the directories
+     * @param configFile  the file to add
+     * @return thje new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
+     * @throws IllegalArgumentException    if the file does not exist or the clusterName is empty or null
+     */
+    public String addCoherenceConfigFile(String clusterName, File configFile) throws WLSDeployArchiveIOException {
+        final String METHOD = "addCoherenceConfigFile";
+
+        LOGGER.entering(CLASS, METHOD, clusterName, configFile);
+
+        validateNonEmptyString(clusterName, "clusterName", METHOD);
+        validateExistingFile(configFile, "configFile", getArchiveFileName(), METHOD);
+        String newName = addItemToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, configFile);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
