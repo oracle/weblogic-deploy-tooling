@@ -157,9 +157,9 @@ GOTO :EOF
 
     SET ORACLE_SERVER_DIR=
     IF EXIST "%ORACLE_HOME%\wlserver_10.3" (
-        SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_10.3"
+        SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_10.3
     ) ELSE IF EXIST "%ORACLE_HOME%\wlserver_12.1" (
-        SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_12.1"
+        SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_12.1
     ) ELSE (
         SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver
     )
