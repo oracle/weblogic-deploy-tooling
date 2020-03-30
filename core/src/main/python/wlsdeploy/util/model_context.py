@@ -76,6 +76,7 @@ class ModelContext(object):
         self._validation_method = None
         self._rollback_if_restart_required = None
         self._domain_resource_file = None
+        self._path = None
 
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
@@ -180,6 +181,9 @@ class ModelContext(object):
 
         if CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH in arg_map:
             self._domain_resource_file = arg_map[CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH]
+
+        if CommandLineArgUtil.PATH_SWITCH in arg_map:
+            self._path = arg_map[CommandLineArgUtil.PATH_SWITCH]
 
         if CommandLineArgUtil.TARGET_MODE_SWITCH in arg_map:
             wlst_mode_string = arg_map[CommandLineArgUtil.TARGET_MODE_SWITCH]
@@ -476,6 +480,13 @@ class ModelContext(object):
         :return: the target WLST mode
         """
         return self._wlst_mode
+
+    def get_path(self):
+        """
+        Get the model path (modelHelp).
+        :return: the model path
+        """
+        return self._path
 
     def is_wlst_online(self):
         """
