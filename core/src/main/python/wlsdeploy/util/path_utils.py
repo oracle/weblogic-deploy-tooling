@@ -6,6 +6,7 @@ import os
 import re
 
 import java.io.File as JFile
+from java.io import IOException
 
 import oracle.weblogic.deploy.util.StringUtils as JStringUtils
 
@@ -59,7 +60,12 @@ def get_canonical_path(path):
     """
     result = path
     if path is not None:
-        result = JFile(path).getCanonicalPath().replace('\\', '/')
+        print '********** path type is ', type(path)
+        print ' ****** path is ', path
+        try:
+            result = JFile(path).getCanonicalPath().replace('\\', '/')
+        except IOException, ioe:
+            print 'had an exception ', ioe.getMessage()
     return result
 
 
