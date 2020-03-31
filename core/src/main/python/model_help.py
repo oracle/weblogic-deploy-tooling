@@ -8,7 +8,6 @@ import os
 import sys
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
-from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
@@ -98,7 +97,7 @@ def print_help(model_path, model_context):
 
     aliases = Aliases(model_context)
     helper = ModelHelper(aliases, __logger)
-    helper.print_model_path_usage(model_path, control_option)
+    helper.print_model_help(model_path, control_option)
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
     return CommandLineArgUtil.PROG_OK_EXIT_CODE
@@ -128,7 +127,7 @@ def main(args):
     try:
         model_path = model_context.get_path()
         exit_code = print_help(model_path, model_context)
-    except ValidateException, ve:
+    except CLAException, ve:
         __logger.severe('WLSDPLY-10112', _program_name, ve.getLocalizedMessage(), error=ve,
                         class_name=_class_name, method_name=_method_name)
         sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
