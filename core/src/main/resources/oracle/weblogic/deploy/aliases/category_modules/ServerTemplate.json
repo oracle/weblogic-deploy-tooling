@@ -370,7 +370,7 @@
                     "folders": {},
                     "attributes": {
                         "MaxStuckThreadTime": [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "MaxStuckThreadTime", "wlst_path": "WP001", "value": {"default": 600    }, "wlst_type": "integer"} ],
-                        "StuckThreadCount":   [ {"version": "[12.1.2)",        "wlst_mode": "both",    "wlst_name": "StuckThreadCount",   "wlst_path": "WP001", "value": {"default": 0      }, "wlst_type": "integer", "get_method": "GET"} ],
+                        "StuckThreadCount":   [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "StuckThreadCount",   "wlst_path": "WP001", "value": {"default": 0      }, "wlst_type": "integer", "get_method": "GET"} ],
                         "Notes":              [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "Notes",              "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ]
                     },
                     "wlst_attributes_path": "WP001",
@@ -1066,6 +1066,7 @@
                 "Notes":                                   [ {"version": "[12.1.2,)",         "wlst_mode": "both", "wlst_name": "Notes",                                   "wlst_path": "WP001", "value": {"default": "None"                }, "wlst_type": "string"   } ],
                 "OutboundCertificateValidation":           [ {"version": "[12.1.2,)",         "wlst_mode": "both", "wlst_name": "OutboundCertificateValidation",           "wlst_path": "WP001", "value": {"default": "${None:BuiltinSSLValidationOnly}"}, "wlst_type": "string"   } ],
                 "OutboundPrivateKeyAlias":                 [ {"version": "[12.1.2,)",         "wlst_mode": "both", "wlst_name": "OutboundPrivateKeyAlias",                 "wlst_path": "WP001", "value": {"default": "None"                }, "wlst_type": "string",     "access": "RO" } ],
+                "OutboundPrivateKeyPassPhrase":            [ {"version": "[12.1.2,12.1.3]",   "wlst_mode": "both", "wlst_name": "OutboundPrivateKeyPassPhrase",            "wlst_path": "WP001", "value": {"default": "None"                }, "wlst_type": "password",   "get_method": "GET", "access": "RO" } ],
                 "OutboundPrivateKeyPassPhraseEncrypted":   [ {"version": "[12.1.2,)",         "wlst_mode": "both", "wlst_name": "OutboundPrivateKeyPassPhraseEncrypted",   "wlst_path": "WP001", "value": {"default": "None"                }, "wlst_type": "password",   "get_method": "GET", "access": "RO" } ],
                 "SSLRejectionLoggingEnabled":              [ {"version": "[12.1.2,)",         "wlst_mode": "both", "wlst_name": "SSLRejectionLoggingEnabled",              "wlst_path": "WP001", "value": {"default": "true"                }, "wlst_type": "boolean"  } ],
                 "ServerCertificateChainFileName":          [ {"version": "[12.1.2,)",         "wlst_mode": "both", "wlst_name": "ServerCertificateChainFileName",          "wlst_path": "WP001", "value": {"default": "server-certchain.pem"}, "wlst_type": "string"   } ],
