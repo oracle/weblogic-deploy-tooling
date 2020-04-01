@@ -15,8 +15,8 @@
         "Notes":                               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                               "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ],
         "RemoteName":                          [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemoteName",                          "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ],
         "ResourceName":                        [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ResourceName",                        "wlst_path": "WP001", "value": {"default": "myExport"     }, "wlst_type": "string"   } ],
-        "TargetClass":                         [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetClass",                         "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ],
-        "TargetJar":                           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetJar",                           "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string"   } ]
+        "TargetClass":                         [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetClass",                         "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string",  "get_method": "${LSA:GET}" } ],
+        "TargetJar":                           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TargetJar",                           "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string",  "get_method": "${LSA:GET}" } ]
       },
       "wlst_attributes_path": "WP001",
       "wlst_paths": {
@@ -148,7 +148,7 @@
       "folders": {},
       "attributes": {
         "AppPassword":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPassword",                      "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "password",                       "get_method": "GET"} ],
-        "AppPasswordIV":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPasswordIV",                    "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "password",                       "get_method": "GET"} ],
+        "AppPasswordIv":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPassword${Iv:IV}",              "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "password",                       "get_method": "GET"} ],
         "FldTbl16Class":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "FldTbl16Class${:es}",              "wlst_path": "WP001", "value": {"default": "[]"                 }, "wlst_type": "${delimited_string:jarray}",     "get_method": "${LSA:GET}" } ],
         "FldTbl32Class":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "FldTbl32Class${:es}",              "wlst_path": "WP001", "value": {"default": "[]"                 }, "wlst_type": "${delimited_string:jarray}",     "get_method": "${LSA:GET}" } ],
         "MBEncodingMapFile":                 [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MBEncodingMapFile",                "wlst_path": "WP001", "value": {"default": "None"               }, "wlst_type": "string"                          } ],
