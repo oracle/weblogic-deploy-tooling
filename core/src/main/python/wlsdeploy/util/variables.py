@@ -357,15 +357,15 @@ def _init_secret_token_map(model_context):
 
     locations = os.environ.get(_secret_dirs_variable, _secret_dirs_default)
     for dir in locations.split(","):
-         if not os.path.isdir(dir):
-             # log at WARN or INFO, but no exception is thrown
-             log_method('WLSDPLY-01738', _secret_dirs_variable, dir, class_name=_class_name, method_name=method_name)
-             continue
+        if not os.path.isdir(dir):
+            # log at INFO, no exception is thrown
+            _logger.info('WLSDPLY-01738', _secret_dirs_variable, dir, class_name=_class_name, method_name=method_name)
+            continue
 
-         for subdir_name in os.listdir(dir):
-             subdir_path = os.path.join(dir, subdir_name)
-             if os.path.isdir(subdir_path):
-                 _add_file_secrets_to_map(subdir_path, subdir_name, model_context)
+        for subdir_name in os.listdir(dir):
+            subdir_path = os.path.join(dir, subdir_name)
+            if os.path.isdir(subdir_path):
+                _add_file_secrets_to_map(subdir_path, subdir_name, model_context)
 
     # add name/key pairs for files in directories assigned in WDT_MODEL_SECRETS_NAME_DIR_PAIRS.
     # these pairs will override if they were previously added as sub-directory pairs.
