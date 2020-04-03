@@ -365,8 +365,7 @@
                     },
                     "attributes": {
                         "Notes":                  [ {"version": "[12.2.1,)",        "wlst_mode": "both",     "wlst_name": "Notes",            "wlst_path": "WP001", "value": { "default": "None"    }, "wlst_type": "string"  } ],
-                        "RetryCount":             [ {"version": "[12.2.1,)",        "wlst_mode": "online",   "wlst_name": "RetryCount",       "wlst_path": "WP001", "value": { "default": 3         }, "wlst_type": "integer" } ,
-                                                    {"version": "[12.2.1.3,)",      "wlst_mode": "offline",  "wlst_name": "RetryCount",       "wlst_path": "WP001", "value": { "default": 3         }, "wlst_type": "integer" } ],
+                        "RetryCount":             [ {"version": "[12.2.1,)",        "wlst_mode": "both",     "wlst_name": "RetryCount",       "wlst_path": "WP001", "value": { "default": 3         }, "wlst_type": "integer", "get_method": "GET" } ],
                         "RetryDelay":             [ {"version": "[12.2.1,)",        "wlst_mode": "both",     "wlst_name": "RetryDelay",       "wlst_path": "WP001", "value": { "default": "P0DT30S" }, "wlst_type": "string"  } ]
                     },
                     "wlst_attributes_path": "WP001",
