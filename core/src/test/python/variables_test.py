@@ -10,7 +10,8 @@ import wlsdeploy.util.variables as variables
 from oracle.weblogic.deploy.util import VariableException
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
-
+from wlsdeploy.logging import platform_logger
+from java.util.logging import Level
 
 class VariablesTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes'
@@ -148,11 +149,17 @@ class VariablesTestCase(unittest.TestCase):
         """
         Test that exceptions are thrown for token syntax errors.
         """
+        # Temporarily disable logging for this test. Each test is expected to fail and issue warning messages
+        logger = platform_logger.PlatformLogger('wlsdeploy.variables')
+        original_level = logger.get_level()
+        logger.set_level(Level.OFF)
         self._test_token_syntax_error("@@SECRET:my-secret/my-key@@")
         self._test_token_syntax_error("@@SECRET:@@ENVmy-secret:-my-key@@-some-more-text")
         self._test_token_syntax_error("@@ENV:my-secret!@@")
         self._test_token_syntax_error("@@FILE:@@ORACLE_HOME@@/my-file")
         self._test_token_syntax_error("@@PROP:")
+        # Restore original log level
+        logger.set_level(original_level)
 
     def _test_token_syntax_error(self, value):
         """
