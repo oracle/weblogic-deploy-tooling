@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.json;
@@ -288,6 +288,9 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
             try {
                 CharStream input = CharStreams.fromStream(jsonStream);
                 JSONLexer lexer = new JSONLexer(input);
+                lexer.removeErrorListeners();
+                lexer.addErrorListener(errorListener);
+
                 CommonTokenStream tokens = new CommonTokenStream(lexer);
                 JSONParser parser = new JSONParser(tokens);
 

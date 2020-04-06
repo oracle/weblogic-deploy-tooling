@@ -30,8 +30,10 @@ _environment_pattern = re.compile("(@@ENV:([\\w.-]+)@@)")
 _secret_pattern = re.compile("(@@SECRET:([\\w.-]+):([\\w.-]+)@@)")
 _file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
 
+# if this pattern is found, token substitution was incomplete
+_unresolved_token_pattern = re.compile("(@@(PROP|FILE|ENV|SECRET):)")
+
 _secret_dirs_variable = "WDT_MODEL_SECRETS_DIRS"
-_secret_dirs_default = "/weblogic-operator/config-overrides-secrets"
 _secret_dir_pairs_variable="WDT_MODEL_SECRETS_NAME_DIR_PAIRS"
 
 _secret_token_map = None
@@ -276,6 +278,17 @@ def _substitute(text, variables, model_context):
                 value = _read_value_from_file(path, model_context)
                 text = text.replace(token, value)
 
+        # if any @@TOKEN: remains in the value, throw an exception
+        matches = _unresolved_token_pattern.findall(text)
+        if matches:
+            match = matches[0]
+            token = match[1]
+            sample = "@@" + token + ":<name>"
+            if token == "SECRET":
+                sample += ":<key>"
+            sample += "@@"
+            _report_token_issue("WLSDPLY-01745", method_name, model_context, token, sample)
+
     return text
 
 
@@ -341,17 +354,19 @@ def _init_secret_token_map(model_context):
 
     # add name/key pairs for files in sub-directories of directories in WDT_MODEL_SECRETS_DIRS.
 
-    locations = os.environ.get(_secret_dirs_variable, _secret_dirs_default)
-    for dir in locations.split(","):
-         if not os.path.isdir(dir):
-             # log at WARN or INFO, but no exception is thrown
-             log_method('WLSDPLY-01738', _secret_dirs_variable, dir, class_name=_class_name, method_name=method_name)
-             continue
+    locations = os.environ.get(_secret_dirs_variable, None)
+    if locations is not None:
+        for dir in locations.split(","):
+            if not os.path.isdir(dir):
+                # log at WARN or INFO, but no exception is thrown
+                log_method('WLSDPLY-01738', _secret_dirs_variable, dir, class_name=_class_name,
+                           method_name=method_name)
+                continue
 
-         for subdir_name in os.listdir(dir):
-             subdir_path = os.path.join(dir, subdir_name)
-             if os.path.isdir(subdir_path):
-                 _add_file_secrets_to_map(subdir_path, subdir_name, model_context)
+            for subdir_name in os.listdir(dir):
+                subdir_path = os.path.join(dir, subdir_name)
+                if os.path.isdir(subdir_path):
+                    _add_file_secrets_to_map(subdir_path, subdir_name, model_context)
 
     # add name/key pairs for files in directories assigned in WDT_MODEL_SECRETS_NAME_DIR_PAIRS.
     # these pairs will override if they were previously added as sub-directory pairs.
