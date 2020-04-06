@@ -54,7 +54,6 @@ class ModelContext(object):
         self._archive_file = None
         self._model_file = None
         self._previous_model_file = None
-        self._print_usage = None
         self._variable_file_name = None
         self._run_rcu = False
         self._rcu_database = None
@@ -112,9 +111,6 @@ class ModelContext(object):
 
         if CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH in arg_map:
             self._previous_model_file = arg_map[CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH]
-
-        if CommandLineArgUtil.PRINT_USAGE_SWITCH in arg_map:
-            self._print_usage = arg_map[CommandLineArgUtil.PRINT_USAGE_SWITCH]
 
         if CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH in arg_map:
             self._attributes_only = arg_map[CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH]
@@ -366,33 +362,23 @@ class ModelContext(object):
         """
         return self._previous_model_file
 
-    def get_print_usage(self):
-        """
-        Get the print usage value.
-        :return: the print usage value
-        """
-        return self._print_usage
-
     def get_folders_only_control_option(self):
         """
-        Get the -folders_only command-line switch associated
-        with print usage value.
+        Get the -folders_only command-line switch for model help tool.
         :return: the -folders_only command-line switch
         """
         return self._folders_only
 
     def get_attributes_only_control_option(self):
         """
-        Get the -attributes_only command-line switch associated
-        with print usage value.
+        Get the -attributes_only command-line switch for model help tool.
         :return: the -attributes_only command-line switch
         """
         return self._attributes_only
 
     def get_recursive_control_option(self):
         """
-        Get the -recursive command-line switch associated
-        with print usage value.
+        Get the -recursive command-line switch for model help tool.
         :return: the -recursive command-line switch
         """
         return self._recursive

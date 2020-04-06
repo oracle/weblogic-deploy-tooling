@@ -17,9 +17,6 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
-from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
-from wlsdeploy.tool.validate.usage_printer import MODEL_PATH_PATTERN
-
 # tool type may indicate variations in argument processing
 TOOL_TYPE_CREATE = "create"
 TOOL_TYPE_DEFAULT = "default"
@@ -51,7 +48,6 @@ class CommandLineArgUtil(object):
     PATH_SWITCH                = '-path'
     PREVIOUS_MODEL_FILE_SWITCH = '-prev_model_file'
     VARIABLE_FILE_SWITCH       = '-variable_file'
-    PRINT_USAGE_SWITCH         = '-print_usage'
     RCU_DB_SWITCH              = '-rcu_db'
     RCU_PREFIX_SWITCH          = '-rcu_prefix'
     # phony arg used as a key to store the password
@@ -229,10 +225,6 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx, key)
                 full_path = self._validate_previous_model_file_arg(value)
                 self._add_arg(key, full_path, True)
-            elif self.is_print_usage_key(key):
-                value, idx = self._get_arg_value(args, idx, key)
-                context = self._validate_print_usage_arg(value)
-                self._add_arg(key, context)
             elif self.is_validate_method_key(key):
                 value, idx = self._get_arg_value(args, idx, key)
                 context = self._validate_validate_method_arg(value)
@@ -707,35 +699,6 @@ class CommandLineArgUtil(object):
             raise ex
         elif value.lower() != 'strict' and value.lower() != 'lax':
             ex = exception_helper.create_cla_exception('WLSDPLY-20030', value, "strict, or lax")
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        return value
-
-    def get_print_usage_key(self):
-        return self.PRINT_USAGE_SWITCH
-
-    def is_print_usage_key(self, key):
-        return self.PRINT_USAGE_SWITCH == key
-
-    def _validate_print_usage_arg(self, value):
-        method_name = '_validate_print_usage_arg'
-
-        if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01619')
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        matcher = MODEL_PATH_PATTERN.match(value)
-        if not matcher:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01633', self.PRINT_USAGE_SWITCH, value)
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        section_name = matcher.group(1)
-        if section_name not in KNOWN_TOPLEVEL_MODEL_SECTIONS:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01634', self.PRINT_USAGE_SWITCH, value,
-                                                       section_name, KNOWN_TOPLEVEL_MODEL_SECTIONS)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex

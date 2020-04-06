@@ -23,7 +23,6 @@ from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
-from wlsdeploy.tool.validate.usage_printer import UsagePrinter
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
 from wlsdeploy.util import variables
@@ -176,37 +175,6 @@ class Validator(object):
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name, result=return_code)
         return return_code
-
-    def print_usage(self, model_path, control_option=None):
-        """
-        Prints out the usage information for a given model_path, using control_option to filter what is output
-
-        :param model_path: A forward-slash delimited string contain the model path to print usage for
-        :param control_option: A command-line switch that controls what is output to STDOUT
-        :return:
-        """
-        _method_name = 'print_usage'
-
-        self._logger.entering(model_path, class_name=_class_name, method_name=_method_name)
-
-        if control_option is None:
-            # Try to determine control option using the model_context
-            if self._model_context.get_recursive_control_option():
-                control_option = UsagePrinter.ControlOptions.RECURSIVE
-            elif self._model_context.get_attributes_only_control_option():
-                control_option = UsagePrinter.ControlOptions.ATTRIBUTES_ONLY
-
-        if control_option is None:
-            # Checking the model_context didn't produce a definitive control
-            # option, so default to FOLDERS_ONLY
-            control_option = UsagePrinter.ControlOptions.FOLDERS_ONLY
-
-        usage_printer = UsagePrinter(self._alias_helper, self._logger)
-        usage_printer.print_model_path_usage(model_path, control_option)
-
-        self._logger.exiting(class_name=_class_name, method_name=_method_name)
-
-        return
 
     ####################################################################################
     #

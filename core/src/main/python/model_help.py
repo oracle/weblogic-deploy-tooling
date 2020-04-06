@@ -76,7 +76,7 @@ def print_help(model_path, model_context):
     """
     Prints the folders and/or attributes for the specified given model_path,
     using control_option to filter what is output
-    :param model_path: the model path to print usage for
+    :param model_path: the model path to print help for
     :param model_context: the model context, used to determine print options
     :return: an exit code
     """
