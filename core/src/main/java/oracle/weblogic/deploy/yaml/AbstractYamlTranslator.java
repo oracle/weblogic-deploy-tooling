@@ -175,6 +175,9 @@ public abstract class AbstractYamlTranslator extends YamlBaseListener {
             try {
                 CharStream input = CharStreams.fromStream(yamlStream);
                 YamlLexer lexer = new YamlLexer(input);
+                lexer.removeErrorListeners();
+                lexer.addErrorListener(errorListener);
+
                 CommonTokenStream tokens = new CommonTokenStream(lexer);
                 YamlParser parser = new YamlParser(tokens);
 
