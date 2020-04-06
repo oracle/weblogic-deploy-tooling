@@ -209,13 +209,13 @@ def _process_node(nodes, variables, model_context):
             for member in value:
                 if type(member) in [str, unicode]:
                     index = value.index(member)
-                    value[index] = _substitute(member, variables, model_context)
+                    value[index] = _substitute(member, variables, model_context, key)
 
         elif type(value) in [str, unicode]:
-            nodes[key] = _substitute(value, variables, model_context)
+            nodes[key] = _substitute(value, variables, model_context, key)
 
 
-def _substitute(text, variables, model_context):
+def _substitute(text, variables, model_context, attribute_name=None):
     """
     Substitute token placeholders with their derived values.
     :param text: the text to process for token placeholders
@@ -287,7 +287,11 @@ def _substitute(text, variables, model_context):
             if token == "SECRET":
                 sample += ":<key>"
             sample += "@@"
-            _report_token_issue("WLSDPLY-01745", method_name, model_context, token, sample)
+
+            if attribute_name is None:
+                _report_token_issue("WLSDPLY-01745", method_name, model_context, text, sample)
+            else:
+                _report_token_issue("WLSDPLY-01746", method_name, model_context, attribute_name, text, sample)
 
     return text
 
