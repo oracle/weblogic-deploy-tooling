@@ -14,7 +14,7 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.modelhelp.model_helper import ModelHelper
+from wlsdeploy.tool.modelhelp.model_help_printer import ModelHelpPrinter
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -85,19 +85,19 @@ def print_help(model_path, model_context):
     __logger.entering(model_path, class_name=_class_name, method_name=_method_name)
 
     # default to NORMAL
-    control_option = ModelHelper.ControlOptions.NORMAL
+    control_option = ModelHelpPrinter.ControlOptions.NORMAL
 
     # determine control option using the model_context
     if model_context.get_recursive_control_option():
-        control_option = ModelHelper.ControlOptions.RECURSIVE
+        control_option = ModelHelpPrinter.ControlOptions.RECURSIVE
     elif model_context.get_attributes_only_control_option():
-        control_option = ModelHelper.ControlOptions.ATTRIBUTES_ONLY
+        control_option = ModelHelpPrinter.ControlOptions.ATTRIBUTES_ONLY
     elif model_context.get_folders_only_control_option():
-        control_option = ModelHelper.ControlOptions.FOLDERS_ONLY
+        control_option = ModelHelpPrinter.ControlOptions.FOLDERS_ONLY
 
     aliases = Aliases(model_context)
-    helper = ModelHelper(aliases, __logger)
-    helper.print_model_help(model_path, control_option)
+    printer = ModelHelpPrinter(aliases, __logger)
+    printer.print_model_help(model_path, control_option)
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
     return CommandLineArgUtil.PROG_OK_EXIT_CODE

@@ -17,7 +17,7 @@ _class_name = "ModelHelper"
 MODEL_PATH_PATTERN = re.compile(r'^([a-zA-Z]+:?)?((/[a-zA-Z0-9]+)*)?$')
 
 
-class ModelHelper(object):
+class ModelHelpPrinter(object):
     """
     Class for printing the recognized model metadata to STDOUT.
     """
