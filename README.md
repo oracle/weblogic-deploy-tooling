@@ -11,6 +11,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Encrypt Model Tool](site/encrypt.md)
     - [Validate Model Tool](site/validate.md)
     - [Extract Domain Resource Tool](site/kubernetes.md)
+    - [Model Help Tool](site/model_help.md)
 - [The Model](#the-metadata-model)
     - [Top-Level Sections](#top-level-model-sections)
     - [Simple Example](#simple-example)

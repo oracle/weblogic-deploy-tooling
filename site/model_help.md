@@ -1,0 +1,99 @@
+## The Model Help Tool
+
+The Model Help Tool provides information about the folders and attributes that are valid for sections and folders of a domain model. This is useful when creating a new domain model, or expanding an existing model, including discovered models.
+
+**NOTE:** The Model Help Tool was added as part of WebLogic Deploy Tooling 1.8.
+
+Here is a simple example using the Model Help Tool:
+```yaml
+<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -path resources:/JDBCSystemResource
+```
+This will result in the following output:
+```yaml
+Path: resources:/JDBCSystemResource
+
+  Valid Attributes:
+    CompatibilityName           string
+    DeploymentOrder             integer
+    DeploymentPrincipalName     string
+    DescriptorFileName          string
+    ModuleType                  string
+    Notes                       string
+    SourcePath                  string
+    Target                      delimited_string
+
+  Valid Folders:
+    JdbcResource
+    SubDeployment
+```
+This result lists the attributes and folders available for the `JDBCSystemResource` folder in the `resources` section of the model. This information could be used to construct this model section:
+```yaml
+resources:
+    JDBCSystemResource:
+        CompatibilityName: 'myName'
+        DeploymentOrder: 5
+        Target: 'ms1,ms2'
+        JdbcSystemResource:
+            # JdbcSystemResource attributes and folders
+        SubDeployment:
+            # SubDeployment attributes and folders
+```
+
+### Path Patterns
+There are a number of ways to specify model location in the `-path` argument. Here are some examples:
+ 
+List all the top-level model sections, such as `topology`, `resources`, etc.:
+```yaml
+-path top
+```
+ 
+List the attributes and folders within a section, such as `topology`, `resources`, etc.:
+```yaml
+-path topology
+```
+ 
+List all the attributes and folders within a folder:
+```yaml
+-path resources:/JDBCSystemResource/JdbcResource
+```
+ 
+If the section is not provided for a folder, then it will be derived and included in the output text:
+```yaml
+-path /JDBCSystemResource/JdbcResource
+```
+
+### Output Options
+There are several command-line options that can be used to control the output text for the model path. Only one of these options can be used at a time. If no output options are specified, then the attributes and immediate sub-folders for the specified path are listed.
+
+**NOTE:** 
+When the top sections are listed using ```-path top```, any output options are ignored.  
+
+#### ```-attributes_only```
+This option will list only the attributes for the specified path. If there are no attributes, then the section heading will appear with an empty list.
+
+#### ```-folders_only```
+This option will list only the immediate sub-folders for the specified path. If there are no sub-folders, then the section heading will appear with an empty list.
+
+#### ```-recursive```
+This option will recursively list all the sub-folders within the specified path. No attributes are listed. If there are no sub-folders, then the section heading will appear with an empty list.
+  
+Here is an example using the `-recursive` option:
+```yaml
+<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -recursive -path resources:/JDBCSystemResource
+```
+The output would be:
+```yaml
+Filtering output to recursively display the sub-folders of the specified model section or path
+
+Path: resources:/JDBCSystemResource
+
+  Valid Folders:
+    JdbcResource
+      JDBCConnectionPoolParams
+      JDBCDataSourceParams
+      JDBCDriverParams
+        Properties
+      JDBCOracleParams
+      JDBCXAParams
+    SubDeployment
+```
