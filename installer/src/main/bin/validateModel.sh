@@ -90,7 +90,7 @@ for arg in "$@"
 do
     if [ "$arg" = "-print_usage" ]; then
         echo ""
-        echo "The -print_usage functionality has been moved to modelHelp.cmd"
+        echo "The -print_usage functionality has been moved to modelHelp.sh"
         exit 99
     fi
 done
