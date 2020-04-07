@@ -2,7 +2,7 @@
 
 The Model Help Tool provides information about the folders and attributes that are valid for sections and folders of a domain model. This is useful when creating a new domain model, or expanding an existing model, including discovered models.
 
-**NOTE:** The Model Help Tool was added as part of WebLogic Deploy Tooling 1.8.
+**NOTE:** The Model Help Tool is new in WebLogic Deploy Tooling 1.8.
 
 Here is a simple example using the Model Help Tool:
 ```yaml
@@ -26,7 +26,7 @@ Path: resources:/JDBCSystemResource
     JdbcResource
     SubDeployment
 ```
-This result lists the attributes and folders available for the `JDBCSystemResource` folder in the `resources` section of the model. This information could be used to construct this model section:
+This result lists the attributes and folders available for the `JDBCSystemResource` folder in the `resources` section of the model. You can use this information to construct this model section:
 ```yaml
 resources:
     JDBCSystemResource:
@@ -40,14 +40,14 @@ resources:
 ```
 
 ### Path Patterns
-There are a number of ways to specify model location in the `-path` argument. Here are some examples:
+There are a number of ways to specify model location using the `-path` argument. Here are some examples:
  
-List all the top-level model sections, such as `topology`, `resources`, etc.:
+List all the top-level model sections, such as `topology`, `resources`, and such:
 ```yaml
 -path top
 ```
  
-List the attributes and folders within a section, such as `topology`, `resources`, etc.:
+List the attributes and folders within a section, such as `topology`, `resources`, and such:
 ```yaml
 -path topology
 ```
@@ -63,7 +63,7 @@ If the section is not provided for a folder, then it will be derived and include
 ```
 
 ### Output Options
-There are several command-line options that can be used to control the output text for the model path. Only one of these options can be used at a time. If no output options are specified, then the attributes and immediate sub-folders for the specified path are listed.
+There are several command-line options that you can use to control the output text for the model path. Use only one of these options at a time. If no output options are specified, then the attributes and immediate sub-folders for the specified path are listed.
 
 **NOTE:** 
 When the top sections are listed using ```-path top```, any output options are ignored.  
@@ -81,7 +81,7 @@ Here is an example using the `-recursive` option:
 ```yaml
 <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -recursive -path resources:/JDBCSystemResource
 ```
-The output would be:
+The output is:
 ```yaml
 Filtering output to recursively display the sub-folders of the specified model section or path
 

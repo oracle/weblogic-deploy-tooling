@@ -60,7 +60,7 @@ The output of the tool will look something like this:
       Errors: 1
         Message: Machines is not one of the folder, folder instance or attribute names allowed in model location topology:/Server/AdminServer
 
-The [Model Help Tool](model_help.md) can be used to determine the valid the valid list of attributes and folders at this model location.
+Use the [Model Help Tool](model_help.md) to determine the valid list of attributes and folders at this model location.
 
 If the model contains variable definitions and the variable file is specified, the Validate Model Tool will validate that all variable references in the model are defined in the variable file.  For example, invoking the tool as shown here:
 
