@@ -24,8 +24,7 @@ _class_name = 'model_help'
 __logger = PlatformLogger('wlsdeploy.modelhelp')
 
 __required_arguments = [
-    CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.PATH_SWITCH
+    CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
 __optional_arguments = [
@@ -50,7 +49,7 @@ def __process_args(args):
     _method_name = '__process_args'
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
-    required_arg_map, optional_arg_map = cla_util.process_args(args)
+    required_arg_map, optional_arg_map = cla_util.process_args(args, trailing_arg_count=1)
 
     cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
 
@@ -125,7 +124,7 @@ def main(args):
         sys.exit(exit_code)
 
     try:
-        model_path = model_context.get_path()
+        model_path = model_context.get_trailing_argument(0)
         exit_code = print_help(model_path, model_context)
     except CLAException, ve:
         __logger.severe('WLSDPLY-10112', _program_name, ve.getLocalizedMessage(), error=ve,
