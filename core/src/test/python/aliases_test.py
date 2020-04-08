@@ -472,7 +472,7 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testIsWlstModelAttributeName(self):
-        wls_version = '10.3.4'
+        wls_version = '10.3.6'
         online_aliases = Aliases(self.model_context, WlstModes.ONLINE, wls_version)
         location = LocationContext()
         location.append_location(FOLDERS.JDBC_SYSTEM_RESOURCE)
@@ -500,8 +500,8 @@ class AliasesTestCase(unittest.TestCase):
 
         location.pop_location()
         location.append_location(FOLDERS.JDBC_CONNECTION_POOL_PARAMS)
-        model_attribute_name = 'MinCapacity'
-        earliest_version = '10.3.6'
+        model_attribute_name = 'CountOfTestFailuresTillFlush'
+        earliest_version = '12.1.2'
         path = self.aliases.get_model_folder_path(location)
         expected = exception_helper.get_message('WLSDPLY-08207', model_attribute_name, path,
                                                 wls_version, earliest_version)

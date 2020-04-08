@@ -199,7 +199,7 @@ SCRIPT_ARGS="$*"
 #
 # Find the args required to determine the WLST script to run
 #
-while [ "$#" -gt "1" ]; do
+while [ "$#" -gt "0" ]; do
     key="$1"
     case $key in
         -help)

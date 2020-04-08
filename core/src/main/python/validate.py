@@ -46,13 +46,9 @@ __optional_arguments = [
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,  # Used by shell script to locate WLST
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
-    CommandLineArgUtil.PRINT_USAGE_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.TARGET_VERSION_SWITCH,
     CommandLineArgUtil.TARGET_MODE_SWITCH,
-    CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH,
-    CommandLineArgUtil.FOLDERS_ONLY_SWITCH,
-    CommandLineArgUtil.RECURSIVE_SWITCH,
     CommandLineArgUtil.VALIDATION_METHOD
 ]
 
@@ -69,7 +65,6 @@ def __process_args(args):
 
     __verify_required_args_present(required_arg_map)
     __process_model_args(optional_arg_map)
-    __process_print_usage_args(optional_arg_map)
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
@@ -101,63 +96,8 @@ def __process_model_args(optional_arg_map):
     """
     _method_name = '__process_model_args'
 
-    if CommandLineArgUtil.PRINT_USAGE_SWITCH in optional_arg_map:
-        # nothing to do since we are printing help information rather than validating supplied artifacts...
-        return
-
     cla_helper.validate_optional_archive(_program_name, optional_arg_map)
     cla_helper.validate_model_present(_program_name, optional_arg_map)
-
-    something_to_validate = False
-    if CommandLineArgUtil.MODEL_FILE_SWITCH in optional_arg_map:
-        something_to_validate = True
-
-    if not something_to_validate:
-        ex = exception_helper.create_cla_exception('WLSDPLY-05400', _program_name,
-                                                   CommandLineArgUtil.PRINT_USAGE_SWITCH,
-                                                   CommandLineArgUtil.MODEL_FILE_SWITCH,
-                                                   CommandLineArgUtil.ARCHIVE_FILE_SWITCH)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
-    return
-
-
-def __process_print_usage_args(optional_arg_map):
-    """
-    Validate the -print_usage related arguments.
-    :param optional_arg_map: the optional argument map
-    :raises: CLAException: if the arguments are not valid
-    """
-    _method_name = '__process_print_usage_args'
-
-    if CommandLineArgUtil.PRINT_USAGE_SWITCH in optional_arg_map:
-        print_usage_path = optional_arg_map[CommandLineArgUtil.PRINT_USAGE_SWITCH]
-        found_controller_arg = None
-        if CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH in optional_arg_map:
-            found_controller_arg = CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH
-
-        if CommandLineArgUtil.FOLDERS_ONLY_SWITCH in optional_arg_map:
-            if found_controller_arg is None:
-                found_controller_arg = CommandLineArgUtil.FOLDERS_ONLY_SWITCH
-            else:
-                ex = exception_helper.create_cla_exception('WLSDPLY-05401', _program_name,
-                                                           CommandLineArgUtil.PRINT_USAGE_SWITCH,
-                                                           CommandLineArgUtil.FOLDERS_ONLY_SWITCH, found_controller_arg)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-
-        if CommandLineArgUtil.RECURSIVE_SWITCH in optional_arg_map:
-            if found_controller_arg is None:
-                found_controller_arg = CommandLineArgUtil.RECURSIVE_SWITCH
-            else:
-                ex = exception_helper.create_cla_exception('WLSDPLY-05401', _program_name,
-                                                           CommandLineArgUtil.PRINT_USAGE_SWITCH,
-                                                           CommandLineArgUtil.RECURSIVE_SWITCH, found_controller_arg)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-        if found_controller_arg is not None:
-            __logger.fine('WLSDPLY-05402', _program_name, CommandLineArgUtil.PRINT_USAGE_SWITCH, print_usage_path,
-                          found_controller_arg, class_name=_class_name, method_name=_method_name)
     return
 
 
@@ -222,40 +162,29 @@ def main(args):
         cla_helper.clean_up_temp_files()
         sys.exit(exit_code)
 
-    print_usage = model_context.get_print_usage()
+    try:
+        model_file_name = model_context.get_model_file()
 
-    if print_usage is not None:
-        try:
-            model_validator = Validator(model_context, logger=__logger)
-            model_validator.print_usage(print_usage)
-        except ValidateException, ve:
-            __logger.severe('WLSDPLY-05404', _program_name, ve.getLocalizedMessage(), error=ve,
-                            class_name=_class_name, method_name=_method_name)
-            sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-    else:
-        try:
-            model_file_name = model_context.get_model_file()
+        if model_file_name is not None:
+            __perform_model_file_validation(model_file_name, model_context)
 
-            if model_file_name is not None:
-                __perform_model_file_validation(model_file_name, model_context)
+            summary_handler = SummaryHandler.findInstance()
+            if summary_handler is not None:
+                summary_level = summary_handler.getMaximumMessageLevel()
+                if summary_level == Level.SEVERE:
+                    exit_code = CommandLineArgUtil.PROG_ERROR_EXIT_CODE
+                elif summary_level == Level.WARNING:
+                    exit_code = CommandLineArgUtil.PROG_WARNING_EXIT_CODE
 
-                summary_handler = SummaryHandler.findInstance()
-                if summary_handler is not None:
-                    summary_level = summary_handler.getMaximumMessageLevel()
-                    if summary_level == Level.SEVERE:
-                        exit_code = CommandLineArgUtil.PROG_ERROR_EXIT_CODE
-                    elif summary_level == Level.WARNING:
-                        exit_code = CommandLineArgUtil.PROG_WARNING_EXIT_CODE
-
-        except ValidateException, ve:
-            __logger.severe('WLSDPLY-20000', _program_name, ve.getLocalizedMessage(), error=ve,
-                            class_name=_class_name, method_name=_method_name)
-            cla_helper.clean_up_temp_files()
-            sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-
+    except ValidateException, ve:
+        __logger.severe('WLSDPLY-20000', _program_name, ve.getLocalizedMessage(), error=ve,
+                        class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
+        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-        tool_exit.end(model_context, exit_code)
+    cla_helper.clean_up_temp_files()
+
+    tool_exit.end(model_context, exit_code)
     return
 
 

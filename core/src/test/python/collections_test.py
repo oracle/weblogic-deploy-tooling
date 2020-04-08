@@ -156,8 +156,6 @@ class CollectionsTestCase(unittest.TestCase):
         dict1['entry1'] = 'you'
         dict2 = dict()
         dict2['entry2'] = 'me'
-        print 'Before:         dict() dict1=', dict1
-        print '                dict() dict2=', dict2
         dict1.update(dict2)
         self.assertEqual('entry1' in dict1 and 'entry2' in dict1, True,
                          "expected dict1 to contain 'entry1' and 'entry2' keys")
