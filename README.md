@@ -55,7 +55,7 @@ The following table specifies the supported WebLogic Server versions, along with
   |--------------------------|-------------------|
   | 10.3.6                   | 1.7               |
   | 12.1.1                   | 1.7, 1.8          |
-  | 12.1.2 <sup>[1]</sup> <sup>[2]</sup>         | 1.7, 1.8          |
+  | 12.1.2 <sup>[[1]]([1]-first-release-dynamic-clusters-are-supported)</sup>         | 1.7, 1.8          |
   | 12.1.3                   | 1.7, 1.8          |
   | 12.2.1 <sup>[3]</sup>               | 1.8               |
   | 12.2.1.1 <sup>[4]</sup>             | 1.8               |
