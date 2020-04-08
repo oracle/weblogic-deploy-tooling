@@ -6,7 +6,7 @@ The Model Help Tool provides information about the folders and attributes that a
 
 Here is a simple example using the Model Help Tool:
 ```yaml
-<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -path resources:/JDBCSystemResource
+<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource
 ```
 This will result in the following output:
 ```yaml
@@ -40,33 +40,33 @@ resources:
 ```
 
 ### Path Patterns
-There are a number of ways to specify model location using the `-path` argument. Here are some examples:
+There are a number of ways to specify model location in the path argument. Here are some examples:
  
 List all the top-level model sections, such as `topology`, `resources`, and such:
 ```yaml
--path top
+top
 ```
  
 List the attributes and folders within a section, such as `topology`, `resources`, and such:
 ```yaml
--path topology
+topology
 ```
  
 List all the attributes and folders within a folder:
 ```yaml
--path resources:/JDBCSystemResource/JdbcResource
+resources:/JDBCSystemResource/JdbcResource
 ```
  
 If the section is not provided for a folder, then it will be derived and included in the output text:
 ```yaml
--path /JDBCSystemResource/JdbcResource
+/JDBCSystemResource/JdbcResource
 ```
 
 ### Output Options
 There are several command-line options that you can use to control the output text for the model path. Use only one of these options at a time. If no output options are specified, then the attributes and immediate sub-folders for the specified path are listed.
 
 **NOTE:** 
-When the top sections are listed using ```-path top```, any output options are ignored.  
+When the top sections are listed using the path ```top```, any output options are ignored.  
 
 #### ```-attributes_only```
 This option will list only the attributes for the specified path. If there are no attributes, then the section heading will appear with an empty list.
@@ -79,7 +79,7 @@ This option will recursively list all the sub-folders within the specified path.
   
 Here is an example using the `-recursive` option:
 ```yaml
-<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -recursive -path resources:/JDBCSystemResource
+<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -recursive resources:/JDBCSystemResource
 ```
 The output is:
 ```yaml
