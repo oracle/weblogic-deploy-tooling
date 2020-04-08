@@ -44,31 +44,31 @@ The Oracle WebLogic Server Deploy Tooling is designed to support a wide range of
 - The attribute data types and how to get/set their values (which isn't as easy as it might sound)
 - The differences between WLST online and WLST offline for working with folders and attributes
 
-### Supported WebLogic Server Releases
-The chart below specifies the supported WebLogic Server release, along with the JDK version(s) that must be used to run the WDT tool. You must set the JAVA_HOME environment variable to specify a version of a JDK different than the system default version. 
+### Supported WebLogic Server Versions
+The following table specifies the supported WebLogic Server versions, along with the JDK versions that must be used to run the WDT tool. You must set the `JAVA_HOME` environment variable to specify a JDK version different than the system default version. 
 
- To create a domain with the proper JDK (particularly if the JAVA_HOME is different than the one which will be used by the target domain), set the Domain JavaHome attribute in the domain model.
+ To create a domain with the proper JDK (particularly if the `JAVA_HOME` is different than the one which will be used by the target domain), set the domain `JavaHome` attribute in the domain model.
  
- Note that the WDT Encryption tool used to encrypt / decrypt clear passwords in the model and variable file requires WDT to run with a minimum JDK version of 1.8. 
+ Note that the WDT Encryption tool used to encrypt and decrypt clear text passwords in the model and variable file, requires WDT to run with a minimum JDK version of 1.8. 
 
-  | WebLogic Server Version | Tool JDK Versions |
-  |-------------------------|-------------------|
-  | 10.3.6                  | 1.7               |
-  | 12.1.1                  | 1.7, 1.8          |
-  | 12.1.2 *, **            | 1.7, 1.8          |
-  | 12.1.3                  | 1.7, 1.8          |
-  | 12.2.1 ***              | 1.8               |
-  | 12.2.1.1 ****           | 1.8               |
-  | 12.2.1.2                | 1.8               |
-  | 12.2.1.3                | 1.8               |
-  | 12.2.1.4 *****          | 1.8               |
-  | 14.1.1                  | 1.8, 1.11         |    
+  | WebLogic Server Versions | Tool JDK Versions |
+  |--------------------------|-------------------|
+  | 10.3.6                   | 1.7               |
+  | 12.1.1                   | 1.7, 1.8          |
+  | 12.1.2 [<sup>[1]</sup>]([1]) [<sup>[2]</sup>]([2])        | 1.7, 1.8          |
+  | 12.1.3                   | 1.7, 1.8          |
+  | 12.2.1 [<sup>[3]</sup>]([3])               | 1.8               |
+  | 12.2.1.1 [<sup>[4]</sup>]([4])             | 1.8               |
+  | 12.2.1.2                 | 1.8               |
+  | 12.2.1.3                 | 1.8               |
+  | 12.2.1.4 [<sup>[5]</sup>]([5])             | 1.8               |
+  | 14.1.1                   | 1.8, 1.11         |    
   
-  \* First release dynamic clusters are supported  
-  \*\* First release coherence clusters are supported  
-  \*\*\* First Release WLS roles are supported  
-  \*\*\*\* First release Multi-Tenancy is supported  
-  \*\*\*\*\* Last release Multi-Tenancy is supported
+[[1]]: First release dynamic clusters are supported  
+[[2]]: First release Coherence clusters are supported  
+[[3]]: First release WLS roles are supported  
+[[4]]: First release multitenancy is supported  
+[[5]]: Last release multitenancy is supported
              
 ### Metadata model
 The metadata model, described in detail in the next section, is WebLogic Server version and WLST mode independent.  As such, a metadata model written for an earlier version of WebLogic Server is designed to work with a newer version.  There is no need to port your metadata model as part of the upgrade process.  Of course, you may wish to add data to your metadata model to take advantage of new features in newer versions of WebLogic Server.
