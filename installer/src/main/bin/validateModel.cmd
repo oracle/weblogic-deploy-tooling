@@ -6,10 +6,10 @@
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
-@rem       validateModel.cmd - WLS Deploy tool to validate artifacts and print usage
+@rem       validateModel.cmd - WLS Deploy tool to validate artifacts
 @rem
 @rem     DESCRIPTION
-@rem        This script validates the model, archive structure and print usage
+@rem        This script validates the model and archive structure
 @rem
 @rem This script uses the following variables:
 @rem
@@ -36,6 +36,15 @@ SET SCRIPT_ARGS=%*
 SET SCRIPT_PATH=%~dp0
 FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi
 IF %SCRIPT_PATH:~-1%==\ SET SCRIPT_PATH=%SCRIPT_PATH:~0,-1%
+
+@rem check for deprecated -print_usage argument
+FOR %%a IN (%*) do (
+    IF "%%a" == "-print_usage" (
+      ECHO.
+      ECHO The -print_usage functionality has been moved to modelHelp.cmd
+      EXIT /B 99
+    )
+)
 
 call "%SCRIPT_PATH%\shared.cmd" :checkJythonArgs %SCRIPT_ARGS%
 SET RETURN_CODE=%ERRORLEVEL%
@@ -65,7 +74,6 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help]
 ECHO              -oracle_home ^<oracle_home^>
-ECHO              [-print_usage ^<context^> [-attributes_only^|-folders_only^|-recursive] ]
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-archive_file ^<archive_file^>]
@@ -83,8 +91,7 @@ ECHO                           names are printed.  Use one of the optional contr
 ECHO                           switches to customize the behavior.  Note that the
 ECHO                           control switches are mutually exclusive.
 ECHO.
-ECHO         model_file      - the location of the model file to use if not using
-ECHO                           the -print_usage functionality.  This can also be specified as a
+ECHO         model_file      - the location of the model file to use.  This can also be specified as a
 ECHO                           comma-separated list of model locations, where each successive model
 ECHO                           layers on top of the previous ones.
 ECHO                           If not specified, the tool will look for the model in the archive.
@@ -92,13 +99,11 @@ ECHO                           If the model is not found, validation will only
 ECHO                           validate the artifacts provided.
 ECHO.
 ECHO         variable_file   - the location of the property file containing
-ECHO                           the variable values for all variables used in
-ECHO                           the model if not using the -print_usage functionality.
+ECHO                           the variable values for all variables used in the model.
 ECHO                           If the variable file is not provided, validation will
 ECHO                           only validate the artifacts provided.
 ECHO.
-ECHO         archive_file    - the path to the archive file to use if not using the
-ECHO                           -print_usage functionality.  If the archive file is
+ECHO         archive_file    - the path to the archive file to use.  If the archive file is
 ECHO                           not provided, validation will only validate the
 ECHO                           artifacts provided.  This can also be specified as a
 ECHO                           comma-separated list of archive files.  The overlapping contents in
