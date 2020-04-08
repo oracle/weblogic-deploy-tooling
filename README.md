@@ -55,7 +55,7 @@ The following table specifies the supported WebLogic Server versions, along with
   |--------------------------|-------------------|
   | 10.3.6                   | 1.7               |
   | 12.1.1                   | 1.7, 1.8          |
-  | 12.1.2 [<sup>[1]</sup>](###### 5) [<sup>[2]</sup>]([2])        | 1.7, 1.8          |
+  | 12.1.2 [^<sup>[1]</sup>]() [<sup>[2]</sup>]([2])        | 1.7, 1.8          |
   | 12.1.3                   | 1.7, 1.8          |
   | 12.2.1 [<sup>[3]</sup>]([3])               | 1.8               |
   | 12.2.1.1 [<sup>[4]</sup>]([4])             | 1.8               |
@@ -64,7 +64,7 @@ The following table specifies the supported WebLogic Server versions, along with
   | 12.2.1.4 [<sup>[5]</sup>]([5])             | 1.8               |
   | 14.1.1                   | 1.8, 1.11         |    
   
-[[1]]: First release dynamic clusters are supported  
+[^[1]]: First release dynamic clusters are supported  
 [[2]]: First release Coherence clusters are supported  
 [[3]]: First release WLS roles are supported  
 [[4]]: First release multitenancy is supported  
