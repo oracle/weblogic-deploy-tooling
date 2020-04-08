@@ -45,7 +45,6 @@ class CommandLineArgUtil(object):
     MODEL_FILE_SWITCH          = '-model_file'
     OPSS_WALLET_SWITCH         = '-opss_wallet'
     OPSS_WALLET_PASSPHRASE     = '-opss_wallet_passphrase'
-    PATH_SWITCH                = '-path'
     PREVIOUS_MODEL_FILE_SWITCH = '-prev_model_file'
     VARIABLE_FILE_SWITCH       = '-variable_file'
     RCU_DB_SWITCH              = '-rcu_db'
