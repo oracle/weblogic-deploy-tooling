@@ -35,9 +35,9 @@ An example of using the domain type argument:
     
 Before the model is persisted to the model file, any variable injectors or model filters are run, in that order. The final step is validation, which validates the contents of the model, archive and variable file. If the validation is successful, the model is persisted. For more information on these three topics, go to:
 
- - [Variable Injection](site/variable_injection.md)
- - [Model Filters](site/tool_filters.md)
- - [Validate Model Tool](site/validate.md)
+ - [Variable Injection](variable_injection.md)
+ - [Model Filters](tool_filters.md)
+ - [Validate Model Tool](validate.md)
 
 Any problems (or success) will be listed in the discover tool summary. The summary will print the version of the tool and Oracle home, and the WLST mode with which the tool was run (online or offline). A recap of all Warning and Severe messages will be listed, along with a total. 
 
