@@ -94,4 +94,9 @@ A full list of sections and variables supported by the Oracle WebLogic Server Ku
 
 The Extract Domain Resource Tool supports a subset of these sections, including `metadata`, `serverPod`, and `spec`. 
 
+The [Model Help Tool](model_help.md) can be used to determine the folders and attributes that can be used in the `kubernetes` section of the model. For example, this command will list the folders and attributes in the `spec` folder:
+```yaml
+<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -path kubernetes:/spec
+```
+
 The content in the `kubernetes` section is not generated when a model is discovered by the Discover Domain Tool.  
