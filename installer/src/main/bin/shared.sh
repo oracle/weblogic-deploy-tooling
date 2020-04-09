@@ -70,7 +70,7 @@ checkJythonArgs() {
     fi
 
     # check for -help and -oracle_home
-    while [ "$#" -gt "1" ]; do
+    while [ "$#" -gt "0" ]; do
         key="$1"
         case $key in
             -help)
