@@ -2,7 +2,7 @@
 # *****************************************************************************
 # createDomain.sh
 #
-# Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -172,7 +172,7 @@ MIN_JDK_VERSION=7
 #
 # Find the args required to determine the WLST script to run
 #
-while [ "$#" -gt "1" ]; do
+while [ "$#" -gt "0" ]; do
     key="$1"
     case $key in
         -help)

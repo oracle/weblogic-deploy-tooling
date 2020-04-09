@@ -83,7 +83,6 @@ public class PyOrderedDictTest {
         while (pyIterator.hasNext()){
             PyTuple tuple = (PyTuple)pyIterator.next();
             PyObject[] entry = tuple.getArray();
-            System.out.println("<testIteritems> key=" + entry[0] + ", value=" + entry[1]);
         }
     }
 
@@ -95,7 +94,6 @@ public class PyOrderedDictTest {
         myOrderedDict.__setitem__("ordered_dict", anotherOrderedDict);
 
         PyObject value = myOrderedDict.get(new PyString("ordered_dict"));
-        System.out.println("<testOrderedDictAsValue> value.getType()=" + value.getType());
     }
 
     @Test
