@@ -519,6 +519,8 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
                 break;
 
             case "PyOrderedDict":
+            case "oracle.weblogic.deploy.util.PyOrderedDict":
+                // Jython 2.7 uses qualified class name
                 PyOrderedDict origOrderedDict = PyOrderedDict.class.cast(orig);
                 result = origOrderedDict.__deepcopy__(memo);
                 break;
