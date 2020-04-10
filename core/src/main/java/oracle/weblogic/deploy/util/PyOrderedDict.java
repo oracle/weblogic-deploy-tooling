@@ -347,7 +347,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         for (Map.Entry<PyObject, PyObject> entry: entries) {
             l.add(new PyTuple(new PyObject[] { entry.getKey(), entry.getValue() }));
         }
-        return new PyList(l);
+        return new PyList(l.toArray(new PyObject[0]));
     }
 
     /**
@@ -390,7 +390,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         Set<PyObject> keys = this.linkedHashMap.keySet();
         java.util.Vector<PyObject> v = new java.util.Vector<>(keys.size());
         v.addAll(keys);
-        return new PyList(v);
+        return new PyList(v.toArray(new PyObject[0]));
     }
 
     /**
@@ -461,7 +461,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         Collection<PyObject> values = this.linkedHashMap.values();
         java.util.Vector<PyObject> v = new java.util.Vector<>(values.size());
         v.addAll(values);
-        return new PyList(v);
+        return new PyList(v.toArray(new PyObject[0]));
     }
 
     // private methods
