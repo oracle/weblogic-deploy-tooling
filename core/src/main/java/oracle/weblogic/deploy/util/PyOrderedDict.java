@@ -41,6 +41,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      * The no-args constructor.
      */
     public PyOrderedDict() {
+        super(PyType.fromClass(PyOrderedDict.class));
         this.linkedHashMap = new LinkedHashMap<>();
     }
 
