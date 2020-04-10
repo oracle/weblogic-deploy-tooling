@@ -41,6 +41,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      * The no-args constructor.
      */
     public PyOrderedDict() {
+        super(PyType.fromClass(PyOrderedDict.class));
         this.linkedHashMap = new LinkedHashMap<>();
     }
 
@@ -346,7 +347,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         for (Map.Entry<PyObject, PyObject> entry: entries) {
             l.add(new PyTuple(new PyObject[] { entry.getKey(), entry.getValue() }));
         }
-        return new PyList(l);
+        return new PyList(l.toArray(new PyObject[0]));
     }
 
     /**
@@ -389,7 +390,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         Set<PyObject> keys = this.linkedHashMap.keySet();
         java.util.Vector<PyObject> v = new java.util.Vector<>(keys.size());
         v.addAll(keys);
-        return new PyList(v);
+        return new PyList(v.toArray(new PyObject[0]));
     }
 
     /**
@@ -454,13 +455,26 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
 
     /**
      * {@inheritDoc}
+     * This method is not supported, as it is not portable between versions of Jython.
+     * Jython 2.1 returns PyList, Jython 2.7 returns a Collection.
+     * WDT code should use getValues() to get ordered values.
      */
     @Override
     public PyList values() {
+        String message = ExceptionHelper.getMessage("WLSDPLY-01252");
+        throw new UnsupportedOperationException(message);
+    }
+
+    /**
+     * Because return type for values() is different between Jython 2.1 and Jython 2.7,
+     * WDT code should call this variant to get a list of values.
+     * @return an ordered list of values
+     */
+    public PyList getValues() {
         Collection<PyObject> values = this.linkedHashMap.values();
         java.util.Vector<PyObject> v = new java.util.Vector<>(values.size());
         v.addAll(values);
-        return new PyList(v);
+        return new PyList(v.toArray(new PyObject[0]));
     }
 
     // private methods
@@ -518,6 +532,8 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
                 break;
 
             case "PyOrderedDict":
+            case "oracle.weblogic.deploy.util.PyOrderedDict":
+                // Jython 2.7 uses qualified class name
                 PyOrderedDict origOrderedDict = PyOrderedDict.class.cast(orig);
                 result = origOrderedDict.__deepcopy__(memo);
                 break;
