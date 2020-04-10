@@ -79,6 +79,12 @@ class CommandLineArgUtil(object):
     # extractDomainResource output file
     DOMAIN_RESOURCE_FILE_SWITCH   = '-domain_resource_file'
 
+    # For compare models tool
+
+    COMPARE_MODEL_SWITCH = '-compare_models'
+    COMPARE_MODEL_OUTPUT_DIR_SWITCH = "-compare_models_output_dir"
+    SILENT_SWITCH = '-silent'
+
     # a slot to stash the parsed domain typedef dictionary
     DOMAIN_TYPEDEF             = 'domain_typedef'
     # a slot to stash the archive file object
@@ -436,6 +442,27 @@ class CommandLineArgUtil(object):
                     raise ex
             elif self.is_rollback_if_restart_required_key(key):
                 self._add_arg(key, True)
+            elif self.is_silent_switch(key):
+                self._add_arg(key, True)
+            elif self.is_compare_model_output_dir_switch(key):
+                idx += 1
+                if idx < args_len:
+                    full_path = self._validate_compare_model_output_dir_arg(args[idx])
+                    self._add_arg(key, full_path, True)
+                else:
+                    ex = self._get_out_of_args_exception(key)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
+            elif self.is_compare_model_switch(key):
+                idx += 1
+                if idx+1 < args_len:
+                    full_path = self._validate_compare_model_arg(args[idx], args[idx+1])
+                    self._add_arg(key, full_path, True)
+                    idx += 1
+                else:
+                    ex = self._get_out_of_args_exception(key)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
             else:
                 ex = exception_helper.create_cla_exception('WLSDPLY-01601', self._program_name, key)
                 ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
@@ -1134,8 +1161,42 @@ class CommandLineArgUtil(object):
             raise ex
         return variables.getAbsolutePath()
 
+
     def is_rollback_if_restart_required_key(self, key):
         return self.ROLLBACK_IF_RESTART_REQ_SWITCH == key
+
+    def is_compare_model_switch(self, key):
+        return self.COMPARE_MODEL_SWITCH == key
+
+    def is_compare_model_output_dir_switch(self, key):
+        return self.COMPARE_MODEL_OUTPUT_DIR_SWITCH == key
+
+    def is_silent_switch(self, key):
+        return self.SILENT_SWITCH == key
+
+    def _validate_compare_model_output_dir_arg(self, value):
+        method_name = '_validate_compare_model_output_dir_arg'
+        try:
+            variables = JFileUtils.validateDirectoryName(value)
+        except JIllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01637', value, iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return variables.getAbsolutePath()
+
+    def _validate_compare_model_arg(self, value1, value2):
+        method_name = '_validate_compare_model_arg'
+        try:
+            # Check values
+            JFileUtils.validateDirectoryName(value1)
+            JFileUtils.validateDirectoryName(value2)
+        except JIllegalArgumentException, iae:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01637', value, iae.getLocalizedMessage(), error=iae)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return "%s %s" % (value1, value2)
 
     ###########################################################################
     # Helper methods                                                          #
