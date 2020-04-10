@@ -70,7 +70,7 @@ ECHO Usage: %SCRIPT_NAME%
 ECHO         [-help]
 ECHO         -oracle_home ^<oracle_home^>
 ECHO         [-attributes_only ^| -folders_only ^| -recursive]
-ECHO         -path ^<model_path^>
+ECHO         ^<model_path^>
 ECHO.
 ECHO     where:
 ECHO         oracle_home - an existing Oracle Home directory

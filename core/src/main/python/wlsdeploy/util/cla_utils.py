@@ -45,7 +45,6 @@ class CommandLineArgUtil(object):
     MODEL_FILE_SWITCH          = '-model_file'
     OPSS_WALLET_SWITCH         = '-opss_wallet'
     OPSS_WALLET_PASSPHRASE     = '-opss_wallet_passphrase'
-    PATH_SWITCH                = '-path'
     PREVIOUS_MODEL_FILE_SWITCH = '-prev_model_file'
     VARIABLE_FILE_SWITCH       = '-variable_file'
     RCU_DB_SWITCH              = '-rcu_db'
@@ -64,6 +63,8 @@ class CommandLineArgUtil(object):
     RUN_RCU_SWITCH             = '-run_rcu'
     TARGET_VERSION_SWITCH      = '-target_version'
     TARGET_MODE_SWITCH         = '-target_mode'
+    # phony arg used as a key to store the trailing (non-switched) arguments
+    TRAILING_ARGS_SWITCH       = '-trailing_arguments'
     ATTRIBUTES_ONLY_SWITCH     = '-attributes_only'
     FOLDERS_ONLY_SWITCH        = '-folders_only'
     RECURSIVE_SWITCH           = '-recursive'
@@ -131,12 +132,13 @@ class CommandLineArgUtil(object):
         """
         self._allow_multiple_models = allow_multiple_models
 
-    def process_args(self, args, tool_type=TOOL_TYPE_DEFAULT):
+    def process_args(self, args, tool_type=TOOL_TYPE_DEFAULT, trailing_arg_count=0):
         """
         This method parses the command-line arguments and returns dictionaries of the required and optional args.
 
         :param args: sys.argv
         :param tool_type: optional, type of tool for special argument processing
+        :param trailing_arg_count: optional, the number of trailing (no switch) arguments
         :return: the required and optional argument dictionaries
         :raises CLAException: if argument processing encounters a usage or validation exception
         """
@@ -155,6 +157,9 @@ class CommandLineArgUtil(object):
             ex = exception_helper.create_cla_exception('Dummy Key')
             ex.setExitCode(self.HELP_EXIT_CODE)
             raise ex
+
+        args = self._check_trailing_arguments(args, trailing_arg_count)
+        args_len = len(args)
 
         idx = 1
         while idx < args_len:
@@ -280,9 +285,6 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx, key)
                 full_path = self._validate_domain_resource_file_arg(value)
                 self._add_arg(key, full_path, True)
-            elif self.is_path_key(key):
-                value, idx = self._get_arg_value(args, idx, key)
-                self._add_arg(key, value)
             elif self.is_boolean_switch(key):
                 self._add_arg(key, True)
             else:
@@ -313,6 +315,38 @@ class CommandLineArgUtil(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return args[index], index
+
+    def _check_trailing_arguments(self, args, trailing_arg_count):
+        """
+        Remove any trailing (no switch) arguments from the argument list and add them to the required result.
+          example:
+            command.sh -oracle_home /oracle file1 file2
+            file1 and file2 are trailing arguments
+
+        :param args: the arguments to be examined
+        :param trailing_arg_count: the number of trailing arguments that are expected
+        :return: the argument list, with the trailing arguments removed
+        :raises CLAException: if there are not enough arguments present
+        """
+        method_name = '_check_trailing_arguments'
+        args_len = len(args)
+
+        # verify there are enough arguments for any trailing (no switch) args
+        if args_len < trailing_arg_count + 1:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01639', trailing_arg_count)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+
+        # set required_result['TRAILING_ARGS'] to list of trailing args (such as ['file1', 'file2'])
+        trailing_args = []
+        for index in range(args_len - trailing_arg_count, args_len):
+            arg = args[index]
+            trailing_args.append(arg)
+        self._required_result[self.TRAILING_ARGS_SWITCH] = trailing_args
+
+        # remove trailing args from the list and return revised list
+        return args[0:(args_len - trailing_arg_count)]
 
     def get_help_key(self):
         return self.HELP_SWITCH
@@ -929,9 +963,6 @@ class CommandLineArgUtil(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return variables.getAbsolutePath()
-
-    def is_path_key(self, key):
-        return self.PATH_SWITCH == key
 
     def is_boolean_switch(self, key):
         return key in self.BOOLEAN_SWITCHES
