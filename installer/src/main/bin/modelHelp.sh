@@ -37,31 +37,31 @@ usage() {
   echo "          [-attributes_only | -folders_only | -recursive]"
   echo "          <model_path>"
   echo ""
-  echo "    where:
+  echo "    where:"
   echo "        oracle_home - an existing Oracle Home directory"
   echo ""
-  echo "        model_path  - the path to the model element to be examined.
-  echo "                      the format is [<section>:][/<folder>]...
+  echo "        model_path  - the path to the model element to be examined."
+  echo "                      the format is [<section>:][/<folder>]..."
   echo ""
-  echo "    model_path examples:
-  echo "        resources:/JDBCSystemResource/JdbcResource
-  echo "        /JDBCSystemResource/JdbcResource
-  echo "        resources:
-  echo "        resources
-  echo "        top  (this will list the top-level section names)
-  echo ".
-  echo "    By default, the tool will display the folders and attributes for the
-  echo "    specified model path.
+  echo "    model_path examples:"
+  echo "        resources:/JDBCSystemResource/JdbcResource"
+  echo "        /JDBCSystemResource/JdbcResource"
+  echo "        resources:"
+  echo "        resources"
+  echo "        top  (this will list the top-level section names)"
   echo ""
-  echo "    The -attributes_only switch will cause the tool to list only the attributes
-  echo "    for the specified model path.
+  echo "    By default, the tool will display the folders and attributes for the"
+  echo "    specified model path."
   echo ""
-  echo "    The -folders_only switch will cause the tool to list only the folders
-  echo "    for the specified model path.
+  echo "    The -attributes_only switch will cause the tool to list only the attributes"
+  echo "    for the specified model path."
   echo ""
-  echo "    The -recursive switch will cause the tool to list only the folders
-  echo "    for the specified model path, and recursively include the folders below
-  echo "    that path.
+  echo "    The -folders_only switch will cause the tool to list only the folders"
+  echo "    for the specified model path."
+  echo ""
+  echo "    The -recursive switch will cause the tool to list only the folders"
+  echo "    for the specified model path, and recursively include the folders below"
+  echo "    that path."
   echo ""
 }
 
