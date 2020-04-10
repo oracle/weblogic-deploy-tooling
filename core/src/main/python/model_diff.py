@@ -18,6 +18,11 @@ import sys, os, traceback
 from java.lang import System
 from wlsdeploy.util.model_translator import FileToPython
 #from wlsdeploy.yaml.yaml_translator import PythonToYaml
+from oracle.weblogic.deploy.util import CLAException
+from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util import model_context_helper
+from wlsdeploy.util import cla_helper
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 UNSAFE_ONLINE_UPDATE=0
 SAFE_ONLINE_UPDATE=1
@@ -25,6 +30,38 @@ FATAL_MODEL_CHANGES=2
 MODELS_SAME=3
 SECURITY_INFO_UPDATED=4
 RCU_PASSWORD_CHANGED=5
+
+_program_name = 'compareModel'
+_class_name = 'model_diff'
+__logger = PlatformLogger('wlsdeploy.model_diff')
+
+__required_arguments = [
+    CommandLineArgUtil.ORACLE_HOME_SWITCH
+]
+
+__optional_arguments = [
+    CommandLineArgUtil.COMPARE_MODEL_OUTPUT_DIR_SWITCH
+]
+
+def __process_args(args):
+    """
+    Process the command-line arguments.
+    :param args: the command-line arguments list
+    :raises CLAException: if an error occurs while validating and processing the command-line arguments
+    """
+    _method_name = '__process_args'
+
+    cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
+    required_arg_map, optional_arg_map = cla_util.process_args(args, trailing_arg_count=2)
+
+    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
+
+    combined_arg_map = optional_arg_map.copy()
+    combined_arg_map.update(required_arg_map)
+
+    return model_context_helper.create_context(_program_name, combined_arg_map)
+
+
 
 # The following class is borrowed directly from the WDT project's yaml_tranlator.py
 class PythonToYaml:
@@ -116,10 +153,12 @@ class ModelDiffer:
         self.past_dict = past_dict
         self.set_current = sets.Set()
         self.set_past = sets.Set()
-        for item in self.current_dict.keys():
-            self.set_current.add(item)
-        for item in self.past_dict.keys():
-            self.set_past.add(item)
+        if self.current_dict and len(self.current_dict.keys()) > 0:
+            for item in self.current_dict.keys():
+                self.set_current.add(item)
+        if self.past_dict and len(self.past_dict.keys()) > 0:
+            for item in self.past_dict.keys():
+                self.set_past.add(item)
         self.intersect = self.set_current.intersection(self.set_past)
 
     def added(self):
@@ -149,6 +188,7 @@ class ModelDiffer:
 
     def recursive_changed_detail(self, key, token, root):
         debug("DEBUG: Entering recursive_changed_detail key=%s token=%s root=%s", key, token, root)
+
         a=ModelDiffer(self.current_dict[key], self.past_dict[key])
         diff=a.changed()
         added=a.added()
@@ -214,6 +254,7 @@ class ModelDiffer:
         added = self.added()
         removed = self.removed()
 
+        #
         #  Call recursive for each key
         #
         for s in changed:
@@ -231,20 +272,68 @@ class ModelDiffer:
             self._add_results(all_added)
             # Should not have delete
 
-        # Top level ?  delete all resources, all appDeployments?
+        # Clean up previous delete first
+        for x in all_removed:
+            all_removed.remove(x)
 
+        # Top level:  delete all resources, all appDeployments
+
+        for s in removed:
+            token = s
+            self.recursive_changed_detail(s,token, s)
+            self._add_results(all_removed, True)
 
     def _add_results(self, ar_changes, is_delete=False):
         """
-          Update the final diffed dictionary with the changes
+          Update the differences in the final model dictionary with the changes
         :param ar_changes:   Array of changes in delimited format
         """
         # The ar_changes is the keys of changes in the piped format
         #  'resources|JDBCSystemResource|Generic2|JdbcResource|JDBCConnectionPoolParams|TestConnectionsOnReserve
         #
-        #  Now change it to python dictionrary
+
+        allowable_deletes = [ 'appDeployments|Application' ,
+                              'appDeployments|Library',
+                              'resources|CoherenceClusterSystemResource',
+                              'resources|FileStore',
+                              'resources|ForeignJNDIProvider',
+                              'resources|JDBCStore',
+                              'resources|JDBCSystemResource',
+                              'resources|JMSBridgeDestination',
+                              'resources|JMSServer',
+                              'resources|JMSSystemResource',
+                              'resources|JoltConnectionPool',
+                              'resources|MailSession',
+                              'resources|MessagingBridge',
+                              'resources|ODLConfiguration',
+                              'resources|Partition',
+                              'resources|PartitionWorkManager',
+                              'resources|PathService',
+                              'resources|ResourceGroup',
+                              'resources|ResourceGroupTemplate',
+                              'resources|ResourceManagement',
+                              'resources|SAFAgent',
+                              'resources|SelfTuning',
+                              'resources|ShutdownClass',
+                              'resources|SingletonService',
+                              'resources|StartupClass',
+                              'resources|WLDFSystemResource',
+                              'resources|WebAppContainer',
+                              'resources|WTCServer' ]
 
         for item in ar_changes:
+            print 'DEBUG: item is ' + item
+            found_in_allowable_delete = False
+            if is_delete:
+                print 'DEBUG: ' + item
+                for allowable_delete in allowable_deletes:
+                    if item.startswith(allowable_delete):
+                        found_in_allowable_delete = True
+                if not found_in_allowable_delete:
+                    compare_warnings.add('INFO: Model Path: ' + str(item)
+                                            + ' does not exist in current model but exists in previous model')
+                    continue
+
             splitted=item.split('|',1)
             n=len(splitted)
             result=dict()
@@ -273,43 +362,51 @@ class ModelDiffer:
             for k in walked:
                 leaf = leaf[k]
                 value_tree=value_tree[k]
-
-            # walk the current dictionary and set the value
-            # doesn't work in delete case
             #
-            leaf[splitted[0]] = value_tree[splitted[0]]
+            # walk the current dictionary and set the value
+            #
+            if value_tree:
+                leaf[splitted[0]] = value_tree[splitted[0]]
+            else:
+                leaf[splitted[0]] = None
+
             self.merge_dictionaries(self.final_changed_model, result)
 
-            allowable_deletes = [ 'appDeployments|Application' ,
-                                  'appDeployments|Library',
-                                  'resources|JDBCSystemResource',
-                                  'resources|JMSSystemResource',
-                                  'resources|JMSServer' ]
+            # if it is a deletion then go back and update with '!'
 
             if is_delete:
-                found_in_allowable_delete = False
+                print 'DELETING ' + item
                 for allowable_delete in allowable_deletes:
                     if item.startswith(allowable_delete):
-                        found_in_allowable_delete = True
                         split_delete = item.split('|')
                         allowable_delete_length = len(allowable_delete.split('|'))
                         split_delete_length = len(split_delete)
+                        debug("DEBUG: deleting %s from the model ", item)
+
                         if split_delete_length == allowable_delete_length + 1:
                             app_key = split_delete[split_delete_length - 1]
-                            debug("DEBUG: deleting %s from the model ", item)
                             pointer_dict = self.final_changed_model
                             for k_item in allowable_delete.split('|'):
                                 pointer_dict = pointer_dict[k_item]
                             del pointer_dict[app_key]
                             pointer_dict['!' + app_key] = dict()
                         else:
-                            print 'WARNING: Cannot delete attribute: ' + str(item) + ' will not reflected in differences'
-
-                if not found_in_allowable_delete:
-                    print 'WARNING: Cannot delete attribute: ' + str(item) + ' will not reflected in differences'
-
-
-
+                            # Deleting attributes
+                            pointer_dict = self.final_changed_model
+                            split_delete = item.split('|')
+                            app_key = split_delete[-1]
+                            parent_key = split_delete[-2]
+                            for k_item in split_delete:
+                                if k_item == parent_key:
+                                    break
+                                pointer_dict = pointer_dict[k_item]
+                            del pointer_dict[parent_key][app_key]
+                            # Deleting entire tree
+                            if split_delete_length == allowable_delete_length:
+                                pointer_dict[parent_key][ '!' + app_key] = dict()
+                            else:
+                                compare_warnings.add('INFO: Model Path: ' + str(item)
+                                             + ' does not exist in current model but exists in previous model')
 
     def merge_dictionaries(self, dictionary, new_dictionary):
         """
@@ -444,9 +541,10 @@ class ModelFileDiffer:
     """
       This is the main driver for the caller.  It compares two model files whether they are json or yaml format.
     """
-    def __init__(self, current_dict, past_dict):
+    def __init__(self, current_dict, past_dict, output_dir=None):
         self.current_dict_file = current_dict
         self.past_dict_file = past_dict
+        self.output_dir = output_dir
 
     def get_dictionary(self, file):
         """
@@ -549,14 +647,18 @@ class ModelFileDiffer:
         obj = ModelDiffer(current_dict, past_dict)
         obj.calculate_changed_model()
         net_diff = obj.get_final_changed_model()
-        fh = open('/tmp/diffed_model.json', 'w')
-        self.write_dictionary_to_json_file(net_diff, fh)
-        #print all_added
-        fh.close()
-        fh = open('/tmp/diffed_model.yaml', 'w')
-        pty = PythonToYaml()
-        pty._write_dictionary_to_yaml_file(net_diff, fh)
-        fh.close()
+        if self.output_dir:
+            fh = open(self.output_dir + '/diffed_model.json', 'w')
+            self.write_dictionary_to_json_file(net_diff, fh)
+            fh.close()
+            fh = open(self.output_dir + '/diffed_model.yaml', 'w')
+            pty = PythonToYaml()
+            pty._write_dictionary_to_yaml_file(net_diff, fh)
+            fh.close()
+        else:
+            pty = PythonToYaml()
+            pty._write_dictionary_to_yaml_file(net_diff, sys.stdout)
+
         return obj.is_safe_diff(net_diff)
 
 def debug(format_string, *arguments):
@@ -565,19 +667,55 @@ def debug(format_string, *arguments):
     :param format_string:  python formatted string
     :param arguments:
     """
-    if os.environ.has_key('DEBUG_INTROSPECT_JOB'):
+    if os.environ.has_key('DEBUG_COMPARE_MODEL_TOOL'):
         print format_string % (arguments)
 
 def main():
+    """
+    The main entry point for the discoverDomain tool.
+    :param args: the command-line arguments
+    """
+    _method_name = 'main'
+
+    __logger.entering(class_name=_class_name, method_name=_method_name)
+    for index, arg in enumerate(sys.argv):
+        __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
+
+    _outputdir = None
+
     try:
-        obj = ModelFileDiffer(sys.argv[3], sys.argv[4])
-        rc=obj.compare()
-        rcfh = open('/tmp/model_diff_rc', 'w')
-        rcfh.write(",".join(map(str,changed_items)))
-        rcfh.close()
+        model_context = __process_args(sys.argv)
+        _outputdir = model_context.get_compare_model_output_dir()
+    except CLAException, ex:
+        exit_code = ex.getExitCode()
+        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
+                            class_name=_class_name, method_name=_method_name)
+        cla_helper.clean_up_temp_files()
+        sys.exit(exit_code)
+
+    try:
+        model1 = model_context.get_trailing_argument(0)
+        model2 = model_context.get_trailing_argument(1)
+        obj = ModelFileDiffer(model1, model2, _outputdir)
+        obj.compare()
+        if _outputdir:
+            rcfh = open(_outputdir + '/model_diff_rc', 'w')
+            rcfh.write(",".join(map(str,changed_items)))
+            rcfh.close()
+            if len(compare_warnings) > 0:
+                rcfh = open(_outputdir + '/model_diff_stdout', 'w')
+                for line in compare_warnings:
+                    rcfh.write(line.replace('|', "-->"))
+                rcfh.close()
+        else:
+            if len(compare_warnings) > 0:
+                print ""
+                print ""
+                for line in compare_warnings:
+                    print line.replace('|', "-->")
+
         System.exit(0)
-
-
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         eeString = traceback.format_exception(exc_type, exc_obj, exc_tb)
@@ -589,6 +727,7 @@ if __name__ == "__main__":
     all_added = []
     all_removed = []
     changed_items = []
+    compare_warnings = sets.Set()
     main()
 
 
