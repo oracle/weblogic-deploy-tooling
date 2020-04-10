@@ -79,7 +79,6 @@ class CommandLineArgUtil(object):
 
     # For compare models tool
 
-    COMPARE_MODEL_SWITCH = '-compare_models'
     COMPARE_MODEL_OUTPUT_DIR_SWITCH = "-compare_models_output_dir"
     SILENT_SWITCH = '-silent'
 
@@ -976,9 +975,6 @@ class CommandLineArgUtil(object):
     def is_rollback_if_restart_required_key(self, key):
         return self.ROLLBACK_IF_RESTART_REQ_SWITCH == key
 
-    def is_compare_model_switch(self, key):
-        return self.COMPARE_MODEL_SWITCH == key
-
     def is_compare_model_output_dir_switch(self, key):
         return self.COMPARE_MODEL_OUTPUT_DIR_SWITCH == key
 
@@ -995,19 +991,6 @@ class CommandLineArgUtil(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return variables.getAbsolutePath()
-
-    def _validate_compare_model_arg(self, value1, value2):
-        method_name = '_validate_compare_model_arg'
-        try:
-            # Check values
-            JFileUtils.validateDirectoryName(value1)
-            JFileUtils.validateDirectoryName(value2)
-        except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01637', value, iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        return "%s %s" % (value1, value2)
 
     ###########################################################################
     # Helper methods                                                          #
