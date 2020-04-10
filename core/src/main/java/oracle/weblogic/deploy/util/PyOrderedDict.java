@@ -455,9 +455,22 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
 
     /**
      * {@inheritDoc}
+     * This method is not supported, as it is not portable between versions of Jython.
+     * Jython 2.1 returns PyList, Jython 2.7 returns a Collection.
+     * WDT code should use getValues() to get ordered values.
      */
     @Override
     public PyList values() {
+        String message = ExceptionHelper.getMessage("WLSDPLY-01252");
+        throw new UnsupportedOperationException(message);
+    }
+
+    /**
+     * Because return type for values() is different between Jython 2.1 and Jython 2.7,
+     * WDT code should call this variant to get a list of values.
+     * @return an ordered list of values
+     */
+    public PyList getValues() {
         Collection<PyObject> values = this.linkedHashMap.values();
         java.util.Vector<PyObject> v = new java.util.Vector<>(values.size());
         v.addAll(values);

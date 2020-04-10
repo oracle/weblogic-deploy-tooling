@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -42,7 +42,7 @@ class CollectionsTestCase(unittest.TestCase):
         my_ordered_dict['nba_finals_years'] = ['2015', '2016', '2017']
 
         expected_values = ['Steph Curry', 1, False, ['2015', '2016', '2017']]
-        values = my_ordered_dict.values()
+        values = my_ordered_dict.getValues()
         self.assertEqual(len(expected_values), len(values),
                          'expected the ordered dict values to be the same length as the expected values')
         for i, value in enumerate(values):
@@ -212,7 +212,7 @@ class CollectionsTestCase(unittest.TestCase):
         for key in sorted_keys:
             sorted_dict[key] = dict1[key]
 
-        self.assertEqual(sorted_dict.values()[-1], '8100',
+        self.assertEqual(sorted_dict.getValues()[-1], '8100',
                          'expected dictionary to be sorted by name')
 
 
