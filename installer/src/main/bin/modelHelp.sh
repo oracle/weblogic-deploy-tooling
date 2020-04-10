@@ -35,7 +35,7 @@ usage() {
   echo "Usage: $1 [-help]"
   echo "          -oracle_home <oracle_home>"
   echo "          [-attributes_only | -folders_only | -recursive]"
-  echo "          -path <model_path>"
+  echo "          <model_path>"
   echo ""
   echo "    where:
   echo "        oracle_home - an existing Oracle Home directory"
