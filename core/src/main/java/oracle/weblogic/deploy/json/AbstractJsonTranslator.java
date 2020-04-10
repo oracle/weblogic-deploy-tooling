@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import oracle.weblogic.deploy.exception.ExceptionHelper;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.util.PyOrderedDict;
 import oracle.weblogic.deploy.util.StringUtils;
@@ -17,6 +18,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.atn.PredictionMode;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.python.core.Py;
@@ -114,6 +116,7 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
      */
     @Override
     public void enterJsonObject(JSONParser.JsonObjectContext ctx) {
+        String METHOD = "enterJsonObject";
         if (currentPairName.isEmpty()) {
             // This should only happen for the outermost object that the file defines.
             //
@@ -127,6 +130,15 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
             newObjectDict = new PyOrderedDict();
         } else {
             newObjectDict = new PyDictionary();
+        }
+
+        String name = currentPairName.peek();
+        if (currentDict.peek().has_key(new PyString(name))) {
+            String message = ExceptionHelper.getMessage("WLSDPLY-18029", name);
+            ParseCancellationException ex =
+                new ParseCancellationException(message);
+            getLogger().throwing(getClassName(), METHOD, ex);
+            throw ex;
         }
         currentDict.push(newObjectDict);
         currentValueType.push(ValueType.OBJECT);

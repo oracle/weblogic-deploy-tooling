@@ -12,6 +12,8 @@ import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.util.FileUtils;
 
+import oracle.weblogic.deploy.util.TranslateException;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.python.core.PyDictionary;
 
 /**

@@ -12,6 +12,7 @@ import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.util.FileUtils;
 
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.python.core.PyDictionary;
 
 /**
@@ -59,7 +60,7 @@ public class JsonTranslator extends AbstractJsonTranslator {
         PyDictionary result;
         try (FileInputStream fis = new FileInputStream(jsonFile)) {
             result = parseInternal(jsonFile.getPath(), fis);
-        } catch (IOException ioe) {
+        } catch (IOException | ParseCancellationException ioe) {
             JsonException ex =
                 new JsonException("WLSDPLY-18007", ioe, "JSON", jsonFile.getPath(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ex);
