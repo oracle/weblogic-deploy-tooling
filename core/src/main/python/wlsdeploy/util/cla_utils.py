@@ -17,9 +17,6 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
-from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
-from wlsdeploy.tool.validate.usage_printer import MODEL_PATH_PATTERN
-
 # tool type may indicate variations in argument processing
 TOOL_TYPE_CREATE = "create"
 TOOL_TYPE_DEFAULT = "default"
@@ -50,7 +47,6 @@ class CommandLineArgUtil(object):
     OPSS_WALLET_PASSPHRASE     = '-opss_wallet_passphrase'
     PREVIOUS_MODEL_FILE_SWITCH = '-prev_model_file'
     VARIABLE_FILE_SWITCH       = '-variable_file'
-    PRINT_USAGE_SWITCH         = '-print_usage'
     RCU_DB_SWITCH              = '-rcu_db'
     RCU_PREFIX_SWITCH          = '-rcu_prefix'
     # phony arg used as a key to store the password
@@ -67,6 +63,8 @@ class CommandLineArgUtil(object):
     RUN_RCU_SWITCH             = '-run_rcu'
     TARGET_VERSION_SWITCH      = '-target_version'
     TARGET_MODE_SWITCH         = '-target_mode'
+    # phony arg used as a key to store the trailing (non-switched) arguments
+    TRAILING_ARGS_SWITCH       = '-trailing_arguments'
     ATTRIBUTES_ONLY_SWITCH     = '-attributes_only'
     FOLDERS_ONLY_SWITCH        = '-folders_only'
     RECURSIVE_SWITCH           = '-recursive'
@@ -84,6 +82,18 @@ class CommandLineArgUtil(object):
     COMPARE_MODEL_SWITCH = '-compare_models'
     COMPARE_MODEL_OUTPUT_DIR_SWITCH = "-compare_models_output_dir"
     SILENT_SWITCH = '-silent'
+
+    # arguments that are true if specified, false if not
+    BOOLEAN_SWITCHES = [
+        ATTRIBUTES_ONLY_SWITCH,
+        ENCRYPT_MANUAL_SWITCH,
+        FOLDERS_ONLY_SWITCH,
+        RECURSIVE_SWITCH,
+        ROLLBACK_IF_RESTART_REQ_SWITCH,
+        RUN_RCU_SWITCH,
+        UPDATE_RCU_SCHEMA_PASS_SWITCH,
+        USE_ENCRYPTION_SWITCH
+    ]
 
     # a slot to stash the parsed domain typedef dictionary
     DOMAIN_TYPEDEF             = 'domain_typedef'
@@ -128,12 +138,13 @@ class CommandLineArgUtil(object):
         """
         self._allow_multiple_models = allow_multiple_models
 
-    def process_args(self, args, tool_type=TOOL_TYPE_DEFAULT):
+    def process_args(self, args, tool_type=TOOL_TYPE_DEFAULT, trailing_arg_count=0):
         """
         This method parses the command-line arguments and returns dictionaries of the required and optional args.
 
         :param args: sys.argv
         :param tool_type: optional, type of tool for special argument processing
+        :param trailing_arg_count: optional, the number of trailing (no switch) arguments
         :return: the required and optional argument dictionaries
         :raises CLAException: if argument processing encounters a usage or validation exception
         """
@@ -153,6 +164,9 @@ class CommandLineArgUtil(object):
             ex.setExitCode(self.HELP_EXIT_CODE)
             raise ex
 
+        args = self._check_trailing_arguments(args, trailing_arg_count)
+        args_len = len(args)
+
         idx = 1
         while idx < args_len:
             key = args[idx]
@@ -162,307 +176,123 @@ class CommandLineArgUtil(object):
                 ex.setExitCode(self.HELP_EXIT_CODE)
                 raise ex
             elif self.is_oracle_home_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_oracle_home_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_oracle_home_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_java_home_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_java_home_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_java_home_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_domain_home_key(key):
-                idx += 1
-                if idx < args_len:
-                    if tool_type == TOOL_TYPE_CREATE:
-                        full_path = self._validate_domain_home_arg_for_create(args[idx])
-                    elif tool_type == TOOL_TYPE_EXTRACT:
-                        full_path = self._validate_domain_home_arg_for_extract(args[idx])
-                    else:
-                        full_path = self._validate_domain_home_arg(args[idx])
-                    self._add_arg(key, full_path, True)
+                value, idx = self._get_arg_value(args, idx, key)
+                if tool_type == TOOL_TYPE_CREATE:
+                    full_path = self._validate_domain_home_arg_for_create(value)
+                elif tool_type == TOOL_TYPE_EXTRACT:
+                    full_path = self._validate_domain_home_arg_for_extract(value)
                 else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                    full_path = self._validate_domain_home_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_domain_parent_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_domain_parent_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_domain_parent_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_domain_type_key(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_domain_type_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_domain_type_arg(value)
+                self._add_arg(key, value)
             elif self.is_wlst_path_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_wlst_path_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_wlst_path_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_admin_url_key(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_admin_url_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_admin_url_arg(value)
+                self._add_arg(key, value)
             elif self.is_admin_user_key(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_admin_user_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_admin_user_arg(value)
+                self._add_arg(key, value)
             elif self.is_admin_pass_key(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_admin_pass_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_admin_pass_arg(value)
+                self._add_arg(key, value)
             elif self.is_archive_file_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_archive_file_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_archive_file_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_opss_passphrase_key(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_opss_passphrase_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_opss_passphrase_arg(value)
+                self._add_arg(key, value)
             elif self.is_opss_wallet_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_opss_wallet_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_opss_wallet_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_model_file_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_model_file_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_model_file_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_previous_model_file_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_previous_model_file_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
-            elif self.is_print_usage_key(key):
-                idx += 1
-                if idx < args_len:
-                    context = self._validate_print_usage_arg(args[idx])
-                    self._add_arg(key, context)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_previous_model_file_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_validate_method_key(key):
-                idx += 1
-                if idx < args_len:
-                    context = self._validate_validate_method_arg(args[idx])
-                    self._add_arg(key, context)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                context = self._validate_validate_method_arg(value)
+                self._add_arg(key, context)
             elif self.is_variable_file_key(key):
-                idx += 1
-                if idx < args_len:
-                    self._add_arg(key, args[idx], True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                self._add_arg(key, value, True)
             elif self.is_rcu_database_key(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_rcu_database_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_rcu_database_arg(value)
+                self._add_arg(key, value)
             elif self.is_rcu_prefix_key(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_rcu_prefix_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_rcu_prefix_arg(value)
+                self._add_arg(key, value)
             elif self.is_rcu_sys_pass_key(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_rcu_sys_pass_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_rcu_sys_pass_arg(value)
+                self._add_arg(key, value)
             elif self.is_rcu_schema_pass_key(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_rcu_schema_pass_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_rcu_schema_pass_arg(value)
+                self._add_arg(key, value)
             elif self.is_passphrase_switch(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_passphrase_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
-            elif self.is_encrypt_manual_switch(key):
-                self._add_arg(key, True)
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_passphrase_arg(value)
+                self._add_arg(key, value)
             elif self.is_one_pass_switch(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_one_pass_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
-            elif self.is_use_encryption_switch(key):
-                self._add_arg(key, True)
-            elif self.is_run_rcu_switch(key):
-                self._add_arg(key, True)
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_one_pass_arg(value)
+                self._add_arg(key, value)
             elif self.is_target_version_switch(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_target_version_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_target_version_arg(value)
+                self._add_arg(key, value)
             elif self.is_target_mode_switch(key):
-                idx += 1
-                if idx < args_len:
-                    self._validate_target_mode_arg(args[idx])
-                    self._add_arg(key, args[idx])
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
-            elif self.is_attributes_only_switch(key):
-                self._add_arg(key, True)
-            elif self.is_folders_only_switch(key):
-                self._add_arg(key, True)
-            elif self.is_recursive_switch(key):
-                self._add_arg(key, True)
-            elif self.is_update_rcu_schema_pass_switch(key):
-                self._add_arg(key, True)
+                value, idx = self._get_arg_value(args, idx, key)
+                self._validate_target_mode_arg(value)
+                self._add_arg(key, value)
             elif self.is_variable_injector_file_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_variable_injector_file_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_variable_injector_file_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_variable_keywords_file_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_variable_keywords_file_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_variable_keywords_file_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_variable_properties_file_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_variable_properties_file_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_variable_properties_file_arg(value)
+                self._add_arg(key, full_path, True)
             elif self.is_domain_resource_file_key(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_domain_resource_file_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
-            elif self.is_rollback_if_restart_required_key(key):
+                value, idx = self._get_arg_value(args, idx, key)
+                full_path = self._validate_domain_resource_file_arg(value)
+                self._add_arg(key, full_path, True)
+            elif self.is_boolean_switch(key):
                 self._add_arg(key, True)
-            elif self.is_silent_switch(key):
-                self._add_arg(key, True)
-            elif self.is_compare_model_output_dir_switch(key):
-                idx += 1
-                if idx < args_len:
-                    full_path = self._validate_compare_model_output_dir_arg(args[idx])
-                    self._add_arg(key, full_path, True)
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
-            elif self.is_compare_model_switch(key):
-                idx += 1
-                if idx+1 < args_len:
-                    full_path = self._validate_compare_model_arg(args[idx], args[idx+1])
-                    self._add_arg(key, full_path, True)
-                    idx += 1
-                else:
-                    ex = self._get_out_of_args_exception(key)
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
             else:
                 ex = exception_helper.create_cla_exception('WLSDPLY-01601', self._program_name, key)
                 ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
@@ -473,6 +303,56 @@ class CommandLineArgUtil(object):
         print_result = {'required': self._required_result, 'optional': self._optional_result}
         self._logger.exiting(class_name=self._class_name, method_name=method_name, result=print_result)
         return self._required_result, self._optional_result
+
+    def _get_arg_value(self, args, index, key):
+        """
+        Return the value after the specified index in the argument array.
+        Throw an exception if the next index is past the end of the arguments.
+        :param args: the arguments to be examined
+        :param index: the index argument before the value
+        :param key: the key of the previous argument, for logging
+        :return: the value of the argument, and the next index value
+        """
+        method_name = '_get_arg_value'
+        key = args[index]
+        index = index + 1
+        if index >= len(args):
+            ex = self._get_out_of_args_exception(key)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return args[index], index
+
+    def _check_trailing_arguments(self, args, trailing_arg_count):
+        """
+        Remove any trailing (no switch) arguments from the argument list and add them to the required result.
+          example:
+            command.sh -oracle_home /oracle file1 file2
+            file1 and file2 are trailing arguments
+
+        :param args: the arguments to be examined
+        :param trailing_arg_count: the number of trailing arguments that are expected
+        :return: the argument list, with the trailing arguments removed
+        :raises CLAException: if there are not enough arguments present
+        """
+        method_name = '_check_trailing_arguments'
+        args_len = len(args)
+
+        # verify there are enough arguments for any trailing (no switch) args
+        if args_len < trailing_arg_count + 1:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01639', trailing_arg_count)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+
+        # set required_result['TRAILING_ARGS'] to list of trailing args (such as ['file1', 'file2'])
+        trailing_args = []
+        for index in range(args_len - trailing_arg_count, args_len):
+            arg = args[index]
+            trailing_args.append(arg)
+        self._required_result[self.TRAILING_ARGS_SWITCH] = trailing_args
+
+        # remove trailing args from the list and return revised list
+        return args[0:(args_len - trailing_arg_count)]
 
     def get_help_key(self):
         return self.HELP_SWITCH
@@ -864,35 +744,6 @@ class CommandLineArgUtil(object):
             raise ex
         return value
 
-    def get_print_usage_key(self):
-        return self.PRINT_USAGE_SWITCH
-
-    def is_print_usage_key(self, key):
-        return self.PRINT_USAGE_SWITCH == key
-
-    def _validate_print_usage_arg(self, value):
-        method_name = '_validate_print_usage_arg'
-
-        if value is None or len(value) == 0:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01619')
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        matcher = MODEL_PATH_PATTERN.match(value)
-        if not matcher:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01633', self.PRINT_USAGE_SWITCH, value)
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        section_name = matcher.group(1)
-        if section_name not in KNOWN_TOPLEVEL_MODEL_SECTIONS:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01634', self.PRINT_USAGE_SWITCH, value,
-                                                       section_name, KNOWN_TOPLEVEL_MODEL_SECTIONS)
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        return value
-
     def get_variable_file_key(self):
         return self.VARIABLE_FILE_SWITCH
 
@@ -979,12 +830,6 @@ class CommandLineArgUtil(object):
             raise ex
         return
 
-    def get_encrypt_manual_switch(self):
-        return self.ENCRYPT_MANUAL_SWITCH
-
-    def is_encrypt_manual_switch(self, key):
-        return self.ENCRYPT_MANUAL_SWITCH == key
-
     def get_one_pass_switch(self):
         return self.ONE_PASS_SWITCH
 
@@ -1000,18 +845,6 @@ class CommandLineArgUtil(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return
-
-    def get_use_encryption_switch(self):
-        return self.USE_ENCRYPTION_SWITCH
-
-    def is_use_encryption_switch(self, key):
-        return self.USE_ENCRYPTION_SWITCH == key
-
-    def get_run_rcu_switch(self):
-        return self.RUN_RCU_SWITCH
-
-    def is_run_rcu_switch(self, key):
-        return self.RUN_RCU_SWITCH == key
 
     def get_target_version_switch(self):
         return self.TARGET_VERSION_SWITCH
@@ -1051,30 +884,6 @@ class CommandLineArgUtil(object):
 
     def is_target_mode_switch(self, key):
         return self.TARGET_MODE_SWITCH == key
-
-    def get_attributes_only_switch(self):
-        return self.ATTRIBUTES_ONLY_SWITCH
-
-    def is_attributes_only_switch(self, key):
-        return self.ATTRIBUTES_ONLY_SWITCH == key
-
-    def get_folders_only_switch(self):
-        return self.FOLDERS_ONLY_SWITCH
-
-    def is_folders_only_switch(self, key):
-        return self.FOLDERS_ONLY_SWITCH == key
-
-    def get_recursive_switch(self):
-        return self.RECURSIVE_SWITCH
-
-    def is_recursive_switch(self, key):
-        return self.RECURSIVE_SWITCH == key
-
-    def is_update_rcu_schema_pass_switch(self, key):
-        return self.UPDATE_RCU_SCHEMA_PASS_SWITCH == key
-
-    def get_is_update_rcu_schema_pass_switch(self):
-        return self.UPDATE_RCU_SCHEMA_PASS_SWITCH
 
     def _validate_target_mode_arg(self, value):
         method_name = '_validate_target_mode_arg'
@@ -1161,6 +970,8 @@ class CommandLineArgUtil(object):
             raise ex
         return variables.getAbsolutePath()
 
+    def is_boolean_switch(self, key):
+        return key in self.BOOLEAN_SWITCHES
 
     def is_rollback_if_restart_required_key(self, key):
         return self.ROLLBACK_IF_RESTART_REQ_SWITCH == key
@@ -1221,7 +1032,7 @@ class CommandLineArgUtil(object):
         return
 
     def _get_out_of_args_exception(self, key):
-        ex = exception_helper.create_cla_exception('WLSDPLY-01110', key, self._program_name)
+        ex = exception_helper.create_cla_exception('WLSDPLY-01638', key, self._program_name)
         ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
         return ex
 

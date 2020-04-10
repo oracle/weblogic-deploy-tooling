@@ -135,33 +135,3 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
         retval = (actual_data_type in ["<type 'str'>", "<type 'list'>", "<type 'unicode'>"])
 
     return retval
-
-
-def print_indent(msg, level=1):
-    """
-
-    :param msg:
-    :param level:
-    :return:
-    """
-    result = ''
-    i = 0
-    while i < level:
-        result += '  '
-        i += 1
-    print '%s%s' % (result, msg)
-    return
-
-
-def print_blank_lines(number=1):
-    """
-
-    :param number:
-    :return:
-    """
-    i = 0
-    while i < number:
-        print
-        i += 1
-
-    return

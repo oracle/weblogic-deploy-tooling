@@ -236,7 +236,6 @@ class VariableFileHelperTest(unittest.TestCase):
         replacement_dict = dict()
         replacement_dict['Server[MANAGED_SERVERS,ADMIN_SERVER].SSL.Enabled'] = dict()
         actual = self._helper.inject_variables(replacement_dict)
-        print 'actual ***', actual
         self._compare_to_expected_dictionary(expected, actual)
 
     def testWithVariableHelperKeywords(self):
@@ -265,7 +264,6 @@ class VariableFileHelperTest(unittest.TestCase):
     def testForceAttribute(self):
         expected = dict()
         short_name = self._helper.get_folder_short_name(LocationContext().append_location('Server'))
-        print '****** ', short_name
         expected[short_name + '.AdminServer.SSL.HostnameVerificationIgnored'] = 'false'
         expected[short_name + '.m1.SSL.HostnameVerificationIgnored'] = 'false'
         expected[short_name + '.m2.SSL.HostnameVerificationIgnored'] = 'false'
