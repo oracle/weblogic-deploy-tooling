@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.json;
@@ -134,7 +134,7 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
 
         String name = currentPairName.peek();
         if (currentDict.peek().has_key(new PyString(name))) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-18029", name);
+            String message = ExceptionHelper.getMessage("WLSDPLY-18028", name);
             ParseCancellationException ex =
                 new ParseCancellationException(message);
             getLogger().throwing(getClassName(), METHOD, ex);
