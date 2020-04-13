@@ -77,10 +77,6 @@ class CommandLineArgUtil(object):
     # extractDomainResource output file
     DOMAIN_RESOURCE_FILE_SWITCH   = '-domain_resource_file'
 
-    # For compare models tool
-
-    COMPARE_MODEL_OUTPUT_DIR_SWITCH = "-compare_models_output_dir"
-
     # arguments that are true if specified, false if not
     BOOLEAN_SWITCHES = [
         ATTRIBUTES_ONLY_SWITCH,
@@ -974,9 +970,6 @@ class CommandLineArgUtil(object):
 
     def is_boolean_switch(self, key):
         return key in self.BOOLEAN_SWITCHES
-
-    def is_rollback_if_restart_required_key(self, key):
-        return self.ROLLBACK_IF_RESTART_REQ_SWITCH == key
 
     def is_compare_model_output_dir_switch(self, key):
         return self.COMPARE_MODEL_OUTPUT_DIR_SWITCH == key

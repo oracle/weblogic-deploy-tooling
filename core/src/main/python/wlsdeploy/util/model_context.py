@@ -457,13 +457,6 @@ class ModelContext(object):
         """
         return self._use_encryption
 
-    def get_compare_model_output_dir(self):
-        """
-        Get the compare model output directory
-        :return: compare model output directory
-        """
-        return self._compare_model_output_dir
-
     def get_target_wls_version(self):
         """
         Get the target WebLogic version.

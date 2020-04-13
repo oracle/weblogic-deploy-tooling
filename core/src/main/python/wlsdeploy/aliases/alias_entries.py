@@ -171,9 +171,23 @@ class AliasEntries(object):
 
     # all the categories that appear at the top of model sections
     __top_model_categories = []
+    __top_model_categories.extend(__topology_top_level_folders)
+    __top_model_categories.extend(__resources_top_level_folders)
+    __top_model_categories.extend(__app_deployments_top_level_folders)
+    __top_model_categories.extend(__domain_info_top_level_folders)
+    __top_model_categories.extend(__kubernetes_top_level_folders)
 
     # all the categories, including section-attribute and contained categories
     __all_model_categories = []
+    __all_model_categories.extend(__top_model_categories)
+
+    # include contained categories
+    __all_model_categories.append(RESOURCE_MANAGER)
+    __all_model_categories.append(SERVER_POD)
+
+    # include section attribute categories
+    __all_model_categories.append(DOMAIN_INFO_ALIAS)
+    __all_model_categories.append(KUBERNETES_ALIAS)
 
     __domain_name_token = 'DOMAIN'
 
@@ -192,23 +206,6 @@ class AliasEntries(object):
             self._wls_helper = WebLogicHelper(_logger, wls_version)
             self._wls_version = wls_version
 
-        # top model categories
-        self.__top_model_categories.extend(self.__topology_top_level_folders)
-        self.__top_model_categories.extend(self.__resources_top_level_folders)
-        self.__top_model_categories.extend(self.__app_deployments_top_level_folders)
-        self.__top_model_categories.extend(self.__domain_info_top_level_folders)
-        self.__top_model_categories.extend(self.__kubernetes_top_level_folders)
-
-        # all model categories
-        self.__all_model_categories.extend(self.__top_model_categories)
-
-        # include contained categories
-        self.__all_model_categories.append(RESOURCE_MANAGER)
-        self.__all_model_categories.append(SERVER_POD)
-
-        # include section attribute categories
-        self.__all_model_categories.append(DOMAIN_INFO_ALIAS)
-        self.__all_model_categories.append(KUBERNETES_ALIAS)
         return
 
     def get_dictionary_for_location(self, location, resolve=True):
