@@ -1,12 +1,12 @@
 @ECHO OFF
 @rem **************************************************************************
-@rem modelHelp.cmd
+@rem compareModel.cmd
 @rem
 @rem Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
-@rem       compareModel.sh - WLS Deploy tool to compare two models
+@rem       compareModel.cmd - WLS Deploy tool to compare two models
 @rem
 @rem     DESCRIPTION
 @rem       This script compares two models. The models compared must be both yaml or both json
