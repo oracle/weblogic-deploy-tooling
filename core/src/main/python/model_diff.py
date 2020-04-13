@@ -12,12 +12,11 @@
 #   This script is invoked by jython.  See modelInImage.sh diff_model
 #
 
-import re
 import sets
 import sys, os, traceback
 from java.lang import System
 from wlsdeploy.util.model_translator import FileToPython
-#from wlsdeploy.yaml.yaml_translator import PythonToYaml
+from wlsdeploy.yaml.yaml_translator import PythonToYaml
 from oracle.weblogic.deploy.util import CLAException
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
@@ -60,89 +59,6 @@ def __process_args(args):
     combined_arg_map.update(required_arg_map)
 
     return model_context_helper.create_context(_program_name, combined_arg_map)
-
-
-
-# The following class is borrowed directly from the WDT project's yaml_tranlator.py
-class PythonToYaml:
-    """
-    A class that converts a Python dictionary into Yaml and writes the output to a file.
-    """
-    # 4 spaces
-    _indent_unit = '    '
-    _requires_quotes_chars_regex = '[:{}\[\],&*#?|<>=!%@`-]'
-
-    def __init__(self):
-        return
-
-    def _write_dictionary_to_yaml_file(self, dictionary, writer, indent=''):
-        """
-        Do the actual heavy lifting of converting a dictionary and writing it to the file.  This method is
-        called recursively when a value of the dictionary entry is itself a dictionary.
-        :param dictionary: the Python dictionary to convert
-        :param writer: the java.io.PrintWriter for the output file
-        :param indent: the amount of indent to use (based on the level of recursion)
-        :raises: IOException: if an error occurs while writing the output
-        """
-        if dictionary is None:
-            return
-
-        for key, value in dictionary.iteritems():
-            quoted_key = self._quotify_string(key)
-            if isinstance(value, dict):
-                writer.write(indent + quoted_key + ':' + '\n')
-                self._write_dictionary_to_yaml_file(value, writer, indent + self._indent_unit)
-            else:
-                writer.write(indent + quoted_key + ': ' + self._get_value_string(value) + '\n')
-
-        return
-
-    def _get_value_string(self, value):
-        """
-        Convert the Python value into the proper Yaml value
-        :param value: the Python value
-        :return: the Yaml value
-        """
-        if value is None:
-            result = 'null'
-        elif type(value) is int or type(value) is long or type(value) is float:
-            result = str(value)
-        elif type(value) is list:
-            new_value = '['
-            for element in value:
-                new_value += ' ' + self._get_value_string(element) + ','
-            if len(new_value) > 1:
-                new_value = new_value[:-1]
-            new_value += ' ]'
-            result = str(new_value)
-        else:
-            result = self._quotify_string(str(value))
-        return result
-
-    def _quotify_string(self, text):
-        """
-        Insert quotes around the string value if it contains Yaml special characters that require it.
-        :param text: the input string
-        :return: the quoted string, or the original string if no quoting was required
-        """
-        if bool(re.search(self._requires_quotes_chars_regex, text)):
-            result = '\'' + self._quote_embedded_quotes(text) + '\''
-        else:
-            result = self._quote_embedded_quotes(text)
-        return result
-
-    def _quote_embedded_quotes(self, text):
-        """
-        Replace any embedded quotes with two quotes.
-        :param text:  the text to quote
-        :return:  the quoted text
-        """
-        result = text
-        if '\'' in text:
-            result = result.replace('\'', '\'\'')
-        if '"' in text:
-            result = result.replace('"', '""')
-        return result
 
 class ModelDiffer:
 
@@ -262,7 +178,6 @@ class ModelDiffer:
             self.recursive_changed_detail(s, token, s)
             self._add_results(all_changes)
             self._add_results(all_added)
-            # TODO:  delete needs more work, not simply added to the results
             self._add_results(all_removed, True)
 
         for s in added:
@@ -276,7 +191,7 @@ class ModelDiffer:
         for x in all_removed:
             all_removed.remove(x)
 
-        # Top level:  delete all resources, all appDeployments
+        # Top level:  e.g. delete all resources, all appDeployments
 
         for s in removed:
             token = s
@@ -285,12 +200,14 @@ class ModelDiffer:
 
     def _add_results(self, ar_changes, is_delete=False):
         """
-          Update the differences in the final model dictionary with the changes
+        Update the differences in the final model dictionary with the changes
         :param ar_changes:   Array of changes in delimited format
         """
         # The ar_changes is the keys of changes in the piped format
         #  'resources|JDBCSystemResource|Generic2|JdbcResource|JDBCConnectionPoolParams|TestConnectionsOnReserve
         #
+
+        # TODO: may be it can be simplified by walking through levels instead of hard coding?
 
         allowable_deletes = [ 'appDeployments|Application' ,
                               'appDeployments|Library',
@@ -322,16 +239,13 @@ class ModelDiffer:
                               'resources|WTCServer' ]
 
         for item in ar_changes:
-            print 'DEBUG: item is ' + item
             found_in_allowable_delete = False
             if is_delete:
-                print 'DEBUG: ' + item
                 for allowable_delete in allowable_deletes:
                     if item.startswith(allowable_delete):
                         found_in_allowable_delete = True
                 if not found_in_allowable_delete:
-                    compare_warnings.add('INFO: Model Path: ' + str(item)
-                                            + ' does not exist in current model but exists in previous model')
+                    compare_msgs.add(('WLSDPLY-05301',item))
                     continue
 
             splitted=item.split('|',1)
@@ -375,7 +289,6 @@ class ModelDiffer:
             # if it is a deletion then go back and update with '!'
 
             if is_delete:
-                print 'DELETING ' + item
                 for allowable_delete in allowable_deletes:
                     if item.startswith(allowable_delete):
                         split_delete = item.split('|')
@@ -405,8 +318,7 @@ class ModelDiffer:
                             if split_delete_length == allowable_delete_length:
                                 pointer_dict[parent_key][ '!' + app_key] = dict()
                             else:
-                                compare_warnings.add('INFO: Model Path: ' + str(item)
-                                             + ' does not exist in current model but exists in previous model')
+                                compare_msgs.add(('WLSDPLY-05301',item))
 
     def merge_dictionaries(self, dictionary, new_dictionary):
         """
@@ -474,14 +386,13 @@ class ModelDiffer:
             else:
                 # check whether it is in the forbidden list
                 if self.in_forbidden_list(itm):
-                    print 'Found changes not supported for update: %s. Exiting' % (itm)
+                    compare_msgs(('WLSDPLY-05303', itm))
                     return FATAL_MODEL_CHANGES
-
 
         # if there is a shape change
         # return 2 ?
         if has_topology and not found_in_past_dictionary:
-            print 'Found changes not supported for update: %s. Exiting' % (itm)
+            compare_msgs.add(('WLSDPLY-05302', itm))
             return FATAL_MODEL_CHANGES
 
         if found_in_past_dictionary:
@@ -504,7 +415,6 @@ class ModelDiffer:
         splitted=keylist.split('|')
         n=len(splitted)
         i=0
-        root_key = splitted[0]
 
         # loop through the keys and use it to walk the dictionary
         # if it can walk down 3 levels, safely assume it is in the
@@ -652,12 +562,12 @@ class ModelFileDiffer:
             self.write_dictionary_to_json_file(net_diff, fh)
             fh.close()
             fh = open(self.output_dir + '/diffed_model.yaml', 'w')
-            pty = PythonToYaml()
+            pty = PythonToYaml(net_diff)
             pty._write_dictionary_to_yaml_file(net_diff, fh)
             fh.close()
         else:
-            pty = PythonToYaml()
-            pty._write_dictionary_to_yaml_file(net_diff, sys.stdout)
+            pty = PythonToYaml(net_diff)
+            pty._write_dictionary_to_yaml_file(net_diff, System.out)
 
         return obj.is_safe_diff(net_diff)
 
@@ -669,6 +579,8 @@ def debug(format_string, *arguments):
     """
     if os.environ.has_key('DEBUG_COMPARE_MODEL_TOOL'):
         print format_string % (arguments)
+    else:
+        __logger.finest(format_string, arguments)
 
 def main():
     """
@@ -686,6 +598,54 @@ def main():
     try:
         model_context = __process_args(sys.argv)
         _outputdir = model_context.get_compare_model_output_dir()
+        model1 = model_context.get_trailing_argument(0)
+        model2 = model_context.get_trailing_argument(1)
+
+        for f in [ model1, model2 ]:
+            if not os.path.exists(f):
+                raise CLAException("Model %s does not exists" % f)
+            if os.path.isdir(f):
+                raise CLAException("Model %s is a directory" % f)
+
+        model1_ext = os.path.splitext(model1)[1]
+        model2_ext = os.path.splitext(model2)[1]
+
+        validated = False
+        for ext in [ '.yaml', '.json' ]:
+            if model1_ext.lower() == ext:
+                if model2_ext.lower() != model1_ext.lower():
+                    raise CLAException("Model %s is not a %s file " % model2, ext)
+                else:
+                    validated = True
+                    break
+
+        if not validated:
+            raise CLAException("Model extension must be either yaml or json")
+
+        obj = ModelFileDiffer(model1, model2, _outputdir)
+        obj.compare()
+        if _outputdir:
+            rcfh = open(_outputdir + '/model_diff_rc', 'w')
+            rcfh.write(",".join(map(str,changed_items)))
+            rcfh.close()
+            if len(compare_msgs) > 0:
+                rcfh = open(_outputdir + '/model_diff_stdout', 'w')
+                for line in compare_msgs:
+                    # TODO:   how to write it to a file with a logger? or do we care ? Primarily non interative usecase
+                    #
+                    rcfh.write(line.replace('|', "-->"))
+                rcfh.close()
+        else:
+            if len(compare_msgs) > 0:
+                print ""
+                print ""
+                for line in compare_msgs:
+                    msg_key = line[0]
+                    msg_value = line[1]
+                    __logger.info(msg_key, msg_value.replace('|', "-->"))
+
+        System.exit(0)
+
     except CLAException, ex:
         exit_code = ex.getExitCode()
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
@@ -693,29 +653,6 @@ def main():
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
         sys.exit(exit_code)
-
-    try:
-        model1 = model_context.get_trailing_argument(0)
-        model2 = model_context.get_trailing_argument(1)
-        obj = ModelFileDiffer(model1, model2, _outputdir)
-        obj.compare()
-        if _outputdir:
-            rcfh = open(_outputdir + '/model_diff_rc', 'w')
-            rcfh.write(",".join(map(str,changed_items)))
-            rcfh.close()
-            if len(compare_warnings) > 0:
-                rcfh = open(_outputdir + '/model_diff_stdout', 'w')
-                for line in compare_warnings:
-                    rcfh.write(line.replace('|', "-->"))
-                rcfh.close()
-        else:
-            if len(compare_warnings) > 0:
-                print ""
-                print ""
-                for line in compare_warnings:
-                    print line.replace('|', "-->")
-
-        System.exit(0)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         eeString = traceback.format_exception(exc_type, exc_obj, exc_tb)
@@ -727,7 +664,7 @@ if __name__ == "__main__":
     all_added = []
     all_removed = []
     changed_items = []
-    compare_warnings = sets.Set()
+    compare_msgs = sets.Set()
     main()
 
 

@@ -21,7 +21,13 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help]"
-  echo "          -oracle_home <oracle_home> <model file 1> <model file 2>"
+  echo "          -oracle_home <oracle_home> "
+  echo "          [-compare_model_output_dir <output_dir> write the outputs to the directory specified]"
+  echo "          [                        diffed_model.json - json output of the differences between the models]"
+  echo "          [                        diffed_model.yaml - yaml output of the differences between the models]"
+  echo "          [                        model_diff_stdout - stdout of the tool compareModel ]"
+  echo "          [                        model_diff_rc - comma separated return code for the differences ]"
+  echo "          <model 1> <model2>      Must be the last two arguments and must be same extensions (yaml or json)"
   echo ""
 }
 
@@ -35,41 +41,7 @@ scriptArgs=$*
 
 umask 27
 
-# verify -oracle_home is passed
-
-#if [ $# -ne 4 ] ; then
-#  usage
-#  exit 0
-#fi
-#
-#if [ ! -f $3 ] ; then
-#  echo "Model File $3 doesn't exist or not accessible"
-#  exit 1
-#fi
-#
-#if [ ! -f $4 ] ; then
-#  echo "Model File $4 doesn't exist or not accessible"
-#  exit 1
-#fi
-#
-#if [ ${3: -5} == ".yaml" ] ; then
-#  if [ ${4: -5} != ".yaml" ] ; then
-#    echo "Model files must be of the same extension"
-#    exit 1
-#  fi
-#elif [ ${3: -5} == ".json" ] ; then
-#  if [ ${4: -5} != ".json" ] ; then
-#    echo "Model files must be of the same extension"
-#    exit 1
-#  fi
-#else
-#  echo "Model files must be either ended with json or yaml extension"
-#  exit 1
-#fi
-
 checkJythonArgs "$@"
-
-
 
 # Java 7 is required, no encryption is used
 javaSetup 7
