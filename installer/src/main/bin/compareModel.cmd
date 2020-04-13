@@ -16,6 +16,15 @@
 @rem JAVA_HOME             - The location of the JDK to use.  The caller must set
 @rem                         this variable to a valid Java 7 (or later) JDK.
 @rem
+@rem WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
+@rem                         If the caller sets this, the callers location will be
+@rem                         honored provided it is an existing directory.
+@rem                         Otherwise, the location will be calculated from the
+@rem                         location of this script.
+@rem
+@rem WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
+@rem                         can use this environment variable to add additional
+@rem                         system properties to the Java environment.
 @rem
 
 SETLOCAL
@@ -55,7 +64,7 @@ ECHO.
 ECHO Usage: %SCRIPT_NAME%
 ECHO           [-help]
 ECHO           -oracle_home <oracle_home>
-ECHO           [-compare_model_output_dir <output_dir> write the outputs to the directory specified]
+ECHO           [-output_dir <output_dir> write the outputs to the directory specified]
 ECHO           [                        diffed_model.json - json output of the differences between the models]
 ECHO           [                        diffed_model.yaml - yaml output of the differences between the models]
 ECHO           [                        model_diff_stdout - stdout of the tool compareModel ]

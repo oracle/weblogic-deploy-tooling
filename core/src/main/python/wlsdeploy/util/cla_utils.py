@@ -76,6 +76,7 @@ class CommandLineArgUtil(object):
     VARIABLE_PROPERTIES_FILE_SWITCH = '-variable_properties_file'
     # extractDomainResource output file
     DOMAIN_RESOURCE_FILE_SWITCH   = '-domain_resource_file'
+    COMPARE_MODEL_OUTPUT_DIR_SWITCH = "-output_dir"
 
     # arguments that are true if specified, false if not
     BOOLEAN_SWITCHES = [

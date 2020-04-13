@@ -16,13 +16,23 @@
 # JAVA_HOME             - The location of the JDK to use.  The caller must set
 #                         this variable to a valid Java 7 (or later) JDK.
 #
+# WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
+#                         If the caller sets this, the callers location will be
+#                         honored provided it is an existing directory.
+#                         Otherwise, the location will be calculated from the
+#                         location of this script.
+#
+# WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
+#                         can use this environment variable to add additional
+#                         system properties to the Java environment.
+
 
 
 usage() {
   echo ""
   echo "Usage: $1 [-help]"
   echo "          -oracle_home <oracle_home> "
-  echo "          [-compare_model_output_dir <output_dir> write the outputs to the directory specified]"
+  echo "          [-output_dir <output_dir> write the outputs to the directory specified]"
   echo "          [                        diffed_model.json - json output of the differences between the models]"
   echo "          [                        diffed_model.yaml - yaml output of the differences between the models]"
   echo "          [                        model_diff_stdout - stdout of the tool compareModel ]"
