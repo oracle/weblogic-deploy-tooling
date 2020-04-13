@@ -19,6 +19,7 @@ from wlsdeploy.aliases.model_constants import WORK_MANAGER
 from wlsdeploy.aliases.model_constants import WEBAPP_CONTAINER
 from wlsdeploy.aliases.model_constants import WTC_SERVER
 from wlsdeploy.aliases.model_constants import SINGLETON_SERVICE
+from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import MIME_MAPPING_FILE
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.tool.deploy.deployer import Deployer
@@ -217,3 +218,12 @@ class CommonResourcesDeployer(Deployer):
         self._add_named_elements(SINGLETON_SERVICE, singleton_services, location)
 
         return
+
+    def add_system_components(self, parent_dict, location):
+        """
+        Deploy the system components in the dictionary at the specified location.
+        :param parent_dict: the dictionary possibly containing system component elements
+        :param location: the location to deploy the elements
+        """
+        system_components = dictionary_utils.get_dictionary_element(parent_dict, SYSTEM_COMPONENT)
+        self._add_named_elements(SYSTEM_COMPONENT, system_components, location)

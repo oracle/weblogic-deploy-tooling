@@ -57,6 +57,7 @@ from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import SERVER_POD
+from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WLS_ROLES
 from wlsdeploy.aliases.model_constants import WTC_SERVER
@@ -133,6 +134,7 @@ class AliasEntries(object):
         'ShutdownClass',
         'SingletonService',
         'StartupClass',
+        SYSTEM_COMPONENT,
         'WebAppContainer',
         'WLDFSystemResource',
         WTC_SERVER

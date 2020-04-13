@@ -87,6 +87,7 @@ class ResourcesDeployer(Deployer):
         common_deployer.add_coherence_clusters(self._resources, location)
         common_deployer.add_webapp_container(self._resources, location)
         common_deployer.add_singleton_service(self._resources, location)
+        common_deployer.add_system_components(self._resources, location)
         return
 
     def _add_startup_classes(self, location):

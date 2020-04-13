@@ -1,0 +1,42 @@
+{
+    "copyright": "Copyright (c) 2020, Oracle Corporation and/or its affiliates.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "SystemComponent${:s}",
+    "child_folders_type": "multiple",
+    "folders": {
+        "SystemComponentStart": {
+            "wlst_type": "SystemComponentStart",
+            "child_folders_type": "single_unpredictable",
+            "default_name_value": "${NO_NAME_0:%SYSTEMCOMPONENT%}",
+            "folders": {},
+            "attributes": {
+                "Arguments":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Arguments",     "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "BeaHome":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BeaHome",       "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ],
+                "ClassPath":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ClassPath",     "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "delimited_string[path_separator]", "preferred_model_type": "delimited_string", "uses_path_tokens": "true" } ],
+                "JavaHome":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JavaHome",      "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ],
+                "JavaVendor":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JavaVendor",    "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "MWHome":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MWHome",        "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ],
+                "Notes":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",         "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "RootDirectory": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RootDirectory", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/SystemComponent/%SYSTEMCOMPONENT%/SystemComponentStart/%SYSTEMCOMPONENTSTART%"
+            }
+        }
+    },
+    "attributes": {
+        "AutoRestart":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AutoRestart",                   "wlst_path": "WP001", "value": {"default": true },   "wlst_type": "boolean"  } ],
+        "ComponentType":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ComponentType",                 "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"  } ],
+        "Machine":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Machine",                       "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "NMSocketCreateTimeoutInMillis": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "NMSocketCreateTimeoutInMillis", "wlst_path": "WP001", "value": {"default": 180000 }, "wlst_type": "integer" } ],
+        "Notes":                         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                         "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "RestartDelaySeconds":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RestartDelaySeconds",           "wlst_path": "WP001", "value": {"default": 0 },      "wlst_type": "integer" } ],
+        "RestartIntervalSeconds":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RestartIntervalSeconds",        "wlst_path": "WP001", "value": {"default": 3600 },   "wlst_type": "integer" } ],
+        "RestartMax":                    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RestartMax",                    "wlst_path": "WP001", "value": {"default": 2 },   "wlst_type": "integer" } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/SystemComponent/%SYSTEMCOMPONENT%"
+    }
+}
