@@ -436,6 +436,13 @@ class ModelContext(object):
         """
         return self._encryption_passphrase
 
+    def get_compare_model_output_dir(self):
+        """
+        Return the compare model output dir
+        :return: output dir for compare models tool
+        """
+
+        return self._compare_model_output_dir
     def is_encryption_manual(self):
         """
         Get whether or not the user selected to do manual encryption.

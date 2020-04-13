@@ -17,6 +17,7 @@ import sys, os, traceback
 from java.lang import System
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
+from wlsdeploy.json.json_translator import PythonToJson
 from oracle.weblogic.deploy.util import CLAException
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
@@ -213,7 +214,6 @@ class ModelDiffer:
                               'appDeployments|Library',
                               'topology|Cluster',
                               'topology|Server',
-                              'topology|ServerTemplate',
                               'topology|Machine',
                               'topology|UnixMachine',
                               'resources|CoherenceClusterSystemResource',
@@ -478,78 +478,6 @@ class ModelFileDiffer:
         content = fh.read()
         return eval(content)
 
-
-    def write_dictionary_to_json_file(self, dictionary, writer, indent=''):
-        """
-        Write the python dictionary in json syntax using the provided writer stream.
-        :param dictionary: python dictionary to convert to json syntax
-        :param writer: where to write the dictionary into json syntax
-        :param indent: current string indention of the json syntax. If not provided, indent is an empty string
-        """
-        _start_dict = "{\n"
-        _end_dict = "}\n"
-
-        if dictionary is None:
-            return
-        end_line = ''
-        writer.write(_start_dict)
-        end_indent = indent
-
-        indent += ' '
-        for key, value in dictionary.iteritems():
-            writer.write(end_line)
-            end_line = ",\n"
-            writer.write(indent + '"' + self.quote_embedded_quotes(key) + '" : ')
-            if isinstance(value, dict):
-                self.write_dictionary_to_json_file(value, writer, indent)
-            else:
-                writer.write(self.format_json_value(value))
-        writer.write(str(end_indent + _end_dict))
-
-        return
-
-    def quote_embedded_quotes(self, text):
-        """
-        Quote all embedded double quotes in a string with a backslash.
-        :param text: the text to quote
-        :return: the quotes result
-        """
-        result = text
-        if type(text) is str and '"' in text:
-            result = text.replace('"', '\\"')
-        return result
-
-    def format_json_value(self, value):
-        """
-        Format the value as a JSON snippet.
-        :param value: the value
-        :return: the JSON snippet
-        """
-        import java.lang.StringBuilder as StringBuilder
-        builder = StringBuilder()
-        debug("DEBUG: value %s TYPE %s", value, type(value))
-        if type(value) == bool or (type(value) == str and (value == 'true' or value == 'false')):
-            if value:
-                v = "true"
-            else:
-                v = "false"
-            builder.append(v)
-        elif type(value) == str:
-            builder.append('"').append(self.quote_embedded_quotes(value)).append('"')
-        elif type(value) == list:
-            builder.append("[ ")
-            ind = 0
-            for list_item in value:
-                if ind > 0:
-                    builder.append(", ")
-                builder.append('"').append(list_item).append('"')
-                ind = ind+1
-
-            builder.append(" ]")
-        else:
-            builder.append(value)
-        return builder.toString()
-
     def compare(self):
         """
         Do the actual compare of the models.
@@ -569,7 +497,9 @@ class ModelFileDiffer:
         net_diff = obj.get_final_changed_model()
         if self.output_dir:
             fh = open(self.output_dir + '/diffed_model.json', 'w')
-            self.write_dictionary_to_json_file(net_diff, fh)
+            json_object = PythonToJson(net_diff)
+            json_object._write_dictionary_to_json_file(net_diff, fh)
+            # self.write_dictionary_to_json_file(net_diff, fh)
             fh.close()
             fh = open(self.output_dir + '/diffed_model.yaml', 'w')
             pty = PythonToYaml(net_diff)
