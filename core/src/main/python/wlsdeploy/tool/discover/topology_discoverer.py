@@ -271,8 +271,6 @@ class TopologyDiscoverer(Discoverer):
 
         model_folder_name, folder_result = self._get_admin_console()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        model_folder_name, folder_result = self._get_cdi_container()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_jta()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_jmx()
@@ -363,25 +361,6 @@ class TopologyDiscoverer(Discoverer):
         name = self._find_singleton_name_in_folder(location)
         if name is not None:
             _logger.info('WLSDPLY-06613', class_name=_class_name, method_name=_method_name)
-            location.add_name_token(self._alias_helper.get_name_token(location), name)
-            self._populate_model_parameters(result, location)
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return model_top_folder_name, result
-
-    def _get_cdi_container(self):
-        """
-        Discover the domain level CdiContainer configuration attributes.
-        :return: model name for CdiContainer: dictionary containing the discovered CdiContainer attributes
-        """
-        _method_name = '_get_cdi_container'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
-        model_top_folder_name = model_constants.CDI_CONTAINER
-        result = OrderedDict()
-        location = LocationContext(self._base_location)
-        location.append_location(model_top_folder_name)
-        name = self._find_singleton_name_in_folder(location)
-        if name is not None:
-            _logger.info('WLSDPLY-06643', class_name=_class_name, method_name=_method_name)
             location.add_name_token(self._alias_helper.get_name_token(location), name)
             self._populate_model_parameters(result, location)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
