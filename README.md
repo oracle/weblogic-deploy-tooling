@@ -213,7 +213,7 @@ The file `/home/me/dbcs1.txt` would then contain this single line:
 ```yaml
 password#123
 ```
-As the model is processed, the value for the `PasswordEncrypted` would resolve to `password#123`. It is also possible to combine file placeholders with other types of tokens, to allow for variations in the name and location of the file, such as: 
+As the model is processed, the value for the `PasswordEncrypted` would resolve to `password#123`. It is also possible to combine file placeholders with other types of tokens, to allow for variations in the name and location of the file, such as:
 ```yaml
 PasswordEncrypted: '@@FILE:/dir/@@PROP:name@@.txt@@'
 ```
@@ -231,14 +231,14 @@ The root directories are configured as a comma-separated list of directories, us
 ```
 /etc/my-secrets/secrets/the-secret
 /etc/your-secrets/secrets/the-secret
-``` 
+```
 If either of these files is found, the secret is read from that file and substituted in the model.
 
-The second method for locating the Kubernetes secret file is to use the environment variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` to map `<name>` values to specific directory locations. For example, if `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is set to `my-root=/etc/my-secrets,your-root=/etc/your-secrets`, then the token `@@SECRET:your-root:the-secret@@` will look for the secrets file at: 
+The second method for locating the Kubernetes secret file is to use the environment variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` to map `<name>` values to specific directory locations. For example, if `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is set to `my-root=/etc/my-secrets,your-root=/etc/your-secrets`, then the token `@@SECRET:your-root:the-secret@@` will look for the secrets file at:
 ```
 /etc/your-secrets/the-secret
 ```
-If the `<name>` value has a corresponding mapped directory in `WDT_MODEL_SECRETS_NAME_DIR_PAIRS`, then that directory will take precedence over any roots specified in `WDT_MODEL_SECRETS_DIRS`. 
+If the `<name>` value has a corresponding mapped directory in `WDT_MODEL_SECRETS_NAME_DIR_PAIRS`, then that directory will take precedence over any roots specified in `WDT_MODEL_SECRETS_DIRS`.
 
 NOTE: It is important that the secrets directories contain only secrets files, because those files are examined to create a list of available name/key pairs.  
 
@@ -341,7 +341,7 @@ For example, if Model 1 looks like:
 topology:
     Server:
         m1:
-            ListenPort: 7000 
+            ListenPort: 7000
             Notes: "Server 1"
         m2:
             ListenPort: 9000
@@ -379,7 +379,7 @@ A named element using [delete notation](#declaring-named-mbeans-to-delete) will 
 topology:
     Server:
         m1:
-            ListenPort: 7000 
+            ListenPort: 7000
             Notes: "Server 1"
         m2:
             ListenPort: 9000
@@ -395,7 +395,7 @@ The resulting model would be:
 topology:
     Server:
         m1:
-            ListenPort: 7000 
+            ListenPort: 7000
             Notes: "Server 1"
 ```
 
@@ -410,7 +410,7 @@ and Model 2 looks like:
 topology:
     Server:
         m1:
-            ListenPort: 7000 
+            ListenPort: 7000
             Notes: "Server 1"
 ```
 The resulting model would be:
@@ -418,7 +418,7 @@ The resulting model would be:
 topology:
     Server:
         m1:
-            ListenPort: 7000 
+            ListenPort: 7000
             Notes: "Server 1"
 ```
 
