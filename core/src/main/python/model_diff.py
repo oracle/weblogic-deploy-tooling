@@ -656,7 +656,8 @@ def main():
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         eeString = traceback.format_exception(exc_type, exc_obj, exc_tb)
-        print eeString
+        cla_helper.clean_up_temp_files()
+        __logger.severe('WLSDPLY-05304', eeString)
         System.exit(-1)
 
 if __name__ == "__main__":
