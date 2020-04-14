@@ -28,6 +28,8 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.util.model_context import ModelContext
 from oracle.weblogic.deploy.aliases import AliasException
+from validate import Validator
+from oracle.weblogic.deploy.validate import ValidateException
 
 UNSAFE_ONLINE_UPDATE=0
 SAFE_ONLINE_UPDATE=1
@@ -35,6 +37,7 @@ FATAL_MODEL_CHANGES=2
 MODELS_SAME=3
 SECURITY_INFO_UPDATED=4
 RCU_PASSWORD_CHANGED=5
+VALIDATION_FAIL=-1
 
 _program_name = 'compareModel'
 _class_name = 'model_diff'
@@ -578,6 +581,38 @@ class ModelFileDiffer:
         else:
             current_dict = self.get_dictionary(self.current_dict_file)
             past_dict = self.get_dictionary(self.past_dict_file)
+        model_file_name = None
+        try:
+            model_context = ModelContext("validateModel", {} )
+            aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE)
+
+            validator = Validator(model_context, aliases, wlst_mode=WlstModes.OFFLINE)
+
+            model_file_name = self.current_dict_file
+
+            # no need to pass the variable file for processing, substitution has already been performed
+            return_code = validator.validate_in_tool_mode(current_dict, variables_file_name=None,
+                                                      archive_file_name=None)
+
+            if return_code == Validator.ReturnCode.STOP:
+                __logger.severe('WLSDPLY-05305', model_file_name)
+                return VALIDATION_FAIL
+
+            model_file_name = self.past_dict_file
+
+            validator.validate_in_tool_mode(past_dict, variables_file_name=None,
+                                            archive_file_name=None)
+
+            if return_code == Validator.ReturnCode.STOP:
+                __logger.severe('WLSDPLY-05305', model_file_name)
+                return VALIDATION_FAIL
+
+        except ValidateException, te:
+            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
+                            error=te, class_name=_class_name, method_name=_method_name)
+            ex = exception_helper.create_validate_exception(te.getLocalizedMessage(), error=te)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
         obj = ModelDiffer(current_dict, past_dict)
         obj.calculate_changed_model()
@@ -650,7 +685,10 @@ def main():
             raise CLAException("Model extension must be either yaml or json")
 
         obj = ModelFileDiffer(model1, model2, _outputdir)
-        obj.compare()
+        rc = obj.compare()
+        if rc == VALIDATION_FAIL:
+            System.exit(-1)
+
         if _outputdir:
             rcfh = open(_outputdir + '/model_diff_rc', 'w')
             rcfh.write(",".join(map(str,changed_items)))
