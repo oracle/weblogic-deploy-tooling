@@ -13,7 +13,6 @@ from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.coherence_resources_discoverer import CoherenceResourcesDiscoverer
@@ -64,6 +63,8 @@ class CommonResourcesDiscoverer(Discoverer):
         JmsResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, wlst_mode=self._wlst_mode,
                                aliases=self._aliases, variable_injector=self._get_variable_injector()).discover()
         model_folder_name, folder_result = self.get_wldf_system_resources()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self.get_system_component_resources()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         CoherenceResourcesDiscoverer(self._model_context, self._dictionary, self._base_location,
                                      wlst_mode=self._wlst_mode, aliases=self._aliases,
@@ -327,6 +328,15 @@ class CommonResourcesDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
 
+    def get_system_component_resources(self):
+        """
+        Discover each system component resource in the domain.
+        :return: model name and dictionary for the discovered system component resources
+        """
+        _method_name = 'get_system_component_resources'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        return self._get_named_resources(model_constants.SYSTEM_COMPONENT)
+
     # private methods
 
     def _add_wldf_script(self, model_name, model_value, location):
@@ -363,6 +373,34 @@ class CommonResourcesDiscoverer(Discoverer):
             new_script_name = modified_name
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_script_name)
         return new_script_name
+
+    def _get_named_resources(self, folder_name):
+        """
+        Discover each resource of the specified type in the domain.
+        :return: model name and dictionary for the discovered resources
+        """
+        _method_name = '_get_named_resources'
+        _logger.entering(folder_name, class_name=_class_name, method_name=_method_name)
+
+        result = OrderedDict()
+        model_top_folder_name = folder_name
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        resource_names = self._find_names_in_folder(location)
+        if resource_names is not None:
+            _logger.info('WLSDPLY-06364', len(resource_names), folder_name, class_name=_class_name,
+                         method_name=_method_name)
+            name_token = self._alias_helper.get_name_token(location)
+            for resource_name in resource_names:
+                _logger.info('WLSDPLY-06365', folder_name, resource_name, class_name=_class_name,
+                             method_name=_method_name)
+                location.add_name_token(name_token, resource_name)
+                result[resource_name] = OrderedDict()
+                self._populate_model_parameters(result[resource_name], location)
+                self._discover_subfolders(result[resource_name], location)
+                location.remove_name_token(name_token)
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
 
 
 def _fix_passwords_in_properties(dictionary):
