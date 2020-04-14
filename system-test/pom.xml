@@ -50,7 +50,9 @@
         <dependency>
             <groupId>com.oracle.weblogic.lifecycle</groupId>
             <artifactId>weblogic-deploy</artifactId>
-            <version>1.7.4-SNAPSHOT</version>
+            <version>${project.version}</version>
+            <scope>system</scope>
+            <systemPath>../core/target/weblogic-deploy-core-${project.version}.jar</systemPath>
         </dependency>
     </dependencies>
 
