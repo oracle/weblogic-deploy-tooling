@@ -4,6 +4,8 @@
 package oracle.weblogic.deploy.integration;
 
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -251,6 +253,11 @@ public class BaseTest {
     protected PyDictionary parseYaml(String yamlFileName) throws Exception {
         YamlTranslator translator = new YamlTranslator(yamlFileName, Boolean.TRUE);
         System.out.println("Got the translator");
+        File model = new File(yamlFileName);
+        BufferedReader br = new BufferedReader(new FileReader(model));
+        while (br.ready()) {
+            System.out.println(br.readLine());
+        }
         PyDictionary result = translator.parse();
         System.out.println("Parsed " + String.valueOf(result));
         return result;
