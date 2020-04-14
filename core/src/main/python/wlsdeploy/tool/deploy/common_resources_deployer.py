@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -12,6 +12,7 @@ from wlsdeploy.aliases.model_constants import JMS_SERVER
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import MAIL_SESSION
 from wlsdeploy.aliases.model_constants import MESSAGING_BRIDGE
+from wlsdeploy.aliases.model_constants import OHS
 from wlsdeploy.aliases.model_constants import PATH_SERVICE
 from wlsdeploy.aliases.model_constants import SAF_AGENT
 from wlsdeploy.aliases.model_constants import SELF_TUNING
@@ -227,3 +228,12 @@ class CommonResourcesDeployer(Deployer):
         """
         system_components = dictionary_utils.get_dictionary_element(parent_dict, SYSTEM_COMPONENT)
         self._add_named_elements(SYSTEM_COMPONENT, system_components, location)
+
+    def add_ohs_components(self, parent_dict, location):
+        """
+        Deploy the OHS components in the dictionary at the specified location.
+        :param parent_dict: the dictionary possibly containing OHS component elements
+        :param location: the location to deploy the elements
+        """
+        system_components = dictionary_utils.get_dictionary_element(parent_dict, OHS)
+        self._add_named_elements(OHS, system_components, location)

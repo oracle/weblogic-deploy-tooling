@@ -66,6 +66,8 @@ class CommonResourcesDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_system_component_resources()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self.get_ohs_resources()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         CoherenceResourcesDiscoverer(self._model_context, self._dictionary, self._base_location,
                                      wlst_mode=self._wlst_mode, aliases=self._aliases,
                                      variable_injector=self._get_variable_injector()).discover()
@@ -336,6 +338,15 @@ class CommonResourcesDiscoverer(Discoverer):
         _method_name = 'get_system_component_resources'
         _logger.entering(class_name=_class_name, method_name=_method_name)
         return self._get_named_resources(model_constants.SYSTEM_COMPONENT)
+
+    def get_ohs_resources(self):
+        """
+        Discover each OHS resource in the domain.
+        :return: model name and dictionary for the discovered OHS resources
+        """
+        _method_name = 'get_ohs_resources'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        return self._get_named_resources(model_constants.OHS)
 
     # private methods
 

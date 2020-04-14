@@ -51,8 +51,9 @@ from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import KUBERNETES_ALIAS
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
-from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import KUBERNETES
+from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
+from wlsdeploy.aliases.model_constants import OHS
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
@@ -123,6 +124,7 @@ class AliasEntries(object):
         'MailSession',
         'MessagingBridge',
         ODL_CONFIGURATION,
+        OHS,
         'Partition',
         'PartitionWorkManager',
         'PathService',
