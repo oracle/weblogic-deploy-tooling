@@ -10,14 +10,14 @@
             "default_name_value": "${NO_NAME_0:%SYSTEMCOMPONENT%}",
             "folders": {},
             "attributes": {
-                "Arguments":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Arguments",     "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
-                "BeaHome":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BeaHome",       "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ],
-                "ClassPath":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ClassPath",     "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "delimited_string[path_separator]", "preferred_model_type": "delimited_string", "uses_path_tokens": "true" } ],
-                "JavaHome":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JavaHome",      "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ],
-                "JavaVendor":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "JavaVendor",    "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
-                "MWHome":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MWHome",        "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ],
-                "Notes":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",         "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
-                "RootDirectory": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RootDirectory", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ]
+                "Arguments":     [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "Arguments",     "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "BeaHome":       [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "BeaHome",       "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ],
+                "ClassPath":     [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "ClassPath",     "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "delimited_string[path_separator]", "preferred_model_type": "delimited_string", "uses_path_tokens": "true" } ],
+                "JavaHome":      [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "JavaHome",      "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ],
+                "JavaVendor":    [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "JavaVendor",    "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "MWHome":        [ {"version": "[12.1.3,)", "wlst_mode": "both", "wlst_name": "MWHome",        "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ],
+                "Notes":         [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "Notes",         "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+                "RootDirectory": [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "RootDirectory", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
