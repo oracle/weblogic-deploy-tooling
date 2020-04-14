@@ -221,48 +221,23 @@ class ModelDiffer:
         aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE)
         location = LocationContext()
         last_token = path_tokens[-1]
-        alias_helper = AliasHelper(aliases, __logger, ExceptionType.CREATE)
-
-        alias_helper.supports_multiple_mbean_instances(location)
-        prev_token = 'DOMAIN'
-        for path_token in path_tokens[1:]:
-            token_name = aliases.get_name_token(location)
-            if token_name is not None and token_name != prev_token:
-                location.add_name_token(token_name, path_token)
-            else:
-                location.append_location(path_token)
-            prev_token = token_name
+        alias_helper = AliasHelper(aliases, __logger, ExceptionType.COMPARE)
 
         found = True
-        debug("DEBUG: starting from %s", location.get_folder_path())
-
-        # exclude the top level keys such as "resources", "topology", "appDeployments"
-
-        max_iteration = len(path_tokens) - 1
-
-        for index in range(0, max_iteration):
-            if max_iteration <= 0:
-                break
-            try:
-                debug("DEBUG: Try location path %s" , location.get_folder_path())
-                alias_info = aliases.get_model_attribute_names_and_types(location)
-                if last_token in alias_info.keys():
-                    found = False
+        name_token_next = False
+        for path_token in path_tokens[1:]:
+            if name_token_next:
+                token_name = aliases.get_name_token(location)
+                location.add_name_token(token_name, path_token)
+                name_token_next = False
+            else:
+                location.append_location(path_token)
+                if last_token == path_token:
                     break
-                else:
-                    if location.get_folder_path() in [ '/' ]:
-                        break
-                    else:
-                        # For example /WebAppContainer
-                        location.pop_location()
-                        debug("DEBUG: Not in attribute list try popping location path to %s" , location.get_folder_path())
-            except AliasException, e:
-                location.pop_location()
-                debug("DEBUG: AliasException. Try popping location path to %s" , location.get_folder_path())
-                if location.get_folder_path() in [ '/' ]:
-                    break
-
-            max_iteration = max_iteration - 1
+                name_token_next = alias_helper.supports_multiple_mbean_instances(location)
+            attrib_names = alias_helper.get_model_attribute_names(location)
+            if last_token in attrib_names:
+                found = False
 
         debug("DEBUG: is_alias_folder %s %s", path, found)
 
@@ -341,23 +316,6 @@ class ModelDiffer:
                         pointer_dict = pointer_dict[k_item]
                     del pointer_dict[parent_key][app_key]
                     pointer_dict[parent_key]['!' + app_key] = dict()
-                # else:
-                #     # Deleting attributes
-                #     debug("DEBUG: deleting attribute " + item)
-                #     pointer_dict = self.final_changed_model
-                #     split_delete = item.split(PATH_TOKEN)
-                #     app_key = split_delete[-1]
-                #     parent_key = split_delete[-2]
-                #     for k_item in split_delete:
-                #         if k_item == parent_key:
-                #             break
-                #         pointer_dict = pointer_dict[k_item]
-                #     del pointer_dict[parent_key][app_key]
-                #     # Deleting entire tree
-                #     if split_delete_length == 0:
-                #         pointer_dict[parent_key][ '!' + app_key] = dict()
-                #     else:
-                #         compare_msgs.add(('WLSDPLY-05301',item))
 
 
     def merge_dictionaries(self, dictionary, new_dictionary):

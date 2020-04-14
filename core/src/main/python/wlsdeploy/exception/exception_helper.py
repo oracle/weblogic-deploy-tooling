@@ -8,6 +8,7 @@ import traceback
 import java.lang.Throwable as Throwable
 
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
+import oracle.weblogic.deploy.compare.CompareException as CompareException
 import oracle.weblogic.deploy.create.CreateException as CreateException
 import oracle.weblogic.deploy.deploy.DeployException as DeployException
 import oracle.weblogic.deploy.discover.DiscoverException as DiscoverException
@@ -42,6 +43,7 @@ _EXCEPTION_TYPE_MAP = {
     ExceptionType.TRANSLATE:             'create_translate_exception',
     ExceptionType.VALIDATE:              'create_validate_exception',
     ExceptionType.VARIABLE:              'create_variable_exception',
+    ExceptionType.COMPARE:               'create_compare_exception',
     ExceptionType.WLS_DEPLOY_ARCHIVE_IO: 'create_archive_ioexception',
     ExceptionType.YAML:                  'create_yaml_exception'
 }
@@ -200,6 +202,29 @@ def create_validate_exception(key, *args, **kwargs):
         else:
             ex = ValidateException(key)
     return ex
+
+def create_compare_exception(key, *args, **kwargs):
+    """
+    Create a ComapareException from a message id, list of message parameters and Throwable error.
+    :param key: key to the message in resource bundler or the message itself
+    :param args: list of parameters for the parameters or empty if none needed for the message
+    :param kwargs: contains Throwable or instance if present
+    :return: ValidateException encapsulating the exception information
+    """
+    arg_list, error = _return_exception_params(*args, **kwargs)
+    arg_len = len(arg_list)
+    if error is not None:
+        if arg_len > 0:
+            ex = CompareException(key, error, arg_list)
+        else:
+            ex = CompareException(key, error)
+    else:
+        if arg_len > 0:
+            ex = CompareException(key, arg_list)
+        else:
+            ex = CompareException(key)
+    return ex
+
 
 
 def create_pywlst_exception(key, *args, **kwargs):
