@@ -52,7 +52,7 @@
             <artifactId>weblogic-deploy</artifactId>
             <version>${project.version}</version>
             <scope>system</scope>
-            <systemPath>../core/target/weblogic-deploy-core-${project.version}.jar</systemPath>
+            <systemPath>${basedir}/../core/target/weblogic-deploy-core-${project.version}.jar</systemPath>
         </dependency>
     </dependencies>
 
