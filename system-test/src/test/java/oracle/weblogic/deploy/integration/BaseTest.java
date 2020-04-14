@@ -8,9 +8,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
+import oracle.weblogic.deploy.yaml.YamlTranslator;
 import oracle.weblogic.deploy.integration.utils.ExecCommand;
 import oracle.weblogic.deploy.integration.utils.ExecResult;
 import org.apache.commons.io.FileUtils;
+
+import org.python.core.PyDictionary;
 
 public class BaseTest {
 
@@ -243,6 +246,11 @@ public class BaseTest {
         String dbhost = ExecCommand.exec(getDBContainerIP).stdout().trim();
         logger.info("DEBUG: DB_HOST=" + dbhost);
         return dbhost;
+    }
+
+    protected PyDictionary parseYaml(String yamlFileName) throws Exception {
+        YamlTranslator translator = new YamlTranslator(yamlFileName);
+        return translator.parse();
     }
 
     private static ExecResult executeAndVerify(String command, boolean isRedirectToOut) throws Exception {

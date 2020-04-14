@@ -14,11 +14,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import org.python.core.PyDictionary;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ITWdt extends BaseTest {
 
@@ -392,7 +392,8 @@ public class ITWdt extends BaseTest {
         // verify model file
         String expectedModelFile = System.getProperty("java.io.tmpdir") + FS + "model" + FS + "restrictedJRFD1.yaml";
         verifyModelFile(expectedModelFile);
-
+        PyDictionary parsedModel = parseYaml(expectedModelFile);
+        System.out.println("Model=", parsedModel);
         logTestEnd(testMethodName);
     }
 
