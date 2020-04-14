@@ -249,7 +249,7 @@ public class BaseTest {
     }
 
     protected PyDictionary parseYaml(String yamlFileName) throws Exception {
-        YamlTranslator translator = new YamlTranslator(yamlFileName);
+        YamlTranslator translator = new YamlTranslator(yamlFileName, Boolean.TRUE);
         return translator.parse();
     }
 
