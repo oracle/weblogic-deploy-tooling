@@ -18,6 +18,7 @@ from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.coherence_resources_discoverer import CoherenceResourcesDiscoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.tool.discover.jms_resources_discoverer import JmsResourcesDiscoverer
+from wlsdeploy.util import dictionary_utils
 
 _class_name = 'CommonResourcesDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -337,7 +338,17 @@ class CommonResourcesDiscoverer(Discoverer):
         """
         _method_name = 'get_system_component_resources'
         _logger.entering(class_name=_class_name, method_name=_method_name)
-        return self._get_named_resources(model_constants.SYSTEM_COMPONENT)
+        name, dictionary = self._get_named_resources(model_constants.SYSTEM_COMPONENT)
+
+        # for online, warn that any OHS configurations are not discovered
+        if self._wlst_mode == WlstModes.ONLINE:
+            for key, nodes in dictionary.iteritems():
+                component_type = dictionary_utils.get_element(nodes, model_constants.COMPONENT_TYPE)
+                if model_constants.OHS == component_type:
+                    _logger.warning('WLSDPLY-06366', model_constants.OHS, model_constants.SYSTEM_COMPONENT, key,
+                                    class_name=_class_name, method_name=_method_name)
+
+        return name, dictionary
 
     def get_ohs_resources(self):
         """

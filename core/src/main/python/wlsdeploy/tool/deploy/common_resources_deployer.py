@@ -26,6 +26,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
 
+
 class CommonResourcesDeployer(Deployer):
     """
     class docstring
@@ -235,5 +236,10 @@ class CommonResourcesDeployer(Deployer):
         :param parent_dict: the dictionary possibly containing OHS component elements
         :param location: the location to deploy the elements
         """
+        _method_name = 'add_ohs_components'
+
         system_components = dictionary_utils.get_dictionary_element(parent_dict, OHS)
-        self._add_named_elements(OHS, system_components, location)
+        if self.wlst_mode == WlstModes.ONLINE:
+            self.logger.warning('WLSDPLY-09405', OHS, class_name=self._class_name, method_name=_method_name)
+        else:
+            self._add_named_elements(OHS, system_components, location)
