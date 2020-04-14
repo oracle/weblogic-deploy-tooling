@@ -411,7 +411,6 @@ public class ITWdt extends BaseTest {
          checkContents.add("Trust Service Identity Asserter:");
          checkContents.add("appDeployments:");
          checkContents.add("SourcePath: 'wlsdeploy/applications/simple-app.war'");
-         checkContents.add("Not Found:");
         verifyModelFileContents(expectedModelFile, checkContents);
     }
 
