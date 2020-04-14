@@ -252,19 +252,6 @@ public class BaseTest {
         return dbhost;
     }
 
-    protected PyDictionary parseYaml(String yamlFileName) {
-        YamlTranslator translator = new YamlTranslator(yamlFileName, Boolean.TRUE);
-        System.out.println("Got the translator");
-        File model = new File(yamlFileName);
-        BufferedReader br = new BufferedReader(new FileReader(model));
-        while (br.ready()) {
-            System.out.println(br.readLine());
-        }
-        PyDictionary result = translator.parse();
-        System.out.println("Parsed " + String.valueOf(result));
-        return result;
-    }
-
     protected void verifyModelFileContents(String modelFileName, List<String> textToFind) throws Exception {
         BufferedReader model = inputYaml(modelFileName);
         List<String> checkList = new ArrayList(textToFind);
@@ -287,7 +274,7 @@ public class BaseTest {
         }
     }
 
-    protected BufferedReader inputYaml(String yamlFileName) {
+    protected BufferedReader inputYaml(String yamlFileName)  throws Exception {
         File model = new File(yamlFileName);
         return new BufferedReader(new FileReader(model));
     }
