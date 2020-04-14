@@ -393,7 +393,7 @@ public class ITWdt extends BaseTest {
         String expectedModelFile = System.getProperty("java.io.tmpdir") + FS + "model" + FS + "restrictedJRFD1.yaml";
         verifyModelFile(expectedModelFile);
         PyDictionary parsedModel = parseYaml(expectedModelFile);
-        System.out.println("Model=", parsedModel);
+        System.out.println("Model=" + parsedModel.toString());
         logTestEnd(testMethodName);
     }
 
