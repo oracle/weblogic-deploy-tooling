@@ -39,11 +39,17 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.python</groupId>
             <artifactId>jython</artifactId>
             <version>2.2.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.weblogic.lifecycle</groupId>
+            <artifactId>weblogic-deploy</artifactId>
         </dependency>
     </dependencies>
 

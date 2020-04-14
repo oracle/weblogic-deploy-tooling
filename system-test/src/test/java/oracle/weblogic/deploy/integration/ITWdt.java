@@ -397,6 +397,10 @@ public class ITWdt extends BaseTest {
         logTestEnd(testMethodName);
     }
 
+    private void verifyFDiscoverDomainWithRequiredArgument(PyDictionary model) throws Exception {
+
+    }
+
     /**
      * test discoverDomain.sh with -model_file argument
      * @throws Exception - if any error occurs
