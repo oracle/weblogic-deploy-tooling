@@ -250,7 +250,10 @@ public class BaseTest {
 
     protected PyDictionary parseYaml(String yamlFileName) throws Exception {
         YamlTranslator translator = new YamlTranslator(yamlFileName, Boolean.TRUE);
-        return translator.parse();
+        System.out.println("Got the translator");
+        PyDictionary result = translator.parse();
+        System.out.println("Parsed " + String.valueOf(result));
+        return result;
     }
 
     private static ExecResult executeAndVerify(String command, boolean isRedirectToOut) throws Exception {
