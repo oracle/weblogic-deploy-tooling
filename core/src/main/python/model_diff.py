@@ -23,6 +23,11 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.util.model_context import ModelContext
+from oracle.weblogic.deploy.aliases import AliasException
 
 UNSAFE_ONLINE_UPDATE=0
 SAFE_ONLINE_UPDATE=1
@@ -199,6 +204,50 @@ class ModelDiffer:
             self.recursive_changed_detail(s,token, s)
             self._add_results(all_removed, True)
 
+
+    def _is_alias_folder(self, path):
+        """
+        Check if the delimited path is a folder or attribute
+        :param path: '|' delimited path
+        :return: true if it is a folder otherwise false
+        """
+
+
+
+        path_tokens = path.split('|')
+        model_context = ModelContext("test", { })
+        aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE)
+        location = LocationContext()
+        last_token = None
+        for path_token in path_tokens:
+            last_token = path_token
+            location.append_location(path_token)
+
+        location.pop_location(0)
+        found = True
+
+        # use a loop ??
+        while True:
+            try:
+                alias_info = aliases.get_model_attribute_names_and_types(location)
+                if last_token in alias_info.keys():
+                    found = False
+                    break
+                else:
+                    if location.get_folder_path() in [ '/' ]:
+                        break
+                    else:
+                        location.pop_location()
+            except AliasException, e:
+                # Cannot find it - likely a token value not in alias ???
+                location.pop_location()
+                if location.get_folder_path() in [ '/' ]:
+                    break
+
+        debug("DEBUG: is_alias_folder %s %s", path, found)
+
+        return found
+
     def _add_results(self, ar_changes, is_delete=False):
         """
         Update the differences in the final model dictionary with the changes
@@ -216,6 +265,7 @@ class ModelDiffer:
                               'topology|Server',
                               'topology|Machine',
                               'topology|UnixMachine',
+                              'topology|ServerTemplate|ServerStart',
                               'resources|CoherenceClusterSystemResource',
                               'resources|FileStore',
                               'resources|ForeignJNDIProvider',
@@ -249,14 +299,16 @@ class ModelDiffer:
                               'resources|WTCServer' ]
 
         for item in ar_changes:
-            found_in_allowable_delete = False
-            if is_delete:
-                for allowable_delete in allowable_deletes:
-                    if item.startswith(allowable_delete):
-                        found_in_allowable_delete = True
-                if not found_in_allowable_delete:
-                    compare_msgs.add(('WLSDPLY-05301',item))
-                    continue
+            # if is_delete:
+            #     found_in_allowable_delete = self._is_alias_folder(item)
+            #
+            #     # for allowable_delete in allowable_deletes:
+            #     #     if item.startswith(allowable_delete):
+            #     #         found_in_allowable_delete = True
+            #     if not found_in_allowable_delete:
+            #         compare_msgs.add(('WLSDPLY-05301',item))
+            #         print "looped " + item
+            #         continue
 
             splitted=item.split('|',1)
             n=len(splitted)
@@ -299,36 +351,71 @@ class ModelDiffer:
             # if it is a deletion then go back and update with '!'
 
             if is_delete:
-                for allowable_delete in allowable_deletes:
-                    if item.startswith(allowable_delete):
-                        split_delete = item.split('|')
-                        allowable_delete_length = len(allowable_delete.split('|'))
-                        split_delete_length = len(split_delete)
-                        debug("DEBUG: deleting %s from the model ", item)
+                is_folder_path = self._is_alias_folder(item)
+                split_delete = item.split('|')
+                #allowable_delete_length = len(allowable_delete.split('|'))
+                split_delete_length = len(split_delete)
+                if is_folder_path:
+                    app_key = split_delete[split_delete_length - 1]
+                    parent_key = split_delete[-2]
+                    debug("DEBUG: deleting folder %s from the model: key %s ", item, app_key)
+                    pointer_dict = self.final_changed_model
+                    for k_item in split_delete:
+                        if k_item == parent_key:
+                            break
+                        pointer_dict = pointer_dict[k_item]
+                    del pointer_dict[parent_key][app_key]
+                    pointer_dict[parent_key]['!' + app_key] = dict()
+                else:
+                    # Deleting attributes
+                    debug("DEBUG: deleting attribute " + item)
+                    pointer_dict = self.final_changed_model
+                    split_delete = item.split('|')
+                    app_key = split_delete[-1]
+                    parent_key = split_delete[-2]
+                    for k_item in split_delete:
+                        if k_item == parent_key:
+                            break
+                        pointer_dict = pointer_dict[k_item]
+                    del pointer_dict[parent_key][app_key]
+                    # Deleting entire tree
+                    if split_delete_length == 0:
+                        pointer_dict[parent_key][ '!' + app_key] = dict()
+                    else:
+                        compare_msgs.add(('WLSDPLY-05301',item))
 
-                        if split_delete_length == allowable_delete_length + 1:
-                            app_key = split_delete[split_delete_length - 1]
-                            pointer_dict = self.final_changed_model
-                            for k_item in allowable_delete.split('|'):
-                                pointer_dict = pointer_dict[k_item]
-                            del pointer_dict[app_key]
-                            pointer_dict['!' + app_key] = dict()
-                        else:
-                            # Deleting attributes
-                            pointer_dict = self.final_changed_model
-                            split_delete = item.split('|')
-                            app_key = split_delete[-1]
-                            parent_key = split_delete[-2]
-                            for k_item in split_delete:
-                                if k_item == parent_key:
-                                    break
-                                pointer_dict = pointer_dict[k_item]
-                            del pointer_dict[parent_key][app_key]
-                            # Deleting entire tree
-                            if split_delete_length == allowable_delete_length:
-                                pointer_dict[parent_key][ '!' + app_key] = dict()
-                            else:
-                                compare_msgs.add(('WLSDPLY-05301',item))
+
+            # if is_delete:
+            #     self._is_alias_folder(item)
+            #     for allowable_delete in allowable_deletes:
+            #         if item.startswith(allowable_delete):
+            #             split_delete = item.split('|')
+            #             allowable_delete_length = len(allowable_delete.split('|'))
+            #             split_delete_length = len(split_delete)
+            #             debug("DEBUG: deleting %s from the model ", item)
+            #             if split_delete_length == allowable_delete_length + 1:
+            #                 app_key = split_delete[split_delete_length - 1]
+            #                 pointer_dict = self.final_changed_model
+            #                 for k_item in allowable_delete.split('|'):
+            #                     pointer_dict = pointer_dict[k_item]
+            #                 del pointer_dict[app_key]
+            #                 pointer_dict['!' + app_key] = dict()
+            #             else:
+            #                 # Deleting attributes
+            #                 pointer_dict = self.final_changed_model
+            #                 split_delete = item.split('|')
+            #                 app_key = split_delete[-1]
+            #                 parent_key = split_delete[-2]
+            #                 for k_item in split_delete:
+            #                     if k_item == parent_key:
+            #                         break
+            #                     pointer_dict = pointer_dict[k_item]
+            #                 del pointer_dict[parent_key][app_key]
+            #                 # Deleting entire tree
+            #                 if split_delete_length == allowable_delete_length:
+            #                     pointer_dict[parent_key][ '!' + app_key] = dict()
+            #                 else:
+            #                     compare_msgs.add(('WLSDPLY-05301',item))
 
     def merge_dictionaries(self, dictionary, new_dictionary):
         """
