@@ -241,7 +241,7 @@ class ModelDiffer:
         max_iteration = len(path_tokens) - 1
 
         for index in range(0, max_iteration):
-            if max_iteration < 0:
+            if max_iteration <= 0:
                 break
             try:
                 debug("DEBUG: Try location path %s" , location.get_folder_path())
@@ -253,7 +253,7 @@ class ModelDiffer:
                     if location.get_folder_path() in [ '/' ]:
                         break
                     else:
-                        # Will it ever happen ?
+                        # For example /WebAppContainer
                         location.pop_location()
                         debug("DEBUG: Not in attribute list try popping location path to %s" , location.get_folder_path())
             except AliasException, e:
