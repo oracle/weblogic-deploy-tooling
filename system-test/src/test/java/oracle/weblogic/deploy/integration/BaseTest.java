@@ -250,7 +250,7 @@ public class BaseTest {
         return dbhost;
     }
 
-    protected PyDictionary parseYaml(String yamlFileName) throws Exception {
+    protected PyDictionary parseYaml(String yamlFileName) {
         YamlTranslator translator = new YamlTranslator(yamlFileName, Boolean.TRUE);
         System.out.println("Got the translator");
         File model = new File(yamlFileName);
@@ -261,6 +261,33 @@ public class BaseTest {
         PyDictionary result = translator.parse();
         System.out.println("Parsed " + String.valueOf(result));
         return result;
+    }
+
+    protected void verifyModelFileContents(String modelFileName, List<String> textToFind) {
+        BufferedReader model = inputYaml(modelFileName);
+        List<String> checkList = new ArrayList(textToFind);
+        while (model.ready()) {
+            String nextLine = model.readLine();
+            if (nextLine != None) {
+                for (String textLine : textToFind) {
+                    if (nextLine.indexOf(textLine) >=0 ) {
+                        checkList.remove(textLine);
+                        break;
+                    }
+                }
+            }
+        }
+        if (checkList.size() > 0) {
+            for (String leftover : checkList) {
+                System.err.println("Model file did not contain " + leftover);
+            }
+            throw new Exception("Model file did not contain expected results");
+        }
+    }
+
+    protected BufferedReader inputYaml(String yamlFileName) {
+        File model = new File(yamlFileName);
+        return new BufferedReader(new FileReader(model));
     }
 
     private static ExecResult executeAndVerify(String command, boolean isRedirectToOut) throws Exception {

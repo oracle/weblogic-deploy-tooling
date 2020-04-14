@@ -392,14 +392,24 @@ public class ITWdt extends BaseTest {
         // verify model file
         String expectedModelFile = System.getProperty("java.io.tmpdir") + FS + "model" + FS + "restrictedJRFD1.yaml";
         verifyModelFile(expectedModelFile);
+        verifyFDiscoverDomainWithRequiredArgument(expectedModelFile);
         System.out.println("model file=" + expectedModelFile);
-        PyDictionary parsedModel = parseYaml(expectedModelFile);
-        System.out.println("Model=" + parsedModel.toString());
+        // PyDictionary parsedModel = parseYaml(expectedModelFile);
+        // System.out.println("Model=" + parsedModel.toString());
+
         logTestEnd(testMethodName);
     }
 
-    private void verifyFDiscoverDomainWithRequiredArgument(PyDictionary model) throws Exception {
-
+    private void verifyFDiscoverDomainWithRequiredArgument(String expectedModelFile) throws Exception {
+         List<String> checkContents = new ArrayList();
+         checkContents.add("domainInfo:");
+         checkContents.add("AdminUserName: '--FIX ME--'");
+         checkContents.add("CoherenceClusterSystemResource: defaultCoherenceCluster");
+         checkContents.add("PublicAddress: kubernetes");
+         checkContents.add("Trust Service Identity Asserter:");
+         checkContents.add("appDeployments:");
+         checkContents.add("SourcePath: 'wlsdeploy/applications/simple-app.war'");
+        verifyModelFileContents(expectedModelFile, checkContents);
     }
 
     /**
