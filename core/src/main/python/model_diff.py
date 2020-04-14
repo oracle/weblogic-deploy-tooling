@@ -209,7 +209,6 @@ class ModelDiffer:
             self.recursive_changed_detail(s,token, s)
             self._add_results(all_removed, True)
 
-
     def _is_alias_folder(self, path):
         """
         Check if the delimited path is a folder or attribute
@@ -225,7 +224,6 @@ class ModelDiffer:
         alias_helper = AliasHelper(aliases, __logger, ExceptionType.CREATE)
 
         alias_helper.supports_multiple_mbean_instances(location)
-        # location.append_location("DOMAIN")
         prev_token = 'DOMAIN'
         for path_token in path_tokens[1:]:
             token_name = aliases.get_name_token(location)
@@ -238,13 +236,16 @@ class ModelDiffer:
         found = True
         debug("DEBUG: starting from %s", location.get_folder_path())
 
-        # use a loop ??
-        while True:
+        # exclude the top level keys such as "resources", "topology", "appDeployments"
+
+        max_iteration = len(path_tokens) - 1
+
+        for index in range(0, max_iteration):
+            if max_iteration < 0:
+                break
             try:
-                # debug("DEBUG: last token %s", last_token)
-                # debug("DEBUG: Try location path %s" , location.get_folder_path())
+                debug("DEBUG: Try location path %s" , location.get_folder_path())
                 alias_info = aliases.get_model_attribute_names_and_types(location)
-                # debug("DEBUG: location attributes %s", str(alias_info.keys()))
                 if last_token in alias_info.keys():
                     found = False
                     break
@@ -252,14 +253,16 @@ class ModelDiffer:
                     if location.get_folder_path() in [ '/' ]:
                         break
                     else:
+                        # Will it ever happen ?
                         location.pop_location()
-                        # debug("DEBUG: Not in attributes try popping location path to %s" , location.get_folder_path())
+                        debug("DEBUG: Not in attribute list try popping location path to %s" , location.get_folder_path())
             except AliasException, e:
-                # Cannot find it - likely a token value not in alias ???
                 location.pop_location()
-                # debug("DEBUG: AliasException. Try popping location path to %s" , location.get_folder_path())
+                debug("DEBUG: AliasException. Try popping location path to %s" , location.get_folder_path())
                 if location.get_folder_path() in [ '/' ]:
                     break
+
+            max_iteration = max_iteration - 1
 
         debug("DEBUG: is_alias_folder %s %s", path, found)
 
