@@ -9,6 +9,8 @@ import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import oracle.weblogic.deploy.yaml.YamlTranslator;
 import oracle.weblogic.deploy.integration.utils.ExecCommand;
@@ -263,12 +265,12 @@ public class BaseTest {
         return result;
     }
 
-    protected void verifyModelFileContents(String modelFileName, List<String> textToFind) {
+    protected void verifyModelFileContents(String modelFileName, List<String> textToFind) throws Exception {
         BufferedReader model = inputYaml(modelFileName);
         List<String> checkList = new ArrayList(textToFind);
         while (model.ready()) {
             String nextLine = model.readLine();
-            if (nextLine != None) {
+            if (nextLine != null) {
                 for (String textLine : textToFind) {
                     if (nextLine.indexOf(textLine) >=0 ) {
                         checkList.remove(textLine);

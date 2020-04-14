@@ -15,6 +15,8 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.python.core.PyDictionary;
+import java.util.ArrayList;
+import java.util.List;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -401,7 +403,7 @@ public class ITWdt extends BaseTest {
     }
 
     private void verifyFDiscoverDomainWithRequiredArgument(String expectedModelFile) throws Exception {
-         List<String> checkContents = new ArrayList();
+         List<String> checkContents = new ArrayList<>();
          checkContents.add("domainInfo:");
          checkContents.add("AdminUserName: '--FIX ME--'");
          checkContents.add("CoherenceClusterSystemResource: defaultCoherenceCluster");
