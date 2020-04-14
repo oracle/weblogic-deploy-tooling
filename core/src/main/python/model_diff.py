@@ -21,6 +21,7 @@ from wlsdeploy.json.json_translator import PythonToJson
 from oracle.weblogic.deploy.util import CLAException
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
+from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.aliases.aliases import Aliases
@@ -30,6 +31,7 @@ from wlsdeploy.util.model_context import ModelContext
 from oracle.weblogic.deploy.aliases import AliasException
 from validate import Validator
 from oracle.weblogic.deploy.validate import ValidateException
+from wlsdeploy.exception.expection_types import ExceptionType
 
 UNSAFE_ONLINE_UPDATE=0
 SAFE_ONLINE_UPDATE=1
@@ -38,7 +40,7 @@ MODELS_SAME=3
 SECURITY_INFO_UPDATED=4
 RCU_PASSWORD_CHANGED=5
 VALIDATION_FAIL=-1
-
+PATH_TOKEN='|'
 _program_name = 'compareModel'
 _class_name = 'model_diff'
 __logger = PlatformLogger('wlsdeploy.model_diff')
@@ -127,15 +129,15 @@ class ModelDiffer:
                 token=saved_token
                 # The token is a | separated string that is used to parse and rebuilt the structure later
                 debug('DEBUG: in recursive changed detail walking down 1 %s', o)
-                token=token+'|'+o
+                token=token+PATH_TOKEN+o
                 if a.is_dict(o):
                     debug('DEBUG: in recursive changed detail walking down 2 %s', token)
                     a.recursive_changed_detail(o,token, root)
-                    last=token.rfind('|')
+                    last=token.rfind(PATH_TOKEN)
                     token=root
                 else:
                     all_changes.append(token)
-                    last=token.rfind('|')
+                    last=token.rfind(PATH_TOKEN)
                     token=root
 
 
@@ -147,14 +149,14 @@ class ModelDiffer:
             for item in added:
                 token=saved_token
                 debug('DEBUG: recursive added token %s item %s ', token, item)
-                all_added.append(token + '|' + item)
+                all_added.append(token + PATH_TOKEN + item)
 
         # We don't really care about this, just put something here is enough
         if len(removed) > 0:
             for item in removed:
                 token=saved_token
                 debug('DEBUG: removed %s', item)
-                all_removed.append(token + '|' + item)
+                all_removed.append(token + PATH_TOKEN + item)
         debug('DEBUG: Exiting recursive_changed_detail')
 
     def is_dict(self,key):
@@ -214,25 +216,35 @@ class ModelDiffer:
         :param path: '|' delimited path
         :return: true if it is a folder otherwise false
         """
-
-
-
-        path_tokens = path.split('|')
+        debug("DEBUG: Entering is_alias_folder %s", path)
+        path_tokens = path.split(PATH_TOKEN)
         model_context = ModelContext("test", { })
         aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE)
         location = LocationContext()
-        last_token = None
-        for path_token in path_tokens:
-            last_token = path_token
-            location.append_location(path_token)
+        last_token = path_tokens[-1]
+        alias_helper = AliasHelper(aliases, __logger, ExceptionType.CREATE)
 
-        location.pop_location(0)
+        alias_helper.supports_multiple_mbean_instances(location)
+        # location.append_location("DOMAIN")
+        prev_token = 'DOMAIN'
+        for path_token in path_tokens[1:]:
+            token_name = aliases.get_name_token(location)
+            if token_name is not None and token_name != prev_token:
+                location.add_name_token(token_name, path_token)
+            else:
+                location.append_location(path_token)
+            prev_token = token_name
+
         found = True
+        debug("DEBUG: starting from %s", location.get_folder_path())
 
         # use a loop ??
         while True:
             try:
+                # debug("DEBUG: last token %s", last_token)
+                # debug("DEBUG: Try location path %s" , location.get_folder_path())
                 alias_info = aliases.get_model_attribute_names_and_types(location)
+                # debug("DEBUG: location attributes %s", str(alias_info.keys()))
                 if last_token in alias_info.keys():
                     found = False
                     break
@@ -241,9 +253,11 @@ class ModelDiffer:
                         break
                     else:
                         location.pop_location()
+                        # debug("DEBUG: Not in attributes try popping location path to %s" , location.get_folder_path())
             except AliasException, e:
                 # Cannot find it - likely a token value not in alias ???
                 location.pop_location()
+                # debug("DEBUG: AliasException. Try popping location path to %s" , location.get_folder_path())
                 if location.get_folder_path() in [ '/' ]:
                     break
 
@@ -260,60 +274,15 @@ class ModelDiffer:
         #  'resources|JDBCSystemResource|Generic2|JdbcResource|JDBCConnectionPoolParams|TestConnectionsOnReserve
         #
 
-        # TODO: may be it can be simplified by walking through levels instead of hard coding?
-
-        allowable_deletes = [ 'appDeployments|Application' ,
-                              'appDeployments|Library',
-                              'topology|Cluster',
-                              'topology|Server',
-                              'topology|Machine',
-                              'topology|UnixMachine',
-                              'topology|ServerTemplate|ServerStart',
-                              'resources|CoherenceClusterSystemResource',
-                              'resources|FileStore',
-                              'resources|ForeignJNDIProvider',
-                              'resources|JDBCStore',
-                              'resources|JDBCSystemResource',
-                              'resources|JMSBridgeDestination',
-                              'resources|JMSServer',
-                              'resources|JMSSystemResource',
-                              'resources|JoltConnectionPool',
-                              'resources|MailSession',
-                              'resources|MessagingBridge',
-                              'resources|ODLConfiguration',
-                              'resources|Partition',
-                              'resources|PartitionWorkManager',
-                              'resources|PathService',
-                              'resources|ResourceGroup',
-                              'resources|ResourceGroupTemplate',
-                              'resources|ResourceManagement',
-                              'resources|SAFAgent',
-                              'resources|SelfTuning|Capacity',
-                              'resources|SelfTuning|FairShareRequestClass',
-                              'resources|SelfTuning|MaxThreadsConstraint',
-                              'resources|SelfTuning|MinThreadsConstraint',
-                              'resources|SelfTuning|ResponseTimeRequestClass',
-                              'resources|SelfTuning|WorkManager',
-                              'resources|ShutdownClass',
-                              'resources|SingletonService',
-                              'resources|StartupClass',
-                              'resources|WLDFSystemResource',
-                              'resources|WebAppContainer',
-                              'resources|WTCServer' ]
-
         for item in ar_changes:
-            # if is_delete:
-            #     found_in_allowable_delete = self._is_alias_folder(item)
-            #
-            #     # for allowable_delete in allowable_deletes:
-            #     #     if item.startswith(allowable_delete):
-            #     #         found_in_allowable_delete = True
-            #     if not found_in_allowable_delete:
-            #         compare_msgs.add(('WLSDPLY-05301',item))
-            #         print "looped " + item
-            #         continue
+            if is_delete:
+                # Skipp adding if it is a delete of an attribute
+                found_in_allowable_delete = self._is_alias_folder(item)
+                if not found_in_allowable_delete:
+                    compare_msgs.add(('WLSDPLY-05301',item))
+                    continue
 
-            splitted=item.split('|',1)
+            splitted=item.split(PATH_TOKEN,1)
             n=len(splitted)
             result=dict()
             walked=[]
@@ -331,7 +300,7 @@ class ModelDiffer:
                 else:
                     result=tmp
                     walked.append(splitted[0])
-                splitted=splitted[1].split('|',1)
+                splitted=splitted[1].split(PATH_TOKEN,1)
                 n=len(splitted)
             #
             # result is the dictionary format
@@ -355,8 +324,8 @@ class ModelDiffer:
 
             if is_delete:
                 is_folder_path = self._is_alias_folder(item)
-                split_delete = item.split('|')
-                #allowable_delete_length = len(allowable_delete.split('|'))
+                split_delete = item.split(PATH_TOKEN)
+                #allowable_delete_length = len(allowable_delete.split(PATH_TOKEN))
                 split_delete_length = len(split_delete)
                 if is_folder_path:
                     app_key = split_delete[split_delete_length - 1]
@@ -369,56 +338,24 @@ class ModelDiffer:
                         pointer_dict = pointer_dict[k_item]
                     del pointer_dict[parent_key][app_key]
                     pointer_dict[parent_key]['!' + app_key] = dict()
-                else:
-                    # Deleting attributes
-                    debug("DEBUG: deleting attribute " + item)
-                    pointer_dict = self.final_changed_model
-                    split_delete = item.split('|')
-                    app_key = split_delete[-1]
-                    parent_key = split_delete[-2]
-                    for k_item in split_delete:
-                        if k_item == parent_key:
-                            break
-                        pointer_dict = pointer_dict[k_item]
-                    del pointer_dict[parent_key][app_key]
-                    # Deleting entire tree
-                    if split_delete_length == 0:
-                        pointer_dict[parent_key][ '!' + app_key] = dict()
-                    else:
-                        compare_msgs.add(('WLSDPLY-05301',item))
+                # else:
+                #     # Deleting attributes
+                #     debug("DEBUG: deleting attribute " + item)
+                #     pointer_dict = self.final_changed_model
+                #     split_delete = item.split(PATH_TOKEN)
+                #     app_key = split_delete[-1]
+                #     parent_key = split_delete[-2]
+                #     for k_item in split_delete:
+                #         if k_item == parent_key:
+                #             break
+                #         pointer_dict = pointer_dict[k_item]
+                #     del pointer_dict[parent_key][app_key]
+                #     # Deleting entire tree
+                #     if split_delete_length == 0:
+                #         pointer_dict[parent_key][ '!' + app_key] = dict()
+                #     else:
+                #         compare_msgs.add(('WLSDPLY-05301',item))
 
-
-            # if is_delete:
-            #     self._is_alias_folder(item)
-            #     for allowable_delete in allowable_deletes:
-            #         if item.startswith(allowable_delete):
-            #             split_delete = item.split('|')
-            #             allowable_delete_length = len(allowable_delete.split('|'))
-            #             split_delete_length = len(split_delete)
-            #             debug("DEBUG: deleting %s from the model ", item)
-            #             if split_delete_length == allowable_delete_length + 1:
-            #                 app_key = split_delete[split_delete_length - 1]
-            #                 pointer_dict = self.final_changed_model
-            #                 for k_item in allowable_delete.split('|'):
-            #                     pointer_dict = pointer_dict[k_item]
-            #                 del pointer_dict[app_key]
-            #                 pointer_dict['!' + app_key] = dict()
-            #             else:
-            #                 # Deleting attributes
-            #                 pointer_dict = self.final_changed_model
-            #                 split_delete = item.split('|')
-            #                 app_key = split_delete[-1]
-            #                 parent_key = split_delete[-2]
-            #                 for k_item in split_delete:
-            #                     if k_item == parent_key:
-            #                         break
-            #                     pointer_dict = pointer_dict[k_item]
-            #                 del pointer_dict[parent_key][app_key]
-            #                 # Deleting entire tree
-            #                 if split_delete_length == allowable_delete_length:
-            #                     pointer_dict[parent_key][ '!' + app_key] = dict()
-            #                 else:
-            #                     compare_msgs.add(('WLSDPLY-05301',item))
 
     def merge_dictionaries(self, dictionary, new_dictionary):
         """
@@ -512,7 +449,7 @@ class ModelDiffer:
         """
         debug('DBEUG: in model keylist=%s dictionary %s', keylist, dictionary)
 
-        splitted=keylist.split('|')
+        splitted=keylist.split(PATH_TOKEN)
         n=len(splitted)
         i=0
 
@@ -698,7 +635,7 @@ def main():
                 for line in compare_msgs:
                     # TODO:   how to write it to a file with a logger? or do we care ? Primarily non interative usecase
                     #
-                    rcfh.write(line.replace('|', "-->"))
+                    rcfh.write(line.replace(PATH_TOKEN, "-->"))
                 rcfh.close()
         else:
             if len(compare_msgs) > 0:
@@ -707,7 +644,7 @@ def main():
                 for line in compare_msgs:
                     msg_key = line[0]
                     msg_value = line[1]
-                    __logger.info(msg_key, msg_value.replace('|', "-->"))
+                    __logger.info(msg_key, msg_value.replace(PATH_TOKEN, "-->"))
 
         System.exit(0)
 
