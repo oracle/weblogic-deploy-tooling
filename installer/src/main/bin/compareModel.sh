@@ -6,7 +6,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
-#       compareModel.sh - WLS Deploy tool to compare two models
+#       compareModel.sh - WLS Deploy tool to compare two models  (new vs previous)
 #
 #     DESCRIPTION
 #       This script compares two models. The models compared must be both yaml or both json
@@ -37,7 +37,7 @@ usage() {
   echo "          [                        diffed_model.yaml - yaml output of the differences between the models]"
   echo "          [                        model_diff_stdout - stdout of the tool compareModel ]"
   echo "          [                        model_diff_rc - comma separated return code for the differences ]"
-  echo "          <model 1> <model2>      Must be the last two arguments and must be same extensions (yaml or json)"
+  echo "          <new model> <previous model>      Must be the last two arguments and must be same extensions (yaml or json)"
   echo ""
 }
 
