@@ -462,8 +462,15 @@ public class ITWdt extends BaseTest {
     // verify model file and variable file
     verifyModelFile(discoveredModelFile);
     verifyModelFile(discoveredVaribleFile);
-
+    verifyGDiscoverDomainWithVariableFile(discoveredModelFile);
+    
     logTestEnd(testMethodName);
+  }
+
+  private void verifyGDiscoverDomainWithVariableFile(String expectedModelFile) throws Exception {
+    List<String> checkContents = new ArrayList<>();
+    checkContents.add("AdminUserName: '@@PROP:AdminUserName@@'");
+    verifyModelFileContents(expectedModelFile, checkContents);
   }
 
     /**
@@ -492,7 +499,7 @@ public class ITWdt extends BaseTest {
         logTestEnd(testMethodName);
     }
 
-    private void verifyHDiscoverDomainJRFDomainType(String expectedModelFile) {
+    private void verifyHDiscoverDomainJRFDomainType(String expectedModelFile) throws Exception {
       List<String> checkContents = new ArrayList<>();
       checkContents.add("AWT Application Context Startup Class");
       try {
@@ -502,6 +509,7 @@ public class ITWdt extends BaseTest {
         // empty this is expected result
       }
     }
+
     /**
      * test updateDomain.sh, update the domain to set the number of dynamic servers to 4
      * @throws Exception - if any error occurs
