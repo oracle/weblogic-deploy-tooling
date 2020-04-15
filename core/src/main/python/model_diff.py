@@ -513,29 +513,43 @@ def main():
             System.exit(-1)
 
         if _outputdir:
+            fos = None
+            writer = None
+            file_name = None
             if len(compare_msgs) > 0:
-                rcfh = open(_outputdir + '/model_diff_stdout', 'w')
-                rcfh.write(BLANK_LINE)
-                rcfh.write(BLANK_LINE)
-                index = 1
-                for line in compare_msgs:
-                    msg_key = line[0]
-                    msg_value = line[1]
-                    rcfh.write( "%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->"))))
-                    index = index + 1
-                    rcfh.write(BLANK_LINE)
-                rcfh.close()
-        else:
-            if len(compare_msgs) > 0:
-                print BLANK_LINE
-                print BLANK_LINE
-                index = 1
-                for line in compare_msgs:
-                    msg_key = line[0]
-                    msg_value = line[1]
-                    print "%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->")))
-                    index = index + 1
+                try:
+                    file_name = _outputdir + '/model_diff_stdout'
+                    fos = JFileOutputStream(file_name, False)
+                    writer = JPrintWriter(fos, True)
+                    writer.println(BLANK_LINE)
+                    writer.println(BLANK_LINE)
+                    index = 1
+                    for line in compare_msgs:
+                        msg_key = line[0]
+                        msg_value = line[1]
+                        writer.println( "%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->"))))
+                        index = index + 1
+                        writer.println(BLANK_LINE)
+                    fos.close()
+                    writer.close()
+                except JIOException, ioe:
+                    if fos:
+                        fos.close()
+                    if writer:
+                        writer.close()
+                    __logger.severe('WLSDPLY-05308', file_name, ioe.getLocalizedMessage(),
+                                    error=ioe, class_name=_class_name, method_name=_method_name)
+            else:
+                if len(compare_msgs) > 0:
                     print BLANK_LINE
+                    print BLANK_LINE
+                    index = 1
+                    for line in compare_msgs:
+                        msg_key = line[0]
+                        msg_value = line[1]
+                        print "%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->")))
+                        index = index + 1
+                        print BLANK_LINE
 
         System.exit(0)
 
