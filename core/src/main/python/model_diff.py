@@ -33,6 +33,10 @@ from validate import Validator
 from oracle.weblogic.deploy.validate import ValidateException
 from wlsdeploy.exception.expection_types import ExceptionType
 from oracle.weblogic.deploy.exception import ExceptionHelper
+import java.io.FileOutputStream as JFileOutputStream
+import java.io.IOException as JIOException
+import java.io.PrintWriter as JPrintWriter
+from wlsdeploy.exception import exception_helper
 
 VALIDATION_FAIL=-1
 PATH_TOKEN='|'
@@ -365,6 +369,8 @@ class ModelFileDiffer:
         Do the actual compare of the models.
         :return:  whether the difference is safe for online dynamic update
         """
+
+        _method_name = "compare"
         # arguments have been verified and same extensions
 
         if os.path.splitext(self.current_dict_file)[1].lower() == ".yaml":
@@ -374,6 +380,9 @@ class ModelFileDiffer:
             current_dict = self.get_dictionary(self.current_dict_file)
             past_dict = self.get_dictionary(self.past_dict_file)
         model_file_name = None
+
+        # validate models first
+
         try:
             model_context = ModelContext("validateModel", {} )
             aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE)
@@ -410,15 +419,31 @@ class ModelFileDiffer:
         obj.calculate_changed_model()
         net_diff = obj.get_final_changed_model()
         if self.output_dir:
-            fh = open(self.output_dir + '/diffed_model.json', 'w')
-            json_object = PythonToJson(net_diff)
-            json_object._write_dictionary_to_json_file(net_diff, fh)
-            # self.write_dictionary_to_json_file(net_diff, fh)
-            fh.close()
-            fh = open(self.output_dir + '/diffed_model.yaml', 'w')
-            pty = PythonToYaml(net_diff)
-            pty._write_dictionary_to_yaml_file(net_diff, fh)
-            fh.close()
+            fos = None
+            writer = None
+            file_name = None
+            try:
+                file_name = self.output_dir + '/diffed_model.json'
+                fos = JFileOutputStream(file_name, False)
+                writer = JPrintWriter(fos, True)
+                json_object = PythonToJson(net_diff)
+                json_object._write_dictionary_to_json_file(net_diff, writer)
+                writer.close()
+                file_name = self.output_dir + '/diffed_model.yaml'
+                fos = JFileOutputStream(file_name, False)
+                writer = JPrintWriter(fos, True)
+                pty = PythonToYaml(net_diff)
+                pty._write_dictionary_to_yaml_file(net_diff, writer)
+                writer.close()
+            except JIOException, ioe:
+                if fos:
+                    fos.close()
+                if writer:
+                    writer.close()
+                __logger.severe('WLSDPLY-05308', file_name, ioe.getLocalizedMessage(),
+                                error=ioe, class_name=_class_name, method_name=_method_name)
+
+                return -1
         else:
             print BLANK_LINE
             print format_message('WLSDPLY-05306', self.current_dict_file, self.past_dict_file)
