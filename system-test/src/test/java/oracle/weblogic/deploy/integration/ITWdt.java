@@ -1,4 +1,4 @@
-// Copyright 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright 2019, 2020, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at
 // http://oss.oracle.com/licenses/upl.
 
@@ -395,8 +395,6 @@ public class ITWdt extends BaseTest {
         verifyModelFile(expectedModelFile);
         verifyFDiscoverDomainWithRequiredArgument(expectedModelFile);
         System.out.println("model file=" + expectedModelFile);
-        // PyDictionary parsedModel = parseYaml(expectedModelFile);
-        // System.out.println("Model=" + parsedModel.toString());
 
         logTestEnd(testMethodName);
     }
@@ -463,7 +461,7 @@ public class ITWdt extends BaseTest {
     verifyModelFile(discoveredModelFile);
     verifyModelFile(discoveredVaribleFile);
     verifyGDiscoverDomainWithVariableFile(discoveredModelFile);
-    
+
     logTestEnd(testMethodName);
   }
 
