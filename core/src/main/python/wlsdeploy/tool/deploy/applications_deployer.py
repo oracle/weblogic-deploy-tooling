@@ -246,7 +246,7 @@ class ApplicationsDeployer(Deployer):
         # Go through the model libraries and find existing libraries that are referenced
         # by applications and compute a processing strategy for each library.
         self.__build_library_deploy_strategy(lib_location, model_shared_libraries, existing_libs, existing_lib_refs,
-                                             stop_app_list, update_library_list)
+                                             stop_app_list, update_library_list, stop_and_undeploy_app_list)
 
         # Go through the model applications and compute the processing strategy for each application.
         app_location = LocationContext(base_location).append_location(APPLICATION)
@@ -512,7 +512,7 @@ class ApplicationsDeployer(Deployer):
         return existing_libraries
 
     def __build_library_deploy_strategy(self, location, model_libs, existing_libs, existing_lib_refs,
-                                        stop_app_list, update_library_list):
+                                        stop_app_list, update_library_list, stop_and_undeploy_app_list):
         if model_libs is not None:
             uses_path_tokens_model_attribute_names = self.__get_uses_path_tokens_attribute_names(location)
 
@@ -522,13 +522,18 @@ class ApplicationsDeployer(Deployer):
                     if param in lib_dict:
                         self.model_context.replace_tokens(LIBRARY, lib, param, lib_dict)
 
+                if model_helper.is_delete_name(lib):
+                    if lib[1:] in existing_libs:
+                        model_libs.pop(lib)
+                        _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib[1:])
+                        stop_and_undeploy_app_list.append(lib[1:])
+                    else:
+                        model_libs.pop(lib)
+                        stop_and_undeploy_app_list.append(lib[1:])
+                    continue
+
                 if lib in existing_libs:
                     existing_lib_ref = dictionary_utils.get_dictionary_element(existing_lib_refs, lib)
-
-                    if model_helper.is_delete_name(lib):
-                        self.__remove_lib_from_deployment(model_libs, lib)
-                        _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib[1:])
-                        continue
 
                     # skipping absolute path libraries if they are the same
                     model_src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
