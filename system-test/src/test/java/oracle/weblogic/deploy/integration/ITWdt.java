@@ -488,10 +488,20 @@ public class ITWdt extends BaseTest {
 
         // verify model file
         verifyModelFile(discoveredModelFile);
-
+        verifyHDiscoverDomainJRFDomainType(discoveredModelFile);
         logTestEnd(testMethodName);
     }
 
+    private void verifyHDiscoverDomainJRFDomainType(String expectedModelFile) {
+      List<String> checkContents = new ArrayList<>();
+      checkContents.add("AWT Application Context Startup Class");
+      try {
+        verifyModelFileContents(expectedModelFile, checkContents);
+        throw new Exception("JRF blacklist components found in model file");
+      } catch (Exception e) {
+        // empty this is expected result
+      }
+    }
     /**
      * test updateDomain.sh, update the domain to set the number of dynamic servers to 4
      * @throws Exception - if any error occurs

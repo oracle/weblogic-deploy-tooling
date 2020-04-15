@@ -16,8 +16,6 @@ import oracle.weblogic.deploy.integration.utils.ExecCommand;
 import oracle.weblogic.deploy.integration.utils.ExecResult;
 import org.apache.commons.io.FileUtils;
 
-import org.python.core.PyDictionary;
-
 public class BaseTest {
 
     protected static final Logger logger = Logger.getLogger(ITWdt.class.getName());
