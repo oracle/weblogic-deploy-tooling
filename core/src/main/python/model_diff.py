@@ -580,7 +580,6 @@ if __name__ == "__main__":
     all_changes = []
     all_added = []
     all_removed = []
-    changed_items = []
     compare_msgs = sets.Set()
     main()
 
