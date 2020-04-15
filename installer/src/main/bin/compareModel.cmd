@@ -68,7 +68,7 @@ ECHO           [-output_dir <output_dir> write the outputs to the directory spec
 ECHO           [                        diffed_model.json - json output of the differences between the models]
 ECHO           [                        diffed_model.yaml - yaml output of the differences between the models]
 ECHO           [                        model_diff_stdout - stdout of the tool compareModel ]
-ECHO           [                        model_diff_rc - comma separated return code for the differences ]
+ECHO           [-variable_file <variable file>  variable file used for macro substitution]
 ECHO           <new model> <previous model>      Must be the last two arguments and must be same extensions (yaml or json)
 ECHO.
 

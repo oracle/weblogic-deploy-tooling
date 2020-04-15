@@ -24,6 +24,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -32,6 +33,7 @@ from wlsdeploy.util.model_context import ModelContext
 from validate import Validator
 from oracle.weblogic.deploy.validate import ValidateException
 from wlsdeploy.exception.expection_types import ExceptionType
+from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.exception import ExceptionHelper
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.IOException as JIOException
@@ -51,7 +53,8 @@ __required_arguments = [
 ]
 
 __optional_arguments = [
-    CommandLineArgUtil.COMPARE_MODEL_OUTPUT_DIR_SWITCH
+    CommandLineArgUtil.COMPARE_MODEL_OUTPUT_DIR_SWITCH,
+    CommandLineArgUtil.VARIABLE_FILE_SWITCH
 ]
 
 def __process_args(args):
@@ -69,7 +72,6 @@ def __process_args(args):
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
-
     return model_context_helper.create_context(_program_name, combined_arg_map)
 
 class ModelDiffer:
@@ -347,10 +349,11 @@ class ModelFileDiffer:
     """
       This is the main driver for the caller.  It compares two model files whether they are json or yaml format.
     """
-    def __init__(self, current_dict, past_dict, output_dir=None):
+    def __init__(self, current_dict, past_dict, model_context, output_dir=None):
         self.current_dict_file = current_dict
         self.past_dict_file = past_dict
         self.output_dir = output_dir
+        self.model_context = model_context
 
     def get_dictionary(self, file):
         """
@@ -384,36 +387,46 @@ class ModelFileDiffer:
         # validate models first
 
         try:
-            model_context = ModelContext("validateModel", {} )
-            aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE)
+            aliases = Aliases(model_context=self.model_context, wlst_mode=WlstModes.OFFLINE)
 
-            validator = Validator(model_context, aliases, wlst_mode=WlstModes.OFFLINE)
+            validator = Validator(self.model_context, aliases, wlst_mode=WlstModes.OFFLINE)
 
+            variable_map = validator.load_variables(self.model_context.get_variable_file())
             model_file_name = self.current_dict_file
 
-            # no need to pass the variable file for processing, substitution has already been performed
-            return_code = validator.validate_in_tool_mode(current_dict, variables_file_name=None,
+            model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
+
+            variables.substitute(model_dictionary, variable_map, self.model_context)
+
+            return_code = validator.validate_in_tool_mode(model_dictionary,
+                                                      variables_file_name=None,
                                                       archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
                 __logger.severe('WLSDPLY-05305', model_file_name)
                 return VALIDATION_FAIL
 
+            current_dict = model_dictionary
             model_file_name = self.past_dict_file
 
-            validator.validate_in_tool_mode(past_dict, variables_file_name=None,
+            model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
+            variables.substitute(model_dictionary, variable_map, self.model_context)
+            validator.validate_in_tool_mode(model_dictionary,
+                                            variables_file_name=None,
                                             archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
                 __logger.severe('WLSDPLY-05305', model_file_name)
                 return VALIDATION_FAIL
-
+            past_dict = model_dictionary
         except ValidateException, te:
             __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
                             error=te, class_name=_class_name, method_name=_method_name)
-            ex = exception_helper.create_validate_exception(te.getLocalizedMessage(), error=te)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
+            return VALIDATION_FAIL
+        except VariableException, ve:
+            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, ve.getLocalizedMessage(),
+                            error=ve, class_name=_class_name, method_name=_method_name)
+            return VALIDATION_FAIL
 
         obj = ModelDiffer(current_dict, past_dict)
         obj.calculate_changed_model()
@@ -507,7 +520,7 @@ def main():
         if not validated:
             raise CLAException("Model extension must be either yaml or json")
 
-        obj = ModelFileDiffer(model1, model2, _outputdir)
+        obj = ModelFileDiffer(model1, model2, model_context, _outputdir)
         rc = obj.compare()
         if rc == VALIDATION_FAIL:
             System.exit(-1)

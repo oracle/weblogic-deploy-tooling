@@ -36,7 +36,7 @@ usage() {
   echo "          [                        diffed_model.json - json output of the differences between the models]"
   echo "          [                        diffed_model.yaml - yaml output of the differences between the models]"
   echo "          [                        model_diff_stdout - stdout of the tool compareModel ]"
-  echo "          [                        model_diff_rc - comma separated return code for the differences ]"
+  echo "          [-variable_file <variable file>  variable file used for macro substitution]"
   echo "          <new model> <previous model>      Must be the last two arguments and must be same extensions (yaml or json)"
   echo ""
 }
