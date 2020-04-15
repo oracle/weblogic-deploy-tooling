@@ -8,7 +8,7 @@ In order to configure and use OHS, the product must be installed in the Oracle H
 
 The OHS template must be present in the WDT domain type definition file used to create or update the domain. See [Domain Type Definitions](type_def.md) for more information on creating a custom definition.
 
-You should create a copy of an existing domain type definition file, add the template to that file, then reference that file on the WDT command line. For example, if you want to create a domain with Oracle HTTP Server based on a Restricted JRF domain, first create a copy of the file `WLSDEPLOY_HOME/lib/typedefs/RestrictedJRF.json` in the same directory, such as `WLSDEPLOY_HOME/lib/typedefs/HttpServer.json`. In this example, you would change the existing `extensionTemplates` section to include the additional OHS template. The original value is 
+You should create a copy of an existing domain type definition file, add the template to that file, then reference that file on the WDT command line. For example, if you want to create a domain with Oracle HTTP Server based on a Restricted JRF domain, then you would first create a copy of the file `WLSDEPLOY_HOME/lib/typedefs/RestrictedJRF.json` in the same directory, such as `WLSDEPLOY_HOME/lib/typedefs/HttpServer.json`. In this example, you would change the existing `extensionTemplates` section to include the additional OHS template. The original value is 
 ```
 "extensionTemplates": [ "Oracle Restricted JRF", "Oracle Enterprise Manager-Restricted JRF" ],
 ```
