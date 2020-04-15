@@ -6,15 +6,16 @@
 # ------------
 #
 #   This code compares python dictionaries.  It is used to compare the new vs the old version.
-#   output is written as csv file /tmp/model_diff_rc  containing the return codes that represent the differences.
-#   also the actual difference in model as yaml and json /tmp/diffed_model.json /tmp/diffed_model.yaml
+#   If the flag -output_dir <directory> is provided, the differences is written as yaml and json
+#   diffed_model.json diffed_model.yaml in the directory; the tool output is written as diffed_output_rc.
 #
-#   This script is invoked by jython.  See modelInImage.sh diff_model
+#   If the flag is not provided then all output is written to the standard out.
+#
 #
 
 import sets
 import sys, os, traceback
-from java.lang import System
+from java.lang import System, String
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 from wlsdeploy.json.json_translator import PythonToJson
@@ -28,19 +29,15 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.util.model_context import ModelContext
-from oracle.weblogic.deploy.aliases import AliasException
 from validate import Validator
 from oracle.weblogic.deploy.validate import ValidateException
 from wlsdeploy.exception.expection_types import ExceptionType
+from oracle.weblogic.deploy.exception import ExceptionHelper
 
-UNSAFE_ONLINE_UPDATE=0
-SAFE_ONLINE_UPDATE=1
-FATAL_MODEL_CHANGES=2
-MODELS_SAME=3
-SECURITY_INFO_UPDATED=4
-RCU_PASSWORD_CHANGED=5
 VALIDATION_FAIL=-1
 PATH_TOKEN='|'
+BLANK_LINE=""
+
 _program_name = 'compareModel'
 _class_name = 'model_diff'
 __logger = PlatformLogger('wlsdeploy.model_diff')
@@ -335,109 +332,6 @@ class ModelDiffer:
                 else:
                     dictionary[key] = new_value
 
-    def is_safe_diff(self, model):
-        """
-        Is it a safe difference for update.
-        :param model: diffed model
-        return 0 - always return 0 for V1
-        """
-
-        # check for phase 1 any security changes in the domainInfo intersection
-
-        if model.has_key('domainInfo'):
-            domain_info = model['domainInfo']
-            if domain_info.has_key('AdminUserName') or domain_info.has_key('AdminPassword') \
-                    or domain_info.has_key('WLSRoles'):
-                changed_items.append(SECURITY_INFO_UPDATED)
-
-            if domain_info.has_key('RCUDbInfo'):
-                rcu_db_info = domain_info['RCUDbInfo']
-                if rcu_db_info.has_key('rcu_schema_password'):
-                    changed_items.append(RCU_PASSWORD_CHANGED)
-
-                if rcu_db_info.has_key('rcu_db_conn_string') \
-                    or rcu_db_info.has_key('rcu_prefix'):
-                    changed_items.append(SECURITY_INFO_UPDATED)
-
-        return 0
-
-    def _is_safe_addition(self, items):
-        """
-        check the items in all_added to see if can be used for online update
-        return 0 false ;
-            1 true ;
-            2 for fatal
-        """
-        # allows add attribute to existing entity
-
-        found_in_past_dictionary = 1
-        has_topology=0
-        for itm in items:
-            if itm.find('topology.') == 0:
-                has_topology = 1
-
-            debug('DEBUG: is_safe_addition %s', itm)
-            found_in_past_dictionary = self._in_model(self.past_dict, itm)
-            debug('DBUEG: found_in_past_dictionary %s', found_in_past_dictionary)
-            if not found_in_past_dictionary:
-                break
-            else:
-                # check whether it is in the forbidden list
-                if self.in_forbidden_list(itm):
-                    compare_msgs(('WLSDPLY-05303', itm))
-                    return FATAL_MODEL_CHANGES
-
-        # if there is a shape change
-        # return 2 ?
-        if has_topology and not found_in_past_dictionary:
-            compare_msgs.add(('WLSDPLY-05302', itm))
-            return FATAL_MODEL_CHANGES
-
-        if found_in_past_dictionary:
-            return SAFE_ONLINE_UPDATE
-
-        # allow new additions for anything ??
-        return SAFE_ONLINE_UPDATE
-
-    def _in_model(self, dictionary, keylist):
-        """
-        check whether the keys is in the dictionary
-        :param dictionary dictonary to check
-        :param keylist  dot separted key list
-
-        return 1 if it is in model
-               0 if it is not in model
-        """
-        debug('DBEUG: in model keylist=%s dictionary %s', keylist, dictionary)
-
-        splitted=keylist.split(PATH_TOKEN)
-        n=len(splitted)
-        i=0
-
-        # loop through the keys and use it to walk the dictionary
-        # if it can walk down 3 levels, safely assume it is in the
-        # dictionary, otherwise it is a total new addition
-
-        for i in range(0, n):
-            if dictionary.has_key(splitted[i]):
-                if isinstance(dictionary[splitted[i]], dict):
-                    dictionary = dictionary[splitted[i]]
-                continue
-            else:
-                break
-
-        if i > 2:
-            return 1
-
-        return 0
-
-    def in_forbidden_list(self, itm):
-        forbidden_list = [ '.ListenPort', '.ListenAddress' ]
-        for forbidden in forbidden_list:
-            if itm.endswith(forbidden):
-                return 1
-        return 0
-
     def get_final_changed_model(self):
         """
         Return the changed model.
@@ -526,10 +420,16 @@ class ModelFileDiffer:
             pty._write_dictionary_to_yaml_file(net_diff, fh)
             fh.close()
         else:
+            print BLANK_LINE
+            print format_message('WLSDPLY-05306', self.current_dict_file, self.past_dict_file)
+            print BLANK_LINE
+            print format_message('WLSDPLY-05307')
+            print BLANK_LINE
+
             pty = PythonToYaml(net_diff)
             pty._write_dictionary_to_yaml_file(net_diff, System.out)
 
-        return obj.is_safe_diff(net_diff)
+        return 0
 
 def debug(format_string, *arguments):
     """
@@ -588,24 +488,29 @@ def main():
             System.exit(-1)
 
         if _outputdir:
-            rcfh = open(_outputdir + '/model_diff_rc', 'w')
-            rcfh.write(",".join(map(str,changed_items)))
-            rcfh.close()
             if len(compare_msgs) > 0:
                 rcfh = open(_outputdir + '/model_diff_stdout', 'w')
-                for line in compare_msgs:
-                    # TODO:   how to write it to a file with a logger? or do we care ? Primarily non interative usecase
-                    #
-                    rcfh.write(line.replace(PATH_TOKEN, "-->"))
-                rcfh.close()
-        else:
-            if len(compare_msgs) > 0:
-                print ""
-                print ""
+                rcfh.write(BLANK_LINE)
+                rcfh.write(BLANK_LINE)
+                index = 1
                 for line in compare_msgs:
                     msg_key = line[0]
                     msg_value = line[1]
-                    __logger.info(msg_key, msg_value.replace(PATH_TOKEN, "-->"))
+                    rcfh.write( "%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->"))))
+                    index = index + 1
+                    rcfh.write(BLANK_LINE)
+                rcfh.close()
+        else:
+            if len(compare_msgs) > 0:
+                print BLANK_LINE
+                print BLANK_LINE
+                index = 1
+                for line in compare_msgs:
+                    msg_key = line[0]
+                    msg_value = line[1]
+                    print "%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->")))
+                    index = index + 1
+                    print BLANK_LINE
 
         System.exit(0)
 
@@ -622,6 +527,15 @@ def main():
         cla_helper.clean_up_temp_files()
         __logger.severe('WLSDPLY-05304', eeString)
         System.exit(-1)
+
+def format_message(key, *args):
+    """
+    Get message using the bundle.
+    :param key: bundle key
+    :param args: bundle arguments
+    :return:
+    """
+    return ExceptionHelper.getMessage(key, list(args))
 
 if __name__ == "__main__":
     all_changes = []
