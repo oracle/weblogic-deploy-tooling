@@ -2,7 +2,7 @@
 
 When working with a domain model, sometimes it is useful to know the differences between the model used in previous deployment and a new proposed deployment.
 
-The compare model tool compare the two fully resolved models, the new against the old and generate a model that shows only the difference between the two.
+The compare model tool compare the two model files, the new against the old and generate a model that shows only the difference between the two.
     
 To use the Compare Model Tool, simply run the `compareModel` shell script with the correct arguments.  To see the list of valid arguments for any tool in the Oracle WebLogic Server Deploy Tooling installation, simply run the shell script with the `-help` option (or with no arguments) to see the shell script usage information.
 
