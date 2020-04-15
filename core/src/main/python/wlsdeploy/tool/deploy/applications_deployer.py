@@ -36,6 +36,9 @@ from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import string_utils
+from wlsdeploy.util import model_helper
+from wlsdeploy.aliases import model_constants
+
 
 import oracle.weblogic.deploy.util.FileUtils as FileUtils
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
@@ -93,6 +96,14 @@ class ApplicationsDeployer(Deployer):
         for shared_library_name in shared_libraries:
             self.logger.info('WLSDPLY-09608', LIBRARY, shared_library_name, self._parent_type, self._parent_name,
                              class_name=self._class_name, method_name=_method_name)
+
+            if model_helper.is_delete_name(shared_library_name):
+                location = LocationContext()
+                location.append_location(model_constants.LIBRARY)
+                existing_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
+                deployer_utils.delete_named_element(location, shared_library_name, existing_names, self.alias_helper)
+                continue
+
             #
             # In WLST offline mode, the shared library name must match the fully qualified name, including
             # the spec and implementation versions from the deployment descriptor.  Since we want to allow
@@ -154,6 +165,13 @@ class ApplicationsDeployer(Deployer):
         for application_name in applications:
             self.logger.info('WLSDPLY-09301', APPLICATION, application_name, self._parent_type, self._parent_name,
                              class_name=self._class_name, method_name=_method_name)
+
+            if model_helper.is_delete_name(application_name):
+                location = LocationContext()
+                location.append_location(model_constants.APPLICATION)
+                existing_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
+                deployer_utils.delete_named_element(location, application_name, existing_names, self.alias_helper)
+                continue
 
             application = \
                 copy.deepcopy(dictionary_utils.get_dictionary_element(applications, application_name))
@@ -507,6 +525,11 @@ class ApplicationsDeployer(Deployer):
                 if lib in existing_libs:
                     existing_lib_ref = dictionary_utils.get_dictionary_element(existing_lib_refs, lib)
 
+                    if model_helper.is_delete_name(lib):
+                        self.__remove_lib_from_deployment(model_libs, lib)
+                        _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib[1:])
+                        continue
+
                     # skipping absolute path libraries if they are the same
                     model_src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
                     model_targets = dictionary_utils.get_element(lib_dict, TARGET)
@@ -567,6 +590,13 @@ class ApplicationsDeployer(Deployer):
                 for param in uses_path_tokens_model_attribute_names:
                     if param in app_dict:
                         self.model_context.replace_tokens(APPLICATION, app, param, app_dict)
+
+                if model_helper.is_delete_name(app):
+                    # remove the !app from the model
+                    self.__remove_app_from_deployment(model_apps, app)
+                    # undeploy the app (without !)
+                    stop_and_undeploy_app_list.append(app[1:])
+                    continue
 
                 if app in existing_apps:
                     # Compare the hashes of the domain's existing apps to the model's apps.
