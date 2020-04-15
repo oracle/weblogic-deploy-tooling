@@ -14,7 +14,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.python.core.PyDictionary;
 import java.util.ArrayList;
 import java.util.List;
 import java.nio.file.Files;
@@ -439,6 +438,33 @@ public class ITWdt extends BaseTest {
 
         logTestEnd(testMethodName);
     }
+  /**
+   * test discoverDomain.sh with -variable_file argument
+   * @throws Exception - if any error occurs
+   */
+  @Test
+  public void testGDiscoverDomainWithVariableFile() throws Exception {
+    String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+    logTestBegin(testMethodName);
+
+    String discoveredArchive = System.getProperty("java.io.tmpdir") + FS + "discoveredArchive.zip";
+    String discoveredModelFile = System.getProperty("java.io.tmpdir") + FS + "discoveredRestrictedJRFD1.yaml";
+    String discoveredVaribleFile = System.getProperty("java.io.tmpdir") + FS + "discoveredRestrictedJRFD1.properties";
+    String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+        domainParent12213 + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
+        " -model_file " + discoveredModelFile + " -variable_file " + discoveredVaribleFile;
+
+    logger.info("executing command: " + cmd);
+    ExecResult result = ExecCommand.exec(cmd);
+
+    verifyResult(result, "discoverDomain.sh completed successfully");
+
+    // verify model file and variable file
+    verifyModelFile(discoveredModelFile);
+    verifyModelFile(discoveredVaribleFile);
+
+    logTestEnd(testMethodName);
+  }
 
     /**
      * test discoverDomain.sh with -domain_type as JRF
