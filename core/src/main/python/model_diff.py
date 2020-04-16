@@ -324,7 +324,6 @@ class ModelDiffer:
                         old_keys = self.past_dict[parent_key][app_key].keys()
                         for old_key in old_keys:
                             pointer_dict[parent_key][app_key]['!' + old_key] = dict()
-                        pass
                     else:
                         pointer_dict[parent_key]['!' + app_key] = dict()
 
