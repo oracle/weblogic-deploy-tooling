@@ -23,7 +23,7 @@ WLSDEPLOY_HOME/bin/createDomain -oracle_home /etc/oracle ... -domain_type HttpSe
 
 ### Configuring the Model
 
-Configuring OHS typically involves adding two top-level folders to the `resources` section of the model. Here is an example:
+Configuring OHS typically involves adding two top-level folders to the `resources` section of the model, `SystemComponent` and `OHS`. Here is an example:
 ```yaml
 resources:
     SystemComponent:
@@ -45,5 +45,5 @@ The `ComponentType` field of the `SystemComponent` element must be set to `OHS` 
 
 You can use the [Model Help Tool](model_help.md) to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the `OHS` folder:
 ```yaml
-<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/OHS
+${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/OHS
 ```
