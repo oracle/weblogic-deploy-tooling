@@ -6,10 +6,10 @@
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
-@rem       compareModel.cmd - WLS Deploy tool to compare two models (new vs previous)
+@rem       compareModel.cmd - WLS Deploy tool to compare two models (new vs old)
 @rem
 @rem     DESCRIPTION
-@rem       This script compares two models. The models compared must be both yaml or both json
+@rem       This script compares two models. The models compared must be both yaml or both json files
 @rem
 @rem This script uses the following variables:
 @rem
@@ -64,13 +64,13 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME%
 ECHO           [-help]
-ECHO           -oracle_home <oracle_home>
-ECHO           [-output_dir <output_dir> write the outputs to the directory specified]
+ECHO           -oracle_home ^<oracle_home^>
+ECHO           [-output_dir ^<output_dir^> write the outputs to the directory specified]
 ECHO           [                        diffed_model.json - json output of the differences between the models]
 ECHO           [                        diffed_model.yaml - yaml output of the differences between the models]
 ECHO           [                        model_diff_stdout - stdout of the tool compareModel ]
-ECHO           [-variable_file <variable file>  variable file used for macro substitution]
-ECHO           <new model> <previous model>      Must be the last two arguments and must be same extensions (yaml or json)
+ECHO           [-variable_file ^<variable file^>  variable file used for macro substitution]
+ECHO           ^<new model^> ^<old model^>      Must be the last two arguments and must be same extensions (yaml or json)
 ECHO.
 
 :exit_script
