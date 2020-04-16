@@ -55,10 +55,11 @@ SET RETURN_CODE=%ERRORLEVEL%
 
 :done
 set SHOW_USAGE=false
+if %RETURN_CODE% == 100 set SHOW_USAGE=true
+if %RETURN_CODE% == 99 set SHOW_USAGE=true
 if "%SHOW_USAGE%" == "false" (
     GOTO exit_script
 )
-
 :usage
 ECHO.
 ECHO Usage: %SCRIPT_NAME%
