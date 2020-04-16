@@ -2,11 +2,11 @@
 
 This sample WDT domain model section includes configuration for two JDBC data sources.
  
-The data source `datasource-1` has a sparse configuration meant to set a minimal number of values. It is not necessary to include additional attributes and sub-folders, unless you intend to override default values.
+The data source `datasource-1` has a sparse configuration meant to set a minimal number of values. It is not necessary to include additional attributes and sub-folders, unless you intend to override the default values.
 
 The data source `datasource-2` includes additional folders and attributes to provide further customization, including targeting information, connection pool configuration, and such. The cluster `cluster-1` should be defined elsewhere within this model, or should already exist in a domain that is being updated.  
 
-It is recommended that credential fields, such as `PasswordEncrypted`, should not be stored as clear text in the model. Those values can be referenced in a separate variables file or Kubernetes secret, or the model can be encrypted using [Encrypt Model Tool](../encrypt.md).
+It is recommended that credential fields, such as `PasswordEncrypted`, should not be stored as clear text in the model. Those values can be referenced in a separate variables file or Kubernetes secret, or the model can be encrypted using the [Encrypt Model Tool](../encrypt.md).
 
 ```yaml
 resources:
