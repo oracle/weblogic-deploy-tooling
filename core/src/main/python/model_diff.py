@@ -318,7 +318,15 @@ class ModelDiffer:
                             break
                         pointer_dict = pointer_dict[k_item]
                     del pointer_dict[parent_key][app_key]
-                    pointer_dict[parent_key]['!' + app_key] = dict()
+                    # Special handling for deleting all resources in high level
+                    if split_delete_length == 2 and app_key != 'WebAppContainer':
+                        pointer_dict[parent_key][app_key] = dict()
+                        old_keys = self.past_dict[parent_key][app_key].keys()
+                        for old_key in old_keys:
+                            pointer_dict[parent_key][app_key]['!' + old_key] = dict()
+                        pass
+                    else:
+                        pointer_dict[parent_key]['!' + app_key] = dict()
 
 
     def merge_dictionaries(self, dictionary, new_dictionary):
