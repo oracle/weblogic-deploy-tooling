@@ -115,7 +115,7 @@ class ListTestCase(unittest.TestCase):
 
     _known_access_attribute_values = [
         'RO',
-        'VO'
+        'ROD'
     ]
 
     _known_get_method_attribute_values = [

@@ -41,6 +41,8 @@ from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
 from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
+from wlsdeploy.aliases.alias_constants import RO
+from wlsdeploy.aliases.alias_constants import ROD
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import STRING
@@ -412,7 +414,7 @@ class Aliases(object):
 
         attribute_info = module_folder[ATTRIBUTES][model_attribute_name]
 
-        if attribute_info and not self.__is_model_attribute_read_only(location, attribute_info):
+        if attribute_info and not self.__is_wlst_attribute_read_only(location, attribute_info):
             wlst_attribute_name = attribute_info[WLST_NAME]
 
             if self._model_context and USES_PATH_TOKENS in attribute_info and \
@@ -493,7 +495,7 @@ class Aliases(object):
         wlst_attribute_name = None
         alias_attr_dict = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
         if alias_attr_dict is not None and (not check_read_only or not
-                                            self.__is_model_attribute_read_only(location, alias_attr_dict)):
+                                            self.__is_wlst_attribute_read_only(location, alias_attr_dict)):
             if WLST_NAME in alias_attr_dict:
                 wlst_attribute_name = alias_attr_dict[WLST_NAME]
             else:
@@ -1252,7 +1254,7 @@ class Aliases(object):
         """
         _method_name = '__is_model_attribute_read_only'
         rtnval = False
-        if ACCESS in attribute_info and attribute_info[ACCESS] in ('RO', 'VO'):
+        if ACCESS in attribute_info and attribute_info[ACCESS] == RO:
             self._logger.finer('WLSDPLY-08409', attribute_info[MODEL_NAME], location.get_folder_path(),
                                WlstModes.from_value(self._wlst_mode),
                                class_name=self._class_name, method_name=_method_name)
@@ -1260,6 +1262,22 @@ class Aliases(object):
 
         return rtnval
 
+    def __is_wlst_attribute_read_only(self, location, attribute_info):
+        """
+        Is the wlst attribute read-only?
+        :param location: the location
+        :param attribute_info: the attribute tuple
+        :return: True if the attribute is read-only, False otherwise
+        """
+        _method_name = '__is_wlst_attribute_read_only'
+        rtnval = False
+        if ACCESS in attribute_info and attribute_info[ACCESS] in (RO, ROD):
+            self._logger.finer('WLSDPLY-08411', attribute_info[MODEL_NAME], location.get_folder_path(),
+                               WlstModes.from_value(self._wlst_mode),
+                               class_name=self._class_name, method_name=_method_name)
+            rtnval = True
+
+        return rtnval
 
 def _convert_to_string(value):
     if type(value) in [str, unicode]:
