@@ -7,4 +7,4 @@ You can use the [Model Help Tool](../model_help.md) to determine the complete li
 ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource/JdbcResource
 ```
 ## Contents
-- [JDBC Samples](jdbc.md)
+- [JDBC Sample](jdbc.md)
