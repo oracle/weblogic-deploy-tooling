@@ -3,7 +3,7 @@ Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
-import os
+import os, re
 from java.io import ByteArrayOutputStream
 from java.io import File
 from java.io import FileInputStream
@@ -98,6 +98,20 @@ class ApplicationsDeployer(Deployer):
                              class_name=self._class_name, method_name=_method_name)
 
             if model_helper.is_delete_name(shared_library_name):
+                if not shared_library_name[1:] in existing_shared_libraries:
+                    tokens = re.split(r'[\#*\@*]', shared_library_name[1:])
+                    re_expr = tokens[0] + '[\#*\@*]'
+                    r = re.compile(re_expr)
+                    matched_list = filter(r.match, existing_shared_libraries)
+                    if len(matched_list) > 0:
+                        ex = exception_helper.create_deploy_exception('WLSDPLY-09331', shared_library_name[1:],
+                                                                      matched_list)
+                    else:
+                        ex = exception_helper.create_deploy_exception('WLSDPLY-09333', shared_library_name[1:])
+
+                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+
                 location = LocationContext()
                 location.append_location(model_constants.LIBRARY)
                 existing_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
@@ -167,6 +181,18 @@ class ApplicationsDeployer(Deployer):
                              class_name=self._class_name, method_name=_method_name)
 
             if model_helper.is_delete_name(application_name):
+                if not application_name[1:] in existing_applications:
+                    tokens = re.split(r'[\#*\@*]', application_name[1:])
+                    re_expr = tokens[0] + '[\#*\@*]'
+                    r = re.compile(re_expr)
+                    matched_list = filter(r.match, existing_applications)
+                    if len(matched_list) > 0:
+                        ex = exception_helper.create_deploy_exception('WLSDPLY-09332', application_name[1:], matched_list)
+                    else:
+                        ex = exception_helper.create_deploy_exception('WLSDPLY-09334', application_name[1:])
+                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+
                 location = LocationContext()
                 location.append_location(model_constants.APPLICATION)
                 existing_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
