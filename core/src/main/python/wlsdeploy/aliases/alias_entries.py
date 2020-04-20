@@ -87,6 +87,7 @@ class AliasEntries(object):
 
     __topology_top_level_folders = [
         'AdminConsole',
+        'CdiContainer',
         'Cluster',
         'EmbeddedLDAP',
         'JMX',
