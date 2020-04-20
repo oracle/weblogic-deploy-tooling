@@ -307,7 +307,7 @@ GOTO :EOF
     )
     IF "%RETURN_CODE%" == "102" (
       ECHO.
-      ECHO %SCRIPT_NAME% completed successfully but the effected servers require a restart ^(exit code = %RETURN_CODE%^)
+      ECHO %SCRIPT_NAME% completed successfully but the affected servers require a restart ^(exit code = %RETURN_CODE%^)
       EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "101" (
