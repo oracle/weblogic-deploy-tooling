@@ -15,13 +15,12 @@
 
 import sets
 import sys, os, traceback
-from java.lang import System, String
+from java.lang import System
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 from wlsdeploy.json.json_translator import PythonToJson
 from oracle.weblogic.deploy.util import CLAException
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import variables
@@ -30,7 +29,7 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.util.model_context import ModelContext
-from validate import Validator
+from wlsdeploy.tool.validate.validator import Validator
 from oracle.weblogic.deploy.validate import ValidateException
 from wlsdeploy.exception.expection_types import ExceptionType
 from oracle.weblogic.deploy.util import VariableException
@@ -38,7 +37,6 @@ from oracle.weblogic.deploy.exception import ExceptionHelper
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.IOException as JIOException
 import java.io.PrintWriter as JPrintWriter
-from wlsdeploy.exception import exception_helper
 
 VALIDATION_FAIL=-1
 PATH_TOKEN='|'
@@ -57,6 +55,11 @@ __optional_arguments = [
     CommandLineArgUtil.VARIABLE_FILE_SWITCH
 ]
 
+all_changes = []
+all_added = []
+all_removed = []
+compare_msgs = sets.Set()
+
 def __process_args(args):
     """
     Process the command-line arguments.
@@ -72,7 +75,8 @@ def __process_args(args):
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
-    return model_context_helper.create_context(_program_name, combined_arg_map)
+    return ModelContext(_program_name, combined_arg_map)
+    #return model_context_helper.create_context(_program_name, combined_arg_map)
 
 class ModelDiffer:
 
@@ -260,7 +264,7 @@ class ModelDiffer:
                 # Skipp adding if it is a delete of an attribute
                 found_in_allowable_delete = self._is_alias_folder(item)
                 if not found_in_allowable_delete:
-                    compare_msgs.add(('WLSDPLY-05301',item))
+                    compare_msgs.add(('WLSDPLY-05701',item))
                     continue
 
             splitted=item.split(PATH_TOKEN,1)
@@ -410,7 +414,7 @@ class ModelFileDiffer:
                                                       archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
-                __logger.severe('WLSDPLY-05305', model_file_name)
+                __logger.severe('WLSDPLY-05705', model_file_name)
                 return VALIDATION_FAIL
 
             current_dict = model_dictionary
@@ -423,7 +427,7 @@ class ModelFileDiffer:
                                             archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
-                __logger.severe('WLSDPLY-05305', model_file_name)
+                __logger.severe('WLSDPLY-05705', model_file_name)
                 return VALIDATION_FAIL
             past_dict = model_dictionary
         except ValidateException, te:
@@ -460,15 +464,15 @@ class ModelFileDiffer:
                     fos.close()
                 if writer:
                     writer.close()
-                __logger.severe('WLSDPLY-05308', file_name, ioe.getLocalizedMessage(),
+                __logger.severe('WLSDPLY-05708', file_name, ioe.getLocalizedMessage(),
                                 error=ioe, class_name=_class_name, method_name=_method_name)
 
                 return -1
         else:
             print BLANK_LINE
-            print format_message('WLSDPLY-05306', self.current_dict_file, self.past_dict_file)
+            print format_message('WLSDPLY-05706', self.current_dict_file, self.past_dict_file)
             print BLANK_LINE
-            print format_message('WLSDPLY-05307')
+            print format_message('WLSDPLY-05707')
             print BLANK_LINE
 
             pty = PythonToYaml(net_diff)
@@ -557,19 +561,19 @@ def main():
                         fos.close()
                     if writer:
                         writer.close()
-                    __logger.severe('WLSDPLY-05308', file_name, ioe.getLocalizedMessage(),
+                    __logger.severe('WLSDPLY-05708', file_name, ioe.getLocalizedMessage(),
                                     error=ioe, class_name=_class_name, method_name=_method_name)
-            else:
-                if len(compare_msgs) > 0:
+        else:
+            if len(compare_msgs) > 0:
+                print BLANK_LINE
+                print BLANK_LINE
+                index = 1
+                for line in compare_msgs:
+                    msg_key = line[0]
+                    msg_value = line[1]
+                    print "%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->")))
+                    index = index + 1
                     print BLANK_LINE
-                    print BLANK_LINE
-                    index = 1
-                    for line in compare_msgs:
-                        msg_key = line[0]
-                        msg_value = line[1]
-                        print "%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->")))
-                        index = index + 1
-                        print BLANK_LINE
 
         System.exit(0)
 
@@ -584,7 +588,7 @@ def main():
         exc_type, exc_obj, exc_tb = sys.exc_info()
         eeString = traceback.format_exception(exc_type, exc_obj, exc_tb)
         cla_helper.clean_up_temp_files()
-        __logger.severe('WLSDPLY-05304', eeString)
+        __logger.severe('WLSDPLY-05704', eeString)
         System.exit(-1)
 
 def format_message(key, *args):
@@ -597,10 +601,6 @@ def format_message(key, *args):
     return ExceptionHelper.getMessage(key, list(args))
 
 if __name__ == "__main__":
-    all_changes = []
-    all_added = []
-    all_removed = []
-    compare_msgs = sets.Set()
     main()
 
 
