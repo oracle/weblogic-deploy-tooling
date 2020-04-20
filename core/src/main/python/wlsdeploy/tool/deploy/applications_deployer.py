@@ -98,19 +98,8 @@ class ApplicationsDeployer(Deployer):
                              class_name=self._class_name, method_name=_method_name)
 
             if model_helper.is_delete_name(shared_library_name):
-                if not shared_library_name[1:] in existing_shared_libraries:
-                    tokens = re.split(r'[\#*\@*]', shared_library_name[1:])
-                    re_expr = tokens[0] + '[\#*\@*]'
-                    r = re.compile(re_expr)
-                    matched_list = filter(r.match, existing_shared_libraries)
-                    if len(matched_list) > 0:
-                        ex = exception_helper.create_deploy_exception('WLSDPLY-09331', shared_library_name[1:],
-                                                                      matched_list)
-                    else:
-                        ex = exception_helper.create_deploy_exception('WLSDPLY-09333', shared_library_name[1:])
 
-                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                    raise ex
+                self.__verify_delete_versioned_app(shared_library_name, existing_shared_libraries, type='lib')
 
                 location = LocationContext()
                 location.append_location(model_constants.LIBRARY)
@@ -181,17 +170,8 @@ class ApplicationsDeployer(Deployer):
                              class_name=self._class_name, method_name=_method_name)
 
             if model_helper.is_delete_name(application_name):
-                if not application_name[1:] in existing_applications:
-                    tokens = re.split(r'[\#*\@*]', application_name[1:])
-                    re_expr = tokens[0] + '[\#*\@*]'
-                    r = re.compile(re_expr)
-                    matched_list = filter(r.match, existing_applications)
-                    if len(matched_list) > 0:
-                        ex = exception_helper.create_deploy_exception('WLSDPLY-09332', application_name[1:], matched_list)
-                    else:
-                        ex = exception_helper.create_deploy_exception('WLSDPLY-09334', application_name[1:])
-                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                    raise ex
+
+                self.__verify_delete_versioned_app(application_name, existing_applications, type='app')
 
                 location = LocationContext()
                 location.append_location(model_constants.APPLICATION)
@@ -539,6 +519,9 @@ class ApplicationsDeployer(Deployer):
 
     def __build_library_deploy_strategy(self, location, model_libs, existing_libs, existing_lib_refs,
                                         stop_app_list, update_library_list, stop_and_undeploy_app_list):
+
+        _method_name = '__build_library_deploy_strategy'
+
         if model_libs is not None:
             uses_path_tokens_model_attribute_names = self.__get_uses_path_tokens_attribute_names(location)
 
@@ -549,6 +532,9 @@ class ApplicationsDeployer(Deployer):
                         self.model_context.replace_tokens(LIBRARY, lib, param, lib_dict)
 
                 if model_helper.is_delete_name(lib):
+
+                    self.__verify_delete_versioned_app(lib, existing_libs, 'lib')
+
                     if lib[1:] in existing_libs:
                         model_libs.pop(lib)
                         _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib[1:])
@@ -623,6 +609,9 @@ class ApplicationsDeployer(Deployer):
                         self.model_context.replace_tokens(APPLICATION, app, param, app_dict)
 
                 if model_helper.is_delete_name(app):
+
+                    self.__verify_delete_versioned_app(app, existing_apps, 'app')
+
                     # remove the !app from the model
                     self.__remove_app_from_deployment(model_apps, app)
                     # undeploy the app (without !)
@@ -660,6 +649,29 @@ class ApplicationsDeployer(Deployer):
                         # updated app
                         stop_and_undeploy_app_list.append(app)
         return
+
+    def __verify_delete_versioned_app(self, app, existing_apps, type='app'):
+
+        _method_name = '__verify_delete_versioned_app'
+
+        if type == 'app':
+            err_key_list = 'WLSDPLY-09332'
+            err_key = 'WLSDPLY-09334'
+        else:
+            err_key_list = 'WLSDPLY-09331'
+            err_key = 'WLSDPLY-09333'
+
+        if not app[1:] in existing_apps:
+            tokens = re.split(r'[\#*\@*]', app[1:])
+            re_expr = tokens[0] + '[\#*\@*]'
+            r = re.compile(re_expr)
+            matched_list = filter(r.match, existing_apps)
+            if len(matched_list) > 0:
+                ex = exception_helper.create_deploy_exception(err_key_list, app[1:], matched_list)
+            else:
+                ex = exception_helper.create_deploy_exception(err_key, app[1:])
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
 
     def __get_uses_path_tokens_attribute_names(self, app_location):
         location = LocationContext(app_location)
