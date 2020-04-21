@@ -11,6 +11,7 @@ from model_diff import ModelFileDiffer
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from oracle.weblogic.deploy.compare import CompareException
+from oracle.weblogic.deploy.util import PyWLSTException
 
 class CompareModelTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes'
@@ -77,7 +78,7 @@ class CompareModelTestCase(unittest.TestCase):
             self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jsf#1.2@1.2.9.0'), 1)
             self.assertEqual(model_dictionary['appDeployments']['Application']['myear'].has_key('ModuleType'), 0)
 
-        except CompareException, te:
+        except (CompareException, PyWLSTException), te:
             return_code = 2
             self._logger.severe('WLSDPLY-05709',
                                 te.getLocalizedMessage(), error=te,
@@ -105,7 +106,7 @@ class CompareModelTestCase(unittest.TestCase):
             model_context = ModelContext('CompareModelTestCase', args_map)
             obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, tempfile.gettempdir())
             return_code = obj.compare()
-        except CompareException, te:
+        except (CompareException, PyWLSTException), te:
             return_code = 2
             self._logger.severe('WLSDPLY-05709',
                                 te.getLocalizedMessage(), error=te,
@@ -134,7 +135,7 @@ class CompareModelTestCase(unittest.TestCase):
             model_context = ModelContext('CompareModelTestCase', args_map)
             obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, tempfile.gettempdir())
             return_code = obj.compare()
-        except CompareException, te:
+        except (CompareException, PyWLSTException), te:
             return_code = 2
             self._logger.severe('WLSDPLY-05709',
                                 te.getLocalizedMessage(), error=te,
