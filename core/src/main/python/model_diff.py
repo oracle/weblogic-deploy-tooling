@@ -281,7 +281,7 @@ class ModelDiffer:
         # The ar_changes is the keys of changes in the piped format
         #  'resources|JDBCSystemResource|Generic2|JdbcResource|JDBCConnectionPoolParams|TestConnectionsOnReserve
         #
-
+        parent_index = -2
         for item in ar_changes:
             if is_delete:
                 # Skipp adding if it is a delete of an attribute
@@ -337,7 +337,7 @@ class ModelDiffer:
                 split_delete_length = len(split_delete)
                 if is_folder_path:
                     app_key = split_delete[split_delete_length - 1]
-                    parent_key = split_delete[-2]
+                    parent_key = split_delete[parent_index]
                     debug("DEBUG: deleting folder %s from the model: key %s ", item, app_key)
                     pointer_dict = self.final_changed_model
                     for k_item in split_delete:
