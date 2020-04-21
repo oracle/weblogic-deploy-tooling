@@ -15,15 +15,26 @@
 
 import sets
 import sys, os, traceback
+
 from java.lang import System
-from wlsdeploy.util.model_translator import FileToPython
-from wlsdeploy.yaml.yaml_translator import PythonToYaml
-from wlsdeploy.json.json_translator import PythonToJson
+import java.io.FileOutputStream as JFileOutputStream
+import java.io.IOException as JIOException
+import java.io.PrintWriter as JPrintWriter
+import oracle.weblogic.deploy.util.TranslateException as TranslateException
 from oracle.weblogic.deploy.util import CLAException
+from oracle.weblogic.deploy.util import VariableException
+from oracle.weblogic.deploy.compare import CompareException
+from oracle.weblogic.deploy.exception import ExceptionHelper
+from oracle.weblogic.deploy.aliases import AliasException
+from wlsdeploy.exception import exception_helper
+
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import variables
+from wlsdeploy.util.model_translator import FileToPython
+from wlsdeploy.yaml.yaml_translator import PythonToYaml
+from wlsdeploy.json.json_translator import PythonToJson
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -32,14 +43,8 @@ from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.tool.validate.validator import Validator
 from oracle.weblogic.deploy.validate import ValidateException
 from wlsdeploy.exception.expection_types import ExceptionType
-from oracle.weblogic.deploy.util import VariableException
-from oracle.weblogic.deploy.exception import ExceptionHelper
-import java.io.FileOutputStream as JFileOutputStream
-import java.io.IOException as JIOException
-import java.io.PrintWriter as JPrintWriter
-import oracle.weblogic.deploy.util.TranslateException as TranslateException
 
-VALIDATION_FAIL=-1
+VALIDATION_FAIL=2
 PATH_TOKEN='|'
 BLANK_LINE=""
 
@@ -167,7 +172,7 @@ class ModelDiffer:
         debug('DEBUG: Exiting recursive_changed_detail')
 
     def is_dict(self,key):
-        if isinstance(self.current_dict[key],dict):
+        if self.current_dict.has_key(key) and isinstance(self.current_dict[key],dict):
             return 1
         else:
             return 0
@@ -176,6 +181,7 @@ class ModelDiffer:
         """
         Calculate the changed model.
         """
+        _method_name = 'calculate_changed_model'
 
         # This is the top level of changes only
         #  e.g. from no appDeployments to have appDeployments
@@ -184,37 +190,54 @@ class ModelDiffer:
         #  changed, added, removed are keys in the dictionary
         #   i.e. resources, domainInfo, appDeployments, topology
         #
-        changed = self.changed()
-        added = self.added()
-        removed = self.removed()
+        try:
+            changed = self.changed()
+            added = self.added()
+            removed = self.removed()
 
-        #
-        #  Call recursive for each key
-        #
-        for s in changed:
-            token=s
-            self.recursive_changed_detail(s, token, s)
-            self._add_results(all_changes)
-            self._add_results(all_added)
-            self._add_results(all_removed, True)
+            #
+            #  Call recursive for each key
+            #
+            for s in changed:
+                token=s
+                self.recursive_changed_detail(s, token, s)
+                self._add_results(all_changes)
+                self._add_results(all_added)
+                self._add_results(all_removed, True)
 
-        for s in added:
-            token=s
-            self.recursive_changed_detail(s, token, s)
-            self._add_results(all_changes)
-            self._add_results(all_added)
-            # Should not have delete
+            for s in added:
+                token=s
+                self.recursive_changed_detail(s, token, s)
+                self._add_results(all_changes)
+                self._add_results(all_added)
+                # Should not have delete
 
-        # Clean up previous delete first
-        for x in all_removed:
-            all_removed.remove(x)
+            # Clean up previous delete first
+            for x in all_removed:
+                all_removed.remove(x)
 
-        # Top level:  e.g. delete all resources, all appDeployments
+            # Top level:  e.g. delete all resources, all appDeployments
 
-        for s in removed:
-            token = s
-            self.recursive_changed_detail(s,token, s)
-            self._add_results(all_removed, True)
+            for s in removed:
+                token = s
+                self.recursive_changed_detail(s,token, s)
+                self._add_results(all_removed, True)
+
+        except KeyError, ke:
+            __logger.severe('WLSDPLY-05709', ke.getLocalizedMessage(),
+                            error=ke, class_name=_class_name, method_name=_method_name)
+            ex = exception_helper.create_compare_exception(ke.getLocalizedMessage(), error=ke)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+        except Exception, ae:
+            print 'ERRROR'
+            pass
+            # __logger.severe('WLSDPLY-05709', ae.getLocalizedMessage(),
+            #                 error=ae, class_name=_class_name, method_name=_method_name)
+            # ex = exception_helper.create_compare_exception(ae.getLocalizedMessage(), error=ae)
+            # __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            # #raise ex
+
 
     def _is_alias_folder(self, path):
         """
@@ -435,17 +458,21 @@ class ModelFileDiffer:
         except ValidateException, te:
             __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
                             error=te, class_name=_class_name, method_name=_method_name)
+            ex = exception_helper.create_compare_exception(te.getLocalizedMessage(), error=te)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
         except VariableException, ve:
             __logger.severe('WLSDPLY-20009', _program_name, model_file_name, ve.getLocalizedMessage(),
                             error=ve, class_name=_class_name, method_name=_method_name)
+            ex = exception_helper.create_compare_exception(ve.getLocalizedMessage(), error=ve)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
         except TranslateException, pe:
             __logger.severe('WLSDPLY-20009', _program_name, model_file_name, pe.getLocalizedMessage(),
                             error=pe, class_name=_class_name, method_name=_method_name)
+            ex = exception_helper.create_compare_exception(pe.getLocalizedMessage(), error=pe)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
-
-
 
         obj = ModelDiffer(current_dict, past_dict)
         obj.calculate_changed_model()
@@ -474,7 +501,7 @@ class ModelFileDiffer:
                     writer.close()
                 __logger.severe('WLSDPLY-05708', file_name, ioe.getLocalizedMessage(),
                                 error=ioe, class_name=_class_name, method_name=_method_name)
-                return -1
+                return 2
         else:
             print BLANK_LINE
             print format_message('WLSDPLY-05706', self.current_dict_file, self.past_dict_file)
@@ -541,7 +568,7 @@ def main():
         obj = ModelFileDiffer(model1, model2, model_context, _outputdir)
         rc = obj.compare()
         if rc == VALIDATION_FAIL:
-            System.exit(-1)
+            System.exit(2)
 
         if _outputdir:
             fos = None
@@ -585,18 +612,22 @@ def main():
         System.exit(0)
 
     except CLAException, ex:
-        exit_code = -1
+        exit_code = 2
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
         sys.exit(exit_code)
+    except CompareException, ce:
+        cla_helper.clean_up_temp_files()
+        __logger.severe('WLSDPLY-05704', ce.getLocalizedMessage())
+        System.exit(2)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         eeString = traceback.format_exception(exc_type, exc_obj, exc_tb)
         cla_helper.clean_up_temp_files()
         __logger.severe('WLSDPLY-05704', eeString)
-        System.exit(-1)
+        System.exit(2)
 
 def format_message(key, *args):
     """

@@ -4,27 +4,25 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import unittest
 
-import os, tempfile, traceback, sys
+import os, tempfile, traceback, sys, StringIO
 
 from wlsdeploy.util.model_context import ModelContext
 from model_diff import ModelFileDiffer
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
-import oracle.weblogic.deploy.util.TranslateException as TranslateException
+from oracle.weblogic.deploy.compare import CompareException
 
 class CompareModelTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes'
     _use_ordering = True
-    _program_name ='compareModelTest'
+
     def setUp(self):
         self.name = 'CompareModelTestCase'
         self._logger = PlatformLogger('wlsdeploy.comparemodel')
-
-        # create a context with resource directory as Oracle home, to support @@ORACLE_HOME@@ resolution
-        #self.model_context = ModelContext("test", {'-oracle_home': self._resources_dir})
+        self._program_name = 'CompareModelTestCase'
 
     def testCompareModelFull(self):
-        _method_name = 'testModelValidation'
+        _method_name = 'testCompareModelFull'
 
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
         _new_model_file = self._resources_dir + '/compare_model_model2.yaml'
@@ -79,18 +77,16 @@ class CompareModelTestCase(unittest.TestCase):
             self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jsf#1.2@1.2.9.0'), 1)
             self.assertEqual(model_dictionary['appDeployments']['Application']['myear'].has_key('ModuleType'), 0)
 
-        except TranslateException, te:
-            return_code = -1
-            self._logger.severe('WLSDPLY-20009',
-                                self._program_name,
-                                yaml_result,
+        except CompareException, te:
+            return_code = 2
+            self._logger.severe('WLSDPLY-05709',
                                 te.getLocalizedMessage(), error=te,
-                                class_name=self._class_name, method_name=_method_name)
+                                class_name=self._program_name, method_name=_method_name)
 
         self.assertEqual(return_code, 0)
 
     def testCompareModelInvalidModel(self):
-        _method_name = 'testModelValidation'
+        _method_name = 'testCompareModelInvalidModel'
 
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
         _new_model_file = self._resources_dir + '/compare_model_model3.yaml'
@@ -105,14 +101,20 @@ class CompareModelTestCase(unittest.TestCase):
             '-domain_type' : 'WLS',
             '-trailing_arguments': [ _new_model_file, _old_model_file ]
         }
+        try:
+            model_context = ModelContext('CompareModelTestCase', args_map)
+            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, tempfile.gettempdir())
+            return_code = obj.compare()
+        except CompareException, te:
+            return_code = 2
+            self._logger.severe('WLSDPLY-05709',
+                                te.getLocalizedMessage(), error=te,
+                                class_name=self._program_name, method_name=_method_name)
 
-        model_context = ModelContext('CompareModelTestCase', args_map)
-        obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, tempfile.gettempdir())
-        return_code = obj.compare()
         self.assertNotEqual(return_code, 0)
 
     def testCompareModelInvalidFile(self):
-        _method_name = 'testModelValidation'
+        _method_name = 'testCompareModelInvalidFile'
 
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
         _new_model_file = self._resources_dir + '/compare_model_model4.yaml'
@@ -128,9 +130,17 @@ class CompareModelTestCase(unittest.TestCase):
             '-trailing_arguments': [ _new_model_file, _old_model_file ]
         }
 
-        model_context = ModelContext('CompareModelTestCase', args_map)
-        obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, tempfile.gettempdir())
-        return_code = obj.compare()
+        try:
+            model_context = ModelContext('CompareModelTestCase', args_map)
+            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, tempfile.gettempdir())
+            return_code = obj.compare()
+        except CompareException, te:
+            return_code = 2
+            self._logger.severe('WLSDPLY-05709',
+                                te.getLocalizedMessage(), error=te,
+                                class_name=self._program_name, method_name=_method_name)
+
+
         self.assertNotEqual(return_code, 0)
 
 
