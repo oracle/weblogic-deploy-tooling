@@ -37,6 +37,7 @@ from oracle.weblogic.deploy.exception import ExceptionHelper
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.IOException as JIOException
 import java.io.PrintWriter as JPrintWriter
+import oracle.weblogic.deploy.util.TranslateException as TranslateException
 
 VALIDATION_FAIL=-1
 PATH_TOKEN='|'
@@ -387,17 +388,18 @@ class ModelFileDiffer:
         _method_name = "compare"
         # arguments have been verified and same extensions
 
-        if os.path.splitext(self.current_dict_file)[1].lower() == ".yaml":
-            current_dict = FileToPython(self.current_dict_file, True).parse()
-            past_dict = FileToPython(self.past_dict_file, True).parse()
-        else:
-            current_dict = self.get_dictionary(self.current_dict_file)
-            past_dict = self.get_dictionary(self.past_dict_file)
         model_file_name = None
 
         # validate models first
 
         try:
+            if os.path.splitext(self.current_dict_file)[1].lower() == ".yaml":
+                model_file_name = self.current_dict_file
+                FileToPython(model_file_name, True).parse()
+                model_file_name = self.past_dict_file
+                FileToPython(model_file_name, True).parse()
+
+
             aliases = Aliases(model_context=self.model_context, wlst_mode=WlstModes.OFFLINE)
 
             validator = Validator(self.model_context, aliases, wlst_mode=WlstModes.OFFLINE)
@@ -422,7 +424,8 @@ class ModelFileDiffer:
 
             model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
             variables.substitute(model_dictionary, variable_map, self.model_context)
-            validator.validate_in_tool_mode(model_dictionary,
+
+            return_code = validator.validate_in_tool_mode(model_dictionary,
                                             variables_file_name=None,
                                             archive_file_name=None)
 
@@ -438,6 +441,12 @@ class ModelFileDiffer:
             __logger.severe('WLSDPLY-20009', _program_name, model_file_name, ve.getLocalizedMessage(),
                             error=ve, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
+        except TranslateException, pe:
+            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, pe.getLocalizedMessage(),
+                            error=pe, class_name=_class_name, method_name=_method_name)
+            return VALIDATION_FAIL
+
+
 
         obj = ModelDiffer(current_dict, past_dict)
         obj.calculate_changed_model()
@@ -466,7 +475,6 @@ class ModelFileDiffer:
                     writer.close()
                 __logger.severe('WLSDPLY-05708', file_name, ioe.getLocalizedMessage(),
                                 error=ioe, class_name=_class_name, method_name=_method_name)
-
                 return -1
         else:
             print BLANK_LINE
