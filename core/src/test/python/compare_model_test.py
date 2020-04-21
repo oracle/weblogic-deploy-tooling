@@ -10,6 +10,7 @@ from wlsdeploy.util.model_context import ModelContext
 from model_diff import ModelFileDiffer
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
+import oracle.weblogic.deploy.util.TranslateException as TranslateException
 
 class CompareModelTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes'
@@ -28,17 +29,16 @@ class CompareModelTestCase(unittest.TestCase):
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
         _new_model_file = self._resources_dir + '/compare_model_model2.yaml'
         _old_model_file = self._resources_dir + '/compare_model_model1.yaml'
+        _temp_dir = tempfile.gettempdir()
 
         mw_home = os.environ['MW_HOME']
         args_map = {
             '-oracle_home': mw_home,
             '-variable_file': _variables_file,
-            '-output_dir' : tempfile.gettempdir(),
+            '-output_dir' : _temp_dir,
             '-domain_type' : 'WLS',
             '-trailing_arguments': [ _new_model_file, _old_model_file ]
         }
-
-        return_code = 0
 
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
@@ -46,9 +46,18 @@ class CompareModelTestCase(unittest.TestCase):
             return_code = obj.compare()
             self.assertEqual(return_code, 0)
 
-            model_dictionary = FileToPython(tempfile.gettempdir() + os.sep + 'diffed_model.yaml').parse()
+            yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
+            json_result = _temp_dir + os.sep + 'diffed_model.json'
+            stdout_result = _temp_dir + os.sep + "model_diff_stdout"
+            model_dictionary = FileToPython(yaml_result).parse()
+            yaml_exists = os.path.exists(yaml_result)
+            json_exists = os.path.exists(json_result)
+            stdout_exists = os.path.exists(stdout_result)
 
-            self._logger.info("Checking resulting model dictionary ")
+            self.assertEqual(yaml_exists, 1)
+            self.assertEqual(json_exists, 1)
+            self.assertEqual(stdout_exists, 1)
+
             self.assertEqual(model_dictionary.has_key('resources'), 1)
             self.assertEqual(model_dictionary.has_key('topology'), 1)
             self.assertEqual(model_dictionary.has_key('appDeployments'), 1)
@@ -69,11 +78,14 @@ class CompareModelTestCase(unittest.TestCase):
             self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jax-rs#2.0@2.22.4.0'), 1)
             self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jsf#1.2@1.2.9.0'), 1)
             self.assertEqual(model_dictionary['appDeployments']['Application']['myear'].has_key('ModuleType'), 0)
-        except:
+
+        except TranslateException, te:
             return_code = -1
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            eeString = traceback.format_exception(exc_type, exc_obj, exc_tb)
-            self._logger.severe('WLSDPLY-05709', eeString)
+            self._logger.severe('WLSDPLY-20009',
+                                self._program_name,
+                                yaml_result,
+                                te.getLocalizedMessage(), error=te,
+                                class_name=self._class_name, method_name=_method_name)
 
         self.assertEqual(return_code, 0)
 
