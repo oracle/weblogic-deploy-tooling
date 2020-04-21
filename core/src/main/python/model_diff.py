@@ -26,6 +26,7 @@ from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.compare import CompareException
 from oracle.weblogic.deploy.exception import ExceptionHelper
 from oracle.weblogic.deploy.aliases import AliasException
+from oracle.weblogic.deploy.util import PyWLSTException
 from wlsdeploy.exception import exception_helper
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -223,20 +224,17 @@ class ModelDiffer:
                 self.recursive_changed_detail(s,token, s)
                 self._add_results(all_removed, True)
 
-        except KeyError, ke:
-            __logger.severe('WLSDPLY-05709', ke.getLocalizedMessage(),
-                            error=ke, class_name=_class_name, method_name=_method_name)
-            ex = exception_helper.create_compare_exception(ke.getLocalizedMessage(), error=ke)
+        except (KeyError, IndexError), ke:
+            __logger.severe('WLSDPLY-05709', str(ke)),
+            ex = exception_helper.create_pywlst_exception('WLSDPLY-05709', str(ke))
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-        except Exception, ae:
-            print 'ERRROR'
-            pass
-            # __logger.severe('WLSDPLY-05709', ae.getLocalizedMessage(),
-            #                 error=ae, class_name=_class_name, method_name=_method_name)
-            # ex = exception_helper.create_compare_exception(ae.getLocalizedMessage(), error=ae)
-            # __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            # #raise ex
+        except AliasException, ae:
+            __logger.severe('WLSDPLY-05709', ae.getLocalizedMessage(),
+                            error=ae, class_name=_class_name, method_name=_method_name)
+            ex = exception_helper.create_compare_exception(ae.getLocalizedMessage(), error=ae)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
 
     def _is_alias_folder(self, path):
@@ -621,6 +619,10 @@ def main():
     except CompareException, ce:
         cla_helper.clean_up_temp_files()
         __logger.severe('WLSDPLY-05704', ce.getLocalizedMessage())
+        System.exit(2)
+    except PyWLSTException, pe:
+        cla_helper.clean_up_temp_files()
+        __logger.severe('WLSDPLY-05704', pe.getLocalizedMessage())
         System.exit(2)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
