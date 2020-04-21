@@ -77,7 +77,6 @@ def __process_args(args):
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
     return ModelContext(_program_name, combined_arg_map)
-    #return model_context_helper.create_context(_program_name, combined_arg_map)
 
 class ModelDiffer:
 
@@ -586,7 +585,7 @@ def main():
         System.exit(0)
 
     except CLAException, ex:
-        exit_code = ex.getExitCode()
+        exit_code = -1
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)

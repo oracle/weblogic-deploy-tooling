@@ -44,6 +44,7 @@ topology:
             JTAMigratableTarget:
                     StrictOwnershipCheck: true
                     Cluster: "cluster-2"
+                    'nosuchkey' : 'value'
 appDeployments:
      Application:
          myear:

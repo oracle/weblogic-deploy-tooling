@@ -23,7 +23,7 @@ class CompareModelTestCase(unittest.TestCase):
         # create a context with resource directory as Oracle home, to support @@ORACLE_HOME@@ resolution
         #self.model_context = ModelContext("test", {'-oracle_home': self._resources_dir})
 
-    def testCompareModelValidation1(self):
+    def testCompareModelFull(self):
         _method_name = 'testModelValidation'
 
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
@@ -88,6 +88,51 @@ class CompareModelTestCase(unittest.TestCase):
                                 class_name=self._class_name, method_name=_method_name)
 
         self.assertEqual(return_code, 0)
+
+    def testCompareModelInvalidModel(self):
+        _method_name = 'testModelValidation'
+
+        _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
+        _new_model_file = self._resources_dir + '/compare_model_model3.yaml'
+        _old_model_file = self._resources_dir + '/compare_model_model1.yaml'
+        _temp_dir = tempfile.gettempdir()
+
+        mw_home = os.environ['MW_HOME']
+        args_map = {
+            '-oracle_home': mw_home,
+            '-variable_file': _variables_file,
+            '-output_dir' : _temp_dir,
+            '-domain_type' : 'WLS',
+            '-trailing_arguments': [ _new_model_file, _old_model_file ]
+        }
+
+        model_context = ModelContext('CompareModelTestCase', args_map)
+        obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, tempfile.gettempdir())
+        return_code = obj.compare()
+        self.assertNotEqual(return_code, 0)
+
+    def testCompareModelInvalidFile(self):
+        _method_name = 'testModelValidation'
+
+        _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
+        _new_model_file = self._resources_dir + '/compare_model_model4.yaml'
+        _old_model_file = self._resources_dir + '/compare_model_model1.yaml'
+        _temp_dir = tempfile.gettempdir()
+
+        mw_home = os.environ['MW_HOME']
+        args_map = {
+            '-oracle_home': mw_home,
+            '-variable_file': _variables_file,
+            '-output_dir' : _temp_dir,
+            '-domain_type' : 'WLS',
+            '-trailing_arguments': [ _new_model_file, _old_model_file ]
+        }
+
+        model_context = ModelContext('CompareModelTestCase', args_map)
+        obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, tempfile.gettempdir())
+        return_code = obj.compare()
+        self.assertNotEqual(return_code, 0)
+
 
 if __name__ == '__main__':
     unittest.main()
