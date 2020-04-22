@@ -52,15 +52,14 @@ class CompareModelTestCase(unittest.TestCase):
 
             yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
             json_result = _temp_dir + os.sep + 'diffed_model.json'
-            #stdout_result = _temp_dir + os.sep + "model_diff_stdout"
+            stdout_result = obj.get_compare_msgs()
             model_dictionary = FileToPython(yaml_result).parse()
             yaml_exists = os.path.exists(yaml_result)
             json_exists = os.path.exists(json_result)
-            #stdout_exists = os.path.exists(stdout_result)
 
             self.assertEqual(yaml_exists, True)
             self.assertEqual(json_exists, True)
-            #self.assertEqual(stdout_exists, True)
+            self.assertEqual(len(stdout_result), 1)
 
             self.assertEqual(model_dictionary.has_key('resources'), True)
             self.assertEqual(model_dictionary.has_key('topology'), True)

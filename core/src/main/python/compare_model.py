@@ -512,6 +512,9 @@ class ModelFileDiffer:
 
         return 0
 
+    def get_compare_msgs(self):
+        return compare_msgs
+
 def debug(format_string, *arguments):
     """
       Generic debug code
