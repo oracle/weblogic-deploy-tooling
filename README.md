@@ -28,6 +28,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [ODL Configuration](site/odl_configuration.md)
     - [Configuring Oracle WebLogic Server Kubernetes Operator](site/kubernetes.md)
     - [Variable Injection](site/variable_injection.md)
+    - [Model Samples](site/samples/samples.md)
     - [Model Filters](site/tool_filters.md)
     - [The Archive File](site/archive.md)
 - [Downloading and Installing](#downloading-and-installing-the-software)
