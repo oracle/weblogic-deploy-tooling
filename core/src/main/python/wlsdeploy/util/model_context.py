@@ -75,6 +75,7 @@ class ModelContext(object):
         self._validation_method = None
         self._rollback_if_restart_required = None
         self._domain_resource_file = None
+        self._compare_model_output_dir = None
         self._trailing_args = []
 
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
@@ -187,6 +188,9 @@ class ModelContext(object):
                 self._wlst_mode = WlstModes.ONLINE
             else:
                 self._wlst_mode = WlstModes.OFFLINE
+
+        if CommandLineArgUtil.COMPARE_MODEL_OUTPUT_DIR_SWITCH in arg_map:
+            self._compare_model_output_dir = arg_map[CommandLineArgUtil.COMPARE_MODEL_OUTPUT_DIR_SWITCH]
 
         if self._wl_version is None:
             self._wl_version = self._wls_helper.get_actual_weblogic_version()
@@ -432,6 +436,13 @@ class ModelContext(object):
         """
         return self._encryption_passphrase
 
+    def get_compare_model_output_dir(self):
+        """
+        Return the compare model output dir
+        :return: output dir for compare models tool
+        """
+
+        return self._compare_model_output_dir
     def is_encryption_manual(self):
         """
         Get whether or not the user selected to do manual encryption.
