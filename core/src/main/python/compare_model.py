@@ -87,7 +87,6 @@ def __process_args(args):
 class ModelDiffer:
 
     def __init__(self, current_dict, past_dict):
-
         self.final_changed_model=dict()
         self.current_dict = current_dict
         self.past_dict = past_dict
@@ -121,17 +120,18 @@ class ModelDiffer:
                 result.add(o)
         return result
 
-    def print_diff(self,s, category):
-        print category
-        if len(s) > 0:
-            print s
+    # def print_diff(self,s, category):
+    #     print category
+    #     if len(s) > 0:
+    #         print s
 
     def recursive_changed_detail(self, key, token, root):
         """
         Recursively handle the changed items
-        :param key: current folder in the dicgtionary
-        :param token: token is a '|' separated string of the changed item representing the path of the model
-        :param root: root folder of the changes in the model
+        :param key: current key to locate the current dictionary for comparison
+        :param token: token is a '|' separated string of the changed item representing the path of the model as it
+            traverses down the path (this will be changed in recursive calls)
+        :param root: root folder of the changes in the model (never change)
         """
         debug("DEBUG: Entering recursive_changed_detail key=%s token=%s root=%s", key, token, root)
 
@@ -208,21 +208,18 @@ class ModelDiffer:
             removed = self.removed()
 
             #
-            #  Call recursive for each key
+            #  Call recursive for each key (i.e. appDeployments, topology, resources etc..)
             #
             for s in changed:
-                token=s
-                self.recursive_changed_detail(s, token, s)
+                self.recursive_changed_detail(s, s, s)
                 self._add_results(all_changes)
                 self._add_results(all_added)
                 self._add_results(all_removed, True)
 
             for s in added:
-                token=s
-                self.recursive_changed_detail(s, token, s)
+                self.recursive_changed_detail(s, s, s)
                 self._add_results(all_changes)
                 self._add_results(all_added)
-                # Should not have delete
 
             # Clean up previous delete first
             for x in all_removed:
@@ -231,7 +228,6 @@ class ModelDiffer:
             # Top level:  e.g. delete all resources, all appDeployments
 
             for s in removed:
-                token = s
                 self.recursive_changed_detail(s,token, s)
                 self._add_results(all_removed, True)
 
@@ -486,11 +482,22 @@ class ModelFileDiffer:
         obj = ModelDiffer(current_dict, past_dict)
         obj.calculate_changed_model()
         net_diff = obj.get_final_changed_model()
+
+        print BLANK_LINE
+        print format_message('WLSDPLY-05706', self.current_dict_file, self.past_dict_file)
+        print BLANK_LINE
+        if len(net_diff.keys()) == 0:
+            print format_message('WLSDPLY-05710')
+            print BLANK_LINE
+            return 0
+
         if self.output_dir:
             fos = None
             writer = None
             file_name = None
             try:
+                print format_message('WLSDPLY-05711', self.output_dir)
+                print BLANK_LINE
                 file_name = self.output_dir + '/diffed_model.json'
                 fos = JFileOutputStream(file_name, False)
                 writer = JPrintWriter(fos, True)
@@ -512,12 +519,8 @@ class ModelFileDiffer:
                                 error=ioe, class_name=_class_name, method_name=_method_name)
                 return 2
         else:
-            print BLANK_LINE
-            print format_message('WLSDPLY-05706', self.current_dict_file, self.past_dict_file)
-            print BLANK_LINE
             print format_message('WLSDPLY-05707')
             print BLANK_LINE
-
             pty = PythonToYaml(net_diff)
             pty._write_dictionary_to_yaml_file(net_diff, System.out)
 
