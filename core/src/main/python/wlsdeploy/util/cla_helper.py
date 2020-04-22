@@ -16,6 +16,7 @@ from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.validate import ValidateException
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
@@ -255,6 +256,42 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
         validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode)
 
     return model_dictionary
+
+
+def process_online_args(optional_arg_map):
+    """
+    Determine if we are executing in online mode and if so, validate/prompt for the necessary parameters.
+    :param optional_arg_map: the optional arguments map
+    :return: the WLST mode
+    :raises CLAException: if an error occurs reading input from the user
+    """
+    _method_name = 'process_online_args'
+
+    mode = WlstModes.OFFLINE
+    if CommandLineArgUtil.ADMIN_URL_SWITCH in optional_arg_map:
+        if CommandLineArgUtil.ADMIN_USER_SWITCH not in optional_arg_map:
+            try:
+                username = getcreds.getuser('WLSDPLY-09001')
+            except IOException, ioe:
+                ex = exception_helper.create_cla_exception('WLSDPLY-09002', ioe.getLocalizedMessage(), error=ioe)
+                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+            optional_arg_map[CommandLineArgUtil.ADMIN_USER_SWITCH] = username
+
+        if CommandLineArgUtil.ADMIN_PASS_SWITCH not in optional_arg_map:
+            try:
+                password = getcreds.getpass('WLSDPLY-09003')
+            except IOException, ioe:
+                ex = exception_helper.create_cla_exception('WLSDPLY-09004', ioe.getLocalizedMessage(), error=ioe)
+                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+            optional_arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH] = String(password)
+
+        mode = WlstModes.ONLINE
+        optional_arg_map[CommandLineArgUtil.TARGET_MODE_SWITCH] = 'online'
+    return mode
 
 
 def clean_up_temp_files():

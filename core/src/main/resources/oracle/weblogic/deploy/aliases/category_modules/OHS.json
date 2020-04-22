@@ -1,0 +1,19 @@
+{
+    "copyright": "Copyright (c) 2020, Oracle Corporation and/or its affiliates.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "OHS",
+    "child_folders_type": "multiple",
+    "folders": { },
+    "attributes": {
+        "AdminHost":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AdminHost",     "wlst_path": "WP001", "value": {"default": "127.0.0.1" }, "wlst_type": "string"  } ],
+        "AdminPort":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AdminPort",     "wlst_path": "WP001", "value": {"default": "7779" },      "wlst_type": "string" } ],
+        "ListenAddress": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ListenAddress", "wlst_path": "WP001", "value": {"default": "None" },      "wlst_type": "string" } ],
+        "ListenPort":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ListenPort",    "wlst_path": "WP001", "value": {"default": "7777" },      "wlst_type": "string" } ],
+        "SSLListenPort": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SSLListenPort", "wlst_path": "WP001", "value": {"default": "4443" },      "wlst_type": "string" } ],
+        "ServerName":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ServerName",    "wlst_path": "WP001", "value": {"default": "http://localhost:7777" }, "wlst_type": "string" } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/OHS/%OHS%"
+    }
+}
