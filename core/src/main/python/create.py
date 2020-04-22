@@ -56,14 +56,14 @@ __wlst_mode = WlstModes.OFFLINE
 __version = WebLogicHelper(__logger).get_actual_weblogic_version()
 
 __required_arguments = [
-    CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_TYPE_SWITCH
+    CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
 __optional_arguments = [
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.DOMAIN_PARENT_SWITCH,
+    CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.JAVA_HOME_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.RUN_RCU_SWITCH,
@@ -101,7 +101,7 @@ def __process_args(args):
     #
     # Verify that the domain type is a known type and load its typedef.
     #
-    domain_typedef = model_context_helper.create_typedef(_program_name, required_arg_map)
+    domain_typedef = model_context_helper.create_typedef(_program_name, optional_arg_map)
 
     __process_rcu_args(optional_arg_map, domain_typedef.get_domain_type(), domain_typedef)
     cla_helper.process_encryption_args(optional_arg_map)
