@@ -7,7 +7,7 @@ import unittest
 import os, tempfile, traceback, sys, StringIO
 
 from wlsdeploy.util.model_context import ModelContext
-from model_diff import ModelFileDiffer
+from compare_model import ModelFileDiffer
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from oracle.weblogic.deploy.compare import CompareException

@@ -56,4 +56,4 @@ checkJythonArgs "$@"
 # Java 7 is required, no encryption is used
 javaSetup 7
 
-runJython model_diff.py
+runJython compare_model.py

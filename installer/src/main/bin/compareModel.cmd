@@ -50,7 +50,7 @@ if %RETURN_CODE% NEQ 0 (
   GOTO done
 )
 
-call "%SCRIPT_PATH%\shared.cmd" :runJython model_diff.py
+call "%SCRIPT_PATH%\shared.cmd" :runJython compare_model.py
 SET RETURN_CODE=%ERRORLEVEL%
 
 :done
