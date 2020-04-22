@@ -1,8 +1,8 @@
 ## The Compare Model Tool
 
-When working with a domain model, sometimes it is useful to know the differences between the model used in previous deployment and a new proposed deployment.
+When working with a domain model, sometimes it is useful to know the differences between different models.
 
-The compare model tool compare the two model files, the new against the old and generate a model that shows only the difference between the two.
+The compare model tool compares two model files and generates a model that shows the differences between them.
     
 To use the Compare Model Tool, simply run the `compareModel` shell script with the correct arguments.  To see the list of valid arguments for any tool in the Oracle WebLogic Server Deploy Tooling installation, simply run the shell script with the `-help` option (or with no arguments) to see the shell script usage information.
 
@@ -263,15 +263,16 @@ Comparing the new and old models:
  
  1. Added 'cluster-2' and 'cluster-2-template' in the topology section
  2. Removed 'ServerStart' of 'cluster-1-template' in the topology section
- 3. Deployed two application 'yourear' and 'myear' but removed application 'myear'
- 4. Removed 'MDBConnectionFactory' from the `MyJmsModule` JMS Module
- 5. Removed 'WebAppContainer' from the resource section
+ 3. Deployed two applications 'yourear' and 'myear' in the appDeployments section
+ 4. Removed application 'myear' in the appDeployments section
+ 4. Removed 'MDBConnectionFactory' from the `MyJmsModule` JMS Module in the resource section
+ 5. Removed 'WebAppContainer' in the resource section
  6. Removed the attribute 'ResetDeliveryCountOnForward' from 'MyUniformDistributedQueue'
  7. Changed deployment targets for application `myear`
  8. Removed the attribute 'ModuleType' for application `myear` 
  
- Note:  The `!` is a notation fo deletion of a non-attribute element from the model and any missing attribute will not 
- be omitted from the model but shown at the end as `info` level messages.   
+ Note:  The `!` is a notation for the deletion of a non-attribute key element from the model. Any missing attribute will 
+ be omitted from the result model but shown as `info` level messages in the output.
  
  To compare the two model files and generate the output to files, run the tool as follows:
 
