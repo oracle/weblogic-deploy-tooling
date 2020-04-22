@@ -1355,6 +1355,16 @@ class AliasesTestCase(unittest.TestCase):
             self.aliases.get_wlst_attribute_name_and_value(location, FOLDERS.CONSTRAINED_CANDIDATE_SERVER, model_value)
         self.assertEquals(wlst_value_expected, wlst_value)
 
+    def testReadOnlyDiscoverAttribute(self):
+        location = LocationContext()
+        location.add_name_token(self.online_aliases.get_name_token(location), 'my-domain')
+        model_attribute, model_value = \
+            self.online_aliases.get_model_attribute_name_and_value(location, FOLDERS.DOMAIN_VERSION, '12.2.1.3.0')
+        self.assertEquals('12.2.1.3.0', model_value)
+        wlst_attribute, wlst_value = \
+            self.online_aliases.get_wlst_attribute_name_and_value(location, FOLDERS.DOMAIN_VERSION, '12.2.1.3.0')
+        self.assertEquals(None, wlst_value)
+
 
 if __name__ == '__main__':
     unittest.main()
