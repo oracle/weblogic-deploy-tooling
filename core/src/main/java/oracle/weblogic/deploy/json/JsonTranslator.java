@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.json;
@@ -12,6 +12,7 @@ import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.util.FileUtils;
 
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.python.core.PyDictionary;
 
 /**
@@ -59,7 +60,7 @@ public class JsonTranslator extends AbstractJsonTranslator {
         PyDictionary result;
         try (FileInputStream fis = new FileInputStream(jsonFile)) {
             result = parseInternal(jsonFile.getPath(), fis);
-        } catch (IOException ioe) {
+        } catch (IOException | ParseCancellationException ioe) {
             JsonException ex =
                 new JsonException("WLSDPLY-18007", ioe, "JSON", jsonFile.getPath(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ex);
