@@ -37,7 +37,7 @@ GOTO :ENDFUNCTIONS
     IF EXIST %JAVA_HOME%\bin\java.exe (
       FOR %%i IN ("%JAVA_HOME%\bin\java.exe") DO SET JAVA_EXE=%%~fsi
     ) ELSE (
-      ECHO Java executable does not exist at %JAVA_HOME%\bin\java.exe does not exist >&2
+      ECHO Java executable does not exist at %JAVA_HOME%\bin\java.exe >&2
       EXIT /B 2
     )
 
@@ -74,18 +74,20 @@ GOTO :ENDFUNCTIONS
     )
 GOTO :EOF
 
+:checkArgs
 :checkJythonArgs
     @REM verify that required arg -oracle_home is provided, and set ORACLE_HOME.
     @REM if -help is provided, return usage exit code.
     @REM if -use_encryption is provided, set USE_ENCRYPTION to true
+    @REM if -wlst_path is provided, set WLST_PATH_DIR
 
     @rem if no args were given and print the usage message
     IF "%~1" == "" (
       EXIT /B 100
     )
 
-    @rem check for -help and -oracle_home
     SET ORACLE_HOME=
+    SET WLST_PATH_DIR=
 
     :arg_loop
     IF "%1" == "-help" (
@@ -100,6 +102,12 @@ GOTO :EOF
 
     IF "%1" == "-use_encryption" (
       SET USE_ENCRYPTION=true
+      GOTO arg_continue
+    )
+
+    IF "%1" == "-wlst_path" (
+      SET WLST_PATH_DIR=%2
+      SHIFT
       GOTO arg_continue
     )
 
@@ -147,6 +155,91 @@ GOTO :EOF
     IF NOT DEFINED WLSDEPLOY_LOG_HANDLERS (
       SET WLSDEPLOY_LOG_HANDLERS=%WLSDEPLOY_LOG_HANDLER%
     )
+GOTO :EOF
+
+:runWlst
+    @REM run a WLST script.
+    SET WLST_SCRIPT=%1
+
+    CALL :variableSetup
+    if %ERRORLEVEL% NEQ 0 (
+        EXIT /B %ERRORLEVEL%
+    )
+
+    @rem set WLST variable to the WLST executable.
+    @rem set CLASSPATH and WLST_CLASSPATH to include the WDT core JAR file.
+    @rem if the WLST_PATH_DIR was set, verify and use that value.
+
+    IF DEFINED WLST_PATH_DIR (
+      FOR %%i IN ("%WLST_PATH_DIR%") DO SET WLST_PATH_DIR=%%~fsi
+      IF NOT EXIST "%WLST_PATH_DIR%" (
+        ECHO Specified -wlst_path directory does not exist: %WLST_PATH_DIR% >&2
+        EXIT /B 98
+      )
+      set "WLST=%WLST_PATH_DIR%\common\bin\wlst.cmd"
+      IF NOT EXIST "%WLST%" (
+        SETLOCAL enabledelayedexpansion
+        ECHO WLST executable !WLST! not found under -wlst_path directory %WLST_PATH_DIR% >&2
+        EXIT /B 98
+      )
+      SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+      SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+      GOTO found_wlst
+    )
+
+    @rem if WLST_PATH_DIR was not set, find the WLST executable in one of the known ORACLE_HOME locations.
+
+    SET WLST=
+    IF EXIST "%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd" (
+        SET WLST=%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd
+        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        GOTO found_wlst
+    )
+    IF EXIST "%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd" (
+        SET WLST=%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd
+        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        GOTO found_wlst
+    )
+    IF EXIST "%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd" (
+        SET WLST=%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd
+        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        GOTO found_wlst
+    )
+    IF EXIST "%ORACLE_HOME%\wlserver\common\bin\wlst.cmd" (
+        IF EXIST "%ORACLE_HOME%\wlserver\.product.properties" (
+            @rem WLS 12.1.2 or WLS 12.1.3
+            SET WLST=%ORACLE_HOME%\wlserver\common\bin\wlst.cmd
+            SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        )
+        GOTO found_wlst
+    )
+
+    IF NOT EXIST "%WLST%" (
+      ECHO Unable to locate wlst.cmd script in ORACLE_HOME %ORACLE_HOME% >&2
+      EXIT /B 98
+    )
+    :found_wlst
+
+    SET "WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true"
+    SET "WLST_PROPERTIES=%WLST_PROPERTIES% -Djava.util.logging.config.class=%LOG_CONFIG_CLASS%"
+    SET "WLST_PROPERTIES=%WLST_PROPERTIES% %WLSDEPLOY_PROPERTIES%"
+
+    @REM print the configuration, and run the script
+
+    ECHO JAVA_HOME = %JAVA_HOME%
+    ECHO WLST_EXT_CLASSPATH = %WLST_EXT_CLASSPATH%
+    ECHO CLASSPATH = %CLASSPATH%
+    ECHO WLST_PROPERTIES = %WLST_PROPERTIES%
+
+    SET PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python
+
+    ECHO %WLST% %PY_SCRIPTS_PATH%\%WLST_SCRIPT% %SCRIPT_ARGS%
+
+    CALL "%WLST%" "%PY_SCRIPTS_PATH%\%WLST_SCRIPT%" %SCRIPT_ARGS%
+
+    call :checkExitCode %ERRORLEVEL%
+    EXIT /B %ERRORLEVEL%
 GOTO :EOF
 
 :runJython
@@ -214,7 +307,7 @@ GOTO :EOF
     )
     IF "%RETURN_CODE%" == "102" (
       ECHO.
-      ECHO %SCRIPT_NAME% completed successfully but the effected servers require a restart ^(exit code = %RETURN_CODE%^)
+      ECHO %SCRIPT_NAME% completed successfully but the affected servers require a restart ^(exit code = %RETURN_CODE%^)
       EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "101" (
