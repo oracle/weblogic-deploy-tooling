@@ -16,9 +16,11 @@ from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import string_utils
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class TargetHelper(object):
@@ -33,8 +35,9 @@ class TargetHelper(object):
         self.model_context = model_context
         self.alias_helper = AliasHelper(aliases, self.logger, exception_type)
         self.wlst_helper = WlstHelper(exception_type)
+        self.wls_helper = WebLogicHelper(self.logger)
         self.exception_type = exception_type
-
+        self.domain_typedef = self.model_context.get_domain_typedef()
         topology = model.get_model_topology()
         if ADMIN_SERVER_NAME in topology:
             self._admin_server_name = topology[ADMIN_SERVER_NAME]
@@ -213,10 +216,21 @@ class TargetHelper(object):
         domain_typedef = self.model_context.get_domain_typedef()
 
         if len(dynamic_cluster_assigns) > 0:
-            self.logger.info('WLSDPLY-12247', class_name=self.__class_name, method_name=_method_name)
             # TBD assign server group resources to cluster. The JRF resources could still be applied separately
             # using this technique - or remove this technique and replace with the resource targeting
-            if domain_typedef.has_jrf_resources():
+            if self.wls_helper.is_dynamic_cluster_server_groups_supported():
+                replace_assigns = self.domain_typedef.get_dynamic_cluster_server_groups()
+                if len(replace_assigns) > 0:
+                    replace_map = dict()
+                    for server in dynamic_cluster_assigns.keys():
+                        replace_map[server] = replace_assigns
+                    self.target_server_groups(replace_map)
+            elif self.wls_helper.is_dynamic_cluster_server_group_supported():
+                self.target_dynamic_clusters(dynamic_cluster_assigns)
+                if domain_typedef.has_jrf_resources():
+                    self._target_jrf_resources(dynamic_cluster_assigns)
+            elif domain_typedef.has_jrf_resources():
+                self.logger.info('WLSDPLY-12247', class_name=self.__class_name, method_name=_method_name)
                 self._target_jrf_resources(dynamic_cluster_assigns)
             else:
                 self.logger.warning('WLSDPLY-12238', domain_typedef.get_domain_type(),
@@ -224,6 +238,38 @@ class TargetHelper(object):
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    def target_dynamic_clusters(self, server_assigns):
+        """
+        Perform the targeting of a server group to the clusters from the list of assignments made in the
+        target helper assignment step. This is separate from creating the list of assignments in order
+        to control the state of the domain when the target is done. The version of WebLogic Server
+        supports targeting a single server group to a dynamic cluster.
+        :param server_assigns: map of server to server group
+        """
+        _method_name = 'target_dynamic_clusters'
+        self.logger.entering(str(server_assigns), class_name=self.__class_name, method_name=_method_name)
+
+        for cluster, server_groups in server_assigns.iteritems():
+            # if len(server_groups) > 1:
+            replace_server_groups = self.domain_typedef.get_dynamic_cluster_server_groups()
+            print 'server group is ', replace_server_groups, ' for dynamic cluster ', cluster
+            if len(replace_server_groups) > 1:
+                # ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12257', cluster)
+                ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12256',
+                                                       cluster, replace_server_groups)
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+                # self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                # raise ex
+                self.logger.warning('WLSDPLY-12257', cluster, class_name=self.__class_name, method_name=_method_name)
+            else:
+                cluster_name = self.wlst_helper.get_quoted_name_for_wlst(cluster)
+                self.logger.info('WLSDPLY-12255', server_group, cluster_name,
+                                 class_name=self.__class_name, method_name=_method_name)
+                self.wlst_helper.set_server_group_dynamic_cluster(cluster_name, server_group)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def _target_jrf_resources(self, dynamic_cluster_assigns):
         # Target the JRF resources directly using the applyJRF method.

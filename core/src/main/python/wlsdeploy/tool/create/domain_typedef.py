@@ -171,6 +171,16 @@ class DomainTypedef(object):
         self.__resolve_paths()
         return list(self._domain_typedef['serverGroupsToTarget'])
 
+    def get_dynamic_cluster_server_groups(self):
+        """
+        For versions of WebLogic Server less than 12.2.1.4 that support associating a single server group to
+        the dynamic clusters in the domain. In 12.2.1.4 can associate more than one server group.
+        :return: the server group to be targeted to a dynamic cluster, or None if no server group to target
+        :raises: CreateException: if an error occurs resolving the paths
+        """
+        self.__resolve_paths()
+        return list(self._domain_typedef['dynamicClusterServerGroupsToTarget'])
+
     def get_rcu_schemas(self):
         """
         Get the list of RCU schemas used by the domain type.
@@ -345,6 +355,9 @@ class DomainTypedef(object):
             if 'serverGroupsToTarget' not in self._domain_typedef:
                 self._domain_typedef['serverGroupsToTarget'] = []
 
+            if 'dynamicClusterServerGroupsToTarget' not in self._domain_typedef:
+                self._domain_typedef['dynamicClusterServerGroupsToTarget'] = [ ]
+
             if 'rcuSchemas' not in self._domain_typedef:
                 self._domain_typedef['rcuSchemas'] = []
 
@@ -374,6 +387,7 @@ class DomainTypedef(object):
 
         if self._version_typedef_name in self._domain_typedefs_dict['definitions']:
             result = self._domain_typedefs_dict['definitions'][self._version_typedef_name]
+            print 'The typedef is ', result, ' for version ', self._version_typedef_name
         else:
             ex = exception_helper.create_create_exception('WLSDPLY-12306', self._domain_type,
                                                           self._domain_typedef_filename, self._version_typedef_name)
