@@ -1,10 +1,9 @@
 ## The Compare Model Tool
 
 When working with a domain model, sometimes it is useful to know the differences between different models.
-
-The compare model tool compares two model files and generates a model that shows the differences between them.
+ The Compare Model Tool compares two model files and generates a model that shows the differences between them.
     
-To use the Compare Model Tool, simply run the `compareModel` shell script with the correct arguments.  To see the list of valid arguments for any tool in the Oracle WebLogic Server Deploy Tooling installation, simply run the shell script with the `-help` option (or with no arguments) to see the shell script usage information.
+To use the Compare Model Tool, simply run the `compareModel` shell script with the correct arguments.  To see the list of valid arguments, simply run the shell script with the `-help` option (or with no arguments) for usage information.
 
 For example, comparing the following models.  
 
@@ -271,8 +270,8 @@ Comparing the new and old models:
  7. Changed deployment targets for application `myear`
  8. Removed the attribute 'ModuleType' for application `myear` 
  
- Note:  The `!` is a notation for the deletion of a non-attribute key element from the model. Any missing attribute will 
- be omitted from the result model but shown as `info` level messages in the output.
+ **Note**:  The `!` is a notation for the deletion of a non-attribute key element from the model. Any missing attribute will 
+ be omitted from the resulting model, but shown as messages in the output.
  
  To compare the two model files and generate the output to files, run the tool as follows:
 

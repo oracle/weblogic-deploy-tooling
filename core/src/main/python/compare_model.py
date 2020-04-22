@@ -127,6 +127,12 @@ class ModelDiffer:
             print s
 
     def recursive_changed_detail(self, key, token, root):
+        """
+        Recursively handle the changed items
+        :param key: current folder in the dicgtionary
+        :param token: token is a '|' separated string of the changed item representing the path of the model
+        :param root: root folder of the changes in the model
+        """
         debug("DEBUG: Entering recursive_changed_detail key=%s token=%s root=%s", key, token, root)
 
         a=ModelDiffer(self.current_dict[key], self.past_dict[key])
@@ -173,6 +179,11 @@ class ModelDiffer:
         debug('DEBUG: Exiting recursive_changed_detail')
 
     def is_dict(self,key):
+        """
+        Check to see if the ke in the current dictionary is a dictionary.
+        :param key: key of the dictionary
+        :return: true if it is a dictionary otherwise false
+        """
         if self.current_dict.has_key(key) and isinstance(self.current_dict[key],dict):
             return 1
         else:
@@ -513,13 +524,17 @@ class ModelFileDiffer:
         return 0
 
     def get_compare_msgs(self):
+        """
+        Return any warning or info messages.
+        :return: Set of warning or info messages
+        """
         return compare_msgs
 
 def debug(format_string, *arguments):
     """
-      Generic debug code
+    Generic debug code.
     :param format_string:  python formatted string
-    :param arguments:
+    :param arguments: arguments for the formatted string
     """
     if os.environ.has_key('DEBUG_COMPARE_MODEL_TOOL'):
         print format_string % (arguments)
