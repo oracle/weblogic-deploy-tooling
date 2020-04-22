@@ -68,7 +68,7 @@ ECHO           -oracle_home ^<oracle_home^>
 ECHO           [-output_dir ^<output_dir^> write the outputs to the directory specified]
 ECHO           [                        diffed_model.json - json output of the differences between the models]
 ECHO           [                        diffed_model.yaml - yaml output of the differences between the models]
-ECHO           [                        model_diff_stdout - stdout of the tool compareModel ]
+ECHO           [                        compare_model_stdout - stdout of the tool compareModel ]
 ECHO           [-variable_file ^<variable file^>  variable file used for macro substitution]
 ECHO           ^<new model^> ^<old model^>      Must be the last two arguments and must be same extensions (yaml or json)
 ECHO.

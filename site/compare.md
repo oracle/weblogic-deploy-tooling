@@ -283,4 +283,4 @@ Comparing the new and old models:
     
     diffed_model.json
     diffed_model.yaml
-    model_diff_stdout
+    compare_model_stdout
