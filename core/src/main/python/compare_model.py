@@ -50,8 +50,8 @@ PATH_TOKEN='|'
 BLANK_LINE=""
 
 _program_name = 'compareModel'
-_class_name = 'model_diff'
-__logger = PlatformLogger('wlsdeploy.model_diff')
+_class_name = 'compare_model'
+__logger = PlatformLogger('wlsdeploy.compare_model')
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH
@@ -595,7 +595,7 @@ def main():
             file_name = None
             if len(compare_msgs) > 0:
                 try:
-                    file_name = _outputdir + '/model_diff_stdout'
+                    file_name = _outputdir + '/compare_model_stdout'
                     fos = JFileOutputStream(file_name, False)
                     writer = JPrintWriter(fos, True)
                     writer.println(BLANK_LINE)

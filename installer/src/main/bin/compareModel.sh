@@ -35,13 +35,13 @@ usage() {
   echo "          [-output_dir <output_dir> write the outputs to the directory specified]"
   echo "          [                        diffed_model.json - json output of the differences between the models]"
   echo "          [                        diffed_model.yaml - yaml output of the differences between the models]"
-  echo "          [                        model_diff_stdout - stdout of the tool compareModel ]"
+  echo "          [                        compare_model_stdout - stdout of the tool compareModel ]"
   echo "          [-variable_file <variable file>  variable file used for macro substitution]"
   echo "          <new model> <old model>      Must be the last two arguments and must be same extensions (yaml or json)"
   echo ""
 }
 
-WLSDEPLOY_PROGRAM_NAME="modelDiff"; export WLSDEPLOY_PROGRAM_NAME
+WLSDEPLOY_PROGRAM_NAME="compareModel"; export WLSDEPLOY_PROGRAM_NAME
 
 scriptName=`basename $0`
 scriptPath=$(dirname "$0")
