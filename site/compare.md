@@ -270,7 +270,7 @@ Comparing the new and old models:
  7. Changed deployment targets for application `myear`.
  8. Removed the attribute 'ModuleType' for application `myear`. 
  
- **Note**:  The `!` is a notation for the deletion of a non-attribute key element from the model. Any missing attribute 
+ **Note**:  The `!` is a notation for the deletion of a non-attribute key element from the model. Missing attributes 
  will be omitted from the resulting model, but shown as messages in the output.  If the attribute value is a list, even 
  if all the individual item within the list is identical but the ordering is different, the attribute is counted as
  different. 
