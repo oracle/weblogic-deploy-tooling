@@ -21,7 +21,7 @@ class WebLogicHelper(object):
     Helper functions for version-specific WebLogic operations.
     """
     STANDARD_VERSION_NUMBER_PLACES = 5
-    MINIMUM_WEBLOGIC_VERSION = '10.3.3'
+    MINIMUM_WEBLOGIC_VERSION = '10.3.6'
     _class_name = 'WebLogicHelper'
 
     def __init__(self, logger, wls_version=None):

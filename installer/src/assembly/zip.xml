@@ -75,6 +75,14 @@
                 <include>LICENSE.txt</include>
             </includes>
         </fileSet>
+
+        <fileSet>
+            <directory>${basedir}/target/classes</directory>
+            <outputDirectory>.</outputDirectory>
+            <includes>
+                <include>VERSION.txt</include>
+            </includes>
+        </fileSet>
     </fileSets>
 
     <dependencySets>

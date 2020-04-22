@@ -10,6 +10,7 @@ import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import oracle.weblogic.deploy.exception.ExceptionHelper;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.util.PyOrderedDict;
 import oracle.weblogic.deploy.util.StringUtils;
@@ -20,6 +21,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.atn.PredictionMode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.python.core.Py;
 import org.python.core.PyDictionary;
 import org.python.core.PyFloat;
@@ -119,6 +121,7 @@ public abstract class AbstractYamlTranslator extends YamlBaseListener {
      */
     @Override
     public void enterObject(YamlParser.ObjectContext ctx) {
+        String METHOD = "enterObject";
         String name = getQuotedStringText(ctx.name().getText());
         PyDictionary objDict;
         if (useOrderedDict) {
@@ -126,8 +129,14 @@ public abstract class AbstractYamlTranslator extends YamlBaseListener {
         } else {
             objDict = new PyDictionary();
         }
-
         PyDictionary container = currentDict.peek();
+        if (container.has_key(new PyString(name))) {
+            String message = ExceptionHelper.getMessage("WLSDPLY-18028", name);
+            ParseCancellationException ex =
+                new ParseCancellationException(message);
+            getLogger().throwing(getClassName(), METHOD, ex);
+            throw ex;
+        }
         container.__setitem__(new PyString(name), objDict);
         currentDict.push(objDict);
 

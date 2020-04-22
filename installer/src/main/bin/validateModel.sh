@@ -6,10 +6,10 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
-#       validateModel.sh - WLS Deploy tool to validate artifacts and print usage
+#       validateModel.sh - WLS Deploy tool to validate artifacts
 #
 #     DESCRIPTION
-#       This script validates the model, archive structure and print usage
+#       This script validates the model and archive structure
 #
 # This script uses the following variables:
 #
@@ -31,7 +31,6 @@ usage() {
   echo ""
   echo "Usage: $1 [-help]"
   echo "          -oracle_home <oracle_home>"
-  echo "          [-print_usage <context> [-attributes_only|-folders_only|-recursive] ]"
   echo "          [-model_file <model_file>]"
   echo "          [-variable_file <variable_file>]"
   echo "          [-archive_file <archive_file>]"
@@ -42,27 +41,18 @@ usage() {
   echo "    where:"
   echo "        oracle_home     - the existing Oracle Home directory for the domain"
   echo ""
-  echo "        print_usage     - specify the context for printing out the model structure."
-  echo "                          By default, the specified folder attributes and subfolder"
-  echo "                          names are printed.  Use one of the optional control"
-  echo "                          switches to customize the behavior.  Note that the"
-  echo "                          control switches are mutually exclusive."
-  echo ""
-  echo "        model_file      - the location of the model file to use if not using"
-  echo "                          the -print_usage functionality.  This can also be specified as a"
+  echo "        model_file      - the location of the model file to use.  This can also be specified as a"
   echo "                          comma-separated list of model locations, where each successive model layers"
   echo "                          on top of the previous ones.  If not specified, the tool will look for the"
   echo "                          model in the archive.  If the model is not found, validation will only"
   echo "                          validate the artifacts provided."
   echo ""
   echo "        variable_file   - the location of the property file containing"
-  echo "                          the variable values for all variables used in"
-  echo "                          the model if not using the -print_usage functionality."
+  echo "                          the variable values for all variables used in the model."
   echo "                          If the variable file is not provided, validation will"
   echo "                          only validate the artifacts provided."
   echo ""
-  echo "        archive_file    - the path to the archive file to use if not using the"
-  echo "                          -print_usage functionality.  If the archive file is"
+  echo "        archive_file    - the path to the archive file to use.  If the archive file is"
   echo "                          not provided, validation will only validate the"
   echo "                          artifacts provided.  This can also be specified as a"
   echo "                          comma-separated list of archive files.  The overlapping contents in"
@@ -94,6 +84,16 @@ scriptArgs=$*
 . $scriptPath/shared.sh
 
 umask 27
+
+# check for deprecated -print_usage argument
+for arg in "$@"
+do
+    if [ "$arg" = "-print_usage" ]; then
+        echo ""
+        echo "The -print_usage functionality has been moved to modelHelp.sh"
+        exit 99
+    fi
+done
 
 checkJythonArgs "$@"
 

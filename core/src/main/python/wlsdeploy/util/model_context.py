@@ -54,7 +54,6 @@ class ModelContext(object):
         self._archive_file = None
         self._model_file = None
         self._previous_model_file = None
-        self._print_usage = None
         self._variable_file_name = None
         self._run_rcu = False
         self._rcu_database = None
@@ -76,6 +75,8 @@ class ModelContext(object):
         self._validation_method = None
         self._rollback_if_restart_required = None
         self._domain_resource_file = None
+        self._compare_model_output_dir = None
+        self._trailing_args = []
 
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
@@ -111,9 +112,6 @@ class ModelContext(object):
 
         if CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH in arg_map:
             self._previous_model_file = arg_map[CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH]
-
-        if CommandLineArgUtil.PRINT_USAGE_SWITCH in arg_map:
-            self._print_usage = arg_map[CommandLineArgUtil.PRINT_USAGE_SWITCH]
 
         if CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH in arg_map:
             self._attributes_only = arg_map[CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH]
@@ -181,12 +179,18 @@ class ModelContext(object):
         if CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH in arg_map:
             self._domain_resource_file = arg_map[CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH]
 
+        if CommandLineArgUtil.TRAILING_ARGS_SWITCH in arg_map:
+            self._trailing_args = arg_map[CommandLineArgUtil.TRAILING_ARGS_SWITCH]
+
         if CommandLineArgUtil.TARGET_MODE_SWITCH in arg_map:
             wlst_mode_string = arg_map[CommandLineArgUtil.TARGET_MODE_SWITCH]
             if wlst_mode_string.lower() == 'online':
                 self._wlst_mode = WlstModes.ONLINE
             else:
                 self._wlst_mode = WlstModes.OFFLINE
+
+        if CommandLineArgUtil.COMPARE_MODEL_OUTPUT_DIR_SWITCH in arg_map:
+            self._compare_model_output_dir = arg_map[CommandLineArgUtil.COMPARE_MODEL_OUTPUT_DIR_SWITCH]
 
         if self._wl_version is None:
             self._wl_version = self._wls_helper.get_actual_weblogic_version()
@@ -362,33 +366,23 @@ class ModelContext(object):
         """
         return self._previous_model_file
 
-    def get_print_usage(self):
-        """
-        Get the print usage value.
-        :return: the print usage value
-        """
-        return self._print_usage
-
     def get_folders_only_control_option(self):
         """
-        Get the -folders_only command-line switch associated
-        with print usage value.
+        Get the -folders_only command-line switch for model help tool.
         :return: the -folders_only command-line switch
         """
         return self._folders_only
 
     def get_attributes_only_control_option(self):
         """
-        Get the -attributes_only command-line switch associated
-        with print usage value.
+        Get the -attributes_only command-line switch for model help tool.
         :return: the -attributes_only command-line switch
         """
         return self._attributes_only
 
     def get_recursive_control_option(self):
         """
-        Get the -recursive command-line switch associated
-        with print usage value.
+        Get the -recursive command-line switch for model help tool.
         :return: the -recursive command-line switch
         """
         return self._recursive
@@ -442,6 +436,13 @@ class ModelContext(object):
         """
         return self._encryption_passphrase
 
+    def get_compare_model_output_dir(self):
+        """
+        Return the compare model output dir
+        :return: output dir for compare models tool
+        """
+
+        return self._compare_model_output_dir
     def is_encryption_manual(self):
         """
         Get whether or not the user selected to do manual encryption.
@@ -476,6 +477,14 @@ class ModelContext(object):
         :return: the target WLST mode
         """
         return self._wlst_mode
+
+    def get_trailing_argument(self, index):
+        """
+        Get the trailing argument at index.
+        :param index: the index of the trailing argument
+        :return: the trailing argument
+        """
+        return self._trailing_args[index]
 
     def is_wlst_online(self):
         """

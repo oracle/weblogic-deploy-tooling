@@ -472,7 +472,7 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testIsWlstModelAttributeName(self):
-        wls_version = '10.3.4'
+        wls_version = '10.3.6'
         online_aliases = Aliases(self.model_context, WlstModes.ONLINE, wls_version)
         location = LocationContext()
         location.append_location(FOLDERS.JDBC_SYSTEM_RESOURCE)
@@ -500,8 +500,8 @@ class AliasesTestCase(unittest.TestCase):
 
         location.pop_location()
         location.append_location(FOLDERS.JDBC_CONNECTION_POOL_PARAMS)
-        model_attribute_name = 'MinCapacity'
-        earliest_version = '10.3.6'
+        model_attribute_name = 'CountOfTestFailuresTillFlush'
+        earliest_version = '12.1.2'
         path = self.aliases.get_model_folder_path(location)
         expected = exception_helper.get_message('WLSDPLY-08207', model_attribute_name, path,
                                                 wls_version, earliest_version)
@@ -1354,6 +1354,16 @@ class AliasesTestCase(unittest.TestCase):
         wlst_attribute, wlst_value = \
             self.aliases.get_wlst_attribute_name_and_value(location, FOLDERS.CONSTRAINED_CANDIDATE_SERVER, model_value)
         self.assertEquals(wlst_value_expected, wlst_value)
+
+    def testReadOnlyDiscoverAttribute(self):
+        location = LocationContext()
+        location.add_name_token(self.online_aliases.get_name_token(location), 'my-domain')
+        model_attribute, model_value = \
+            self.online_aliases.get_model_attribute_name_and_value(location, FOLDERS.DOMAIN_VERSION, '12.2.1.3.0')
+        self.assertEquals('12.2.1.3.0', model_value)
+        wlst_attribute, wlst_value = \
+            self.online_aliases.get_wlst_attribute_name_and_value(location, FOLDERS.DOMAIN_VERSION, '12.2.1.3.0')
+        self.assertEquals(None, wlst_value)
 
 
 if __name__ == '__main__':

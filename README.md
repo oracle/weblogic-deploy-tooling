@@ -10,6 +10,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Discover Domain Tool](site/discover.md)
     - [Encrypt Model Tool](site/encrypt.md)
     - [Validate Model Tool](site/validate.md)
+    - [Compare Model Tool](site/compare.md)
     - [Extract Domain Resource Tool](site/kubernetes.md)
     - [Model Help Tool](site/model_help.md)
 - [The Model](#the-metadata-model)
@@ -26,8 +27,10 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
           - [Custom Security Providers](site/security_providers.md#custom-security-providers)
       - [Modeling WebLogic Users, Groups, and Roles](site/security_users_groups_roles.md)
     - [ODL Configuration](site/odl_configuration.md)
+    - [Configuring Oracle HTTP Server (OHS)](site/ohs_configuration.md)
     - [Configuring Oracle WebLogic Server Kubernetes Operator](site/kubernetes.md)
     - [Variable Injection](site/variable_injection.md)
+    - [Model Samples](site/samples/samples.md)
     - [Model Filters](site/tool_filters.md)
     - [The Archive File](site/archive.md)
 - [Downloading and Installing](#downloading-and-installing-the-software)
@@ -36,7 +39,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
 
 ## Features of the Oracle WebLogic Server Deploy Tooling
 
-The Oracle WebLogic Server Deploy Tooling is designed to support a wide range of WebLogic Server versions.  Testing has been done with versions ranging from WebLogic Server 10.3.3 to the very latest version 12.2.1.3 (and beyond).  This is possible because the underlying framework, upon which the tools are built, embeds a knowledge base that encodes information about WLST folders and attributes, making it possible for the tooling to know:
+The Oracle WebLogic Server Deploy Tooling is designed to support a wide range of WebLogic Server versions. This is possible because the underlying framework, upon which the tools are built, embeds a knowledge base that encodes information about WLST folders and attributes, making it possible for the tooling to know:
 
 - The folder structures
 - Which folders are valid in the version of WLST being used
@@ -45,6 +48,33 @@ The Oracle WebLogic Server Deploy Tooling is designed to support a wide range of
 - The attribute data types and how to get/set their values (which isn't as easy as it might sound)
 - The differences between WLST online and WLST offline for working with folders and attributes
 
+### Supported WebLogic Server Versions
+The following table specifies the supported WebLogic Server versions, along with the JDK versions, that must be used to run the WDT tool. You must set the `JAVA_HOME` environment variable to specify a JDK version different from the system default version.
+
+ To create a domain with the proper JDK (particularly if the `JAVA_HOME` is different from the one which will be used by the target domain), set the domain `JavaHome` attribute in the domain model.
+
+ Note that the WDT Encryption Model Tool used to encrypt and decrypt clear text passwords in the model and variable files, requires WDT to run with a minimum JDK version of 1.8.
+
+  | WebLogic Server Version | Tool JDK Version |
+  |--------------------------|-------------------|
+  | 10.3.6                   | 1.7               |
+  | 12.1.1                   | 1.7, 1.8          |
+  | 12.1.2 <sup>[1]</sup><sup>[2]</sup>         | 1.7, 1.8          |
+  | 12.1.3                   | 1.7, 1.8          |
+  | 12.2.1 <sup>[3]</sup>               | 1.8               |
+  | 12.2.1.1 <sup>[4]</sup>             | 1.8               |
+  | 12.2.1.2                 | 1.8               |
+  | 12.2.1.3                 | 1.8               |
+  | 12.2.1.4 <sup>[5]</sup>  | 1.8               |
+  | 14.1.1                   | 1.8, 1.11         |    
+
+***1*** First release dynamic clusters are supported  
+***2*** First release Coherence clusters are supported  
+***3*** First release WLS roles are supported  
+***4*** First release multitenancy is supported  
+***5*** Last release multitenancy is supported
+
+### Metadata model
 The metadata model, described in detail in the next section, is WebLogic Server version and WLST mode independent.  As such, a metadata model written for an earlier version of WebLogic Server is designed to work with a newer version.  There is no need to port your metadata model as part of the upgrade process.  Of course, you may wish to add data to your metadata model to take advantage of new features in newer versions of WebLogic Server.
 
 Currently, the project provides five single-purpose tools, all exposed as shell scripts (both Windows and UNIX scripts are provided):
@@ -55,6 +85,7 @@ Currently, the project provides five single-purpose tools, all exposed as shell 
 - The [Discover Domain Tool](site/discover.md) (`discoverDomain`) introspects an existing domain and creates a model file describing the domain and an archive file of the binaries deployed to the domain.
 - The [Encrypt Model Tool](site/encrypt.md) (`encryptModel`) encrypts the passwords in a model (or its variable file) using a user-provided passphrase.
 - The [Validate Model Tool](site/validate.md) (`validateModel`) provides both standalone validation of a model as well as model usage information to help users write or edit their models.
+- The [Compare Model Tool](site/compare.md) (`compareModel`) compares two model files.
 - The [Extract Domain Resource Tool](site/kubernetes.md) (`extractDomainResource`) generates a domain resource YAML for use with the Oracle WebLogic Server Kubernetes Operator.
 
 As new use cases are discovered, new tools will likely be added to cover those operations but all will use the metadata model to describe what needs to be done.
@@ -187,7 +218,7 @@ The file `/home/me/dbcs1.txt` would then contain this single line:
 ```yaml
 password#123
 ```
-As the model is processed, the value for the `PasswordEncrypted` would resolve to `password#123`. It is also possible to combine file placeholders with other types of tokens, to allow for variations in the name and location of the file, such as: 
+As the model is processed, the value for the `PasswordEncrypted` would resolve to `password#123`. It is also possible to combine file placeholders with other types of tokens, to allow for variations in the name and location of the file, such as:
 ```yaml
 PasswordEncrypted: '@@FILE:/dir/@@PROP:name@@.txt@@'
 ```
@@ -205,14 +236,14 @@ The root directories are configured as a comma-separated list of directories, us
 ```
 /etc/my-secrets/secrets/the-secret
 /etc/your-secrets/secrets/the-secret
-``` 
+```
 If either of these files is found, the secret is read from that file and substituted in the model.
 
-The second method for locating the Kubernetes secret file is to use the environment variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` to map `<name>` values to specific directory locations. For example, if `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is set to `my-root=/etc/my-secrets,your-root=/etc/your-secrets`, then the token `@@SECRET:your-root:the-secret@@` will look for the secrets file at: 
+The second method for locating the Kubernetes secret file is to use the environment variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` to map `<name>` values to specific directory locations. For example, if `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is set to `my-root=/etc/my-secrets,your-root=/etc/your-secrets`, then the token `@@SECRET:your-root:the-secret@@` will look for the secrets file at:
 ```
 /etc/your-secrets/the-secret
 ```
-If the `<name>` value has a corresponding mapped directory in `WDT_MODEL_SECRETS_NAME_DIR_PAIRS`, then that directory will take precedence over any roots specified in `WDT_MODEL_SECRETS_DIRS`. 
+If the `<name>` value has a corresponding mapped directory in `WDT_MODEL_SECRETS_NAME_DIR_PAIRS`, then that directory will take precedence over any roots specified in `WDT_MODEL_SECRETS_DIRS`.
 
 NOTE: It is important that the secrets directories contain only secrets files, because those files are examined to create a list of available name/key pairs.  
 
@@ -315,7 +346,7 @@ For example, if Model 1 looks like:
 topology:
     Server:
         m1:
-            ListenPort: 7000 
+            ListenPort: 7000
             Notes: "Server 1"
         m2:
             ListenPort: 9000
@@ -353,7 +384,7 @@ A named element using [delete notation](#declaring-named-mbeans-to-delete) will 
 topology:
     Server:
         m1:
-            ListenPort: 7000 
+            ListenPort: 7000
             Notes: "Server 1"
         m2:
             ListenPort: 9000
@@ -369,7 +400,7 @@ The resulting model would be:
 topology:
     Server:
         m1:
-            ListenPort: 7000 
+            ListenPort: 7000
             Notes: "Server 1"
 ```
 
@@ -384,7 +415,7 @@ and Model 2 looks like:
 topology:
     Server:
         m1:
-            ListenPort: 7000 
+            ListenPort: 7000
             Notes: "Server 1"
 ```
 The resulting model would be:
@@ -392,7 +423,7 @@ The resulting model would be:
 topology:
     Server:
         m1:
-            ListenPort: 7000 
+            ListenPort: 7000
             Notes: "Server 1"
 ```
 

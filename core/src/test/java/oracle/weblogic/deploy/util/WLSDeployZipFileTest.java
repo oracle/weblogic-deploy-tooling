@@ -316,7 +316,6 @@ public class WLSDeployZipFileTest {
 
         File source = new File(UNIT_TEST_SOURCE_DIR + File.separator + filename);
         File target = new File(UNIT_TEST_TARGET_DIR + File.separator + targetFilename);
-        System.out.println("copying file " + source.getAbsolutePath() + " to " + target.getAbsolutePath());
 
         FileInputStream fis = new FileInputStream(source);
         FileOutputStream fos = new FileOutputStream(target, false);
@@ -334,7 +333,5 @@ public class WLSDeployZipFileTest {
         fos.flush();
         fos.close();
         fis.close();
-        System.out.println("copied " + totalBytesRead + " bytes from file " + source.getAbsolutePath() +
-            " to " + target.getAbsolutePath());
     }
 }
