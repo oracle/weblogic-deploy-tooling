@@ -26,6 +26,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
           - [Custom Security Providers](site/security_providers.md#custom-security-providers)
       - [Modeling WebLogic Users, Groups, and Roles](site/security_users_groups_roles.md)
     - [ODL Configuration](site/odl_configuration.md)
+    - [Configuring Oracle HTTP Server (OHS)](site/ohs_configuration.md)
     - [Configuring Oracle WebLogic Server Kubernetes Operator](site/kubernetes.md)
     - [Variable Injection](site/variable_injection.md)
     - [Model Samples](site/samples/samples.md)
