@@ -4,7 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import unittest
 
-import os, tempfile, traceback, sys, StringIO
+import os, tempfile, traceback, sys, shutil
 
 from wlsdeploy.util.model_context import ModelContext
 from compare_model import ModelFileDiffer
@@ -28,7 +28,12 @@ class CompareModelTestCase(unittest.TestCase):
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
         _new_model_file = self._resources_dir + '/compare_model_model2.yaml'
         _old_model_file = self._resources_dir + '/compare_model_model1.yaml'
-        _temp_dir = tempfile.gettempdir()
+        _temp_dir = os.path.join(tempfile.gettempdir(), _method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+
+        os.mkdir(_temp_dir)
 
         mw_home = os.environ['MW_HOME']
         args_map = {
@@ -41,7 +46,7 @@ class CompareModelTestCase(unittest.TestCase):
 
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
-            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, tempfile.gettempdir())
+            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
             return_code = obj.compare()
             self.assertEqual(return_code, 0)
 
@@ -84,6 +89,9 @@ class CompareModelTestCase(unittest.TestCase):
                                 te.getLocalizedMessage(), error=te,
                                 class_name=self._program_name, method_name=_method_name)
 
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+
         self.assertEqual(return_code, 0)
 
     def testCompareModelInvalidModel(self):
@@ -92,7 +100,11 @@ class CompareModelTestCase(unittest.TestCase):
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
         _new_model_file = self._resources_dir + '/compare_model_model3.yaml'
         _old_model_file = self._resources_dir + '/compare_model_model1.yaml'
-        _temp_dir = tempfile.gettempdir()
+        _temp_dir = os.path.join(tempfile.gettempdir(), _method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+        os.mkdir(_temp_dir)
 
         mw_home = os.environ['MW_HOME']
         args_map = {
@@ -104,13 +116,16 @@ class CompareModelTestCase(unittest.TestCase):
         }
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
-            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, tempfile.gettempdir())
+            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
             return_code = obj.compare()
         except (CompareException, PyWLSTException), te:
             return_code = 2
             self._logger.severe('WLSDPLY-05709',
                                 te.getLocalizedMessage(), error=te,
                                 class_name=self._program_name, method_name=_method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
 
         self.assertNotEqual(return_code, 0)
 
@@ -120,7 +135,11 @@ class CompareModelTestCase(unittest.TestCase):
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
         _new_model_file = self._resources_dir + '/compare_model_model4.yaml'
         _old_model_file = self._resources_dir + '/compare_model_model1.yaml'
-        _temp_dir = tempfile.gettempdir()
+        _temp_dir = os.path.join(tempfile.gettempdir(), _method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+        os.mkdir(_temp_dir)
 
         mw_home = os.environ['MW_HOME']
         args_map = {
@@ -133,7 +152,7 @@ class CompareModelTestCase(unittest.TestCase):
 
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
-            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, tempfile.gettempdir())
+            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
             return_code = obj.compare()
         except (CompareException, PyWLSTException), te:
             return_code = 2
@@ -141,6 +160,8 @@ class CompareModelTestCase(unittest.TestCase):
                                 te.getLocalizedMessage(), error=te,
                                 class_name=self._program_name, method_name=_method_name)
 
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
 
         self.assertNotEqual(return_code, 0)
 
