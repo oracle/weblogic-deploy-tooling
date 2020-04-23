@@ -30,6 +30,7 @@ from wlsdeploy.util.enum import Enum
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import MASKED_PASSWORD
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
@@ -817,7 +818,7 @@ class Validator(object):
         :param model_folder_path: the model folder path, for logging
         :return:
         """
-        if field_key == SERVER_GROUP_TARGETING_LIMITS:
+        if field_key == SERVER_GROUP_TARGETING_LIMITS or field_key == DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS:
             self.__validate_server_group_targeting_limits(field_key, field_value, model_folder_path)
 
         elif field_key == WLS_ROLES:
@@ -827,7 +828,8 @@ class Validator(object):
 
     def __validate_server_group_targeting_limits(self, attribute_key, attribute_value, model_folder_path):
         """
-        Verify that entries in the ServerGroupTargetingLimits are the correct types, and do not use tokens.
+        Verify that entries in the ServerGroupTargetingLimits and DynamicClusterServerGroupTargetingLimits are
+        the correct types, and do not use tokens.
         :param attribute_key: the name of the attribute
         :param attribute_value: the value of the attribute
         :param model_folder_path: the model folder path, for logging

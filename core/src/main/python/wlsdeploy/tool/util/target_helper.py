@@ -11,6 +11,7 @@ import wlsdeploy.util.dictionary_utils as dictionary_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
@@ -96,7 +97,7 @@ class TargetHelper(object):
 
         self.logger.entering(server_groups_to_target, class_name=self.__class_name, method_name=_method_name)
         if len(server_groups_to_target) == 0:
-            return list(), list()
+            return list()
 
         location = LocationContext()
         root_path = self.alias_helper.get_wlst_attributes_path(location)
@@ -106,14 +107,8 @@ class TargetHelper(object):
         # referenced in the model have already been created but the templates may have
         # defined new servers not listed in the model, get the list from WLST.
         server_names = self._get_existing_server_names()
-
         # Get the clusters and and their members
         cluster_map = self._get_clusters_and_members_map()
-        dynamic_cluster_names = list()
-        for cluster_name in cluster_map:
-            if DYNAMIC_SERVERS in cluster_map[cluster_name]:
-                dynamic_cluster_names.append(cluster_name)
-
         # Get any limits that may have been defined in the model
         domain_info = self.model.get_model_domain_info()
         server_group_targeting_limits = \
@@ -129,22 +124,18 @@ class TargetHelper(object):
         server_to_server_groups_map =\
             self._get_server_to_server_groups_map(self._admin_server_name,
                                                   server_names,
-                                                  dynamic_cluster_names,
                                                   server_groups_to_target,
                                                   server_group_targeting_limits)  # type: dict
         self.logger.finer('WLSDPLY-12242', str(server_to_server_groups_map), class_name=self.__class_name,
                           method_name=_method_name)
 
         final_assignment_map = dict()
-        dynamic_cluster_assigns = dict()
         # Target servers and dynamic clusters to the server group resources
-        if len(server_names) > 0 or len(dynamic_cluster_names) > 0:
+        if len(server_names) > 0:
             for server, server_groups in server_to_server_groups_map.iteritems():
                 if len(server_groups) > 0:
                     if server in server_names:
                         final_assignment_map[server] = server_groups
-                    elif server in dynamic_cluster_names:
-                        dynamic_cluster_assigns[server] = server_groups
 
         #
         # Domain has not targeted the server groups to managed servers (configured), or the
@@ -180,9 +171,48 @@ class TargetHelper(object):
                     self.logger.info('WLSDPLY-12248', no_targets,
                                      class_name=self.__class_name, method_name=_method_name)
 
-        self.logger.exiting(result=str(dynamic_cluster_assigns),
-                            class_name=self.__class_name, method_name=_method_name)
-        return final_assignment_map, dynamic_cluster_assigns
+        self.logger.exiting(result=str(final_assignment_map), class_name=self.__class_name, method_name=_method_name)
+        return final_assignment_map
+
+    def target_server_groups_to_dynamic_clusters(self, server_groups_to_target):
+        """
+        Target dynamic clusters to dynamic cluster server groups. Dynamic cluster server groups are not user
+        expandable. Thus if a dynamic server group is not targeted to a dynamic cluster, don't target to admin
+        server. The dynamic cluster server groups are not required to be targeted.
+        :param server_groups_to_target: the list of dynamic cluster server groups to target
+        :raises: BundleAwareException of the specified type: if an error occurs
+        """
+        _method_name = 'target_server_groups_to_dynamic_clusters'
+
+        self.logger.entering(server_groups_to_target, class_name=self.__class_name, method_name=_method_name)
+        if len(server_groups_to_target) == 0:
+            return list()
+
+        location = LocationContext()
+        root_path = self.alias_helper.get_wlst_attributes_path(location)
+        self.wlst_helper.cd(root_path)
+
+        # Get the clusters and and their members
+        cluster_map = self._get_clusters_and_members_map()
+        dynamic_cluster_names = list()
+        for cluster_name in cluster_map:
+            if DYNAMIC_SERVERS in cluster_map[cluster_name]:
+                dynamic_cluster_names.append(cluster_name)
+
+        domain_info = self.model.get_model_domain_info()
+        dc_server_group_targeting_limits = \
+            dictionary_utils.get_dictionary_element(domain_info, DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS)
+        if len(dc_server_group_targeting_limits) > 0:
+            dc_server_group_targeting_limits = \
+                self._get_dynamic_cluster_server_group_targeting_limits(dc_server_group_targeting_limits, cluster_map)
+        dynamic_cluster_assigns = \
+            self.get_dc_to_server_groups_map(dynamic_cluster_names, server_groups_to_target,
+                                             dc_server_group_targeting_limits)  # type: dict
+        self.logger.finer('WLSDPLY-12240', str(dc_server_group_targeting_limits),
+                          class_name=self.__class_name, method_name=_method_name)
+
+        self.logger.exiting(result=str(dynamic_cluster_assigns), class_name=self.__class_name, method_name=_method_name)
+        return dynamic_cluster_assigns
 
     def target_server_groups(self, server_assigns):
         """
@@ -202,7 +232,7 @@ class TargetHelper(object):
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def target_server_groups_to_dynamic_clusters(self, dynamic_cluster_assigns):
+    def target_dynamic_server_groups(self, dynamic_cluster_assigns):
         """
         Dynamic clusters need special handling to assign the server group resources to the dynamic cluster.
         You cannot assign servergroups to a server template. So must search each templates that contain the server group
@@ -210,7 +240,7 @@ class TargetHelper(object):
         If JRF or RestrictedJRF skip the check and do the applyJRF function to automatically target to the cluster.
         :param dynamic_cluster_assigns: The assignments from domainInfo targeting limits applied to dynamic lusters
         """
-        _method_name = 'target_server_groups_to_dynamic_clusters'
+        _method_name = 'target_dynamic_server_groups'
         self.logger.entering(str(dynamic_cluster_assigns), class_name=self.__class_name, method_name=_method_name)
 
         domain_typedef = self.model_context.get_domain_typedef()
@@ -219,16 +249,11 @@ class TargetHelper(object):
             # TBD assign server group resources to cluster. The JRF resources could still be applied separately
             # using this technique - or remove this technique and replace with the resource targeting
             if self.wls_helper.is_dynamic_cluster_server_groups_supported():
-                replace_assigns = self.domain_typedef.get_dynamic_cluster_server_groups()
-                if len(replace_assigns) > 0:
-                    replace_map = dict()
-                    for server in dynamic_cluster_assigns.keys():
-                        replace_map[server] = replace_assigns
-                    self.target_server_groups(replace_map)
+                self.target_server_groups(dynamic_cluster_assigns)
             elif self.wls_helper.is_dynamic_cluster_server_group_supported():
                 self.target_dynamic_clusters(dynamic_cluster_assigns)
-                if domain_typedef.has_jrf_resources():
-                    self._target_jrf_resources(dynamic_cluster_assigns)
+                # if domain_typedef.has_jrf_resources():
+                #     self._target_jrf_resources(dynamic_cluster_assigns)
             elif domain_typedef.has_jrf_resources():
                 self.logger.info('WLSDPLY-12247', class_name=self.__class_name, method_name=_method_name)
                 self._target_jrf_resources(dynamic_cluster_assigns)
@@ -251,10 +276,7 @@ class TargetHelper(object):
         self.logger.entering(str(server_assigns), class_name=self.__class_name, method_name=_method_name)
 
         for cluster, server_groups in server_assigns.iteritems():
-            # if len(server_groups) > 1:
-            replace_server_groups = self.domain_typedef.get_dynamic_cluster_server_groups()
-            print 'server group is ', replace_server_groups, ' for dynamic cluster ', cluster
-            if len(replace_server_groups) > 1:
+            if len(server_groups) > 1:
                 # ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12257', cluster)
                 ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12256',
                                                        cluster, replace_server_groups)
@@ -265,9 +287,9 @@ class TargetHelper(object):
                 self.logger.warning('WLSDPLY-12257', cluster, class_name=self.__class_name, method_name=_method_name)
             else:
                 cluster_name = self.wlst_helper.get_quoted_name_for_wlst(cluster)
-                self.logger.info('WLSDPLY-12255', server_group, cluster_name,
+                self.logger.info('WLSDPLY-12255', server_groups, cluster_name,
                                  class_name=self.__class_name, method_name=_method_name)
-                self.wlst_helper.set_server_group_dynamic_cluster(cluster_name, server_group)
+                self.wlst_helper.target_server_groups(cluster_name, server_groups)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
@@ -415,7 +437,7 @@ class TargetHelper(object):
                     if DYNAMIC_SERVERS in cluster_members:
                         # This will need special handling to target server group resources
                         cluster_members.remove(DYNAMIC_SERVERS)
-                        cluster_members.append(target_name)
+                        #cluster_members.append(target_name)
                     new_list.extend(cluster_members)
                 else:
                     # Assume it is a server name and add it to the new list
@@ -427,8 +449,47 @@ class TargetHelper(object):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=sg_targeting_limits)
         return sg_targeting_limits
 
-    def _get_server_to_server_groups_map(self, admin_server_name, server_names, dynamic_cluster_names,
-                                         server_groups, sg_targeting_limits):
+    def _get_dynamic_cluster_server_group_targeting_limits(self, targeting_limits, clusters_map):
+        """
+        Get any server group targeting limits specified in the model, converting any cluster
+        names to the list of members.  This method assumes that the limits dictionary is not
+        None or empty.
+        :param targeting_limits: the raw server group targeting_limits from the model
+        :param clusters_map: the map of cluster names to member server names
+        :return: the map of server groups to server names to target
+        """
+        _method_name = '_get_dynamic_cluster_server_group_targeting_limits'
+
+        self.logger.entering(str(targeting_limits), str(clusters_map),
+                             class_name=self.__class_name, method_name=_method_name)
+        dc_sg_targeting_limits = copy.deepcopy(targeting_limits)
+        for server_group_name, dc_sg_targeting_limit in dc_sg_targeting_limits.iteritems():
+            if type(dc_sg_targeting_limit) is str:
+                if MODEL_LIST_DELIMITER in dc_sg_targeting_limit:
+                    dc_sg_targeting_limit = dc_sg_targeting_limit.split(MODEL_LIST_DELIMITER)
+                else:
+                    # convert a single value into a list of one...
+                    new_list = list()
+                    new_list.append(dc_sg_targeting_limit)
+                    dc_sg_targeting_limit = new_list
+
+            # Convert any references to a cluster name into the list of member server names
+            new_list = list()
+            for target_name in dc_sg_targeting_limit:
+                target_name = target_name.strip()
+                if target_name in clusters_map:
+                    cluster_members = dictionary_utils.get_element(clusters_map, target_name)
+                    if DYNAMIC_SERVERS in cluster_members:
+                        # This will need special handling to target server group resources
+                        cluster_members.remove(DYNAMIC_SERVERS)
+                        cluster_members.append(target_name)
+                        new_list.extend(cluster_members)
+            dc_sg_targeting_limits[server_group_name] = new_list
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=dc_sg_targeting_limits)
+        return dc_sg_targeting_limits
+
+    def _get_server_to_server_groups_map(self, admin_server_name, server_names, server_groups, sg_targeting_limits):
         """
         Get the map of server names to the list of server groups to target to that server.
         :param admin_server_name: the admin server name
@@ -453,17 +514,37 @@ class TargetHelper(object):
                 result[server_name] = list(revised_server_groups)
             else:
                 result[admin_server_name] = list()
+
+        if admin_server_name not in result:
+            result[admin_server_name] = list()
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def get_dc_to_server_groups_map(self, dynamic_cluster_names, server_groups, dc_sg_targeting_limits):
+        """
+        Remake the map for each dynamic cluster name and its server groups. If the dynamic cluster is not
+        specifically targeted by the dynamic cluster server group targeting limits, targt any remaining
+        server groups not in the targeting limits, to any remaining typedef dynamic cluster server group targets.
+        :param dynamic_cluster_names: list of dynamic clusters in the domain
+        :param server_groups: list of dynamic server groups in the typedef
+        :param dc_sg_targeting_limits: list of dynamic cluster to server group targeting limits from the domainInfo
+        :return: result: map of dynamic cluster to server groups
+        """
+        _method_name = 'get_dc_to_server_groups_list'
+
+        self.logger.entering(str(dynamic_cluster_names), str(server_groups), str(dc_sg_targeting_limits),
+                                 class_name=self.__class_name, method_name=_method_name)
+        result = OrderedDict()
+        revised_server_groups = self._revised_list_server_groups(server_groups, dc_sg_targeting_limits)
         for cluster_name in dynamic_cluster_names:
             server_groups_for_cluster = \
-                self.__get_server_groups_for_entity(cluster_name, sg_targeting_limits)
+                self.__get_server_groups_for_entity(cluster_name, dc_sg_targeting_limits)
             if len(server_groups_for_cluster) > 0:
                 result[cluster_name] = server_groups_for_cluster
             else:
                 result[cluster_name] = list(revised_server_groups)
             self.logger.finer('WLSDPLY-12239', result[cluster_name], cluster_name,
                               class_name=self.__class_name, method_name=_method_name)
-        if admin_server_name not in result:
-            result[admin_server_name] = list()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
