@@ -37,12 +37,13 @@ class ValidationTestCase(unittest.TestCase):
         self._logger = PlatformLogger('wlsdeploy.validate')
         self.wls_helper = WebLogicHelper(self._logger)
 
-        # add summary handler to validate if needed
-        if SummaryHandler.findInstance() is None:
-            self._logger.logger.addHandler(SummaryHandler())
+        # add summary handler to validate logger to check results
+        self._summary_handler = SummaryHandler()
+        self._logger.logger.addHandler(self._summary_handler)
 
-        # clear any message totals from previous tests
-        SummaryHandler.findInstance().clearMessageTotals()
+    def tearDown(self):
+        # remove summary handler for next test suite
+        self._logger.logger.removeHandler(self._summary_handler)
 
     def testModelValidation(self):
         _method_name = 'testModelValidation'

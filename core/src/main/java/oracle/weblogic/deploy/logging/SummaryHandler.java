@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -133,16 +133,6 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
     }
 
     /**
-     * Clear existing message totals from level handlers.
-     * Unit tests may need to do this to prepare for fresh validate.
-     */
-    public void clearMessageTotals() {
-        for(LevelHandler levelHandler : handlers) {
-            levelHandler.clearRecords();
-        }
-    }
-
-    /**
      * Returns the highest level of the messages in the summary.
      * If no messages are found, the level INFO is returned.
      * @return the maximum message level, or Level.INFO if none are found.
@@ -264,9 +254,6 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
             return totalRecords;
         }
 
-        void clearRecords() {
-            totalRecords = 0;
-        }
     }
 
     private void configure() {

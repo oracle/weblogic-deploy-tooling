@@ -4,16 +4,19 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import unittest
 
-import os, tempfile, shutil
+import os
+import shutil
+import tempfile
 from java.util.logging import Level
-
-from oracle.weblogic.deploy.logging import SummaryHandler
-from wlsdeploy.util.model_context import ModelContext
-from compare_model import ModelFileDiffer
-from wlsdeploy.util.model_translator import FileToPython
-from wlsdeploy.logging.platform_logger import PlatformLogger
 from oracle.weblogic.deploy.compare import CompareException
+from oracle.weblogic.deploy.logging import SummaryHandler
 from oracle.weblogic.deploy.util import PyWLSTException
+
+from compare_model import ModelFileDiffer
+from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util.model_context import ModelContext
+from wlsdeploy.util.model_translator import FileToPython
+
 
 class CompareModelTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes'
@@ -24,12 +27,13 @@ class CompareModelTestCase(unittest.TestCase):
         self._logger = PlatformLogger('wlsdeploy.compare_model')
         self._program_name = 'CompareModelTestCase'
 
-        # add summary handler to validate if needed
-        if SummaryHandler.findInstance() is None:
-            PlatformLogger('wlsdeploy.validate').logger.addHandler(SummaryHandler())
+        # add summary handler to validate logger to check results
+        self._summary_handler = SummaryHandler()
+        PlatformLogger('wlsdeploy.validate').logger.addHandler(self._summary_handler)
 
-        # clear any message totals from previous tests
-        SummaryHandler.findInstance().clearMessageTotals()
+    def tearDown(self):
+        # remove summary handler for next test suite
+        PlatformLogger('wlsdeploy.validate').logger.removeHandler(self._summary_handler)
 
     def testCompareModelFull(self):
         _method_name = 'testCompareModelFull'
