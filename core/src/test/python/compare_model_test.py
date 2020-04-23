@@ -4,8 +4,10 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import unittest
 
-import os, tempfile, traceback, sys, shutil
+import os, tempfile, shutil
+from java.util.logging import Level
 
+from oracle.weblogic.deploy.logging import SummaryHandler
 from wlsdeploy.util.model_context import ModelContext
 from compare_model import ModelFileDiffer
 from wlsdeploy.util.model_translator import FileToPython
@@ -19,8 +21,15 @@ class CompareModelTestCase(unittest.TestCase):
 
     def setUp(self):
         self.name = 'CompareModelTestCase'
-        self._logger = PlatformLogger('wlsdeploy.comparemodel')
+        self._logger = PlatformLogger('wlsdeploy.compare_model')
         self._program_name = 'CompareModelTestCase'
+
+        # add summary handler to validate if needed
+        if SummaryHandler.findInstance() is None:
+            PlatformLogger('wlsdeploy.validate').logger.addHandler(SummaryHandler())
+
+        # clear any message totals from previous tests
+        SummaryHandler.findInstance().clearMessageTotals()
 
     def testCompareModelFull(self):
         _method_name = 'testCompareModelFull'
@@ -119,9 +128,8 @@ class CompareModelTestCase(unittest.TestCase):
             return_code = obj.compare()
         except (CompareException, PyWLSTException), te:
             return_code = 2
-            self._logger.severe('WLSDPLY-05709',
-                                te.getLocalizedMessage(), error=te,
-                                class_name=self._program_name, method_name=_method_name)
+            # self._logger.severe('WLSDPLY-05709', te.getLocalizedMessage(), error=te,
+            #                     class_name=self._program_name, method_name=_method_name)
 
         if os.path.exists(_temp_dir):
             shutil.rmtree(_temp_dir)
@@ -152,12 +160,26 @@ class CompareModelTestCase(unittest.TestCase):
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
             obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+
+            # expected parse error for model4, disable logging
+            yaml_logger = PlatformLogger('wlsdeploy.yaml')
+            yaml_level = yaml_logger.get_level()
+            yaml_logger.set_level(Level.OFF)
+
+            compare_logger = PlatformLogger('wlsdeploy.compare_model')
+            compare_level = compare_logger.get_level()
+            compare_logger.set_level(Level.OFF)
+
             return_code = obj.compare()
+
+            # Restore original log levels
+            yaml_logger.set_level(yaml_level)
+            compare_logger.set_level(compare_level)
+
         except (CompareException, PyWLSTException), te:
             return_code = 2
-            self._logger.severe('WLSDPLY-05709',
-                                te.getLocalizedMessage(), error=te,
-                                class_name=self._program_name, method_name=_method_name)
+            # self._logger.severe('WLSDPLY-05709', te.getLocalizedMessage(), error=te,
+            #                     class_name=self._program_name, method_name=_method_name)
 
         if os.path.exists(_temp_dir):
             shutil.rmtree(_temp_dir)
