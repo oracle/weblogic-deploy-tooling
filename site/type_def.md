@@ -4,7 +4,7 @@ WebLogic Server Deploy Tooling has an extensible domain type system.  The three 
 
 ```json
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "name": "JRF",
     "description": "JRF type domain definitions",
@@ -12,9 +12,9 @@ WebLogic Server Deploy Tooling has an extensible domain type system.  The three 
         "12.1.2": "JRF_1212",
         "12.1.3": "JRF_1213",
         "12.2.1.0": "JRF_12C",
-        "12.2.1.1": "JRF_12C",
-        "12.2.1.2": "JRF_12C",
-        "12.2.1.3": "JRF_12213",
+        "12.2.1.1": "JRF_12C_DYN",
+        "12.2.1.2": "JRF_12C_DYN",
+        "12.2.1.3": "JRF_12C_DYN",
         "12.2.1.4": "JRF_12214"
     },
     "definitions": {
@@ -50,7 +50,7 @@ WebLogic Server Deploy Tooling has an extensible domain type system.  The three 
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
             "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
         },
-        "JRF_12213": {
+        "JRF_12C-DYN": {
             "baseTemplate": "Basic WebLogic Server Domain",
             "extensionTemplates": [
                 "Oracle JRF WebServices Asynchronous services",
@@ -121,7 +121,7 @@ To create more complex domains with clusters of different types, it is necessary
                 "Oracle Service Bus"
             ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR",  "SOA-MGD-SVRS",  "OSB-MGD-SVRS-COMBINED" ],
-            "dynamicClusterServerGroupsToTarget": [ "WSMPM-DYN-CLUSTER" ],
+            "dynamicClusterServerGroupsToTarget": [ "SOA-DYN-CLUSTER" ],
             "rcuSchemas": [ "STB", "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "UCSUMS", "SOAINFRA" ]
         }
     }
