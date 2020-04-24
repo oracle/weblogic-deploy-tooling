@@ -11,8 +11,11 @@ WebLogic Server Deploy Tooling has an extensible domain type system.  The three 
     "versions": {
         "12.1.2": "JRF_1212",
         "12.1.3": "JRF_1213",
-        "12.2.1": "JRF_12CR2",
-        "12.2.1.3": "JRF_12213"
+        "12.2.1.0": "JRF_12C",
+        "12.2.1.1": "JRF_12C",
+        "12.2.1.2": "JRF_12C",
+        "12.2.1.3": "JRF_12213",
+        "12.2.1.4": "JRF_12214"
     },
     "definitions": {
         "JRF_1212" : {
@@ -55,8 +58,20 @@ WebLogic Server Deploy Tooling has an extensible domain type system.  The three 
                 "Oracle Enterprise Manager"
             ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
+            "dynamicClusterServerGroupsToTarget": [ "WSMPM-DYN-CLUSTER" ],
             "rcuSchemas": [ "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
-        }
+        },
+        "JRF_12214": {
+             "baseTemplate": "Basic WebLogic Server Domain",
+             "extensionTemplates": [
+                 "Oracle JRF WebServices Asynchronous services",
+                 "Oracle WSM Policy Manager",
+                 "Oracle Enterprise Manager"
+             ],
+             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
+             "dynamicClusterServerGroupsToTarget": [ "WSMPM-DYN-CLUSTER", "WSM-CACHE-DYN-CLUSTER" ],
+             "rcuSchemas": [ "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
+         }
     }
 }
 ```
@@ -106,6 +121,7 @@ To create more complex domains with clusters of different types, it is necessary
                 "Oracle Service Bus"
             ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR",  "SOA-MGD-SVRS",  "OSB-MGD-SVRS-COMBINED" ],
+            "dynamicClusterServerGroupsToTarget": [ "WSMPM-DYN-CLUSTER" ],
             "rcuSchemas": [ "STB", "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "UCSUMS", "SOAINFRA" ]
         }
     }
@@ -186,6 +202,27 @@ topology:
     SecurityConfiguration:
         NodeManagerUsername: weblogic
         NodeManagerPasswordEncrypted: welcome1
+```
+
+### Dynamic Cluster Server Groups
+Dynamic Cluster Server Groups are server groups that can be targeted to dynamic clusters. Dynamic clusters were added in WebLogic Server version 12.1.2. In WebLogic Server version 12.2.1.1, the ability to target a single dynamic server group to a dynamic cluster was added. In WebLogic Server Version 12.2.1.4, you now have the ability to target multiple dynamic server groups to a dynamic cluster. 
+
+To enable targeting of dynamic server groups to dynamic clusters, add the dynamicClusterServerGroupsToTarget entry with any dynamic server groups you wish to be targeted to the dynamic clusters in your model or domain. This list must only contain one dynamic server group if you are running a version of WebLogic Server earlier than 12.2.1.4.
+```json
+{
+  "definitions": {
+    "dynamicClusterServerGroupsToTarget" : [ "WSMPM-DYN-CLUSTER", "WSM-CACHE-DYN-CLUSTER" ]
+  }
+}
+```
+If you wish to specify which dynamic server group to target to a dynamic server, add DynamicClusterServerGroupTargetingLimits to the domainInfo of your model. This entry can coexist with managed servers defined in ServerGroupTargetingLimits.
+```yaml
+domainInfo:
+    AdminUserName: weblogic
+    AdminPassword: welcome1
+    ServerStartMode: prod
+    DynamicClusterServerGroupTargetingLimits:
+        'SOA-DYN-CLUSTER': 'soa_dynamic_cluster'
 ```
 
 ### Custom Extension Templates
