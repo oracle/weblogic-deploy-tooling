@@ -144,18 +144,14 @@ def __update_online(model, model_context, aliases):
         __release_edit_session_and_disconnect()
         raise de
 
+    topology_updater.set_server_groups()
+
     exit_code = __check_update_require_domain_restart(model_context)
 
     # if user requested rollback if restart required stops
 
     if exit_code != CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE:
-        __wlst_helper.edit()
-        __wlst_helper.start_edit()
-
-        topology_updater.set_server_groups()
-        exit_code = __check_update_require_domain_restart(model_context)
-        if exit_code != CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE:
-            model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
+        model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
 
     try:
         __wlst_helper.disconnect()
