@@ -28,12 +28,13 @@ def create_context(program_name, combined_arg_map, domain_typedef=None):
 
 def create_exit_context(program_name):
     """
-    Create a minimal model for use when a tool exits due to command-line parsing errors.
+    Create a minimal model context for use when a tool exits due to command-line parsing errors.
     This will provide some of the values needed for the summary logging.
     :param program_name: the program name, used for logging
     :return: the new, minimal model context object
     """
-    return create_context(program_name, dict())
+    # Oracle home switch is required for typedef template token resolution, for older WLS versions.
+    return create_context(program_name, {CommandLineArgUtil.ORACLE_HOME_SWITCH: ""})
 
 
 def create_typedef(program_name, argument_map):
