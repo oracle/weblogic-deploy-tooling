@@ -144,7 +144,7 @@ def __update_online(model, model_context, aliases):
         __release_edit_session_and_disconnect()
         raise de
 
-    exit_code = __check_update_needs_domain_restart(model_context)
+    exit_code = __check_update_require_domain_restart(model_context)
 
     # if user requested rollback if restart required stops
 
@@ -153,7 +153,7 @@ def __update_online(model, model_context, aliases):
         __wlst_helper.start_edit()
 
         topology_updater.set_server_groups()
-        exit_code = __check_update_needs_domain_restart(model_context)
+        exit_code = __check_update_require_domain_restart(model_context)
         if exit_code != CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE:
             model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
 
@@ -167,7 +167,7 @@ def __update_online(model, model_context, aliases):
     return exit_code
 
 
-def __check_update_needs_domain_restart(model_context):
+def __check_update_require_domain_restart(model_context):
     exit_code = 0
     try:
         # First we enable the stdout again and then redirect the stdoout to a string output stream
