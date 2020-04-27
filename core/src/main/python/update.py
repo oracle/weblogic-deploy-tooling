@@ -146,7 +146,7 @@ def __update_online(model, model_context, aliases):
 
     topology_updater.set_server_groups()
 
-    # Calling set_server_groups haa a side effect, it throws itself out of the edit tree
+    # Calling set_server_groups has a side effect, it throws itself out of the edit tree
     # restart the edit session.  If it is not in edit tree then save in
     #  __check_update_require_domain_restart will fail
 
