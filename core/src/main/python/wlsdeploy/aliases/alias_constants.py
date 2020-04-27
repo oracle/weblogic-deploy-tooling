@@ -64,6 +64,11 @@ NONE = 'NONE'
 # set_method values
 MBEAN = 'MBEAN'
 
+# ACCESS values
+RO = 'RO'           # Read only
+ROD = 'ROD'         # Read only but discover
+RW = 'RW'           # Default Read WRITE
+
 # attribute wlst_type values
 BOOLEAN = 'boolean'
 COMMA_DELIMITED_STRING = 'delimited_string[comma]'
