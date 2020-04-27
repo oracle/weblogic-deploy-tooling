@@ -28,6 +28,7 @@ When running the tool in WLST online mode, the deploy operation may require serv
 - `101` - The domain needs to be restarted and the Deploy Applications Tool needs to be re-invoked with the same arguments.
 - `102` - The servers impacted by the deploy operation need to be restarted, in a rolling fashion, starting with the Administration Server, if applicable.
 - `103` - The entire domain needs to be restarted.
+- `104` - The domain changes have been rolled back because the changes in the model requires a domain restart and -rollback_if_require_restart is specified.
 
 ### Using Multiple Models
 
