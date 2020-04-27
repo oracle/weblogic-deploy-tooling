@@ -57,10 +57,15 @@ javaSetup() {
     fi
 }
 
+checkArgs() {
+    checkJythonArgs $*
+}
+
 checkJythonArgs() {
     # verify that required arg -oracle_home is provided, and set ORACLE_HOME.
     # if -help is provided, display usage.
     # if -use_encryption is provided, set USE_ENCRYPTION to true
+    # if -wlst_path is provided, set WLST_PATH_DIR
     # the calling script must have a usage() method.
 
     # if no args were given and print the usage message
@@ -79,6 +84,10 @@ checkJythonArgs() {
             ;;
             -oracle_home)
             ORACLE_HOME="$2"
+            shift
+            ;;
+            -wlst_path)
+            WLST_PATH_DIR="$2"
             shift
             ;;
             -use_encryption)
@@ -135,6 +144,76 @@ variableSetup() {
     if [ -z "${WLSDEPLOY_LOG_HANDLERS}" ]; then
         WLSDEPLOY_LOG_HANDLERS=${WLSDEPLOY_LOG_HANDLER}; export WLSDEPLOY_LOG_HANDLERS
     fi
+}
+
+runWlst() {
+    # run a WLST script.
+    wlstScript=$1
+
+    variableSetup
+
+    # set WLST variable to the WLST executable.
+    # set CLASSPATH and WLST_CLASSPATH to include the WDT core JAR file.
+    # if the WLST_PATH_DIR was set, verify and use that value.
+
+    if [ -n "${WLST_PATH_DIR}" ]; then
+        if [ ! -d ${WLST_PATH_DIR} ]; then
+            echo "Specified -wlst_path directory does not exist: ${WLST_PATH_DIR}" >&2
+            exit 98
+        fi
+        WLST=${WLST_PATH_DIR}/common/bin/wlst.sh
+        if [ ! -x "${WLST}" ]; then
+            echo "WLST executable ${WLST} not found under -wlst_path directory: ${WLST_PATH_DIR}" >&2
+            exit 98
+        fi
+        CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+        WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
+    else
+        # if WLST_PATH_DIR was not set, find the WLST executable in one of the known ORACLE_HOME locations.
+
+        WLST=""
+        if [ -x ${ORACLE_HOME}/oracle_common/common/bin/wlst.sh ]; then
+            WLST=${ORACLE_HOME}/oracle_common/common/bin/wlst.sh
+            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+            WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
+        elif [ -x ${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh ]; then
+            WLST=${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh
+            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+        elif [ -x ${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh ]; then
+            WLST=${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh
+            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+        elif [ -x ${ORACLE_HOME}/wlserver/common/bin/wlst.sh -a -f ${ORACLE_HOME}/wlserver/.product.properties ]; then
+            WLST=${ORACLE_HOME}/wlserver/common/bin/wlst.sh
+            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+        fi
+
+
+        if [ -z "${WLST}" ]; then
+            echo "Unable to determine WLS version in ${ORACLE_HOME} to determine WLST shell script to call" >&2
+            exit 98
+        fi
+    fi
+
+    WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
+    WLST_PROPERTIES="${WLST_PROPERTIES} -Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
+    WLST_PROPERTIES="${WLST_PROPERTIES} ${WLSDEPLOY_PROPERTIES}"
+    export WLST_PROPERTIES
+
+    # print the configuration, and run the script
+
+    echo "JAVA_HOME = ${JAVA_HOME}"
+    echo "WLST_EXT_CLASSPATH = ${WLST_EXT_CLASSPATH}"
+    echo "CLASSPATH = ${CLASSPATH}"
+    echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
+
+    PY_SCRIPTS_PATH=${WLSDEPLOY_HOME}/lib/python
+    echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript ${scriptArgs}"
+
+    "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" ${scriptArgs}
+
+    RETURN_CODE=$?
+    checkExitCode ${RETURN_CODE}
+    exit ${RETURN_CODE}
 }
 
 runJython() {

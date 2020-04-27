@@ -14,11 +14,8 @@ from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
-from oracle.weblogic.deploy.util import TranslateException
-from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
-from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 
@@ -36,17 +33,14 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.domain_creator import DomainCreator
 from wlsdeploy.tool.create.domain_typedef import CREATE_DOMAIN
-from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util import wlst_helper
-from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_exit
-from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_CREATE
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -62,14 +56,14 @@ __wlst_mode = WlstModes.OFFLINE
 __version = WebLogicHelper(__logger).get_actual_weblogic_version()
 
 __required_arguments = [
-    CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_TYPE_SWITCH
+    CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
 __optional_arguments = [
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.DOMAIN_PARENT_SWITCH,
+    CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.JAVA_HOME_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.RUN_RCU_SWITCH,
@@ -95,40 +89,27 @@ def __process_args(args):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
     required_arg_map, optional_arg_map = cla_util.process_args(args, TOOL_TYPE_CREATE)
-    __verify_required_args_present(required_arg_map)
+    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
     __process_java_home_arg(optional_arg_map)
     __process_domain_location_args(optional_arg_map)
-    __process_model_args(optional_arg_map)
+
+    # don't verify that the archive is valid until it is needed.
+    # this requirement is specific to create, other tools will verify it.
+    cla_helper.validate_model_present(_program_name, optional_arg_map)
+    cla_helper.validate_variable_file_exists(_program_name, optional_arg_map)
 
     #
     # Verify that the domain type is a known type and load its typedef.
     #
-    domain_typedef = model_context_helper.create_typedef(_program_name, required_arg_map)
+    domain_typedef = model_context_helper.create_typedef(_program_name, optional_arg_map)
 
     __process_rcu_args(optional_arg_map, domain_typedef.get_domain_type(), domain_typedef)
-    __process_encryption_args(optional_arg_map)
+    cla_helper.process_encryption_args(optional_arg_map)
     __process_opss_args(optional_arg_map)
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
     return model_context_helper.create_context(_program_name, combined_arg_map, domain_typedef)
-
-
-def __verify_required_args_present(required_arg_map):
-    """
-    Verify that the required args are present.
-    :param required_arg_map: the required arguments map
-    :raises CLAException: if one or more of the required arguments are missing
-    """
-    _method_name = '__verify_required_args_present'
-
-    for req_arg in __required_arguments:
-        if req_arg not in required_arg_map:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20005', _program_name, req_arg)
-            ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    return
 
 
 def __process_java_home_arg(optional_arg_map):
@@ -172,22 +153,6 @@ def __process_domain_location_args(optional_arg_map):
         ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
-    return
-
-
-def __process_model_args(optional_arg_map):
-    """
-    Verify that the specified model_file exists, or there is a model file in the specified archive_file.
-    Extract the model file if only the archive_file was provided.
-    :param optional_arg_map: the optional arguments map
-    :raises CLAException: if the arguments are invalid or an error occurs extracting the model from the archive
-    """
-
-    # don't verify that the archive is valid until it is needed.
-    # this requirement is specific to create, other tools will verify it.
-
-    cla_helper.validate_model_present(_program_name, optional_arg_map)
-    cla_helper.validate_variable_file_exists(_program_name, optional_arg_map)
     return
 
 
@@ -246,28 +211,6 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
     return
 
 
-def __process_encryption_args(optional_arg_map):
-    """
-    Determine if the user is using our encryption and if so, get the passphrase.
-    :param optional_arg_map: the optional arguments map
-    :raises CLAException: if getting the passphrase from the user fails
-    """
-    _method_name = '__process_encryption_args'
-
-    if CommandLineArgUtil.USE_ENCRYPTION_SWITCH in optional_arg_map and \
-            CommandLineArgUtil.PASSPHRASE_SWITCH not in optional_arg_map:
-        try:
-            passphrase = getcreds.getpass('WLSDPLY-20002')
-        except IOException, ioe:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20003', ioe.getLocalizedMessage(),
-                                                       error=ioe)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-        optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
-    return
-
-
 def __process_opss_args(optional_arg_map):
     """
     Determine if the user is using opss wallet and if so, get the passphrase.
@@ -288,27 +231,6 @@ def __process_opss_args(optional_arg_map):
             raise ex
         optional_arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE] = String(passphrase)
     return
-
-
-def validate_model(model_dictionary, model_context, aliases):
-    _method_name = 'validate_model'
-
-    try:
-        validator = Validator(model_context, aliases, wlst_mode=__wlst_mode)
-
-        # no need to pass the variable file for processing, substitution has already been performed
-        return_code = validator.validate_in_tool_mode(model_dictionary, variables_file_name=None,
-                                                      archive_file_name=model_context.get_archive_file_name())
-    except ValidateException, ex:
-        __logger.severe('WLSDPLY-20000', _program_name, ex.getLocalizedMessage(), error=ex,
-                        class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-
-    if return_code == Validator.ReturnCode.STOP:
-        __logger.severe('WLSDPLY-20001', _program_name, class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
 
 def validate_rcu_args_and_model(model_context, model, archive_helper, alias_helper):
@@ -397,62 +319,30 @@ def main(args):
         model_context = model_context_helper.create_exit_context(_program_name)
         tool_exit.end(model_context, exit_code)
 
-    variable_map = {}
-    try:
-        if model_context.get_variable_file():
-            variable_map = variables.load_variables(model_context.get_variable_file())
-    except VariableException, ex:
-        __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
-                        class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-
-    model_file_value = model_context.get_model_file()
-    try:
-        model = cla_helper.merge_model_files(model_file_value, variable_map)
-    except TranslateException, te:
-        __logger.severe('WLSDPLY-20009', _program_name, model_file_value, te.getLocalizedMessage(), error=te,
-                        class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-
-    try:
-        variables.substitute(model, variable_map, model_context)
-    except VariableException, ex:
-        __logger.severe('WLSDPLY-20004', _program_name, ex.getLocalizedMessage(), error=ex,
-                        class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-
-    cla_helper.persist_model(model_context, model)
-
     aliases = Aliases(model_context, wlst_mode=__wlst_mode)
-    alias_helper = AliasHelper(aliases, __logger, ExceptionType.CREATE)
-    validate_model(model, model_context, aliases)
 
-    if filter_helper.apply_filters(model, "create"):
-        # if any filters were applied, re-validate the model
-        validate_model(model, model_context, aliases)
+    model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "create", __wlst_mode)
 
     try:
         archive_helper = None
         archive_file_name = model_context.get_archive_file_name()
         if archive_file_name:
-            domain_path = _get_domain_path(model_context, model)
+            domain_path = _get_domain_path(model_context, model_dictionary)
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
 
-        has_atp = validate_rcu_args_and_model(model_context, model, archive_helper, alias_helper)
+        alias_helper = AliasHelper(aliases, __logger, ExceptionType.CREATE)
+        has_atp = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, alias_helper)
 
         # check if there is an atpwallet and extract in the domain dir
         # it is to support non JRF domain but user wants to use ATP database
         if not has_atp and archive_helper:
             archive_helper.extract_atp_wallet()
 
-        creator = DomainCreator(model, model_context, aliases)
+        creator = DomainCreator(model_dictionary, model_context, aliases)
         creator.create()
 
         if has_atp:
-            rcu_properties_map = model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
+            rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
             rcu_db_info = RcuDbInfo(alias_helper, rcu_properties_map)
             atp_helper.fix_jps_config(rcu_db_info, model_context)
 

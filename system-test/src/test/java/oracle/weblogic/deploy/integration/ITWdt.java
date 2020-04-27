@@ -1,4 +1,4 @@
-// Copyright 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright 2019, 2020, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at
 // http://oss.oracle.com/licenses/upl.
 
@@ -14,11 +14,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import java.util.ArrayList;
+import java.util.List;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ITWdt extends BaseTest {
 
@@ -392,8 +393,22 @@ public class ITWdt extends BaseTest {
         // verify model file
         String expectedModelFile = System.getProperty("java.io.tmpdir") + FS + "model" + FS + "restrictedJRFD1.yaml";
         verifyModelFile(expectedModelFile);
+        verifyFDiscoverDomainWithRequiredArgument(expectedModelFile);
+        System.out.println("model file=" + expectedModelFile);
 
         logTestEnd(testMethodName);
+    }
+
+    private void verifyFDiscoverDomainWithRequiredArgument(String expectedModelFile) throws Exception {
+         List<String> checkContents = new ArrayList<>();
+         checkContents.add("domainInfo:");
+         checkContents.add("AdminUserName: '--FIX ME--'");
+         checkContents.add("CoherenceClusterSystemResource: defaultCoherenceCluster");
+         checkContents.add("PublicAddress: kubernetes");
+         checkContents.add("Trust Service Identity Asserter:");
+         checkContents.add("appDeployments:");
+         checkContents.add("SourcePath: 'wlsdeploy/applications/simple-app.war'");
+        verifyModelFileContents(expectedModelFile, checkContents);
     }
 
     /**
@@ -421,6 +436,40 @@ public class ITWdt extends BaseTest {
 
         logTestEnd(testMethodName);
     }
+  /**
+   * test discoverDomain.sh with -variable_file argument
+   * @throws Exception - if any error occurs
+   */
+  @Test
+  public void testGDiscoverDomainWithVariableFile() throws Exception {
+    String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+    logTestBegin(testMethodName);
+
+    String discoveredArchive = System.getProperty("java.io.tmpdir") + FS + "discoveredArchive.zip";
+    String discoveredModelFile = System.getProperty("java.io.tmpdir") + FS + "discoveredRestrictedJRFD1.yaml";
+    String discoveredVaribleFile = System.getProperty("java.io.tmpdir") + FS + "discoveredRestrictedJRFD1.properties";
+    String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+        domainParent12213 + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
+        " -model_file " + discoveredModelFile + " -variable_file " + discoveredVaribleFile;
+
+    logger.info("executing command: " + cmd);
+    ExecResult result = ExecCommand.exec(cmd);
+
+    verifyResult(result, "discoverDomain.sh completed successfully");
+
+    // verify model file and variable file
+    verifyModelFile(discoveredModelFile);
+    verifyModelFile(discoveredVaribleFile);
+    verifyGDiscoverDomainWithVariableFile(discoveredModelFile);
+
+    logTestEnd(testMethodName);
+  }
+
+  private void verifyGDiscoverDomainWithVariableFile(String expectedModelFile) throws Exception {
+    List<String> checkContents = new ArrayList<>();
+    checkContents.add("AdminUserName: '@@PROP:AdminUserName@@'");
+    verifyModelFileContents(expectedModelFile, checkContents);
+  }
 
     /**
      * test discoverDomain.sh with -domain_type as JRF
@@ -444,8 +493,19 @@ public class ITWdt extends BaseTest {
 
         // verify model file
         verifyModelFile(discoveredModelFile);
-
+        verifyHDiscoverDomainJRFDomainType(discoveredModelFile);
         logTestEnd(testMethodName);
+    }
+
+    private void verifyHDiscoverDomainJRFDomainType(String expectedModelFile) throws Exception {
+      List<String> checkContents = new ArrayList<>();
+      checkContents.add("AWT Application Context Startup Class");
+      try {
+        verifyModelFileContents(expectedModelFile, checkContents);
+        throw new Exception("JRF blacklist components found in model file");
+      } catch (Exception e) {
+        // empty this is expected result
+      }
     }
 
     /**
