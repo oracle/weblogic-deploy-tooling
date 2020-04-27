@@ -276,7 +276,7 @@ class TargetHelper(object):
                                                        cluster, server_groups)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex 
-            else:
+            elif len(server_groups) > 0:
                 self.logger.info('WLSDPLY-12255', server_groups[0], cluster_name,
                                  class_name=self.__class_name, method_name=_method_name)
                 self.wlst_helper.set_server_group_dynamic_cluster(cluster_name, server_groups[0])
