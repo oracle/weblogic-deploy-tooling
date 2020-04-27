@@ -300,6 +300,11 @@ GOTO :EOF
 
     SET RETURN_CODE=%1
 
+    IF "%RETURN_CODE%" == "104" (
+      ECHO.
+      ECHO %SCRIPT_NAME% completed successfully but the domain changes have been rolled back because -rollback_if_require_restart is specified  ^(exit code = %RETURN_CODE%^)
+      EXIT /B %RETURN_CODE%
+    )
     IF "%RETURN_CODE%" == "103" (
       ECHO.
       ECHO %SCRIPT_NAME% completed successfully but the domain requires a restart for the changes to take effect ^(exit code = %RETURN_CODE%^)
