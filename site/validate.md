@@ -60,18 +60,7 @@ The output of the tool will look something like this:
       Errors: 1
         Message: Machines is not one of the folder, folder instance or attribute names allowed in model location topology:/Server/AdminServer
 
-To get the valid list of attributes and folders at this model location, run the tool as follows:
-
-    weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -print_usage topology:/Server
-
-This will print out the list of attributes and valid subfolders (the full output is omitted here for brevity) that will include the following attribute in the list:
-
-    Section: topology:/Server
-
-      Valid Attributes are :-
-        ...
-        Machine                                             string
-        ...
+Use the [Model Help Tool](model_help.md) to determine the valid list of attributes and folders at this model location.
 
 If the model contains variable definitions and the variable file is specified, the Validate Model Tool will validate that all variable references in the model are defined in the variable file.  For example, invoking the tool as shown here:
 

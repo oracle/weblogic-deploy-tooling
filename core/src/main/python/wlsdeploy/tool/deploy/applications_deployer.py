@@ -3,7 +3,7 @@ Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
-import os
+import os, re
 from java.io import ByteArrayOutputStream
 from java.io import File
 from java.io import FileInputStream
@@ -36,6 +36,9 @@ from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import string_utils
+from wlsdeploy.util import model_helper
+from wlsdeploy.aliases import model_constants
+
 
 import oracle.weblogic.deploy.util.FileUtils as FileUtils
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
@@ -93,6 +96,17 @@ class ApplicationsDeployer(Deployer):
         for shared_library_name in shared_libraries:
             self.logger.info('WLSDPLY-09608', LIBRARY, shared_library_name, self._parent_type, self._parent_name,
                              class_name=self._class_name, method_name=_method_name)
+
+            if model_helper.is_delete_name(shared_library_name):
+
+                self.__verify_delete_versioned_app(shared_library_name, existing_shared_libraries, type='lib')
+
+                location = LocationContext()
+                location.append_location(model_constants.LIBRARY)
+                existing_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
+                deployer_utils.delete_named_element(location, shared_library_name, existing_names, self.alias_helper)
+                continue
+
             #
             # In WLST offline mode, the shared library name must match the fully qualified name, including
             # the spec and implementation versions from the deployment descriptor.  Since we want to allow
@@ -154,6 +168,16 @@ class ApplicationsDeployer(Deployer):
         for application_name in applications:
             self.logger.info('WLSDPLY-09301', APPLICATION, application_name, self._parent_type, self._parent_name,
                              class_name=self._class_name, method_name=_method_name)
+
+            if model_helper.is_delete_name(application_name):
+
+                self.__verify_delete_versioned_app(application_name, existing_applications, type='app')
+
+                location = LocationContext()
+                location.append_location(model_constants.APPLICATION)
+                existing_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
+                deployer_utils.delete_named_element(location, application_name, existing_names, self.alias_helper)
+                continue
 
             application = \
                 copy.deepcopy(dictionary_utils.get_dictionary_element(applications, application_name))
@@ -228,7 +252,7 @@ class ApplicationsDeployer(Deployer):
         # Go through the model libraries and find existing libraries that are referenced
         # by applications and compute a processing strategy for each library.
         self.__build_library_deploy_strategy(lib_location, model_shared_libraries, existing_libs, existing_lib_refs,
-                                             stop_app_list, update_library_list)
+                                             stop_app_list, update_library_list, stop_and_undeploy_app_list)
 
         # Go through the model applications and compute the processing strategy for each application.
         app_location = LocationContext(base_location).append_location(APPLICATION)
@@ -494,7 +518,10 @@ class ApplicationsDeployer(Deployer):
         return existing_libraries
 
     def __build_library_deploy_strategy(self, location, model_libs, existing_libs, existing_lib_refs,
-                                        stop_app_list, update_library_list):
+                                        stop_app_list, update_library_list, stop_and_undeploy_app_list):
+
+        _method_name = '__build_library_deploy_strategy'
+
         if model_libs is not None:
             uses_path_tokens_model_attribute_names = self.__get_uses_path_tokens_attribute_names(location)
 
@@ -503,6 +530,19 @@ class ApplicationsDeployer(Deployer):
                 for param in uses_path_tokens_model_attribute_names:
                     if param in lib_dict:
                         self.model_context.replace_tokens(LIBRARY, lib, param, lib_dict)
+
+                if model_helper.is_delete_name(lib):
+
+                    self.__verify_delete_versioned_app(lib, existing_libs, 'lib')
+
+                    if lib[1:] in existing_libs:
+                        model_libs.pop(lib)
+                        _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib[1:])
+                        stop_and_undeploy_app_list.append(lib[1:])
+                    else:
+                        model_libs.pop(lib)
+                        stop_and_undeploy_app_list.append(lib[1:])
+                    continue
 
                 if lib in existing_libs:
                     existing_lib_ref = dictionary_utils.get_dictionary_element(existing_lib_refs, lib)
@@ -568,6 +608,16 @@ class ApplicationsDeployer(Deployer):
                     if param in app_dict:
                         self.model_context.replace_tokens(APPLICATION, app, param, app_dict)
 
+                if model_helper.is_delete_name(app):
+
+                    self.__verify_delete_versioned_app(app, existing_apps, 'app')
+
+                    # remove the !app from the model
+                    self.__remove_app_from_deployment(model_apps, app)
+                    # undeploy the app (without !)
+                    stop_and_undeploy_app_list.append(app[1:])
+                    continue
+
                 if app in existing_apps:
                     # Compare the hashes of the domain's existing apps to the model's apps.
                     # If they match, remove them from the list to be deployed.
@@ -599,6 +649,29 @@ class ApplicationsDeployer(Deployer):
                         # updated app
                         stop_and_undeploy_app_list.append(app)
         return
+
+    def __verify_delete_versioned_app(self, app, existing_apps, type='app'):
+
+        _method_name = '__verify_delete_versioned_app'
+
+        if type == 'app':
+            err_key_list = 'WLSDPLY-09332'
+            err_key = 'WLSDPLY-09334'
+        else:
+            err_key_list = 'WLSDPLY-09331'
+            err_key = 'WLSDPLY-09333'
+
+        if not app[1:] in existing_apps:
+            tokens = re.split(r'[\#*\@*]', app[1:])
+            re_expr = tokens[0] + '[\#*\@*]'
+            r = re.compile(re_expr)
+            matched_list = filter(r.match, existing_apps)
+            if len(matched_list) > 0:
+                ex = exception_helper.create_deploy_exception(err_key_list, app[1:], matched_list)
+            else:
+                ex = exception_helper.create_deploy_exception(err_key, app[1:])
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
 
     def __get_uses_path_tokens_attribute_names(self, app_location):
         location = LocationContext(app_location)

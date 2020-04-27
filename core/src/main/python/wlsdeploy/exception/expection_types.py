@@ -16,6 +16,7 @@ ExceptionType = Enum([
     'TRANSLATE',
     'VALIDATE',
     'VARIABLE',
+    'COMPARE',
     'WLS_DEPLOY_ARCHIVE_IO',
     'YAML'
 ])

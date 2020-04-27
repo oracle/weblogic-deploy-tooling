@@ -1,12 +1,16 @@
-// Copyright 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+// Copyright 2019, 2020, Oracle Corporation and/or its affiliates. 
 // Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 package oracle.weblogic.deploy.integration;
 
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import oracle.weblogic.deploy.integration.utils.ExecCommand;
 import oracle.weblogic.deploy.integration.utils.ExecResult;
@@ -243,6 +247,33 @@ public class BaseTest {
         String dbhost = ExecCommand.exec(getDBContainerIP).stdout().trim();
         logger.info("DEBUG: DB_HOST=" + dbhost);
         return dbhost;
+    }
+
+    protected void verifyModelFileContents(String modelFileName, List<String> textToFind) throws Exception {
+        BufferedReader model = inputYaml(modelFileName);
+        List<String> checkList = new ArrayList(textToFind);
+        while (model.ready()) {
+            String nextLine = model.readLine();
+            if (nextLine != null) {
+                for (String textLine : textToFind) {
+                    if (nextLine.indexOf(textLine) >=0 ) {
+                        checkList.remove(textLine);
+                        break;
+                    }
+                }
+            }
+        }
+        if (checkList.size() > 0) {
+            for (String leftover : checkList) {
+                System.err.println("Model file did not contain " + leftover);
+            }
+            throw new Exception("Model file did not contain expected results");
+        }
+    }
+
+    protected BufferedReader inputYaml(String yamlFileName)  throws Exception {
+        File model = new File(yamlFileName);
+        return new BufferedReader(new FileReader(model));
     }
 
     private static ExecResult executeAndVerify(String command, boolean isRedirectToOut) throws Exception {

@@ -4,6 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_CONSOLE
+from wlsdeploy.aliases.model_constants import CDI_CONTAINER
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
 from wlsdeploy.aliases.model_constants import MACHINE
@@ -95,6 +96,7 @@ class TopologyUpdater(Deployer):
         self._set_domain_attributes()
 
         self._process_section(self._topology, folder_list, ADMIN_CONSOLE, location)
+        self._process_section(self._topology, folder_list, CDI_CONTAINER, location)
         self._process_section(self._topology, folder_list, MACHINE, location)
         self._process_section(self._topology, folder_list, UNIX_MACHINE, location)
 
