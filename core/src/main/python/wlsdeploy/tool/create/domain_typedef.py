@@ -387,7 +387,6 @@ class DomainTypedef(object):
 
         if self._version_typedef_name in self._domain_typedefs_dict['definitions']:
             result = self._domain_typedefs_dict['definitions'][self._version_typedef_name]
-            print 'The typedef is ', result, ' for version ', self._version_typedef_name
         else:
             ex = exception_helper.create_create_exception('WLSDPLY-12306', self._domain_type,
                                                           self._domain_typedef_filename, self._version_typedef_name)
