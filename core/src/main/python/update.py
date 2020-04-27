@@ -146,8 +146,17 @@ def __update_online(model, model_context, aliases):
 
     topology_updater.set_server_groups()
 
-    exit_code = __check_update_require_domain_restart(model_context)
+    # Calling set_server_groups haa a side effect, it throws itself out of the edit tree
+    # restart the edit session.  If it is not in edit tree then save in
+    #  __check_update_require_domain_restart will fail
 
+    try:
+        __wlst_helper.edit()
+        __wlst_helper.start_edit()
+    except BundleAwareException, ex:
+        raise ex
+
+    exit_code = __check_update_require_domain_restart(model_context)
     # if user requested rollback if restart required stops
 
     if exit_code != CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE:
