@@ -310,16 +310,6 @@ GOTO :EOF
       ECHO %SCRIPT_NAME% completed successfully but the domain requires a restart for the changes to take effect ^(exit code = %RETURN_CODE%^)
       EXIT /B %RETURN_CODE%
     )
-    IF "%RETURN_CODE%" == "102" (
-      ECHO.
-      ECHO %SCRIPT_NAME% completed successfully but the affected servers require a restart ^(exit code = %RETURN_CODE%^)
-      EXIT /B %RETURN_CODE%
-    )
-    IF "%RETURN_CODE%" == "101" (
-      ECHO.
-      ECHO %SCRIPT_NAME% was unable to complete due to configuration changes that require a domain restart.  Please restart the domain and re-invoke the %SCRIPT_NAME% script with the same arguments ^(exit code = %RETURN_CODE%^)
-      EXIT /B %RETURN_CODE%
-    )
     IF "%RETURN_CODE%" == "100" (
       EXIT /B %RETURN_CODE%
     )

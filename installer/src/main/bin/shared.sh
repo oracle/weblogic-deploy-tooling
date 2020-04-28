@@ -280,12 +280,6 @@ checkExitCode() {
     elif [ $returnCode -eq 103 ]; then
       echo ""
       echo "$scriptName completed successfully but the domain requires a restart for the changes to take effect (exit code = ${RETURN_CODE})"
-    elif [ $returnCode -eq 102 ]; then
-      echo ""
-      echo "$scriptName completed successfully but the affected servers require a restart (exit code = ${RETURN_CODE})"
-    elif [ $returnCode -eq 101 ]; then
-      echo ""
-      echo "$scriptName was unable to complete due to configuration changes that require a domain restart.  Please restart the domain and re-invoke the $scriptName script with the same arguments (exit code = ${RETURN_CODE})"
     elif [ $returnCode -eq 100 ]; then
       usage `basename $0`
     elif [ $returnCode -eq 99 ]; then
