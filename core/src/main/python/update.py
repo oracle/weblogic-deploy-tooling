@@ -144,6 +144,7 @@ def __update_online(model, model_context, aliases):
         __release_edit_session_and_disconnect()
         raise de
 
+    # Server or Cluster may be added, this is to make sure they are targeted properly
     topology_updater.set_server_groups()
 
     # Calling set_server_groups has a side effect, it throws itself out of the edit tree.
