@@ -246,17 +246,11 @@ class TargetHelper(object):
         domain_typedef = self.model_context.get_domain_typedef()
 
         if len(dynamic_cluster_assigns) > 0:
-            # TBD assign server group resources to cluster. The JRF resources could still be applied separately
-            # using this technique - or remove this technique and replace with the resource targeting
+            # assign server group resources to cluster based on the version of WebLogic server version.
             if self.wls_helper.is_dynamic_cluster_server_groups_supported():
                 self.target_server_groups(dynamic_cluster_assigns)
             elif self.wls_helper.is_dynamic_cluster_server_group_supported():
                 self.target_dynamic_clusters(dynamic_cluster_assigns)
-                # if domain_typedef.has_jrf_resources():
-                #     self._target_jrf_resources(dynamic_cluster_assigns)
-            elif domain_typedef.has_jrf_resources():
-                self.logger.info('WLSDPLY-12247', class_name=self.__class_name, method_name=_method_name)
-                self._target_jrf_resources(dynamic_cluster_assigns)
             else:
                 self.logger.warning('WLSDPLY-12238', domain_typedef.get_domain_type(),
                                     class_name=self.__class_name, method_name=_method_name)
@@ -276,20 +270,16 @@ class TargetHelper(object):
         self.logger.entering(str(server_assigns), class_name=self.__class_name, method_name=_method_name)
 
         for cluster, server_groups in server_assigns.iteritems():
+            cluster_name = self.wlst_helper.get_quoted_name_for_wlst(cluster)
             if len(server_groups) > 1:
-                # ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12257', cluster)
                 ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12256',
-                                                       cluster, replace_server_groups)
+                                                       cluster, server_groups)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-                # self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                # raise ex
-                self.logger.warning('WLSDPLY-12257', cluster, class_name=self.__class_name, method_name=_method_name)
-            else:
-                cluster_name = self.wlst_helper.get_quoted_name_for_wlst(cluster)
-                self.logger.info('WLSDPLY-12255', server_groups, cluster_name,
+                raise ex 
+            elif len(server_groups) > 0:
+                self.logger.info('WLSDPLY-12255', server_groups[0], cluster_name,
                                  class_name=self.__class_name, method_name=_method_name)
-                self.wlst_helper.target_server_groups(cluster_name, server_groups)
+                self.wlst_helper.set_server_group_dynamic_cluster(cluster_name, server_groups[0])
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
@@ -437,7 +427,6 @@ class TargetHelper(object):
                     if DYNAMIC_SERVERS in cluster_members:
                         # This will need special handling to target server group resources
                         cluster_members.remove(DYNAMIC_SERVERS)
-                        #cluster_members.append(target_name)
                     new_list.extend(cluster_members)
                 else:
                     # Assume it is a server name and add it to the new list

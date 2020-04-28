@@ -71,7 +71,7 @@
             ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
-            "dynamicClusterServerGroupsToTarget" : [ "WSMPM-CACHE-DYN-CLUSTER" ],
+            "dynamicClusterServerGroupsToTarget" : [ "WSMPM-DYN-CLUSTER" ],
             "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB" ]
         },
         "JRF_12CR2_LAST": {
