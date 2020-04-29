@@ -517,15 +517,17 @@ class DomainCreator(Creator):
         topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
         self.__apply_base_domain_config(topology_folder_list)
 
-        self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
-                         class_name=self.__class_name, method_name=_method_name)
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-        server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        dynamic_cluster_server_groups_to_target = self._domain_typedef.get_dynamic_cluster_server_groups()
+        server_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+        dynamic_assigns = \
+            self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_cluster_server_groups_to_target)
+
         if len(server_assigns) > 0:
             self.target_helper.target_server_groups(server_assigns)
 
         if len(dynamic_assigns) > 0:
-            self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
+            self.target_helper.target_dynamic_server_groups(dynamic_assigns)
 
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)

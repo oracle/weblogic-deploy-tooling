@@ -146,10 +146,6 @@ def __update_online(model, model_context, aliases):
 
     exit_code = 0
 
-    __update_online_domain(model_context)
-    __wlst_helper.edit()
-    __wlst_helper.start_edit()
-
     topology_updater.set_server_groups()
     __update_online_domain(model_context)
     model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
