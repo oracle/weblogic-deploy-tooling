@@ -341,9 +341,9 @@ class WlstHelper(object):
 
     def set_server_groups(self, server, server_groups):
         """
-        Sets the database defaults indicated by RCU.
+        Targets the list of server groups to the managed server.
 
-        :param server: the name of the new server
+        :param server: the name of the managed server
         :param server_groups: the list of template-defined server groups to target to the server
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
@@ -354,6 +354,27 @@ class WlstHelper(object):
             self.__load_global('setServerGroups')(server, server_groups)
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00023', server_groups, server,
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def set_server_group_dynamic_cluster(self, cluster, server_group):
+        """
+        Target the server group to the cluster. This function is used in 12c versions
+        12.2.1.1 to 12.2.1.3.
+
+        :param cluster: the name of the dynamic cluster
+        :param server_group: the server group to target to the dynamic cluster
+        :raises: Exception for the specified tool type: if a WLST error occurs
+        """
+        _method_name = 'set_server_group_dynamic_cluster'
+        self.__logger.entering(server_group, cluster, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            self.__load_global('setAssociatedClusterDynamicServerGroup')(cluster, server_group)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00123', server_group, cluster,
                                                     _format_exception(e), error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
