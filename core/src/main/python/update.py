@@ -144,11 +144,25 @@ def __update_online(model, model_context, aliases):
         __release_edit_session_and_disconnect()
         raise de
 
-    exit_code = 0
-
+    # Server or Cluster may be added, this is to make sure they are targeted properly
     topology_updater.set_server_groups()
-    __update_online_domain(model_context)
-    model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
+
+    # Calling set_server_groups has a side effect, it throws itself out of the edit tree.
+    # If it is not in edit tree then save in
+    #  __check_update_require_domain_restart will fail
+    #  Restart the edit session to compensate
+
+    try:
+        __wlst_helper.edit()
+        __wlst_helper.start_edit()
+    except BundleAwareException, ex:
+        raise ex
+
+    exit_code = __check_update_require_domain_restart(model_context)
+    # if user requested rollback if restart required stops
+
+    if exit_code != CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE:
+        model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
 
     try:
         __wlst_helper.disconnect()
@@ -160,7 +174,8 @@ def __update_online(model, model_context, aliases):
     return exit_code
 
 
-def __update_online_domain(model_context):
+def __check_update_require_domain_restart(model_context):
+    exit_code = 0
     try:
         # First we enable the stdout again and then redirect the stdoout to a string output stream
         # call isRestartRequired to get the output, capture the string and then silence wlst output again
@@ -184,6 +199,8 @@ def __update_online_domain(model_context):
     except BundleAwareException, ex:
         __release_edit_session_and_disconnect()
         raise ex
+
+    return exit_code
 
 
 def __update_offline(model, model_context, aliases):
