@@ -825,59 +825,16 @@ public class ITWdt extends BaseTest {
         logTestEnd(testMethodName);
     }
 
-    @Test
-    public void testOnlineCreate() throws Exception {
-        String FMW12213_CONTAINER_NAME = "fmw12213";
-        String FMW12213_IMAGE_NAME = "container-registry.oracle.com/middleware/fmw-infrastructure:12.2.1.3";
-
-        logger.info("Test online deploy");
-        String dbHostIp = getDBContainerIP();
-        logger.info(" WDT SCRIPT DIR " + getWDTScriptsHome());
-        logger.info(" TEST RESOURCE PATH " + getResourcePath());
-        File wdtHomeDir = new File(getWDTScriptsHome() + "../../../");
-        String wdtHomePath = wdtHomeDir.getCanonicalFile().getPath();
-
-        logger.info("WDT HOME PATH " + wdtHomePath);
-
-        String tmpModelDirectory = System.getProperty("java.io.tmpdir");
-
-        String domainHome = tmpModelDirectory + FS + "test1" + FS + "domain1";
-        File domainHomeDir = new File(domainHome);
-        domainHomeDir.mkdirs();
-        String tmpModelFile = System.getProperty("java.io.tmpdir") + FS + SAMPLE_MODEL_FILE_PREFIX +
-            "onlineJRF.yaml";
-
-        String clearPwdModelFile = getSampleModelFile("onlineJRF");
-        logger.info(" CLEAR MODEL PATH " + clearPwdModelFile);
-        logger.info(" TMP MODEL DIR " + tmpModelDirectory);
-
-        Path source = Paths.get(clearPwdModelFile);
-        Path dest = Paths.get(tmpModelFile);
-        Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-
-        String command = "docker run --rm -d --name " + FMW12213_CONTAINER_NAME
-            + " -v " + getResourcePath() + ":/tmp/models -p 10011:10011 "
-            + " -v " + domainHome + ":/u01/domains/domain1 "
-            + " -v " +  wdtHomePath + ":/u01/wdt"
-            + " --add-host=InfraDB:" + dbHostIp
-            + " " + FMW12213_IMAGE_NAME + "  bash /tmp/models/simple-in-image-createDomain.sh ";
-
-        logger.info(" MY DOCKER CMD " + command);
-        ExecResult result = ExecCommand.exec(command);
-        logger.info(result.stdout());
-        logger.info(result.stderr());
-        logger.info("End test");
-    }
-
     private boolean startAdminServer(String domainHome) throws Exception {
         boolean isServerUp = false;
-        String cmd = "nohup " + domainHome + "/bin/startWebLogic.sh > /dev/null 2>&1 &";
+        String cmd = "nohup " + domainHome + "/bin/startWebLogic.sh > /tmp/admin-server.out 2>&1 &";
 
         ExecResult result = ExecCommand.exec(cmd);
         if (result.exitValue() != 0 ) {
             logger.info("startAdminServer: result.stderr=" + result.stderr());
             logger.info("startAdminServer: result.stdout=" + result.stdout());
-            cmd = "cat " + domainHome + FS + "servers" + FS + "admin-server" + FS + "logs" + "admin-server.log";
+            cmd = "cat /tmp/admin-server.out";
+                //+ domainHome + FS + "servers" + FS + "admin-server" + FS + "logs" + "admin-server.log";
             result = ExecCommand.exec(cmd);
             logger.info(result.stdout());
             throw new Exception("startAdminServer: failed to execute command " + cmd);
@@ -887,7 +844,7 @@ public class ITWdt extends BaseTest {
             Thread.sleep(60000);
             String readinessCmd = "export no_proxy=localhost && curl -sw '%{http_code}' http://localhost:7001/weblogic/ready";
             result = ExecCommand.exec(readinessCmd);
-            for (int i=0; i < 36; i++) {
+            for (int i=0; i < 60; i++) {
                 logger.info("Server status: " + result.stdout());
                 if ("200".equals(result.stdout())) {
                     logger.info("Server is running");
@@ -902,6 +859,13 @@ public class ITWdt extends BaseTest {
         } catch (InterruptedException ite) {
             Thread.currentThread().interrupt();
             throw ite;
+        }
+
+        if (!isServerUp) {
+            cmd = "cat /tmp/admin-server.out";
+            //+ domainHome + FS + "servers" + FS + "admin-server" + FS + "logs" + "admin-server.log";
+            result = ExecCommand.exec(cmd);
+            logger.info(result.stdout());
         }
 
         return isServerUp;
