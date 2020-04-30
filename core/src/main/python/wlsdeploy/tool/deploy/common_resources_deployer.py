@@ -239,7 +239,7 @@ class CommonResourcesDeployer(Deployer):
         _method_name = 'add_ohs_components'
 
         system_components = dictionary_utils.get_dictionary_element(parent_dict, OHS)
-        if self.wlst_mode == WlstModes.ONLINE:
+        if (len(system_components) != 0) and (self.wlst_mode == WlstModes.ONLINE):
             self.logger.warning('WLSDPLY-09405', OHS, class_name=self._class_name, method_name=_method_name)
         else:
             self._add_named_elements(OHS, system_components, location)

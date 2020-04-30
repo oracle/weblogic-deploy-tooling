@@ -14,6 +14,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.nio.file.Files;
@@ -22,6 +25,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ITWdt extends BaseTest {
+
+    private static boolean rcuDomainCreated = false;
 
     @BeforeClass
     public static void staticPrepare() throws Exception {
@@ -38,6 +43,8 @@ public class ITWdt extends BaseTest {
         pullOracleDBDockerImage();
         // create a db container for RCU
         createDBContainer();
+        // pull FMW 12214 image
+    //  pullOracleFMW12213Image();
 
     }
 
@@ -342,9 +349,132 @@ public class ITWdt extends BaseTest {
         logger.info("DEBUG: result.stderr=" + result.stderr());
         logger.info("DEBUG: result.stdout=" + result.stdout());
         verifyResult(result, "createDomain.sh completed successfully");
+        rcuDomainCreated = true;
+        logTestEnd(testMethodName);
+    }
+
+
+    /**
+     * testDOnlineUpdate1 check for 103 return code if an update requires restart.
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testDOnlineUpdate1() throws Exception {
+
+        if (!rcuDomainCreated) {
+            throw new Exception("testDOnlineUpdate skipped because testDCreateJRFDomainRunRCU failed");
+        }
+
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        // Setup boot.properties
+        // domainParent12213  - is relative !
+        String domainHome = domainParent12213 + FS + "jrfDomain1";
+        setUpBootProperties(domainHome, "admin-server", "weblogic", "welcome1");
+        boolean isServerUp = startAdminServer(domainHome);
+
+        if (isServerUp) {
+            String wdtModel = getSampleModelFile("-onlineUpdate");
+            logger.info("DEBUG: wdtModel=" + wdtModel);
+            String tmpWdtModel = System.getProperty("java.io.tmpdir") + FS + SAMPLE_MODEL_FILE_PREFIX
+                + "-onlineUpdate.yaml";
+            logger.info("DEBUG: tmpWdtModel=" + tmpWdtModel);
+
+            // update wdt model file
+            Path source = Paths.get(wdtModel);
+            Path dest = Paths.get(tmpWdtModel);
+            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+
+            String cmd = "echo welcome1 | " + updateDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                domainParent12213 + FS + "jrfDomain1 -model_file " +
+                tmpWdtModel + " -admin_url t3://localhost:7001 -admin_user weblogic";
+            logger.info("executing command: " + cmd);
+            ExecResult result = ExecCommand.exec(cmd);
+            int updateResult = result.exitValue();
+            if (updateResult != 0 || updateResult != 103) {
+                logger.info("DEBUG: result.stderr=" + result.stderr());
+                logger.info("DEBUG: result.stdout=" + result.stdout());
+            }
+
+            stopAdminServer(domainHome);
+            ExecCommand.exec("rm /tmp/admin-server.out");
+            if (updateResult != 103) {
+                throw new Exception("onlineUpdate is expecting return code of 103 but got " + result.exitValue());
+            }
+
+        } else {
+            // Best effort to clean up server
+            tryKillTheAdminServer(domainHome, "admin-server");
+            ExecCommand.exec("rm /tmp/admin-server.out");
+            throw new Exception("testDOnlineUpdate failed - cannot bring up server");
+        }
 
         logTestEnd(testMethodName);
     }
+
+
+
+    /**
+     * testDOnlineUpdate2 check for 104 return code if an update rollback changes.
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testDOnlineUpdate2() throws Exception {
+
+        if (!rcuDomainCreated) {
+            throw new Exception("testDOnlineUpdate skipped because testDCreateJRFDomainRunRCU failed");
+        }
+
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+
+        // Setup boot.properties
+
+        String domainHome = domainParent12213 + FS + "jrfDomain1";
+
+        boolean isServerUp = startAdminServer(domainHome);
+
+        if (isServerUp) {
+
+            String wdtModel = getSampleModelFile("-onlineUpdate2");
+            logger.info("DEBUG: wdtModel=" + wdtModel);
+            String tmpWdtModel = System.getProperty("java.io.tmpdir") + FS + SAMPLE_MODEL_FILE_PREFIX
+                + "-onlineUpdate2.yaml";
+            logger.info("DEBUG: tmpWdtModel=" + tmpWdtModel);
+
+            // update wdt model file
+            Path source = Paths.get(wdtModel);
+            Path dest = Paths.get(tmpWdtModel);
+            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+
+            String cmd = "echo welcome1 | " + updateDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                domainParent12213 + FS + "jrfDomain1 -model_file " +
+                tmpWdtModel + " -admin_url t3://localhost:7001 -admin_user weblogic -rollback_if_require_restart ";
+            ExecResult result = ExecCommand.exec(cmd);
+            int updateResult = result.exitValue();
+            if (updateResult != 0 || updateResult != 104) {
+                logger.info("DEBUG: result.stderr=" + result.stderr());
+                logger.info("DEBUG: result.stdout=" + result.stdout());
+            }
+
+            stopAdminServer(domainHome);
+            ExecCommand.exec("rm /tmp/admin-server.out");
+
+            if (updateResult != 104) {
+                throw new Exception("onlineUpdate is expecting return code of 103 but got " + result.exitValue());
+            }
+
+        } else {
+            // Best effort to clean up server
+            tryKillTheAdminServer(domainHome, "admin-server");
+            ExecCommand.exec("rm /tmp/admin-server.out");
+            throw new Exception("testDOnlineUpdate failed - cannot bring up server");
+        }
+
+        logTestEnd(testMethodName);
+    }
+
 
     /**
      * test createDomain.sh, create restrictedJRF domain
@@ -691,5 +821,101 @@ public class ITWdt extends BaseTest {
         verifyResult(result, "createDomain.sh completed successfully");
         logTestEnd(testMethodName);
     }
+
+    private boolean startAdminServer(String domainHome) throws Exception {
+        boolean isServerUp = false;
+        String cmd = "nohup " + domainHome + "/bin/startWebLogic.sh > /tmp/admin-server.out 2>&1 &";
+
+        ExecResult result = ExecCommand.exec(cmd);
+        if (result.exitValue() != 0 ) {
+            logger.info("startAdminServer: result.stderr=" + result.stderr());
+            logger.info("startAdminServer: result.stdout=" + result.stdout());
+            cmd = "cat /tmp/admin-server.out";
+            result = ExecCommand.exec(cmd);
+            logger.info(result.stdout());
+            throw new Exception("startAdminServer: failed to execute command " + cmd);
+        }
+
+        try {
+            Thread.sleep(60000);
+            String readinessCmd = "export no_proxy=localhost && curl -sw '%{http_code}' http://localhost:7001/weblogic/ready";
+            result = ExecCommand.exec(readinessCmd);
+            for (int i=0; i < 60; i++) {
+                logger.info("Server status: " + result.stdout());
+                if ("200".equals(result.stdout())) {
+                    logger.info("Server is running");
+                    isServerUp = true;
+                    break;
+                }
+                Thread.sleep(5000);
+                result = ExecCommand.exec(readinessCmd);
+                logger.info("Server is starting...");
+            }
+
+        } catch (InterruptedException ite) {
+            Thread.currentThread().interrupt();
+            throw ite;
+        }
+
+        if (!isServerUp) {
+            cmd = "cat /tmp/admin-server.out";
+            result = ExecCommand.exec(cmd);
+            logger.info(result.stdout());
+        }
+
+        return isServerUp;
+    }
+
+    private void stopAdminServer(String domainHome) throws Exception {
+        logger.info("Stopping the server");
+        String cmd = domainHome + "/bin/stopWebLogic.sh";
+        ExecResult result = ExecCommand.exec(cmd);
+        if (result.exitValue() != 0) {
+            logger.info("DEBUG: result.stderr=" + result.stderr());
+            logger.info("DEBUG: result.stdout=" + result.stdout());
+        }
+
+    }
+
+    private void setUpBootProperties(String domainHome, String server, String username, String password)
+        throws Exception {
+
+        File adminSecurityDir = new File(domainHome + FS + "servers" + FS + server + FS + "security");
+        adminSecurityDir.mkdirs();
+        PrintWriter pw = new PrintWriter(new File(adminSecurityDir + FS + "boot.properties"));
+        pw.println("username=" + username);
+        pw.println("password=" + password);
+        pw.close();
+
+    }
+
+    private void tryKillTheAdminServer(String domainHome, String server) throws Exception {
+
+        File domainDir = new File(domainHome);
+
+        String cmd_format = "ps axww | " +
+            "grep weblogic.Server | " +
+            "grep \"%s\" | " +
+            "grep \"\\-DINSTANCE_HOME=%s\" | " +
+            "cut -f1 -d' '";
+        logger.info("DEBUG: command is " + String.format(cmd_format, server, domainDir.getCanonicalPath()));
+        ExecResult result = ExecCommand.exec(String.format(cmd_format, server, domainDir.getCanonicalPath()));
+        logger.info("DEBUG: process id is [" + result.stdout() + "]");
+        String pid = result.stderr();
+        if (! "".equals(pid)) {
+            try {
+                Integer.parseInt(pid);
+            } catch (NumberFormatException ne) {
+                logger.info("ps does not return integer " + pid);
+                return;
+            }
+        String cmd = "kill -9 " + pid;
+        result = ExecCommand.exec(cmd);
+        logger.info("DEBUG: " + cmd + " returns " + result.stdout());
+        }
+
+    }
+
+
 }
 

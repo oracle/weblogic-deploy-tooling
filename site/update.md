@@ -20,9 +20,8 @@ The Update Domain Tool will not attempt to recreate or add schemas for the RCU d
 
 When running the tool in WLST online mode, the update operation may require server restarts or a domain restart to pick up the changes.  The update operation can also encounter situations where it cannot complete its operation until the domain is restarted.  To communicate these conditions to scripts that may be calling the Update Domain Tool, the shell scripts have three special, non-zero exit codes to communicate these states:
 
-- `101` - The domain needs to be restarted and the Update Domain Tool needs to be re-invoked with the same arguments.
-- `102` - The servers impacted by the update operation need to be restarted, in a rolling fashion, starting with the Administration Server, if applicable.
 - `103` - The entire domain needs to be restarted.
+- `104` - The domain changes have been rolled back because the changes in the model requires a domain restart and -rollback_if_require_restart is specified.
 
 ### Using Multiple Models
 

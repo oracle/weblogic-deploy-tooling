@@ -4,7 +4,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import copy
 import os, re
-from java.io import ByteArrayOutputStream
 from java.io import File
 from java.io import FileInputStream
 from java.io import FileNotFoundException
@@ -15,6 +14,8 @@ from java.util.jar import JarFile
 from java.util.jar import Manifest
 from java.util.zip import ZipException
 from sets import Set
+
+from oracle.weblogic.deploy.aliases import TypeUtils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ABSOLUTE_SOURCE_PATH
 from wlsdeploy.aliases.model_constants import APPLICATION
@@ -418,6 +419,7 @@ class ApplicationsDeployer(Deployer):
                 attributes_map = self.wlst_helper.lsa()
                 absolute_sourcepath = attributes_map['AbsoluteSourcePath']
                 absolute_planpath = attributes_map['AbsolutePlanPath']
+                config_targets = self.__get_config_targets()
 
                 # There are case in application where absolute source path is not set but sourepath is
                 # if source path is not absolute then we need to add the domain path
@@ -442,7 +444,7 @@ class ApplicationsDeployer(Deployer):
                 else:
                     plan_hash = None
 
-                _update_ref_dictionary(ref_dictionary, app, absolute_sourcepath, app_hash, None,
+                _update_ref_dictionary(ref_dictionary, app, absolute_sourcepath, app_hash, config_targets,
                                        absolute_plan_path=absolute_planpath, deploy_order=deployment_order,
                                        plan_hash=plan_hash)
         return ref_dictionary
@@ -641,7 +643,23 @@ class ApplicationsDeployer(Deployer):
                     existing_plan_hash = self.__get_file_hash(plan_path)
                     if model_src_hash == existing_src_hash:
                         if model_plan_hash == existing_plan_hash:
-                            self.__remove_app_from_deployment(model_apps, app)
+                            # If model hashes match existing hashes, the application did not change.
+                            # Unless targets were added, there's no need to redeploy.
+                            model_targets = dictionary_utils.get_element(app_dict, TARGET)
+                            model_targets_list = TypeUtils.convertToType(list, model_targets)
+                            model_targets_set = Set(model_targets_list)
+
+                            existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
+                            existing_app_targets_set = Set(existing_app_targets)
+
+                            if existing_app_targets_set.issuperset(model_targets_set):
+                                self.__remove_app_from_deployment(model_apps, app)
+                            else:
+                                # Adjust the targets to only the new targets so that existing apps on
+                                # already targeted servers are not impacted.
+                                adjusted_set = model_targets_set.difference(existing_app_targets_set)
+                                adjusted_targets = ','.join(adjusted_set)
+                                app_dict['Target'] = adjusted_targets
                         else:
                             # updated deployment plan
                             stop_and_undeploy_app_list.append(app)
