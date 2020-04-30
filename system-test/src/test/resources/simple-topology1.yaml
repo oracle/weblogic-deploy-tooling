@@ -9,6 +9,7 @@ topology:
     Cluster:
         '@@PROP:CLUSTER_NAME@@':
             ClientCertProxyEnabled: true
+            FrontendHost: localhost
             DynamicServers:
                 ServerTemplate: template1
                 CalculatedListenPorts: true

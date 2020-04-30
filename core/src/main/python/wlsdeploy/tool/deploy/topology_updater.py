@@ -137,12 +137,14 @@ class TopologyUpdater(Deployer):
     def set_server_groups(self):
         if self.wls_helper.is_set_server_groups_supported():
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-            server_assigns, dynamic_assigns = \
-                self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-            if len(dynamic_assigns) > 0:
-                self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
+            dynamic_cluster_server_groups_to_target = self._domain_typedef.get_dynamic_cluster_server_groups()
+            server_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+            dynamic_assigns = \
+                self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_cluster_server_groups_to_target)
             if len(server_assigns) > 0:
                 self.target_helper.target_server_groups(server_assigns)
+            if len(dynamic_assigns) > 0:
+                self.target_helper.target_dynamic_server_groups(dynamic_assigns)
         elif self._domain_typedef.is_jrf_domain_type():
             self.target_helper.target_jrf_groups_to_clusters_servers()
 
