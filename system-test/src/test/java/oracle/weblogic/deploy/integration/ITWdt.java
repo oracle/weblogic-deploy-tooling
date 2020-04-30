@@ -398,17 +398,15 @@ public class ITWdt extends BaseTest {
             }
 
             stopAdminServer(domainHome);
-
+            ExecCommand.exec("rm /tmp/admin-server.out");
             if (updateResult != 103) {
                 throw new Exception("onlineUpdate is expecting return code of 103 but got " + result.exitValue());
             }
 
         } else {
-            String cmd = "cat " + domainHome + FS + "servers" + FS + "admin-server" + FS + "logs" + "admin-server.log";
-            ExecResult result = ExecCommand.exec(cmd);
-            logger.info(result.stdout());
             // Best effort to clean up server
             tryKillTheAdminServer(domainHome, "admin-server");
+            ExecCommand.exec("rm /tmp/admin-server.out");
             throw new Exception("testDOnlineUpdate failed - cannot bring up server");
         }
 
@@ -461,17 +459,16 @@ public class ITWdt extends BaseTest {
             }
 
             stopAdminServer(domainHome);
+            ExecCommand.exec("rm /tmp/admin-server.out");
 
             if (updateResult != 104) {
                 throw new Exception("onlineUpdate is expecting return code of 103 but got " + result.exitValue());
             }
 
         } else {
-            String cmd = "cat " + domainHome + FS + "servers" + FS + "admin-server" + FS + "logs" + "admin-server.log";
-            ExecResult result = ExecCommand.exec(cmd);
-            logger.info(result.stdout());
             // Best effort to clean up server
             tryKillTheAdminServer(domainHome, "admin-server");
+            ExecCommand.exec("rm /tmp/admin-server.out");
             throw new Exception("testDOnlineUpdate failed - cannot bring up server");
         }
 
@@ -834,7 +831,6 @@ public class ITWdt extends BaseTest {
             logger.info("startAdminServer: result.stderr=" + result.stderr());
             logger.info("startAdminServer: result.stdout=" + result.stdout());
             cmd = "cat /tmp/admin-server.out";
-                //+ domainHome + FS + "servers" + FS + "admin-server" + FS + "logs" + "admin-server.log";
             result = ExecCommand.exec(cmd);
             logger.info(result.stdout());
             throw new Exception("startAdminServer: failed to execute command " + cmd);
@@ -863,7 +859,6 @@ public class ITWdt extends BaseTest {
 
         if (!isServerUp) {
             cmd = "cat /tmp/admin-server.out";
-            //+ domainHome + FS + "servers" + FS + "admin-server" + FS + "logs" + "admin-server.log";
             result = ExecCommand.exec(cmd);
             logger.info(result.stdout());
         }
