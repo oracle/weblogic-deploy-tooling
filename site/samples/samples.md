@@ -8,3 +8,4 @@ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResou
 ```
 ## Contents
 - [JDBC Sample](jdbc.md)
+- [Work Manager Sample](work_manager.md)
