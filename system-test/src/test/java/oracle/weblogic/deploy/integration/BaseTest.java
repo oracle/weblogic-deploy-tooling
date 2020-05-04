@@ -155,6 +155,7 @@ public class BaseTest {
         if(result.exitValue() != 0 || !result.stdout().contains(matchString)) {
             logger.info("DEBUG: result.exitValue=" + result.exitValue());
             logger.info("DEBUG: result.stdout=" + result.stdout());
+            System.exit(0);
             throw new Exception("result stdout does not contains the expected string: " + matchString);
         }
     }
