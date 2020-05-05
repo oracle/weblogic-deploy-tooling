@@ -1,6 +1,6 @@
 ## Work Manager Sample
 
-This WDT domain model sample section has typical configurations for a Work Manager and its related Request Classes and Constraints. These elements are configured in the `SelfTuning` folder in the `resources` section of the model.
+This WDT domain model sample section has typical configurations for a Work Manager and its related request classes and constraints. These elements are configured in the `SelfTuning` folder in the `resources` section of the model.
 ```yaml
 resources:
     SelfTuning:
@@ -53,7 +53,7 @@ resources:
                 # ResponseTimeRequestClass: fiveSecondResponse
                 Target: 'cluster-1'
 ```
-In this sample, assignments for `FairShareRequestClass` and `ResponseTimeRequestClass` are included as comments under `myWorkManager`. A Work Manager can only specify one Request Class type.
+In this sample, assignments for `FairShareRequestClass` and `ResponseTimeRequestClass` are included as comments under `myWorkManager`. A Work Manager can only specify one request class type.
 
 There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool](../model_help.md). For example, this command will list the attributes and sub-folders for the `WorkManager` folder:
 ```yaml
