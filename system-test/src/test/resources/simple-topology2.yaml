@@ -24,12 +24,6 @@ topology:
     Server:
         'admin-server':
             ListenPort: 7001
-            NetworkAccessPoint:
-                T3Channel:
-                    ListenAddress: None
-                    ListenPort: 30012
-                    PublicAddress: kubernetes
-                    PublicPort: 30012
     ServerTemplate:
         template1:
             ListenPort: 8001

@@ -221,13 +221,6 @@ class ModelHelpPrinter(object):
             self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        folder_path = '/'.join(model_path_tokens[1:])
-        model_path = _format_message('WLSDPLY-10105', '%s:/%s' % (section_name, folder_path))
-
-        # Print 'Path: <model_section>' header
-        print
-        _print_indent(model_path, 0)
-
         # Populate the location context using model_path_tokens[1:]
         model_location = LocationContext()
         for folder_key in model_path_tokens[1:]:
@@ -238,6 +231,16 @@ class ModelHelpPrinter(object):
 
             self._logger.finest('2 model_location={0}', model_location, class_name=_class_name,
                                 method_name=_method_name)
+
+        folder_path = '/'.join(model_path_tokens[1:])
+        model_path = _format_message('WLSDPLY-10105', '%s:/%s' % (section_name, folder_path))
+        type_name = self._get_folder_type_name(model_location)
+        if type_name is not None:
+            model_path += " (" + type_name + ")"
+
+        # Print 'Path: <model_section>' header
+        print
+        _print_indent(model_path, 0)
 
         if self._show_attributes(control_option):
             # Print the attributes associated with location context
@@ -279,7 +282,12 @@ class ModelHelpPrinter(object):
             self._logger.finest('3 model_location={0}', model_location, class_name=_class_name,
                                 method_name=_method_name)
 
-            _print_indent(key, indent_level + 1)
+            text = key
+            type_name = self._get_folder_type_name(model_location)
+            if type_name is not None:
+                text += " (" + type_name + ")"
+
+            _print_indent(text, indent_level + 1)
 
             if control_option == self.ControlOptions.RECURSIVE:
                 # Call this method recursively
@@ -299,11 +307,11 @@ class ModelHelpPrinter(object):
         self._logger.finer('WLSDPLY-05012', str(model_location), str(attr_infos),
                            class_name=_class_name, method_name=_method_name)
 
-        if attr_infos:
-            # Print 'Valid Attributes are :-' area label
-            print
-            _print_indent(_format_message('WLSDPLY-10111'), indent_level)
+        # Print 'Valid Attributes:' area label
+        print
+        _print_indent(_format_message('WLSDPLY-10111'), indent_level)
 
+        if attr_infos:
             maxlen = 0
             for key in attr_infos:
                 if len(key) > maxlen:
@@ -331,6 +339,18 @@ class ModelHelpPrinter(object):
         :return: True if folders should be displayed, False otherwise
         """
         return control_option != self.ControlOptions.ATTRIBUTES_ONLY
+
+    def _get_folder_type_name(self, location):
+        """
+        Return text indicating the type of a folder, such as "multiple".
+        :param location: the location to be checked
+        :return: name of the folder type to be displayed, or None
+        """
+        if self._alias_helper.is_artificial_type_folder(location):
+            return None
+        if self._alias_helper.supports_multiple_mbean_instances(location):
+            return "multiple"
+        return None
 
 
 def _format_message(key, *args):
