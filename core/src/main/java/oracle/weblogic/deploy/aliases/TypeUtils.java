@@ -195,39 +195,45 @@ public final class TypeUtils {
         }
 
         Object result;
-        if (targetType == String.class) {
-            result = strValue;
-        } else if (targetType == Boolean.class) {
-            result = convertToBoolean(strValue);
-        } else if (targetType == Integer.class) {
-            result = convertToInteger(strValue);
-        } else if (targetType == Short.class) {
-            result = convertToShort(strValue);
-        } else if (targetType == Long.class) {
-            result = convertToLong(strValue);
-        } else if (targetType == Float.class) {
-            result = convertToFloat(strValue);
-        } else if (targetType == Double.class) {
-            result = convertToDouble(strValue);
-        } else if (targetType == Character.class) {
-            result = convertToCharacter(strValue);
-        } else if (targetType == char[].class) {
-            result = convertToCharArray(strValue);
-        } else if (Object[].class.isAssignableFrom(targetType)) {
-            result = convertToObjectArray(value, strValue, delimiter);
-        } else if (List.class.isAssignableFrom(targetType)) {
-            result = convertToList(value, strValue, delimiter);
-        } else if (Properties.class.isAssignableFrom(targetType)) {
-            result = convertToProperties(value, delimiter);
-        } else if (PyOrderedDict.class.isAssignableFrom(targetType)) {
-            result = convertToDictionary(value, delimiter, true);
-        } else if (PyDictionary.class.isAssignableFrom(targetType)) {
-            result = convertToDictionary(value, delimiter, false);
-        } else if (Map.class.isAssignableFrom(targetType)) {
-            result = convertToMap(value, strValue, delimiter);
-        } else {
-            AliasException ae = new AliasException("WLSDPLY-08502", strValue, targetType.getName());
-            LOGGER.throwing(CLASS, METHOD, ae);
+        try {
+            if (targetType == String.class) {
+                result = strValue;
+            } else if (targetType == Boolean.class) {
+                result = convertToBoolean(strValue);
+            } else if (targetType == Integer.class) {
+                result = Integer.valueOf(strValue);
+            } else if (targetType == Short.class) {
+                result = Short.valueOf(strValue);
+            } else if (targetType == Long.class) {
+                result = Long.valueOf(strValue);
+            } else if (targetType == Float.class) {
+                result = Float.valueOf(strValue);
+            } else if (targetType == Double.class) {
+                result = Double.valueOf(strValue);
+            } else if (targetType == Character.class) {
+                result = convertToCharacter(strValue);
+            } else if (targetType == char[].class) {
+                result = convertToCharArray(strValue);
+            } else if (Object[].class.isAssignableFrom(targetType)) {
+                result = convertToObjectArray(value, strValue, delimiter);
+            } else if (List.class.isAssignableFrom(targetType)) {
+                result = convertToList(value, strValue, delimiter);
+            } else if (Properties.class.isAssignableFrom(targetType)) {
+                result = convertToProperties(value, delimiter);
+            } else if (PyOrderedDict.class.isAssignableFrom(targetType)) {
+                result = convertToDictionary(value, delimiter, true);
+            } else if (PyDictionary.class.isAssignableFrom(targetType)) {
+                result = convertToDictionary(value, delimiter, false);
+            } else if (Map.class.isAssignableFrom(targetType)) {
+                result = convertToMap(value, strValue, delimiter);
+            } else {
+                AliasException ae = new AliasException("WLSDPLY-08502", strValue, targetType.getName());
+                LOGGER.throwing(CLASS, METHOD, ae);
+                throw ae;
+            }
+        } catch (NumberFormatException nfe) {
+            AliasException ae = new AliasException("WLSDPLY-08508", strValue, targetType.getSimpleName(), nfe);
+            LOGGER.throwing(CLASS, METHOD, nfe);
             throw ae;
         }
         return result;
@@ -254,70 +260,6 @@ public final class TypeUtils {
             result = strValue.charAt(0);
         }
         return result;
-    }
-    private static Integer convertToInteger(String strValue) throws AliasException {
-        String METHOD = "convertToInteger";
-        Integer converted;
-        try {
-            converted = Integer.valueOf(strValue);
-        } catch (NumberFormatException nfe) {
-            AliasException ae = new AliasException("WLSDPLY-08508", strValue, "Integer", nfe);
-            LOGGER.throwing(CLASS, METHOD, nfe);
-            throw ae;
-        }
-        return converted;
-    }
-
-    private static Short convertToShort(String strValue) throws AliasException {
-        String METHOD = "convertToShort";
-        Short converted;
-        try {
-            converted = Short.valueOf(strValue);
-        } catch (NumberFormatException nfe) {
-            AliasException ae = new AliasException("WLSDPLY-08508", strValue, "Short", nfe);
-            LOGGER.throwing(CLASS, METHOD, nfe);
-            throw ae;
-        }
-        return converted;
-    }
-
-    private static Long convertToLong(String strValue) throws AliasException {
-        String METHOD = "convertToLong";
-        Long converted;
-        try {
-            converted = Long.valueOf(strValue);
-        } catch (NumberFormatException nfe) {
-            AliasException ae = new AliasException("WLSDPLY-08508", strValue, "Long", nfe);
-            LOGGER.throwing(CLASS, METHOD, nfe);
-            throw ae;
-        }
-        return converted;
-    }
-
-    private static Float convertToFloat(String strValue) throws AliasException {
-        String METHOD = "convertToFloat";
-        Float converted;
-        try {
-            converted = Float.valueOf(strValue);
-        } catch (NumberFormatException nfe) {
-            AliasException ae = new AliasException("WLSDPLY-08508", strValue, "Float", nfe);
-            LOGGER.throwing(CLASS, METHOD, nfe);
-            throw ae;
-        }
-        return converted;
-    }
-
-    private static Double convertToDouble(String strValue) throws AliasException {
-        String METHOD = "convertToDouble";
-        Double converted;
-        try {
-            converted = Double.valueOf(strValue);
-        } catch (NumberFormatException nfe) {
-            AliasException ae = new AliasException("WLSDPLY-08508", strValue, "Double", nfe);
-            LOGGER.throwing(CLASS, METHOD, nfe);
-            throw ae;
-        }
-        return converted;
     }
 
     private static char[] convertToCharArray(String strValue) {
