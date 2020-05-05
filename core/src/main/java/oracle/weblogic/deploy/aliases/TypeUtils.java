@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.aliases;
 
 import java.io.File;
 import java.lang.reflect.Array;
+import java.lang.NumberFormatException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -168,7 +169,7 @@ public final class TypeUtils {
      *                        or the requested data type is not supported.
      * @throws AliasException if classType is a primitive class type such as int, short, etc. or if a multi-valued
      *                        type is detected where the delimiter is null and a delimiter is required to handle
-     *                        the conversion.
+     *                        the conversion. Or if the numeric value cannot be converted to the numeric format.
      */
     public static Object convertToType(Class<?> targetType, Object value, String delimiter) throws AliasException {
         final String METHOD = "convertToType";
@@ -199,15 +200,15 @@ public final class TypeUtils {
         } else if (targetType == Boolean.class) {
             result = convertToBoolean(strValue);
         } else if (targetType == Integer.class) {
-            result = Integer.valueOf(strValue);
+            result = convertToInteger(strValue);
         } else if (targetType == Short.class) {
-            result = Short.valueOf(strValue);
+            result = convertToShort(strValue);
         } else if (targetType == Long.class) {
-            result = Long.valueOf(strValue);
+            result = convertToLong(strValue);
         } else if (targetType == Float.class) {
-            result = Float.valueOf(strValue);
+            result = convertToFloat(strValue);
         } else if (targetType == Double.class) {
-            result = Double.valueOf(strValue);
+            result = convertToDouble(strValue);
         } else if (targetType == Character.class) {
             result = convertToCharacter(strValue);
         } else if (targetType == char[].class) {
@@ -253,6 +254,70 @@ public final class TypeUtils {
             result = strValue.charAt(0);
         }
         return result;
+    }
+    private static Integer convertToInteger(String strValue) throws AliasException {
+        String METHOD = "convertToInteger";
+        Integer converted;
+        try {
+            converted = Integer.valueOf(strValue);
+        } catch (NumberFormatException nfe) {
+            AliasException ae = new AliasException("WLSDPLY-08508", strValue, "Integer", nfe);
+            LOGGER.throwing(CLASS, METHOD, nfe);
+            throw ae;
+        }
+        return converted;
+    }
+
+    private static Short convertToShort(String strValue) throws AliasException {
+        String METHOD = "convertToShort";
+        Short converted;
+        try {
+            converted = Short.valueOf(strValue);
+        } catch (NumberFormatException nfe) {
+            AliasException ae = new AliasException("WLSDPLY-08508", strValue, "Short", nfe);
+            LOGGER.throwing(CLASS, METHOD, nfe);
+            throw ae;
+        }
+        return converted;
+    }
+
+    private static Long convertToLong(String strValue) throws AliasException {
+        String METHOD = "convertToLong";
+        Long converted;
+        try {
+            converted = Long.valueOf(strValue);
+        } catch (NumberFormatException nfe) {
+            AliasException ae = new AliasException("WLSDPLY-08508", strValue, "Long", nfe);
+            LOGGER.throwing(CLASS, METHOD, nfe);
+            throw ae;
+        }
+        return converted;
+    }
+
+    private static Float convertToFloat(String strValue) throws AliasException {
+        String METHOD = "convertToFloat";
+        Float converted;
+        try {
+            converted = Float.valueOf(strValue);
+        } catch (NumberFormatException nfe) {
+            AliasException ae = new AliasException("WLSDPLY-08508", strValue, "Float", nfe);
+            LOGGER.throwing(CLASS, METHOD, nfe);
+            throw ae;
+        }
+        return converted;
+    }
+
+    private static Double convertToDouble(String strValue) throws AliasException {
+        String METHOD = "convertToDouble";
+        Double converted;
+        try {
+            converted = Double.valueOf(strValue);
+        } catch (NumberFormatException nfe) {
+            AliasException ae = new AliasException("WLSDPLY-08508", strValue, "Double", nfe);
+            LOGGER.throwing(CLASS, METHOD, nfe);
+            throw ae;
+        }
+        return converted;
     }
 
     private static char[] convertToCharArray(String strValue) {
