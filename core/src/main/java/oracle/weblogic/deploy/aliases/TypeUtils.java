@@ -233,7 +233,7 @@ public final class TypeUtils {
             }
         } catch (NumberFormatException nfe) {
             AliasException ae = new AliasException("WLSDPLY-08508", strValue, targetType.getSimpleName(), nfe);
-            LOGGER.throwing(CLASS, METHOD, nfe);
+            LOGGER.throwing(CLASS, METHOD, ae);
             throw ae;
         }
         return result;
