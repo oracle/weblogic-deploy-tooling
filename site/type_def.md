@@ -11,7 +11,7 @@ WebLogic Server Deploy Tooling has an extensible domain type system.  The three 
     "versions": {
         "12.1.2": "JRF_1212",
         "12.1.3": "JRF_1213",
-        "12.2.1.0": "JRF_12C",
+        "12.2.1.0": "JRF_12CR2",
         "12.2.1.1": "JRF_12C_DYN",
         "12.2.1.2": "JRF_12C_DYN",
         "12.2.1.3": "JRF_12C_DYN",
