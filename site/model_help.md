@@ -24,7 +24,7 @@ Path: resources:/JDBCSystemResource
 
   Valid Folders:
     JdbcResource
-    SubDeployment
+    SubDeployment (multiple)
 ```
 This result lists the attributes and folders available for the `JDBCSystemResource` folder in the `resources` section of the model. You can use this information to construct this model section:
 ```yaml
@@ -36,8 +36,12 @@ resources:
         JdbcSystemResource:
             # JdbcSystemResource attributes and folders
         SubDeployment:
-            # SubDeployment attributes and folders
+            deployment1:
+                # SubDeployment attributes and folders
+            deployment2:
+                # SubDeployment attributes and folders
 ```
+The `(multiple)` notation on the `SubDeployment` folder indicates that it should have one or more named sub-folders containing its attributes and sub-folders.
 
 ### Path Patterns
 There are a number of ways to specify model location in the path argument. Here are some examples:
@@ -92,8 +96,8 @@ Path: resources:/JDBCSystemResource
       JDBCConnectionPoolParams
       JDBCDataSourceParams
       JDBCDriverParams
-        Properties
+        Properties (multiple)
       JDBCOracleParams
       JDBCXAParams
-    SubDeployment
+    SubDeployment (multiple)
 ```
