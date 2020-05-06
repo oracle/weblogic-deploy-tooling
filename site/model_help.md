@@ -101,3 +101,40 @@ Path: resources:/JDBCSystemResource
       JDBCXAParams
     SubDeployment (multiple)
 ```
+
+### Model Sample Output
+The `-model_sample` argument can be used to output a model sample for the specified model path. Depending on the output options specified, this argument will create a sample with the available attributes and sub-folders for the specified path.
+
+If you are copying elements from the sample model to create a full domain model, you should exclude any attributes or sub-folders that you do not intend to declare or override. 
+
+Here is an example using the `-model_sample` argument:
+```yaml
+<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -model_sample resources:/JDBCSystemResource
+```
+The output is:
+```yaml
+resources:
+    JDBCSystemResource:
+        'JDBC-1':
+            CompatibilityName: # string
+            DeploymentOrder: # integer
+            DeploymentPrincipalName: # string
+            DescriptorFileName: # string
+            ModuleType: # string
+            Notes: # string
+            SourcePath: # string
+            Target: # delimited_string
+
+            JdbcResource:
+                # see /JDBCSystemResource/JdbcResource
+
+            SubDeployment:
+                'SubDeployment-1':
+                    # see /JDBCSystemResource/SubDeployment
+```
+This output shows the eight attributes and two sub-folders available for the model path. Each attribute includes a comment describing the type of the value to be added.
+ 
+Each sub-folder includes a comment with a model path that can be used to display additional information about that sub-folder. For example, to determine the attributes and sub-folders for `'SubDeployment-1'`, the Model Help Tool could be re-invoked with the model path from the comment:
+```yaml
+<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -model_sample /JDBCSystemResource/SubDeployment
+```
