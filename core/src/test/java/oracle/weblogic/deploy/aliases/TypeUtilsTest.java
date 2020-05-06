@@ -49,6 +49,11 @@ public class TypeUtilsTest {
         TypeUtils.convertToType( int.class, "123" );
     }
 
+    @Test(expected = AliasException.class)
+    public void convertInvalidInteger() throws Exception {
+        TypeUtils.convertToType(Integer.class, "this is a string");
+    }
+
     @Test
     public void convertToTypeNullTest() throws Exception {
         assertEquals("String null conversion failed", null, TypeUtils.convertToType( String.class, null ));;
