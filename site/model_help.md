@@ -103,7 +103,7 @@ Path: resources:/JDBCSystemResource
 ```
 
 ### Model Sample Output
-The `-model_sample` argument can be used to output a model sample for the specified model path. Depending on the output options specified, this argument will create a sample with the available attributes and sub-folders for the specified path.
+You can use the `-model_sample` argument to output a model sample for the specified model path. Depending on the output options specified, this argument will create a sample with the available attributes and sub-folders for the specified path.
 
 If you are copying elements from the sample model to create a full domain model, you should exclude any attributes or sub-folders that you do not intend to declare or override. 
 
