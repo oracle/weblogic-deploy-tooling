@@ -15,6 +15,7 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.modelhelp.model_help_printer import ModelHelpPrinter
+from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -30,6 +31,7 @@ __required_arguments = [
 __optional_arguments = [
     CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH,
     CommandLineArgUtil.FOLDERS_ONLY_SWITCH,
+    CommandLineArgUtil.MODEL_SAMPLE_SWITCH,
     CommandLineArgUtil.RECURSIVE_SWITCH
 ]
 
@@ -84,19 +86,20 @@ def print_help(model_path, model_context):
     __logger.entering(model_path, class_name=_class_name, method_name=_method_name)
 
     # default to NORMAL
-    control_option = ModelHelpPrinter.ControlOptions.NORMAL
+    control_option = ControlOptions.NORMAL
 
     # determine control option using the model_context
     if model_context.get_recursive_control_option():
-        control_option = ModelHelpPrinter.ControlOptions.RECURSIVE
+        control_option = ControlOptions.RECURSIVE
     elif model_context.get_attributes_only_control_option():
-        control_option = ModelHelpPrinter.ControlOptions.ATTRIBUTES_ONLY
+        control_option = ControlOptions.ATTRIBUTES_ONLY
     elif model_context.get_folders_only_control_option():
-        control_option = ModelHelpPrinter.ControlOptions.FOLDERS_ONLY
+        control_option = ControlOptions.FOLDERS_ONLY
 
     aliases = Aliases(model_context)
+    as_sample = model_context.get_model_sample_option()
     printer = ModelHelpPrinter(aliases, __logger)
-    printer.print_model_help(model_path, control_option)
+    printer.print_model_help(model_path, control_option, as_sample)
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
     return CommandLineArgUtil.PROG_OK_EXIT_CODE

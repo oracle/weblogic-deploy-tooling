@@ -9,3 +9,4 @@ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResou
 ## Contents
 - [Configured Cluster Sample](configured_cluster.md)
 - [JDBC Sample](jdbc.md)
+- [Work Manager Sample](work_manager.md)
