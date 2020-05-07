@@ -45,4 +45,4 @@ There are additional sub-folders and attributes available for more configuration
 ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle topology:/Server
 ```
 
-For this sample, the machine named `machine-1` and the datasource named `jdbc-1` should be defined elsewhere within this model, or should already exist in a domain that is being updated.
+For this sample, the machine named `machine-1` and the data source named `jdbc-1` should be defined elsewhere within this model, or should already exist in a domain that is being updated.
