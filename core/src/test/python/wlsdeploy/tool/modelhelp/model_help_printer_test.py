@@ -19,6 +19,7 @@ from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.modelhelp.model_help_printer import ModelHelpPrinter
+from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.util.model_context import ModelContext
 
 
@@ -37,7 +38,7 @@ class ModelHelpPrinterTestCase(unittest.TestCase):
         Verify that the NORMAL option includes attribute and folder information.
         """
         path = DOMAIN_INFO
-        result = self._get_model_help(DOMAIN_INFO, ModelHelpPrinter.ControlOptions.NORMAL)
+        result = self._get_model_help(DOMAIN_INFO, ControlOptions.NORMAL)
 
         # attribute should be present
         self.assertEquals(ADMIN_PASSWORD in result, True, path + " help should contain " + ADMIN_PASSWORD)
@@ -50,7 +51,7 @@ class ModelHelpPrinterTestCase(unittest.TestCase):
         Verify that the FOLDERS_ONLY option includes only folder information.
         """
         path = RESOURCES + ":/" + JDBC_SYSTEM_RESOURCE
-        result = self._get_model_help(path, ModelHelpPrinter.ControlOptions.FOLDERS_ONLY)
+        result = self._get_model_help(path, ControlOptions.FOLDERS_ONLY)
 
         # attribute should not be present
         self.assertEquals(SOURCE_PATH in result, False, path + " help should not contain " + SOURCE_PATH)
@@ -63,7 +64,7 @@ class ModelHelpPrinterTestCase(unittest.TestCase):
         Verify that the ATTRIBUTES_ONLY option includes only attribute information.
         """
         path = RESOURCES + ":/" + JDBC_SYSTEM_RESOURCE
-        result = self._get_model_help(path, ModelHelpPrinter.ControlOptions.ATTRIBUTES_ONLY)
+        result = self._get_model_help(path, ControlOptions.ATTRIBUTES_ONLY)
 
         # attribute should be present
         self.assertEquals(SOURCE_PATH in result, True, path + " help should contain " + SOURCE_PATH)
@@ -73,7 +74,7 @@ class ModelHelpPrinterTestCase(unittest.TestCase):
 
     def testPrintHelpRecursive(self):
         path = RESOURCES + ":/" + JDBC_SYSTEM_RESOURCE
-        result = self._get_model_help(path, ModelHelpPrinter.ControlOptions.RECURSIVE)
+        result = self._get_model_help(path, ControlOptions.RECURSIVE)
 
         # nested folder should be present
         self.assertEquals(JDBC_DRIVER_PARAMS in result, True, path + " help should contain " + JDBC_DRIVER_PARAMS)
