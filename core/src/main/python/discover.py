@@ -38,6 +38,7 @@ from wlsdeploy.tool.discover.multi_tenant_discoverer import MultiTenantDiscovere
 from wlsdeploy.tool.discover.resources_discoverer import ResourcesDiscoverer
 from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.discover import k8s_operator_filter
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.tool.util import wlst_helper
@@ -73,7 +74,9 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_URL_SWITCH,
     CommandLineArgUtil.ADMIN_USER_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
-    CommandLineArgUtil.TARGET_MODE_SWITCH
+    CommandLineArgUtil.TARGET_MODE_SWITCH,
+    CommandLineArgUtil.OUTPUT_DIR_SWITCH,
+    CommandLineArgUtil.TARGET_SWITCH
 ]
 
 
@@ -90,6 +93,8 @@ def __process_args(args):
 
     cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
     __wlst_mode = cla_helper.process_online_args(optional_arg_map)
+
+    __process_target_arg(optional_arg_map)
     __process_archive_filename_arg(required_arg_map)
     __process_variable_filename_arg(optional_arg_map)
     __process_java_home(optional_arg_map)
@@ -97,6 +102,23 @@ def __process_args(args):
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
     return model_context_helper.create_context(_program_name, combined_arg_map)
+
+def __process_target_arg(optional_arg_map):
+
+    _method_name = '__process_target_arg'
+
+    if CommandLineArgUtil.TARGET_SWITCH in optional_arg_map:
+        target = optional_arg_map[CommandLineArgUtil.TARGET_SWITCH]
+        output_dir = optional_arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
+        if output_dir is None or os.path.isdir(output_dir) is False:
+            if not os.path.isdir(output_dir):
+                ex = exception_helper.create_cla_exception('WLSDPLY-01642', output_dir)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+
+        if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in optional_arg_map:
+            optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = os.path.join(output_dir,
+                                                                                     "k8s_variable.properties")
 
 
 def __process_archive_filename_arg(required_arg_map):
@@ -399,15 +421,25 @@ def __check_and_customize_model(model, model_context, aliases, injector):
     _method_name = '__check_and_customize_model'
     __logger.entering(class_name=_class_name, method_name=_method_name)
 
-    if filter_helper.apply_filters(model.get_model(), "discover"):
+    if filter_helper.apply_filters(model.get_model(), "discover", model_context):
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
     cache = None
     if injector is not None:
         cache = injector.get_variable_cache()
+        # Generate k8s create secret script, after that clear the dictionary to avoid showing up in the variable file
+        if model_context.is_target_k8s():
+            validation_method = model_context.get_target_configuration()['validation_method']
+            model_context.set_validation_method(validation_method)
+            generate_k8s_script(model_context.get_kubernetes_variable_file(), cache)
+            cache.clear()
+
+    variable_injector = VariableInjector(_program_name, model.get_model(), model_context,
+                     WebLogicHelper(__logger).get_actual_weblogic_version(), cache)
+
     inserted, variable_model, variable_file_name = \
-        VariableInjector(_program_name, model.get_model(), model_context,
-                         WebLogicHelper(__logger).get_actual_weblogic_version(), cache).inject_variables_keyword_file()
+        variable_injector.inject_variables_keyword_file()
+
     if inserted:
         model = Model(variable_model)
     try:
@@ -419,6 +451,59 @@ def __check_and_customize_model(model, model_context, aliases, injector):
     except ValidateException, ex:
         __logger.warning('WLSDPLY-06015', ex.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
     return model
+
+def generate_k8s_script(file_location, token_dictionary):
+    if file_location:
+        NL = '\n'
+        par_dir = os.path.abspath(os.path.join(file_location,os.pardir))
+        k8s_file = os.path.join(par_dir, "create_k8s_secrets.sh")
+        k8s_create_script_handle = open(k8s_file, 'w')
+        k8s_create_script_handle.write('#!/bin/bash')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write('set -eu')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write('NAMESPACE=default')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write('DOMAIN_UID=domain1')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write('ADMIN_USER=wlsAdminUser')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write('ADMIN_PWD=wlsAdminPwd')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write('function create_k8s_secret {')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write('kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-$1 --ignore-not-found')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write('kubectl -n $NAMESPACE create secret generic ${DOMAIN_UID}-$1 ' +
+                                       '--from-literal=$2=$3')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-$1 ' +
+                                       'weblogic.domainUID=${DOMAIN_UID}')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write('}')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write(NL)
+        for property_name in token_dictionary:
+            if property_name in [ 'AdminUserName', 'AdminPassword']:
+                continue
+            secret_names = property_name.lower().replace('.', '-').split('-')
+            command_string = "create_k8s_secret %s %s %s " %( '-'.join(secret_names[:-1]), secret_names[-1],
+                                                              "<changeme>")
+            k8s_create_script_handle.write(command_string)
+            k8s_create_script_handle.write(NL)
+
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write("kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-weblogic-credential "
+                                       + "--ignore-not-found")
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write("kubectl -n $NAMESPACE create secret generic "
+                                       +  "${DOMAIN_UID}-weblogic-credential "
+                                       +   "--from-literal=username=${ADMIN_USER} --from-literal=password=${ADMIN_PWD}")
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-weblogic-credential ' +
+                                       'weblogic.domainUID=${DOMAIN_UID}')
+        k8s_create_script_handle.write(NL)
+        k8s_create_script_handle.close()
 
 
 def __log_and_exit(model_context, exit_code, class_name, method_name):

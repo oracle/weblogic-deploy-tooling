@@ -19,7 +19,7 @@ __id_filter_map = {
 }
 
 
-def apply_filters(model, tool_type):
+def apply_filters(model, tool_type, model_context=None):
     """
     Apply any filters configured for the specified tool type to the specified model.
     :param model: the model to be filtered
@@ -30,20 +30,36 @@ def apply_filters(model, tool_type):
     _method_name = 'apply_filters'
 
     filter_applied = False
+    configuration = None
+
 
     try:
-        if os.path.isfile(__filter_file_location):
-            filters_dictionary = FileToPython(__filter_file_location).parse()
+        if model_context:
+            configuration = model_context.get_target_configuration()
 
-            if tool_type in filters_dictionary:
-                filter_list = filters_dictionary[tool_type]
-                for filter in filter_list:
-                    filter_applied = _apply_filter(model, filter) or filter_applied
-            else:
-                __logger.info('WLSDPLY-20016', tool_type, __filter_file_location, class_name=__class_name,
-                              method_name=_method_name)
+        if configuration and 'model_filters' in configuration:
+            filters_dictionary = configuration['model_filters']
+            target_filter_path =  os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'target',
+                                               model_context.get_target())
+            # Fix the tokenized path in the filter path
+            for filter_list in filters_dictionary:
+                for current_filter in filters_dictionary[filter_list]:
+                    if 'path' in current_filter and current_filter['path'].startswith("@@TARGET_CONFIG_DIR@@/"):
+                        current_filter['path'] = current_filter['path'].replace("@@TARGET_CONFIG_DIR@@",
+                                                                                target_filter_path)
+        elif os.path.isfile(__filter_file_location):
+            filters_dictionary = FileToPython(__filter_file_location).parse()
         else:
             __logger.info('WLSDPLY-20017', __filter_file_location, class_name=__class_name, method_name=_method_name)
+
+        if tool_type in filters_dictionary:
+            filter_list = filters_dictionary[tool_type]
+            for filter in filter_list:
+                filter_applied = _apply_filter(model, filter) or filter_applied
+        else:
+            __logger.info('WLSDPLY-20016', tool_type, __filter_file_location, class_name=__class_name,
+                          method_name=_method_name)
+
     except Exception, ex:
         __logger.severe('WLSDPLY-20018', str(ex), error=ex, class_name=__class_name, method_name=_method_name)
 

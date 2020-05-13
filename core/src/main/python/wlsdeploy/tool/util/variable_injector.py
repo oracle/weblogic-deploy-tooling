@@ -2,27 +2,22 @@
 Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import copy
-import os
-import re
-
+import copy, os, re
 import java.lang.Boolean as Boolean
 import java.lang.IllegalArgumentException as IllegalArgumentException
-import java.util.TreeMap as TreeMap
-
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
 import oracle.weblogic.deploy.json.JsonException as JsonException
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 import oracle.weblogic.deploy.util.VariableException as VariableException
-
 import wlsdeploy.tool.util.variable_injector_functions as variable_injector_functions
 import wlsdeploy.util.model as model_sections
 import wlsdeploy.util.variables as variables
+from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.aliases.validation_codes import ValidationCodes
+from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
@@ -190,9 +185,8 @@ class VariableInjector(object):
         """
         _method_name = 'inject_variables_keyword_file'
         _logger.entering(class_name=_class_name, method_name=_method_name)
-
         variable_injector_location_file = _get_variable_injector_file_name(**kwargs)
-        variables_injector_dictionary = _load_variable_injector_file(variable_injector_location_file)
+        variables_injector_dictionary = self._load_variable_injector_file(variable_injector_location_file)
         variable_keywords_location_file = _get_variable_keywords_file_name(**kwargs)
         keywords_dictionary = _load_keywords_file(variable_keywords_location_file)
 
@@ -210,6 +204,7 @@ class VariableInjector(object):
                              method_name=_method_name)
                 injector_file_list = _create_injector_file_list(variables_injector_dictionary, keywords_dictionary,
                                                                 _get_keyword_files_location(**kwargs))
+                # perform the actual replacement of value with token variables
                 variables_file_dictionary = self.inject_variables_keyword_dictionary(injector_file_list)
                 if variables_file_dictionary:
                     self.add_to_cache(variables_file_dictionary)
@@ -429,15 +424,21 @@ class VariableInjector(object):
         if not _already_property(attribute_value):
             variable_name = self.__format_variable_name(location, attribute)
             variable_value = _format_variable_value(attribute_value)
-            model[attribute] = _format_as_property(variable_name)
+
+            if self.__model_context is not None and self.__model_context.is_target_k8s() \
+                and variable_value == alias_constants.PASSWORD_TOKEN:
+                    model[attribute] = _format_as_secret(variable_name)
+            else:
+                model[attribute] = _format_as_property(variable_name)
+
             _logger.fine('WLSDPLY-19525', variable_name, attribute_value, attribute, variable_value,
                          class_name=_class_name, method_name=_method_name)
         else:
             _logger.finer('WLSDPLY-19526', attribute_value, attribute, str(location), class_name=_class_name,
                           method_name=_method_name)
         if variable_value is not None:
-            variable_dict[variable_name] = self._check_replace_variable_value(location, attribute, variable_value,
-                                                                              injector_values)
+            variable_dict[variable_name] = self._check_replace_variable_value(location, attribute,
+                                                                              variable_value, injector_values)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
         return variable_dict
 
@@ -683,6 +684,38 @@ class VariableInjector(object):
                               class_name=_class_name, method_name=_method_name)
         return value
 
+    def _load_variable_injector_file(self, variable_injector_location):
+        _method_name = '_load_variable_injector_file'
+        _logger.entering(variable_injector_location, class_name=_class_name, method_name=_method_name)
+        variables_dictionary = None
+
+        # If target is presence, it take precedence
+
+        if self.__model_context is not None and self.__model_context.is_target_k8s():
+            configuration = self.__model_context.get_target_configuration()
+            if 'variable_injectors' in configuration:
+                variables_dictionary = configuration['variable_injectors']
+        else:
+            if os.path.isfile(variable_injector_location):
+                try:
+                    variables_dictionary = JsonToPython(variable_injector_location).parse()
+                    _logger.fine('WLSDPLY-19500', variable_injector_location, class_name=_class_name, method_name=_method_name)
+                except (IllegalArgumentException, JsonException), e:
+                    _logger.warning('WLSDPLY-19502', variable_injector_location, e.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_dictionary)
+        return variables_dictionary
+
+def _get_variable_injector_file_name(**kwargs):
+
+    variable_injector_file_name = VARIABLE_INJECTOR_FILE_NAME
+    if VARIABLE_INJECTOR_FILE_NAME_ARG in kwargs:
+        variable_injector_file_name = kwargs[VARIABLE_INJECTOR_FILE_NAME_ARG]
+    if VARIABLE_INJECTOR_PATH_NAME_ARG in kwargs:
+        return os.path.join(kwargs[VARIABLE_INJECTOR_PATH_NAME_ARG], variable_injector_file_name)
+    else:
+        return get_default_variable_injector_file_name(variable_injector_file_name)
 
 def get_default_variable_injector_file_name(variable_injector_file_name=VARIABLE_INJECTOR_FILE_NAME):
     """
@@ -713,16 +746,6 @@ def _load_variable_file(variable_file_location, **kwargs):
     return append, variable_dictionary
 
 
-def _get_variable_injector_file_name(**kwargs):
-    variable_injector_file_name = VARIABLE_INJECTOR_FILE_NAME
-    if VARIABLE_INJECTOR_FILE_NAME_ARG in kwargs:
-        variable_injector_file_name = kwargs[VARIABLE_INJECTOR_FILE_NAME_ARG]
-    if VARIABLE_INJECTOR_PATH_NAME_ARG in kwargs:
-        return os.path.join(kwargs[VARIABLE_INJECTOR_PATH_NAME_ARG], variable_injector_file_name)
-    else:
-        return get_default_variable_injector_file_name(variable_injector_file_name)
-
-
 def _get_variable_keywords_file_name(**kwargs):
     variable_keywords_file_name = VARIABLE_KEYWORDS_FILE_NAME
     if VARIABLE_KEYWORDS_FILE_NAME_ARG in kwargs:
@@ -731,22 +754,6 @@ def _get_variable_keywords_file_name(**kwargs):
         return os.path.join(kwargs[VARIABLE_KEYWORDS_PATH_NAME_ARG], variable_keywords_file_name)
     else:
         return os.path.join(_wlsdeploy_location, DEFAULT_FILE_LOCATION, variable_keywords_file_name)
-
-
-def _load_variable_injector_file(variable_injector_location):
-    _method_name = '_load_variable_injector_file'
-    _logger.entering(variable_injector_location, class_name=_class_name, method_name=_method_name)
-    variables_dictionary = None
-    if os.path.isfile(variable_injector_location):
-        try:
-            variables_dictionary = JsonToPython(variable_injector_location).parse()
-            _logger.fine('WLSDPLY-19500', variable_injector_location, class_name=_class_name, method_name=_method_name)
-        except (IllegalArgumentException, JsonException), e:
-            _logger.warning('WLSDPLY-19502', variable_injector_location, e.getLocalizedMessage(),
-                            class_name=_class_name, method_name=_method_name)
-
-    _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_dictionary)
-    return variables_dictionary
 
 
 def _load_keywords_file(variable_keywords_location):
@@ -867,6 +874,18 @@ def _already_property(check_string):
 def _format_as_property(prop_name):
     return '@@PROP:%s@@' % prop_name
 
+def _format_as_secret(prop_name):
+    """
+    Format as X.Y.A.B  This is the pattern of the name.
+    :param prop_name: property name
+    :return: formatted name
+    """
+    name_lower_tokens = prop_name.lower().split('.')
+    if len(name_lower_tokens) == 1:
+        if name_lower_tokens[0] == 'adminusername' or 'adminpassword' == name_lower_tokens[0]:
+            return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ('weblogic-credentials', name_lower_tokens[0])
+
+    return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ( '-'.join(name_lower_tokens[:-1]), name_lower_tokens[-1])
 
 def _split_injector(injector_path):
     """
