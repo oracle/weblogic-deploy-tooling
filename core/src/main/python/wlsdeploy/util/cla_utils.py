@@ -298,10 +298,6 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx, key)
                 value = self._validate_target_arg(value)
                 self._add_arg(key, value, True)
-            elif self.is_kubernetes_injector_jsonpath_switch(key):
-                value, idx = self._get_arg_value(args, idx, key)
-                json_string = self._validate_kubernetes_injector_jsonpath_arg(value)
-                self._add_arg(key, json_string, True)
             else:
                 ex = exception_helper.create_cla_exception('WLSDPLY-01601', self._program_name, key)
                 ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
