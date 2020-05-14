@@ -94,7 +94,7 @@ def __process_args(args):
     cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
     __wlst_mode = cla_helper.process_online_args(optional_arg_map)
 
-    __process_target_arg(optional_arg_map)
+    __process_target_arg(optional_arg_map, required_arg_map)
     __process_archive_filename_arg(required_arg_map)
     __process_variable_filename_arg(optional_arg_map)
     __process_java_home(optional_arg_map)
@@ -103,12 +103,12 @@ def __process_args(args):
     combined_arg_map.update(required_arg_map)
     return model_context_helper.create_context(_program_name, combined_arg_map)
 
-def __process_target_arg(optional_arg_map):
+def __process_target_arg(optional_arg_map, required_arg_map):
 
     _method_name = '__process_target_arg'
 
     if CommandLineArgUtil.TARGET_SWITCH in optional_arg_map:
-        target = optional_arg_map[CommandLineArgUtil.TARGET_SWITCH]
+        # if -target is specified -output_dir is required
         output_dir = optional_arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
         if output_dir is None or os.path.isdir(output_dir) is False:
             if not os.path.isdir(output_dir):
@@ -116,10 +116,11 @@ def __process_target_arg(optional_arg_map):
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
+        # Set the -variable_file parameter if not present with default
+
         if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in optional_arg_map:
             optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = os.path.join(output_dir,
                                                                                      "k8s_variable.properties")
-
 
 def __process_archive_filename_arg(required_arg_map):
     """

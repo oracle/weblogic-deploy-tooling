@@ -689,7 +689,7 @@ class VariableInjector(object):
         _logger.entering(variable_injector_location, class_name=_class_name, method_name=_method_name)
         variables_dictionary = None
 
-        # If target is presence, it take precedence
+        # If -target is presence, it take precedence
 
         if self.__model_context is not None and self.__model_context.is_target_k8s():
             configuration = self.__model_context.get_target_configuration()
