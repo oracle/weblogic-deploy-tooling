@@ -264,21 +264,11 @@ class PrepareModel:
                          model_folder_path, validation_location):
         _method_name = '__validate_attribute'
 
-        # if variables.has_variables(str(attribute_value)):
-        #     attribute_value = self.__walk_variable_substitution(attribute_value, model_folder_path)
-
         if attribute_name in valid_attr_infos:
             expected_data_type = valid_attr_infos[attribute_name]
 
             if expected_data_type == 'password':
-                # print 'DEBUG __walk_attribute: attribute name ' + str(attribute_name)
-                # print 'DEBUG __walk_attribute: attribute type ' + str(expected_data_type)
-                # print 'DEBUG __walk_attribute: model_folder_path ' + str(model_folder_path)
-                # print 'DEBUG __walk_attribute: validation_location ' + str(validation_location)
-                # print validation_location.get_name_tokens()
                 self.__substitute_password_with_token(model_folder_path, attribute_name, validation_location)
-            if attribute_name in path_tokens_attr_keys:
-                self.__walk_path_tokens_attribute(attribute_name, attribute_value, model_folder_path)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -301,71 +291,6 @@ class PrepareModel:
             expected_data_type = valid_prop_infos[property_name]
             if expected_data_type == 'password':
                 self.__substitute_password_with_token(model_folder_path, property_name, validation_location)
-
-
-    def __walk_variable_substitution(self, tokenized_value, model_folder_path):
-        _method_name = '__validate_variable_substitution'
-
-        # self._logger.entering(tokenized_value, model_folder_path, class_name=_class_name, method_name=_method_name)
-        #
-        # # FIXME(mwooten) - What happens in tool mode when the variable_file_name passed is None but
-        # # model_context.get_variable_file() returns the variable file passed on the command-line?  I
-        # # don't think we should be executing this code if the variable_file_name passed was None.
-        # untokenized_value = tokenized_value
-        #
-        # if not isinstance(untokenized_value, dict):
-        #     # Extract the variable substitution variables from tokenized_value
-        #     matches = variables.get_variable_matches(tokenized_value)
-        #     for token, property_name in matches:
-        #         property_value = None
-        #         if property_name in self._variable_properties:
-        #             property_value = self._variable_properties[property_name]
-        #         if property_value is not None:
-        #             untokenized_value = untokenized_value.replace(token, property_value)
-        #         else:
-        #             # FIXME(mwooten) - the cla_utils should be fixing all windows paths to use forward slashes already
-        #             # assuming that the value is not None
-        #
-        #             logger_method = self._logger.info
-        #             if self._model_context.get_validation_method() == 'strict':
-        #                 logger_method = self._logger.warning
-        #
-        #             variables_file_name = self._model_context.get_variable_file()
-        #             if variables_file_name is None:
-        #                 logger_method('WLSDPLY-05021', model_folder_path, property_name,
-        #                               class_name=_class_name, method_name=_method_name)
-        #             else:
-        #                 logger_method('WLSDPLY-05022', model_folder_path, property_name, variables_file_name,
-        #                               class_name=_class_name, method_name=_method_name)
-        #
-        # self._logger.exiting(class_name=_class_name, method_name=_method_name, result=untokenized_value)
-        return untokenized_value
-
-    def __walk_path_tokens_attribute(self, attribute_name, attribute_value, model_folder_path):
-        _method_name = '__validate_path_tokens_attribute'
-
-
-        value_data_type = validation_utils.get_python_data_type(attribute_value)
-
-        valid_valus_data_types = ['list', 'string', 'unicode']
-        if value_data_type not in valid_valus_data_types:
-            self._logger.severe('WLSDPLY-05023', attribute_name, model_folder_path, value_data_type,
-                                class_name=_class_name, method_name=_method_name)
-        else:
-            attr_values = []
-
-            if value_data_type == 'string' and model_constants.MODEL_LIST_DELIMITER in attribute_value:
-                attr_values = attribute_value.split(model_constants.MODEL_LIST_DELIMITER)
-
-            elif value_data_type in ['string', 'unicode']:
-                attr_values.append(attribute_value)
-
-            else:
-                # must be a list
-                attr_values.extend(attribute_value)
-
-            # for item_path in attr_values:
-            #     self.__walk_single_path_in_archive(item_path.strip(), attribute_name, model_folder_path)
 
     def __substitute_password_with_token(self, model_path, attribute_name, validation_location, model_context=None):
         model_path_tokens = model_path.split('/')
