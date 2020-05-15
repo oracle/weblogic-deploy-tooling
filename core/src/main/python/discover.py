@@ -38,7 +38,6 @@ from wlsdeploy.tool.discover.multi_tenant_discoverer import MultiTenantDiscovere
 from wlsdeploy.tool.discover.resources_discoverer import ResourcesDiscoverer
 from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
 from wlsdeploy.tool.util import filter_helper
-from wlsdeploy.tool.discover import k8s_operator_filter
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.tool.util import wlst_helper
