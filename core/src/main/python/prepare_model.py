@@ -45,6 +45,7 @@ from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
+from wlsdeploy.util import target_configuration_helper
 
 VALIDATION_FAIL=2
 PATH_TOKEN='|'
@@ -83,10 +84,31 @@ def __process_args(args):
 
     cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
 
+    __process_target_arg(optional_arg_map)
+
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
 
     return ModelContext(_program_name, combined_arg_map)
+
+def __process_target_arg(optional_arg_map):
+
+    _method_name = '__process_target_arg'
+
+    if CommandLineArgUtil.TARGET_SWITCH in optional_arg_map:
+        # if -target is specified -output_dir is required
+        output_dir = optional_arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
+        if output_dir is None or os.path.isdir(output_dir) is False:
+            if not os.path.isdir(output_dir):
+                ex = exception_helper.create_cla_exception('WLSDPLY-01642', output_dir)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+
+        # Set the -variable_file parameter if not present with default
+
+        if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in optional_arg_map:
+            optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = os.path.join(output_dir,
+                                                                                     "k8s_variable.properties")
 
 class PrepareModel:
     """
@@ -264,7 +286,6 @@ class PrepareModel:
             expected_data_type = valid_attr_infos[attribute_name]
             actual_data_type = str(type(attribute_value))
 
-            # TODO tokenized the password or credential field
             if expected_data_type == 'password':
                 # print 'DEBUG __walk_attribute: attribute name ' + str(attribute_name)
                 # print 'DEBUG __walk_attribute: attribute type ' + str(expected_data_type)
@@ -291,12 +312,6 @@ class PrepareModel:
 
         self._logger.entering(property_name, property_value, str(valid_prop_infos), model_folder_path,
                               class_name=_class_name, method_name=_method_name)
-
-        # if variables.has_variables(property_name):
-        #     property_name = self.__walk_variable_substitution(property_name, model_folder_path)
-
-        # if variables.has_variables(str(property_value)):
-        #     property_value = self.__walk_variable_substitution(property_value, model_folder_path)
 
         if property_name in valid_prop_infos:
             expected_data_type = valid_prop_infos[property_name]
@@ -510,7 +525,7 @@ class PrepareModel:
             if model_context.is_target_k8s():
                 validation_method = model_context.get_target_configuration()['validation_method']
                 model_context.set_validation_method(validation_method)
-                self.generate_k8s_script(model_context.get_kubernetes_variable_file(), self.cache)
+                target_configuration_helper.generate_k8s_script(model_context.get_kubernetes_variable_file(), self.cache)
                 self.cache.clear()
                 variable_map = validator.load_variables(self.model_context.get_variable_file())
                 self.cache.update(variable_map)
@@ -518,60 +533,6 @@ class PrepareModel:
         variable_injector.inject_variables_keyword_file()
 
         return model
-
-    def generate_k8s_script(self, file_location, token_dictionary):
-        if file_location:
-            NL = '\n'
-            par_dir = os.path.abspath(os.path.join(file_location,os.pardir))
-            k8s_file = os.path.join(par_dir, "create_k8s_secrets.sh")
-            k8s_create_script_handle = open(k8s_file, 'w')
-            k8s_create_script_handle.write('#!/bin/bash')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('set -eu')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('NAMESPACE=default')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('DOMAIN_UID=domain1')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('ADMIN_USER=wlsAdminUser')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('ADMIN_PWD=wlsAdminPwd')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('function create_k8s_secret {')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-$1 --ignore-not-found')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('kubectl -n $NAMESPACE create secret generic ${DOMAIN_UID}-$1 ' +
-                                           '--from-literal=$2=$3')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-$1 ' +
-                                           'weblogic.domainUID=${DOMAIN_UID}')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('}')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write(NL)
-            for property_name in token_dictionary:
-                if property_name in [ 'AdminUserName', 'AdminPassword']:
-                    continue
-                secret_names = property_name.lower().replace('.', '-').split('-')
-                command_string = "create_k8s_secret %s %s %s " %( '-'.join(secret_names[:-1]), secret_names[-1],
-                                                                  "<changeme>")
-                k8s_create_script_handle.write(command_string)
-                k8s_create_script_handle.write(NL)
-
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write("kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-weblogic-credential "
-                                           + "--ignore-not-found")
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write("kubectl -n $NAMESPACE create secret generic "
-                                           +  "${DOMAIN_UID}-weblogic-credential "
-                                           +   "--from-literal=username=${ADMIN_USER} --from-literal=password=${ADMIN_PWD}")
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-weblogic-credential ' +
-                                           'weblogic.domainUID=${DOMAIN_UID}')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.close()
-
 
 def debug(format_string, *arguments):
     """
