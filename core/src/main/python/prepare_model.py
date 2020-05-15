@@ -71,7 +71,7 @@ all_added = []
 all_removed = []
 compare_msgs = sets.Set()
 
-def __process_args(args):
+def __process_args(args, logger):
     """
     Process the command-line arguments.
     :param args: the command-line arguments list
@@ -84,31 +84,28 @@ def __process_args(args):
 
     cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
 
-    __process_target_arg(optional_arg_map)
+    __process_target_arg(optional_arg_map, required_arg_map, logger)
 
     combined_arg_map = optional_arg_map.copy()
     combined_arg_map.update(required_arg_map)
-
     return ModelContext(_program_name, combined_arg_map)
 
-def __process_target_arg(optional_arg_map):
+def __process_target_arg(optional_arg_map, required_arg_map, logger):
 
     _method_name = '__process_target_arg'
 
-    if CommandLineArgUtil.TARGET_SWITCH in optional_arg_map:
-        # if -target is specified -output_dir is required
-        output_dir = optional_arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
-        if output_dir is None or os.path.isdir(output_dir) is False:
-            if not os.path.isdir(output_dir):
-                ex = exception_helper.create_cla_exception('WLSDPLY-01642', output_dir)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
+    # if -target is specified -output_dir is required
+    output_dir = required_arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
+    if output_dir is None or os.path.isdir(output_dir) is False:
+        if not os.path.isdir(output_dir):
+            ex = exception_helper.create_cla_exception('WLSDPLY-01642', output_dir)
+            logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
-        # Set the -variable_file parameter if not present with default
-
-        if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in optional_arg_map:
-            optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = os.path.join(output_dir,
-                                                                                     "k8s_variable.properties")
+    # Set the -variable_file parameter if not present with default
+    if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in optional_arg_map:
+        optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = os.path.join(output_dir,
+                                                                                 "k8s_variable.properties")
 
 class PrepareModel:
     """
@@ -154,9 +151,6 @@ class PrepareModel:
                 self.__walk_attribute(section_dict_key, section_dict_value, valid_attr_infos,
                                       path_tokens_attr_keys, model_folder_path, attribute_location)
 
-                # Some top-level attributes have additional validation
-                self.__walk_top_field_extended(section_dict_key, section_dict_value, model_folder_path)
-
             elif section_dict_key in valid_section_folders:
                 # section_dict_key is a folder under the model section
 
@@ -165,9 +159,6 @@ class PrepareModel:
 
                 # Call self.__validate_section_folder() passing in section_dict_value as the model_node to process
                 self.__walk_section_folder(section_dict_value, validation_location)
-
-                # Some top-level folders have additional validation
-                self.__walk_top_field_extended(section_dict_key, section_dict_value, model_folder_path)
 
 
     def __walk_section_folder(self, model_node, validation_location):
@@ -179,11 +170,6 @@ class PrepareModel:
 
             for name in model_node:
                 expanded_name = name
-                # if variables.has_variables(name):
-                #     expanded_name = self.__validate_variable_substitution(name, model_folder_path)
-                #
-                # self._logger.finest('2 expanded_name={0}', expanded_name,
-                #                     class_name=_class_name, method_name=_method_name)
 
                 new_location = LocationContext(validation_location)
 
@@ -232,7 +218,6 @@ class PrepareModel:
         valid_folder_keys = self._alias_helper.get_model_subfolder_names(validation_location)
         valid_attr_infos = self._alias_helper.get_model_attribute_names_and_types(validation_location)
         model_folder_path = self._alias_helper.get_model_folder_path(validation_location)
-
 
         for key, value in model_node.iteritems():
 
@@ -284,7 +269,6 @@ class PrepareModel:
 
         if attribute_name in valid_attr_infos:
             expected_data_type = valid_attr_infos[attribute_name]
-            actual_data_type = str(type(attribute_value))
 
             if expected_data_type == 'password':
                 # print 'DEBUG __walk_attribute: attribute name ' + str(attribute_name)
@@ -306,7 +290,7 @@ class PrepareModel:
             self.__walk_property(property_name, property_value, valid_prop_infos, validation_location)
 
 
-    def __walk_property(self, property_name, property_value, valid_prop_infos, model_folder_path):
+    def __walk_property(self, property_name, property_value, valid_prop_infos, model_folder_path, validation_location):
 
         _method_name = '__walk_property'
 
@@ -315,27 +299,9 @@ class PrepareModel:
 
         if property_name in valid_prop_infos:
             expected_data_type = valid_prop_infos[property_name]
-            actual_data_type = str(type(property_value))
+            if expected_data_type == 'password':
+                self.__substitute_password_with_token(model_folder_path, property_name, validation_location)
 
-            print 'DEBUG __walk_property: property name ' + str(property_name)
-            print 'DEBUG __walk_property: property type ' + str(expected_data_type)
-
-
-    def __walk_top_field_extended(self, field_key, field_value, model_folder_path):
-        """
-        Perform additional validation on some top-level fields.
-        :param field_key: the name of the field
-        :param field_value: the value of the field
-        :param model_folder_path: the model folder path, for logging
-        :return:
-        """
-        # if field_key == SERVER_GROUP_TARGETING_LIMITS or field_key == DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS:
-        #     self.__validate_server_group_targeting_limits(field_key, field_value, model_folder_path)
-        #
-        # elif field_key == WLS_ROLES:
-        #     self.__validate_wlsroles_section(field_value)
-        #
-        return
 
     def __walk_variable_substitution(self, tokenized_value, model_folder_path):
         _method_name = '__validate_variable_substitution'
@@ -433,11 +399,8 @@ class PrepareModel:
     def walk(self):
 
         _method_name = "walk"
-        # arguments have been verified and same extensions
 
         model_file_name = None
-
-        # validate models first
 
         try:
 
@@ -451,11 +414,15 @@ class PrepareModel:
 
                 validator = Validator(self.model_context, aliases, wlst_mode=WlstModes.OFFLINE)
 
+                # Just merge and validate but without substitution
                 model_dictionary = cla_helper.merge_model_files(model_file_name, None)
 
-                # Just merge and validate but without substitution
+                variable_file = self.model_context.get_variable_file()
+                if not os.path.exists(variable_file):
+                    variable_file=None
+
                 return_code = validator.validate_in_tool_mode(model_dictionary,
-                                                          variables_file_name=self.model_context.get_variable_file(),
+                                                          variables_file_name=variable_file,
                                                           archive_file_name=None)
 
                 if return_code == Validator.ReturnCode.STOP:
@@ -527,8 +494,9 @@ class PrepareModel:
                 model_context.set_validation_method(validation_method)
                 target_configuration_helper.generate_k8s_script(model_context.get_kubernetes_variable_file(), self.cache)
                 self.cache.clear()
-                variable_map = validator.load_variables(self.model_context.get_variable_file())
-                self.cache.update(variable_map)
+                if os.path.exists(self.model_context.get_variable_file()):
+                    variable_map = validator.load_variables(self.model_context.get_variable_file())
+                    self.cache.update(variable_map)
 
         variable_injector.inject_variables_keyword_file()
 
@@ -559,7 +527,7 @@ def main():
     _outputdir = None
 
     try:
-        model_context = __process_args(sys.argv)
+        model_context = __process_args(sys.argv, __logger)
         _outputdir = model_context.get_kubernetes_output_dir()
         model1 = model_context.get_model_file()
         print model_context.get_variable_file()
