@@ -199,7 +199,6 @@ class PrepareModel:
                 self.__walk_model_node(value_dict, new_location)
 
         else:
-
             name_token = self._alias_helper.get_name_token(validation_location)
 
             if name_token is not None:
@@ -293,21 +292,23 @@ class PrepareModel:
                 self.__substitute_password_with_token(model_folder_path, property_name, validation_location)
 
     def __substitute_password_with_token(self, model_path, attribute_name, validation_location, model_context=None):
+
+
         model_path_tokens = model_path.split('/')
-        if validation_location:
-            # topology:/SecurityConfiguration/<bean>/attribute
-            # there is a token at the end of the path but not in the model
-            if model_path_tokens[-1] != validation_location.get_current_model_folder():
-                del model_path_tokens[-1]
+        # print model_path
+        # if validation_location:
+        #     # topology:/SecurityConfiguration/<bean>/attribute
+        #     # there is a token at the end of the path but not in the model
+        #     if model_path_tokens[-1] != validation_location.get_current_model_folder():
+        #         del model_path_tokens[-1]
 
         if len(model_path_tokens) > 1:
-            password_name = "@@SECRET:@@DOMAIN-UID@@-%s:%s@@" % ('-'.join(model_path_tokens[1:]).lower(),
-                                                                        attribute_name.lower())
-
-            self.cache['.'.join(model_path_tokens).lower()] = ''
+            password_name = "@@SECRET:@@DOMAIN-UID@@-%s:%s@@" % ('-'.join(model_path_tokens[1:]),
+                                                                        attribute_name)
+            self.cache['.'.join(model_path_tokens[1:])] = ''
         else:
-            password_name = "@@SECRET:@@DOAMIN-UID@@-weblogic-credentials:%s@@" % (attribute_name.lower())
-            self.cache[attribute_name.lower()] = ''
+            password_name = "@@SECRET:@@DOAMIN-UID@@-weblogic-credentials:%s@@" % (attribute_name)
+            self.cache[attribute_name] = ''
 
         p_dict = self.current_dict
 
@@ -369,6 +370,7 @@ class PrepareModel:
                 self.current_dict = self._apply_filter_and_inject_variable(self.current_dict, self.model_context,
                                                                            validator)
 
+
                 file_name = os.path.join(self.output_dir, os.path.basename(model_file_name))
                 fos = JFileOutputStream(file_name, False)
                 writer = JPrintWriter(fos, True)
@@ -424,7 +426,6 @@ class PrepareModel:
                     self.cache.update(variable_map)
 
         variable_injector.inject_variables_keyword_file()
-
         return model
 
 def debug(format_string, *arguments):
@@ -455,7 +456,6 @@ def main():
         model_context = __process_args(sys.argv, __logger)
         _outputdir = model_context.get_kubernetes_output_dir()
         model1 = model_context.get_model_file()
-        print model_context.get_variable_file()
         for f in [ model1 ]:
             if not os.path.exists(f):
                 raise CLAException("Model %s does not exists" % f)

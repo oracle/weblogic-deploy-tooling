@@ -40,7 +40,7 @@ def generate_k8s_script(file_location, token_dictionary):
         k8s_create_script_handle.write(NL)
         k8s_create_script_handle.write(NL)
         for property_name in token_dictionary:
-            if property_name in [ 'AdminUserName', 'AdminPassword']:
+            if property_name in [ 'AdminUserName', 'AdminPassword', '']:
                 continue
             secret_names = property_name.lower().replace('.', '-').split('-')
             command_string = "create_k8s_secret %s %s %s " %( '-'.join(secret_names[:-1]), secret_names[-1],

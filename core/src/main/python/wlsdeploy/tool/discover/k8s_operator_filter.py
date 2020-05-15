@@ -42,9 +42,11 @@ def __cleanup_topology(model):
                         del servers[server][delthis]
 
         if topology.has_key('SecurityConfiguration'):
-            for delthis in ['NodeManagerPasswordEncrypted']:
+            for delthis in ['NodeManagerPasswordEncrypted', 'NodeManagerUsername' ]:
                 if topology['SecurityConfiguration'].has_key(delthis):
                     del topology['SecurityConfiguration'][delthis]
+            if len(topology['SecurityConfiguration'].keys()) == 0:
+                del topology['SecurityConfiguration']
 
         if topology.has_key('SeverTemplate'):
             server_templates = topology['ServerTemplate']
