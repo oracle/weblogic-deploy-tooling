@@ -292,35 +292,30 @@ class PrepareModel:
                 self.__substitute_password_with_token(model_folder_path, property_name, validation_location)
 
     def __substitute_password_with_token(self, model_path, attribute_name, validation_location, model_context=None):
-
-
+        # TODO: move the logic to target_configuration_helper and reuse in variable_injector.process_attribute
         model_path_tokens = model_path.split('/')
-        # print model_path
-        # if validation_location:
-        #     # topology:/SecurityConfiguration/<bean>/attribute
-        #     # there is a token at the end of the path but not in the model
-        #     if model_path_tokens[-1] != validation_location.get_current_model_folder():
-        #         del model_path_tokens[-1]
+        tokens_length = len(model_path_tokens)
 
-        if len(model_path_tokens) > 1:
-            password_name = "@@SECRET:@@DOMAIN-UID@@-%s:%s@@" % ('-'.join(model_path_tokens[1:]),
-                                                                        attribute_name)
-            self.cache['.'.join(model_path_tokens[1:])] = ''
-        else:
-            password_name = "@@SECRET:@@DOAMIN-UID@@-weblogic-credentials:%s@@" % (attribute_name)
-            self.cache[attribute_name] = ''
+        if tokens_length > 1:
+            if model_path_tokens[0] == 'domainInfo:' and model_path_tokens[1] == '':
+                password_name = "@@SECRET:@@DOAMIN-UID@@-weblogic-credentials:%s@@" % (attribute_name.lower())
+                self.cache[attribute_name] = ''
+            else:
+                password_name = "@@SECRET:@@DOMAIN-UID@@-%s:%s@@" % ('-'.join(model_path_tokens[1:]).lower(),
+                                                                            attribute_name.lower())
+                self.cache['.'.join(model_path_tokens[1:]) + '-' + attribute_name] = ''
 
-        p_dict = self.current_dict
+            p_dict = self.current_dict
 
-        for index in range(0, len(model_path_tokens)):
-            token = model_path_tokens[index]
-            if token == '':
-                break
-            if token[-1] == ':':
-                token=token[:-1]
-            p_dict = p_dict[token]
+            for index in range(0, len(model_path_tokens)):
+                token = model_path_tokens[index]
+                if token == '':
+                    break
+                if token[-1] == ':':
+                    token=token[:-1]
+                p_dict = p_dict[token]
 
-        p_dict[attribute_name] = password_name
+            p_dict[attribute_name] = password_name
 
     def walk(self):
 
@@ -425,7 +420,7 @@ class PrepareModel:
                     variable_map = validator.load_variables(self.model_context.get_variable_file())
                     self.cache.update(variable_map)
 
-        variable_injector.inject_variables_keyword_file()
+        variables_inserted, return_model, variable_file_location = variable_injector.inject_variables_keyword_file()
         return model
 
 def debug(format_string, *arguments):
