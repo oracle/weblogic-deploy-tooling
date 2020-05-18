@@ -64,20 +64,3 @@ def __cleanup_topology(model):
                     server_template['AutoMigrationEnabled'] = False
 
 
-def __subtitute_secrets(current_dictionary, stack=None, recursive=False):
-    for key in current_dictionary:
-        if not recursive:
-            stack = []
-        current_node = current_dictionary[key]
-        if isinstance(current_node, dict):
-            stack.append(key)
-            __subtitute_secrets(current_node, stack, True)
-        else:
-            if isinstance(current_node, str):
-                if '--FIX ME--' == current_node:
-                    current_dictionary[key] = '@@SECRET:' + stack[1] + ':' + key + '@@'
-
-
-# fh = open('/tmp/domain_model.json')
-# mydict = eval(fh.read())
-# filter_model(mydict)

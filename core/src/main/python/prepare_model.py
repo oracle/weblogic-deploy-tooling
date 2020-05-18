@@ -11,7 +11,7 @@
 
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.PrintWriter as JPrintWriter
-import os
+import os, re
 import sets
 import sys
 import traceback
@@ -115,8 +115,8 @@ class PrepareModel:
         self.model_files = model_files
         self.output_dir = output_dir
         self.model_context = model_context
-        aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE)
-        self._alias_helper = AliasHelper(aliases, logger, ExceptionType.COMPARE)
+        self._aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE)
+        self._alias_helper = AliasHelper(self._aliases, logger, ExceptionType.COMPARE)
         self._logger = logger
         self._name_tokens_location = LocationContext()
         self._name_tokens_location.add_name_token('DOMAIN', "testdomain")
@@ -291,19 +291,65 @@ class PrepareModel:
             if expected_data_type == 'password':
                 self.__substitute_password_with_token(model_folder_path, property_name, validation_location)
 
+
+    def __format_variable_name(self, location, attribute):
+        _method_name = '__format_variable_name'
+        def __traverse_location(iterate_location, name_list, last_folder=None, last_folder_short=None):
+            current_folder = iterate_location.get_current_model_folder()
+            if current_folder == model_constants.DOMAIN:
+                if last_folder is not None:
+                    # If a short name is not defined for the top level folder, use the full name
+                    if len(last_folder_short) == 0:
+                        last_folder_short = last_folder
+                    name_list.insert(0, last_folder_short)
+            else:
+                current_folder = iterate_location.get_current_model_folder()
+                short_folder = self._aliases.get_folder_short_name(iterate_location)
+                if last_folder_short is not None:
+                    name_list.insert(0, last_folder_short)
+                try:
+                    if not self._aliases.is_artificial_type_folder(location) and \
+                            (self._aliases.supports_multiple_mbean_instances(iterate_location) or
+                             self._aliases.is_custom_folder_allowed(iterate_location)):
+                        name_token = self._aliases.get_name_token(iterate_location)
+                        name = iterate_location.get_name_for_token(name_token)
+                        name_list.insert(0, name)
+                        iterate_location.remove_name_token(name_token)
+                    iterate_location.pop_location()
+                except AliasException, ae:
+                    self._logger.warning('WLSDPLY-19531', str(location), attribute, ae.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name)
+                __traverse_location(iterate_location, name_list, current_folder, short_folder)
+            return name_list
+
+        short_list = __traverse_location(LocationContext(location), list())
+        short_name = ''
+        for node in short_list:
+            if node is not None and len(node) > 0:
+                short_name += node + '.'
+        short_name += attribute
+        _fake_name_replacement = re.compile('.fakename')
+        _white_space_replacement = re.compile('\s')
+        short_name = short_name.replace('/', '.')
+        short_name = _white_space_replacement.sub('-', short_name)
+        short_name = _fake_name_replacement.sub('', short_name)
+
+        return short_name
+
+
     def __substitute_password_with_token(self, model_path, attribute_name, validation_location, model_context=None):
-        # TODO: move the logic to target_configuration_helper and reuse in variable_injector.process_attribute
+
         model_path_tokens = model_path.split('/')
         tokens_length = len(model_path_tokens)
-
+        variable_name = self.__format_variable_name(validation_location, attribute_name)
         if tokens_length > 1:
+            # For AdminPassword
             if model_path_tokens[0] == 'domainInfo:' and model_path_tokens[1] == '':
                 password_name = "@@SECRET:@@DOAMIN-UID@@-weblogic-credentials:%s@@" % (attribute_name.lower())
                 self.cache[attribute_name] = ''
             else:
-                password_name = "@@SECRET:@@DOMAIN-UID@@-%s:%s@@" % ('-'.join(model_path_tokens[1:]).lower(),
-                                                                            attribute_name.lower())
-                self.cache['.'.join(model_path_tokens[1:]) + '-' + attribute_name] = ''
+                password_name = target_configuration_helper.format_as_secret(variable_name)
+                self.cache[variable_name] = ''
 
             p_dict = self.current_dict
 

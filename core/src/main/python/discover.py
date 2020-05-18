@@ -94,7 +94,7 @@ def __process_args(args):
     cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
     __wlst_mode = cla_helper.process_online_args(optional_arg_map)
 
-    __process_target_arg(optional_arg_map, required_arg_map)
+    __process_target_arg(optional_arg_map)
     __process_archive_filename_arg(required_arg_map)
     __process_variable_filename_arg(optional_arg_map)
     __process_java_home(optional_arg_map)

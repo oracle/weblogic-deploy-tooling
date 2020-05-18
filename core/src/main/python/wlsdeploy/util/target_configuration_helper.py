@@ -40,9 +40,11 @@ def generate_k8s_script(file_location, token_dictionary):
         k8s_create_script_handle.write(NL)
         k8s_create_script_handle.write(NL)
         for property_name in token_dictionary:
-            if property_name in [ 'AdminUserName', 'AdminPassword', 'SecurityConfiguration-NodeManagerPasswordEncrypted']:
+            # AdminPassword handle differently and SecurityConfig.NodeManagerPasswordEncrypted is the short name
+            # which filters out
+            if property_name in [ 'AdminPassword', 'SecurityConfig.NodeManagerPasswordEncrypted']:
                 continue
-            secret_names = property_name.lower().split('-')
+            secret_names = property_name.lower().split('.')
             command_string = "create_k8s_secret %s %s %s " %( '-'.join(secret_names[:-1]), secret_names[-1],
                                                               "<changeme>")
             k8s_create_script_handle.write(command_string)
@@ -60,3 +62,16 @@ def generate_k8s_script(file_location, token_dictionary):
                                        'weblogic.domainUID=${DOMAIN_UID}')
         k8s_create_script_handle.write(NL)
         k8s_create_script_handle.close()
+
+def format_as_secret(prop_name):
+    """
+    Format as X.Y.A.B  This is the pattern of the name.
+    :param prop_name: property name
+    :return: formatted name
+    """
+    name_lower_tokens = prop_name.lower().split('.')
+    if len(name_lower_tokens) == 1:
+        if name_lower_tokens[0] == 'adminusername' or 'adminpassword' == name_lower_tokens[0]:
+            return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ('weblogic-credentials', name_lower_tokens[0])
+
+    return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ( '-'.join(name_lower_tokens[:-1]), name_lower_tokens[-1])

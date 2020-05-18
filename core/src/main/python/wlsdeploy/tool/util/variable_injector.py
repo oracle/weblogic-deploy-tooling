@@ -20,6 +20,7 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
+import wlsdeploy.util.target_configuration_helper as target_configuration_helper
 
 WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
 
@@ -397,7 +398,6 @@ class VariableInjector(object):
                                     class_name=_class_name, method_name=_method_name)
                 __traverse_location(iterate_location, name_list, current_folder, short_folder)
             return name_list
-
         short_list = __traverse_location(LocationContext(location), list())
 
         short_name = ''
@@ -424,10 +424,9 @@ class VariableInjector(object):
         if not _already_property(attribute_value):
             variable_name = self.__format_variable_name(location, attribute)
             variable_value = _format_variable_value(attribute_value)
-
             if self.__model_context is not None and self.__model_context.is_target_k8s() \
                 and variable_value == alias_constants.PASSWORD_TOKEN:
-                    model[attribute] = _format_as_secret(variable_name)
+                    model[attribute] = target_configuration_helper.format_as_secret(variable_name)
             else:
                 model[attribute] = _format_as_property(variable_name)
 
@@ -873,19 +872,6 @@ def _already_property(check_string):
 
 def _format_as_property(prop_name):
     return '@@PROP:%s@@' % prop_name
-
-def _format_as_secret(prop_name):
-    """
-    Format as X.Y.A.B  This is the pattern of the name.
-    :param prop_name: property name
-    :return: formatted name
-    """
-    name_lower_tokens = prop_name.lower().split('.')
-    if len(name_lower_tokens) == 1:
-        if name_lower_tokens[0] == 'adminusername' or 'adminpassword' == name_lower_tokens[0]:
-            return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ('weblogic-credentials', name_lower_tokens[0])
-
-    return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ( '-'.join(name_lower_tokens[:-1]), name_lower_tokens[-1])
 
 def _split_injector(injector_path):
     """
