@@ -6,7 +6,7 @@
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
-@rem       prepareModel.cmd - WLS Deploy tool to prepare models for k8s deployment
+@rem        prepareModel.sh - prepare the model(s) for deploying to WebLogic Kubernetes Operator
 @rem
 @rem     DESCRIPTION
 @rem       This script prepare the models for k8s deployment

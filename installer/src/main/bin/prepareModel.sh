@@ -6,7 +6,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
-#       compareModel.sh - WLS Deploy tool to compare two models  (new vs old)
+#       prepareModel.sh - prepare the model(s) for deploying to WebLogic Kubernetes Operator
 #
 #     DESCRIPTION
 #       This script compares two models. The models compared must be both yaml or both json files
