@@ -373,6 +373,7 @@ class PrepareModel:
 
             model_file_list = self.model_files.split(',')
             for model_file in model_file_list:
+                self.cache.clear()
                 if os.path.splitext(model_file)[1].lower() == ".yaml":
                     model_file_name = model_file
                     FileToPython(model_file_name, True).parse()
@@ -497,11 +498,11 @@ def main():
         model_context = __process_args(sys.argv, __logger)
         _outputdir = model_context.get_kubernetes_output_dir()
         model1 = model_context.get_model_file()
-        for f in [ model1 ]:
-            if not os.path.exists(f):
-                raise CLAException("Model %s does not exists" % f)
-            if os.path.isdir(f):
-                raise CLAException("Model %s is a directory" % f)
+        # for f in [ model1 ]:
+        #     if not os.path.exists(f):
+        #         raise CLAException("Model %s does not exists" % f)
+        #     if os.path.isdir(f):
+        #         raise CLAException("Model %s is a directory" % f)
 
 
         obj = PrepareModel(model1, model_context, __logger, _outputdir)
