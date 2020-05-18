@@ -36,7 +36,7 @@ def apply_filters(model, tool_type, model_context=None):
     try:
         if model_context:
             configuration = model_context.get_target_configuration()
-
+        filters_dictionary = {}
         if configuration and 'model_filters' in configuration:
             filters_dictionary = configuration['model_filters']
             target_filter_path =  os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'target',
