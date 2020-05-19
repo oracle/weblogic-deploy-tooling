@@ -37,7 +37,7 @@
 
         <fileSet>
             <directory>../core/src/main/targetconfigs/k8s</directory>
-            <outputDirectory>lib/target/k8s</outputDirectory>
+            <outputDirectory>lib/targets/k8s</outputDirectory>
             <includes>
                 <include>**/*.json</include>
             </includes>
@@ -45,7 +45,7 @@
 
         <fileSet>
             <directory>../core/src/main/python/wlsdeploy/tool/discover</directory>
-            <outputDirectory>lib/target/k8s</outputDirectory>
+            <outputDirectory>lib/targets/k8s</outputDirectory>
             <includes>
                 <include>k8s_operator_filter.py</include>
             </includes>

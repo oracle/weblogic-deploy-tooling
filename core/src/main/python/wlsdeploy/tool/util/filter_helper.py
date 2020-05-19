@@ -39,7 +39,7 @@ def apply_filters(model, tool_type, model_context=None):
         filters_dictionary = {}
         if configuration and 'model_filters' in configuration:
             filters_dictionary = configuration['model_filters']
-            target_filter_path =  os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'target',
+            target_filter_path =  os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
                                                model_context.get_target())
             # Fix the tokenized path in the filter path
             for filter_list in filters_dictionary:

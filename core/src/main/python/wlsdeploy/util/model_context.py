@@ -476,7 +476,7 @@ class ModelContext(object):
         """
         target_configuration = self._target
         if target_configuration:
-            target_configuration_file = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'target',
+            target_configuration_file = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
                                         target_configuration,
                          target_configuration + '.json')
             if os.path.exists(target_configuration_file):

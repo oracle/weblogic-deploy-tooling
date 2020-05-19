@@ -5,13 +5,14 @@
 # Description:
 # ------------
 #
-#   This code prepare a list of models for k8s oeprator
+#   This code prepare a list of models for deploying to WebLogic Kubernetes Operator Environment.
 #
 #
 
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.PrintWriter as JPrintWriter
-import os, re
+import os
+import re
 import sets
 import sys
 import traceback
@@ -24,6 +25,7 @@ from oracle.weblogic.deploy.exception import ExceptionHelper
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import VariableException
+from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
@@ -40,12 +42,12 @@ from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import model
+from wlsdeploy.util import target_configuration_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
-from wlsdeploy.util import target_configuration_helper
 
 VALIDATION_FAIL=2
 PATH_TOKEN='|'
@@ -541,6 +543,7 @@ def format_message(key, *args):
     return ExceptionHelper.getMessage(key, list(args))
 
 if __name__ == "__main__":
+    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     main()
 
 
