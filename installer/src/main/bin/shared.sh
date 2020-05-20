@@ -62,7 +62,7 @@ checkArgs() {
 }
 
 checkJythonArgs() {
-    # verify that required arg -oracle_home is provided, and set ORACLE_HOME.
+    # verify that ORACLE_HOME is set, or -oracle_home is provided.
     # if -help is provided, display usage.
     # if -use_encryption is provided, set USE_ENCRYPTION to true
     # if -wlst_path is provided, set WLST_PATH_DIR
@@ -73,6 +73,8 @@ checkJythonArgs() {
       usage `basename $0`
       exit 0
     fi
+
+    # don't clear ORACLE_HOME, may inherit from the environment
 
     # check for -help and -oracle_home
     while [ "$#" -gt "0" ]; do
@@ -105,11 +107,11 @@ checkJythonArgs() {
     # The underlying WLST script has other required arguments.
     #
     if [ -z "${ORACLE_HOME}" ]; then
-        echo "Required argument -oracle_home not provided" >&2
+        echo "ORACLE_HOME not set, and -oracle_home not provided" >&2
         usage `basename $0`
         exit 99
     elif [ ! -d ${ORACLE_HOME} ]; then
-        echo "The specified -oracle_home directory does not exist: ${ORACLE_HOME}" >&2
+        echo "The specified Oracle home directory does not exist: ${ORACLE_HOME}" >&2
         exit 98
     fi
 }

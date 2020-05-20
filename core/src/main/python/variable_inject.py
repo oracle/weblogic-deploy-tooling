@@ -60,19 +60,15 @@ def __process_args(args):
     global __wlst_mode
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
-    required_arg_map, optional_arg_map = cla_util.process_args(args)
-
-    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
+    argument_map = cla_util.process_args(args)
 
     # determine if the model file was passed separately or requires extraction from the archive.
-    cla_helper.validate_model_present(_program_name, optional_arg_map)
-    __process_injector_file(optional_arg_map)
-    __process_keywords_file(optional_arg_map)
-    __process_properties_file(optional_arg_map)
+    cla_helper.validate_model_present(_program_name, argument_map)
+    __process_injector_file(argument_map)
+    __process_keywords_file(argument_map)
+    __process_properties_file(argument_map)
 
-    combined_arg_map = optional_arg_map.copy()
-    combined_arg_map.update(required_arg_map)
-    return model_context_helper.create_context(_program_name, combined_arg_map)
+    return model_context_helper.create_context(_program_name, argument_map)
 
 
 def __process_injector_file(optional_arg_map):

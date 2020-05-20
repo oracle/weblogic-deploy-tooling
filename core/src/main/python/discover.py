@@ -86,17 +86,14 @@ def __process_args(args):
     global __wlst_mode
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
-    required_arg_map, optional_arg_map = cla_util.process_args(args)
+    argument_map = cla_util.process_args(args)
 
-    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
-    __wlst_mode = cla_helper.process_online_args(optional_arg_map)
-    __process_archive_filename_arg(required_arg_map)
-    __process_variable_filename_arg(optional_arg_map)
-    __process_java_home(optional_arg_map)
+    __wlst_mode = cla_helper.process_online_args(argument_map)
+    __process_archive_filename_arg(argument_map)
+    __process_variable_filename_arg(argument_map)
+    __process_java_home(argument_map)
 
-    combined_arg_map = optional_arg_map.copy()
-    combined_arg_map.update(required_arg_map)
-    return model_context_helper.create_context(_program_name, combined_arg_map)
+    return model_context_helper.create_context(_program_name, argument_map)
 
 
 def __process_archive_filename_arg(required_arg_map):

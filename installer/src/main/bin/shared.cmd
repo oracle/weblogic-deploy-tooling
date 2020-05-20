@@ -76,7 +76,7 @@ GOTO :EOF
 
 :checkArgs
 :checkJythonArgs
-    @REM verify that required arg -oracle_home is provided, and set ORACLE_HOME.
+    @REM verify that ORACLE_HOME is set, or -oracle_home is provided.
     @REM if -help is provided, return usage exit code.
     @REM if -use_encryption is provided, set USE_ENCRYPTION to true
     @REM if -wlst_path is provided, set WLST_PATH_DIR
@@ -86,7 +86,7 @@ GOTO :EOF
       EXIT /B 100
     )
 
-    SET ORACLE_HOME=
+    @REM don't clear ORACLE_HOME, may inherit from the environment
     SET WLST_PATH_DIR=
 
     :arg_loop
@@ -120,7 +120,7 @@ GOTO :EOF
 
     @rem verify that ORACLE_HOME was set.
     IF "%ORACLE_HOME%" == "" (
-      ECHO Required argument -oracle_home not provided >&2
+      ECHO ORACLE_HOME not set, and -oracle_home not provided >&2
       EXIT /B 99
     )
 GOTO :EOF

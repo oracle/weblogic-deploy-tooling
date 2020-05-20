@@ -88,28 +88,25 @@ def __process_args(args):
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
-    required_arg_map, optional_arg_map = cla_util.process_args(args, TOOL_TYPE_CREATE)
-    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
-    __process_java_home_arg(optional_arg_map)
-    __process_domain_location_args(optional_arg_map)
+    argument_map = cla_util.process_args(args, TOOL_TYPE_CREATE)
+    __process_java_home_arg(argument_map)
+    __process_domain_location_args(argument_map)
 
     # don't verify that the archive is valid until it is needed.
     # this requirement is specific to create, other tools will verify it.
-    cla_helper.validate_model_present(_program_name, optional_arg_map)
-    cla_helper.validate_variable_file_exists(_program_name, optional_arg_map)
+    cla_helper.validate_model_present(_program_name, argument_map)
+    cla_helper.validate_variable_file_exists(_program_name, argument_map)
 
     #
     # Verify that the domain type is a known type and load its typedef.
     #
-    domain_typedef = model_context_helper.create_typedef(_program_name, optional_arg_map)
+    domain_typedef = model_context_helper.create_typedef(_program_name, argument_map)
 
-    __process_rcu_args(optional_arg_map, domain_typedef.get_domain_type(), domain_typedef)
-    cla_helper.process_encryption_args(optional_arg_map)
-    __process_opss_args(optional_arg_map)
+    __process_rcu_args(argument_map, domain_typedef.get_domain_type(), domain_typedef)
+    cla_helper.process_encryption_args(argument_map)
+    __process_opss_args(argument_map)
 
-    combined_arg_map = optional_arg_map.copy()
-    combined_arg_map.update(required_arg_map)
-    return model_context_helper.create_context(_program_name, combined_arg_map, domain_typedef)
+    return model_context_helper.create_context(_program_name, argument_map, domain_typedef)
 
 
 def __process_java_home_arg(optional_arg_map):

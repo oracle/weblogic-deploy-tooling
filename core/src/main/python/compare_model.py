@@ -67,6 +67,7 @@ all_added = []
 all_removed = []
 compare_msgs = sets.Set()
 
+
 def __process_args(args):
     """
     Process the command-line arguments.
@@ -76,13 +77,9 @@ def __process_args(args):
     _method_name = '__process_args'
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
-    required_arg_map, optional_arg_map = cla_util.process_args(args, trailing_arg_count=2)
+    argument_map = cla_util.process_args(args, trailing_arg_count=2)
 
-    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
-
-    combined_arg_map = optional_arg_map.copy()
-    combined_arg_map.update(required_arg_map)
-    return ModelContext(_program_name, combined_arg_map)
+    return ModelContext(_program_name, argument_map)
 
 class ModelDiffer:
 

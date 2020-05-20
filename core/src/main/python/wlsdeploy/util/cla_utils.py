@@ -301,9 +301,13 @@ class CommandLineArgUtil(object):
                 raise ex
             idx += 1
 
-        print_result = {'required': self._required_result, 'optional': self._optional_result}
-        self._logger.exiting(class_name=self._class_name, method_name=method_name, result=print_result)
-        return self._required_result, self._optional_result
+        self._verify_required_args_present(self._program_name, self._required_args, self._required_result)
+
+        combined_arg_map = self._optional_result.copy()
+        combined_arg_map.update(self._required_result)
+
+        self._logger.exiting(class_name=self._class_name, method_name=method_name, result=combined_arg_map)
+        return combined_arg_map
 
     def _get_arg_value(self, args, index, key):
         """
@@ -354,6 +358,24 @@ class CommandLineArgUtil(object):
 
         # remove trailing args from the list and return revised list
         return args[0:(args_len - trailing_arg_count)]
+
+    def _verify_required_args_present(self, program_name, required_arguments, required_arg_map):
+        """
+        Verify that the required args are present.
+        :param program_name: the program name, for logging
+        :param required_arguments: the required arguments to be checked
+        :param required_arg_map: the required arguments map
+        :raises CLAException: if one or more of the required arguments are missing
+        """
+        _method_name = '_verify_required_args_present'
+
+        for req_arg in required_arguments:
+            if req_arg not in required_arg_map:
+                ex = exception_helper.create_cla_exception('WLSDPLY-20005', program_name, req_arg)
+                ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+        return
 
     def get_help_key(self):
         return self.HELP_SWITCH
