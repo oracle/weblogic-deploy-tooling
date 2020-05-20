@@ -406,7 +406,7 @@ class CommandLineArgUtil(object):
         try:
             JFileUtils.validateExistingDirectory(wl_home_name)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01603', wl_home_name,
+            ex = exception_helper.create_cla_exception('WLSDPLY-01603', wl_home_name, oh_name,
                                                        iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
