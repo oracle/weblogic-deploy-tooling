@@ -75,7 +75,7 @@ ECHO              [-variable_properties_file ^<variable_properties_file^>]
 ECHO.
 ECHO     where:
 ECHO         oracle_home            - the existing Oracle Home directory with the correct version for the model.
-ECHO                                  this is required unless the ORACLE_HOME environment
+ECHO                                  This is required unless the ORACLE_HOME environment
 ECHO                                  variable is set.
 ECHO.
 ECHO         model_file             - the location of the model file in which variables will be injected.

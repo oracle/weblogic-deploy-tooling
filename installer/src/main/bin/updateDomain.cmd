@@ -84,7 +84,7 @@ ECHO              ]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
-ECHO                           this is required unless the ORACLE_HOME environment
+ECHO                           This is required unless the ORACLE_HOME environment
 ECHO                           variable is set.
 ECHO.
 ECHO         domain_home     - the domain home directory

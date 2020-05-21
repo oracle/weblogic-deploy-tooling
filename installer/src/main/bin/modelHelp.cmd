@@ -75,7 +75,7 @@ ECHO         ^<model_path^>
 ECHO.
 ECHO     where:
 ECHO         oracle_home - an existing Oracle Home directory.
-ECHO                       this is required unless the ORACLE_HOME environment
+ECHO                       This is required unless the ORACLE_HOME environment
 ECHO                       variable is set.
 ECHO.
 ECHO         model_path  - the path to the model element to be examined.
