@@ -121,11 +121,12 @@ GOTO :EOF
     IF NOT "%ORACLE_HOME_ARG%" == "" (
       SET ORACLE_HOME=%ORACLE_HOME_ARG%
     ) ELSE (
-      @REM if -oracle_home was not specified, but ORACLE_HOME was set in environment,
-      @REM add -oracle_home with that value
+      @REM if -oracle_home argument was not found, but ORACLE_HOME was set in environment,
+      @REM add the -oracle_home argument with the environment value.
+      @REM put it at the beginning to protect trailing arguments.
 
       IF NOT "%ORACLE_HOME%" == "" (
-        SET SCRIPT_ARGS=%SCRIPT_ARGS% -oracle_home %ORACLE_HOME%
+        SET SCRIPT_ARGS= -oracle_home %ORACLE_HOME% %SCRIPT_ARGS%
       )
     )
 

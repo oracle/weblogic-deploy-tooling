@@ -105,9 +105,10 @@ checkJythonArgs() {
     if [ -n "${ORACLE_HOME_ARG}" ]; then
         ORACLE_HOME=${ORACLE_HOME_ARG}
     elif [ -n "${ORACLE_HOME}" ]; then
-        # if -oracle_home argument was not found, but environment variable is set,
+        # if -oracle_home argument was not found, but ORACLE_HOME was set in environment,
         # add the -oracle_home argument with the environment value.
-        scriptArgs="${scriptArgs} -oracle_home ${ORACLE_HOME}"
+        # put it at the beginning to protect trailing arguments.
+        scriptArgs="-oracle_home ${ORACLE_HOME} ${scriptArgs}"
     fi
 
     #
