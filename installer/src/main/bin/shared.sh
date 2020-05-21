@@ -74,7 +74,7 @@ checkJythonArgs() {
       exit 0
     fi
 
-    # don't clear ORACLE_HOME, may inherit from the environment
+    ORACLE_HOME_ARG=""
 
     # check for -help and -oracle_home
     while [ "$#" -gt "0" ]; do
@@ -85,7 +85,7 @@ checkJythonArgs() {
             exit 0
             ;;
             -oracle_home)
-            ORACLE_HOME="$2"
+            ORACLE_HOME_ARG="$2"
             shift
             ;;
             -wlst_path)
@@ -102,12 +102,20 @@ checkJythonArgs() {
         shift # past arg or value
     done
 
+    if [ -n "${ORACLE_HOME_ARG}" ]; then
+        ORACLE_HOME=${ORACLE_HOME_ARG}
+    elif [ -n "${ORACLE_HOME}" ]; then
+        # if -oracle_home argument was not found, but environment variable is set,
+        # add the -oracle_home argument with the environment value.
+        scriptArgs="${scriptArgs} -oracle_home ${ORACLE_HOME}"
+    fi
+
     #
     # Check for values of required arguments for this script to continue.
     # The underlying WLST script has other required arguments.
     #
     if [ -z "${ORACLE_HOME}" ]; then
-        echo "ORACLE_HOME not set, and -oracle_home not provided" >&2
+        echo "-oracle_home not provided, and ORACLE_HOME not set" >&2
         usage `basename $0`
         exit 99
     elif [ ! -d ${ORACLE_HOME} ]; then
