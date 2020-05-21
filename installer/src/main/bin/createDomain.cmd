@@ -72,7 +72,7 @@ if "%SHOW_USAGE%" == "false" (
 :usage
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help] [-use_encryption] [-run_rcu]
-ECHO              -oracle_home ^<oracle_home^>
+ECHO              [-oracle_home ^<oracle_home^>]
 ECHO              [-domain_parent ^<domain_parent^> ^| -domain_home ^<domain_home^>]
 ECHO              -domain_type ^<domain_type^>
 ECHO              [-java_home ^<java_home^>]
@@ -86,6 +86,8 @@ ECHO              ]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
+ECHO                           this is required unless the ORACLE_HOME environment
+ECHO                           variable is set.
 ECHO.
 ECHO         domain_parent   - the parent directory where the domain should be created.
 ECHO                           The domain name from the model will be appended to this

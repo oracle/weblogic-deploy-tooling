@@ -70,12 +70,14 @@ if "%SHOW_USAGE%" == "false" (
 :usage
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help] [-manual]
-ECHO              -oracle_home ^<oracle_home^>
+ECHO              [-oracle_home ^<oracle_home^>]
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
+ECHO                           this is required unless the ORACLE_HOME environment
+ECHO                           variable is set.
 ECHO.
 ECHO         model_file      - the location of the model file to use.
 ECHO.
