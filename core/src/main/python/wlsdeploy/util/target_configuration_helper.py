@@ -72,13 +72,13 @@ def generate_k8s_script(file_location, token_dictionary):
 
         k8s_create_script_handle.close()
 
-def format_as_secret(prop_name):
+def format_as_secret(variable_name):
     """
-    Format as X.Y.A.B  This is the pattern of the name.
-    :param prop_name: property name
+    Format the variable as a secret name
+    :param variable_name: variable name in dot separated format
     :return: formatted name
     """
-    name_lower_tokens = prop_name.lower().split('.')
+    name_lower_tokens = variable_name.lower().split('.')
     if len(name_lower_tokens) == 1:
         if name_lower_tokens[0] == 'adminusername' or 'adminpassword' == name_lower_tokens[0]:
             return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ('weblogic-credentials', name_lower_tokens[0])

@@ -15,9 +15,10 @@ def __cleanup_resources(model):
     if model and 'resources' in model:
         resources = model['resources']
 
-    for delthis in [ 'PartitionWorkManager', 'Partition', 'ResourceGroup', 'ResourceGroupTemplate']:
-        if resources.has_key(delthis):
-            del resources[delthis]
+        for delthis in [ 'PartitionWorkManager', 'Partition', 'ResourceGroup', 'ResourceGroupTemplate', 'VirtualHost',
+                     'ResourceManager', 'ResourceManagement' ]:
+            if resources.has_key(delthis):
+                del resources[delthis]
 
 def __cleanup_topology(model):
     if model and 'topology' in model:
