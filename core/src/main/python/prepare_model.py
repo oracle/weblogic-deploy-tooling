@@ -542,7 +542,7 @@ def format_message(key, *args):
     """
     return ExceptionHelper.getMessage(key, list(args))
 
-if __name__ == "__main__":
+if __name__ == "__main__" or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     main()
 
