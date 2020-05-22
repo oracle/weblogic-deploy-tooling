@@ -124,6 +124,7 @@ class PrepareModel:
         self._name_tokens_location.add_name_token('DOMAIN', "testdomain")
         self.current_dict = None
         self.cache =  OrderedDict()
+        self.secrets_to_generate = sets.Set()
 
     def __walk_model_section(self, model_section_key, model_dict, valid_section_folders):
         _method_name = '__validate_model_section'
@@ -422,6 +423,12 @@ class PrepareModel:
                 pty._write_dictionary_to_yaml_file(self.current_dict, writer)
                 writer.close()
 
+            self.cache.clear()
+            for key in self.secrets_to_generate:
+                self.cache[key] = ''
+
+            target_configuration_helper.generate_k8s_script(self.model_context.get_kubernetes_variable_file(),
+                                                            self.cache)
 
         except ValidateException, te:
             __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
@@ -446,9 +453,10 @@ class PrepareModel:
 
     def _apply_filter_and_inject_variable(self, model, model_context, validator):
         """
-        Customize the model dictionary before persisting. Validate the model after customization for informational
-        purposes. Any validation errors will not stop the discovered model to be persisted.
-        :param model: completely discovered model
+        Applying filter
+        Generate k8s create script
+        Inject variable for tokens
+        :param model: updated model
         """
         _method_name = '_apply_filter_and_inject_variable'
         self._logger.entering(class_name=_class_name, method_name=_method_name)
@@ -461,15 +469,19 @@ class PrepareModel:
         if self.cache is not None:
             # Generate k8s create secret script, after that clear the dictionary to avoid showing up in the variable file
             if model_context.is_target_k8s():
-                validation_method = model_context.get_target_configuration()['validation_method']
-                model_context.set_validation_method(validation_method)
-                target_configuration_helper.generate_k8s_script(model_context.get_kubernetes_variable_file(), self.cache)
+
+                for item in self.cache:
+                    self.secrets_to_generate.add(item)
+
                 self.cache.clear()
+                # This is in case the user has specify -variable_file in command line
+                # clearing the cache will remove the original entries and the final variable file will miss the original
+                # contents
                 if os.path.exists(self.model_context.get_variable_file()):
                     variable_map = validator.load_variables(self.model_context.get_variable_file())
                     self.cache.update(variable_map)
 
-        variables_inserted, return_model, variable_file_location = variable_injector.inject_variables_keyword_file()
+        variable_injector.inject_variables_keyword_file()
         return model
 
 def debug(format_string, *arguments):
