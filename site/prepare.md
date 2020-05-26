@@ -1,20 +1,22 @@
 ## The Prepare Model Tool
 
 The prepare model tool prepares WDT model files for deploying to the WebLogic Kubernetes Operator environment. It removes sections 
-from the model that is not compatible with the WebLogic Kubernetes Operator, replaces credential, endpoints fields with WDT macros, and generates 
-a UNIX shell script that creates the necessary kubernetes secrets for customizations.
- 
-    
+from the model that are not compatible with the WebLogic Kubernetes Operator, replaces credential, endpoints fields with WDT macros, and generates 
+
+1. A UNIX shell script that will creates the necessary kubernetes secrets. The script can then be updated to provide the actual credentials.
+2. A variable property file. The file can be updated to customize the different end points.
+3. Updated model files
+     
 To use the Prepare Model Tool, simply run the `prepareModel` shell script with the correct arguments.  To see the list of valid arguments, simply run the shell script with the `-help` option (or with no arguments) for usage information.
 
 ```
 To prepare model files, run the tool as follows:
 
-    weblogic-deploy\bin\prepareModel.cmd -oracle_home c:\wls12213 -model_file [command separed list of models] -target k8s -output_dir c:\k8soutput
+    $WLSDEPLOY_HOME/bin/prepareModel.sh -oracle_home /u01/wls12213 -model_file [command separed list of models] -target k8s -output_dir $HOME/k8soutput
 
 ```
 
-In the ouptut directory, you wil found
+In the output directory, you will find
 
 ```
 model1.yaml
