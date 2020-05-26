@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.aliases;
 
 import java.io.File;
 import java.lang.reflect.Array;
+import java.lang.NumberFormatException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -168,7 +169,7 @@ public final class TypeUtils {
      *                        or the requested data type is not supported.
      * @throws AliasException if classType is a primitive class type such as int, short, etc. or if a multi-valued
      *                        type is detected where the delimiter is null and a delimiter is required to handle
-     *                        the conversion.
+     *                        the conversion. Or if the numeric value cannot be converted to the numeric format.
      */
     public static Object convertToType(Class<?> targetType, Object value, String delimiter) throws AliasException {
         final String METHOD = "convertToType";
@@ -194,38 +195,44 @@ public final class TypeUtils {
         }
 
         Object result;
-        if (targetType == String.class) {
-            result = strValue;
-        } else if (targetType == Boolean.class) {
-            result = convertToBoolean(strValue);
-        } else if (targetType == Integer.class) {
-            result = Integer.valueOf(strValue);
-        } else if (targetType == Short.class) {
-            result = Short.valueOf(strValue);
-        } else if (targetType == Long.class) {
-            result = Long.valueOf(strValue);
-        } else if (targetType == Float.class) {
-            result = Float.valueOf(strValue);
-        } else if (targetType == Double.class) {
-            result = Double.valueOf(strValue);
-        } else if (targetType == Character.class) {
-            result = convertToCharacter(strValue);
-        } else if (targetType == char[].class) {
-            result = convertToCharArray(strValue);
-        } else if (Object[].class.isAssignableFrom(targetType)) {
-            result = convertToObjectArray(value, strValue, delimiter);
-        } else if (List.class.isAssignableFrom(targetType)) {
-            result = convertToList(value, strValue, delimiter);
-        } else if (Properties.class.isAssignableFrom(targetType)) {
-            result = convertToProperties(value, delimiter);
-        } else if (PyOrderedDict.class.isAssignableFrom(targetType)) {
-            result = convertToDictionary(value, delimiter, true);
-        } else if (PyDictionary.class.isAssignableFrom(targetType)) {
-            result = convertToDictionary(value, delimiter, false);
-        } else if (Map.class.isAssignableFrom(targetType)) {
-            result = convertToMap(value, strValue, delimiter);
-        } else {
-            AliasException ae = new AliasException("WLSDPLY-08502", strValue, targetType.getName());
+        try {
+            if (targetType == String.class) {
+                result = strValue;
+            } else if (targetType == Boolean.class) {
+                result = convertToBoolean(strValue);
+            } else if (targetType == Integer.class) {
+                result = Integer.valueOf(strValue);
+            } else if (targetType == Short.class) {
+                result = Short.valueOf(strValue);
+            } else if (targetType == Long.class) {
+                result = Long.valueOf(strValue);
+            } else if (targetType == Float.class) {
+                result = Float.valueOf(strValue);
+            } else if (targetType == Double.class) {
+                result = Double.valueOf(strValue);
+            } else if (targetType == Character.class) {
+                result = convertToCharacter(strValue);
+            } else if (targetType == char[].class) {
+                result = convertToCharArray(strValue);
+            } else if (Object[].class.isAssignableFrom(targetType)) {
+                result = convertToObjectArray(value, strValue, delimiter);
+            } else if (List.class.isAssignableFrom(targetType)) {
+                result = convertToList(value, strValue, delimiter);
+            } else if (Properties.class.isAssignableFrom(targetType)) {
+                result = convertToProperties(value, delimiter);
+            } else if (PyOrderedDict.class.isAssignableFrom(targetType)) {
+                result = convertToDictionary(value, delimiter, true);
+            } else if (PyDictionary.class.isAssignableFrom(targetType)) {
+                result = convertToDictionary(value, delimiter, false);
+            } else if (Map.class.isAssignableFrom(targetType)) {
+                result = convertToMap(value, strValue, delimiter);
+            } else {
+                AliasException ae = new AliasException("WLSDPLY-08502", strValue, targetType.getName());
+                LOGGER.throwing(CLASS, METHOD, ae);
+                throw ae;
+            }
+        } catch (NumberFormatException nfe) {
+            AliasException ae = new AliasException("WLSDPLY-08508", strValue, targetType.getSimpleName(), nfe);
             LOGGER.throwing(CLASS, METHOD, ae);
             throw ae;
         }

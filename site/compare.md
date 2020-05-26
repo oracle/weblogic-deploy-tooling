@@ -272,8 +272,8 @@ Comparing the new and old models:
  
  **Note**:  The `!` is a notation for the deletion of a non-attribute key element from the model. Missing attributes 
  will be omitted from the resulting model, but shown as messages in the output.  If the attribute value is a list, even 
- if all the individual item within the list is identical but the ordering is different, the attribute is counted as
- different. 
+ if all the individual items within the list are identical but the ordering is different, the attribute is counted as 
+ different.
  
  To compare the two model files and generate the output to files, run the tool as follows:
 

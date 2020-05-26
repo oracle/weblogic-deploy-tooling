@@ -29,8 +29,10 @@
         "Library",
         "MailSession",
         "MessagingBridge",
+        "OHS",
         "PathService",
         "SAFAgent",
+        "SystemComponent",
         "WLDFSystemResource"
     ]
 }

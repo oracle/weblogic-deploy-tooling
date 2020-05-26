@@ -7,13 +7,15 @@ import re
 from oracle.weblogic.deploy.exception import ExceptionHelper
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
+from wlsdeploy.tool.modelhelp import model_help_utils
+from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
+from wlsdeploy.tool.modelhelp.model_sample_printer import ModelSamplePrinter
 from wlsdeploy.util import model
-from wlsdeploy.util.enum import Enum
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 
-_class_name = "ModelHelper"
+_class_name = "ModelHelpPrinter"
 MODEL_PATH_PATTERN = re.compile(r'^([a-zA-Z]+:?)?((/[a-zA-Z0-9]+)*)?$')
 
 
@@ -21,7 +23,6 @@ class ModelHelpPrinter(object):
     """
     Class for printing the recognized model metadata to STDOUT.
     """
-    ControlOptions = Enum(['NORMAL', 'RECURSIVE', 'FOLDERS_ONLY', 'ATTRIBUTES_ONLY'])
 
     def __init__(self, aliases, logger):
         """
@@ -31,7 +32,7 @@ class ModelHelpPrinter(object):
         self._logger = logger
         self._alias_helper = AliasHelper(aliases, self._logger, ExceptionType.CLA)
 
-    def print_model_help(self, model_path, control_option):
+    def print_model_help(self, model_path, control_option, as_sample=False):
         """
         Prints out the help information for a given '''model_path'''. '''model_path''' needs to be specified
         using the following pattern:
@@ -46,17 +47,18 @@ class ModelHelpPrinter(object):
 
         :param model_path: a formatted string containing the model path
         :param control_option: a command-line switch that controls what is output
+        :param as_sample: specifies that a model sample should be output
         :raises CLAException: if a problem is encountered
         """
 
         # print filter information, if not NORMAL
-        if control_option == self.ControlOptions.RECURSIVE:
+        if control_option == ControlOptions.RECURSIVE:
             print
             print _format_message('WLSDPLY-10102')
-        elif control_option == self.ControlOptions.FOLDERS_ONLY:
+        elif control_option == ControlOptions.FOLDERS_ONLY:
             print
             print _format_message('WLSDPLY-10103')
-        elif control_option == self.ControlOptions.ATTRIBUTES_ONLY:
+        elif control_option == ControlOptions.ATTRIBUTES_ONLY:
             print
             print _format_message('WLSDPLY-10104')
 
@@ -65,12 +67,16 @@ class ModelHelpPrinter(object):
         section_name = model_path_tokens[0]
         valid_section_folder_keys = self._alias_helper.get_model_section_top_level_folder_names(section_name)
 
-        if model_path_tokens[0] == 'top':
-            self._print_model_top_level_help()
-        elif len(model_path_tokens) == 1:
-            self._print_model_section_help(section_name, valid_section_folder_keys, control_option)
+        if as_sample:
+            sample_printer = ModelSamplePrinter(self._alias_helper, self._logger)
+            sample_printer.print_model_sample(model_path_tokens, control_option)
         else:
-            self._print_model_folder_help(model_path_tokens, valid_section_folder_keys, control_option)
+            if model_path_tokens[0] == 'top':
+                self._print_model_top_level_help()
+            elif len(model_path_tokens) == 1:
+                self._print_model_section_help(section_name, valid_section_folder_keys, control_option)
+            else:
+                self._print_model_folder_help(model_path_tokens, valid_section_folder_keys, control_option)
 
     def _parse_model_path(self, model_path):
         """
@@ -182,12 +188,12 @@ class ModelHelpPrinter(object):
         print
         _print_indent(model_section, 0)
 
-        if self._show_attributes(control_option):
+        if model_help_utils.show_attributes(control_option):
             attributes_location = self._alias_helper.get_model_section_attribute_location(section_name)
             if attributes_location is not None:
                 self._print_attributes_help(attributes_location, 1)
 
-        if self._show_folders(control_option):
+        if model_help_utils.show_folders(control_option):
             print
             _print_indent(_format_message('WLSDPLY-10107'), 1)
             valid_section_folder_keys.sort()
@@ -195,7 +201,7 @@ class ModelHelpPrinter(object):
             for section_folder_key in valid_section_folder_keys:
                 _print_indent(section_folder_key, 2)
 
-                if control_option == self.ControlOptions.RECURSIVE:
+                if control_option == ControlOptions.RECURSIVE:
                     model_location = LocationContext().append_location(section_folder_key)
                     self._print_subfolders_help(model_location, control_option, 2)
 
@@ -210,7 +216,7 @@ class ModelHelpPrinter(object):
         _method_name = '_print_model_folder_help'
 
         self._logger.finest('1 model_path_tokens={0}, control_option={1}, valid_section_folder_keys={0}',
-                            str(model_path_tokens), self.ControlOptions.from_value(control_option),
+                            str(model_path_tokens), ControlOptions.from_value(control_option),
                             str(valid_section_folder_keys), class_name=_class_name, method_name=_method_name)
 
         section_name = model_path_tokens[0]
@@ -220,13 +226,6 @@ class ModelHelpPrinter(object):
                                                        ', '.join(valid_section_folder_keys))
             self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-
-        folder_path = '/'.join(model_path_tokens[1:])
-        model_path = _format_message('WLSDPLY-10105', '%s:/%s' % (section_name, folder_path))
-
-        # Print 'Path: <model_section>' header
-        print
-        _print_indent(model_path, 0)
 
         # Populate the location context using model_path_tokens[1:]
         model_location = LocationContext()
@@ -239,11 +238,21 @@ class ModelHelpPrinter(object):
             self._logger.finest('2 model_location={0}', model_location, class_name=_class_name,
                                 method_name=_method_name)
 
-        if self._show_attributes(control_option):
+        folder_path = '/'.join(model_path_tokens[1:])
+        model_path = _format_message('WLSDPLY-10105', '%s:/%s' % (section_name, folder_path))
+        type_name = self._get_folder_type_name(model_location)
+        if type_name is not None:
+            model_path += " (" + type_name + ")"
+
+        # Print 'Path: <model_section>' header
+        print
+        _print_indent(model_path, 0)
+
+        if model_help_utils.show_attributes(control_option):
             # Print the attributes associated with location context
             self._print_attributes_help(model_location, 1)
 
-        if self._show_folders(control_option):
+        if model_help_utils.show_folders(control_option):
             # Print the folders associated with location context
             print
             _print_indent(_format_message('WLSDPLY-10107'), 1)
@@ -279,9 +288,14 @@ class ModelHelpPrinter(object):
             self._logger.finest('3 model_location={0}', model_location, class_name=_class_name,
                                 method_name=_method_name)
 
-            _print_indent(key, indent_level + 1)
+            text = key
+            type_name = self._get_folder_type_name(model_location)
+            if type_name is not None:
+                text += " (" + type_name + ")"
 
-            if control_option == self.ControlOptions.RECURSIVE:
+            _print_indent(text, indent_level + 1)
+
+            if control_option == ControlOptions.RECURSIVE:
                 # Call this method recursively
                 self._print_subfolders_help(model_location, control_option, indent_level + 1)
 
@@ -299,11 +313,11 @@ class ModelHelpPrinter(object):
         self._logger.finer('WLSDPLY-05012', str(model_location), str(attr_infos),
                            class_name=_class_name, method_name=_method_name)
 
-        if attr_infos:
-            # Print 'Valid Attributes are :-' area label
-            print
-            _print_indent(_format_message('WLSDPLY-10111'), indent_level)
+        # Print 'Valid Attributes:' area label
+        print
+        _print_indent(_format_message('WLSDPLY-10111'), indent_level)
 
+        if attr_infos:
             maxlen = 0
             for key in attr_infos:
                 if len(key) > maxlen:
@@ -316,21 +330,17 @@ class ModelHelpPrinter(object):
                 msg = formatted_string % (attr_name, attr_infos[attr_name])
                 _print_indent(msg, indent_level + 1)
 
-    def _show_attributes(self, control_option):
+    def _get_folder_type_name(self, location):
         """
-        Determine if attributes should be displayed, based on the control option.
-        :param control_option: the control option to be checked
-        :return: True if attributes should be displayed, False otherwise
+        Return text indicating the type of a folder, such as "multiple".
+        :param location: the location to be checked
+        :return: name of the folder type to be displayed, or None
         """
-        return control_option in [self.ControlOptions.NORMAL, self.ControlOptions.ATTRIBUTES_ONLY]
-
-    def _show_folders(self, control_option):
-        """
-        Determine if folders should be displayed, based on the control option.
-        :param control_option: the control option to be checked
-        :return: True if folders should be displayed, False otherwise
-        """
-        return control_option != self.ControlOptions.ATTRIBUTES_ONLY
+        if self._alias_helper.is_artificial_type_folder(location):
+            return None
+        if self._alias_helper.supports_multiple_mbean_instances(location):
+            return "multiple"
+        return None
 
 
 def _format_message(key, *args):

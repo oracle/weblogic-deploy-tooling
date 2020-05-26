@@ -32,6 +32,7 @@ class DomainTypedef(object):
 
     JRF_TEMPLATE_REGEX = "^(.*jrf_template[0-9._]*\\.jar)|(Oracle JRF WebServices Asynchronous services)$"
     RESTRICTED_JRF_TEMPLATE_REGEX = "^(Oracle Restricted JRF)$"
+    JRF_SERVER_GROUP = 'JRF-MAN-SVR'
 
     def __init__(self, program_name, domain_type):
         """
@@ -108,13 +109,16 @@ class DomainTypedef(object):
 
     def is_jrf_domain_type(self):
         """
-        Determine if this is a JRF domain type by checking for the JRF extension template.
+        Determine if this is a JRF domain type by checking for the JRF extension template or
+        JRF SVR GrOUP.
         This returns False for the Restricted JRF domain type.
         :return: True if the JRF template is present
         """
         for template in self.get_extension_templates():
             if re.match(self.JRF_TEMPLATE_REGEX, template):
                 return True
+        if self.JRF_SERVER_GROUP in self.get_server_groups_to_target():
+            return True
         return False
 
     def is_restricted_jrf_domain_type(self):

@@ -7,4 +7,6 @@ You can use the [Model Help Tool](../model_help.md) to determine the complete li
 ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource/JdbcResource
 ```
 ## Contents
+- [Configured Cluster Sample](configured_cluster.md)
 - [JDBC Sample](jdbc.md)
+- [Work Manager Sample](work_manager.md)
