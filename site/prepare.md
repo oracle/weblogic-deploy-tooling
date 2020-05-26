@@ -28,7 +28,7 @@ You can then customize the `k8s_variable.properties` and `create_k8s_secrets.sh`
 
 ## Customizing target 
 
-The '-target' parameter is referring to a file on the file system '$WDT_INSTALL/lib/target/<target value>/target.json'
+The '-target' parameter is referring to a file on the file system '$WLSDEPLOY_HOME/lib/target/<target value>/target.json'
 
 It has the format
 
@@ -59,5 +59,5 @@ The json file has several attributes that can be customized
 If there is a need to customize your own filers or injectors, you can
 
 1. ```mkdir $WDT_INSTALL/lib/target/mytarget```
-2. Create a file named target.json follow the schema above in $WDT_INSTALL/lib/target/mytarget
+2. Create a file named target.json follow the schema above in $WLSDEPLOY_HOME/lib/target/mytarget
 3. Run the prepareModel command using the parameter -target mytarget
