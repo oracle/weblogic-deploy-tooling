@@ -424,7 +424,7 @@ class VariableInjector(object):
         if not _already_property(attribute_value):
             variable_name = self.__format_variable_name(location, attribute)
             variable_value = _format_variable_value(attribute_value)
-            if self.__model_context is not None and self.__model_context.is_target_k8s() \
+            if self.__model_context is not None and self.__model_context.is_targetted_config() \
                 and variable_value == alias_constants.PASSWORD_TOKEN:
                     model[attribute] = target_configuration_helper.format_as_secret(variable_name)
             else:
@@ -690,7 +690,7 @@ class VariableInjector(object):
 
         # If -target is presence, it take precedence
 
-        if self.__model_context is not None and self.__model_context.is_target_k8s():
+        if self.__model_context is not None and self.__model_context.is_targetted_config():
             configuration = self.__model_context.get_target_configuration()
             if 'variable_injectors' in configuration:
                 variables_dictionary = configuration['variable_injectors']

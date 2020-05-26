@@ -477,8 +477,7 @@ class ModelContext(object):
         target_configuration = self._target
         if target_configuration:
             target_configuration_file = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
-                                        target_configuration,
-                         target_configuration + '.json')
+                                        target_configuration, 'target.json')
             if os.path.exists(target_configuration_file):
                 file_handle = open(target_configuration_file)
                 configuration_dict = eval(file_handle.read())
@@ -489,12 +488,12 @@ class ModelContext(object):
     def get_target(self):
         return self._target
 
-    def is_target_k8s(self):
+    def is_targetted_config(self):
         """
         Return the output directory for generated k8s target.
         :return: output directory
         """
-        return self._target == 'k8s'
+        return self._target is not None
 
     def get_kubernetes_injector_jsonpath(self):
         """

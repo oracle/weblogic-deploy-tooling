@@ -468,7 +468,7 @@ class PrepareModel:
                                              WebLogicHelper(self._logger).get_actual_weblogic_version(), self.cache)
         if self.cache is not None:
             # Generate k8s create secret script, after that clear the dictionary to avoid showing up in the variable file
-            if model_context.is_target_k8s():
+            if model_context.is_targetted_config():
 
                 for item in self.cache:
                     self.secrets_to_generate.add(item)

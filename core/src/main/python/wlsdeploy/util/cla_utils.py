@@ -998,9 +998,6 @@ class CommandLineArgUtil(object):
     def _validate_target_arg(self, value):
         method_name = 'validate_kubernetes_script_file_switch'
 
-        # Check for allowed targets
-
-        allowed_values = [ 'k8s' ]
         target_path = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
                                    value)
         if not os.path.exists(target_path):
@@ -1011,8 +1008,7 @@ class CommandLineArgUtil(object):
         # Check if the target configuration file exists
 
         target_configuration_file = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
-                                                 value,
-                                                 value + '.json')
+                                                 value, 'target.json')
         if not os.path.exists(target_configuration_file):
             ex = exception_helper.create_cla_exception('WLSDPLY-01643', value, target_configuration_file)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
