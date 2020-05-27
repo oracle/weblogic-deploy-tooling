@@ -61,31 +61,11 @@ def __process_args(args):
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
-    required_arg_map, optional_arg_map = cla_util.process_args(args)
+    argument_map = cla_util.process_args(args)
 
-    __verify_required_args_present(required_arg_map)
-    __process_model_args(optional_arg_map)
+    __process_model_args(argument_map)
 
-    combined_arg_map = optional_arg_map.copy()
-    combined_arg_map.update(required_arg_map)
-    return model_context_helper.create_context(_program_name, combined_arg_map)
-
-
-def __verify_required_args_present(required_arg_map):
-    """
-    Verify that the required args are present.
-    :param required_arg_map: the required arguments map
-    :raises CLAException: if one or more of the required arguments are missing
-    """
-    _method_name = '__verify_required_args_present'
-
-    for req_arg in __required_arguments:
-        if req_arg not in required_arg_map:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20005', _program_name, req_arg)
-            ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    return
+    return model_context_helper.create_context(_program_name, argument_map)
 
 
 def __process_model_args(optional_arg_map):

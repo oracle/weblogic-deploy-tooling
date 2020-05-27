@@ -51,17 +51,12 @@ def __process_args(args):
     _method_name = '__process_args'
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
-    required_arg_map, optional_arg_map = cla_util.process_args(args, trailing_arg_count=1)
-
-    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
-
-    combined_arg_map = optional_arg_map.copy()
-    combined_arg_map.update(required_arg_map)
+    argument_map = cla_util.process_args(args, trailing_arg_count=1)
 
     # zero or one output type arguments should be set
     found = False
     for key in __output_types:
-        if key in combined_arg_map:
+        if key in argument_map:
             if found:
                 types_text = ', '.join(__output_types)
                 ex = exception_helper.create_cla_exception('WLSDPLY-10100', types_text)
@@ -70,7 +65,7 @@ def __process_args(args):
                 raise ex
             found = True
 
-    return model_context_helper.create_context(_program_name, combined_arg_map)
+    return model_context_helper.create_context(_program_name, argument_map)
 
 
 def print_help(model_path, model_context):

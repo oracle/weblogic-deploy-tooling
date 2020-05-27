@@ -68,13 +68,15 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME%
 ECHO         [-help]
-ECHO         -oracle_home ^<oracle_home^>
+ECHO         [-oracle_home ^<oracle_home^>]
 ECHO         [-attributes_only ^| -folders_only ^| -recursive]
 ECHO         [-model_sample]
 ECHO         ^<model_path^>
 ECHO.
 ECHO     where:
-ECHO         oracle_home - an existing Oracle Home directory
+ECHO         oracle_home - an existing Oracle Home directory.
+ECHO                       This is required unless the ORACLE_HOME environment
+ECHO                       variable is set.
 ECHO.
 ECHO         model_path  - the path to the model element to be examined.
 ECHO                       the format is [^<section^>:][/^<folder^>]...

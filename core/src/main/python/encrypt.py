@@ -28,7 +28,6 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.encrypt import encryption_utils
 from wlsdeploy.tool.util.alias_helper import AliasHelper
-from wlsdeploy.util import cla_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import variables as variable_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -63,28 +62,25 @@ def __process_args(args):
     _method_name = '__process_args'
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
-    required_arg_map, optional_arg_map = cla_util.process_args(args)
+    argument_map = cla_util.process_args(args)
 
-    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
-    __validate_mode_args(optional_arg_map)
-    __process_passphrase_arg(optional_arg_map)
+    __validate_mode_args(argument_map)
+    __process_passphrase_arg(argument_map)
 
     #
     # Prompt for the password to encrypt if the -manual switch was specified
     #
-    if CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH in optional_arg_map and \
-            CommandLineArgUtil.ONE_PASS_SWITCH not in optional_arg_map:
+    if CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH in argument_map and \
+            CommandLineArgUtil.ONE_PASS_SWITCH not in argument_map:
         try:
             pwd = getcreds.getpass('WLSDPLY-04200')
         except IOException, ioe:
             ex = exception_helper.create_encryption_exception('WLSDPLY-04201', ioe.getLocalizedMessage(), error=ioe)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-        optional_arg_map[CommandLineArgUtil.ONE_PASS_SWITCH] = String(pwd)
+        argument_map[CommandLineArgUtil.ONE_PASS_SWITCH] = String(pwd)
 
-    combined_arg_map = optional_arg_map.copy()
-    combined_arg_map.update(required_arg_map)
-    model_context = ModelContext(_program_name, combined_arg_map)
+    model_context = ModelContext(_program_name, argument_map)
     return model_context
 
 

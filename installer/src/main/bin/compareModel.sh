@@ -31,7 +31,7 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help]"
-  echo "          -oracle_home <oracle_home> "
+  echo "          [-oracle_home <oracle_home> required unless the ORACLE_HOME environment variable is set]"
   echo "          [-output_dir <output_dir> write the outputs to the directory specified]"
   echo "          [                        diffed_model.json - json output of the differences between the models]"
   echo "          [                        diffed_model.yaml - yaml output of the differences between the models]"

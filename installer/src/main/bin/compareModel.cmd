@@ -64,7 +64,7 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME%
 ECHO           [-help]
-ECHO           -oracle_home ^<oracle_home^>
+ECHO           [-oracle_home ^<oracle_home^> required unless the ORACLE_HOME environment variable is set]
 ECHO           [-output_dir ^<output_dir^> write the outputs to the directory specified]
 ECHO           [                        diffed_model.json - json output of the differences between the models]
 ECHO           [                        diffed_model.yaml - yaml output of the differences between the models]

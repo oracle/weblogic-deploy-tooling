@@ -70,7 +70,7 @@ if "%SHOW_USAGE%" == "false" (
 
 :usage
 ECHO.
-ECHO Usage: %SCRIPT_NAME% -oracle_home ^<oracle_home^>
+ECHO Usage: %SCRIPT_NAME% [-oracle_home ^<oracle_home^>]
 ECHO              -domain_home ^<domain_home^>
 ECHO              -archive_file ^<archive_file^>
 ECHO              [-model_file ^<model_file^>]
@@ -85,7 +85,9 @@ ECHO               -admin_user ^<admin_user^>
 ECHO              ]
 ECHO.
 ECHO     where:
-ECHO         oracle_home    - the existing Oracle Home directory for the domain
+ECHO         oracle_home    - the existing Oracle Home directory for the domain.
+ECHO                          This is required unless the ORACLE_HOME environment
+ECHO                          variable is set.
 ECHO.
 ECHO         domain_home    - the domain home directory
 ECHO.
@@ -115,8 +117,6 @@ ECHO.
 ECHO         target         - targeting platform (k8s only)
 ECHO.
 ECHO         output_dir     - output directory for -target k8s
-ECHO.
-ECHO         admin_user     - the admin username (used for online discovery)
 ECHO.
 
 :exit_script

@@ -31,10 +31,10 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help]"
-  echo "          -oracle_home <oracle_home> "
+  echo "          [-oracle_home <oracle_home> required unless the ORACLE_HOME environment variable is set]"
   echo "          [-output_dir <output_dir>]"
   echo "          [-variable_file <variable file>  variable file used for macro substitution]"
-  echo "          [-model)file <model list>       "
+  echo "          [-model_file <model list>       "
   echo "          [-target k8s "
   echo ""
 }

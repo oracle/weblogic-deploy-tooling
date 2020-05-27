@@ -27,6 +27,8 @@ from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
+
+from oracle.weblogic.deploy.aliases import AliasException
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
@@ -82,22 +84,19 @@ def __process_args(args, logger):
     _method_name = '__process_args'
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
-    required_arg_map, optional_arg_map = cla_util.process_args(args)
+    argument_map = cla_util.process_args(args)
 
-    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
+    __process_target_arg(argument_map, logger)
 
-    __process_target_arg(optional_arg_map, required_arg_map, logger)
+    return ModelContext(_program_name, argument_map)
 
-    combined_arg_map = optional_arg_map.copy()
-    combined_arg_map.update(required_arg_map)
-    return ModelContext(_program_name, combined_arg_map)
 
-def __process_target_arg(optional_arg_map, required_arg_map, logger):
+def __process_target_arg(argument_map, logger):
 
     _method_name = '__process_target_arg'
 
     # if -target is specified -output_dir is required
-    output_dir = required_arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
+    output_dir = argument_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
     if output_dir is None or os.path.isdir(output_dir) is False:
         if not os.path.isdir(output_dir):
             ex = exception_helper.create_cla_exception('WLSDPLY-01642', output_dir)
@@ -105,9 +104,9 @@ def __process_target_arg(optional_arg_map, required_arg_map, logger):
             raise ex
 
     # Set the -variable_file parameter if not present with default
-    if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in optional_arg_map:
-        optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = os.path.join(output_dir,
-                                                                                 "k8s_variable.properties")
+    if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in argument_map:
+        argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = os.path.join(output_dir,
+                                                                             "k8s_variable.properties")
 
 class PrepareModel:
     """
@@ -348,7 +347,7 @@ class PrepareModel:
         if tokens_length > 1:
             # For AdminPassword
             if model_path_tokens[0] == 'domainInfo:' and model_path_tokens[1] == '':
-                password_name = "@@SECRET:@@DOAMIN-UID@@-weblogic-credentials:%s@@" % (attribute_name.lower())
+                password_name = "@@SECRET:@@DOMAIN-UID@@-weblogic-credentials:%s@@" % (attribute_name.lower())
                 self.cache[attribute_name] = ''
             else:
                 password_name = target_configuration_helper.format_as_secret(variable_name)
