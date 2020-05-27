@@ -70,7 +70,7 @@ if "%SHOW_USAGE%" == "false" (
 
 :usage
 ECHO.
-ECHO Usage: %SCRIPT_NAME% -oracle_home ^<oracle_home^>
+ECHO Usage: %SCRIPT_NAME% [-oracle_home ^<oracle_home^>]
 ECHO              -domain_home ^<domain_home^>
 ECHO              -archive_file ^<archive_file^>
 ECHO              [-model_file ^<model_file^>]
@@ -78,12 +78,16 @@ ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO              [-java_home ^<java_home^>]
+ECHO              [-target k8s]
+ECHO              [-output_dir ^<output_dir>]
 ECHO              [-admin_url ^<admin_url^>
 ECHO               -admin_user ^<admin_user^>
 ECHO              ]
 ECHO.
 ECHO     where:
-ECHO         oracle_home    - the existing Oracle Home directory for the domain
+ECHO         oracle_home    - the existing Oracle Home directory for the domain.
+ECHO                          This is required unless the ORACLE_HOME environment
+ECHO                          variable is set.
 ECHO.
 ECHO         domain_home    - the domain home directory
 ECHO.
@@ -109,6 +113,10 @@ ECHO.
 ECHO         admin_url      - the admin server URL (used for online discovery)
 ECHO.
 ECHO         admin_user     - the admin username (used for online discovery)
+ECHO.
+ECHO         target         - targeting platform (k8s only)
+ECHO.
+ECHO         output_dir     - output directory for -target k8s
 ECHO.
 
 :exit_script

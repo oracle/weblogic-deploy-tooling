@@ -366,7 +366,9 @@ class AliasEntries(object):
                         name = location.get_name_for_token(name_token)
                         if name is not None:
                             my_loc.add_name_token(name_token, name)
-                            model_folder_path += '%s/' % name
+                            # dont include token in path for single-unpredictable
+                            if not self.is_location_child_folder_type(my_loc, ChildFoldersTypes.SINGLE_UNPREDICTABLE):
+                                 model_folder_path += '%s/' % name
                         elif location_folder != location_folders[-1]:
                             # Throw AliasException if name_token is missing
                             # from any location folder, except the last one

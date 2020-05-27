@@ -838,10 +838,13 @@ class ApplicationsDeployer(Deployer):
                 plan_file = dictionary_utils.get_element(app_dict, PLAN_PATH)
                 targets = dictionary_utils.get_element(app_dict, TARGET)
                 options = _get_deploy_options(model_apps, app_name, library_module='false')
+
+                # any attribute with 'uses_path_tokens' may be in the archive (such as SourcePath)
                 for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
                     if uses_path_tokens_attribute_name in app_dict:
-                        self.__extract_source_path_from_archive(app_dict[uses_path_tokens_attribute_name],
-                                                                APPLICATION, app_name)
+                        path = app_dict[uses_path_tokens_attribute_name]
+                        if deployer_utils.is_path_into_archive(path):
+                            self.__extract_source_path_from_archive(path, APPLICATION, app_name)
 
                 location.add_name_token(token_name, app_name)
                 resource_group_template_name, resource_group_name, partition_name = \

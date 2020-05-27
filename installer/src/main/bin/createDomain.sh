@@ -33,7 +33,7 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help] [-use_encryption] [-run_rcu]"
-  echo "          -oracle_home <oracle_home>"
+  echo "          [-oracle_home <oracle_home>]"
   echo "          [-domain_parent <domain_parent> | -domain_home <domain_home>]"
   echo "          -domain_type <domain_type>"
   echo "          [-java_home <java_home>]"
@@ -47,6 +47,8 @@ usage() {
   echo ""
   echo "    where:"
   echo "        oracle_home     - the existing Oracle Home directory for the domain."
+  echo "                          This is required unless the ORACLE_HOME environment"
+  echo "                          variable is set."
   echo ""
   echo "        domain_parent   - the parent directory where the domain should be created."
   echo "                          The domain name from the model will be appended to this"

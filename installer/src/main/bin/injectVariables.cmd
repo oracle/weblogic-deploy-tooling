@@ -67,14 +67,16 @@ if "%SHOW_USAGE%" == "false" (
 :usage
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help]
-ECHO              -oracle_home ^<oracle_home^>
+ECHO              [-oracle_home ^<oracle_home^>]
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-archive_file ^<archive_file^>]
 ECHO              [-variable_injector_file ^<variable_injector_file^>]
 ECHO              [-variable_properties_file ^<variable_properties_file^>]
 ECHO.
 ECHO     where:
-ECHO         oracle_home            - the existing Oracle Home directory with the correct version for the model
+ECHO         oracle_home            - the existing Oracle Home directory with the correct version for the model.
+ECHO                                  This is required unless the ORACLE_HOME environment
+ECHO                                  variable is set.
 ECHO.
 ECHO         model_file             - the location of the model file in which variables will be injected.
 ECHO                                  If not specified, the tool will look for the model
