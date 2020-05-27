@@ -77,7 +77,9 @@ class CommandLineArgUtil(object):
     VARIABLE_PROPERTIES_FILE_SWITCH = '-variable_properties_file'
     # extractDomainResource output file
     DOMAIN_RESOURCE_FILE_SWITCH   = '-domain_resource_file'
-    COMPARE_MODEL_OUTPUT_DIR_SWITCH = "-output_dir"
+    OUTPUT_DIR_SWITCH = "-output_dir"
+
+    TARGET_SWITCH = '-target'
 
     # arguments that are true if specified, false if not
     BOOLEAN_SWITCHES = [
@@ -294,6 +296,10 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx, key)
                 full_path = self._validate_compare_model_output_dir_arg(value)
                 self._add_arg(key, full_path, True)
+            elif self.is_target_switch(key):
+                value, idx = self._get_arg_value(args, idx, key)
+                value = self._validate_target_arg(value)
+                self._add_arg(key, value, True)
             else:
                 ex = exception_helper.create_cla_exception('WLSDPLY-01601', self._program_name, key)
                 ex.setExitCode(self.USAGE_ERROR_EXIT_CODE)
@@ -975,18 +981,61 @@ class CommandLineArgUtil(object):
         return key in self.BOOLEAN_SWITCHES
 
     def is_compare_model_output_dir_switch(self, key):
-        return self.COMPARE_MODEL_OUTPUT_DIR_SWITCH == key
+        return self.OUTPUT_DIR_SWITCH == key
 
     def _validate_compare_model_output_dir_arg(self, value):
         method_name = '_validate_compare_model_output_dir_arg'
         try:
             variables = JFileUtils.validateDirectoryName(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01637', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01616', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return variables.getAbsolutePath()
+
+    def is_target_switch(self, key):
+        return key == self.TARGET_SWITCH
+
+    def _validate_target_arg(self, value):
+        method_name = 'validate_kubernetes_script_file_switch'
+
+        target_path = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
+                                   value)
+        if not os.path.exists(target_path):
+            ex = exception_helper.create_cla_exception('WLSDPLY-01641', value)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        # Check if the target configuration file exists
+
+        target_configuration_file = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
+                                                 value, 'target.json')
+        if not os.path.exists(target_configuration_file):
+            ex = exception_helper.create_cla_exception('WLSDPLY-01643', value, target_configuration_file)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        else:
+            try:
+                # verify the file is in proper format
+
+                file_handle = open(target_configuration_file)
+                config_dictionary = eval(file_handle.read())
+                if 'validation_method' in config_dictionary:
+                    if config_dictionary['validation_method'] not in [ 'strict', 'lax']:
+                        ex = exception_helper.create_cla_exception('WLSDPLY-01645', target_configuration_file, se)
+                        ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+                        self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                        raise ex
+            except SyntaxError, se:
+                ex = exception_helper.create_cla_exception('WLSDPLY-01644', target_configuration_file, se)
+                ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+                self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                raise ex
+
+        return value
+
 
     ###########################################################################
     # Helper methods                                                          #
