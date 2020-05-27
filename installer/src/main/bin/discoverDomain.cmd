@@ -118,8 +118,6 @@ ECHO         target         - targeting platform (k8s only)
 ECHO.
 ECHO         output_dir     - output directory for -target k8s
 ECHO.
-ECHO         admin_user     - the admin username (used for online discovery)
-ECHO.
 
 :exit_script
 IF DEFINED USE_CMD_EXIT (
