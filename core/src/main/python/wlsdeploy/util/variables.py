@@ -81,27 +81,7 @@ def write_variables(program_name, variable_map, file_path, append=False):
     """
     _method_name = 'write_variables'
     _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
-    if isinstance(variable_map, OrderedDict):
-        write_ordered_variables(program_name, variable_map, file_path, append)
-    else:
-        props = Properties()
-        for key, value in variable_map.items():
-            props.setProperty(key, value)
-
-        comment = exception_helper.get_message('WLSDPLY-01731', program_name)
-        output_stream = None
-        try:
-            output_stream = FileOutputStream(File(file_path), Boolean(append))
-            props.store(output_stream, comment)
-            output_stream.close()
-        except IOException, ioe:
-            _logger.fine('WLSDPLY-20007', file_path, ioe.getLocalizedMessage())
-            ex = exception_helper.create_variable_exception('WLSDPLY-20007', file_path,
-                                                            ioe.getLocalizedMessage(), error=ioe)
-            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            if output_stream is not None:
-                output_stream.close()
-            raise ex
+    write_ordered_variables(program_name, variable_map, file_path, append)
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
 

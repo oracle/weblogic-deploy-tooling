@@ -76,6 +76,10 @@ usage() {
   echo ""
   echo "        admin_user      - the admin username (used for online deploy)"
   echo ""
+  echo "        target          - targeting platform (k8s only)"
+  echo ""
+  echo "        output_dir      - output directory for -target k8s"
+  echo ""
 }
 
 WLSDEPLOY_PROGRAM_NAME="discoverDomain"; export WLSDEPLOY_PROGRAM_NAME

@@ -836,7 +836,7 @@ class AliasesTestCase(unittest.TestCase):
         path = self.aliases.get_model_folder_path(location)
         self.assertEqual(path, expected)
 
-        expected = 'topology:/SecurityConfiguration/mydomain/Realm/myrealm/AuthenticationProvider/' \
+        expected = 'topology:/SecurityConfiguration/Realm/myrealm/AuthenticationProvider/' \
                    'MyLDAPAuthentication/LDAPAuthenticator'
 
         # Test artificial folder for security providers

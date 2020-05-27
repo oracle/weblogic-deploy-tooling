@@ -50,6 +50,7 @@ from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+from wlsdeploy.util import target_configuration_helper
 
 wlst_helper.wlst_functions = globals()
 
@@ -73,7 +74,9 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_URL_SWITCH,
     CommandLineArgUtil.ADMIN_USER_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
-    CommandLineArgUtil.TARGET_MODE_SWITCH
+    CommandLineArgUtil.TARGET_MODE_SWITCH,
+    CommandLineArgUtil.OUTPUT_DIR_SWITCH,
+    CommandLineArgUtil.TARGET_SWITCH
 ]
 
 
@@ -89,12 +92,31 @@ def __process_args(args):
     argument_map = cla_util.process_args(args)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
+    __process_target_arg(argument_map)
     __process_archive_filename_arg(argument_map)
     __process_variable_filename_arg(argument_map)
     __process_java_home(argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map)
 
+def __process_target_arg(optional_arg_map):
+
+    _method_name = '__process_target_arg'
+
+    if CommandLineArgUtil.TARGET_SWITCH in optional_arg_map:
+        # if -target is specified -output_dir is required
+        output_dir = optional_arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
+        if output_dir is None or os.path.isdir(output_dir) is False:
+            if not os.path.isdir(output_dir):
+                ex = exception_helper.create_cla_exception('WLSDPLY-01642', output_dir)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+
+        # Set the -variable_file parameter if not present with default
+
+        if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in optional_arg_map:
+            optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = os.path.join(output_dir,
+                                                                                     "k8s_variable.properties")
 
 def __process_archive_filename_arg(required_arg_map):
     """
@@ -396,15 +418,25 @@ def __check_and_customize_model(model, model_context, aliases, injector):
     _method_name = '__check_and_customize_model'
     __logger.entering(class_name=_class_name, method_name=_method_name)
 
-    if filter_helper.apply_filters(model.get_model(), "discover"):
+    if filter_helper.apply_filters(model.get_model(), "discover", model_context):
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
     cache = None
     if injector is not None:
         cache = injector.get_variable_cache()
+        # Generate k8s create secret script, after that clear the dictionary to avoid showing up in the variable file
+        if model_context.is_targetted_config():
+            validation_method = model_context.get_target_configuration()['validation_method']
+            model_context.set_validation_method(validation_method)
+            target_configuration_helper.generate_k8s_script(model_context.get_kubernetes_variable_file(), cache)
+            cache.clear()
+
+    variable_injector = VariableInjector(_program_name, model.get_model(), model_context,
+                     WebLogicHelper(__logger).get_actual_weblogic_version(), cache)
+
     inserted, variable_model, variable_file_name = \
-        VariableInjector(_program_name, model.get_model(), model_context,
-                         WebLogicHelper(__logger).get_actual_weblogic_version(), cache).inject_variables_keyword_file()
+        variable_injector.inject_variables_keyword_file()
+
     if inserted:
         model = Model(variable_model)
     try:

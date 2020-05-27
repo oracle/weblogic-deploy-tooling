@@ -58,7 +58,7 @@ __required_arguments = [
 ]
 
 __optional_arguments = [
-    CommandLineArgUtil.COMPARE_MODEL_OUTPUT_DIR_SWITCH,
+    CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH
 ]
 

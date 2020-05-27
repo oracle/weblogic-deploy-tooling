@@ -76,7 +76,9 @@ class ModelContext(object):
         self._validation_method = None
         self._rollback_if_restart_required = None
         self._domain_resource_file = None
-        self._compare_model_output_dir = None
+        self._output_dir = None
+        self._target = None
+
         self._trailing_args = []
 
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
@@ -186,6 +188,9 @@ class ModelContext(object):
         if CommandLineArgUtil.TRAILING_ARGS_SWITCH in arg_map:
             self._trailing_args = arg_map[CommandLineArgUtil.TRAILING_ARGS_SWITCH]
 
+        if CommandLineArgUtil.TARGET_SWITCH in arg_map:
+            self._target = arg_map[CommandLineArgUtil.TARGET_SWITCH]
+
         if CommandLineArgUtil.TARGET_MODE_SWITCH in arg_map:
             wlst_mode_string = arg_map[CommandLineArgUtil.TARGET_MODE_SWITCH]
             if wlst_mode_string.lower() == 'online':
@@ -193,8 +198,8 @@ class ModelContext(object):
             else:
                 self._wlst_mode = WlstModes.OFFLINE
 
-        if CommandLineArgUtil.COMPARE_MODEL_OUTPUT_DIR_SWITCH in arg_map:
-            self._compare_model_output_dir = arg_map[CommandLineArgUtil.COMPARE_MODEL_OUTPUT_DIR_SWITCH]
+        if CommandLineArgUtil.OUTPUT_DIR_SWITCH in arg_map:
+            self._output_dir = arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
 
         if self._wl_version is None:
             self._wl_version = self._wls_helper.get_actual_weblogic_version()
@@ -349,6 +354,13 @@ class ModelContext(object):
             self._validation_method = 'strict'
         return self._validation_method
 
+    def set_validation_method(self, method):
+        """
+        Set the validation method.
+        :param method: validation method
+        """
+        self._validation_method = method
+
     def get_archive_file(self):
         """
         Get the archive file.
@@ -452,8 +464,55 @@ class ModelContext(object):
         Return the compare model output dir
         :return: output dir for compare models tool
         """
+        return self._output_dir
 
-        return self._compare_model_output_dir
+    def get_kubernetes_output_dir(self):
+        """
+        Return the output directory for generated k8s target.
+        :return: output directory
+        """
+        return self._output_dir
+
+    def get_kubernetes_variable_file(self):
+        """
+        Return the generated k8s variable file name
+        :return: variable file name
+        """
+        return os.path.join(self._output_dir, "k8s_variable.properties")
+
+    def get_target_configuration(self):
+        """
+        Return the target configuration based on the target.
+        :return: target configuration
+        """
+        target_configuration = self._target
+        if target_configuration:
+            target_configuration_file = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
+                                        target_configuration, 'target.json')
+            if os.path.exists(target_configuration_file):
+                file_handle = open(target_configuration_file)
+                configuration_dict = eval(file_handle.read())
+                return configuration_dict
+
+        return None
+
+    def get_target(self):
+        return self._target
+
+    def is_targetted_config(self):
+        """
+        Return the output directory for generated k8s target.
+        :return: output directory
+        """
+        return self._target is not None
+
+    def get_kubernetes_injector_jsonpath(self):
+        """
+        Return the kubernetes script file
+        :return: kubernetes script file
+        """
+        return self._kubernetes_injector_jsonpath
+
     def is_encryption_manual(self):
         """
         Get whether or not the user selected to do manual encryption.
