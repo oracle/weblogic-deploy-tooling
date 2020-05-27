@@ -8,7 +8,7 @@
 
     <groupId>com.oracle.weblogic.lifecycle</groupId>
     <artifactId>weblogic-deploy</artifactId>
-    <version>1.9.0</version>
+    <version>1.9.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Oracle WebLogic Server Deploy Tooling</name>
