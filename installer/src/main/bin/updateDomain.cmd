@@ -70,7 +70,7 @@ if "%SHOW_USAGE%" == "false" (
 :usage
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help] [-use_encryption]
-ECHO              -oracle_home ^<oracle_home^>
+ECHO              [-oracle_home ^<oracle_home^>]
 ECHO              -domain_home ^<domain_home^>
 ECHO              [-archive_file ^<archive_file^>]
 ECHO              [-model_file ^<model_file^>]
@@ -83,7 +83,9 @@ ECHO               -admin_user ^<admin_user^>
 ECHO              ]
 ECHO.
 ECHO     where:
-ECHO         oracle_home     - the existing Oracle Home directory for the domain
+ECHO         oracle_home     - the existing Oracle Home directory for the domain.
+ECHO                           This is required unless the ORACLE_HOME environment
+ECHO                           variable is set.
 ECHO.
 ECHO         domain_home     - the domain home directory
 ECHO.

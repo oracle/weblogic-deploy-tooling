@@ -1,18 +1,15 @@
 @ECHO OFF
 @rem **************************************************************************
-@rem modelHelp.cmd
+@rem prepareModel.cmd
 @rem
 @rem Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
-@rem       modelHelp.cmd - WLS Deploy tool to list the folders and
-@rem                       attributes available at a specific location
-@rem                       in the domain model.
+@rem        prepareModel.sh - prepare the model(s) for deploying to WebLogic Kubernetes Operator
 @rem
 @rem     DESCRIPTION
-@rem       This script uses the alias framework to determine which attributes
-@rem       and folders are available at a specific location in the model.
+@rem       This script prepare the models for k8s deployment
 @rem
 @rem This script uses the following variables:
 @rem
@@ -32,7 +29,7 @@
 
 SETLOCAL
 
-SET WLSDEPLOY_PROGRAM_NAME=modelHelp
+SET WLSDEPLOY_PROGRAM_NAME=prepareModel
 
 SET SCRIPT_NAME=%~nx0
 SET SCRIPT_ARGS=%*
@@ -53,7 +50,7 @@ if %RETURN_CODE% NEQ 0 (
   GOTO done
 )
 
-call "%SCRIPT_PATH%\shared.cmd" :runJython model_help.py
+call "%SCRIPT_PATH%\shared.cmd" :runJython prepare_model.py
 SET RETURN_CODE=%ERRORLEVEL%
 
 :done
@@ -63,46 +60,15 @@ if %RETURN_CODE% == 99 set SHOW_USAGE=true
 if "%SHOW_USAGE%" == "false" (
     GOTO exit_script
 )
-
 :usage
 ECHO.
 ECHO Usage: %SCRIPT_NAME%
-ECHO         [-help]
-ECHO         [-oracle_home ^<oracle_home^>]
-ECHO         [-attributes_only ^| -folders_only ^| -recursive]
-ECHO         [-model_sample]
-ECHO         ^<model_path^>
-ECHO.
-ECHO     where:
-ECHO         oracle_home - an existing Oracle Home directory.
-ECHO                       This is required unless the ORACLE_HOME environment
-ECHO                       variable is set.
-ECHO.
-ECHO         model_path  - the path to the model element to be examined.
-ECHO                       the format is [^<section^>:][/^<folder^>]...
-ECHO.
-ECHO     model_path examples:
-ECHO         resources:/JDBCSystemResource/JdbcResource
-ECHO         /JDBCSystemResource/JdbcResource
-ECHO         resources:
-ECHO         resources
-ECHO         top  (this will list the top-level section names)
-ECHO.
-ECHO     By default, the tool will display the folders and attributes for the
-ECHO     specified model path.
-ECHO.
-ECHO     The -attributes_only switch will cause the tool to list only the attributes
-ECHO     for the specified model path.
-ECHO.
-ECHO     The -folders_only switch will cause the tool to list only the folders
-ECHO     for the specified model path.
-ECHO.
-ECHO     The -recursive switch will cause the tool to list only the folders
-ECHO     for the specified model path, and recursively include the folders below
-ECHO     that path.
-ECHO.
-ECHO     The -model_sample switch will output a sample model section that can be
-ECHO     used to create a domain model.
+ECHO           [-help]
+ECHO           [-oracle_home ^<oracle_home^> required unless the ORACLE_HOME environment variable is set]
+ECHO           [-output_dir ^<output_dir^> write the outputs to the directory specified]
+ECHO           [-variable_file ^<variable file^>  variable file used for macro substitution]
+ECHO           [-model_file ^<model file^>  model files]
+ECHO           [-target k8s]
 ECHO.
 
 :exit_script

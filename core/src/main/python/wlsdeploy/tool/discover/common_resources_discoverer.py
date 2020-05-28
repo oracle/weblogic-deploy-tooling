@@ -160,7 +160,7 @@ class CommonResourcesDiscoverer(Discoverer):
                 mail_session_result = result[mail_session]
                 location.add_name_token(name_token, mail_session)
                 self._populate_model_parameters(mail_session_result, location)
-                _fix_passwords_in_properties(mail_session_result)
+                _fix_passwords_in_mail_session_properties(mail_session_result)
                 location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
@@ -425,7 +425,7 @@ class CommonResourcesDiscoverer(Discoverer):
         return model_top_folder_name, result
 
 
-def _fix_passwords_in_properties(dictionary):
+def _fix_passwords_in_mail_session_properties(dictionary):
     """
     Look for password properties in the mail session properties string, and replace the password with a fix me token.
     :param dictionary: containing the discovered mail session attributes
