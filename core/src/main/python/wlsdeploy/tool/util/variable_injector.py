@@ -181,31 +181,31 @@ class VariableInjector(object):
 
         # check for file location overrides from command line
 
-        variable_injector_location_file = path_utils.find_config_path(VARIABLE_INJECTOR_FILE_NAME)
         injector_file_override = self.__model_context.get_variable_injector_file()
         if injector_file_override is not None:
             variable_injector_location_file = injector_file_override
-            _logger.fine('WLSDPLY-19600', injector_file_override, class_name=_class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-19600', injector_file_override, class_name=_class_name, method_name=_method_name)
+        else:
+            variable_injector_location_file = path_utils.find_config_path(VARIABLE_INJECTOR_FILE_NAME)
 
-        variable_keywords_location_file = path_utils.find_config_path(VARIABLE_KEYWORDS_FILE_NAME)
         keywords_file_override = self.__model_context.get_variable_keywords_file()
         if keywords_file_override is not None:
             variable_keywords_location_file = keywords_file_override
-            _logger.fine('WLSDPLY-19601', keywords_file_override, class_name=_class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-19601', keywords_file_override, class_name=_class_name, method_name=_method_name)
+        else:
+            variable_keywords_location_file = path_utils.find_config_path(VARIABLE_KEYWORDS_FILE_NAME)
 
-        variable_file_location = variables.get_default_variable_file_name(self.__model_context)
-
-        # discover may have passed -variable_file
+        # discover may have passed -variable_file; inject variables may have passed -variable_properties_file
         variable_file_override = self.__model_context.get_variable_file()
-
-        # inject variables may have passed
         properties_file_override = self.__model_context.get_variable_properties_file()
 
         if variable_file_override is not None:
             variable_file_location = variable_file_override
         elif properties_file_override is not None:
             variable_file_location = properties_file_override
-            _logger.fine('WLSDPLY-19602', properties_file_override, class_name=_class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-19602', properties_file_override, class_name=_class_name, method_name=_method_name)
+        else:
+            variable_file_location = variables.get_default_variable_file_name(self.__model_context)
 
         if variable_file_location:
             variable_file_location = self._replace_tokens(variable_file_location)
