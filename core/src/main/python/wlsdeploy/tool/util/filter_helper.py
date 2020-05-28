@@ -8,11 +8,11 @@ import sys
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import path_utils
 from wlsdeploy.util.model_translator import FileToPython
 
 __class_name = 'filter_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
-__filter_file_location = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'model_filters.json')
 
 __id_filter_map = {
     # 'filterId': filter_method
@@ -28,7 +28,9 @@ def apply_filters(model, tool_type):
     :raises: BundleAwareException of the specified type: if an error occurs
     """
     _method_name = 'apply_filters'
+    global __filter_file_location
 
+    __filter_file_location = path_utils.find_config_path('model_filters.json')
     filter_applied = False
 
     try:
@@ -54,11 +56,13 @@ def _apply_filter(model, the_filter):
     """
     Apply the specified filter to the specified model.
     :param model: the model to be filtered
-    :param filter: a dictionary containing the filter parameters
+    :param the_filter: a dictionary containing the filter parameters
     :return: True if the specified filter was applied, False otherwise
     :raises: BundleAwareException of the specified type: if an error occurs
     """
     _method_name = '_apply_filter'
+    global __filter_file_location
+
     id = dictionary_utils.get_element(the_filter, 'id')
     if id is not None:
         return _apply_id_filter(model, id)

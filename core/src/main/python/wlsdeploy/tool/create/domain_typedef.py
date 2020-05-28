@@ -2,6 +2,7 @@
 Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os
 import re
 
 from java.lang import IllegalArgumentException
@@ -47,7 +48,7 @@ class DomainTypedef(object):
         self.wls_helper = WebLogicHelper(self._logger)
 
         file_name = domain_type + self.__domain_typedef_extension
-        self._domain_typedef_filename = path_utils.find_config_path('typedefs', file_name)
+        self._domain_typedef_filename = path_utils.find_config_path(os.path.join('typedefs', file_name))
 
         # No need to explicitly validate the filename since the JsonToPython constructor does that...
         try:
