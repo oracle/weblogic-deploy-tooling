@@ -10,6 +10,7 @@ import java.io.File as JFile
 import oracle.weblogic.deploy.util.StringUtils as JStringUtils
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
+WLSDEPLOY_HOME_VARIABLE = 'WLSDEPLOY_HOME'
 CUSTOM_CONFIG_VARIABLE = 'WDT_CUSTOM_CONFIG'
 
 __logger = PlatformLogger('wlsdeploy.util')
@@ -178,5 +179,5 @@ def find_config_path(file_path):
             __logger.info('WLSDPLY-01725', custom_file_path, class_name=_class_name, method_name=_method_name)
             return custom_file_path
 
-    wls_deploy_path = os.environ.get('WLSDEPLOY_HOME', '')
+    wls_deploy_path = os.environ.get(WLSDEPLOY_HOME_VARIABLE, '')
     return os.path.join(wls_deploy_path, 'lib', file_path)

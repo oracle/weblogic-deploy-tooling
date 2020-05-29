@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy, os, re
@@ -22,6 +22,7 @@ from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.util.target_configuration_helper as target_configuration_helper
 from wlsdeploy.util import path_utils
+from wlsdeploy.util.path_utils import WLSDEPLOY_HOME_VARIABLE
 
 WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
 
@@ -70,7 +71,6 @@ _fake_name_replacement = re.compile('.' + _fake_name_marker)
 _white_space_replacement = re.compile('\s')
 _split_around_special_names = re.compile('([\w]+\[[\w\.,]+\])|\.')
 
-_wlsdeploy_location = os.environ.get('WLSDEPLOY_HOME')
 _class_name = 'variable_injector'
 _logger = PlatformLogger('wlsdeploy.tool.util')
 
@@ -606,7 +606,8 @@ class VariableInjector(object):
     def _replace_tokens(self, path_string):
         result = path_string
         if path_string.startswith(WEBLOGIC_DEPLOY_HOME_TOKEN):
-            result = path_string.replace(WEBLOGIC_DEPLOY_HOME_TOKEN, _wlsdeploy_location)
+            wlsdeploy_location = os.environ.get(WLSDEPLOY_HOME_VARIABLE)
+            result = path_string.replace(WEBLOGIC_DEPLOY_HOME_TOKEN, wlsdeploy_location)
         elif path_string and self.__model_context:
             result = self.__model_context.replace_token_string(path_string)
         return result

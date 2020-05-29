@@ -499,8 +499,8 @@ class ModelContext(object):
         """
         target_configuration = self._target
         if target_configuration:
-            target_configuration_file = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
-                                        target_configuration, 'target.json')
+            target_path = os.path.join('targets', target_configuration, 'target.json')
+            target_configuration_file = path_utils.find_config_path(target_path)
             if os.path.exists(target_configuration_file):
                 file_handle = open(target_configuration_file)
                 configuration_dict = eval(file_handle.read())

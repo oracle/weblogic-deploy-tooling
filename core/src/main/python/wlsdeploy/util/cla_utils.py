@@ -15,6 +15,7 @@ import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import path_utils
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 # tool type may indicate variations in argument processing
@@ -1029,17 +1030,8 @@ class CommandLineArgUtil(object):
     def _validate_target_arg(self, value):
         method_name = 'validate_kubernetes_script_file_switch'
 
-        target_path = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
-                                   value)
-        if not os.path.exists(target_path):
-            ex = exception_helper.create_cla_exception('WLSDPLY-01641', value)
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
         # Check if the target configuration file exists
-
-        target_configuration_file = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
-                                                 value, 'target.json')
+        target_configuration_file = path_utils.find_config_path(os.path.join('targets', value, 'target.json'))
         if not os.path.exists(target_configuration_file):
             ex = exception_helper.create_cla_exception('WLSDPLY-01643', value, target_configuration_file)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
