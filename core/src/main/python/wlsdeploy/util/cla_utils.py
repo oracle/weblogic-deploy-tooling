@@ -709,7 +709,7 @@ class CommandLineArgUtil(object):
         try:
             opss_wallet = JFileUtils.validateDirectoryName(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01616', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01646', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -1017,7 +1017,7 @@ class CommandLineArgUtil(object):
         try:
             variables = JFileUtils.validateDirectoryName(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01616', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01647', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
