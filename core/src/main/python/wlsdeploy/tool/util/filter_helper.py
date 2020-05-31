@@ -8,11 +8,13 @@ import sys
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import path_utils
 from wlsdeploy.util.model_translator import FileToPython
 
 __class_name = 'filter_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
-__filter_file_location = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'model_filters.json')
+
+TARGET_CONFIG_TOKEN = '@@TARGET_CONFIG_DIR@@'
 
 __id_filter_map = {
     # 'filterId': filter_method
@@ -24,29 +26,36 @@ def apply_filters(model, tool_type, model_context=None):
     Apply any filters configured for the specified tool type to the specified model.
     :param model: the model to be filtered
     :param tool_type: the name of the filter tool type
+    :param model_context: optional, used to find target filters
     :return: True if any filter was applied, False otherwise
     :raises: BundleAwareException of the specified type: if an error occurs
     """
     _method_name = 'apply_filters'
+    global __filter_file_location
 
+    __filter_file_location = path_utils.find_config_path('model_filters.json')
     filter_applied = False
-    configuration = None
-
+    target_configuration = None
 
     try:
-        if model_context:
-            configuration = model_context.get_target_configuration()
         filters_dictionary = {}
-        if configuration and 'model_filters' in configuration:
-            filters_dictionary = configuration['model_filters']
-            target_filter_path =  os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
-                                               model_context.get_target())
+
+        # if target specified in model context, use the filters from target config
+        if model_context:
+            target_configuration = model_context.get_target_configuration()
+
+        if target_configuration and 'model_filters' in target_configuration:
+            filters_dictionary = target_configuration['model_filters']
+            target_path = os.path.join('targets', model_context.get_target())
+
             # Fix the tokenized path in the filter path
             for filter_list in filters_dictionary:
                 for current_filter in filters_dictionary[filter_list]:
-                    if 'path' in current_filter and current_filter['path'].startswith("@@TARGET_CONFIG_DIR@@/"):
-                        current_filter['path'] = current_filter['path'].replace("@@TARGET_CONFIG_DIR@@",
-                                                                                target_filter_path)
+                    filter_path = dictionary_utils.get_element(current_filter, 'path')
+                    if (filter_path is not None) and filter_path.startswith(TARGET_CONFIG_TOKEN):
+                        filter_path = target_path + filter_path.replace(TARGET_CONFIG_TOKEN, '')
+                        current_filter['path'] = path_utils.find_config_path(filter_path)
+
         elif os.path.isfile(__filter_file_location):
             filters_dictionary = FileToPython(__filter_file_location).parse()
         else:
@@ -70,11 +79,13 @@ def _apply_filter(model, the_filter):
     """
     Apply the specified filter to the specified model.
     :param model: the model to be filtered
-    :param filter: a dictionary containing the filter parameters
+    :param the_filter: a dictionary containing the filter parameters
     :return: True if the specified filter was applied, False otherwise
     :raises: BundleAwareException of the specified type: if an error occurs
     """
     _method_name = '_apply_filter'
+    global __filter_file_location
+
     id = dictionary_utils.get_element(the_filter, 'id')
     if id is not None:
         return _apply_id_filter(model, id)

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -8,6 +8,13 @@ import re
 import java.io.File as JFile
 
 import oracle.weblogic.deploy.util.StringUtils as JStringUtils
+from wlsdeploy.logging.platform_logger import PlatformLogger
+
+WLSDEPLOY_HOME_VARIABLE = 'WLSDEPLOY_HOME'
+CUSTOM_CONFIG_VARIABLE = 'WDT_CUSTOM_CONFIG'
+
+__logger = PlatformLogger('wlsdeploy.util')
+_class_name = 'path_utils'
 
 
 def split_classpath(classpath):
@@ -153,3 +160,24 @@ def is_jar_file(file_path):
     :return: true if the file_path represents a file and is a jar file
     """
     return os.path.isfile(file_path) and get_file_ext_from_path(file_path) == '.jar'
+
+
+def find_config_path(file_path):
+    """
+    Find the config file path for the relative file path.
+    If the WDT_CUSTOM_CONFIG environment variable is set, look for $WDT_CUSTOM_CONFIG/file_path.
+    If not found, return $WLSDEPLOY_HOME/lib/file_path.
+    :param file_path: the relative path where the file is expected, such as 'typedefs/WLS.json'
+    :return: the absolute path to the file
+    """
+    _method_name = 'find_config_path'
+
+    custom_config_dir = os.environ.get(CUSTOM_CONFIG_VARIABLE, None)
+    if custom_config_dir is not None:
+        custom_file_path = os.path.join(custom_config_dir, file_path)
+        if os.path.isfile(custom_file_path):
+            __logger.info('WLSDPLY-01725', custom_file_path, class_name=_class_name, method_name=_method_name)
+            return custom_file_path
+
+    wls_deploy_path = os.environ.get(WLSDEPLOY_HOME_VARIABLE, '')
+    return os.path.join(wls_deploy_path, 'lib', file_path)

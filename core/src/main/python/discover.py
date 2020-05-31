@@ -44,6 +44,7 @@ from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import tool_exit
@@ -105,12 +106,11 @@ def __process_target_arg(optional_arg_map):
 
     if CommandLineArgUtil.TARGET_SWITCH in optional_arg_map:
         # if -target is specified -output_dir is required
-        output_dir = optional_arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
-        if output_dir is None or os.path.isdir(output_dir) is False:
-            if not os.path.isdir(output_dir):
-                ex = exception_helper.create_cla_exception('WLSDPLY-01642', output_dir)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
+        output_dir = dictionary_utils.get_element(optional_arg_map, CommandLineArgUtil.OUTPUT_DIR_SWITCH)
+        if (output_dir is None) or (not os.path.isdir(output_dir)):
+            ex = exception_helper.create_cla_exception('WLSDPLY-01642', output_dir)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
         # Set the -variable_file parameter if not present with default
 

@@ -78,6 +78,9 @@ class ModelContext(object):
         self._domain_resource_file = None
         self._output_dir = None
         self._target = None
+        self._variable_injector_file = None
+        self._variable_keywords_file = None
+        self._variable_properties_file = None
 
         self._trailing_args = []
 
@@ -200,6 +203,15 @@ class ModelContext(object):
 
         if CommandLineArgUtil.OUTPUT_DIR_SWITCH in arg_map:
             self._output_dir = arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
+
+        if CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH in arg_map:
+            self._variable_injector_file = arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH]
+
+        if CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH in arg_map:
+            self._variable_keywords_file = arg_map[CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH]
+
+        if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in arg_map:
+            self._variable_properties_file = arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH]
 
         if self._wl_version is None:
             self._wl_version = self._wls_helper.get_actual_weblogic_version()
@@ -487,8 +499,8 @@ class ModelContext(object):
         """
         target_configuration = self._target
         if target_configuration:
-            target_configuration_file = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
-                                        target_configuration, 'target.json')
+            target_path = os.path.join('targets', target_configuration, 'target.json')
+            target_configuration_file = path_utils.find_config_path(target_path)
             if os.path.exists(target_configuration_file):
                 file_handle = open(target_configuration_file)
                 configuration_dict = eval(file_handle.read())
@@ -547,6 +559,27 @@ class ModelContext(object):
         :return: the target WLST mode
         """
         return self._wlst_mode
+
+    def get_variable_injector_file(self):
+        """
+        Get the variable injector file override.
+        :return: the variable injector file
+        """
+        return self._variable_injector_file
+
+    def get_variable_keywords_file(self):
+        """
+        Get the variable keywords file override.
+        :return: the variable keywords file
+        """
+        return self._variable_keywords_file
+
+    def get_variable_properties_file(self):
+        """
+        Get the variable properties file override.
+        :return: the variable properties file
+        """
+        return self._variable_properties_file
 
     def get_trailing_argument(self, index):
         """

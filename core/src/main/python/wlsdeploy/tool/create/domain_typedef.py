@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -13,6 +13,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targeting_types import TargetingType
+from wlsdeploy.util import path_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -27,7 +28,6 @@ class DomainTypedef(object):
     """
     __class_name = 'DomainTypedef'
 
-    __domain_typedefs_location = os.path.join(os.environ.get('WLSDEPLOY_HOME'), 'lib', 'typedefs')
     __domain_typedef_extension = '.json'
 
     JRF_TEMPLATE_REGEX = "^(.*jrf_template[0-9._]*\\.jar)|(Oracle JRF WebServices Asynchronous services)$"
@@ -47,8 +47,9 @@ class DomainTypedef(object):
         self._domain_type = domain_type
         self.wls_helper = WebLogicHelper(self._logger)
 
-        self._domain_typedef_filename = \
-            os.path.join(self.__domain_typedefs_location, domain_type + self.__domain_typedef_extension)
+        file_name = domain_type + self.__domain_typedef_extension
+        self._domain_typedef_filename = path_utils.find_config_path(os.path.join('typedefs', file_name))
+
         # No need to explicitly validate the filename since the JsonToPython constructor does that...
         try:
             json_parser = JsonToPython(self._domain_typedef_filename)
@@ -360,7 +361,7 @@ class DomainTypedef(object):
                 self._domain_typedef['serverGroupsToTarget'] = []
 
             if 'dynamicClusterServerGroupsToTarget' not in self._domain_typedef:
-                self._domain_typedef['dynamicClusterServerGroupsToTarget'] = [ ]
+                self._domain_typedef['dynamicClusterServerGroupsToTarget'] = []
 
             if 'rcuSchemas' not in self._domain_typedef:
                 self._domain_typedef['rcuSchemas'] = []
