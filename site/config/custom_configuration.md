@@ -22,13 +22,22 @@ The customized configuration files should be named and organized the same way th
     model_variable_injector.json
     variable_keywords.json
 ```
-This is a full set of files that can be configured, you will only need to add the files you have created or extended.
+This is a full set of files that can be configured. You will need only to add the files you have created or extended. Details for each configuration type are found at the following links:
+- [Model Filters](../tool_filters.md)
+- [Type Definitions](../type_def.md) (see [example](#example-extending-a-type-definition) below)
+- [Variable Injection](../variable_injection.md)
+- [The Prepare Model Tool](../prepare.md) (target environments)
 
 The WDT tools will look for each configuration file under `$WDT_CUSTOM_CONFIG` if specified, then under `$WLSDEPLOY_HOME/lib`.
 
 ### Example: Extending a Type Definition
 
-If you want to extend the `WLS` type definition to add more extension templates, you would first make a copy of `$WLSDEPLOY_HOME/lib/typedefs/WLS.json`, and make your edits to the new file. Copy the new file to `$WDT_CUSTOM_CONFIG/typedefs/MY_WLS.json`. Set the `$WDT_CUSTOM_CONFIG` environment variable, and run the tool referencing the new type definition:
+To extend the `WLS` type definition, follow these steps:
+- Create a directory to use for custom configurations, such as `/etc/wdtconfig`.
+- Define the `WDT_CUSTOM_CONFIG` environment variable to point to that directory.
+- Copy the file `$WLSDEPLOY_HOME/lib/typedefs/WLS.json` to the `$WDT_CUSTOM_CONFIG/typedefs` directory and rename it, for example `MY_WLS.json`.
+- Edit `MY_WLS.json` with any required changes.
+- Run the tool referencing the name of the new type definition, for example:
 ```
 createDomain.cmd -oracle_home /wls12213 -domain_type MY_WLS ...
 ```
