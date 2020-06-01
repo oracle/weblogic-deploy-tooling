@@ -11,6 +11,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Encrypt Model Tool](site/encrypt.md)
     - [Validate Model Tool](site/validate.md)
     - [Compare Model Tool](site/compare.md)
+    - [Prepare Model Tool](site/prepare.md)
     - [Extract Domain Resource Tool](site/kubernetes.md)
     - [Model Help Tool](site/model_help.md)
 - [The Model](#the-metadata-model)
@@ -86,7 +87,7 @@ Currently, the project provides five single-purpose tools, all exposed as shell 
 - The [Encrypt Model Tool](site/encrypt.md) (`encryptModel`) encrypts the passwords in a model (or its variable file) using a user-provided passphrase.
 - The [Validate Model Tool](site/validate.md) (`validateModel`) provides both standalone validation of a model as well as model usage information to help users write or edit their models.
 - The [Compare Model Tool](site/compare.md) (`compareModel`) compares two model files.
-- The [Prepare Model Tool](site/compare.md) (`prepareModel`) prepare model files for deploying to WebLogic Kubernetes Operator environment.
+- The [Prepare Model Tool](site/prepare.md) (`prepareModel`) prepare model files for deploying to WebLogic Kubernetes Operator environment.
 - The [Extract Domain Resource Tool](site/kubernetes.md) (`extractDomainResource`) generates a domain resource YAML for use with the Oracle WebLogic Server Kubernetes Operator.
 
 As new use cases are discovered, new tools will likely be added to cover those operations but all will use the metadata model to describe what needs to be done.
