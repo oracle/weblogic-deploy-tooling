@@ -913,7 +913,7 @@ class AliasEntries(object):
     def is_model_location_valid(self, location):
         """
         Determine if the specified location is valid, including version/mode checks.
-        Returns a boolean answer instead of the ValidationCode, message tuple used elsewhere.
+        Returns a boolean answer instead of the (ValidationCode, message) tuple used elsewhere.
         :param location: the location to be checked
         :return: True if the location is valid, false otherwise
         """
