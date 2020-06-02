@@ -76,19 +76,16 @@ def __process_args(args):
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
-    required_arg_map, optional_arg_map = cla_util.process_args(args)
+    argument_map = cla_util.process_args(args)
 
-    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
-    cla_helper.validate_optional_archive(_program_name, optional_arg_map)
-    cla_helper.validate_model_present(_program_name, optional_arg_map)
-    cla_helper.validate_variable_file_exists(_program_name, optional_arg_map)
+    cla_helper.validate_optional_archive(_program_name, argument_map)
+    cla_helper.validate_model_present(_program_name, argument_map)
+    cla_helper.validate_variable_file_exists(_program_name, argument_map)
 
-    __wlst_mode = cla_helper.process_online_args(optional_arg_map)
-    cla_helper.process_encryption_args(optional_arg_map)
+    __wlst_mode = cla_helper.process_online_args(argument_map)
+    cla_helper.process_encryption_args(argument_map)
 
-    combined_arg_map = optional_arg_map.copy()
-    combined_arg_map.update(required_arg_map)
-    return model_context_helper.create_context(_program_name, combined_arg_map)
+    return model_context_helper.create_context(_program_name, argument_map)
 
 
 def __deploy(model, model_context, aliases):

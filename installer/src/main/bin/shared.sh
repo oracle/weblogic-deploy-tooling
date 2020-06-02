@@ -62,7 +62,7 @@ checkArgs() {
 }
 
 checkJythonArgs() {
-    # verify that required arg -oracle_home is provided, and set ORACLE_HOME.
+    # verify that ORACLE_HOME is set, or -oracle_home is provided.
     # if -help is provided, display usage.
     # if -use_encryption is provided, set USE_ENCRYPTION to true
     # if -wlst_path is provided, set WLST_PATH_DIR
@@ -74,6 +74,8 @@ checkJythonArgs() {
       exit 0
     fi
 
+    ORACLE_HOME_ARG=""
+
     # check for -help and -oracle_home
     while [ "$#" -gt "0" ]; do
         key="$1"
@@ -83,7 +85,7 @@ checkJythonArgs() {
             exit 0
             ;;
             -oracle_home)
-            ORACLE_HOME="$2"
+            ORACLE_HOME_ARG="$2"
             shift
             ;;
             -wlst_path)
@@ -100,16 +102,25 @@ checkJythonArgs() {
         shift # past arg or value
     done
 
+    if [ -n "${ORACLE_HOME_ARG}" ]; then
+        ORACLE_HOME=${ORACLE_HOME_ARG}
+    elif [ -n "${ORACLE_HOME}" ]; then
+        # if -oracle_home argument was not found, but ORACLE_HOME was set in environment,
+        # add the -oracle_home argument with the environment value.
+        # put it at the beginning to protect trailing arguments.
+        scriptArgs="-oracle_home ${ORACLE_HOME} ${scriptArgs}"
+    fi
+
     #
     # Check for values of required arguments for this script to continue.
     # The underlying WLST script has other required arguments.
     #
     if [ -z "${ORACLE_HOME}" ]; then
-        echo "Required argument -oracle_home not provided" >&2
+        echo "-oracle_home not provided, and ORACLE_HOME not set" >&2
         usage `basename $0`
         exit 99
     elif [ ! -d ${ORACLE_HOME} ]; then
-        echo "The specified -oracle_home directory does not exist: ${ORACLE_HOME}" >&2
+        echo "The specified Oracle home directory does not exist: ${ORACLE_HOME}" >&2
         exit 98
     fi
 }

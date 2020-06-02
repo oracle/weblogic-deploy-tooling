@@ -133,25 +133,6 @@ def validate_variable_file_exists(program_name, optional_arg_map):
     return
 
 
-def verify_required_args_present(program_name, required_arguments, required_arg_map):
-    """
-    Verify that the required args are present.
-    :param program_name: the program name, for logging
-    :param required_arguments: the required arguments to be checked
-    :param required_arg_map: the required arguments map
-    :raises CLAException: if one or more of the required arguments are missing
-    """
-    _method_name = '__verify_required_args_present'
-
-    for req_arg in required_arguments:
-        if req_arg not in required_arg_map:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20005', program_name, req_arg)
-            ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    return
-
-
 def process_encryption_args(optional_arg_map):
     """
     If the user is using model encryption, get the passphrase from stdin, and put it in the argument map.

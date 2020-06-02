@@ -1,0 +1,10 @@
+{
+  "model_filters" : {
+        "discover": [
+          { "name": "k8s_prep", "path": "@@TARGET_CONFIG_DIR@@/k8s_operator_filter.py" }
+        ]
+      },
+  "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
+  "validation_method" : "lax",
+  "credential_as_secret" : "true"
+}

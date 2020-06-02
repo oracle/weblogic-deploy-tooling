@@ -528,7 +528,12 @@ class Discoverer(object):
         # The below call will throw an exception if the folder does not exist; need to have that
         # exception thrown. The get_model_subfolder_name does not throw an exception if the alias
         # does not exist. We do not want an exception if the folder is just not available for the version
-        mbean_type = self._alias_helper.get_wlst_mbean_type(location)
+        # Update 05/21/20 - does not make sense to stop discover because of missing alias definition.
+        try:
+            mbean_type = self._alias_helper.get_wlst_mbean_type(location)
+        except DiscoverException, ae:
+            _logger.warning('WLSDPLY-06156', str(location), class_name=_class_name, method_name=_method_name)
+            mbean_type = None
         if mbean_type:
             model_name = self._alias_helper.get_model_subfolder_name(location, wlst_name)
             _logger.finest('WLSDPLY-06118', model_name, wlst_name, class_name=_class_name, method_name=_method_name)

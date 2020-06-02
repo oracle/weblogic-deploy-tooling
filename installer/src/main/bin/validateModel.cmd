@@ -73,7 +73,7 @@ if "%SHOW_USAGE%" == "false" (
 :usage
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help]
-ECHO              -oracle_home ^<oracle_home^>
+ECHO              [-oracle_home ^<oracle_home^>]
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-archive_file ^<archive_file^>]
@@ -83,7 +83,9 @@ ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO.
 ECHO     where:
-ECHO         oracle_home     - the existing Oracle Home directory for the domain
+ECHO         oracle_home     - the existing Oracle Home directory for the domain.
+ECHO                           This is required unless the ORACLE_HOME environment
+ECHO                           variable is set.
 ECHO.
 ECHO         context         - specify the context for printing out the model structure.
 ECHO                           By default, the specified folder attributes and subfolder

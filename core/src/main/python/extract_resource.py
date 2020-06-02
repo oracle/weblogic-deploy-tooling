@@ -57,19 +57,16 @@ def __process_args(args):
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
-    required_arg_map, optional_arg_map = cla_util.process_args(args, TOOL_TYPE_EXTRACT)
+    argument_map = cla_util.process_args(args, TOOL_TYPE_EXTRACT)
 
-    cla_helper.verify_required_args_present(_program_name, __required_arguments, required_arg_map)
-    cla_helper.validate_optional_archive(_program_name, optional_arg_map)
+    cla_helper.validate_optional_archive(_program_name, argument_map)
 
     # determine if the model file was passed separately or requires extraction from the archive.
-    cla_helper.validate_model_present(_program_name, optional_arg_map)
-    cla_helper.validate_variable_file_exists(_program_name, optional_arg_map)
-    cla_helper.process_encryption_args(optional_arg_map)
+    cla_helper.validate_model_present(_program_name, argument_map)
+    cla_helper.validate_variable_file_exists(_program_name, argument_map)
+    cla_helper.process_encryption_args(argument_map)
 
-    combined_arg_map = optional_arg_map.copy()
-    combined_arg_map.update(required_arg_map)
-    return model_context_helper.create_context(_program_name, combined_arg_map)
+    return model_context_helper.create_context(_program_name, argument_map)
 
 
 def __extract_resource(model, model_context, aliases):
