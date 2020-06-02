@@ -1139,10 +1139,10 @@ class AliasEntries(object):
         """
         _method_name = '__apply_wlst_context_changes'
 
-        #
-        # First, determine if this dictionary is even relevant to the current WLS version.
-        #
         self.__resolve_folder_params(path_name, alias_dict)
+
+        # if folder is not valid for this version/mode of WLS,
+        # add folder to parent_dict UNRESOLVED_FOLDERS_MAP and return None
         if not self.__use_alias_dict(path_name, alias_dict, parent_dict):
             return None
 
@@ -1151,8 +1151,10 @@ class AliasEntries(object):
             result_folders = dict()
             folders = alias_dict[FOLDERS]
             for folder in folders:
-                folder_dict = self.__apply_wlst_context_changes(path_name + '/' + folder, folders[folder], alias_dict)
-                result_folders[folder] = folder_dict
+                folder_dict = self.__apply_wlst_context_changes(path_name + '/' + folder, folders[folder], result)
+                # if folder_dict is None, this folder was invalid for this version/mode of WLS
+                if folder_dict is not None:
+                    result_folders[folder] = folder_dict
             result[FOLDERS] = result_folders
 
         if FLATTENED_FOLDER_DATA in alias_dict:
