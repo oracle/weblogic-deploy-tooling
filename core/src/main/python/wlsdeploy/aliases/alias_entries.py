@@ -683,6 +683,11 @@ class AliasEntries(object):
         """
         _method_name = 'get_wlst_mbean_type_for_location'
 
+        # some callers use this method to check for location valid.
+        # they should call is_model_location_valid(location) directly instead.
+        if not self.is_model_location_valid(location):
+            return None
+
         _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
         if folder_dict is None:
@@ -904,6 +909,21 @@ class AliasEntries(object):
             result = ValidationCodes.INVALID
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[result, valid_version_range])
         return result, valid_version_range
+
+    def is_model_location_valid(self, location):
+        """
+        Determine if the specified location is valid, including version/mode checks.
+        Returns a boolean answer instead of the ValidationCode, message tuple used elsewhere.
+        :param location: the location to be checked
+        :return: True if the location is valid, false otherwise
+        """
+        if len(location.get_model_folders()) > 0:
+            parent_location = LocationContext(location)
+            folder = parent_location.pop_location()
+            code, message = self.is_valid_model_folder_name_for_location(parent_location, folder)
+            if code != ValidationCodes.VALID:
+                return False
+        return True
 
     def get_folder_short_name_for_location(self, location):
         """
