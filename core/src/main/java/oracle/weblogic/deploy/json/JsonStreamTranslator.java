@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.json;
@@ -56,7 +56,6 @@ public class JsonStreamTranslator extends AbstractJsonTranslator {
     public PyDictionary parse() throws JsonException {
         final String METHOD = "parse";
 
-        LOGGER.entering(CLASS, METHOD);
         PyDictionary result = null;
         if (jsonStream != null) {
             try {
@@ -70,7 +69,6 @@ public class JsonStreamTranslator extends AbstractJsonTranslator {
                 jsonStream = null;
             }
         }
-        LOGGER.exiting(CLASS, METHOD);
         return result;
     }
 
