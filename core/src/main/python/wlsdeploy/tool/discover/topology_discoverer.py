@@ -291,6 +291,8 @@ class TopologyDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_nm_properties()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self._get_jpa()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -420,6 +422,25 @@ class TopologyDiscoverer(Discoverer):
         name = self._find_singleton_name_in_folder(location)
         if name is not None:
             _logger.info('WLSDPLY-06615', class_name=_class_name, method_name=_method_name)
+            location.add_name_token(self._alias_helper.get_name_token(location), name)
+            self._populate_model_parameters(result, location)
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+        return model_top_folder_name, result
+
+    def _get_jpa(self):
+        """
+        Discover the domain level JPA configuration attributes.
+        :return: model name for JPA:dictionary containing the discovered JPA attributes
+        """
+        _method_name = '_get_jpa'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.JPA
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        name = self._find_singleton_name_in_folder(location)
+        if name is not None:
+            _logger.info('WLSDPLY-06644', class_name=_class_name, method_name=_method_name)
             location.add_name_token(self._alias_helper.get_name_token(location), name)
             self._populate_model_parameters(result, location)
         _logger.exiting(class_name=_class_name, method_name=_method_name)

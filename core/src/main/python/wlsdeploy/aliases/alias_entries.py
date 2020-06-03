@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -51,6 +51,7 @@ from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import KUBERNETES_ALIAS
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
+from wlsdeploy.aliases.model_constants import JPA
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import OHS
@@ -93,6 +94,7 @@ class AliasEntries(object):
         'Cluster',
         'EmbeddedLDAP',
         'JMX',
+        JPA,
         'JTA',
         'Log',
         'LogFilter',
