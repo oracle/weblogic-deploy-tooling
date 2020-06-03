@@ -10,7 +10,6 @@ from wlsdeploy.aliases.model_constants import JDBC_STORE
 from wlsdeploy.aliases.model_constants import JMS_BRIDGE_DESTINATION
 from wlsdeploy.aliases.model_constants import JMS_SERVER
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
-from wlsdeploy.aliases.model_constants import JPA
 from wlsdeploy.aliases.model_constants import MAIL_SESSION
 from wlsdeploy.aliases.model_constants import MESSAGING_BRIDGE
 from wlsdeploy.aliases.model_constants import OHS
