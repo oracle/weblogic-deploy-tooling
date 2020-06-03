@@ -66,8 +66,8 @@ class Discoverer(object):
 
     def discover_domain_mbean(self, model_top_folder_name):
         """
-        Discover the domain level JPA configuration attributes.
-        :return: model name for JPA:dictionary containing the discovered JPA attributes
+        Discover the domain specific MBean and its configuration attributes.
+        :return: model name for domain MBean:dictionary containing the discovered Domain MBean attributes
         """
         _method_name = 'discover_domain_mbean'
         _logger.entering(model_top_folder_name, class_name=_class_name, method_name=_method_name)
