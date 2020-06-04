@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -290,6 +290,8 @@ class TopologyDiscoverer(Discoverer):
         model_folder_name, folder_result = self._get_domain_log()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_nm_properties()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.JPA)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
