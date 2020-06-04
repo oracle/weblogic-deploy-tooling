@@ -294,7 +294,6 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
         final String METHOD = "parseInternal";
 
         PyDictionary result = null;
-        getLogger().entering(getClassName(), METHOD, jsonFileName, jsonStream);
         if (jsonStream != null) {
             JsonErrorListener errorListener = new JsonErrorListener(jsonFileName, false);
             try {
@@ -328,7 +327,6 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
             }
             result = fileDict;
         }
-        getLogger().exiting(getClassName(), METHOD);
         return result;
     }
 

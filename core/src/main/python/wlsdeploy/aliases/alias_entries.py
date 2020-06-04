@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -51,6 +51,7 @@ from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import KUBERNETES_ALIAS
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
+from wlsdeploy.aliases.model_constants import JPA
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import OHS
@@ -93,6 +94,7 @@ class AliasEntries(object):
         'Cluster',
         'EmbeddedLDAP',
         'JMX',
+        JPA,
         'JTA',
         'Log',
         'LogFilter',
@@ -683,6 +685,11 @@ class AliasEntries(object):
         """
         _method_name = 'get_wlst_mbean_type_for_location'
 
+        # some callers use this method to check for location valid.
+        # they should call is_model_location_valid(location) directly instead.
+        if not self.is_model_location_valid(location):
+            return None
+
         _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
         if folder_dict is None:
@@ -904,6 +911,21 @@ class AliasEntries(object):
             result = ValidationCodes.INVALID
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[result, valid_version_range])
         return result, valid_version_range
+
+    def is_model_location_valid(self, location):
+        """
+        Determine if the specified location is valid, including version/mode checks.
+        Returns a boolean answer instead of the (ValidationCode, message) tuple used elsewhere.
+        :param location: the location to be checked
+        :return: True if the location is valid, false otherwise
+        """
+        if len(location.get_model_folders()) > 0:
+            parent_location = LocationContext(location)
+            folder = parent_location.pop_location()
+            code, message = self.is_valid_model_folder_name_for_location(parent_location, folder)
+            if code != ValidationCodes.VALID:
+                return False
+        return True
 
     def get_folder_short_name_for_location(self, location):
         """
@@ -1139,10 +1161,10 @@ class AliasEntries(object):
         """
         _method_name = '__apply_wlst_context_changes'
 
-        #
-        # First, determine if this dictionary is even relevant to the current WLS version.
-        #
         self.__resolve_folder_params(path_name, alias_dict)
+
+        # if folder is not valid for this version/mode of WLS,
+        # add folder to parent_dict UNRESOLVED_FOLDERS_MAP and return None
         if not self.__use_alias_dict(path_name, alias_dict, parent_dict):
             return None
 
@@ -1151,8 +1173,10 @@ class AliasEntries(object):
             result_folders = dict()
             folders = alias_dict[FOLDERS]
             for folder in folders:
-                folder_dict = self.__apply_wlst_context_changes(path_name + '/' + folder, folders[folder], alias_dict)
-                result_folders[folder] = folder_dict
+                folder_dict = self.__apply_wlst_context_changes(path_name + '/' + folder, folders[folder], result)
+                # if folder_dict is None, this folder was invalid for this version/mode of WLS
+                if folder_dict is not None:
+                    result_folders[folder] = folder_dict
             result[FOLDERS] = result_folders
 
         if FLATTENED_FOLDER_DATA in alias_dict:

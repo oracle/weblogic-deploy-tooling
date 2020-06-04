@@ -18,11 +18,11 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
+from wlsdeploy.tool.validate.validator_logger import ValidatorLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
 from wlsdeploy.util import variables
@@ -40,7 +40,7 @@ from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WLS_ROLES
 
 _class_name = 'Validator'
-_logger = PlatformLogger('wlsdeploy.validate')
+_logger = ValidatorLogger('wlsdeploy.validate')
 _ModelNodeTypes = Enum(['FOLDER_TYPE', 'NAME_TYPE', 'ATTRIBUTE', 'ARTIFICIAL_TYPE'])
 _ValidationModes = Enum(['STANDALONE', 'TOOL'])
 _ROOT_LEVEL_VALIDATION_AREA = validation_utils.format_message('WLSDPLY-05000')
@@ -114,6 +114,11 @@ class Validator(object):
         """
         _method_name = 'validate_in_standalone_mode'
 
+        # If standalone, log file will not be passed, so get a new logger with correct mode type
+        self._validation_mode = _ValidationModes.STANDALONE
+        self._logger = ValidatorLogger(self._logger.get_name(), _ValidationModes.from_value(self._validation_mode))
+        self._logger.entering(archive_file_name, class_name=_class_name, method_name=_method_name)
+
         # We need to make a deep copy of model_dict here, to ensure it's
         # treated as a "read-only'" reference variable, during the variable
         # file validation process. The variable file validation process could
@@ -121,7 +126,6 @@ class Validator(object):
         cloned_model_dict = copy.deepcopy(model_dict)
 
         self._logger.entering(archive_file_name, class_name=_class_name, method_name=_method_name)
-        self._validation_mode = _ValidationModes.STANDALONE
         self.__validate_model_file(cloned_model_dict, variable_map, archive_file_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -887,7 +891,7 @@ class Validator(object):
         wlsroles_validator = wlsroles_helper.validator(attribute_value, self._logger)
         wlsroles_validator.validate_roles()
 
-        self._logger.exiting( class_name=_class_name, method_name=__method_name)
+        self._logger.exiting(class_name=_class_name, method_name=__method_name)
 
     def _report_unsupported_variable_usage(self, tokenized_value, model_folder_path):
         _method_name = '_report_unsupported_variable_usage'
