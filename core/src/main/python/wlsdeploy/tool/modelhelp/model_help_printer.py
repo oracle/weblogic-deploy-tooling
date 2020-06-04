@@ -7,6 +7,7 @@ import re
 from oracle.weblogic.deploy.exception import ExceptionHelper
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
+from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.modelhelp.model_sample_printer import ModelSamplePrinter
@@ -219,6 +220,8 @@ class ModelHelpPrinter(object):
                             str(model_path_tokens), ControlOptions.from_value(control_option),
                             str(valid_section_folder_keys), class_name=_class_name, method_name=_method_name)
 
+        print
+
         section_name = model_path_tokens[0]
         top_folder = model_path_tokens[1]
         if top_folder not in valid_section_folder_keys:
@@ -230,6 +233,12 @@ class ModelHelpPrinter(object):
         # Populate the location context using model_path_tokens[1:]
         model_location = LocationContext()
         for folder_key in model_path_tokens[1:]:
+            code, message = self._alias_helper.is_valid_model_folder_name(model_location, folder_key)
+            if code != ValidationCodes.VALID:
+                ex = exception_helper.create_cla_exception("WLSDPLY-05027", message)
+                self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+
             model_location.append_location(folder_key)
             name_token = self._alias_helper.get_name_token(model_location)
             if name_token is not None:
@@ -245,7 +254,6 @@ class ModelHelpPrinter(object):
             model_path += " (" + type_name + ")"
 
         # Print 'Path: <model_section>' header
-        print
         _print_indent(model_path, 0)
 
         if model_help_utils.show_attributes(control_option):

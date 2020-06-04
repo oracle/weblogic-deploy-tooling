@@ -4,6 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
+from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.exception import exception_helper
@@ -100,6 +101,11 @@ class ModelSamplePrinter(object):
         model_location = LocationContext()
         for token in model_path_tokens:
             if indent > 0:
+                code, message = self._alias_helper.is_valid_model_folder_name(model_location, token)
+                if code != ValidationCodes.VALID:
+                    ex = exception_helper.create_cla_exception("WLSDPLY-05027", message)
+                    self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                    raise ex
                 model_location.append_location(token)
 
             _print_indent(token + ":", indent)
@@ -133,9 +139,6 @@ class ModelSamplePrinter(object):
         _method_name = '_print_subfolders_sample'
 
         valid_subfolder_keys = self._alias_helper.get_model_subfolder_names(model_location)
-
-        if not valid_subfolder_keys:
-            return
 
         valid_subfolder_keys.sort()
         self._print_subfolder_keys_sample(model_location, valid_subfolder_keys, control_option, indent_level)
