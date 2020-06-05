@@ -65,10 +65,10 @@ ECHO.
 ECHO Usage: %SCRIPT_NAME%
 ECHO           [-help]
 ECHO           [-oracle_home ^<oracle_home^> required unless the ORACLE_HOME environment variable is set]
-ECHO           [-output_dir ^<output_dir^> write the outputs to the directory specified]
+ECHO           -model_file ^<model file^>  model files
+ECHO           -output_dir ^<output_dir^>  write the outputs to the directory specified
+ECHO           -target ^<target_name^>  name of target configuration, such as k8s
 ECHO           [-variable_file ^<variable file^>  variable file used for macro substitution]
-ECHO           [-model_file ^<model file^>  model files]
-ECHO           [-target k8s]
 ECHO.
 
 :exit_script

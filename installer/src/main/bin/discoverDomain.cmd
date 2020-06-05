@@ -78,7 +78,7 @@ ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO              [-java_home ^<java_home^>]
-ECHO              [-target k8s]
+ECHO              [-target <target>]
 ECHO              [-output_dir ^<output_dir>]
 ECHO              [-admin_url ^<admin_url^>
 ECHO               -admin_user ^<admin_user^>
@@ -110,13 +110,13 @@ ECHO.
 ECHO         java_home      - overrides the JAVA_HOME value when discovering
 ECHO                          domain values to be replaced with the java home global token
 ECHO.
+ECHO         target         - targeting platform (k8s, etc.)
+ECHO.
+ECHO         output_dir     - output directory for -target ^<target^>
+ECHO.
 ECHO         admin_url      - the admin server URL (used for online discovery)
 ECHO.
 ECHO         admin_user     - the admin username (used for online discovery)
-ECHO.
-ECHO         target         - targeting platform (k8s only)
-ECHO.
-ECHO         output_dir     - output directory for -target k8s
 ECHO.
 
 :exit_script
