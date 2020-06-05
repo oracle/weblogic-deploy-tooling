@@ -413,7 +413,7 @@ class PrepareModel:
 
             target_configuration_helper.generate_k8s_script(self.model_context, self.cache)
 
-            # if addititonal output is specified, merge models, use variables, apply filters,
+            # if additional output is specified, merge models, use variables, apply filters,
             # then call create_additional_output.
             if target_configuration_helper.has_additional_output(self.model_context):
                 variable_map = variables.load_variables(self.model_context.get_variable_file())
