@@ -6,10 +6,12 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
-#       prepareModel.sh - prepare the model(s) for deploying to WebLogic Kubernetes Operator
+#       prepareModel.sh - prepare the model(s) for deploying to a target environment,
+#                         such as WebLogic Kubernetes Operator.
 #
 #     DESCRIPTION
-#       This script compares two models. The models compared must be both yaml or both json files
+#       This script applies a target configuration to the specified model(s), and creates any scripts
+#       or configuration files that are required.
 #
 # This script uses the following variables:
 #
@@ -26,15 +28,13 @@
 #                         can use this environment variable to add additional
 #                         system properties to the Java environment.
 
-
-
 usage() {
   echo ""
   echo "Usage: $1 [-help]"
   echo "          [-oracle_home <oracle_home> required unless the ORACLE_HOME environment variable is set]"
   echo "          -model_file <model list>  model files"
-  echo "          -output_dir <output_dir>"
   echo "          -target <target_name>  name of target configuration, such as k8s"
+  echo "          -output_dir <output_dir>  write the outputs to the directory specified"
   echo "          [-variable_file <variable file>  variable file used for macro substitution]"
   echo ""
 }

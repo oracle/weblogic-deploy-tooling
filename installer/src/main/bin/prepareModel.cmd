@@ -6,10 +6,12 @@
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
-@rem        prepareModel.sh - prepare the model(s) for deploying to WebLogic Kubernetes Operator
+@rem       prepareModel.sh - prepare the model(s) for deploying to a target environment,
+@rem                         such as WebLogic Kubernetes Operator.
 @rem
 @rem     DESCRIPTION
-@rem       This script prepare the models for k8s deployment
+@rem       This script applies a target configuration to the specified model(s), and creates any scripts
+@rem       or configuration files that are required.
 @rem
 @rem This script uses the following variables:
 @rem
@@ -66,8 +68,8 @@ ECHO Usage: %SCRIPT_NAME%
 ECHO           [-help]
 ECHO           [-oracle_home ^<oracle_home^> required unless the ORACLE_HOME environment variable is set]
 ECHO           -model_file ^<model file^>  model files
-ECHO           -output_dir ^<output_dir^>  write the outputs to the directory specified
 ECHO           -target ^<target_name^>  name of target configuration, such as k8s
+ECHO           -output_dir ^<output_dir^>  write the outputs to the directory specified
 ECHO           [-variable_file ^<variable file^>  variable file used for macro substitution]
 ECHO.
 

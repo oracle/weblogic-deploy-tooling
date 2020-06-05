@@ -78,8 +78,9 @@ ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO              [-java_home ^<java_home^>]
-ECHO              [-target <target>]
-ECHO              [-output_dir ^<output_dir>]
+ECHO              [-target ^<target^>
+ECHO               -output_dir ^<output_dir^>
+ECHO              ]
 ECHO              [-admin_url ^<admin_url^>
 ECHO               -admin_user ^<admin_user^>
 ECHO              ]
