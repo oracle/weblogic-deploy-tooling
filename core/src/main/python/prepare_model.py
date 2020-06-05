@@ -45,6 +45,7 @@ from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import model
 from wlsdeploy.util import target_configuration_helper
+from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
@@ -380,7 +381,7 @@ class PrepareModel:
                                                           archive_file_name=None)
 
                 if return_code == Validator.ReturnCode.STOP:
-                    __logger.severe('WLSDPLY-05705', model_file_name)
+                    self._logger.severe('WLSDPLY-05705', model_file_name)
                     return VALIDATION_FAIL
 
                 self.current_dict = model_dictionary
@@ -412,23 +413,32 @@ class PrepareModel:
 
             target_configuration_helper.generate_k8s_script(self.model_context, self.cache)
 
+            # if addititonal output is specified, merge models, use variables, apply filters,
+            # then call create_additional_output.
+            if target_configuration_helper.has_additional_output(self.model_context):
+                variable_map = variables.load_variables(self.model_context.get_variable_file())
+                model_dictionary = cla_helper.merge_model_files(self.model_files, variable_map)
+                if filter_helper.apply_filters(model_dictionary, "discover", self.model_context):
+                    self._logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
+                target_configuration_helper.create_additional_output(model_dictionary, self.model_context)
+
         except ValidateException, te:
-            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
-                            error=te, class_name=_class_name, method_name=_method_name)
+            self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
+                                error=te, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(te.getLocalizedMessage(), error=te)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
         except VariableException, ve:
-            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, ve.getLocalizedMessage(),
-                            error=ve, class_name=_class_name, method_name=_method_name)
+            self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, ve.getLocalizedMessage(),
+                                error=ve, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(ve.getLocalizedMessage(), error=ve)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
         except TranslateException, pe:
-            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, pe.getLocalizedMessage(),
-                            error=pe, class_name=_class_name, method_name=_method_name)
+            self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, pe.getLocalizedMessage(),
+                                error=pe, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(pe.getLocalizedMessage(), error=pe)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
 
         return 0

@@ -500,7 +500,10 @@ def main(args):
         __log_and_exit(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
 
     model = __check_and_customize_model(model, model_context, aliases, discover_injector)
-    
+
+    if model_context.is_targetted_config():
+        target_configuration_helper.create_additional_output(model, model_context)
+
     try:
         __persist_model(model, model_context)
 

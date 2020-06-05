@@ -14,6 +14,8 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 __class_name = 'target_configuration_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
+V8O_EXTRA_CONFIG = 'v8o'
+
 
 def process_target_arguments(argument_map):
     """
@@ -120,3 +122,43 @@ def format_as_secret(variable_name):
             return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ('weblogic-credentials', name_lower_tokens[0])
 
     return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ( '-'.join(name_lower_tokens[:-1]), name_lower_tokens[-1])
+
+
+def has_additional_output(model_context):
+    """
+    Determine if the target configuration includes any additional output types.
+    :param model_context: provides access to the target configuration
+    :return: True if additional output types are specified, False otherwise
+    """
+    return bool(_get_additional_output_types(model_context))
+
+
+def create_additional_output(model, model_context):
+    """
+    Create any additional output specified in the target configuration.
+    :param model: used to create additional content
+    :param model_context: provides access to the target configuration
+    """
+    _method_name = 'create_additional_output'
+
+    output_types = _get_additional_output_types(model_context)
+    for output_type in output_types:
+        if output_type == V8O_EXTRA_CONFIG:
+            pass
+        else:
+            __logger.warning('WLSDPLY-01660', output_type, model_context.get_target(), class_name=__class_name,
+                             method_name=_method_name)
+
+
+def _get_additional_output_types(model_context):
+    """
+    Returns a list of additional output types configured for the target environment.
+    :param model_context: provides access to the target configuration
+    :return: a list of additional output types
+    """
+    config = model_context.get_target_configuration()
+    if config is not None:
+        additional_output = dictionary_utils.get_element(config, "additional_output")
+        if additional_output is not None:
+            return additional_output.split(',')
+    return {}
