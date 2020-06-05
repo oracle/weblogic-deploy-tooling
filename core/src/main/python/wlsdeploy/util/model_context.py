@@ -485,13 +485,6 @@ class ModelContext(object):
         """
         return self._output_dir
 
-    def get_kubernetes_variable_file(self):
-        """
-        Return the generated k8s variable file name
-        :return: variable file name
-        """
-        return os.path.join(self._output_dir, "k8s_variable.properties")
-
     def get_target_configuration(self):
         """
         Return the target configuration based on the target.
@@ -517,13 +510,6 @@ class ModelContext(object):
         :return: output directory
         """
         return self._target is not None
-
-    def get_kubernetes_injector_jsonpath(self):
-        """
-        Return the kubernetes script file
-        :return: kubernetes script file
-        """
-        return self._kubernetes_injector_jsonpath
 
     def is_encryption_manual(self):
         """

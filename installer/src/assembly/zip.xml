@@ -36,10 +36,11 @@
         </fileSet>
 
         <fileSet>
-            <directory>../core/src/main/targetconfigs/k8s</directory>
-            <outputDirectory>lib/targets/k8s</outputDirectory>
+            <directory>../core/src/main/targetconfigs</directory>
+            <outputDirectory>lib/targets</outputDirectory>
             <includes>
                 <include>**/*.json</include>
+                <include>**/*.py</include>
             </includes>
         </fileSet>
 

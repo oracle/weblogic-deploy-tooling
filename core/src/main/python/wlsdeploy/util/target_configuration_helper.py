@@ -1,19 +1,55 @@
 # Copyright (c) 2020, Oracle Corporation and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
-#
+# Shared methods for using target environments (-target abc).
+# Used by discoverDomain and prepareModel.
 
 import os
+
+from wlsdeploy.exception import exception_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
+
+__class_name = 'target_configuration_helper'
+__logger = PlatformLogger('wlsdeploy.tool.util')
+
+
+def process_target_arguments(argument_map):
+    """
+    If the -target option is in the argument map, verify that -output_dir is specified.
+    If variables_file was not specified, add it with the file <outputDir>/<targetName>_variable.properties .
+    :param argument_map: the argument map to be checked and possibly modified
+    """
+    _method_name = '__process_target_arg'
+
+    if CommandLineArgUtil.TARGET_SWITCH in argument_map:
+        target_name = argument_map[CommandLineArgUtil.TARGET_SWITCH]
+
+        # if -target is specified -output_dir is required
+        output_dir = dictionary_utils.get_element(argument_map, CommandLineArgUtil.OUTPUT_DIR_SWITCH)
+        if (output_dir is None) or (not os.path.isdir(output_dir)):
+            ex = exception_helper.create_cla_exception('WLSDPLY-01642', CommandLineArgUtil.OUTPUT_DIR_SWITCH,
+                                                       CommandLineArgUtil.TARGET_SWITCH, target_name)
+            __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
+            raise ex
+
+        # Set the -variable_file parameter if not present with default
+        if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in argument_map:
+            path = os.path.join(output_dir, target_name + "_variable.properties")
+            argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = path
+
 
 #
 #  Generate a shell script for creating k8s secrets
 #
-def generate_k8s_script(file_location, token_dictionary):
-    if file_location:
+def generate_k8s_script(model_context, token_dictionary):
+    if model_context:
+        file_location = model_context.get_kubernetes_output_dir()
+
         NL = '\n'
-        par_dir = os.path.abspath(os.path.join(file_location,os.pardir))
-        k8s_file = os.path.join(par_dir, "create_k8s_secrets.sh")
-        # Only write the function and wls crednetials if it does not exists
+        k8s_file = os.path.join(file_location, "create_k8s_secrets.sh")
+        # Only write the function and wls credentials if it does not exists
         if not os.path.exists(k8s_file):
             k8s_create_script_handle = open(k8s_file, 'w')
             k8s_create_script_handle.write('#!/bin/bash')

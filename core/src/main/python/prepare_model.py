@@ -75,6 +75,7 @@ all_added = []
 all_removed = []
 compare_msgs = sets.Set()
 
+
 def __process_args(args, logger):
     """
     Process the command-line arguments.
@@ -86,27 +87,10 @@ def __process_args(args, logger):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     argument_map = cla_util.process_args(args)
 
-    __process_target_arg(argument_map, logger)
+    target_configuration_helper.process_target_arguments(argument_map)
 
     return ModelContext(_program_name, argument_map)
 
-
-def __process_target_arg(argument_map, logger):
-
-    _method_name = '__process_target_arg'
-
-    # if -target is specified -output_dir is required
-    output_dir = argument_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
-    if output_dir is None or os.path.isdir(output_dir) is False:
-        if not os.path.isdir(output_dir):
-            ex = exception_helper.create_cla_exception('WLSDPLY-01642', output_dir)
-            logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-
-    # Set the -variable_file parameter if not present with default
-    if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in argument_map:
-        argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = os.path.join(output_dir,
-                                                                             "k8s_variable.properties")
 
 class PrepareModel:
     """
@@ -426,8 +410,7 @@ class PrepareModel:
             for key in self.secrets_to_generate:
                 self.cache[key] = ''
 
-            target_configuration_helper.generate_k8s_script(self.model_context.get_kubernetes_variable_file(),
-                                                            self.cache)
+            target_configuration_helper.generate_k8s_script(self.model_context, self.cache)
 
         except ValidateException, te:
             __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),

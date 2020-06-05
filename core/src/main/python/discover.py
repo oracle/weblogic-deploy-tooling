@@ -44,7 +44,6 @@ from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
-from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import tool_exit
@@ -93,30 +92,13 @@ def __process_args(args):
     argument_map = cla_util.process_args(args)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
-    __process_target_arg(argument_map)
+    target_configuration_helper.process_target_arguments(argument_map)
     __process_archive_filename_arg(argument_map)
     __process_variable_filename_arg(argument_map)
     __process_java_home(argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map)
 
-def __process_target_arg(optional_arg_map):
-
-    _method_name = '__process_target_arg'
-
-    if CommandLineArgUtil.TARGET_SWITCH in optional_arg_map:
-        # if -target is specified -output_dir is required
-        output_dir = dictionary_utils.get_element(optional_arg_map, CommandLineArgUtil.OUTPUT_DIR_SWITCH)
-        if (output_dir is None) or (not os.path.isdir(output_dir)):
-            ex = exception_helper.create_cla_exception('WLSDPLY-01642', output_dir)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-
-        # Set the -variable_file parameter if not present with default
-
-        if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in optional_arg_map:
-            optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = os.path.join(output_dir,
-                                                                                     "k8s_variable.properties")
 
 def __process_archive_filename_arg(required_arg_map):
     """
@@ -428,7 +410,7 @@ def __check_and_customize_model(model, model_context, aliases, injector):
         if model_context.is_targetted_config():
             validation_method = model_context.get_target_configuration()['validation_method']
             model_context.set_validation_method(validation_method)
-            target_configuration_helper.generate_k8s_script(model_context.get_kubernetes_variable_file(), cache)
+            target_configuration_helper.generate_k8s_script(model_context, cache)
             cache.clear()
 
     variable_injector = VariableInjector(_program_name, model.get_model(), model_context,
