@@ -45,14 +45,6 @@
         </fileSet>
 
         <fileSet>
-            <directory>../core/src/main/python/wlsdeploy/tool/discover</directory>
-            <outputDirectory>lib/targets/k8s</outputDirectory>
-            <includes>
-                <include>k8s_operator_filter.py</include>
-            </includes>
-        </fileSet>
-
-        <fileSet>
             <directory>src/main/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
