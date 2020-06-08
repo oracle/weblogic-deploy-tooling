@@ -8,6 +8,7 @@ import os
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.targets import v8o_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
@@ -133,7 +134,7 @@ def has_additional_output(model_context):
     return bool(_get_additional_output_types(model_context))
 
 
-def create_additional_output(model, model_context):
+def create_additional_output(model, model_context, exception_type):
     """
     Create any additional output specified in the target configuration.
     :param model: used to create additional content
@@ -144,7 +145,7 @@ def create_additional_output(model, model_context):
     output_types = _get_additional_output_types(model_context)
     for output_type in output_types:
         if output_type == V8O_EXTRA_CONFIG:
-            pass
+            v8o_helper.create_v8o_configuration(model, model_context, exception_type)
         else:
             __logger.warning('WLSDPLY-01660', output_type, model_context.get_target(), class_name=__class_name,
                              method_name=_method_name)

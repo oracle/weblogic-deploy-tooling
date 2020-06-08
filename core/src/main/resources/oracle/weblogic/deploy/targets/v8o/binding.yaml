@@ -1,0 +1,24 @@
+apiVersion: verrazzano.io/v1beta1
+kind: VerrazzanoBinding
+metadata:
+  name: dereks-todo-binding
+  namespace: default
+spec:
+  description: "Derek's Todo binding"
+  modelName: dereks-todo-model
+  weblogicBindings:
+    - name: "todo"
+      replicas: 3
+  placement:
+    - name: local
+      namespaces:
+        - name: derek
+          components:
+            - name: todo
+  ingressBindings:
+    - name: "todo-ingress"
+      dnsName: "todo.derek.v8o.oracledx.com"
+  databaseBindings:
+    - name: "todo-db"
+      url: "dbserver:1521:whatever"
+      credentials: "todo-db-credentials"

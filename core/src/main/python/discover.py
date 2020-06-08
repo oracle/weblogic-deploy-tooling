@@ -491,18 +491,20 @@ def main(args):
         __logger.info('WLSDPLY-06025', class_name=_class_name, method_name=_method_name)
     else:
         __logger.info('WLSDPLY-06024', class_name=_class_name, method_name=_method_name)
+
     try:
         model = __discover(model_context, aliases, discover_injector, helper)
+
+        model = __check_and_customize_model(model, model_context, aliases, discover_injector)
+
+        if model_context.is_targetted_config():
+            target_configuration_helper.create_additional_output(model, model_context, ExceptionType.DISCOVER)
+
     except DiscoverException, ex:
         __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
                         model_context.get_domain_home(), ex.getLocalizedMessage(),
                         error=ex, class_name=_class_name, method_name=_method_name)
         __log_and_exit(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
-
-    model = __check_and_customize_model(model, model_context, aliases, discover_injector)
-
-    if model_context.is_targetted_config():
-        target_configuration_helper.create_additional_output(model, model_context)
 
     try:
         __persist_model(model, model_context)

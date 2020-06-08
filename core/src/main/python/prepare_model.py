@@ -47,6 +47,7 @@ from wlsdeploy.util import model
 from wlsdeploy.util import target_configuration_helper
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -420,7 +421,8 @@ class PrepareModel:
                 model_dictionary = cla_helper.merge_model_files(self.model_files, variable_map)
                 if filter_helper.apply_filters(model_dictionary, "discover", self.model_context):
                     self._logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
-                target_configuration_helper.create_additional_output(model_dictionary, self.model_context)
+                target_configuration_helper.create_additional_output(Model(model_dictionary), self.model_context,
+                                                                     ExceptionType.VALIDATE)
 
         except ValidateException, te:
             self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
