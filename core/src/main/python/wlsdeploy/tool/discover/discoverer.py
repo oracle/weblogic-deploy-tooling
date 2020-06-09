@@ -79,6 +79,8 @@ class Discoverer(object):
             _logger.info('WLSDPLY-06644', model_top_folder_name, class_name=_class_name, method_name=_method_name)
             location.add_name_token(self._alias_helper.get_name_token(location), name)
             self._populate_model_parameters(result, location)
+            # if any subfolders exist, discover
+            self._discover_subfolders(result, location)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_top_folder_name, result
 
