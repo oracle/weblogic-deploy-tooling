@@ -10,6 +10,7 @@ from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME, JDBC_RESO
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util.k8s_helper import WEBLOGIC_CREDENTIALS_SECRET_SUFFIX
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
@@ -39,6 +40,8 @@ def create_vz_configuration(model, model_context, aliases, exception_type):
     Create and write the Kubernetes resource configuration files for Verrazzano.
     :param model: Model object, used to derive some values in the configurations
     :param model_context: used to determine location and content for the configurations
+    :param aliases: used to derive secret names
+    :param exception_type: the type of exception to throw if needed
     """
 
     # -output_dir argument was previously verified
@@ -58,6 +61,7 @@ def _create_file(template_name, template_hash, output_dir, exception_type):
     :param template_name: the name of the template file, and the output file
     :param template_hash: a dictionary of substitution values
     :param output_dir: the directory to write the output file
+    :param exception_type: the type of exception to throw if needed
     """
     _method_name = '_create_file'
 
@@ -89,9 +93,9 @@ def _build_template_hash(model, aliases):
     # should change spaces to hyphens?
     template_hash[DOMAIN_PREFIX] = domain_name.lower()
 
-    # domain UID (same as name)
+    # domain UID
 
-    domain_uid = domain_name.lower()
+    domain_uid = k8s_helper.get_domain_uid(domain_name)
     template_hash[DOMAIN_UID] = domain_uid
 
     # admin credential
@@ -144,6 +148,7 @@ def _get_short_name(location, aliases):
     """
     Return the short name of the last folder in the location, if available.
     :param location: the location to be checked
+    :param aliases: used to determine short name
     :return: the short name of the last folder, or the full name if not available
     """
     short_name = aliases.get_folder_short_name(location)

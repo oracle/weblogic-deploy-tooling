@@ -410,7 +410,7 @@ def __check_and_customize_model(model, model_context, aliases, injector):
         if model_context.is_targetted_config():
             validation_method = model_context.get_target_configuration()['validation_method']
             model_context.set_validation_method(validation_method)
-            target_configuration_helper.generate_k8s_script(model_context, cache)
+            target_configuration_helper.generate_k8s_script(model_context, cache, model.get_model())
             cache.clear()
 
     variable_injector = VariableInjector(_program_name, model.get_model(), model_context,

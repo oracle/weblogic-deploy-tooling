@@ -8,3 +8,12 @@ including domain resource configuration for WebLogic Kubernetes Operator.
 
 # Kubernetes secret with admin name and password is <domainUid>-weblogic-credentials
 WEBLOGIC_CREDENTIALS_SECRET_SUFFIX = '-weblogic-credentials'
+
+
+def get_domain_uid(domain_name):
+    """
+    Determine the domain UID based on domain name.
+    :param domain_name: the domain name to be checked
+    :return: the domain UID
+    """
+    return domain_name.lower()

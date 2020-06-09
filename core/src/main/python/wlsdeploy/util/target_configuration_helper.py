@@ -6,8 +6,12 @@
 
 import os
 
+from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import NAME
+from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util.targets import vz_config_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -43,73 +47,82 @@ def process_target_arguments(argument_map):
             argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = path
 
 
-#
-#  Generate a shell script for creating k8s secrets
-#
-def generate_k8s_script(model_context, token_dictionary):
-    if model_context:
-        file_location = model_context.get_kubernetes_output_dir()
+def generate_k8s_script(model_context, token_dictionary, model_dictionary):
+    """
+    Generate a shell script for creating k8s secrets.
+    :param model_context: used to determine output directory
+    :param token_dictionary: contains every token
+    :param model_dictionary: used to determine domain UID
+    :return:
+    """
 
-        NL = '\n'
-        k8s_file = os.path.join(file_location, "create_k8s_secrets.sh")
-        # Only write the function and wls credentials if it does not exists
-        if not os.path.exists(k8s_file):
-            k8s_create_script_handle = open(k8s_file, 'w')
-            k8s_create_script_handle.write('#!/bin/bash')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('set -eu')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('NAMESPACE=default')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('DOMAIN_UID=domain1')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('ADMIN_USER=wlsAdminUser')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('ADMIN_PWD=wlsAdminPwd')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('function create_k8s_secret {')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-$1 --ignore-not-found')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('kubectl -n $NAMESPACE create secret generic ${DOMAIN_UID}-$1 ' +
-                                           '--from-literal=$2=$3')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-$1 ' +
-                                           'weblogic.domainUID=${DOMAIN_UID}')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('}')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write("kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-weblogic-credentials "
-                                           + "--ignore-not-found")
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write("kubectl -n $NAMESPACE create secret generic "
-                                           +  "${DOMAIN_UID}-weblogic-credentials "
-                                           +   "--from-literal=username=${ADMIN_USER} --from-literal=password=${ADMIN_PWD}")
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-weblogic-credentials ' +
-                                           'weblogic.domainUID=${DOMAIN_UID}')
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.write(NL)
-            k8s_create_script_handle.close()
+    # determine the domain name and UID
+    topology = dictionary_utils.get_dictionary_element(model_dictionary, TOPOLOGY)
+    domain_name = dictionary_utils.get_element(topology, NAME)
+    if domain_name is None:
+        domain_name = DEFAULT_WLS_DOMAIN_NAME
 
-        k8s_create_script_handle = open(k8s_file, "a+")
+    domain_uid = k8s_helper.get_domain_uid(domain_name)
+
+    NL = '\n'
+    file_location = model_context.get_kubernetes_output_dir()
+    k8s_file = os.path.join(file_location, "create_k8s_secrets.sh")
+    k8s_create_script_handle = open(k8s_file, 'w')
+
+    k8s_create_script_handle.write('#!/bin/bash')
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write('set -eu')
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write('NAMESPACE=default')
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write('DOMAIN_UID=' + domain_uid)
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write('ADMIN_USER=wlsAdminUser')
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write('ADMIN_PWD=wlsAdminPwd')
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write('function create_k8s_secret {')
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write('kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-$1 --ignore-not-found')
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write('kubectl -n $NAMESPACE create secret generic ${DOMAIN_UID}-$1 ' +
+                                   '--from-literal=$2=$3')
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-$1 ' +
+                                   'weblogic.domainUID=${DOMAIN_UID}')
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write('}')
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write("kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-weblogic-credentials "
+                                   + "--ignore-not-found")
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write("kubectl -n $NAMESPACE create secret generic "
+                                   +  "${DOMAIN_UID}-weblogic-credentials "
+                                   +   "--from-literal=username=${ADMIN_USER} --from-literal=password=${ADMIN_PWD}")
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-weblogic-credentials ' +
+                                   'weblogic.domainUID=${DOMAIN_UID}')
+    k8s_create_script_handle.write(NL)
+    k8s_create_script_handle.write(NL)
+
+    for property_name in token_dictionary:
+        # AdminPassword, AdminUser are created separately,
+        # and SecurityConfig.NodeManagerPasswordEncrypted is the short name which filters out
+        if property_name in ['AdminPassword', 'AdminUserName', 'SecurityConfig.NodeManagerPasswordEncrypted']:
+            continue
+
+        secret_names = property_name.lower().split('.')
+        command_string = "create_k8s_secret %s %s %s " %( '-'.join(secret_names[:-1]), secret_names[-1],
+                                                          "<changeme>")
+        k8s_create_script_handle.write(command_string)
         k8s_create_script_handle.write(NL)
-        for property_name in token_dictionary:
-            # AdminPassword handle differently and SecurityConfig.NodeManagerPasswordEncrypted is the short name
-            # which filters out
-            if property_name in [ 'AdminPassword', 'SecurityConfig.NodeManagerPasswordEncrypted']:
-                continue
-            secret_names = property_name.lower().split('.')
-            command_string = "create_k8s_secret %s %s %s " %( '-'.join(secret_names[:-1]), secret_names[-1],
-                                                              "<changeme>")
-            k8s_create_script_handle.write(command_string)
-            k8s_create_script_handle.write(NL)
 
-        k8s_create_script_handle.close()
+    k8s_create_script_handle.close()
+
 
 def format_as_secret(variable_name):
     """
@@ -123,15 +136,6 @@ def format_as_secret(variable_name):
             return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ('weblogic-credentials', name_lower_tokens[0])
 
     return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ( '-'.join(name_lower_tokens[:-1]), name_lower_tokens[-1])
-
-
-def has_additional_output(model_context):
-    """
-    Determine if the target configuration includes any additional output types.
-    :param model_context: provides access to the target configuration
-    :return: True if additional output types are specified, False otherwise
-    """
-    return bool(_get_additional_output_types(model_context))
 
 
 def create_additional_output(model, model_context, aliases, exception_type):

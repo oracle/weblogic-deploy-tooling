@@ -358,7 +358,6 @@ class PrepareModel:
         model_file_name = None
 
         try:
-
             model_file_list = self.model_files.split(',')
             for model_file in model_file_list:
                 self.cache.clear()
@@ -400,7 +399,6 @@ class PrepareModel:
                 self.current_dict = self._apply_filter_and_inject_variable(self.current_dict, self.model_context,
                                                                            validator)
 
-
                 file_name = os.path.join(self.output_dir, os.path.basename(model_file_name))
                 fos = JFileOutputStream(file_name, False)
                 writer = JPrintWriter(fos, True)
@@ -412,17 +410,15 @@ class PrepareModel:
             for key in self.secrets_to_generate:
                 self.cache[key] = ''
 
-            target_configuration_helper.generate_k8s_script(self.model_context, self.cache)
+            # use a merged, substituted, filtered model to get domain name and create additional target output.
+            full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._alias_helper,
+                                                          "discover", WlstModes.OFFLINE)
 
-            # if additional output is specified, merge models, use variables, apply filters,
-            # then call create_additional_output.
-            if target_configuration_helper.has_additional_output(self.model_context):
-                variable_map = variables.load_variables(self.model_context.get_variable_file())
-                model_dictionary = cla_helper.merge_model_files(self.model_files, variable_map)
-                if filter_helper.apply_filters(model_dictionary, "discover", self.model_context):
-                    self._logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
-                target_configuration_helper.create_additional_output(Model(model_dictionary), self.model_context,
-                                                                     self._alias_helper, ExceptionType.VALIDATE)
+            target_configuration_helper.generate_k8s_script(self.model_context, self.cache, full_model_dictionary)
+
+            # create any additional outputs from full model dictionary
+            target_configuration_helper.create_additional_output(Model(full_model_dictionary), self.model_context,
+                                                                 self._alias_helper, ExceptionType.VALIDATE)
 
         except ValidateException, te:
             self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
