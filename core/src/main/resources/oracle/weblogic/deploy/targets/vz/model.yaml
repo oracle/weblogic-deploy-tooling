@@ -1,29 +1,26 @@
 apiVersion: verrazzano.io/v1beta1
 kind: VerrazzanoModel
 metadata:
-  name: dereks-todo-model
+  name: {{{domainPrefix}}}-model
   namespace: default
 spec:
-  description: "Derek's Todo System"
+  description: "{{{domainName}}} System"
   weblogicDomains:
-    - name: todo
+    - name: "{{{domainName}}}"
       adminPort: 32701
       t3Port: 32702
       domainCRValues:
         domainUID: {{{domainUid}}}
         domainHome: {{{domainHome}}}
         image: {{{imageName}}}
-        logHome: /u01/oracle/user_projects/domains/todo/logs
-        logHomeEnabled: false
-        includeServerOutInPodLog: true
-        replicas: 1
         webLogicCredentialsSecret:
-          name: todo-weblogic-credentials
+          name: {{{webLogicCredentialsSecret}}}
         imagePullSecrets:
           - name: ocir
         clusters:
 {{#clusters}}
           - clusterName: {{{clusterName}}}
+            replicas: {{{replicas}}}
 {{/clusters}}
         serverPod:
           env:
@@ -31,18 +28,14 @@ spec:
               value: "-Dweblogic.StdoutDebugEnabled=false"
             - name: USER_MEM_ARGS
               value: "-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m "
-            - name: WL_HOME
-              value: /u01/oracle/wlserver
-            - name: MW_HOME
-              value: /u01/oracle
       connections:
         - ingress:
-            - name: todo-ingress
+            - name: {{{domainPrefix}}}-ingress
               match:
                 - uri:
                     prefix: "/todo"
         - database:
 {{#databases}}
-            - target: todo-db
+            - target: {{{databasePrefix}}}-db
               datasourceName: {{{datasourceName}}}
 {{/databases}}
