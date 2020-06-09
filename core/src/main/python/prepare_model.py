@@ -422,7 +422,7 @@ class PrepareModel:
                 if filter_helper.apply_filters(model_dictionary, "discover", self.model_context):
                     self._logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
                 target_configuration_helper.create_additional_output(Model(model_dictionary), self.model_context,
-                                                                     ExceptionType.VALIDATE)
+                                                                     self._alias_helper, ExceptionType.VALIDATE)
 
         except ValidateException, te:
             self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),

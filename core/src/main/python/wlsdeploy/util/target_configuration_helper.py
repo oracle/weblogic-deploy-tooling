@@ -134,7 +134,7 @@ def has_additional_output(model_context):
     return bool(_get_additional_output_types(model_context))
 
 
-def create_additional_output(model, model_context, exception_type):
+def create_additional_output(model, model_context, aliases, exception_type):
     """
     Create any additional output specified in the target configuration.
     :param model: used to create additional content
@@ -145,7 +145,7 @@ def create_additional_output(model, model_context, exception_type):
     output_types = _get_additional_output_types(model_context)
     for output_type in output_types:
         if output_type == VZ_EXTRA_CONFIG:
-            vz_config_helper.create_vz_configuration(model, model_context, exception_type)
+            vz_config_helper.create_vz_configuration(model, model_context, aliases, exception_type)
         else:
             __logger.warning('WLSDPLY-01660', output_type, model_context.get_target(), class_name=__class_name,
                              method_name=_method_name)

@@ -10,6 +10,7 @@ from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME, JDBC_RESO
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.k8s_helper import WEBLOGIC_CREDENTIALS_SECRET_SUFFIX
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
 
@@ -21,13 +22,19 @@ TEMPLATE_PATH = 'oracle/weblogic/deploy/targets/vz'
 # substitution keys used in the templates
 CLUSTER_NAME = 'clusterName'
 CLUSTERS = 'clusters'
+DATABASE_CREDENTIALS = 'databaseCredentials'
+DATABASE_PREFIX = 'databasePrefix'
 DATABASES = 'databases'
 DATASOURCE_NAME = 'datasourceName'
+DOMAIN_NAME = 'domainName'
+DOMAIN_PREFIX = 'domainPrefix'
 DOMAIN_UID = 'domainUid'
 DS_URL = 'url'
+REPLICAS = 'replicas'
+WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 
 
-def create_vz_configuration(model, model_context, exception_type):
+def create_vz_configuration(model, model_context, aliases, exception_type):
     """
     Create and write the Kubernetes resource configuration files for Verrazzano.
     :param model: Model object, used to derive some values in the configurations
@@ -37,7 +44,7 @@ def create_vz_configuration(model, model_context, exception_type):
     # -output_dir argument was previously verified
     output_dir = model_context.get_kubernetes_output_dir()
 
-    template_hash = _build_template_hash(model)
+    template_hash = _build_template_hash(model, aliases)
 
     _create_file('model.yaml', template_hash, output_dir, exception_type)
 
@@ -62,21 +69,34 @@ def _create_file(template_name, template_hash, output_dir, exception_type):
     file_template_helper.create_file(template_path, template_hash, output_file, exception_type)
 
 
-def _build_template_hash(model):
+def _build_template_hash(model, aliases):
     """
     Create a dictionary of substitution values to apply to the templates.
     :param model: used to derive values
+    :param aliases: used to derive folder names
     :return: the hash dictionary
     """
     template_hash = dict()
 
-    # domain UID
+    # domain name and prefix
 
-    domain_uid = dictionary_utils.get_element(model.get_model_topology(), NAME)
-    if domain_uid is None:
-        domain_uid = DEFAULT_WLS_DOMAIN_NAME
+    domain_name = dictionary_utils.get_element(model.get_model_topology(), NAME)
+    if domain_name is None:
+        domain_name = DEFAULT_WLS_DOMAIN_NAME
 
+    template_hash[DOMAIN_NAME] = domain_name
+
+    # should change spaces to hyphens?
+    template_hash[DOMAIN_PREFIX] = domain_name.lower()
+
+    # domain UID (same as name)
+
+    domain_uid = domain_name.lower()
     template_hash[DOMAIN_UID] = domain_uid
+
+    # admin credential
+
+    template_hash[WEBLOGIC_CREDENTIALS_SECRET] = domain_uid + WEBLOGIC_CREDENTIALS_SECRET_SUFFIX
 
     # clusters
 
@@ -85,6 +105,7 @@ def _build_template_hash(model):
     for cluster_name in cluster_list:
         cluster_hash = dict()
         cluster_hash[CLUSTER_NAME] = cluster_name
+        cluster_hash[REPLICAS] = str(999)
 
         clusters.append(cluster_hash)
 
@@ -106,8 +127,26 @@ def _build_template_hash(model):
             url = ''
         database_hash[DS_URL] = url
 
+        # should change spaces to hyphens?
+        database_hash[DATABASE_PREFIX] = jdbc_name.lower()
+
+        # get the name that matches secret
+        database_hash[DATABASE_CREDENTIALS] = "welcome1"
+
         databases.append(database_hash)
 
     template_hash[DATABASES] = databases
 
     return template_hash
+
+
+def _get_short_name(location, aliases):
+    """
+    Return the short name of the last folder in the location, if available.
+    :param location: the location to be checked
+    :return: the short name of the last folder, or the full name if not available
+    """
+    short_name = aliases.get_folder_short_name(location)
+    if len(short_name) > 0:
+        return short_name
+    return location.get_current_model_folder()
