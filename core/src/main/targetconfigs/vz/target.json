@@ -1,11 +1,11 @@
 {
     "model_filters" : {
         "discover": [
-            { "name": "v8o_prep", "path": "@@TARGET_CONFIG_DIR@@/v8o_filter.py" }
+            { "name": "vz_prep", "path": "@@TARGET_CONFIG_DIR@@/vz_filter.py" }
         ]
     },
     "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
     "validation_method" : "lax",
     "credential_as_secret" : "true",
-    "additional_output" : "v8o"
+    "additional_output" : "vz"
 }

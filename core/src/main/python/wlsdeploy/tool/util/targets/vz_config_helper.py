@@ -13,10 +13,10 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
 
-__class_name = 'v8o_config_helper'
+__class_name = 'vz_config_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
-TEMPLATE_PATH = 'oracle/weblogic/deploy/targets/v8o'
+TEMPLATE_PATH = 'oracle/weblogic/deploy/targets/vz'
 
 # substitution keys used in the templates
 CLUSTER_NAME = 'clusterName'
@@ -27,7 +27,7 @@ DOMAIN_UID = 'domainUid'
 DS_URL = 'url'
 
 
-def create_v8o_configuration(model, model_context, exception_type):
+def create_vz_configuration(model, model_context, exception_type):
     """
     Create and write the Kubernetes resource configuration files for Verrazzano.
     :param model: Model object, used to derive some values in the configurations

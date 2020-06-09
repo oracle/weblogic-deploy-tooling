@@ -8,14 +8,14 @@ import os
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.targets import v8o_config_helper
+from wlsdeploy.tool.util.targets import vz_config_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 __class_name = 'target_configuration_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
-V8O_EXTRA_CONFIG = 'v8o'
+VZ_EXTRA_CONFIG = 'vz'
 
 
 def process_target_arguments(argument_map):
@@ -144,8 +144,8 @@ def create_additional_output(model, model_context, exception_type):
 
     output_types = _get_additional_output_types(model_context)
     for output_type in output_types:
-        if output_type == V8O_EXTRA_CONFIG:
-            v8o_config_helper.create_v8o_configuration(model, model_context, exception_type)
+        if output_type == VZ_EXTRA_CONFIG:
+            vz_config_helper.create_vz_configuration(model, model_context, exception_type)
         else:
             __logger.warning('WLSDPLY-01660', output_type, model_context.get_target(), class_name=__class_name,
                              method_name=_method_name)

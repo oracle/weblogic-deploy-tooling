@@ -17,7 +17,7 @@ spec:
             - name: todo
   ingressBindings:
     - name: "todo-ingress"
-      dnsName: "todo.derek.v8o.oracledx.com"
+      dnsName: "todo.vz.oracledx.com"
   databaseBindings:
 {{#databases}}
     - name: "todo-db"
