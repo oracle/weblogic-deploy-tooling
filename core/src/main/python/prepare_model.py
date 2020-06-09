@@ -32,6 +32,7 @@ from oracle.weblogic.deploy.aliases import AliasException
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -254,7 +255,7 @@ class PrepareModel:
         if attribute_name in valid_attr_infos:
             expected_data_type = valid_attr_infos[attribute_name]
 
-            if expected_data_type == 'password':
+            if (expected_data_type == 'password') or (attribute_name == ADMIN_USERNAME):
                 self.__substitute_password_with_token(model_folder_path, attribute_name, validation_location)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -333,7 +334,7 @@ class PrepareModel:
         if tokens_length > 1:
             # For AdminPassword
             if model_path_tokens[0] == 'domainInfo:' and model_path_tokens[1] == '':
-                password_name = "@@SECRET:@@DOMAIN-UID@@-weblogic-credentials:%s@@" % (attribute_name.lower())
+                password_name = "@@SECRET:@@ENV:DOMAIN_UID@@-weblogic-credentials:%s@@" % (attribute_name.lower())
                 self.cache[attribute_name] = ''
             else:
                 password_name = target_configuration_helper.format_as_secret(variable_name)
