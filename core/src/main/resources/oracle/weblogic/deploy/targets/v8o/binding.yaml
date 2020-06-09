@@ -19,6 +19,8 @@ spec:
     - name: "todo-ingress"
       dnsName: "todo.derek.v8o.oracledx.com"
   databaseBindings:
+{{#databases}}
     - name: "todo-db"
-      url: "dbserver:1521:whatever"
+      url: "{{{url}}}"
       credentials: "todo-db-credentials"
+{{/databases}}

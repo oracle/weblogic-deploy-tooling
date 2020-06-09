@@ -22,7 +22,9 @@ spec:
         imagePullSecrets:
           - name: ocir
         clusters:
-          - clusterName: cluster-1
+{{#clusters}}
+          - clusterName: {{{clusterName}}}
+{{/clusters}}
         serverPod:
           env:
             - name: JAVA_OPTIONS
@@ -40,5 +42,7 @@ spec:
                 - uri:
                     prefix: "/todo"
         - database:
+{{#databases}}
             - target: todo-db
-              datasourceName: todoDb
+              datasourceName: {{{datasourceName}}}
+{{/databases}}

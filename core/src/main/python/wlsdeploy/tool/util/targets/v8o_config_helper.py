@@ -2,30 +2,29 @@
 Copyright (c) 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-Methods and constants for creating Kubernetes resource configuration files for Verrazzano.
+Methods for creating Kubernetes resource configuration files for Verrazzano.
 """
-import re
-
-from java.io import BufferedReader
 from java.io import File
-from java.io import InputStreamReader
-from oracle.weblogic.deploy.util import FileUtils
 
-from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME, JDBC_RESOURCE, JDBC_DRIVER_PARAMS, URL, CLUSTER
+from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import NAME
-from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
 
-__class_name = 'v8o_helper'
+__class_name = 'v8o_config_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
-
-_substitution_pattern = re.compile("({{{(.*)}}})")
 
 TEMPLATE_PATH = 'oracle/weblogic/deploy/targets/v8o'
 
 # substitution keys used in the templates
+CLUSTER_NAME = 'clusterName'
+CLUSTERS = 'clusters'
+DATABASES = 'databases'
+DATASOURCE_NAME = 'datasourceName'
 DOMAIN_UID = 'domainUid'
+DS_URL = 'url'
 
 
 def create_v8o_configuration(model, model_context, exception_type):
@@ -40,8 +39,9 @@ def create_v8o_configuration(model, model_context, exception_type):
 
     template_hash = _build_template_hash(model)
 
-    _create_file('binding.yaml', template_hash, output_dir, exception_type)
     _create_file('model.yaml', template_hash, output_dir, exception_type)
+
+    _create_file('binding.yaml', template_hash, output_dir, exception_type)
 
 
 def _create_file(template_name, template_hash, output_dir, exception_type):
@@ -54,32 +54,12 @@ def _create_file(template_name, template_hash, output_dir, exception_type):
     """
     _method_name = '_create_file'
 
-    output_file = File(output_dir, template_name)
-    file_writer = open(output_file.getPath(), "w")
-
     template_path = TEMPLATE_PATH + '/' + template_name
+    output_file = File(output_dir, template_name)
 
-    template_stream = FileUtils.getResourceAsStream(template_path)
-    if template_stream is None:
-        ex = exception_helper.create_exception(exception_type, 'WLSDPLY-01661', template_path)
-        __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
-        raise ex
+    __logger.info('WLSDPLY-01662', output_file, class_name=__class_name, method_name=_method_name)
 
-    template_reader = BufferedReader(InputStreamReader(FileUtils.getResourceAsStream(template_path)))
-
-    more = True
-    while more:
-        line = template_reader.readLine()
-        if line is not None:
-
-            line = _substitute_line(line, template_hash)
-
-            file_writer.write(line + "\n")
-
-        else:
-            more = False
-
-    file_writer.close()
+    file_template_helper.create_file(template_path, template_hash, output_file, exception_type)
 
 
 def _build_template_hash(model):
@@ -90,25 +70,44 @@ def _build_template_hash(model):
     """
     template_hash = dict()
 
+    # domain UID
+
     domain_uid = dictionary_utils.get_element(model.get_model_topology(), NAME)
     if domain_uid is None:
         domain_uid = DEFAULT_WLS_DOMAIN_NAME
 
     template_hash[DOMAIN_UID] = domain_uid
 
+    # clusters
+
+    clusters = []
+    cluster_list = dictionary_utils.get_dictionary_element(model.get_model_topology(), CLUSTER)
+    for cluster_name in cluster_list:
+        cluster_hash = dict()
+        cluster_hash[CLUSTER_NAME] = cluster_name
+
+        clusters.append(cluster_hash)
+
+    template_hash[CLUSTERS] = clusters
+
+    # databases
+
+    databases = []
+    system_resources = dictionary_utils.get_dictionary_element(model.get_model_resources(), JDBC_SYSTEM_RESOURCE)
+    for jdbc_name in system_resources:
+        database_hash = dict()
+        database_hash[DATASOURCE_NAME] = jdbc_name
+
+        named = dictionary_utils.get_dictionary_element(system_resources, jdbc_name)
+        resources = dictionary_utils.get_dictionary_element(named, JDBC_RESOURCE)
+        driver_params = dictionary_utils.get_dictionary_element(resources, JDBC_DRIVER_PARAMS)
+        url = dictionary_utils.get_element(driver_params, URL)
+        if url is None:
+            url = ''
+        database_hash[DS_URL] = url
+
+        databases.append(database_hash)
+
+    template_hash[DATABASES] = databases
+
     return template_hash
-
-
-def _substitute_line(line, template_hash):
-    """
-    Substitute any tokens in the specified line with values from the template hash.
-    :param line: the line to be evaluated
-    :param template_hash: a map of keys and values
-    :return: the revised line
-    """
-    matches = _substitution_pattern.findall(line)
-    for token, value in matches:
-        replacement = dictionary_utils.get_element(template_hash, value)
-        if replacement is not None:
-            line = line.replace(token, replacement)
-    return line
