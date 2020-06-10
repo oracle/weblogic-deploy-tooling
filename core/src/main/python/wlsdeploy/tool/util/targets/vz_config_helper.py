@@ -157,16 +157,3 @@ def _build_template_hash(model, aliases):
     template_hash[DATABASES] = databases
 
     return template_hash
-
-
-def _get_short_name(location, aliases):
-    """
-    Return the short name of the last folder in the location, if available.
-    :param location: the location to be checked
-    :param aliases: used to determine short name
-    :return: the short name of the last folder, or the full name if not available
-    """
-    short_name = aliases.get_folder_short_name(location)
-    if len(short_name) > 0:
-        return short_name
-    return location.get_current_model_folder()
