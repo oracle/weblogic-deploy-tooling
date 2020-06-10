@@ -6,9 +6,6 @@ Methods and constants for building Kubernetes resource files,
 including domain resource configuration for WebLogic Kubernetes Operator.
 """
 
-# Kubernetes secret with admin name and password is <domainUid>-weblogic-credentials
-WEBLOGIC_CREDENTIALS_SECRET_SUFFIX = '-weblogic-credentials'
-
 
 def get_domain_uid(domain_name):
     """

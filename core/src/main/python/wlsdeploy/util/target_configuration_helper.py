@@ -19,6 +19,10 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 __class_name = 'target_configuration_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
+# Kubernetes secret for admin name and password is <domainUid>-weblogic-credentials
+WEBLOGIC_CREDENTIALS_SECRET_NAME = 'weblogic-credentials'
+WEBLOGIC_CREDENTIALS_SECRET_SUFFIX = '-' + WEBLOGIC_CREDENTIALS_SECRET_NAME
+
 VZ_EXTRA_CONFIG = 'vz'
 
 
@@ -97,15 +101,15 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     k8s_create_script_handle.write('}')
     k8s_create_script_handle.write(NL)
     k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write("kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-weblogic-credentials "
-                                   + "--ignore-not-found")
+
+    admin_secret_name = '${DOMAIN_UID}' + WEBLOGIC_CREDENTIALS_SECRET_SUFFIX
+    k8s_create_script_handle.write("kubectl -n $NAMESPACE delete secret " + admin_secret_name + " --ignore-not-found")
     k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write("kubectl -n $NAMESPACE create secret generic "
-                                   +  "${DOMAIN_UID}-weblogic-credentials "
-                                   +   "--from-literal=username=${ADMIN_USER} --from-literal=password=${ADMIN_PWD}")
+    k8s_create_script_handle.write("kubectl -n $NAMESPACE create secret generic " + admin_secret_name +
+                                   " --from-literal=username=${ADMIN_USER} --from-literal=password=${ADMIN_PWD}")
     k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-weblogic-credentials ' +
-                                   'weblogic.domainUID=${DOMAIN_UID}')
+    k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ' + admin_secret_name +
+                                   ' weblogic.domainUID=${DOMAIN_UID}')
     k8s_create_script_handle.write(NL)
     k8s_create_script_handle.write(NL)
 
@@ -133,10 +137,20 @@ def format_as_secret(variable_name):
     name_lower_tokens = variable_name.lower().split('.')
     if len(name_lower_tokens) == 1:
         if name_lower_tokens[0] == 'adminusername' or 'adminpassword' == name_lower_tokens[0]:
-            return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ('weblogic-credentials', name_lower_tokens[0])
+            return get_secret_model_token(WEBLOGIC_CREDENTIALS_SECRET_NAME, name_lower_tokens[0])
 
-    return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ( '-'.join(name_lower_tokens[:-1]), name_lower_tokens[-1])
+    return get_secret_model_token('-'.join(name_lower_tokens[:-1]), name_lower_tokens[-1])
 
+
+def get_secret_model_token(name, key):
+    """
+    Returns the substitution string to be put in the model for a secret value,
+    in a consistent manner.
+    :param name: the name of the secret
+    :param key: the key of the secret
+    :return: the substitution string
+    """
+    return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % (name, key)
 
 def create_additional_output(model, model_context, aliases, exception_type):
     """

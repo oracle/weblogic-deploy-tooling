@@ -11,9 +11,9 @@ from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
-from wlsdeploy.tool.util.k8s_helper import WEBLOGIC_CREDENTIALS_SECRET_SUFFIX
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import target_configuration_helper
 
 __class_name = 'vz_config_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
@@ -100,7 +100,8 @@ def _build_template_hash(model, aliases):
 
     # admin credential
 
-    template_hash[WEBLOGIC_CREDENTIALS_SECRET] = domain_uid + WEBLOGIC_CREDENTIALS_SECRET_SUFFIX
+    admin_secret = domain_uid + target_configuration_helper.WEBLOGIC_CREDENTIALS_SECRET_SUFFIX
+    template_hash[WEBLOGIC_CREDENTIALS_SECRET] = admin_secret
 
     # clusters
 

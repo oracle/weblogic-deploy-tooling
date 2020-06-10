@@ -334,7 +334,7 @@ class PrepareModel:
         if tokens_length > 1:
             # For AdminPassword
             if model_path_tokens[0] == 'domainInfo:' and model_path_tokens[1] == '':
-                password_name = "@@SECRET:@@ENV:DOMAIN_UID@@-weblogic-credentials:%s@@" % (attribute_name.lower())
+                password_name = target_configuration_helper.format_as_secret(attribute_name)
                 self.cache[attribute_name] = ''
             else:
                 password_name = target_configuration_helper.format_as_secret(variable_name)
