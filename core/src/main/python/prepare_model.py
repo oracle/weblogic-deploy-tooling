@@ -12,7 +12,6 @@
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.PrintWriter as JPrintWriter
 import os
-import re
 import sets
 import sys
 import traceback
@@ -28,8 +27,6 @@ from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
-from oracle.weblogic.deploy.aliases import AliasException
-from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
@@ -39,6 +36,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.util import variable_injector_functions
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.tool.validate import validation_utils
@@ -46,7 +44,6 @@ from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import model
 from wlsdeploy.util import target_configuration_helper
-from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
@@ -280,64 +277,19 @@ class PrepareModel:
             if expected_data_type == 'password':
                 self.__substitute_password_with_token(model_folder_path, property_name, validation_location)
 
-
-    def __format_variable_name(self, location, attribute):
-        _method_name = '__format_variable_name'
-        def __traverse_location(iterate_location, name_list, last_folder=None, last_folder_short=None):
-            current_folder = iterate_location.get_current_model_folder()
-            if current_folder == model_constants.DOMAIN:
-                if last_folder is not None:
-                    # If a short name is not defined for the top level folder, use the full name
-                    if len(last_folder_short) == 0:
-                        last_folder_short = last_folder
-                    name_list.insert(0, last_folder_short)
-            else:
-                current_folder = iterate_location.get_current_model_folder()
-                short_folder = self._aliases.get_folder_short_name(iterate_location)
-                if last_folder_short is not None:
-                    name_list.insert(0, last_folder_short)
-                try:
-                    if not self._aliases.is_artificial_type_folder(location) and \
-                            (self._aliases.supports_multiple_mbean_instances(iterate_location) or
-                             self._aliases.is_custom_folder_allowed(iterate_location)):
-                        name_token = self._aliases.get_name_token(iterate_location)
-                        name = iterate_location.get_name_for_token(name_token)
-                        name_list.insert(0, name)
-                        iterate_location.remove_name_token(name_token)
-                    iterate_location.pop_location()
-                except AliasException, ae:
-                    self._logger.warning('WLSDPLY-19531', str(location), attribute, ae.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
-                __traverse_location(iterate_location, name_list, current_folder, short_folder)
-            return name_list
-
-        short_list = __traverse_location(LocationContext(location), list())
-        short_name = ''
-        for node in short_list:
-            if node is not None and len(node) > 0:
-                short_name += node + '.'
-        short_name += attribute
-        _fake_name_replacement = re.compile('.fakename')
-        _white_space_replacement = re.compile('\s')
-        short_name = short_name.replace('/', '.')
-        short_name = _white_space_replacement.sub('-', short_name)
-        short_name = _fake_name_replacement.sub('', short_name)
-
-        return short_name
-
-
     def __substitute_password_with_token(self, model_path, attribute_name, validation_location, model_context=None):
 
         model_path_tokens = model_path.split('/')
         tokens_length = len(model_path_tokens)
-        variable_name = self.__format_variable_name(validation_location, attribute_name)
+        variable_name = variable_injector_functions.format_variable_name(validation_location, attribute_name,
+                                                                         self._aliases)
         if tokens_length > 1:
             # For AdminPassword
             if model_path_tokens[0] == 'domainInfo:' and model_path_tokens[1] == '':
-                password_name = target_configuration_helper.format_as_secret(attribute_name)
+                password_name = target_configuration_helper.format_as_secret_token(attribute_name)
                 self.cache[attribute_name] = ''
             else:
-                password_name = target_configuration_helper.format_as_secret(variable_name)
+                password_name = target_configuration_helper.format_as_secret_token(variable_name)
                 self.cache[variable_name] = ''
 
             p_dict = self.current_dict
@@ -353,7 +305,11 @@ class PrepareModel:
             p_dict[attribute_name] = password_name
 
     def walk(self):
-
+        """
+        Replace password attributes in each model file with secret tokens, and write each model.
+        Generate a script to create the required secrets.
+        Create any additional output specified for the target environment.
+        """
         _method_name = "walk"
 
         model_file_name = None

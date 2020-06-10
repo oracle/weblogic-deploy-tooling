@@ -12,6 +12,7 @@ from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
+from wlsdeploy.tool.util import variable_injector_functions
 from wlsdeploy.tool.util.targets import vz_config_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -128,9 +129,9 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     k8s_create_script_handle.close()
 
 
-def format_as_secret(variable_name):
+def format_as_secret_token(variable_name):
     """
-    Format the variable as a secret name
+    Format the variable as a secret name token for use in a model.
     :param variable_name: variable name in dot separated format
     :return: formatted name
     """
@@ -144,13 +145,27 @@ def format_as_secret(variable_name):
 
 def get_secret_model_token(name, key):
     """
-    Returns the substitution string to be put in the model for a secret value,
-    in a consistent manner.
+    Returns the substitution string to be put in the model for a secret value.
     :param name: the name of the secret
     :param key: the key of the secret
     :return: the substitution string
     """
     return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % (name, key)
+
+
+def get_secret_name_for_location(location, domain_uid, aliases):
+    """
+    Returns the secret name for the specified model location.
+    Example: mydomain-jdbc-mydatasource
+    :param location: the location to be evaluated
+    :param domain_uid: used to prefix the secret name
+    :param aliases: used to examine the location
+    :return: the secret name
+    """
+    variable_name = variable_injector_functions.format_variable_name(location, '(none)', aliases)
+    name_lower_tokens = variable_name.lower().split('.')
+    return domain_uid + '-' + '-'.join(name_lower_tokens[:-1])
+
 
 def create_additional_output(model, model_context, aliases, exception_type):
     """

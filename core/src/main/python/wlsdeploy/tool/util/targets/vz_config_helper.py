@@ -6,9 +6,14 @@ Methods for creating Kubernetes resource configuration files for Verrazzano.
 """
 from java.io import File
 
-from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME, JDBC_RESOURCE, JDBC_DRIVER_PARAMS, URL, CLUSTER
+from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
+from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import NAME
+from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util.targets import file_template_helper
@@ -119,6 +124,11 @@ def _build_template_hash(model, aliases):
     # databases
 
     databases = []
+
+    location = LocationContext().append_location(JDBC_SYSTEM_RESOURCE)
+    name_token = aliases.get_name_token(location)
+    location.append_location(JDBC_RESOURCE, JDBC_DRIVER_PARAMS)
+
     system_resources = dictionary_utils.get_dictionary_element(model.get_model_resources(), JDBC_SYSTEM_RESOURCE)
     for jdbc_name in system_resources:
         database_hash = dict()
@@ -136,7 +146,9 @@ def _build_template_hash(model, aliases):
         database_hash[DATABASE_PREFIX] = jdbc_name.lower()
 
         # get the name that matches secret
-        database_hash[DATABASE_CREDENTIALS] = "welcome1"
+        location.add_name_token(name_token, jdbc_name)
+        secret_name = target_configuration_helper.get_secret_name_for_location(location, domain_uid, aliases)
+        database_hash[DATABASE_CREDENTIALS] = secret_name
 
         databases.append(database_hash)
 

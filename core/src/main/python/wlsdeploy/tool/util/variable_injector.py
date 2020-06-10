@@ -67,8 +67,6 @@ STANDARD_PASSWORD_INJECTOR = {
 # global variables for functions in VariableInjector
 _find_special_names_pattern = re.compile('[\[\]]')
 _fake_name_marker = 'fakename'
-_fake_name_replacement = re.compile('.' + _fake_name_marker)
-_white_space_replacement = re.compile('\s')
 _split_around_special_names = re.compile('([\w]+\[[\w\.,]+\])|\.')
 
 _class_name = 'variable_injector'
@@ -143,7 +141,7 @@ class VariableInjector(object):
         _logger.entering(attribute_name, class_name=_class_name, method_name=_method_name)
         cache = self.get_variable_cache()
         if len(cache) > 0:
-            property_name = self.__format_variable_name(location, attribute_name)
+            property_name = variable_injector_functions.format_variable_name(location, attribute_name, self.__aliases)
             if property_name in cache:
                 _logger.fine('WLSDPLY-19545', property_name, class_name=_class_name, method_name=_method_name)
                 del cache[property_name]
@@ -374,63 +372,8 @@ class VariableInjector(object):
         else:
             return self._process_attribute(model, attribute, location, injector_values)
 
-    def __format_variable_name_old(self, location, attribute):
-        _method_name = '__format_variable_name_old'
-        variable_name = attribute
-        make_path = None
-        try:
-            make_path = self.__aliases.get_model_folder_path(location)
-        except AliasException, ae:
-            _logger.warning('WLSDPLY-19531', str(location), attribute, ae.getLocalizedMessage(), class_name=_class_name,
-                            method_name=_method_name)
-        if make_path:
-            make_path = make_path.split(':')
-            if len(make_path) > 1 and len(make_path[1]) > 1:
-                variable_name = make_path[1]
-                variable_name = variable_name[1:] + VARIABLE_SEP + attribute
-        return _massage_name(variable_name)
-
-    def __format_variable_name(self, location, attribute):
-        _method_name = '__format_variable_name'
-
-        def __traverse_location(iterate_location, name_list, last_folder=None, last_folder_short=None):
-            current_folder = iterate_location.get_current_model_folder()
-            if current_folder == model_constants.DOMAIN:
-                if last_folder is not None:
-                    # If a short name is not defined for the top level folder, use the full name
-                    if len(last_folder_short) == 0:
-                        last_folder_short = last_folder
-                    name_list.insert(0, last_folder_short)
-            else:
-                current_folder = iterate_location.get_current_model_folder()
-                short_folder = self.get_folder_short_name(iterate_location)
-                if last_folder_short is not None:
-                    name_list.insert(0, last_folder_short)
-                try:
-                    if not self.__aliases.is_artificial_type_folder(location) and \
-                              (self.__aliases.supports_multiple_mbean_instances(iterate_location) or
-                                self.__aliases.is_custom_folder_allowed(iterate_location)):
-                        name_token = self.__aliases.get_name_token(iterate_location)
-                        name = iterate_location.get_name_for_token(name_token)
-                        name_list.insert(0, name)
-                        iterate_location.remove_name_token(name_token)
-                    iterate_location.pop_location()
-                except AliasException, ae:
-                    _logger.warning('WLSDPLY-19531', str(location), attribute, ae.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
-                __traverse_location(iterate_location, name_list, current_folder, short_folder)
-            return name_list
-        short_list = __traverse_location(LocationContext(location), list())
-
-        short_name = ''
-        for node in short_list:
-            if node is not None and len(node) > 0:
-                short_name += node + '.'
-        short_name += attribute
-        return _massage_name(short_name)
-
     def __format_variable_name_segment(self, location, attribute, suffix):
-        path = self.__format_variable_name(location, attribute)
+        path = variable_injector_functions.format_variable_name(location, attribute, self.__aliases)
         if suffix:
             return path + SUFFIX_SEP + suffix
         return path
@@ -444,11 +387,11 @@ class VariableInjector(object):
         variable_value = None
         attribute_value = model[attribute]
         if not _already_property(attribute_value):
-            variable_name = self.__format_variable_name(location, attribute)
+            variable_name = variable_injector_functions.format_variable_name(location, attribute, self.__aliases)
             variable_value = _format_variable_value(attribute_value)
             if self.__model_context is not None and self.__model_context.is_targetted_config() \
                 and variable_value == alias_constants.PASSWORD_TOKEN:
-                    model[attribute] = target_configuration_helper.format_as_secret(variable_name)
+                    model[attribute] = target_configuration_helper.format_as_secret_token(variable_name)
             else:
                 model[attribute] = _format_as_property(variable_name)
 
@@ -811,14 +754,6 @@ def _format_variable_value(value):
         return 'False'
     else:
         return str(value)
-
-
-def _massage_name(variable_name):
-    if variable_name:
-        variable_name = variable_name.replace('/', '.')
-        variable_name = _white_space_replacement.sub('-', variable_name)
-        variable_name = _fake_name_replacement.sub('', variable_name)
-    return variable_name
 
 
 def _replace_segment(regexp, variable_value, attribute_value):
