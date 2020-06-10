@@ -495,10 +495,11 @@ def main(args):
     try:
         model = __discover(model_context, aliases, discover_injector, helper)
 
-        model = __check_and_customize_model(model, model_context, aliases, discover_injector)
-
         if model_context.is_targetted_config():
+            # do this before variables have been inserted into model
             target_configuration_helper.create_additional_output(model, model_context, aliases, ExceptionType.DISCOVER)
+
+        model = __check_and_customize_model(model, model_context, aliases, discover_injector)
 
     except DiscoverException, ex:
         __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
