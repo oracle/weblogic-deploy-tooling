@@ -81,7 +81,7 @@ def _create_file(template_name, template_hash, output_dir, exception_type):
 def _build_template_hash(model, aliases):
     """
     Create a dictionary of substitution values to apply to the templates.
-    :param model: used to derive values
+    :param model: Model object used to derive values
     :param aliases: used to derive folder names
     :return: the hash dictionary
     """
@@ -115,8 +115,10 @@ def _build_template_hash(model, aliases):
     for cluster_name in cluster_list:
         cluster_hash = dict()
         cluster_hash[CLUSTER_NAME] = cluster_name
-        cluster_hash[REPLICAS] = str(999)
 
+        cluster_values = dictionary_utils.get_dictionary_element(cluster_list, cluster_name)
+        server_count = k8s_helper.get_server_count(cluster_name, cluster_values, model.get_model())
+        cluster_hash[REPLICAS] = str(server_count)
         clusters.append(cluster_hash)
 
     template_hash[CLUSTERS] = clusters

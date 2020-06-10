@@ -11,13 +11,11 @@ from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
-from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SIZE
-from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import NAME
-from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_translator import PythonToFile
@@ -241,7 +239,7 @@ class DomainResourceExtractor:
                 cluster_list = DictionaryList()
                 spec_section[CLUSTERS] = cluster_list
                 for cluster_name, cluster_values in model_clusters.items():
-                    server_count = self._get_server_count(cluster_name, cluster_values)
+                    server_count = k8s_helper.get_server_count(cluster_name, cluster_values, self._model.get_model())
                     cluster_dict = PyOrderedDict()
                     cluster_dict[CLUSTER_NAME] = cluster_name
                     cluster_dict[REPLICAS] = server_count
@@ -250,31 +248,6 @@ class DomainResourceExtractor:
                                       class_name=self._class_name)
                     cluster_list.append(cluster_dict)
         return
-
-    def _get_server_count(self, cluster_name, cluster_values):
-        """
-        Determine the number of servers associated with a cluster.
-        :param cluster_name: the name of the cluster
-        :param cluster_values: a map of values for the cluster
-        :return: the number of servers
-        """
-        if DYNAMIC_SERVERS in cluster_values:
-            # for dynamic clusters, return the value of DynamicClusterSize
-            dynamic_servers_dict = cluster_values[DYNAMIC_SERVERS]
-            cluster_size_value = dictionary_utils.get_element(dynamic_servers_dict, DYNAMIC_CLUSTER_SIZE)
-            if cluster_size_value is not None:
-                return alias_utils.convert_to_type('integer', cluster_size_value)
-        else:
-            # for other clusters, return the number of servers assigned to this cluster
-            count = 0
-            servers = dictionary_utils.get_dictionary_element(self._model.get_model_topology(), SERVER)
-            for server_name, server_value in servers.items():
-                server_cluster = dictionary_utils.get_element(server_value, CLUSTER)
-                if str(server_cluster) == cluster_name:
-                    count = count + 1
-            return count
-
-        return 0
 
 
 def _get_target_value(model_value, type_name):
