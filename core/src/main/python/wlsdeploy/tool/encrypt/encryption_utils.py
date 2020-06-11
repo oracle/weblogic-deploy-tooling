@@ -34,7 +34,7 @@ class _ModelEncrypter(object):
         self.alias_helper = alias_helper
         self.variables = variables
         self.model_changes = 0
-        self.variables_changed = []
+        self.variable_changes = 0
 
     def encrypt_model_dictionary(self, model_dict):
         """
@@ -66,7 +66,7 @@ class _ModelEncrypter(object):
             location = LocationContext()
             self._encrypt_nodes(location, deployments_nodes, top_folder_names)
 
-        return self.model_changes, len(self.variables_changed)
+        return self.model_changes, self.variable_changes
 
     def _encrypt_info_nodes(self, info_nodes):
         """
@@ -173,16 +173,19 @@ class _ModelEncrypter(object):
         if self.variables is None:
             return
 
-        # this variable may have been encrypted for another attribute
-        if var_name in self.variables_changed:
-            return
-
+        # Do not encrypt already encrypted to match model encryption: Don't encrypt encrypted value
         if var_name in self.variables:
             var_value = self.variables[var_name]
             if len(var_value) > 0:
+
+                # don't encrypt an already encrypted variable. Matches logic in model
+                if EncryptionUtils.isEncryptedString(var_value):
+                    self._logger.fine('WLSDPLY-04109', folder_name, field_name, var_name)
+                    return
+
                 encrypted_value = EncryptionUtils.encryptString(var_value, String(self.passphrase).toCharArray())
                 self.variables[var_name] = encrypted_value
-                self.variables_changed.append(var_name)
+                self.variable_changes += 1
                 self._logger.fine('WLSDPLY-04106', folder_name, field_name, var_name,
                                   class_name=self._class_name, method_name=_method_name)
         else:
