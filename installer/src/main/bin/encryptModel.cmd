@@ -79,11 +79,14 @@ ECHO         oracle_home     - the existing Oracle Home directory for the domain
 ECHO                           This is required unless the ORACLE_HOME environment
 ECHO                           variable is set.
 ECHO.
-ECHO         model_file      - the location of the model file to use.
+ECHO         model_file      - the location of the model file to use. This can also
+ECHO                           be a comma-separated list of locations of a set of
+ECHO                           models. All models will be written back to the
+ECHO                           original locations.
 ECHO.
-ECHO         variable_file   - the location of the property file containing
+ECHO         variable_file   - the location and name of the property file containing
 ECHO                           the variable values for all variables used in
-ECHO                           the model.
+ECHO                           the model(s).
 ECHO.
 ECHO     The -manual switch can be used to run the tool without a model and get
 ECHO     the encrypted value for a single password.
