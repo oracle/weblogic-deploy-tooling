@@ -5,6 +5,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import os
 import tempfile
 
+import java.net.URI as URI
+
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -610,7 +612,8 @@ class ModelContext(object):
         :param resource_dict: the dictionary to use to lookup and replace the attribute value
         """
         separator = ':'
-        path_elements = resource_dict[attribute_name].split(':')
+        attribute_value = resource_dict[attribute_name]
+        path_elements = attribute_value.split(':')
         semicolon_path_elements = resource_dict[attribute_name].split(';')
         if len(semicolon_path_elements) > len(path_elements):
             separator = ';'
@@ -650,6 +653,8 @@ class ModelContext(object):
         :param resource_dict: the dictionary to use to lookup and replace the attribute value
         """
         attribute_value = resource_dict[attribute_name]
+        if uri.getScheme().startsWith('file'):
+            attribute_value = uri.getPath()
         if attribute_value.startswith(self.__ORACLE_HOME_TOKEN):
             message = "Replacing {0} in {1} {2} {3} with {4}"
             self._logger.fine(message, self.__ORACLE_HOME_TOKEN, resource_type, resource_name, attribute_name,

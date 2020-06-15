@@ -5,12 +5,14 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 from sets import Set
 
 from java.io import IOException
+from java.net import URI
 from java.security import NoSuchAlgorithmException
 
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
+from wlsdeploy.aliases.model_constants import FILE_URI
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -234,6 +236,39 @@ def ensure_no_uncommitted_changes_or_edit_sessions():
         raise ex
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
+
+
+def extract_from_uri(model_context, path_value):
+    """
+    If the MBean path attribute has a URI file scheme, look past the scheme and
+    resolve any global tokens.
+
+    :param model_context: current context containing job information
+    :param path_value: MBean attribute path
+    :return: fully resolved URI path, or the path_value if not a URI scheme
+    """
+    uri = URI(path_value)
+    if uri.getScheme() == 'file':
+        return FILE_URI + model_context.replace_token_string(uri.getPath()[1:])
+    return path_value
+
+
+def get_rel_path_from_uri(model_context, path_value):
+    """
+    If the MBean attribute is a URI. To extract it from the archive, need to make
+    it into a relative path.
+    :param model_context: current context containing run information
+    :param path_value: the full value of the path attribute
+    :return: The relative value of the path attribute
+    """
+    uri = URI(path_value)
+    if uri.getScheme() == 'file':
+        value = model_context.tokenize_path(uri.getPath())
+        if value.startswith('@@DOMAIN_HOME@@'):
+            # point past the token and first slash
+            value = value[len('@@DOMAIN_HOME@@')+1:]
+        return value
+    return path_value
 
 
 def is_path_into_archive(path):

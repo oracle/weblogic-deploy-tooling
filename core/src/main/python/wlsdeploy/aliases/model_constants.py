@@ -8,6 +8,8 @@ MODEL_LIST_DELIMITER = ','
 KSS_KEYSTORE_TYPE = 'kss'
 KSS_KEYSTORE_FILE_INDICATOR = 'kss:'
 
+# names used within model attributes
+FILE_URI = 'file:///'
 
 # names of model elements, alphabetically
 
