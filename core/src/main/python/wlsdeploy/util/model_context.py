@@ -10,7 +10,7 @@ from wlsdeploy.logging import platform_logger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
-from wlsdeploy.util.target_environment import TargetEnvironment
+from wlsdeploy.util.target_configuration import TargetConfiguration
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -79,7 +79,7 @@ class ModelContext(object):
         self._domain_resource_file = None
         self._output_dir = None
         self._target = None
-        self._target_environment = None
+        self._target_configuration = None
         self._variable_injector_file = None
         self._variable_keywords_file = None
         self._variable_properties_file = None
@@ -489,11 +489,11 @@ class ModelContext(object):
 
     def get_target_configuration(self):
         """
-        Return the target environment object, based on the target name.
+        Return the target configuration object, based on the target name.
         Lazy-load this the first time it is requested.
-        :return: target environment object
+        :return: target configuration object
         """
-        if self._target_environment is None:
+        if self._target_configuration is None:
             configuration_dict = {}
 
             if self._target:
@@ -503,9 +503,9 @@ class ModelContext(object):
                     file_handle = open(target_configuration_file)
                     configuration_dict = eval(file_handle.read())
 
-            self._target_environment = TargetEnvironment(configuration_dict)
+            self._target_configuration = TargetConfiguration(configuration_dict)
 
-        return self._target_environment
+        return self._target_configuration
 
     def get_target(self):
         return self._target

@@ -6,7 +6,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 from wlsdeploy.util import dictionary_utils
 
 
-class TargetEnvironment(object):
+class TargetConfiguration(object):
     """
     Provide access to fields in the target.json JSON file of a target environment.
     """
