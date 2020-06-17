@@ -30,3 +30,34 @@ class TargetEnvironment(object):
         """
         value = dictionary_utils.get_element(self.config_dictionary, 'credential_as_secret')
         return (value is not None) and (str(value).lower() == 'true')
+
+    def get_additional_output_types(self):
+        """
+        Return the additional output types for this target environment.
+        This is a list of keys that map to output types.
+        """
+        types = dictionary_utils.get_element(self.config_dictionary, 'additional_output')
+        if types is not None:
+            return types.split(',')
+        return []
+
+    def get_validation_method(self):
+        """
+        Return the validation method for this target environment.
+        :return: the validation method, or None
+        """
+        return dictionary_utils.get_element(self.config_dictionary, 'validation_method')
+
+    def get_model_filters(self):
+        """
+        Return a dictionary of model filters for this target environment.
+        :return: the dictionary of model filters
+        """
+        return dictionary_utils.get_dictionary_element(self.config_dictionary, 'model_filters')
+
+    def get_variable_injectors(self):
+        """
+        Return a dictionary of variable injectors for this target environment.
+        :return: the dictionary of variable injectors
+        """
+        return dictionary_utils.get_dictionary_element(self.config_dictionary, 'variable_injectors')

@@ -489,34 +489,26 @@ class ModelContext(object):
 
     def get_target_configuration(self):
         """
-        Return the target configuration based on the target.
-        :return: target configuration
-        """
-        target_configuration = self._target
-        if target_configuration:
-            target_path = os.path.join('targets', target_configuration, 'target.json')
-            target_configuration_file = path_utils.find_config_path(target_path)
-            if os.path.exists(target_configuration_file):
-                file_handle = open(target_configuration_file)
-                configuration_dict = eval(file_handle.read())
-                return configuration_dict
-
-        return None
-
-    def get_target(self):
-        return self._target
-
-    def get_target_env(self):
-        """
-        Return the target environment object, based on the target.
+        Return the target environment object, based on the target name.
         Lazy-load this the first time it is requested.
         :return: target environment object
         """
         if self._target_environment is None:
-            target_configuration = self.get_target_configuration()
-            self._target_environment = TargetEnvironment(target_configuration)
+            configuration_dict = {}
+
+            if self._target:
+                target_path = os.path.join('targets', self._target, 'target.json')
+                target_configuration_file = path_utils.find_config_path(target_path)
+                if os.path.exists(target_configuration_file):
+                    file_handle = open(target_configuration_file)
+                    configuration_dict = eval(file_handle.read())
+
+            self._target_environment = TargetEnvironment(configuration_dict)
 
         return self._target_environment
+
+    def get_target(self):
+        return self._target
 
     def is_targetted_config(self):
         """

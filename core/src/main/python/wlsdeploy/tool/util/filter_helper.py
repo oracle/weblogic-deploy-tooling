@@ -35,17 +35,13 @@ def apply_filters(model, tool_type, model_context=None):
 
     __filter_file_location = path_utils.find_config_path('model_filters.json')
     filter_applied = False
-    target_configuration = None
 
     try:
         filters_dictionary = {}
 
         # if target specified in model context, use the filters from target config
         if model_context:
-            target_configuration = model_context.get_target_configuration()
-
-        if target_configuration and 'model_filters' in target_configuration:
-            filters_dictionary = target_configuration['model_filters']
+            filters_dictionary = model_context.get_target_configuration().get_model_filters()
             target_path = os.path.join('targets', model_context.get_target())
 
             # Fix the tokenized path in the filter path

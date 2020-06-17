@@ -389,7 +389,7 @@ class VariableInjector(object):
         if not _already_property(attribute_value):
             variable_name = variable_injector_functions.format_variable_name(location, attribute, self.__aliases)
             variable_value = _format_variable_value(attribute_value)
-            if self.__model_context.get_target_env().credential_as_secret() \
+            if self.__model_context.get_target_configuration().credential_as_secret() \
                     and variable_value == alias_constants.PASSWORD_TOKEN:
                 model[attribute] = target_configuration_helper.format_as_secret_token(variable_name)
             else:
@@ -644,9 +644,7 @@ class VariableInjector(object):
         # If -target is presence, it take precedence
 
         if self.__model_context is not None and self.__model_context.is_targetted_config():
-            configuration = self.__model_context.get_target_configuration()
-            if 'variable_injectors' in configuration:
-                variables_dictionary = configuration['variable_injectors']
+            variables_dictionary = self.__model_context.get_target_configuration().get_variable_injectors()
         else:
             if os.path.isfile(variable_injector_location):
                 try:

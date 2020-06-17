@@ -194,27 +194,13 @@ def create_additional_output(model, model_context, aliases, exception_type):
     """
     _method_name = 'create_additional_output'
 
-    output_types = _get_additional_output_types(model_context)
+    output_types = model_context.get_target_configuration().get_additional_output_types()
     for output_type in output_types:
         if output_type == VZ_EXTRA_CONFIG:
             vz_config_helper.create_vz_configuration(model, model_context, aliases, exception_type)
         else:
             __logger.warning('WLSDPLY-01660', output_type, model_context.get_target(), class_name=__class_name,
                              method_name=_method_name)
-
-
-def _get_additional_output_types(model_context):
-    """
-    Returns a list of additional output types configured for the target environment.
-    :param model_context: provides access to the target configuration
-    :return: a list of additional output types
-    """
-    config = model_context.get_target_configuration()
-    if config is not None:
-        additional_output = dictionary_utils.get_element(config, "additional_output")
-        if additional_output is not None:
-            return additional_output.split(',')
-    return {}
 
 
 def find_user_name(property_name, model_dictionary):

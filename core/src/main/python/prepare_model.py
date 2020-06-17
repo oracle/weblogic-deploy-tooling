@@ -249,7 +249,7 @@ class PrepareModel:
                          model_folder_path, validation_location):
         _method_name = '__walk_attribute'
 
-        if attribute_name in valid_attr_infos and self.model_context.get_target_env().credential_as_secret():
+        if attribute_name in valid_attr_infos and self.model_context.get_target_configuration().credential_as_secret():
             expected_data_type = valid_attr_infos[attribute_name]
 
             if (expected_data_type == 'password') or (attribute_name == ADMIN_USERNAME):
@@ -274,7 +274,7 @@ class PrepareModel:
 
         if property_name in valid_prop_infos:
             expected_data_type = valid_prop_infos[property_name]
-            if expected_data_type == 'password' and self.model_context.get_target_env().credential_as_secret():
+            if expected_data_type == 'password' and self.model_context.get_target_configuration().credential_as_secret():
                 self.__substitute_password_with_token(model_folder_path, property_name, validation_location)
 
     def __substitute_password_with_token(self, model_path, attribute_name, validation_location, model_context=None):

@@ -408,7 +408,7 @@ def __check_and_customize_model(model, model_context, aliases, injector):
         cache = injector.get_variable_cache()
         # Generate k8s create secret script, after that clear the dictionary to avoid showing up in the variable file
         if model_context.is_targetted_config():
-            validation_method = model_context.get_target_configuration()['validation_method']
+            validation_method = model_context.get_target_configuration().get_validation_method()
             model_context.set_validation_method(validation_method)
             target_configuration_helper.generate_k8s_script(model_context, cache, model.get_model())
             cache.clear()
