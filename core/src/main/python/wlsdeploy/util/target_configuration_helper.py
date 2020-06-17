@@ -114,7 +114,7 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     k8s_script.write('}' + nl)
 
     command_string = "create_paired_k8s_secret %s %s %s" \
-                     % (WEBLOGIC_CREDENTIALS_SECRET_SUFFIX, ADMIN_USER_TAG, ADMIN_PASSWORD_TAG)
+                     % (WEBLOGIC_CREDENTIALS_SECRET_NAME, ADMIN_USER_TAG, ADMIN_PASSWORD_TAG)
 
     k8s_script.write(nl)
     message = exception_helper.get_message("WLSDPLY-01664", ADMIN_USER_TAG, ADMIN_PASSWORD_TAG)

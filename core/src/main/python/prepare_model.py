@@ -249,7 +249,7 @@ class PrepareModel:
                          model_folder_path, validation_location):
         _method_name = '__walk_attribute'
 
-        if attribute_name in valid_attr_infos and self.model_context.get_target_configuration().credential_as_secret():
+        if attribute_name in valid_attr_infos:
             expected_data_type = valid_attr_infos[attribute_name]
 
             if (expected_data_type == 'password') or (attribute_name == ADMIN_USERNAME):
@@ -274,11 +274,17 @@ class PrepareModel:
 
         if property_name in valid_prop_infos:
             expected_data_type = valid_prop_infos[property_name]
-            if expected_data_type == 'password' and self.model_context.get_target_configuration().credential_as_secret():
+            if expected_data_type == 'password':
                 self.__substitute_password_with_token(model_folder_path, property_name, validation_location)
 
-    def __substitute_password_with_token(self, model_path, attribute_name, validation_location, model_context=None):
-
+    def __substitute_password_with_token(self, model_path, attribute_name, validation_location):
+        """
+        Add the secret for the specified attribute to the cache.
+        If the target specifies credential_as_secret, substitute the secret token into the model.
+        :param model_path: text representation of the model path
+        :param attribute_name: the name of the attribute or (property)
+        :param validation_location: the model location
+        """
         model_path_tokens = model_path.split('/')
         tokens_length = len(model_path_tokens)
         variable_name = variable_injector_functions.format_variable_name(validation_location, attribute_name,
@@ -292,17 +298,18 @@ class PrepareModel:
                 password_name = target_configuration_helper.format_as_secret_token(variable_name)
                 self.cache[variable_name] = ''
 
-            p_dict = self.current_dict
+            if self.model_context.get_target_configuration().credential_as_secret():
+                p_dict = self.current_dict
 
-            for index in range(0, len(model_path_tokens)):
-                token = model_path_tokens[index]
-                if token == '':
-                    break
-                if token[-1] == ':':
-                    token=token[:-1]
-                p_dict = p_dict[token]
+                for index in range(0, len(model_path_tokens)):
+                    token = model_path_tokens[index]
+                    if token == '':
+                        break
+                    if token[-1] == ':':
+                        token=token[:-1]
+                    p_dict = p_dict[token]
 
-            p_dict[attribute_name] = password_name
+                p_dict[attribute_name] = password_name
 
     def walk(self):
         """
