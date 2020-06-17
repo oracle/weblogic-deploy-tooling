@@ -264,9 +264,9 @@ def get_rel_path_from_uri(model_context, path_value):
     uri = URI(path_value)
     if uri.getScheme() == 'file':
         value = model_context.tokenize_path(uri.getPath())
-        if value.startswith('@@DOMAIN_HOME@@'):
+        if value.startswith(model_context.DOMAIN_HOME_TOKEN):
             # point past the token and first slash
-            value = value[len('@@DOMAIN_HOME@@')+1:]
+            value = value[len(model_context.DOMAIN_HOME_TOKEN)+1:]
         return value
     return path_value
 

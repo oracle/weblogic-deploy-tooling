@@ -22,12 +22,12 @@ class ModelContext(object):
     """
     _class_name = "ModelContext"
 
-    __ORACLE_HOME_TOKEN = '@@ORACLE_HOME@@'
-    __WL_HOME_TOKEN = '@@WL_HOME@@'
-    __DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
-    __JAVA_HOME_TOKEN = '@@JAVA_HOME@@'
-    __CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
-    __TEMP_DIRECTORY_TOKEN = '@@TMP@@'
+    ORACLE_HOME_TOKEN = '@@ORACLE_HOME@@'
+    WL_HOME_TOKEN = '@@WL_HOME@@'
+    DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
+    JAVA_HOME_TOKEN = '@@JAVA_HOME@@'
+    CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
+    TEMP_DIRECTORY_TOKEN = '@@TMP@@'
 
     def __init__(self, program_name, arg_map):
         """
@@ -637,12 +637,12 @@ class ModelContext(object):
         :param path: the path to check for token prefix
         :return: true if the path begins with a known prefix, false otherwise
         """
-        return path.startswith(self.__ORACLE_HOME_TOKEN) or \
-            path.startswith(self.__WL_HOME_TOKEN) or \
-            path.startswith(self.__DOMAIN_HOME_TOKEN) or \
-            path.startswith(self.__JAVA_HOME_TOKEN) or \
-            path.startswith(self.__CURRENT_DIRECTORY_TOKEN) or \
-            path.startswith(self.__TEMP_DIRECTORY_TOKEN)
+        return path.startswith(self.ORACLE_HOME_TOKEN) or \
+            path.startswith(self.WL_HOME_TOKEN) or \
+            path.startswith(self.DOMAIN_HOME_TOKEN) or \
+            path.startswith(self.JAVA_HOME_TOKEN) or \
+            path.startswith(self.CURRENT_DIRECTORY_TOKEN) or \
+            path.startswith(self.TEMP_DIRECTORY_TOKEN)
 
     def replace_tokens(self, resource_type, resource_name, attribute_name, resource_dict):
         """
@@ -653,43 +653,44 @@ class ModelContext(object):
         :param resource_dict: the dictionary to use to lookup and replace the attribute value
         """
         attribute_value = resource_dict[attribute_name]
+        uri = URI(attribute_value)
         if uri.getScheme().startsWith('file'):
             attribute_value = uri.getPath()
-        if attribute_value.startswith(self.__ORACLE_HOME_TOKEN):
+        if attribute_value.startswith(self.ORACLE_HOME_TOKEN):
             message = "Replacing {0} in {1} {2} {3} with {4}"
-            self._logger.fine(message, self.__ORACLE_HOME_TOKEN, resource_type, resource_name, attribute_name,
+            self._logger.fine(message, self.ORACLE_HOME_TOKEN, resource_type, resource_name, attribute_name,
                               self.get_oracle_home(), class_name=self._class_name, method_name='_replace_tokens')
-            resource_dict[attribute_name] = attribute_value.replace(self.__ORACLE_HOME_TOKEN,
+            resource_dict[attribute_name] = attribute_value.replace(self.ORACLE_HOME_TOKEN,
                                                                     self.get_oracle_home())
-        elif attribute_value.startswith(self.__WL_HOME_TOKEN):
+        elif attribute_value.startswith(self.WL_HOME_TOKEN):
             message = "Replacing {0} in {1} {2} {3} with {4}"
-            self._logger.fine(message, self.__WL_HOME_TOKEN, resource_type, resource_name, attribute_name,
+            self._logger.fine(message, self.WL_HOME_TOKEN, resource_type, resource_name, attribute_name,
                               self.get_wl_home(), class_name=self._class_name, method_name='_replace_tokens')
-            resource_dict[attribute_name] = attribute_value.replace(self.__WL_HOME_TOKEN, self.get_wl_home())
-        elif attribute_value.startswith(self.__DOMAIN_HOME_TOKEN):
+            resource_dict[attribute_name] = attribute_value.replace(self.WL_HOME_TOKEN, self.get_wl_home())
+        elif attribute_value.startswith(self.DOMAIN_HOME_TOKEN):
             message = "Replacing {0} in {1} {2} {3} with {4}"
-            self._logger.fine(message, self.__DOMAIN_HOME_TOKEN, resource_type, resource_name, attribute_name,
+            self._logger.fine(message, self.DOMAIN_HOME_TOKEN, resource_type, resource_name, attribute_name,
                               self.get_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
-            resource_dict[attribute_name] = attribute_value.replace(self.__DOMAIN_HOME_TOKEN,
+            resource_dict[attribute_name] = attribute_value.replace(self.DOMAIN_HOME_TOKEN,
                                                                     self.get_domain_home())
-        elif attribute_value.startswith(self.__JAVA_HOME_TOKEN):
+        elif attribute_value.startswith(self.JAVA_HOME_TOKEN):
             message = "Replacing {0} in {1} {2} {3} with {4}"
-            self._logger.fine(message, self.__JAVA_HOME_TOKEN, resource_type, resource_name, attribute_name,
+            self._logger.fine(message, self.JAVA_HOME_TOKEN, resource_type, resource_name, attribute_name,
                               self.get_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
-            resource_dict[attribute_name] = attribute_value.replace(self.__JAVA_HOME_TOKEN,
+            resource_dict[attribute_name] = attribute_value.replace(self.JAVA_HOME_TOKEN,
                                                                     self.get_java_home())
-        elif attribute_value.startswith(self.__CURRENT_DIRECTORY_TOKEN):
+        elif attribute_value.startswith(self.CURRENT_DIRECTORY_TOKEN):
             cwd = path_utils.fixup_path(os.getcwd())
             message = "Replacing {0} in {1} {2} {3} with {4}"
-            self._logger.fine(message, self.__CURRENT_DIRECTORY_TOKEN, resource_type, resource_name,
+            self._logger.fine(message, self.CURRENT_DIRECTORY_TOKEN, resource_type, resource_name,
                               attribute_name, cwd, class_name=self._class_name, method_name='_replace_tokens')
-            resource_dict[attribute_name] = attribute_value.replace(self.__CURRENT_DIRECTORY_TOKEN, cwd)
-        elif attribute_value.startswith(self.__TEMP_DIRECTORY_TOKEN):
+            resource_dict[attribute_name] = attribute_value.replace(self.CURRENT_DIRECTORY_TOKEN, cwd)
+        elif attribute_value.startswith(self.TEMP_DIRECTORY_TOKEN):
             temp_dir = path_utils.fixup_path(tempfile.gettempdir())
             message = "Replacing {0} in {1} {2} {3} with {4}"
-            self._logger.fine(message, self.__TEMP_DIRECTORY_TOKEN, resource_type, resource_name, attribute_name,
+            self._logger.fine(message, self.TEMP_DIRECTORY_TOKEN, resource_type, resource_name, attribute_name,
                               temp_dir, class_name=self._class_name, method_name='_replace_tokens')
-            resource_dict[attribute_name] = attribute_value.replace(self.__TEMP_DIRECTORY_TOKEN, temp_dir)
+            resource_dict[attribute_name] = attribute_value.replace(self.TEMP_DIRECTORY_TOKEN, temp_dir)
 
         return
 
@@ -701,18 +702,18 @@ class ModelContext(object):
         """
         if string_value is None:
             result = None
-        elif string_value.startswith(self.__ORACLE_HOME_TOKEN):
-            result = _replace(string_value, self.__ORACLE_HOME_TOKEN, self.get_oracle_home())
-        elif string_value.startswith(self.__WL_HOME_TOKEN):
-            result = _replace(string_value, self.__WL_HOME_TOKEN, self.get_wl_home())
-        elif string_value.startswith(self.__DOMAIN_HOME_TOKEN):
-            result = _replace(string_value, self.__DOMAIN_HOME_TOKEN, self.get_domain_home())
-        elif string_value.startswith(self.__JAVA_HOME_TOKEN):
-            result = _replace(string_value, self.__JAVA_HOME_TOKEN, self.get_java_home())
-        elif string_value.startswith(self.__CURRENT_DIRECTORY_TOKEN):
-            result = _replace(string_value, self.__CURRENT_DIRECTORY_TOKEN, path_utils.fixup_path(os.getcwd()))
-        elif string_value.startswith(self.__TEMP_DIRECTORY_TOKEN):
-            result = _replace(string_value, self.__TEMP_DIRECTORY_TOKEN, path_utils.fixup_path(tempfile.gettempdir()))
+        elif string_value.startswith(self.ORACLE_HOME_TOKEN):
+            result = _replace(string_value, self.ORACLE_HOME_TOKEN, self.get_oracle_home())
+        elif string_value.startswith(self.WL_HOME_TOKEN):
+            result = _replace(string_value, self.WL_HOME_TOKEN, self.get_wl_home())
+        elif string_value.startswith(self.DOMAIN_HOME_TOKEN):
+            result = _replace(string_value, self.DOMAIN_HOME_TOKEN, self.get_domain_home())
+        elif string_value.startswith(self.JAVA_HOME_TOKEN):
+            result = _replace(string_value, self.JAVA_HOME_TOKEN, self.get_java_home())
+        elif string_value.startswith(self.CURRENT_DIRECTORY_TOKEN):
+            result = _replace(string_value, self.CURRENT_DIRECTORY_TOKEN, path_utils.fixup_path(os.getcwd()))
+        elif string_value.startswith(self.TEMP_DIRECTORY_TOKEN):
+            result = _replace(string_value, self.TEMP_DIRECTORY_TOKEN, path_utils.fixup_path(tempfile.gettempdir()))
         else:
             result = string_value
 
@@ -738,17 +739,17 @@ class ModelContext(object):
         result = my_path
         if not string_utils.is_empty(my_path):
             if wl_home is not None and my_path.startswith(wl_home):
-                result = my_path.replace(wl_home, self.__WL_HOME_TOKEN)
+                result = my_path.replace(wl_home, self.WL_HOME_TOKEN)
             elif domain_home is not None and my_path.startswith(domain_home):
-                result = my_path.replace(domain_home, self.__DOMAIN_HOME_TOKEN)
+                result = my_path.replace(domain_home, self.DOMAIN_HOME_TOKEN)
             elif oracle_home is not None and my_path.startswith(oracle_home):
-                result = my_path.replace(oracle_home, self.__ORACLE_HOME_TOKEN)
+                result = my_path.replace(oracle_home, self.ORACLE_HOME_TOKEN)
             elif java_home is not None and my_path.startswith(java_home):
-                result = my_path.replace(java_home, self.__JAVA_HOME_TOKEN)
+                result = my_path.replace(java_home, self.JAVA_HOME_TOKEN)
             elif my_path.startswith(cwd):
-                result = my_path.replace(cwd, self.__CURRENT_DIRECTORY_TOKEN)
+                result = my_path.replace(cwd, self.CURRENT_DIRECTORY_TOKEN)
             elif my_path.startswith(tmp_dir):
-                result = my_path.replace(tmp_dir, self.__TEMP_DIRECTORY_TOKEN)
+                result = my_path.replace(tmp_dir, self.TEMP_DIRECTORY_TOKEN)
 
         return result
 
