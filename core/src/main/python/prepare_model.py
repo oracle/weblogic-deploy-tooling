@@ -225,7 +225,7 @@ class PrepareModel:
                 if valid_data_type in ['properties']:
                     valid_prop_infos = {}
                     properties = validation_utils.get_properties(value)
-                    self.__walk_properties(properties, valid_prop_infos, validation_location)
+                    self.__walk_properties(properties, valid_prop_infos, model_folder_path, validation_location)
 
                 else:
                     path_tokens_attr_keys = \
@@ -247,9 +247,9 @@ class PrepareModel:
 
     def __walk_attribute(self, attribute_name, attribute_value, valid_attr_infos, path_tokens_attr_keys,
                          model_folder_path, validation_location):
-        _method_name = '__validate_attribute'
+        _method_name = '__walk_attribute'
 
-        if attribute_name in valid_attr_infos:
+        if attribute_name in valid_attr_infos and self.model_context.get_target_env().credential_as_secret():
             expected_data_type = valid_attr_infos[attribute_name]
 
             if (expected_data_type == 'password') or (attribute_name == ADMIN_USERNAME):
@@ -257,13 +257,13 @@ class PrepareModel:
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    def __walk_properties(self, properties_dict, valid_prop_infos, validation_location):
+    def __walk_properties(self, properties_dict, valid_prop_infos, model_folder_path, validation_location):
         _method_name = '__walk_properties'
 
         for property_name, property_value in properties_dict.iteritems():
             valid_prop_infos[property_name] = validation_utils.get_python_data_type(property_value)
-            self.__walk_property(property_name, property_value, valid_prop_infos, validation_location)
-
+            self.__walk_property(property_name, property_value, valid_prop_infos, model_folder_path,
+                                 validation_location)
 
     def __walk_property(self, property_name, property_value, valid_prop_infos, model_folder_path, validation_location):
 
@@ -274,7 +274,7 @@ class PrepareModel:
 
         if property_name in valid_prop_infos:
             expected_data_type = valid_prop_infos[property_name]
-            if expected_data_type == 'password':
+            if expected_data_type == 'password' and self.model_context.get_target_env().credential_as_secret():
                 self.__substitute_password_with_token(model_folder_path, property_name, validation_location)
 
     def __substitute_password_with_token(self, model_path, attribute_name, validation_location, model_context=None):

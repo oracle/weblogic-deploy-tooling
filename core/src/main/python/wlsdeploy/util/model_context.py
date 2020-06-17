@@ -10,6 +10,7 @@ from wlsdeploy.logging import platform_logger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
+from wlsdeploy.util.target_environment import TargetEnvironment
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -78,6 +79,7 @@ class ModelContext(object):
         self._domain_resource_file = None
         self._output_dir = None
         self._target = None
+        self._target_environment = None
         self._variable_injector_file = None
         self._variable_keywords_file = None
         self._variable_properties_file = None
@@ -503,6 +505,18 @@ class ModelContext(object):
 
     def get_target(self):
         return self._target
+
+    def get_target_env(self):
+        """
+        Return the target environment object, based on the target.
+        Lazy-load this the first time it is requested.
+        :return: target environment object
+        """
+        if self._target_environment is None:
+            target_configuration = self.get_target_configuration()
+            self._target_environment = TargetEnvironment(target_configuration)
+
+        return self._target_environment
 
     def is_targetted_config(self):
         """

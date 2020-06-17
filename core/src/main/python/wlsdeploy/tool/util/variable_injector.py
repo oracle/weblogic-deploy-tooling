@@ -75,7 +75,7 @@ _logger = PlatformLogger('wlsdeploy.tool.util')
 
 class VariableInjector(object):
 
-    def __init__(self, program_name, model, model_context=None, version=None, variable_dictionary=None):
+    def __init__(self, program_name, model, model_context, version=None, variable_dictionary=None):
         """
         Construct an instance of the injector with the model and information used by the injector.
         :param program_name: name of the calling tool
@@ -389,9 +389,9 @@ class VariableInjector(object):
         if not _already_property(attribute_value):
             variable_name = variable_injector_functions.format_variable_name(location, attribute, self.__aliases)
             variable_value = _format_variable_value(attribute_value)
-            if self.__model_context is not None and self.__model_context.is_targetted_config() \
-                and variable_value == alias_constants.PASSWORD_TOKEN:
-                    model[attribute] = target_configuration_helper.format_as_secret_token(variable_name)
+            if self.__model_context.get_target_env().credential_as_secret() \
+                    and variable_value == alias_constants.PASSWORD_TOKEN:
+                model[attribute] = target_configuration_helper.format_as_secret_token(variable_name)
             else:
                 model[attribute] = _format_as_property(variable_name)
 

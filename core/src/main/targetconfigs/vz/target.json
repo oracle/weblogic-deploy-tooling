@@ -6,6 +6,6 @@
     },
     "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
     "validation_method" : "lax",
-    "credential_as_secret" : "true",
+    "config_override_secrets" : "true",
     "additional_output" : "vz"
 }
