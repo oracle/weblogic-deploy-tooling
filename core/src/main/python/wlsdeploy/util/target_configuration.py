@@ -31,6 +31,15 @@ class TargetConfiguration(object):
         value = dictionary_utils.get_element(self.config_dictionary, 'credential_as_secret')
         return (value is not None) and (str(value).lower() == 'true')
 
+    def config_override_secrets(self):
+        """
+        Value of True indicates that we will put password placeholders in the model,
+        and create a script to help create the secrets.
+        :return: True if using config override secrets, False otherwise
+        """
+        value = dictionary_utils.get_element(self.config_dictionary, 'config_override_secrets')
+        return (value is not None) and (str(value).lower() == 'true')
+
     def get_additional_output_types(self):
         """
         Return the additional output types for this target environment.
@@ -61,3 +70,10 @@ class TargetConfiguration(object):
         :return: the dictionary of variable injectors
         """
         return dictionary_utils.get_dictionary_element(self.config_dictionary, 'variable_injectors')
+
+    def requires_secrets_script(self):
+        """
+        Determine if this configuration requires the generation of secrets scripts.
+        :return: True if scripts should be generated, false otherwise
+        """
+        return self.credential_as_secret() or self.config_override_secrets()

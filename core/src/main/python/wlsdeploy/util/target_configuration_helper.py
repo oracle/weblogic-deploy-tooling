@@ -71,8 +71,10 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     :param model_context: used to determine output directory
     :param token_dictionary: contains every token
     :param model_dictionary: used to determine domain UID
-    :return:
     """
+    target_config = model_context.get_target_configuration()
+    if not target_config.requires_secrets_script():
+        return
 
     # determine the domain name and UID
     topology = dictionary_utils.get_dictionary_element(model_dictionary, TOPOLOGY)
