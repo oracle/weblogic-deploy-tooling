@@ -3,10 +3,16 @@
 #
 # Shared methods for using target environments (-target abc).
 # Used by discoverDomain and prepareModel.
+import re
 
 import os
 
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
+from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
+from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import PROPERTIES
+from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.exception import exception_helper
@@ -25,6 +31,13 @@ WEBLOGIC_CREDENTIALS_SECRET_NAME = 'weblogic-credentials'
 WEBLOGIC_CREDENTIALS_SECRET_SUFFIX = '-' + WEBLOGIC_CREDENTIALS_SECRET_NAME
 
 VZ_EXTRA_CONFIG = 'vz'
+
+ADMIN_USER_TAG = "<admin-user>"
+ADMIN_PASSWORD_TAG = "<admin-password>"
+USER_TAG = "<user>"
+PASSWORD_TAG = "<password>"
+
+_jdbc_pattern = re.compile("^JDBC\\.([ \\w.-]+)\\.PasswordEncrypted$")
 
 
 def process_target_arguments(argument_map):
@@ -69,50 +82,44 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
 
     domain_uid = k8s_helper.get_domain_uid(domain_name)
 
-    NL = '\n'
+    nl = '\n'
     file_location = model_context.get_kubernetes_output_dir()
     k8s_file = os.path.join(file_location, "create_k8s_secrets.sh")
-    k8s_create_script_handle = open(k8s_file, 'w')
+    k8s_script = open(k8s_file, 'w')
 
-    k8s_create_script_handle.write('#!/bin/bash')
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('set -eu')
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('NAMESPACE=default')
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('DOMAIN_UID=' + domain_uid)
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('ADMIN_USER=wlsAdminUser')
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('ADMIN_PWD=wlsAdminPwd')
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('function create_k8s_secret {')
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-$1 --ignore-not-found')
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('kubectl -n $NAMESPACE create secret generic ${DOMAIN_UID}-$1 ' +
-                                   '--from-literal=$2=$3')
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-$1 ' +
-                                   'weblogic.domainUID=${DOMAIN_UID}')
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('}')
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write(NL)
+    k8s_script.write('#!/bin/bash' + nl)
 
-    admin_secret_name = '${DOMAIN_UID}' + WEBLOGIC_CREDENTIALS_SECRET_SUFFIX
-    k8s_create_script_handle.write("kubectl -n $NAMESPACE delete secret " + admin_secret_name + " --ignore-not-found")
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write("kubectl -n $NAMESPACE create secret generic " + admin_secret_name +
-                                   " --from-literal=username=${ADMIN_USER} --from-literal=password=${ADMIN_PWD}")
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write('kubectl -n $NAMESPACE label secret ' + admin_secret_name +
-                                   ' weblogic.domainUID=${DOMAIN_UID}')
-    k8s_create_script_handle.write(NL)
-    k8s_create_script_handle.write(NL)
+    k8s_script.write(nl)
+    k8s_script.write('set -eu' + nl)
+
+    k8s_script.write(nl)
+    message = exception_helper.get_message("WLSDPLY-01665", ADMIN_USER_TAG, ADMIN_PASSWORD_TAG)
+    k8s_script.write("# " + message + nl)
+    k8s_script.write('NAMESPACE=default' + nl)
+    k8s_script.write('DOMAIN_UID=' + domain_uid + nl)
+
+    k8s_script.write(nl)
+    k8s_script.write('function create_k8s_secret {' + nl)
+    k8s_script.write('  kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-$1 --ignore-not-found' + nl)
+    k8s_script.write('  kubectl -n $NAMESPACE create secret generic ${DOMAIN_UID}-$1 --from-literal=$2=$3' + nl)
+    k8s_script.write('  kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-$1 weblogic.domainUID=${DOMAIN_UID}' + nl)
+    k8s_script.write('}' + nl)
+
+    k8s_script.write(nl)
+    k8s_script.write('function create_paired_k8s_secret {' + nl)
+    k8s_script.write('  kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-$1 --ignore-not-found' + nl)
+    k8s_script.write('  kubectl -n $NAMESPACE create secret generic ${DOMAIN_UID}-$1' +
+                     ' --from-literal=username=$2 --from-literal=password=$3' + nl)
+    k8s_script.write('  kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-$1 weblogic.domainUID=${DOMAIN_UID}' + nl)
+    k8s_script.write('}' + nl)
+
+    command_string = "create_paired_k8s_secret %s %s %s" \
+                     % (WEBLOGIC_CREDENTIALS_SECRET_SUFFIX, ADMIN_USER_TAG, ADMIN_PASSWORD_TAG)
+
+    k8s_script.write(nl)
+    message = exception_helper.get_message("WLSDPLY-01664", ADMIN_USER_TAG, ADMIN_PASSWORD_TAG)
+    k8s_script.write("# " + message + nl)
+    k8s_script.write(command_string + nl)
 
     for property_name in token_dictionary:
         # AdminPassword, AdminUser are created separately,
@@ -120,13 +127,23 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
         if property_name in ['AdminPassword', 'AdminUserName', 'SecurityConfig.NodeManagerPasswordEncrypted']:
             continue
 
+        user_name = find_user_name(property_name, model_dictionary)
         secret_names = property_name.lower().split('.')
-        command_string = "create_k8s_secret %s %s %s " %( '-'.join(secret_names[:-1]), secret_names[-1],
-                                                          "<changeme>")
-        k8s_create_script_handle.write(command_string)
-        k8s_create_script_handle.write(NL)
 
-    k8s_create_script_handle.close()
+        if user_name is None:
+            message = exception_helper.get_message("WLSDPLY-01663", PASSWORD_TAG)
+            command_string = "create_k8s_secret %s %s %s " \
+                             % ('-'.join(secret_names[:-1]), secret_names[-1], PASSWORD_TAG)
+        else:
+            message = exception_helper.get_message("WLSDPLY-01664", USER_TAG, PASSWORD_TAG)
+            command_string = "create_paired_k8s_secret %s %s %s " \
+                             % ('-'.join(secret_names[:-1]), user_name, PASSWORD_TAG)
+
+        k8s_script.write(nl)
+        k8s_script.write("# " + message + nl)
+        k8s_script.write(command_string + nl)
+
+    k8s_script.close()
 
 
 def format_as_secret_token(variable_name):
@@ -172,6 +189,8 @@ def create_additional_output(model, model_context, aliases, exception_type):
     Create any additional output specified in the target configuration.
     :param model: used to create additional content
     :param model_context: provides access to the target configuration
+    :param aliases: used for template fields
+    :param exception_type: type of exception to throw
     """
     _method_name = 'create_additional_output'
 
@@ -196,3 +215,33 @@ def _get_additional_output_types(model_context):
         if additional_output is not None:
             return additional_output.split(',')
     return {}
+
+
+def find_user_name(property_name, model_dictionary):
+    """
+    Determine the user name associated with the specified property name.
+    Return None if the property name is not mapped to a user.
+    Return <user> if the name is mapped, but user is not found.
+    Currently only supports user for JDBC.[name].PasswordEncrypted
+    Needs a much better implementation for future expansion.
+    :param property_name: the property name to be evaluated
+    :param model_dictionary: for looking up the user name
+    :return: the matching user name, a substitution string, or None
+    """
+    matches = _jdbc_pattern.findall(property_name)
+    if matches:
+        name = matches[0]
+        resources = dictionary_utils.get_dictionary_element(model_dictionary, RESOURCES)
+        system_resources = dictionary_utils.get_dictionary_element(resources, JDBC_SYSTEM_RESOURCE)
+        datasource = dictionary_utils.get_dictionary_element(system_resources, name)
+        jdbc_resources = dictionary_utils.get_dictionary_element(datasource, JDBC_RESOURCE)
+        driver_params = dictionary_utils.get_dictionary_element(jdbc_resources, JDBC_DRIVER_PARAMS)
+        properties = dictionary_utils.get_dictionary_element(driver_params, PROPERTIES)
+        user = dictionary_utils.get_dictionary_element(properties, "user")
+        value = dictionary_utils.get_element(user, "Value")
+        if value is None:
+            return "<user>"
+        else:
+            return value
+
+    return None
