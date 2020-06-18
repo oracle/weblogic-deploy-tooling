@@ -159,7 +159,12 @@ def format_as_secret_token(variable_name):
         if name_lower_tokens[0] == 'adminusername' or 'adminpassword' == name_lower_tokens[0]:
             return get_secret_model_token(WEBLOGIC_CREDENTIALS_SECRET_NAME, name_lower_tokens[0])
 
-    return get_secret_model_token('-'.join(name_lower_tokens[:-1]), name_lower_tokens[-1])
+    # for paired secrets, password field is always named "password"
+    secret_name = name_lower_tokens[-1]
+    if _is_paired_secret(variable_name):
+        secret_name = "password"
+
+    return get_secret_model_token('-'.join(name_lower_tokens[:-1]), secret_name)
 
 
 def get_secret_model_token(name, key):
@@ -208,11 +213,11 @@ def create_additional_output(model, model_context, aliases, exception_type):
 def find_user_name(property_name, model_dictionary):
     """
     Determine the user name associated with the specified property name.
-    Return None if the property name is not mapped to a user.
-    Return <user> if the name is mapped, but user is not found.
+    Return None if the property name is not part of a paired secret with .username and .password .
+    Return <user> if the property name is paired, but user is not found.
     Currently only supports user for JDBC.[name].PasswordEncrypted
     Needs a much better implementation for future expansion.
-    :param property_name: the property name to be evaluated
+    :param property_name: the property name, such as JDBC.Generic2.PasswordEncrypted
     :param model_dictionary: for looking up the user name
     :return: the matching user name, a substitution string, or None
     """
@@ -233,3 +238,16 @@ def find_user_name(property_name, model_dictionary):
             return value
 
     return None
+
+
+def _is_paired_secret(property_name):
+    """
+    Determine if the property name is part of a paired secret with .username and .password .
+    Currently only supports user for JDBC.[name].PasswordEncrypted
+    Needs a much better implementation for future expansion.
+    :param property_name: the property name, such as JDBC.Generic2.PasswordEncrypted
+    :return: True if the property is part of a paired secret
+    """
+    if _jdbc_pattern.findall(property_name):
+        return True
+    return False
