@@ -40,7 +40,7 @@ def apply_filters(model, tool_type, model_context=None):
         filters_dictionary = {}
 
         # if target specified in model context, use the filters from target config
-        if model_context:
+        if model_context and model_context.get_target():
             filters_dictionary = model_context.get_target_configuration().get_model_filters()
             target_path = os.path.join('targets', model_context.get_target())
 
