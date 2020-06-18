@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the discoverDomain tool.
@@ -391,11 +391,14 @@ def __persist_model(model, model_context):
     return
 
 
-def __check_and_customize_model(model, model_context, aliases, injector):
+def __check_and_customize_model(model, model_context, aliases, password_injector):
     """
     Customize the model dictionary before persisting. Validate the model after customization for informational
     purposes. Any validation errors will not stop the discovered model to be persisted.
-    :param model: completely discovered model
+    :param model: completely discovered model, before any tokenization
+    :param model_context: configuration from command-line
+    :param aliases: used for validation if model changes are made
+    :param password_injector: injector created to collect and tokenize passwords, possibly None
     """
     _method_name = '__check_and_customize_model'
     __logger.entering(class_name=_class_name, method_name=_method_name)
@@ -404,20 +407,22 @@ def __check_and_customize_model(model, model_context, aliases, injector):
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
     cache = None
-    if injector is not None:
-        cache = injector.get_variable_cache()
-        # Generate k8s create secret script, after that clear the dictionary to avoid showing up in the variable file
+    if password_injector is not None:
+        cache = password_injector.get_variable_cache()
+
+        # Generate k8s create secret script, possibly using lax validation method
         if model_context.is_targetted_config():
             validation_method = model_context.get_target_configuration().get_validation_method()
             model_context.set_validation_method(validation_method)
             target_configuration_helper.generate_k8s_script(model_context, cache, model.get_model())
+            # assume target handled password substitution, clear property cache to keep out of variables file.
             cache.clear()
 
+    # Apply the injectors specified in model_variable_injector.json, or in the target configuration
     variable_injector = VariableInjector(_program_name, model.get_model(), model_context,
-                     WebLogicHelper(__logger).get_actual_weblogic_version(), cache)
+                                         WebLogicHelper(__logger).get_actual_weblogic_version(), cache)
 
-    inserted, variable_model, variable_file_name = \
-        variable_injector.inject_variables_keyword_file()
+    inserted, variable_model, variable_file_name = variable_injector.inject_variables_keyword_file()
 
     if inserted:
         model = Model(variable_model)
