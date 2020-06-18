@@ -49,6 +49,7 @@ from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
+from wlsdeploy.util.target_configuration import SECRETS_METHOD
 from wlsdeploy.util.target_configuration_helper import PASSWORD_PLACEHOLDER
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
@@ -294,31 +295,37 @@ class PrepareModel:
         if tokens_length > 1:
             credentials_method = self.model_context.get_target_configuration().get_credentials_method()
 
-            # For AdminPassword
-            if model_path_tokens[0] == 'domainInfo:' and model_path_tokens[1] == '':
-                password_name = target_configuration_helper.format_as_secret_token(attribute_name)
-                self.cache[attribute_name] = ''
-            else:
-                password_name = target_configuration_helper.format_as_secret_token(variable_name)
-                self.cache[variable_name] = ''
+            # by default, don't do any assignment to attribute
+            model_value = None
 
-            model_value = password_name
+            # use attribute name for admin password
+            if model_path_tokens[0] == 'domainInfo:' and model_path_tokens[1] == '':
+                cache_key = attribute_name
+            else:
+                cache_key = variable_name
+
+            # for normal secrets, assign the secret name to the attribute
+            if credentials_method == SECRETS_METHOD:
+                model_value = target_configuration_helper.format_as_secret_token(cache_key)
+                self.cache[cache_key] = ''
 
             # for config override secrets, assign a placeholder password to the attribute.
             # config overrides will be used to override the value in the target domain.
             if credentials_method == CONFIG_OVERRIDES_SECRETS_METHOD:
                 model_value = PASSWORD_PLACEHOLDER
+                self.cache[cache_key] = ''
 
-            p_dict = self.current_dict
-            for index in range(0, len(model_path_tokens)):
-                token = model_path_tokens[index]
-                if token == '':
-                    break
-                if token[-1] == ':':
-                    token=token[:-1]
-                p_dict = p_dict[token]
+            if model_value is not None:
+                p_dict = self.current_dict
+                for index in range(0, len(model_path_tokens)):
+                    token = model_path_tokens[index]
+                    if token == '':
+                        break
+                    if token[-1] == ':':
+                        token=token[:-1]
+                    p_dict = p_dict[token]
 
-            p_dict[attribute_name] = model_value
+                p_dict[attribute_name] = model_value
 
     def walk(self):
         """
