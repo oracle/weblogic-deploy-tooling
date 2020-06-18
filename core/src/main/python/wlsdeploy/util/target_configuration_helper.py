@@ -49,7 +49,7 @@ def process_target_arguments(argument_map):
     If variables_file was not specified, add it with the file <outputDir>/<targetName>_variable.properties .
     :param argument_map: the argument map to be checked and possibly modified
     """
-    _method_name = '__process_target_arg'
+    _method_name = 'process_target_arguments'
 
     if CommandLineArgUtil.TARGET_SWITCH in argument_map:
         target_name = argument_map[CommandLineArgUtil.TARGET_SWITCH]
