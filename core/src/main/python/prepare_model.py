@@ -48,6 +48,7 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
+from wlsdeploy.util.target_configuration_helper import PASSWORD_PLACEHOLDER
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 
@@ -298,18 +299,23 @@ class PrepareModel:
                 password_name = target_configuration_helper.format_as_secret_token(variable_name)
                 self.cache[variable_name] = ''
 
-            if self.model_context.get_target_configuration().credential_as_secret():
-                p_dict = self.current_dict
+            model_value = password_name
 
-                for index in range(0, len(model_path_tokens)):
-                    token = model_path_tokens[index]
-                    if token == '':
-                        break
-                    if token[-1] == ':':
-                        token=token[:-1]
-                    p_dict = p_dict[token]
+            # for config override secrets, assign a placeholder password to the attribute.
+            # config overrides will be used to override the value in the target domain.
+            if self.model_context.get_target_configuration().config_override_secrets():
+                model_value = PASSWORD_PLACEHOLDER
 
-                p_dict[attribute_name] = password_name
+            p_dict = self.current_dict
+            for index in range(0, len(model_path_tokens)):
+                token = model_path_tokens[index]
+                if token == '':
+                    break
+                if token[-1] == ':':
+                    token=token[:-1]
+                p_dict = p_dict[token]
+
+            p_dict[attribute_name] = model_value
 
     def walk(self):
         """

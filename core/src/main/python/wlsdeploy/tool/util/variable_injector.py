@@ -1,26 +1,29 @@
 """
-Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import copy, os, re
+import copy
+import os
+import re
+
 import java.lang.Boolean as Boolean
 import java.lang.IllegalArgumentException as IllegalArgumentException
+
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
 import oracle.weblogic.deploy.json.JsonException as JsonException
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 import oracle.weblogic.deploy.util.VariableException as VariableException
 import wlsdeploy.tool.util.variable_injector_functions as variable_injector_functions
 import wlsdeploy.util.model as model_sections
+import wlsdeploy.util.target_configuration_helper as target_configuration_helper
 import wlsdeploy.util.variables as variables
 from wlsdeploy.aliases import alias_constants
-from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
-import wlsdeploy.util.target_configuration_helper as target_configuration_helper
 from wlsdeploy.util import path_utils
 from wlsdeploy.util.path_utils import WLSDEPLOY_HOME_VARIABLE
 
@@ -389,9 +392,17 @@ class VariableInjector(object):
         if not _already_property(attribute_value):
             variable_name = variable_injector_functions.format_variable_name(location, attribute, self.__aliases)
             variable_value = _format_variable_value(attribute_value)
+
+            # for credential_as_secret target, assign a secret token to the attribute
             if self.__model_context.get_target_configuration().credential_as_secret() \
                     and variable_value == alias_constants.PASSWORD_TOKEN:
                 model[attribute] = target_configuration_helper.format_as_secret_token(variable_name)
+
+            # for config_override_secrets target, assign a placeholder password to the attribute
+            elif self.__model_context.get_target_configuration().config_override_secrets() \
+                    and variable_value == alias_constants.PASSWORD_TOKEN:
+                model[attribute] = target_configuration_helper.PASSWORD_PLACEHOLDER
+
             else:
                 model[attribute] = _format_as_property(variable_name)
 

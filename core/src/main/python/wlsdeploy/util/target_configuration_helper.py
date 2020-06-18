@@ -37,6 +37,9 @@ ADMIN_PASSWORD_TAG = "<admin-password>"
 USER_TAG = "<user>"
 PASSWORD_TAG = "<password>"
 
+# password placeholder for config override secrets
+PASSWORD_PLACEHOLDER = "password"
+
 _jdbc_pattern = re.compile("^JDBC\\.([ \\w.-]+)\\.PasswordEncrypted$")
 
 
