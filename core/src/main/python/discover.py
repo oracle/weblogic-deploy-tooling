@@ -415,8 +415,10 @@ def __check_and_customize_model(model, model_context, aliases, password_injector
             validation_method = model_context.get_target_configuration().get_validation_method()
             model_context.set_validation_method(validation_method)
             target_configuration_helper.generate_k8s_script(model_context, cache, model.get_model())
-            # assume target handled password substitution, clear property cache to keep out of variables file.
-            cache.clear()
+
+            # if target handles password substitution, clear property cache to keep out of variables file.
+            if model_context.get_target_configuration().manages_credentials():
+                cache.clear()
 
     # Apply the injectors specified in model_variable_injector.json, or in the target configuration
     variable_injector = VariableInjector(_program_name, model.get_model(), model_context,

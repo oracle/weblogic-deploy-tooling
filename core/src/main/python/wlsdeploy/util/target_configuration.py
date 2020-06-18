@@ -77,6 +77,13 @@ class TargetConfiguration(object):
     def requires_secrets_script(self):
         """
         Determine if this configuration requires the generation of secrets scripts.
-        :return: True if scripts should be generated, false otherwise
+        :return: True if scripts should be generated, False otherwise
+        """
+        return self.get_credentials_method() in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]
+
+    def manages_credentials(self):
+        """
+        Determine if this configuration manages credential values in the model.
+        :return: True if credential values are managed, False otherwise
         """
         return self.get_credentials_method() in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]
