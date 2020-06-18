@@ -159,8 +159,11 @@ def format_as_secret_token(variable_name):
     """
     name_lower_tokens = variable_name.lower().split('.')
     if len(name_lower_tokens) == 1:
-        if name_lower_tokens[0] == 'adminusername' or 'adminpassword' == name_lower_tokens[0]:
-            return get_secret_model_token(WEBLOGIC_CREDENTIALS_SECRET_NAME, name_lower_tokens[0])
+        admin_lower_token = name_lower_tokens[0]
+        if admin_lower_token in ['adminusername', 'adminpassword']:
+            # these should just be 'username' and 'password', to match secrets script
+            admin_token = admin_lower_token[5:]
+            return get_secret_model_token(WEBLOGIC_CREDENTIALS_SECRET_NAME, admin_token)
 
     # for paired secrets, password field is always named "password"
     secret_name = name_lower_tokens[-1]
