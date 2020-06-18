@@ -3,6 +3,8 @@ Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
+import types
+
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
 import oracle.weblogic.deploy.util.StringUtils as StringUtils
 import weblogic.management.mbeanservers.edit.ValidationException as ValidationException
@@ -430,7 +432,7 @@ class WlstHelper(object):
             for entry in result.entrySet():
                 key = entry.getKey()
                 value = entry.getValue()
-                if value and type(value) is str:
+                if value and type(value) in [str, unicode]:
                     new_value = value.rstrip()
                     if new_value == 'null' or new_value == 'none':
                         make_dict[key] = None

@@ -42,11 +42,36 @@ GOTO :ENDFUNCTIONS
     )
 
     FOR /F %%i IN ('%JAVA_EXE% -version 2^>^&1') DO (
-      IF "%%i" == "OpenJDK" (
-        ECHO JAVA_HOME %JAVA_HOME% contains OpenJDK^, which is not supported >&2
-        EXIT /B 2
-      )
+        IF "%%i" == "OpenJDK" (
+            SET OPEN_JDK=true
+	        IF EXIST %ORACLE_HOME%\wlserver\server\lib\weblogic.jar (
+			    FOR /F "tokens=1-3 delims= " %%A IN ('%JAVA_EXE% -cp %ORACLE_HOME%\wlserver\server\lib\weblogic.jar weblogic.version 2^>^&1') DO (
+			        IF "%%A" == "WebLogic" (
+			            FOR /F "tokens=1-5 delims=." %%j IN ('ECHO %%C') DO (
+			                SET "ORACLE_VERSION=%%j.%%k.%%l.%%m.%%n"
+			                SET "ORACLE_ONE=%%j"
+			                SET "ORACLE_TWO=%%l"
+				        )
+			        )
+			    )
+		    ) ELSE (
+                  ECHO JAVA_HOME %JAVA_HOME% contains OpenJDK^, which is not supported >&2
+                  EXIT /B 2
+            )
+        )
     )
+
+    IF "%OPEN_JDK%"=="true" (
+	    ECHO "ORACLE_VERSION=%ORACLE_VERSION%"
+	    SET VALID_OPEN=true
+	    IF %ORACLE_ONE% LSS 14 SET VALID_OPEN=false
+	    IF %ORACLE_ONE% EQU 14 IF %ORACLE_TWO% LSS 2 SET VALID_OPEN=false
+	    if "%VALID_OPEN%"=="false" (
+	        ECHO JAVA_HOME %JAVA_HOME% contains OpenJDK^, which is not supported in versions before 14.1.2 >&2
+		    EXIT /B 2
+	    )
+	    SET JAVA_VENDOR=OpenJDK
+	)
 
     FOR /F tokens^=2-5^ delims^=.-_^" %%j IN ('%JAVA_EXE% -fullversion 2^>^&1') DO (
       SET "JVM_FULL_VERSION=%%j.%%k.%%l_%%m"
@@ -70,7 +95,7 @@ GOTO :ENDFUNCTIONS
       EXIT /B 2
     ) ELSE (
       ECHO JDK version is %JVM_FULL_VERSION%, setting JAVA_VENDOR to Sun...
-      SET JAVA_VENDOR=Sun
+      IF "%JAVA_VENDOR%"=="" SET JAVA_VENDOR=Sun
     )
 GOTO :EOF
 

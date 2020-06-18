@@ -111,7 +111,7 @@ def merge_model_and_existing_properties(model_props, existing_props, string_prop
             result = _properties_to_string(existing_props, string_props_separator_char)
     else:
         model_props_is_string = False
-        if type(model_props) is str:
+        if type(model_props) in [str, unicode]:
             model_props_is_string = True
             model_properties = _string_to_properties(model_props, string_props_separator_char)
         elif TypeUtils.isInstanceOfClass(Properties().getClass(), model_props):
@@ -121,7 +121,7 @@ def merge_model_and_existing_properties(model_props, existing_props, string_prop
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        if type(existing_props) is str:
+        if type(existing_props) in [str, unicode]:
             existing_properties = _string_to_properties(existing_props, string_props_separator_char)
         elif TypeUtils.isInstanceOfClass(Properties().getClass(), existing_props):
             existing_properties = existing_props
@@ -1118,7 +1118,7 @@ def _create_set(list_item, string_list_separator_char, message_key):
     _method_name = '_create_set'
 
     item_type = type(list_item)
-    if item_type is str:
+    if item_type in [str, unicode]:
         item_set = Set([x.strip() for x in list_item.split(string_list_separator_char)])
     elif item_type is list or item_type is array:
         item_set = Set(list_item)
