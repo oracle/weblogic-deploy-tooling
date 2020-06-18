@@ -48,6 +48,7 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
+from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
 from wlsdeploy.util.target_configuration_helper import PASSWORD_PLACEHOLDER
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
@@ -291,6 +292,8 @@ class PrepareModel:
         variable_name = variable_injector_functions.format_variable_name(validation_location, attribute_name,
                                                                          self._aliases)
         if tokens_length > 1:
+            credentials_method = self.model_context.get_target_configuration().get_credentials_method()
+
             # For AdminPassword
             if model_path_tokens[0] == 'domainInfo:' and model_path_tokens[1] == '':
                 password_name = target_configuration_helper.format_as_secret_token(attribute_name)
@@ -303,7 +306,7 @@ class PrepareModel:
 
             # for config override secrets, assign a placeholder password to the attribute.
             # config overrides will be used to override the value in the target domain.
-            if self.model_context.get_target_configuration().config_override_secrets():
+            if credentials_method == CONFIG_OVERRIDES_SECRETS_METHOD:
                 model_value = PASSWORD_PLACEHOLDER
 
             p_dict = self.current_dict

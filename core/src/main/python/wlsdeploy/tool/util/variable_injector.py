@@ -26,6 +26,8 @@ from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
 from wlsdeploy.util.path_utils import WLSDEPLOY_HOME_VARIABLE
+from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
+from wlsdeploy.util.target_configuration import SECRETS_METHOD
 
 WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
 
@@ -392,14 +394,15 @@ class VariableInjector(object):
         if not _already_property(attribute_value):
             variable_name = variable_injector_functions.format_variable_name(location, attribute, self.__aliases)
             variable_value = _format_variable_value(attribute_value)
+            credentials_method = self.__model_context.get_target_configuration().get_credentials_method()
 
             # for credential_as_secret target, assign a secret token to the attribute
-            if self.__model_context.get_target_configuration().credential_as_secret() \
+            if credentials_method == SECRETS_METHOD \
                     and variable_value == alias_constants.PASSWORD_TOKEN:
                 model[attribute] = target_configuration_helper.format_as_secret_token(variable_name)
 
             # for config_override_secrets target, assign a placeholder password to the attribute
-            elif self.__model_context.get_target_configuration().config_override_secrets() \
+            elif credentials_method == CONFIG_OVERRIDES_SECRETS_METHOD \
                     and variable_value == alias_constants.PASSWORD_TOKEN:
                 model[attribute] = target_configuration_helper.PASSWORD_PLACEHOLDER
 
