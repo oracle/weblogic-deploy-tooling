@@ -81,6 +81,7 @@ class ModelContext(object):
         self._variable_injector_file = None
         self._variable_keywords_file = None
         self._variable_properties_file = None
+        self._rcu_db_user = 'SYS'
 
         self._trailing_args = []
 
@@ -145,6 +146,9 @@ class ModelContext(object):
 
         if CommandLineArgUtil.RCU_SYS_PASS_SWITCH in arg_map:
             self._rcu_sys_pass = arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH]
+
+        if CommandLineArgUtil.RCU_DB_USER_SWITCH in arg_map:
+            self._rcu_db_user = arg_map[CommandLineArgUtil.RCU_DB_USER_SWITCH]
 
         if CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH in arg_map:
             self._rcu_schema_pass = arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH]
@@ -449,6 +453,13 @@ class ModelContext(object):
         :return: the RCU prefix
         """
         return self._rcu_prefix
+
+    def get_rcu_db_user(self):
+        """
+        Get the RCU DB user.
+        :return: the RCU dbUser
+        """
+        return self._rcu_db_user
 
     def get_rcu_sys_pass(self):
         """
