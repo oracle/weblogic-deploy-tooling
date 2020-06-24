@@ -423,6 +423,7 @@ class ModelFileDiffer:
                 model_file_name = self.past_dict_file
                 FileToPython(model_file_name, True).parse()
 
+            self.model_context.set_validation_method('lax')
 
             aliases = Aliases(model_context=self.model_context, wlst_mode=WlstModes.OFFLINE)
 

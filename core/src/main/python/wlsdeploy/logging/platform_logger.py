@@ -116,7 +116,7 @@ class PlatformLogger(object):
         method = kwargs.pop('method_name', None)
         clazz = kwargs.pop('class_name', None)
         error = kwargs.pop('error', None)
-        record = self.__get_log_record(JLevel.CONFIG, clazz, method, message, error, *args)
+        record = self._get_log_record(JLevel.CONFIG, clazz, method, message, error, *args)
         self.logger.log(record)
         return
 
@@ -131,7 +131,7 @@ class PlatformLogger(object):
         method = kwargs.pop('method_name', None)
         clazz = kwargs.pop('class_name', None)
         error = kwargs.pop('error', None)
-        record = self.__get_log_record(level, clazz, method, message, error, *args)
+        record = self._get_log_record(level, clazz, method, message, error, *args)
         self.logger.log(record)
         return
 
@@ -169,7 +169,7 @@ class PlatformLogger(object):
         method = kwargs.pop('method_name', None)
         clazz = kwargs.pop('class_name', None)
         error = kwargs.pop('error', None)
-        record = self.__get_log_record(JLevel.FINE, clazz, method, message, error, *args)
+        record = self._get_log_record(JLevel.FINE, clazz, method, message, error, *args)
         self.logger.log(record)
         return
 
@@ -183,7 +183,7 @@ class PlatformLogger(object):
         method = kwargs.pop('method_name', None)
         clazz = kwargs.pop('class_name', None)
         error = kwargs.pop('error', None)
-        record = self.__get_log_record(JLevel.FINER, clazz, method, message, error, *args)
+        record = self._get_log_record(JLevel.FINER, clazz, method, message, error, *args)
         self.logger.log(record)
         return
 
@@ -197,7 +197,7 @@ class PlatformLogger(object):
         method = kwargs.pop('method_name', None)
         clazz = kwargs.pop('class_name', None)
         error = kwargs.pop('error', None)
-        record = self.__get_log_record(JLevel.FINEST, clazz, method, message, error, *args)
+        record = self._get_log_record(JLevel.FINEST, clazz, method, message, error, *args)
         self.logger.log(record)
         return
 
@@ -211,7 +211,7 @@ class PlatformLogger(object):
         method = kwargs.pop('method_name', None)
         clazz = kwargs.pop('class_name', None)
         error = kwargs.pop('error', None)
-        record = self.__get_log_record(JLevel.INFO, clazz, method, message, error, *args)
+        record = self._get_log_record(JLevel.INFO, clazz, method, message, error, *args)
         self.logger.log(record)
         return
 
@@ -225,7 +225,7 @@ class PlatformLogger(object):
         method = kwargs.pop('method_name', None)
         clazz = kwargs.pop('class_name', None)
         error = kwargs.pop('error', None)
-        record = self.__get_log_record(JLevel.WARNING, clazz, method, message, error, *args)
+        record = self._get_log_record(JLevel.WARNING, clazz, method, message, error, *args)
         self.logger.log(record)
         return
 
@@ -239,7 +239,7 @@ class PlatformLogger(object):
         method = kwargs.pop('method_name', None)
         clazz = kwargs.pop('class_name', None)
         error = kwargs.pop('error', None)
-        record = self.__get_log_record(JLevel.SEVERE, clazz, method, message, error, *args)
+        record = self._get_log_record(JLevel.SEVERE, clazz, method, message, error, *args)
         self.logger.log(record)
         return
 
@@ -256,7 +256,7 @@ class PlatformLogger(object):
             self.logger.throwing(error)
         return
 
-    def __get_log_record(self, level, clazz, method, message, error, *args):
+    def _get_log_record(self, level, clazz, method, message, error, *args):
         record = JLogRecord(level, message)
         record.setLoggerName(self.name)
         record.setMillis(JSystem.currentTimeMillis())

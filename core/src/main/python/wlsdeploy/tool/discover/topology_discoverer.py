@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -88,6 +88,18 @@ class TopologyDiscoverer(Discoverer):
 
         model_top_folder_name, embedded_ldap_configuration = self.get_embedded_ldap_configuration()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, embedded_ldap_configuration)
+
+        model_folder_name, folder_result = self._get_log_filters()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
+        model_folder_name, folder_result = self._get_reliable_delivery_policies()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
+        model_folder_name, folder_result = self._get_xml_entity_caches()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
+        model_folder_name, folder_result = self._get_xml_registries()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
@@ -269,27 +281,21 @@ class TopologyDiscoverer(Discoverer):
 
         self._populate_model_parameters(self._dictionary, location)
 
-        model_folder_name, folder_result = self._get_admin_console()
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.ADMIN_CONSOLE)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        model_folder_name, folder_result = self._get_cdi_container()
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.CDI_CONTAINER)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        model_folder_name, folder_result = self._get_jta()
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.JMX)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        model_folder_name, folder_result = self._get_jmx()
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.JPA)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        model_folder_name, folder_result = self._get_restful_management_services()
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.JTA)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        model_folder_name, folder_result = self._get_log_filters()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        model_folder_name, folder_result = self._get_reliable_delivery_policies()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        model_folder_name, folder_result = self._get_xml_entity_caches()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        model_folder_name, folder_result = self._get_xml_registries()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-        model_folder_name, folder_result = self._get_domain_log()
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.LOG)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_nm_properties()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.RESTFUL_MANAGEMENT_SERVICES)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -349,100 +355,21 @@ class TopologyDiscoverer(Discoverer):
 
     # Private methods
 
-    def _get_admin_console(self):
+    def _get_nm_properties(self):
         """
-        Discover the domain level admin console configuration attributes.
-        :return: model name for JTA:dictionary containing the discovered JTA attributes
+        Discover the NMProperties attributes.
+        :return: model name for the Log:dictionary containing the discovered NMProperties attributes
         """
-        _method_name = '_get_admin_console'
+        _method_name = '_get_nm_properties'
         _logger.entering(class_name=_class_name, method_name=_method_name)
-        model_top_folder_name = model_constants.ADMIN_CONSOLE
+        model_top_folder_name = model_constants.NM_PROPERTIES
         result = OrderedDict()
         location = LocationContext(self._base_location)
-        location.append_location(model_top_folder_name)
-        name = self._find_singleton_name_in_folder(location)
-        if name is not None:
-            _logger.info('WLSDPLY-06613', class_name=_class_name, method_name=_method_name)
-            location.add_name_token(self._alias_helper.get_name_token(location), name)
+        if self._topfolder_exists(model_top_folder_name):
+            _logger.info('WLSDPLY-06627', class_name=_class_name, method_name=_method_name)
+            location.append_location(model_top_folder_name)
             self._populate_model_parameters(result, location)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return model_top_folder_name, result
-
-    def _get_cdi_container(self):
-        """
-        Discover the domain level CdiContainer configuration attributes.
-        :return: model name for CdiContainer: dictionary containing the discovered CdiContainer attributes
-        """
-        _method_name = '_get_cdi_container'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
-        model_top_folder_name = model_constants.CDI_CONTAINER
-        result = OrderedDict()
-        location = LocationContext(self._base_location)
-        location.append_location(model_top_folder_name)
-        name = self._find_singleton_name_in_folder(location)
-        if name is not None:
-            _logger.info('WLSDPLY-06643', class_name=_class_name, method_name=_method_name)
-            location.add_name_token(self._alias_helper.get_name_token(location), name)
-            self._populate_model_parameters(result, location)
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return model_top_folder_name, result
-
-    def _get_jta(self):
-        """
-        Discover the domain level JTA configuration attributes.
-        :return: model name for JTA:dictionary containing the discovered JTA attributes
-        """
-        _method_name = '_get_jta'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
-        model_top_folder_name = model_constants.JTA
-        result = OrderedDict()
-        location = LocationContext(self._base_location)
-        location.append_location(model_top_folder_name)
-        name = self._find_singleton_name_in_folder(location)
-        if name is not None:
-            _logger.info('WLSDPLY-06614', class_name=_class_name, method_name=_method_name)
-            location.add_name_token(self._alias_helper.get_name_token(location), name)
-            self._populate_model_parameters(result, location)
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return model_top_folder_name, result
-
-    def _get_jmx(self):
-        """
-        Discover the JMX agents configured in the domain.
-        :return: model name for JMX:dictionary containing the discovered JMX attributes
-        """
-        _method_name = '_get_jmx'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
-        model_top_folder_name = model_constants.JMX
-        result = OrderedDict()
-        location = LocationContext(self._base_location)
-        location.append_location(model_top_folder_name)
-        name = self._find_singleton_name_in_folder(location)
-        if name is not None:
-            _logger.info('WLSDPLY-06615', class_name=_class_name, method_name=_method_name)
-            location.add_name_token(self._alias_helper.get_name_token(location), name)
-            self._populate_model_parameters(result, location)
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return model_top_folder_name, result
-
-    def _get_domain_log(self):
-        """
-        Discover the domain log attributes.
-        :return: model name for the Log:dictionary containing the discovered Log attributes
-        """
-        _method_name = '_get_domain_log'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
-        model_top_folder_name = model_constants.LOG
-        result = OrderedDict()
-        location = LocationContext(self._base_location)
-        location.append_location(model_top_folder_name)
-        name = self._find_singleton_name_in_folder(location)
-        if name is not None:
-            _logger.info('WLSDPLY-06626', class_name=_class_name, method_name=_method_name)
-            location.add_name_token(self._alias_helper.get_name_token(location), name)
-            self._populate_model_parameters(result, location)
-            self._discover_subfolders(result, location)
-
         return model_top_folder_name, result
 
     def _get_log_filters(self):
@@ -543,42 +470,6 @@ class TopologyDiscoverer(Discoverer):
                 location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
-        return model_top_folder_name, result
-
-    def _get_nm_properties(self):
-        """
-        Discover the NMProperties attributes.
-        :return: model name for the Log:dictionary containing the discovered NMProperties attributes
-        """
-        _method_name = '_get_nm_properties'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
-        model_top_folder_name = model_constants.NM_PROPERTIES
-        result = OrderedDict()
-        location = LocationContext(self._base_location)
-        if self._topfolder_exists(model_top_folder_name):
-            _logger.info('WLSDPLY-06627', class_name=_class_name, method_name=_method_name)
-            location.append_location(model_top_folder_name)
-            self._populate_model_parameters(result, location)
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return model_top_folder_name, result
-
-    def _get_restful_management_services(self):
-        """
-        Discover the wlst restful management services enablement for the domain.
-        :return: model name for the mbean:dictionary containing the discovered restful management services mbean
-        """
-        _method_name = '_get_restful_management_services'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
-        model_top_folder_name = model_constants.RESTFUL_MANAGEMENT_SERVICES
-        result = OrderedDict()
-        location = LocationContext(self._base_location)
-        location.append_location(model_top_folder_name)
-        name = self._find_singleton_name_in_folder(location)
-        if name is not None:
-            _logger.info('WLSDPLY-06616', class_name=_class_name, method_name=_method_name)
-            location.add_name_token(self._alias_helper.get_name_token(location), name)
-            self._populate_model_parameters(result, location)
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_top_folder_name, result
 
     def _has_machines_folder(self, base_folder):

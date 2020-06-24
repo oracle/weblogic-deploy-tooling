@@ -64,6 +64,26 @@ class Discoverer(object):
         self._mbean_utils = MBeanUtils(self._model_context, self._alias_helper, ExceptionType.DISCOVER)
         self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
 
+    def discover_domain_mbean(self, model_top_folder_name):
+        """
+        Discover the domain specific MBean and its configuration attributes.
+        :return: model name for domain MBean:dictionary containing the discovered Domain MBean attributes
+        """
+        _method_name = 'discover_domain_mbean'
+        _logger.entering(model_top_folder_name, class_name=_class_name, method_name=_method_name)
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        name = self._find_singleton_name_in_folder(location)
+        if name is not None:
+            _logger.info('WLSDPLY-06644', model_top_folder_name, class_name=_class_name, method_name=_method_name)
+            location.add_name_token(self._alias_helper.get_name_token(location), name)
+            self._populate_model_parameters(result, location)
+            # if any subfolders exist, discover
+            self._discover_subfolders(result, location)
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+        return model_top_folder_name, result
+
     # methods for use only by the subclasses
     def _populate_model_parameters(self, dictionary, location):
         """
