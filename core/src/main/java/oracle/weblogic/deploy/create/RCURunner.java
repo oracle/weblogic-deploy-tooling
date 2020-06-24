@@ -76,6 +76,7 @@ public class RCURunner {
     private boolean ATP_DB = false;
     private String atpSSlArgs = null;
     private String atpAdminUser = null;
+    private String rcuAdminUser = DB_USER;
     private String atpDefaultTablespace = null;
     private String atpTemporaryTablespace = null;
     private String rcuVariables = null;
@@ -263,7 +264,7 @@ public class RCURunner {
 
         } else {
             dropArgs.add(DB_USER_SWITCH);
-            dropArgs.add(DB_USER);
+            dropArgs.add(getRCUAdminUser());
             dropArgs.add(DB_ROLE_SWITCH);
             dropArgs.add(DB_ROLE);
         }
@@ -305,7 +306,7 @@ public class RCURunner {
             createArgs.add(atpSSlArgs);
         } else {
             createArgs.add(DB_USER_SWITCH);
-            createArgs.add(DB_USER);
+            createArgs.add(getRCUAdminUser());
             createArgs.add(DB_ROLE_SWITCH);
             createArgs.add(DB_ROLE);
         }
@@ -360,6 +361,14 @@ public class RCURunner {
             result++;
         }
         return result;
+    }
+
+    public void setRCUAdminUser(String rcuDBUser) {
+        rcuAdminUser = rcuDBUser;
+    }
+
+    public String getRCUAdminUser() {
+        return rcuAdminUser;
     }
 
     private static boolean isSchemaNotExistError(ScriptRunner runner) {

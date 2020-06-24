@@ -283,22 +283,28 @@ class DomainCreator(Creator):
                                    rcu_db_info.get_rcu_variables())
                 runner.runRcu(rcu_sys_pass, rcu_schema_pass)
             else:
+                # Has RCUDbInfo in the model but non ATP case
                 rcu_db = rcu_db_info.get_rcu_regular_db_conn()
                 rcu_prefix = rcu_db_info.get_rcu_prefix()
                 rcu_sys_pass = rcu_db_info.get_admin_password()
                 rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
+                rcu_db_user = rcu_db_info.get_rcu_db_user()
                 self.__validate_rcudbinfo_entries(rcu_properties_map, [RCU_PREFIX, RCU_SCHEMA_PASSWORD,
                                                                        RCU_ADMIN_PASSWORD, RCU_DB_CONN])
                 runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
                                    rcu_db_info.get_rcu_variables())
+                runner.setRCUAdminUser(rcu_db_user)
                 runner.runRcu(rcu_sys_pass, rcu_schema_pass)
         else:
+            # No RCUDbInfo in the model. CLI case
             rcu_db = self.model_context.get_rcu_database()
             rcu_prefix = self.model_context.get_rcu_prefix()
             rcu_sys_pass = self.model_context.get_rcu_sys_pass()
             rcu_schema_pass = self.model_context.get_rcu_schema_pass()
+            rcu_db_user = self.model_context.get_rcu_db_user()
 
             runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas, None)
+            runner.setRCUAdminUser(rcu_db_user)
             runner.runRcu(rcu_sys_pass, rcu_schema_pass)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)

@@ -49,6 +49,7 @@ class CommandLineArgUtil(object):
     PREVIOUS_MODEL_FILE_SWITCH = '-prev_model_file'
     VARIABLE_FILE_SWITCH       = '-variable_file'
     RCU_DB_SWITCH              = '-rcu_db'
+    RCU_DB_USER_SWITCH         = '-rcu_db_user'
     RCU_PREFIX_SWITCH          = '-rcu_prefix'
     # phony arg used as a key to store the password
     RCU_SYS_PASS_SWITCH        = '-rcu_sys_pass'
@@ -246,6 +247,10 @@ class CommandLineArgUtil(object):
             elif self.is_rcu_database_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_database_arg(value)
+                self._add_arg(key, value)
+            elif self.is_rcu_dbuser_key(key):
+                value, idx = self._get_arg_value(args, idx)
+                self._validate_rcu_dbuser_arg(value)
                 self._add_arg(key, value)
             elif self.is_rcu_prefix_key(key):
                 value, idx = self._get_arg_value(args, idx)
@@ -798,6 +803,21 @@ class CommandLineArgUtil(object):
 
         if value is None or len(value) == 0:
             ex = exception_helper.create_cla_exception('WLSDPLY-01621')
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return
+
+    def get_rcu_dbuser_key(self):
+        return self.RCU_DB_USER_SWITCH
+
+    def is_rcu_dbuser_key(self, key):
+        return self.RCU_DB_USER_SWITCH == key
+
+    def _validate_rcu_dbuser_arg(self, value):
+        method_name = '_validate_rcu_dbuser_arg'
+        if value is None or len(value) == 0:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01622')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
