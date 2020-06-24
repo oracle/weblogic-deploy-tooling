@@ -74,7 +74,6 @@ class Deployer(object):
         parent_type, parent_name = self.get_location_type_and_name(location)
         location = LocationContext(location).append_location(type_name)
         if not self._check_location(location):
-            print ' THE LOCATION IS BAD ', str(location)
             return
 
         deployer_utils.check_flattened_folder(location, self.alias_helper)
@@ -82,7 +81,6 @@ class Deployer(object):
 
         token = self.alias_helper.get_name_token(location)
         for name in model_nodes:
-            print 'NAME IN MODEL_NODES ', name, ' FOR LOCATION ', str(location)
             if model_helper.is_delete_name(name):
                 deployer_utils.delete_named_element(location, name, existing_names, self.alias_helper)
                 continue
