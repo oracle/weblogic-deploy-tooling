@@ -137,6 +137,7 @@ class JmsResourcesDeployer(Deployer):
         self.topology_helper.create_placeholder_named_elements(location, TOPIC, resource_nodes)
         self.topology_helper.create_placeholder_named_elements(location, DISTRIBUTED_TOPIC, resource_nodes)
         self.topology_helper.create_placeholder_named_elements(location, UNIFORM_DISTRIBUTED_TOPIC, resource_nodes)
+        self.topology_helper.create_placeholder_named_elements(location, TEMPLATE, resource_nodes)
 
     def _add_jndi_properties(self, property_name_nodes, location):
         """
