@@ -793,7 +793,6 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if destination is not found
         """
         method_name = '__find_jms_destination_mbean'
-        print 'In the appropriate place to find the destination'
         resource_location = self.__get_parent_location(location, JMS_RESOURCE)
         for type_name in self.__destination_type_names:
             mbean = self.__find_in_location(resource_location, type_name, destination_name)
@@ -911,10 +910,8 @@ class AttributeSetter(object):
         method_name = '__find_in_location'
 
         location = LocationContext(location).append_location(element_type)
-        print ' The location for ', element_type, ' ', name, ' is ', str(location)
         if self.__alias_helper.get_wlst_mbean_type(location) is not None:
             existing_names = self.__get_existing_object_list(location)
-            print ' The existing nams at this location ARE ', existing_names
             if name in existing_names:
                 location_type, location_name = self.__alias_helper.get_model_type_and_name(location)
                 self.__logger.fine('WLSDPLY-19204', element_type, name, location_type, location_name,
