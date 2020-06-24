@@ -130,7 +130,7 @@ ECHO         rcu_prefix      - the RCU prefix to use (if the domain type require
 ECHO                           RCU).
 ECHO.
 ECHO         rcu_db_user    - the RCU dbUser to use (if the domain type requires
-ECHO                           RCU.  Default SYS if not specified).
+ECHO                           RCU.  Default SYS if not specified).  This user must have SYSDBA privilege
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will

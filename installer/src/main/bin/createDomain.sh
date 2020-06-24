@@ -91,7 +91,7 @@ usage() {
   echo "                          RCU)."
   echo ""
   echo "        rcu_db_user     - the RCU dbUser to use (if the domain type requires"
-  echo "                          RCU.  Default SYS if not specified)."
+  echo "                          RCU.  Default SYS if not specified). This user must have SYSDBA privilege"
   echo ""
   echo "    The -use_encryption switch tells the program that one or more of the"
   echo "    passwords in the model or variables files are encrypted.  The program will"
