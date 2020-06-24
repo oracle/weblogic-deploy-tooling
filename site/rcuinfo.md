@@ -29,8 +29,9 @@ For a non-ATP database, use the following example:
 domainInfo:
     RCUDbInfo:
         rcu_prefix : DEV
-        # optional dbUser for creating RCU schema if -run_rcu flag is specified. Default user is SYS if not specified 
-        #rcu_db_user: superuser
+        # Optional rcu_db_user for creating RCU schema if -run_rcu flag is specified. Default user is SYS if not specified
+        # This user must have SYSDBA privilege and this is the equivalent of -dbUser in the RCU utility
+        rcu_db_user: superuser
         rcu_schema_password : xxxxx
         rcu_admin_password : xxxx
         rcu_db_conn_string : 'dbhost:1521/pdborcl'

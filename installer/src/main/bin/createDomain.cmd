@@ -129,7 +129,7 @@ ECHO.
 ECHO         rcu_prefix      - the RCU prefix to use (if the domain type requires
 ECHO                           RCU).
 ECHO.
-ECHO         rcu_db_user\    - the RCU dbUser to use (if the domain type requires
+ECHO         rcu_db_user    - the RCU dbUser to use (if the domain type requires
 ECHO                           RCU.  Default SYS if not specified).
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
