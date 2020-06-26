@@ -12,9 +12,9 @@ spec:
   placement:
     - name: local
       namespaces:
-        - name: todo
+        - name: default
           components:
-            - name: todo
+            - name: {{{domainName}}}
   ingressBindings:
     - name: "{{{domainPrefix}}}-ingress"
       dnsName: "todo.vz.oracledx.com"

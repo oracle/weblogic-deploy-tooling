@@ -17,6 +17,8 @@ spec:
           name: {{{webLogicCredentialsSecret}}}
         imagePullSecrets:
           - name: ocir
+        logHomeEnabled: false
+        logHome: {{{domainHome}}}/logs
         clusters:
 {{#clusters}}
           - clusterName: {{{clusterName}}}
