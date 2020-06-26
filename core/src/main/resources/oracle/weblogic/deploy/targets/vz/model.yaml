@@ -18,7 +18,7 @@ spec:
         imagePullSecrets:
           - name: ocir
         logHomeEnabled: false
-        logHome: {{{domainHome}}}/logs
+        logHome: /shared/logs/{{{domainName}}}
         clusters:
 {{#clusters}}
           - clusterName: {{{clusterName}}}
