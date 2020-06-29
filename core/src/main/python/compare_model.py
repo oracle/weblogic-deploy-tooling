@@ -435,6 +435,12 @@ class ModelFileDiffer:
 
             variables.substitute(model_dictionary, variable_map, self.model_context)
 
+            # Run this utility in stand-alone mode instead of tool mode,
+            # which has stricter checks for the tools.
+            # An archive is not used with the compare models and if the model
+            # references a file in an archive, the compareModel will fail if
+            # running in the stricter tool mode (even with lax).
+            #
             return_code = validator.validate_in_standalone_mode(model_dictionary,
                                                                 None,
                                                                 archive_file_name=None)
