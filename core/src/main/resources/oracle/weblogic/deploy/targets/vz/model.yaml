@@ -7,8 +7,6 @@ spec:
   description: "{{{domainName}}} System"
   weblogicDomains:
     - name: "{{{domainName}}}"
-      adminPort: 32701
-      t3Port: 32702
       domainCRValues:
         domainUID: {{{domainUid}}}
         domainHome: {{{domainHome}}}
@@ -18,7 +16,7 @@ spec:
         imagePullSecrets:
           - name: ocir
         logHomeEnabled: false
-        logHome: /shared/logs/{{{domainName}}}
+        logHome: {{{domainHome}}}/logs
         clusters:
 {{#clusters}}
           - clusterName: {{{clusterName}}}
