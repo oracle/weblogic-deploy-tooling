@@ -140,8 +140,6 @@ def _build_template_hash(model, aliases):
         resources = dictionary_utils.get_dictionary_element(named, JDBC_RESOURCE)
         driver_params = dictionary_utils.get_dictionary_element(resources, JDBC_DRIVER_PARAMS)
         url = dictionary_utils.get_element(driver_params, URL)
-        # URL may have & characters - anything else?
-        url = url.replace("&","&amp;")
         if url is None:
             url = ''
         database_hash[DS_URL] = url
