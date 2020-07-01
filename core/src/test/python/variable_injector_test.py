@@ -4,26 +4,30 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import unittest
 
-import wlsdeploy.util.variables as variables
+import os
+
 import wlsdeploy.tool.util.variable_injector as variable_injector
-from wlsdeploy.aliases.location_context import LocationContext
+import wlsdeploy.util.variables as variables
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
+from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
-from wlsdeploy.tool.util.variable_injector import VariableInjector
-from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
+from wlsdeploy.tool.util.variable_injector import VariableInjector
+from wlsdeploy.util.model_context import ModelContext
+from wlsdeploy.util.model_translator import FileToPython
+from wlsdeploy.util.path_utils import CUSTOM_CONFIG_VARIABLE
+
 
 class VariableFileHelperTest(unittest.TestCase):
     _resources_dir = '../../test-classes'
     _variable_file = _resources_dir + '/variable.injector.test.properties'
     _model_file = _resources_dir + '/variable_insertion.yaml'
-    _variable_injector_keyword = 'variable_injector_keyword.json'
-    _keywords_file = 'keywords.json'
 
     def setUp(self):
         self.name = 'VariableFileHelperTest'
         self._model = FileToPython(self._model_file).parse()
-        self._helper = VariableInjector(self.name, self._model, None, '12.2.1.3')
+        self._model_context = ModelContext(self.name, {})
+        self._helper = VariableInjector(self.name, self._model, self._model_context, '12.2.1.3')
 
     def testSingleVariableReplacement(self):
         replacement_dict = dict()
@@ -251,11 +255,14 @@ class VariableFileHelperTest(unittest.TestCase):
         expected[short_name + '.machine1.ListenPort'] = '5557'
         expected[short_name + '.machine1.PasswordEncrypted'] = '--FIX ME--'
         expected[short_name + '.machine1.UserName'] = 'admin'
-        inserted, model, variable_file_name = self._helper.inject_variables_keyword_file(
-            variable_file_name=self._variable_file,
-            variable_injector_path_name=self._resources_dir,
-            variable_injector_file_name=self._variable_injector_keyword,
-            variable_keywords_path_name=self._resources_dir, variable_keywords_file_name=self._keywords_file)
+
+        self._model_context._variable_properties_file = self._variable_file
+        os.environ[CUSTOM_CONFIG_VARIABLE] = os.path.join(self._resources_dir, 'injector-config')
+
+        inserted, model, variable_file_name = self._helper.inject_variables_keyword_file()
+
+        os.environ[CUSTOM_CONFIG_VARIABLE] = None
+
         self.assertEqual(self._variable_file, variable_file_name)
         self.assertEqual(True, inserted)
         actual = variables.load_variables(self._variable_file)

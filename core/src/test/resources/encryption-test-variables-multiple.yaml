@@ -1,0 +1,42 @@
+domainInfo:
+    DOMAIN_TYPE: 'WLS'
+    AdminUserName: 'weblogic'
+    AdminPassword: '@@PROP:admin.password@@'
+    ServerStartMode: 'prod'
+
+topology:
+    Name: simple_domain
+    Cluster:
+        mycluster:
+    Server:
+        AdminServer:
+            ListenAddress: 127.0.0.1
+            ListenPort: 7001
+            Machine: machine1
+        s1:
+            ListenAddress: 127.0.0.1
+            ListenPort: 8001
+            Cluster: mycluster
+            Machine: machine1
+        s2:
+            ListenAddress: 127.0.0.1
+            ListenPort: 8101
+            Cluster: mycluster
+            Machine: m2
+    Machine:
+        machine1:
+            NodeManager:
+                NMType: SSL
+                ListenAddress: 127.0.0.1
+                ListenPort: 5556
+
+appDeployments:
+    Application:
+        'get-listen-address-app':
+            SourcePath: 'wlsdeploy/apps/get-listen-address-app.war'
+            Target: mycluster
+            ModuleType: war
+        simpleear :
+            SourcePath: wlsdeploy/apps/simpleear.ear
+            Target: mycluster
+            ModuleType: ear

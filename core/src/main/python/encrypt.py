@@ -28,6 +28,7 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.encrypt import encryption_utils
 from wlsdeploy.tool.util.alias_helper import AliasHelper
+from wlsdeploy.util import cla_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import variables as variable_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -62,6 +63,7 @@ def __process_args(args):
     _method_name = '__process_args'
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
+    cla_util.set_allow_multiple_models(True)
     argument_map = cla_util.process_args(args)
 
     __validate_mode_args(argument_map)
@@ -92,17 +94,8 @@ def __validate_mode_args(optional_arg_map):
     """
     _method_name = '__validate_mode_args'
 
-    if CommandLineArgUtil.MODEL_FILE_SWITCH in optional_arg_map:
-        model_file_name = optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
-        try:
-            FileUtils.validateExistingFile(model_file_name)
-        except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20006', _program_name, model_file_name,
-                                                       iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    elif CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH not in optional_arg_map:
+    if CommandLineArgUtil.MODEL_FILE_SWITCH not in optional_arg_map \
+            and CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH not in optional_arg_map:
         ex = exception_helper.create_cla_exception('WLSDPLY-04202', _program_name, CommandLineArgUtil.MODEL_FILE_SWITCH,
                                                    CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH)
         ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
@@ -152,13 +145,15 @@ def __encrypt_model_and_variables(model_context):
     """
     _method_name = '__encrypt_model_and_variables'
 
-    model_file = model_context.get_model_file()
-    try:
-        model = FileToPython(model_file, True).parse()
-    except TranslateException, te:
-        __logger.severe('WLSDPLY-04206', _program_name, model_file, te.getLocalizedMessage(), error=te,
-                        class_name=_class_name, method_name=_method_name)
-        return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
+    model_files = cla_utils.get_model_files(model_context.get_model_file())
+    models = dict()
+    for model_file in model_files:
+        try:
+            models[model_file] = FileToPython(model_file, True).parse()
+        except TranslateException, te:
+            __logger.severe('WLSDPLY-04206', _program_name, model_file, te.getLocalizedMessage(), error=te,
+                            class_name=_class_name, method_name=_method_name)
+            return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
 
     variable_file = model_context.get_variable_file()
     variables = None
@@ -173,35 +168,36 @@ def __encrypt_model_and_variables(model_context):
     aliases = Aliases(model_context, wlst_mode=WlstModes.OFFLINE)
     alias_helper = AliasHelper(aliases, __logger, ExceptionType.ENCRYPTION)
 
-    try:
-        passphrase = model_context.get_encryption_passphrase()
-        model_change_count, variable_change_count = \
-            encryption_utils.encrypt_model_dictionary(passphrase, model, alias_helper, variables)
-    except EncryptionException, ee:
-        __logger.severe('WLSDPLY-04208', _program_name, ee.getLocalizedMessage(), error=ee,
-                        class_name=_class_name, method_name=_method_name)
-        return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
-
-    if variable_change_count > 0:
+    for model_file, model in models.iteritems():
         try:
-            variable_helper.write_variables(_program_name, variables, variable_file)
-            __logger.info('WLSDPLY-04209', _program_name, variable_change_count, variable_file,
-                          class_name=_class_name, method_name=_method_name)
-        except VariableException, ve:
-            __logger.severe('WLSDPLY-20007', _program_name, variable_file, ve.getLocalizedMessage(), error=ve,
+            passphrase = model_context.get_encryption_passphrase()
+            model_change_count, variable_change_count = \
+                encryption_utils.encrypt_model_dictionary(passphrase, model, alias_helper, variables)
+        except EncryptionException, ee:
+            __logger.severe('WLSDPLY-04208', _program_name, ee.getLocalizedMessage(), error=ee,
                             class_name=_class_name, method_name=_method_name)
             return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
 
-    if model_change_count > 0:
-        try:
-            model_writer = PythonToFile(model)
-            model_writer.write_to_file(model_file)
-            __logger.info('WLSDPLY-04210', _program_name, model_change_count, model_file,
-                          class_name=_class_name, method_name=_method_name)
-        except TranslateException, te:
-            __logger.severe('WLSDPLY-04211', _program_name, model_file, te.getLocalizedMessage(), error=te,
-                            class_name=_class_name, method_name=_method_name)
-            return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
+        if variable_change_count > 0:
+            try:
+                variable_helper.write_variables(_program_name, variables, variable_file)
+                __logger.info('WLSDPLY-04209', _program_name, variable_change_count, variable_file,
+                              class_name=_class_name, method_name=_method_name)
+            except VariableException, ve:
+                __logger.severe('WLSDPLY-20007', _program_name, variable_file, ve.getLocalizedMessage(), error=ve,
+                                class_name=_class_name, method_name=_method_name)
+                return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
+
+        if model_change_count > 0:
+            try:
+                model_writer = PythonToFile(model)
+                model_writer.write_to_file(model_file)
+                __logger.info('WLSDPLY-04210', _program_name, model_change_count, model_file,
+                              class_name=_class_name, method_name=_method_name)
+            except TranslateException, te:
+                __logger.severe('WLSDPLY-04211', _program_name, model_file, te.getLocalizedMessage(), error=te,
+                                class_name=_class_name, method_name=_method_name)
+                return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
 
     return CommandLineArgUtil.PROG_OK_EXIT_CODE
 

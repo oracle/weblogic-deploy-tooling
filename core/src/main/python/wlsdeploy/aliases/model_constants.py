@@ -8,6 +8,8 @@ MODEL_LIST_DELIMITER = ','
 KSS_KEYSTORE_TYPE = 'kss'
 KSS_KEYSTORE_FILE_INDICATOR = 'kss:'
 
+# names used within model attributes
+FILE_URI = 'file:///'
 
 # names of model elements, alphabetically
 
@@ -26,6 +28,7 @@ OPSS_SECRETS = 'OPSSSecrets'
 RCU_PREFIX = 'rcu_prefix'
 RCU_SCHEMA_PASSWORD = 'rcu_schema_password'
 RCU_ADMIN_PASSWORD = 'rcu_admin_password'
+RCU_DB_USER = 'rcu_db_user'
 RCU_DB_CONN = 'rcu_db_conn_string'
 RCU_VARIABLES = 'rcu_variables'
 USE_ATP = 'useATP'
@@ -150,6 +153,7 @@ JMX = 'JMX'
 JMX_NOTIFICATION = 'JMXNotification'
 JNDI_NAME = 'JNDIName'
 JNDI_PROPERTY = 'JNDIProperty'
+JPA = 'JPA'
 JTA = 'JTA'
 JTA_PARTITION = 'JtaPartition'
 JTA_MIGRATABLE_TARGET = 'JTAMigratableTarget'

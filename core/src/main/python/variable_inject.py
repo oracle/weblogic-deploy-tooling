@@ -33,9 +33,6 @@ _program_name = 'injectVariables'
 _class_name = 'variable_inject'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 __wlst_mode = WlstModes.OFFLINE
-__kwargs = dict()
-__inserted = False
-__tmp_model_dir = None
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH
@@ -64,35 +61,8 @@ def __process_args(args):
 
     # determine if the model file was passed separately or requires extraction from the archive.
     cla_helper.validate_model_present(_program_name, argument_map)
-    __process_injector_file(argument_map)
-    __process_keywords_file(argument_map)
-    __process_properties_file(argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map)
-
-
-def __process_injector_file(optional_arg_map):
-    _method_name = '__process_injector_file'
-    if CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH in optional_arg_map:
-        injector = optional_arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH]
-        __logger.fine('WLSDPLY-19600', injector, class_name=_class_name, method_name=_method_name)
-        __kwargs[variable_injector.VARIABLE_INJECTOR_FILE_NAME_ARG] = injector
-
-
-def __process_keywords_file(optional_arg_map):
-    _method_name = '__process_keywords_file'
-    if CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH in optional_arg_map:
-        keywords = optional_arg_map[CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH]
-        __logger.fine('WLSDPLY-19601', keywords, class_name=_class_name, method_name=_method_name)
-        __kwargs[variable_injector.VARIABLE_KEYWORDS_FILE_NAME_ARG] = keywords
-
-
-def __process_properties_file(optional_arg_map):
-    _method_name = '__process_properties_file'
-    if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in optional_arg_map:
-        properties = optional_arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH]
-        __logger.fine('WLSDPLY-19602', properties, class_name=_class_name, method_name=_method_name)
-        __kwargs[variable_injector.VARIABLE_FILE_NAME_ARG] = properties
 
 
 def __inject(model, model_context):
@@ -101,13 +71,15 @@ def __inject(model, model_context):
     :param model_context: the model context
     :return: True if variables were inserted into model: The updated model
     """
-    __kwargs[variable_injector.VARIABLE_FILE_APPEND_ARG] = variable_injector.VARIABLE_FILE_UPDATE
-    inserted, variable_model, variable_file_name = VariableInjector(_program_name, model, model_context,
-                                                                    WebLogicHelper(
-                                                                        __logger).get_actual_weblogic_version()). \
-        inject_variables_keyword_file(**__kwargs)
+    version = WebLogicHelper(__logger).get_actual_weblogic_version()
+    injector = VariableInjector(_program_name, model, model_context, version)
+
+    inserted, variable_model, variable_file_name =\
+        injector.inject_variables_keyword_file(append_option=variable_injector.VARIABLE_FILE_UPDATE)
+
     if inserted:
         model = Model(variable_model)
+
     return inserted, model
 
 

@@ -15,6 +15,7 @@ import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import path_utils
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 # tool type may indicate variations in argument processing
@@ -48,6 +49,7 @@ class CommandLineArgUtil(object):
     PREVIOUS_MODEL_FILE_SWITCH = '-prev_model_file'
     VARIABLE_FILE_SWITCH       = '-variable_file'
     RCU_DB_SWITCH              = '-rcu_db'
+    RCU_DB_USER_SWITCH         = '-rcu_db_user'
     RCU_PREFIX_SWITCH          = '-rcu_prefix'
     # phony arg used as a key to store the password
     RCU_SYS_PASS_SWITCH        = '-rcu_sys_pass'
@@ -245,6 +247,10 @@ class CommandLineArgUtil(object):
             elif self.is_rcu_database_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_database_arg(value)
+                self._add_arg(key, value)
+            elif self.is_rcu_dbuser_key(key):
+                value, idx = self._get_arg_value(args, idx)
+                self._validate_rcu_dbuser_arg(value)
                 self._add_arg(key, value)
             elif self.is_rcu_prefix_key(key):
                 value, idx = self._get_arg_value(args, idx)
@@ -709,7 +715,7 @@ class CommandLineArgUtil(object):
         try:
             opss_wallet = JFileUtils.validateDirectoryName(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01616', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01646', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -797,6 +803,21 @@ class CommandLineArgUtil(object):
 
         if value is None or len(value) == 0:
             ex = exception_helper.create_cla_exception('WLSDPLY-01621')
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return
+
+    def get_rcu_dbuser_key(self):
+        return self.RCU_DB_USER_SWITCH
+
+    def is_rcu_dbuser_key(self, key):
+        return self.RCU_DB_USER_SWITCH == key
+
+    def _validate_rcu_dbuser_arg(self, value):
+        method_name = '_validate_rcu_dbuser_arg'
+        if value is None or len(value) == 0:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01622')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -1017,7 +1038,7 @@ class CommandLineArgUtil(object):
         try:
             variables = JFileUtils.validateDirectoryName(value)
         except JIllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-01616', value, iae.getLocalizedMessage(), error=iae)
+            ex = exception_helper.create_cla_exception('WLSDPLY-01647', value, iae.getLocalizedMessage(), error=iae)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -1029,17 +1050,8 @@ class CommandLineArgUtil(object):
     def _validate_target_arg(self, value):
         method_name = 'validate_kubernetes_script_file_switch'
 
-        target_path = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
-                                   value)
-        if not os.path.exists(target_path):
-            ex = exception_helper.create_cla_exception('WLSDPLY-01641', value)
-            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
         # Check if the target configuration file exists
-
-        target_configuration_file = os.path.join(os.environ.get('WLSDEPLOY_HOME', ''), 'lib', 'targets',
-                                                 value, 'target.json')
+        target_configuration_file = path_utils.find_config_path(os.path.join('targets', value, 'target.json'))
         if not os.path.exists(target_configuration_file):
             ex = exception_helper.create_cla_exception('WLSDPLY-01643', value, target_configuration_file)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
