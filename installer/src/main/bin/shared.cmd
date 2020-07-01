@@ -44,7 +44,7 @@ GOTO :ENDFUNCTIONS
     SET OPEN_JDK=false
 	SET ORACLE_ONE=0
 	SET ORACLE_TWO=0
-    FOR /F "tokens=1,5" %%x IN ('%JAVA_EXE% -version 2^>^&1') DO (
+    FOR /F "token\s=1,5" %%x IN ('%JAVA_EXE% -version 2^>^&1') DO (
         IF "%%x" == "OpenJDK" (
             SET OPEN_JDK=true
 	        IF EXIST %ORACLE_HOME%\wlserver\server\lib\weblogic.jar (
@@ -71,15 +71,15 @@ GOTO :ENDFUNCTIONS
 	    IF "%GRAALVM%"=="false" SET NOT_VALID=true
 	    IF %ORACLE_ONE% LSS 14 (
 		    SET NOT_VALID=true
-		) ELSE IF %ORACLE_ONE% EQU 14 IF %ORACLE_TWO% LSS 2 SET NOT_VALID=true
-	    SET JAVA_VENDOR=GraalVM
-	)
+        ) ELSE IF %ORACLE_ONE% EQU 14 IF %ORACLE_TWO% LSS 2 SET NOT_VALID=true
+        SET JAVA_VENDOR=GraalVM
+    )
 
     IF "%NOT_VALID%"=="true" (
-		IF "%GRAALVM%"=="true" (
-		   SET ORACLE_VERSION
-           ECHO JAVA_HOME %JAVA_HOME% contains GraalVM OpenJDK^, which is not supported in versions before 14.1.2 >&2
-	       EXIT /B 2
+        IF "%GRAALVM%"=="true" (
+		    SET ORACLE_VERSION
+            ECHO JAVA_HOME %JAVA_HOME% contains GraalVM OpenJDK^, which is not supported in versions before 14.1.2 >&2
+            EXIT /B 2
 		)
 	    ECHO JAVA_HOME %JAVA_HOME% contains OpenJDK^, which is not supported. >&2
         EXIT /B 2
