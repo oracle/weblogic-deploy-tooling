@@ -283,7 +283,7 @@ class PrepareModel:
     def __substitute_password_with_token(self, model_path, attribute_name, validation_location):
         """
         Add the secret for the specified attribute to the cache.
-        If the target specifies credential_as_secret, substitute the secret token into the model.
+        If the target specifies credentials_method: secrets, substitute the secret token into the model.
         :param model_path: text representation of the model path
         :param attribute_name: the name of the attribute or (property)
         :param validation_location: the model location

@@ -396,12 +396,12 @@ class VariableInjector(object):
             variable_value = _format_variable_value(attribute_value)
             credentials_method = self.__model_context.get_target_configuration().get_credentials_method()
 
-            # for credential_as_secret target, assign a secret token to the attribute
+            # for credentials_method: secrets, assign a secret token to the attribute
             if credentials_method == SECRETS_METHOD \
                     and variable_value == alias_constants.PASSWORD_TOKEN:
                 model[attribute] = target_configuration_helper.format_as_secret_token(variable_name)
 
-            # for config_override_secrets target, assign a placeholder password to the attribute
+            # for config_override_secrets, assign a placeholder password to the attribute
             elif credentials_method == CONFIG_OVERRIDES_SECRETS_METHOD \
                     and variable_value == alias_constants.PASSWORD_TOKEN:
                 model[attribute] = target_configuration_helper.PASSWORD_PLACEHOLDER
