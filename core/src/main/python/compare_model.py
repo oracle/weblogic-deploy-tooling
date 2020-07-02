@@ -45,13 +45,13 @@ from wlsdeploy.tool.validate.validator import Validator
 from oracle.weblogic.deploy.validate import ValidateException
 from wlsdeploy.exception.expection_types import ExceptionType
 
-VALIDATION_FAIL=2
-PATH_TOKEN='|'
-BLANK_LINE=""
+VALIDATION_FAIL = 2
+PATH_TOKEN = '|'
+BLANK_LINE = ""
 
 _program_name = 'compareModel'
 _class_name = 'compare_model'
-__logger = PlatformLogger('wlsdeploy.compare_model')
+_logger = PlatformLogger('wlsdeploy.compare_model')
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH
@@ -80,6 +80,7 @@ def __process_args(args):
     argument_map = cla_util.process_args(args, trailing_arg_count=2)
 
     return ModelContext(_program_name, argument_map)
+
 
 class ModelDiffer:
 
@@ -229,17 +230,16 @@ class ModelDiffer:
                 self._add_results(all_removed, True)
 
         except (KeyError, IndexError), ke:
-            __logger.severe('WLSDPLY-05709', str(ke)),
+            _logger.severe('WLSDPLY-05709', str(ke)),
             ex = exception_helper.create_pywlst_exception('WLSDPLY-05709', str(ke))
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         except AliasException, ae:
-            __logger.severe('WLSDPLY-05709', ae.getLocalizedMessage(),
+            _logger.severe('WLSDPLY-05709', ae.getLocalizedMessage(),
                             error=ae, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(ae.getLocalizedMessage(), error=ae)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-
 
     def _is_alias_folder(self, path):
         """
@@ -253,7 +253,7 @@ class ModelDiffer:
         aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE)
         location = LocationContext()
         last_token = path_tokens[-1]
-        alias_helper = AliasHelper(aliases, __logger, ExceptionType.COMPARE)
+        alias_helper = AliasHelper(aliases, _logger, ExceptionType.COMPARE)
 
         found = True
         name_token_next = False
@@ -356,7 +356,6 @@ class ModelDiffer:
                     else:
                         pointer_dict[parent_key]['!' + app_key] = dict()
 
-
     def merge_dictionaries(self, dictionary, new_dictionary):
         """
          Merge the values from the new dictionary to the existing one.
@@ -436,12 +435,18 @@ class ModelFileDiffer:
 
             variables.substitute(model_dictionary, variable_map, self.model_context)
 
-            return_code = validator.validate_in_tool_mode(model_dictionary,
-                                                      variables_file_name=None,
-                                                      archive_file_name=None)
+            # Run this utility in stand-alone mode instead of tool mode,
+            # which has stricter checks for the tools.
+            # An archive is not used with the compare models and if the model
+            # references a file in an archive, the compareModel will fail if
+            # running in the stricter tool mode (even with lax).
+            #
+            return_code = validator.validate_in_standalone_mode(model_dictionary,
+                                                                None,
+                                                                archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
-                __logger.severe('WLSDPLY-05705', model_file_name)
+                _logger.severe('WLSDPLY-05705', model_file_name)
                 return VALIDATION_FAIL
 
             current_dict = model_dictionary
@@ -455,26 +460,26 @@ class ModelFileDiffer:
                                             archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
-                __logger.severe('WLSDPLY-05705', model_file_name)
+                _logger.severe('WLSDPLY-05705', model_file_name)
                 return VALIDATION_FAIL
             past_dict = model_dictionary
         except ValidateException, te:
-            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
+            _logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
                             error=te, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(te.getLocalizedMessage(), error=te)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
         except VariableException, ve:
-            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, ve.getLocalizedMessage(),
+            _logger.severe('WLSDPLY-20009', _program_name, model_file_name, ve.getLocalizedMessage(),
                             error=ve, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(ve.getLocalizedMessage(), error=ve)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
         except TranslateException, pe:
-            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, pe.getLocalizedMessage(),
+            _logger.severe('WLSDPLY-20009', _program_name, model_file_name, pe.getLocalizedMessage(),
                             error=pe, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(pe.getLocalizedMessage(), error=pe)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
 
         obj = ModelDiffer(current_dict, past_dict)
@@ -513,7 +518,7 @@ class ModelFileDiffer:
                     fos.close()
                 if writer:
                     writer.close()
-                __logger.severe('WLSDPLY-05708', file_name, ioe.getLocalizedMessage(),
+                _logger.severe('WLSDPLY-05708', file_name, ioe.getLocalizedMessage(),
                                 error=ioe, class_name=_class_name, method_name=_method_name)
                 return 2
         else:
@@ -540,7 +545,7 @@ def debug(format_string, *arguments):
     if os.environ.has_key('DEBUG_COMPARE_MODEL_TOOL'):
         print format_string % (arguments)
     else:
-        __logger.finest(format_string, arguments)
+        _logger.finest(format_string, arguments)
 
 def main():
     """
@@ -549,9 +554,9 @@ def main():
     """
     _method_name = 'main'
 
-    __logger.entering(class_name=_class_name, method_name=_method_name)
+    _logger.entering(class_name=_class_name, method_name=_method_name)
     for index, arg in enumerate(sys.argv):
-        __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
+        _logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
     _outputdir = None
 
@@ -612,7 +617,7 @@ def main():
                         fos.close()
                     if writer:
                         writer.close()
-                    __logger.severe('WLSDPLY-05708', file_name, ioe.getLocalizedMessage(),
+                    _logger.severe('WLSDPLY-05708', file_name, ioe.getLocalizedMessage(),
                                     error=ioe, class_name=_class_name, method_name=_method_name)
         else:
             if len(compare_msgs) > 0:
@@ -631,23 +636,23 @@ def main():
     except CLAException, ex:
         exit_code = 2
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
-            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
+            _logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
         sys.exit(exit_code)
     except CompareException, ce:
         cla_helper.clean_up_temp_files()
-        __logger.severe('WLSDPLY-05704', ce.getLocalizedMessage())
+        _logger.severe('WLSDPLY-05704', ce.getLocalizedMessage())
         System.exit(2)
     except PyWLSTException, pe:
         cla_helper.clean_up_temp_files()
-        __logger.severe('WLSDPLY-05704', pe.getLocalizedMessage())
+        _logger.severe('WLSDPLY-05704', pe.getLocalizedMessage())
         System.exit(2)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         eeString = traceback.format_exception(exc_type, exc_obj, exc_tb)
         cla_helper.clean_up_temp_files()
-        __logger.severe('WLSDPLY-05704', eeString)
+        _logger.severe('WLSDPLY-05704', eeString)
         System.exit(2)
 
 def format_message(key, *args):
