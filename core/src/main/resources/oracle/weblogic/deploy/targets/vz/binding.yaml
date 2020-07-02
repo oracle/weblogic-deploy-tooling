@@ -8,7 +8,6 @@ spec:
   modelName: {{{domainPrefix}}}-model
   weblogicBindings:
     - name: "{{{domainPrefix}}}"
-      replicas: 3
   placement:
     - name: local
       namespaces:
