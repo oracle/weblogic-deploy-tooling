@@ -553,7 +553,7 @@ class ApplicationsDeployer(Deployer):
                     model_src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
                     model_targets = dictionary_utils.get_element(lib_dict, TARGET)
                     # Model Target could be a comma-delimited string or a list...
-                    if type(model_targets) is str:
+                    if type(model_targets) in [str, unicode]:
                         model_targets = model_targets.split(',')
 
                     existing_lib_targets = dictionary_utils.get_element(existing_lib_ref, 'target')

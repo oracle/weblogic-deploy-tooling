@@ -156,7 +156,7 @@ def merge_lists(existing_list, model_list, separator=',', return_as_string=True)
     method_name = 'merge_lists'
     _logger.entering(existing_list, model_list, separator, return_as_string, _class_name, method_name)
     if existing_list is not None and len(existing_list) > 0:
-        if type(existing_list) is str:
+        if type(existing_list) in [str, unicode]:
             existing_set = Set(existing_list.split(separator))
         else:
             existing_set = Set(existing_list)
@@ -164,7 +164,7 @@ def merge_lists(existing_list, model_list, separator=',', return_as_string=True)
         existing_set = Set()
 
     if model_list is not None and len(model_list) > 0:
-        if type(model_list) is str:
+        if type(model_list) in [str, unicode]:
             model_set = Set(model_list.split(separator))
         else:
             model_set = Set(model_list)
