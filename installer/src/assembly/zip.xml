@@ -36,18 +36,11 @@
         </fileSet>
 
         <fileSet>
-            <directory>../core/src/main/targetconfigs/k8s</directory>
-            <outputDirectory>lib/targets/k8s</outputDirectory>
+            <directory>../core/src/main/targetconfigs</directory>
+            <outputDirectory>lib/targets</outputDirectory>
             <includes>
                 <include>**/*.json</include>
-            </includes>
-        </fileSet>
-
-        <fileSet>
-            <directory>../core/src/main/python/wlsdeploy/tool/discover</directory>
-            <outputDirectory>lib/targets/k8s</outputDirectory>
-            <includes>
-                <include>k8s_operator_filter.py</include>
+                <include>**/*.py</include>
             </includes>
         </fileSet>
 

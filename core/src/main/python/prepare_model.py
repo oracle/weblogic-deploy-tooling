@@ -12,7 +12,6 @@
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.PrintWriter as JPrintWriter
 import os
-import re
 import sets
 import sys
 import traceback
@@ -28,16 +27,16 @@ from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
-from oracle.weblogic.deploy.aliases import AliasException
-from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.util import variable_injector_functions
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.tool.validate import validation_utils
@@ -46,8 +45,12 @@ from wlsdeploy.util import cla_helper
 from wlsdeploy.util import model
 from wlsdeploy.util import target_configuration_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
+from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
+from wlsdeploy.util.target_configuration import SECRETS_METHOD
+from wlsdeploy.util.target_configuration_helper import PASSWORD_PLACEHOLDER
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 
@@ -75,6 +78,7 @@ all_added = []
 all_removed = []
 compare_msgs = sets.Set()
 
+
 def __process_args(args, logger):
     """
     Process the command-line arguments.
@@ -86,27 +90,10 @@ def __process_args(args, logger):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     argument_map = cla_util.process_args(args)
 
-    __process_target_arg(argument_map, logger)
+    target_configuration_helper.process_target_arguments(argument_map)
 
     return ModelContext(_program_name, argument_map)
 
-
-def __process_target_arg(argument_map, logger):
-
-    _method_name = '__process_target_arg'
-
-    # if -target is specified -output_dir is required
-    output_dir = argument_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
-    if output_dir is None or os.path.isdir(output_dir) is False:
-        if not os.path.isdir(output_dir):
-            ex = exception_helper.create_cla_exception('WLSDPLY-01642', output_dir)
-            logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-
-    # Set the -variable_file parameter if not present with default
-    if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in argument_map:
-        argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = os.path.join(output_dir,
-                                                                             "k8s_variable.properties")
 
 class PrepareModel:
     """
@@ -241,7 +228,7 @@ class PrepareModel:
                 if valid_data_type in ['properties']:
                     valid_prop_infos = {}
                     properties = validation_utils.get_properties(value)
-                    self.__walk_properties(properties, valid_prop_infos, validation_location)
+                    self.__walk_properties(properties, valid_prop_infos, model_folder_path, validation_location)
 
                 else:
                     path_tokens_attr_keys = \
@@ -263,23 +250,23 @@ class PrepareModel:
 
     def __walk_attribute(self, attribute_name, attribute_value, valid_attr_infos, path_tokens_attr_keys,
                          model_folder_path, validation_location):
-        _method_name = '__validate_attribute'
+        _method_name = '__walk_attribute'
 
         if attribute_name in valid_attr_infos:
             expected_data_type = valid_attr_infos[attribute_name]
 
-            if expected_data_type == 'password':
+            if (expected_data_type == 'password') or (attribute_name == ADMIN_USERNAME):
                 self.__substitute_password_with_token(model_folder_path, attribute_name, validation_location)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    def __walk_properties(self, properties_dict, valid_prop_infos, validation_location):
+    def __walk_properties(self, properties_dict, valid_prop_infos, model_folder_path, validation_location):
         _method_name = '__walk_properties'
 
         for property_name, property_value in properties_dict.iteritems():
             valid_prop_infos[property_name] = validation_utils.get_python_data_type(property_value)
-            self.__walk_property(property_name, property_value, valid_prop_infos, validation_location)
-
+            self.__walk_property(property_name, property_value, valid_prop_infos, model_folder_path,
+                                 validation_location)
 
     def __walk_property(self, property_name, property_value, valid_prop_infos, model_folder_path, validation_location):
 
@@ -293,86 +280,64 @@ class PrepareModel:
             if expected_data_type == 'password':
                 self.__substitute_password_with_token(model_folder_path, property_name, validation_location)
 
-
-    def __format_variable_name(self, location, attribute):
-        _method_name = '__format_variable_name'
-        def __traverse_location(iterate_location, name_list, last_folder=None, last_folder_short=None):
-            current_folder = iterate_location.get_current_model_folder()
-            if current_folder == model_constants.DOMAIN:
-                if last_folder is not None:
-                    # If a short name is not defined for the top level folder, use the full name
-                    if len(last_folder_short) == 0:
-                        last_folder_short = last_folder
-                    name_list.insert(0, last_folder_short)
-            else:
-                current_folder = iterate_location.get_current_model_folder()
-                short_folder = self._aliases.get_folder_short_name(iterate_location)
-                if last_folder_short is not None:
-                    name_list.insert(0, last_folder_short)
-                try:
-                    if not self._aliases.is_artificial_type_folder(location) and \
-                            (self._aliases.supports_multiple_mbean_instances(iterate_location) or
-                             self._aliases.is_custom_folder_allowed(iterate_location)):
-                        name_token = self._aliases.get_name_token(iterate_location)
-                        name = iterate_location.get_name_for_token(name_token)
-                        name_list.insert(0, name)
-                        iterate_location.remove_name_token(name_token)
-                    iterate_location.pop_location()
-                except AliasException, ae:
-                    self._logger.warning('WLSDPLY-19531', str(location), attribute, ae.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
-                __traverse_location(iterate_location, name_list, current_folder, short_folder)
-            return name_list
-
-        short_list = __traverse_location(LocationContext(location), list())
-        short_name = ''
-        for node in short_list:
-            if node is not None and len(node) > 0:
-                short_name += node + '.'
-        short_name += attribute
-        _fake_name_replacement = re.compile('.fakename')
-        _white_space_replacement = re.compile('\s')
-        short_name = short_name.replace('/', '.')
-        short_name = _white_space_replacement.sub('-', short_name)
-        short_name = _fake_name_replacement.sub('', short_name)
-
-        return short_name
-
-
-    def __substitute_password_with_token(self, model_path, attribute_name, validation_location, model_context=None):
-
+    def __substitute_password_with_token(self, model_path, attribute_name, validation_location):
+        """
+        Add the secret for the specified attribute to the cache.
+        If the target specifies credentials_method: secrets, substitute the secret token into the model.
+        :param model_path: text representation of the model path
+        :param attribute_name: the name of the attribute or (property)
+        :param validation_location: the model location
+        """
         model_path_tokens = model_path.split('/')
         tokens_length = len(model_path_tokens)
-        variable_name = self.__format_variable_name(validation_location, attribute_name)
+        variable_name = variable_injector_functions.format_variable_name(validation_location, attribute_name,
+                                                                         self._aliases)
         if tokens_length > 1:
-            # For AdminPassword
+            credentials_method = self.model_context.get_target_configuration().get_credentials_method()
+
+            # by default, don't do any assignment to attribute
+            model_value = None
+
+            # use attribute name for admin password
             if model_path_tokens[0] == 'domainInfo:' and model_path_tokens[1] == '':
-                password_name = "@@SECRET:@@DOMAIN-UID@@-weblogic-credentials:%s@@" % (attribute_name.lower())
-                self.cache[attribute_name] = ''
+                cache_key = attribute_name
             else:
-                password_name = target_configuration_helper.format_as_secret(variable_name)
-                self.cache[variable_name] = ''
+                cache_key = variable_name
 
-            p_dict = self.current_dict
+            # for normal secrets, assign the secret name to the attribute
+            if credentials_method == SECRETS_METHOD:
+                model_value = target_configuration_helper.format_as_secret_token(cache_key)
+                self.cache[cache_key] = ''
 
-            for index in range(0, len(model_path_tokens)):
-                token = model_path_tokens[index]
-                if token == '':
-                    break
-                if token[-1] == ':':
-                    token=token[:-1]
-                p_dict = p_dict[token]
+            # for config override secrets, assign a placeholder password to the attribute.
+            # config overrides will be used to override the value in the target domain.
+            if credentials_method == CONFIG_OVERRIDES_SECRETS_METHOD:
+                model_value = PASSWORD_PLACEHOLDER
+                self.cache[cache_key] = ''
 
-            p_dict[attribute_name] = password_name
+            if model_value is not None:
+                p_dict = self.current_dict
+                for index in range(0, len(model_path_tokens)):
+                    token = model_path_tokens[index]
+                    if token == '':
+                        break
+                    if token[-1] == ':':
+                        token=token[:-1]
+                    p_dict = p_dict[token]
+
+                p_dict[attribute_name] = model_value
 
     def walk(self):
-
+        """
+        Replace password attributes in each model file with secret tokens, and write each model.
+        Generate a script to create the required secrets.
+        Create any additional output specified for the target environment.
+        """
         _method_name = "walk"
 
         model_file_name = None
 
         try:
-
             model_file_list = self.model_files.split(',')
             for model_file in model_file_list:
                 self.cache.clear()
@@ -396,7 +361,7 @@ class PrepareModel:
                                                           archive_file_name=None)
 
                 if return_code == Validator.ReturnCode.STOP:
-                    __logger.severe('WLSDPLY-05705', model_file_name)
+                    self._logger.severe('WLSDPLY-05705', model_file_name)
                     return VALIDATION_FAIL
 
                 self.current_dict = model_dictionary
@@ -414,7 +379,6 @@ class PrepareModel:
                 self.current_dict = self._apply_filter_and_inject_variable(self.current_dict, self.model_context,
                                                                            validator)
 
-
                 file_name = os.path.join(self.output_dir, os.path.basename(model_file_name))
                 fos = JFileOutputStream(file_name, False)
                 writer = JPrintWriter(fos, True)
@@ -426,26 +390,33 @@ class PrepareModel:
             for key in self.secrets_to_generate:
                 self.cache[key] = ''
 
-            target_configuration_helper.generate_k8s_script(self.model_context.get_kubernetes_variable_file(),
-                                                            self.cache)
+            # use a merged, substituted, filtered model to get domain name and create additional target output.
+            full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._alias_helper,
+                                                          "discover", WlstModes.OFFLINE)
+
+            target_configuration_helper.generate_k8s_script(self.model_context, self.cache, full_model_dictionary)
+
+            # create any additional outputs from full model dictionary
+            target_configuration_helper.create_additional_output(Model(full_model_dictionary), self.model_context,
+                                                                 self._alias_helper, ExceptionType.VALIDATE)
 
         except ValidateException, te:
-            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
-                            error=te, class_name=_class_name, method_name=_method_name)
+            self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
+                                error=te, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(te.getLocalizedMessage(), error=te)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
         except VariableException, ve:
-            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, ve.getLocalizedMessage(),
-                            error=ve, class_name=_class_name, method_name=_method_name)
+            self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, ve.getLocalizedMessage(),
+                                error=ve, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(ve.getLocalizedMessage(), error=ve)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
         except TranslateException, pe:
-            __logger.severe('WLSDPLY-20009', _program_name, model_file_name, pe.getLocalizedMessage(),
-                            error=pe, class_name=_class_name, method_name=_method_name)
+            self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, pe.getLocalizedMessage(),
+                                error=pe, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(pe.getLocalizedMessage(), error=pe)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
 
         return 0

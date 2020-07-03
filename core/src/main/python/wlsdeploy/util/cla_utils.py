@@ -16,6 +16,9 @@ import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
+from wlsdeploy.util.target_configuration import CREDENTIALS_METHOD
+from wlsdeploy.util.target_configuration import CREDENTIALS_METHODS
+from wlsdeploy.util.target_configuration import TargetConfiguration
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 # tool type may indicate variations in argument processing
@@ -1060,15 +1063,25 @@ class CommandLineArgUtil(object):
         else:
             try:
                 # verify the file is in proper format
-
                 file_handle = open(target_configuration_file)
                 config_dictionary = eval(file_handle.read())
-                if 'validation_method' in config_dictionary:
-                    if config_dictionary['validation_method'] not in [ 'strict', 'lax']:
-                        ex = exception_helper.create_cla_exception('WLSDPLY-01645', target_configuration_file)
-                        ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
-                        self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                        raise ex
+                target_configuration = TargetConfiguration(config_dictionary)
+                validation_method = target_configuration.get_validation_method()
+                if (validation_method is not None) and (validation_method not in ['strict', 'lax']):
+                    ex = exception_helper.create_cla_exception('WLSDPLY-01645', target_configuration_file)
+                    ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
+
+                credentials_method = target_configuration.get_credentials_method()
+                if (credentials_method is not None) and (credentials_method not in CREDENTIALS_METHODS):
+                    ex = exception_helper.create_cla_exception('WLSDPLY-01648', target_configuration_file,
+                                                               credentials_method, CREDENTIALS_METHOD,
+                                                               ', '.join(CREDENTIALS_METHODS))
+                    ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                    raise ex
+
             except SyntaxError, se:
                 ex = exception_helper.create_cla_exception('WLSDPLY-01644', target_configuration_file, se)
                 ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)

@@ -1,0 +1,25 @@
+apiVersion: verrazzano.io/v1beta1
+kind: VerrazzanoBinding
+metadata:
+  name: {{{domainPrefix}}}-binding
+  namespace: default
+spec:
+  description: "{{{domainName}}} binding"
+  modelName: {{{domainPrefix}}}-model
+  weblogicBindings:
+    - name: "{{{domainPrefix}}}"
+  placement:
+    - name: local
+      namespaces:
+        - name: default
+          components:
+            - name: {{{domainName}}}
+  ingressBindings:
+    - name: "{{{domainPrefix}}}-ingress"
+      dnsName: "todo.vz.oracledx.com"
+  databaseBindings:
+{{#databases}}
+    - name: "{{{databasePrefix}}}-db"
+      url: "{{{url}}}"
+      credentials: "{{{databaseCredentials}}}"
+{{/databases}}

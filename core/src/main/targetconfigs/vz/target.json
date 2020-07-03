@@ -1,0 +1,11 @@
+{
+    "model_filters" : {
+        "discover": [
+            { "name": "vz_prep", "path": "@@TARGET_CONFIG_DIR@@/vz_filter.py" }
+        ]
+    },
+    "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
+    "validation_method" : "lax",
+    "credentials_method" : "config_override_secrets",
+    "additional_output" : "vz"
+}

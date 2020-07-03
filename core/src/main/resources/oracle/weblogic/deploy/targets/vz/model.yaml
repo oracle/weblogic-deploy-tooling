@@ -1,0 +1,41 @@
+apiVersion: verrazzano.io/v1beta1
+kind: VerrazzanoModel
+metadata:
+  name: {{{domainPrefix}}}-model
+  namespace: default
+spec:
+  description: "{{{domainName}}} System"
+  weblogicDomains:
+    - name: "{{{domainName}}}"
+      domainCRValues:
+        domainUID: {{{domainUid}}}
+        domainHome: {{{domainHome}}}
+        image: {{{imageName}}}
+        webLogicCredentialsSecret:
+          name: {{{webLogicCredentialsSecret}}}
+        imagePullSecrets:
+          - name: ocir
+        logHomeEnabled: false
+        logHome: {{{domainHome}}}/logs
+        clusters:
+{{#clusters}}
+          - clusterName: {{{clusterName}}}
+            replicas: {{{replicas}}}
+{{/clusters}}
+        serverPod:
+          env:
+            - name: JAVA_OPTIONS
+              value: "-Dweblogic.StdoutDebugEnabled=false"
+            - name: USER_MEM_ARGS
+              value: "-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m "
+      connections:
+        - ingress:
+            - name: {{{domainPrefix}}}-ingress
+              match:
+                - uri:
+                    prefix: "/todo"
+        - database:
+{{#databases}}
+            - target: {{{databasePrefix}}}-db
+              datasourceName: {{{datasourceName}}}
+{{/databases}}

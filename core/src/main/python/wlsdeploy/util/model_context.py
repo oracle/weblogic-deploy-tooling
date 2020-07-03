@@ -12,6 +12,7 @@ from wlsdeploy.logging import platform_logger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
+from wlsdeploy.util.target_configuration import TargetConfiguration
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -80,6 +81,7 @@ class ModelContext(object):
         self._domain_resource_file = None
         self._output_dir = None
         self._target = None
+        self._target_configuration = None
         self._variable_injector_file = None
         self._variable_keywords_file = None
         self._variable_properties_file = None
@@ -498,28 +500,25 @@ class ModelContext(object):
         """
         return self._output_dir
 
-    def get_kubernetes_variable_file(self):
-        """
-        Return the generated k8s variable file name
-        :return: variable file name
-        """
-        return os.path.join(self._output_dir, "k8s_variable.properties")
-
     def get_target_configuration(self):
         """
-        Return the target configuration based on the target.
-        :return: target configuration
+        Return the target configuration object, based on the target name.
+        Lazy-load this the first time it is requested.
+        :return: target configuration object
         """
-        target_configuration = self._target
-        if target_configuration:
-            target_path = os.path.join('targets', target_configuration, 'target.json')
-            target_configuration_file = path_utils.find_config_path(target_path)
-            if os.path.exists(target_configuration_file):
-                file_handle = open(target_configuration_file)
-                configuration_dict = eval(file_handle.read())
-                return configuration_dict
+        if self._target_configuration is None:
+            configuration_dict = {}
 
-        return None
+            if self._target:
+                target_path = os.path.join('targets', self._target, 'target.json')
+                target_configuration_file = path_utils.find_config_path(target_path)
+                if os.path.exists(target_configuration_file):
+                    file_handle = open(target_configuration_file)
+                    configuration_dict = eval(file_handle.read())
+
+            self._target_configuration = TargetConfiguration(configuration_dict)
+
+        return self._target_configuration
 
     def get_target(self):
         return self._target
@@ -530,13 +529,6 @@ class ModelContext(object):
         :return: output directory
         """
         return self._target is not None
-
-    def get_kubernetes_injector_jsonpath(self):
-        """
-        Return the kubernetes script file
-        :return: kubernetes script file
-        """
-        return self._kubernetes_injector_jsonpath
 
     def is_encryption_manual(self):
         """

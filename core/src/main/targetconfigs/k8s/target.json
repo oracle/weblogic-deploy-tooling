@@ -6,5 +6,5 @@
       },
   "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
   "validation_method" : "lax",
-  "credential_as_secret" : "true"
+  "credentials_method" : "secrets"
 }

@@ -43,7 +43,7 @@ It has the format
       },
   "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
   "validation_method" : "lax",
-  "credential_as_secret" : "true"
+  "credentials_method" : "secrets"
 }
 ```
 
@@ -54,7 +54,7 @@ The json file has several attributes that can be customized
 | model_filters | Specify the filters json configuration for the target configuration.  This follows the same schema of [Model Filters](tool_filters.md). Note only discover is valid | 
 | variable_injectors | Specify the variable injector json configuration for the target configuration.  This follows the same schema of [Model Filters](tool_filters.md)|
 | validation method | lax only |
-| credential_as_secret | true only |
+| credentials_method | "secrets" or "config_override_secrets" |
 
 `"@@TARGET_CONFIG_DIR@@` resolves to the '$WDT_INSTALL/lib/target/<target value>' directory.  
 
