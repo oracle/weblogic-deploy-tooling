@@ -19,6 +19,8 @@ def filter_model(model):
 
 Model filters are configured by creating a `model_filters.json` file in the `WLSDEPLOY_HOME/lib` directory. This file has separate sections for filters to be applied for specific tools.
 
+Another option is to configure model filters in a [Custom Configuration](config/custom_configuration.md) directory. Create the `model_filters.json` file in the `$WDT_CUSTOM_CONFIG` directory. 
+
 This example configures two filters for the Create Domain Tool: `fix-password.py` and `no-mail.py`, and one filter for the Discover Domain tool.
 
 ```json

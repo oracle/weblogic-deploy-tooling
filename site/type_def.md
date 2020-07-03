@@ -76,7 +76,13 @@ WebLogic Server Deploy Tooling has an extensible domain type system.  The three 
 }
 ```
 
-This file tells the Create Domain Tool which templates to use to create the domain, which server groups to target, and even which RCU schemas to create, all based on the installed version of WebLogic Server.  New domain types can be defined by creating a new JSON file with the same structure in the `WLSDEPLOY_HOME/lib/typedefs` directory.  For example, to define a `SOA` domain type for 12.2.1.3, add the `WLSDEPLOY_HOME/lib/typedefs/SOA.json` file with with similar content, as shown below.
+This file tells the Create Domain Tool which templates to use to create the domain, which server groups to target, and even which RCU schemas to create, all based on the installed version of WebLogic Server.
+
+New domain types can be defined by creating a new JSON file with the same structure in the `WLSDEPLOY_HOME/lib/typedefs` directory.
+
+Another option is to create this file in the [Custom Configuration](config/custom_configuration.md) directory `$WDT_CUSTOM_CONFIG/typedefs`. 
+  
+For example, to define a `SOA` domain type for 12.2.1.3, add the `typedefs/SOA.json` file with similar content, as shown below.
 
 ```json
 {

@@ -9,21 +9,17 @@ from the model that are not compatible with the WebLogic Kubernetes Operator, re
      
 To use the Prepare Model Tool, simply run the `prepareModel` shell script with the correct arguments.  To see the list of valid arguments, simply run the shell script with the `-help` option (or with no arguments) for usage information.
 
-```
 To prepare model files, run the tool as follows:
-
-    $WLSDEPLOY_HOME/bin/prepareModel.sh -oracle_home /u01/wls12213 -model_file [command separed list of models] -target k8s -output_dir $HOME/k8soutput
-
+```
+$WLSDEPLOY_HOME/bin/prepareModel.sh -oracle_home /u01/wls12213 -model_file [command separed list of models] -target k8s -output_dir $HOME/k8soutput
 ```
 
-In the output directory, you will find
-
+In the output directory, you will find:
 ```
 model1.yaml
 model2.yaml
 create_k8s_secrets.sh
 k8s_variable.properties
-
 ```
 
 You can then customize the `k8s_variable.properties` and `create_k8s_secrets.sh` to provide environment specific values.
@@ -32,8 +28,9 @@ You can then customize the `k8s_variable.properties` and `create_k8s_secrets.sh`
 
 The '-target' parameter is referring to a file on the file system '$WLSDEPLOY_HOME/lib/target/<target value>/target.json'
 
-It has the format
+You also can configure a target in a [Custom Configuration](config/custom_configuration.md) directory, in `$WDT_CUSTOM_CONFIG/target/<target name>/target.json`. 
 
+It has the format:
 ```
 {
   "model_filters" : {
@@ -47,19 +44,21 @@ It has the format
 }
 ```
 
-The json file has several attributes that can be customized
+The JSON file has several attributes that can be customized
 
 | Name | Description |
 | --- | --- |
-| model_filters | Specify the filters json configuration for the target configuration.  This follows the same schema of [Model Filters](tool_filters.md). Note only discover is valid | 
-| variable_injectors | Specify the variable injector json configuration for the target configuration.  This follows the same schema of [Model Filters](tool_filters.md)|
+| model_filters | Specify the filters JSON configuration for the target configuration.  This follows the same schema of [Model Filters](tool_filters.md). Note only discover is valid | 
+| variable_injectors | Specify the variable injector JSON configuration for the target configuration.  This follows the same schema of [Model Filters](tool_filters.md)|
 | validation method | lax only |
 | credentials_method | "secrets" or "config_override_secrets" |
 
 `"@@TARGET_CONFIG_DIR@@` resolves to the '$WDT_INSTALL/lib/target/<target value>' directory.  
 
-If there is a need to customize your own filers or injectors, you can
+If there is a need to customize your own filters or injectors, you can
 
 1. ```mkdir $WDT_INSTALL/lib/target/mytarget```
-2. Create a file named target.json follow the schema above in $WLSDEPLOY_HOME/lib/target/mytarget
+2. Create a file named `target.json` following the schema above in $WLSDEPLOY_HOME/lib/target/mytarget
 3. Run the prepareModel command using the parameter -target mytarget
+
+Another option is to configure a new target in a [Custom Configuration](config/custom_configuration.md) directory. Create the `target/<target name>/target.json` file in the `$WDT_CUSTOM_CONFIG` directory. 
