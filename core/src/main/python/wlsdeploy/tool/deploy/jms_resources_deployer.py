@@ -122,11 +122,22 @@ class JmsResourcesDeployer(Deployer):
 
         # SAF imported destination may reference error handling, and vice versa
         self.topology_helper.create_placeholder_named_elements(location, SAF_ERROR_HANDLING, resource_nodes)
+        # Error destinations for Topics, Queues, Templates reference other Topics, Queues
+        self._create_placeholder_for_error_destinations(location, resource_nodes)
 
         for element_name in self.resource_elements:
             model_nodes = dictionary_utils.get_dictionary_element(resource_nodes, element_name)
             self._add_named_elements(element_name, model_nodes, location)
         return
+
+    def _create_placeholder_for_error_destinations(self, location, resource_nodes):
+        self.topology_helper.create_placeholder_named_elements(location, QUEUE, resource_nodes)
+        self.topology_helper.create_placeholder_named_elements(location, DISTRIBUTED_QUEUE, resource_nodes)
+        self.topology_helper.create_placeholder_named_elements(location, UNIFORM_DISTRIBUTED_QUEUE, resource_nodes)
+        self.topology_helper.create_placeholder_named_elements(location, TOPIC, resource_nodes)
+        self.topology_helper.create_placeholder_named_elements(location, DISTRIBUTED_TOPIC, resource_nodes)
+        self.topology_helper.create_placeholder_named_elements(location, UNIFORM_DISTRIBUTED_TOPIC, resource_nodes)
+        self.topology_helper.create_placeholder_named_elements(location, TEMPLATE, resource_nodes)
 
     def _add_jndi_properties(self, property_name_nodes, location):
         """
