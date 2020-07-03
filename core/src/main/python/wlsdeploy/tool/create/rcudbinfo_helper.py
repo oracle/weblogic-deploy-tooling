@@ -14,6 +14,7 @@ from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
+from wlsdeploy.aliases.model_constants import RCU_DB_USER
 from wlsdeploy.aliases.model_constants import RCU_VARIABLES
 from wlsdeploy.aliases.model_constants import USE_ATP
 
@@ -74,6 +75,12 @@ class RcuDbInfo(object):
             return self.rcu_properties_map[ATP_ADMIN_USER]
         else:
             return 'admin'
+
+    def get_rcu_db_user(self):
+        if RCU_DB_USER in self.rcu_properties_map:
+            return self.rcu_properties_map[RCU_DB_USER]
+        else:
+            return 'SYS'
 
     def get_rcu_variables(self):
         if RCU_VARIABLES in self.rcu_properties_map:

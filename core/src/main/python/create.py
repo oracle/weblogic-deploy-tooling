@@ -69,6 +69,7 @@ __optional_arguments = [
     CommandLineArgUtil.RUN_RCU_SWITCH,
     CommandLineArgUtil.RCU_SYS_PASS_SWITCH,
     CommandLineArgUtil.RCU_DB_SWITCH,
+    CommandLineArgUtil.RCU_DB_USER_SWITCH,
     CommandLineArgUtil.RCU_PREFIX_SWITCH,
     CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,

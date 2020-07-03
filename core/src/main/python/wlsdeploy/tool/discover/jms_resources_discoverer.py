@@ -10,6 +10,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import FILE_URI
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
@@ -332,10 +333,12 @@ class JmsResourcesDiscoverer(Discoverer):
                 else:
                     group_param_name = attributes[wlst_subdeployment]
                     if group_param_name is None:
-                        _logger.warning('WLSDPLY-06486', folder_name, self._alias_helper.get_model_folder_path(location),
+                        _logger.warning('WLSDPLY-06486', folder_name,
+                                        self._alias_helper.get_model_folder_path(location),
                                         class_name=_class_name, method_name=_method_name)
                     else:
-                        _logger.finer('WLSDPLY-06487', group_param_name, self._alias_helper.get_model_folder_path(location),
+                        _logger.finer('WLSDPLY-06487', group_param_name,
+                                      self._alias_helper.get_model_folder_path(location),
                                       class_name=_class_name, method_name=_method_name)
                         subfolder_result[group_param_name] = OrderedDict()
                         self._populate_model_parameters(subfolder_result[group_param_name], location)
@@ -401,6 +404,7 @@ class JmsResourcesDiscoverer(Discoverer):
                 _logger.finer('WLSDPLY-06495', server_name, file_name, class_name=_class_name, method_name=_method_name)
                 try:
                     new_name = archive_file.addForeignServerFile(server_name, File(file_name))
+                    new_name = FILE_URI + self._model_context.tokenize_path(self._convert_path(new_name))
                     _logger.info('WLSDPLY-06492', server_name, file_name, new_name, class_name=_class_name,
                                  method_name=_method_name)
                 except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:

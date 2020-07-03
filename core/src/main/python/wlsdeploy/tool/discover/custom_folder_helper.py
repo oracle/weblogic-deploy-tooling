@@ -362,14 +362,19 @@ def security_provider_interface_name(mbean_instance, mbean_interface_name):
     :param mbean_interface_name: interface for the MBean
     :return: provider class name returned from the massaged MBean name
     """
+    _method_name = 'security_provider_interface_name'
     try:
         getter = getattr(mbean_instance, 'getProviderClassName')
         result = getter()
+        if result.endswith('ProviderMBean'):
+            result = mbean_interface_name
+            _logger.warning('WLSDPLY-06779', str(mbean_instance), class_name=_class_name, method_name=_method_name)
     except (Exception, JException):
+        _logger.warning('WLSDPLY-06778', mbean_interface_name, class_name=_class_name, method_name=_method_name)
         result = mbean_interface_name
-        idx = mbean_interface_name.rfind('MBean')
-        if idx > 0:
-            result = result[:idx]
+    idx = result.rfind('MBean')
+    if idx > 0:
+        result = result[:idx]
     return result
 
 

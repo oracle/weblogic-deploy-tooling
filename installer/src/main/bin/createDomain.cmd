@@ -82,6 +82,7 @@ ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO              [-rcu_db ^<rcu_database^>
 ECHO               -rcu_prefix ^<rcu_prefix^>
+ECHO               -rcu_db_user ^<rcu_db_user^>
 ECHO              ]
 ECHO.
 ECHO     where:
@@ -127,6 +128,9 @@ ECHO                           type requires RCU).
 ECHO.
 ECHO         rcu_prefix      - the RCU prefix to use (if the domain type requires
 ECHO                           RCU).
+ECHO.
+ECHO         rcu_db_user    - the RCU dbUser to use (if the domain type requires
+ECHO                           RCU.  Default SYS if not specified).  This user must have SYSDBA privilege
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will

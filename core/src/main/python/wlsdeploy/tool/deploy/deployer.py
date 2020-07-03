@@ -178,6 +178,7 @@ class Deployer(object):
             if key in attribute_names and not key_excluded:
                 value = model_nodes[key]
                 if key in uses_path_tokens_attribute_names:
+                    value = deployer_utils.extract_from_uri(self.model_context, value)
                     self._extract_from_archive_if_needed(location, key, value)
 
                 wlst_merge_value = None
@@ -336,9 +337,10 @@ class Deployer(object):
 
         self.logger.entering(str(location), key, value, class_name=self._class_name, method_name=_method_name)
         result = False
-        if deployer_utils.is_path_into_archive(value):
+        short_value = deployer_utils.get_rel_path_from_uri(self.model_context, value)
+        if deployer_utils.is_path_into_archive(short_value):
             if self.archive_helper is not None:
-                result = self.__process_archive_entry(location, key, value)
+                result = self.__process_archive_entry(location, key, short_value)
             else:
                 path = self.alias_helper.get_model_folder_path(location)
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09110', key, path, value)
