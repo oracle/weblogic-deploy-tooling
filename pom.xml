@@ -42,7 +42,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <weblogic-deploy-installer-name>weblogic-deploy</weblogic-deploy-installer-name>
         <skipTests>false</skipTests>
-        <antlr.version>4.7.1</antlr.version>
+        <antlr.version>4.7.2</antlr.version>
 
         <sonar.sources>src/main</sonar.sources>
         <sonar.java.source>7</sonar.java.source>
@@ -71,7 +71,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>19.0</version>
+                <version>29.0-jre</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

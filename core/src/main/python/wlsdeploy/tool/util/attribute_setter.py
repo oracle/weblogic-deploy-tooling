@@ -793,7 +793,6 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if destination is not found
         """
         method_name = '__find_jms_destination_mbean'
-
         resource_location = self.__get_parent_location(location, JMS_RESOURCE)
         for type_name in self.__destination_type_names:
             mbean = self.__find_in_location(resource_location, type_name, destination_name)

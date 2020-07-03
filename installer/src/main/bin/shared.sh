@@ -34,14 +34,25 @@ javaSetup() {
     fi
 
     JVM_OUTPUT=`${JAVA_EXE} -version 2>&1`
+
     case "${JVM_OUTPUT}" in
+      *GraalVM*)
+        setOracleVersion
+        if [ -z "${ORACLE_VERSION}" ] || [ ${ORACLE_VER_ONE} -lt 14 ] || [ ${ORACLE_VER_ONE} -eq 14 ] && [ ${ORACLE_VER_THREE} -lt 2 ]; then
+          echo "JAVA_HOME ${JAVA_HOME} contains GraalVM OpenJDK, which is not supported before 14.1.2" >&2
+          exit 2
+        fi
+        ;;
       *OpenJDK*)
         echo "JAVA_HOME ${JAVA_HOME} contains OpenJDK, which is not supported" >&2
         exit 2
         ;;
+
     esac
 
+
     JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
+
     # set JVM version to the major version, unless equal to 1, like 1.8.0, then use the minor version
     JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $1 }'`
 
@@ -55,6 +66,13 @@ javaSetup() {
     else
       echo "JDK version is ${JVM_FULL_VERSION}"
     fi
+}
+
+setOracleVersion() {
+  ORACLE_VERSION=`${JAVA_HOME}/bin/java -cp $ORACLE_HOME/wlserver/server/lib/weblogic.jar weblogic.version | grep "WebLogic Server" | cut -d " " -f3 2>&1`
+  ORACLE_VER_ONE=`echo ${ORACLE_VERSION} | cut -d "." -f1`
+  ORACLE_VER_THREE=`echo ${ORACLE_VERSION} | cut -d "." -f3`
+  echo ORACLE_VERSION=$ORACLE_VERSION
 }
 
 checkArgs() {
