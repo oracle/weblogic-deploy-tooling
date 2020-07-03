@@ -1,8 +1,10 @@
 ## The Encrypt Model Tool
 
-**NOTE: To meet Oracle's security standards, the encryption algorithms require JDK 8 to execute.  While it is possible to run WLST with a newer JDK than what was used to install WebLogic Server, WLST in WebLogic Server 10.3.6 may not work properly with JDK 8, out of the box, due to JDK 6 JVM arguments that have been removed in JDK8.  You may need to modify the WLST start scripts to remove JVM arguments that have been removed between JDK 6 and JDK 8.**
+**NOTE: To meet Oracle's security standards, the encryption algorithms require JDK 8 to execute.**
 
 Models contain WebLogic Server domain configuration.  Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection.  When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.  Clear-text passwords are not conducive to storing configurations as source, so the Encrypt Model Tool gives the model author the ability to encrypt the passwords in the model and variable file using passphrase-based, reversible encryption.  When using a tool with a model containing encrypted passwords, the encryption passphrase must be provided, so that the tool can decrypt the password in memory to set the necessary WebLogic Server configuration (which supports its own encryption mechanism based on a domain-specific key).  While there is no requirement to use the Oracle WebLogic Server Deploy Tooling encryption mechanism, it is highly recommended because storing clear text passwords on disk is never a good idea.
+
+The Create, Update and Deploy tools can take a set of models. The Encrypt model will encrypt a set of models. Each model is encrypted using the same passphrase and written back to its original location.
 
 **NOTE: WebLogic Server Deploy Tooling also supports the use of domain-encrypted passwords directly in the model. The Encrypt Model Tool should not be used in tandem with this method.**  
 
