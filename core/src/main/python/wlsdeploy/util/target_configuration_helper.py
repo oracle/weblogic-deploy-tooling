@@ -37,8 +37,9 @@ ADMIN_PASSWORD_TAG = "<admin-password>"
 USER_TAG = "<user>"
 PASSWORD_TAG = "<password>"
 
-# password placeholder for config override secrets
-PASSWORD_PLACEHOLDER = "password"
+# placeholders for config override secrets
+ADMINUSER_PLACEHOLDER = "weblogic"
+PASSWORD_PLACEHOLDER = "password1"
 
 _jdbc_pattern = re.compile("^JDBC\\.([ \\w.-]+)\\.PasswordEncrypted$")
 
