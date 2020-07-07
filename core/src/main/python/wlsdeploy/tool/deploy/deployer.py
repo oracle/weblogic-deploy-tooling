@@ -228,6 +228,11 @@ class Deployer(object):
         if wlst_key is None:
             return None
 
+        # online WLST may return a default value, even if the attribute was not set.
+        # don't merge with a value that was not set (example: JDBCDataSourceParams: JNDINames).
+        if not self.wlst_helper.is_set(wlst_key):
+            return None
+
         if key in lsa_required_attribute_names:
             attribute_map = self.wlst_helper.lsa()
             if wlst_key in attribute_map:
