@@ -50,6 +50,7 @@ from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
 from wlsdeploy.util.target_configuration import SECRETS_METHOD
+from wlsdeploy.util.target_configuration_helper import ADMINUSER_PLACEHOLDER
 from wlsdeploy.util.target_configuration_helper import PASSWORD_PLACEHOLDER
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
@@ -312,7 +313,10 @@ class PrepareModel:
             # for config override secrets, assign a placeholder password to the attribute.
             # config overrides will be used to override the value in the target domain.
             if credentials_method == CONFIG_OVERRIDES_SECRETS_METHOD:
-                model_value = PASSWORD_PLACEHOLDER
+                if attribute_name == ADMIN_USERNAME:
+                    model_value = ADMINUSER_PLACEHOLDER
+                else:
+                    model_value = PASSWORD_PLACEHOLDER
                 self.cache[cache_key] = ''
 
             if model_value is not None:

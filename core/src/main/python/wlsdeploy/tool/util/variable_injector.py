@@ -20,6 +20,7 @@ import wlsdeploy.util.variables as variables
 from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
@@ -401,10 +402,13 @@ class VariableInjector(object):
                     and variable_value == alias_constants.PASSWORD_TOKEN:
                 model[attribute] = target_configuration_helper.format_as_secret_token(variable_name)
 
-            # for config_override_secrets, assign a placeholder password to the attribute
+            # for config_override_secrets, assign a placeholder value to the attribute
             elif credentials_method == CONFIG_OVERRIDES_SECRETS_METHOD \
                     and variable_value == alias_constants.PASSWORD_TOKEN:
-                model[attribute] = target_configuration_helper.PASSWORD_PLACEHOLDER
+                if attribute == ADMIN_USERNAME:
+                    model[attribute] = target_configuration_helper.ADMINUSER_PLACEHOLDER
+                else:
+                    model[attribute] = target_configuration_helper.PASSWORD_PLACEHOLDER
 
             else:
                 model[attribute] = _format_as_property(variable_name)
