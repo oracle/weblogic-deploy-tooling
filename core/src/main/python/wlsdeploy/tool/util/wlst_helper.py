@@ -94,6 +94,34 @@ class WlstHelper(object):
         self.__logger.finest('WLSDPLY-00006', attribute, class_name=self.__class_name, method_name=_method_name)
         return result
 
+    def is_set(self, attribute):
+        """
+        Determine if the specified attribute has been set.
+        In online WLST, attributes may return values that did not originate in config.xml (not set).
+        For offline WLST, return True always.
+        :param attribute: name of the WLST attribute
+        :return: True if the value has been set or in offline mode, False otherwise
+        :raises: Exception for the specified tool type: if a WLST error occurs
+        """
+        _method_name = 'is_set'
+        self.__logger.finest('WLSDPLY-00124', attribute, class_name=self.__class_name, method_name=_method_name)
+
+        if not self.__check_online_connection():
+            return True
+
+        try:
+            mbean_path = self.get_pwd()
+            mbean = self.get_mbean_for_wlst_path(mbean_path)
+            result = mbean.isSet(attribute)
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00125', attribute,
+                                                    self.__get_exception_mode(e), _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+
+        self.__logger.finest('WLSDPLY-00126', attribute, class_name=self.__class_name, method_name=_method_name)
+        return result
+
     def set_if_needed(self, wlst_name, wlst_value, masked=False):
         """
         Set the WLST attribute to the specified value if the name and value are not None.
