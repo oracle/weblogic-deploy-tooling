@@ -95,9 +95,9 @@ ECHO         model_file      - the location of the model file to use.  This can 
 ECHO                           comma-separated list of model locations, where each successive model
 ECHO                           layers on top of the previous ones.
 ECHO.
-ECHO         variable_file   - the location of the property file containing
-ECHO                           the variable values for all variables used in
-ECHO                           the model
+ECHO         variable_file   - the location of the property file containing the values for variables used in
+ECHO                           the model. This can also be specified as a comma-separated list of property files,
+ECHO                           where each successive set of properties layers on top of the previous ones.
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will
