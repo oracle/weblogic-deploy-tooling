@@ -21,6 +21,7 @@ from wlsdeploy.util import path_utils
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
@@ -39,33 +40,41 @@ _secret_dir_pairs_variable="WDT_MODEL_SECRETS_NAME_DIR_PAIRS"
 _secret_token_map = None
 
 
-def load_variables(file_path):
+def load_variables(file_path, allow_multiple_files=False):
     """
-    Load a dictionary of variables from the specified file.
+    Load a dictionary of variables from the specified file(s).
     :param file_path: the file from which to load properties
+    :param allow_multiple_files: if True, allow a comma-separated list of variable files
     :return the dictionary of variables
     :raises VariableException if an I/O error occurs while loading the variables from the file
     """
     method_name = "load_variables"
 
-    variable_map = {}
-    props = Properties()
-    input_stream = None
-    try:
-        input_stream = FileInputStream(file_path)
-        props.load(input_stream)
-        input_stream.close()
-    except IOException, ioe:
-        ex = exception_helper.create_variable_exception('WLSDPLY-01730', file_path,
-                                                        ioe.getLocalizedMessage(), error=ioe)
-        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-        if input_stream is not None:
-            input_stream.close()
-        raise ex
+    if allow_multiple_files:
+        paths = file_path.split(CommandLineArgUtil.MODEL_FILES_SEPARATOR)
+    else:
+        paths = [file_path]
 
-    for key in props.keySet():
-        value = props.getProperty(key)
-        variable_map[key] = value
+    variable_map = {}
+
+    for path in paths:
+        props = Properties()
+        input_stream = None
+        try:
+            input_stream = FileInputStream(path)
+            props.load(input_stream)
+            input_stream.close()
+        except IOException, ioe:
+            ex = exception_helper.create_variable_exception('WLSDPLY-01730', path, ioe.getLocalizedMessage(),
+                                                            error=ioe)
+            _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+            if input_stream is not None:
+                input_stream.close()
+            raise ex
+
+        for key in props.keySet():
+            value = props.getProperty(key)
+            variable_map[key] = value
 
     return variable_map
 
