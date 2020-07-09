@@ -17,11 +17,13 @@ import sets
 import sys, os, traceback
 
 from java.lang import System
+import java.io.File as JFile
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.IOException as JIOException
 import java.io.PrintWriter as JPrintWriter
 import oracle.weblogic.deploy.util.TranslateException as TranslateException
 from oracle.weblogic.deploy.util import CLAException
+from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.compare import CompareException
 from oracle.weblogic.deploy.exception import ExceptionHelper
@@ -416,7 +418,7 @@ class ModelFileDiffer:
         # validate models first
 
         try:
-            if os.path.splitext(self.current_dict_file)[1].lower() == ".yaml":
+            if FileUtils.isYamlFile(JFile(os.path.splitext(self.current_dict_file)[1].lower())):
                 model_file_name = self.current_dict_file
                 FileToPython(model_file_name, True).parse()
                 model_file_name = self.past_dict_file
@@ -572,20 +574,16 @@ def main():
             if os.path.isdir(f):
                 raise CLAException("Model %s is a directory" % f)
 
-        model1_ext = os.path.splitext(model1)[1]
-        model2_ext = os.path.splitext(model2)[1]
+        model1_file = JFile(model1)
+        model2_file = JFile(model2)
 
-        validated = False
-        for ext in [ '.yaml', '.json' ]:
-            if model1_ext.lower() == ext:
-                if model2_ext.lower() != model1_ext.lower():
-                    raise CLAException("Model %s is not a %s file " % model2, ext)
-                else:
-                    validated = True
-                    break
-
-        if not validated:
+        if not (FileUtils.isYamlFile(model1_file) or FileUtils.isJsonFile(model1_file)):
             raise CLAException("Model extension must be either yaml or json")
+
+        if not (FileUtils.isYamlFile(model1_file) and FileUtils.isYamlFile(model2_file)
+            or FileUtils.isJsonFile(model1_file) and FileUtils.isJsonFile(model2_file)):
+            ext = os.path.splitext(model1)[1]
+            raise CLAException("Model %s is not a %s file " % (model2, ext))
 
         obj = ModelFileDiffer(model1, model2, model_context, _outputdir)
         rc = obj.compare()
