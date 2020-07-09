@@ -114,8 +114,8 @@ def write_ordered_variables(program_name, variable_map, file_path, append=False)
             pw.println(formatted)
         pw.close()
     except IOException, ioe:
-        _logger.fine('WLSDPLY-20007', file_path, ioe.getLocalizedMessage())
-        ex = exception_helper.create_variable_exception('WLSDPLY-20007', file_path,
+        _logger.fine('WLSDPLY-20007', program_name, file_path, ioe.getLocalizedMessage())
+        ex = exception_helper.create_variable_exception('WLSDPLY-20007', program_name, file_path,
                                                         ioe.getLocalizedMessage(), error=ioe)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         if pw is not None:
