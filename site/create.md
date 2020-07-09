@@ -30,3 +30,24 @@ If the model or variables file contains encrypted passwords, add the `-use_encry
 ### Using Multiple Models
 
 The Create Domain Tool supports the use of multiple models, as described in [Using Multiple Models](../README.md#using-multiple-models).
+
+### Development Domain and "boot.properties"
+
+When creating a development domain, WDT provides the convenience of creating a boot.properties for each of the servers in the domain. The boot.properties will contain encrypted values of the Admin Server username and password. If the Admin server or managed server has a boot.properties, WebLogic Server will bypass the prompt for credentials when starting the server, instead using the credentials from the boot.properties.
+
+A domain is considered production mode if the ServerStartMode option is set to 'prod' and/or the domain ProductionModeEnabled is set to true. The default value for both of these attributes is development.
+
+The boot.properties is stored in the domain home on the machine where WDT runs. It is stored for each server as <domain_home>/servers/<server_name>/security/boot.properties.
+
+The following is a model example with both attributes explicitly set to development.
+
+```yaml
+domainInfo:
+    AdminUserName: weblogic
+    AdminPassword: welcome1
+    ServerStartMode: dev
+topology:
+    Name: "my-domain"
+    AdminServerName: "admin-server"
+    ProductionModeEnabled: false
+```
