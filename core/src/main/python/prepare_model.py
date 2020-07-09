@@ -36,6 +36,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import variable_injector_functions
 from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
@@ -44,6 +45,7 @@ from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import model
 from wlsdeploy.util import target_configuration_helper
+from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
@@ -455,8 +457,10 @@ class PrepareModel:
                     variable_map = validator.load_variables(self.model_context.get_variable_file())
                     self.cache.update(variable_map)
 
-        variable_injector.inject_variables_keyword_file()
-        return model
+        inserted, variable_model, variable_file_name = variable_injector.inject_variables_keyword_file()
+        # return variable_model - if writing the variables file failed, this will be the original model.
+        # a warning is issued in inject_variables_keyword_file() if that was the case.
+        return variable_model
 
 def debug(format_string, *arguments):
     """
@@ -480,6 +484,8 @@ def main():
     for index, arg in enumerate(sys.argv):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
+    # create a minimal model for summary logging
+    model_context = model_context_helper.create_exit_context(_program_name)
     _outputdir = None
 
     try:
@@ -495,7 +501,7 @@ def main():
 
         obj = PrepareModel(model1, model_context, __logger, _outputdir)
         rc = obj.walk()
-        System.exit(rc)
+        tool_exit.end(model_context, rc)
 
     except CLAException, ex:
         exit_code = 2
@@ -503,21 +509,21 @@ def main():
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
-        sys.exit(exit_code)
+        tool_exit.end(model_context, exit_code)
     except CompareException, ce:
         cla_helper.clean_up_temp_files()
         __logger.severe('WLSDPLY-05704', ce.getLocalizedMessage())
-        System.exit(2)
+        tool_exit.end(model_context, 2)
     except PyWLSTException, pe:
         cla_helper.clean_up_temp_files()
         __logger.severe('WLSDPLY-05704', pe.getLocalizedMessage())
-        System.exit(2)
+        tool_exit.end(model_context, 2)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         eeString = traceback.format_exception(exc_type, exc_obj, exc_tb)
         cla_helper.clean_up_temp_files()
         __logger.severe('WLSDPLY-05704', eeString)
-        System.exit(2)
+        tool_exit.end(model_context, 2)
 
 def format_message(key, *args):
     """
