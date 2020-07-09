@@ -33,7 +33,7 @@ The Create Domain Tool supports the use of multiple models, as described in [Usi
 
 ### Development Domain and `boot.properties`
 
-When creating a development domain, WDT provides the convenience of creating a `boot.properties` for each of the servers in the domain. The `boot.properties` will contain encrypted values of the Administration Server username and password. When the Administration Server or Managed Server is started, WebLogic Server will bypass the prompt for credentials, and instead use the credentials from the `boot.properties`.
+When creating a development domain, WDT provides the convenience of creating a `boot.properties` for each of the servers in the domain. The `boot.properties` will contain encrypted values of the Administration Server user name and password. When the Administration Server or Managed Server is started, WebLogic Server will bypass the prompt for credentials, and instead use the credentials from the `boot.properties`.
 
 A domain is in production mode if the `ServerStartMode` option is set to `prod` or the domain `ProductionModeEnabled` is set to `true`. The default value for both of these attributes is development mode.
 
