@@ -236,7 +236,7 @@
         "Log": {
             "wlst_type": "Log",
             "child_folders_type": "single_unpredictable",
-            "default_name_value": "%SERVERTEMPLATE%",
+            "default_name_value": "${serverName}",
             "version": "[12.1.2,)",
             "folders": {},
             "attributes": {
