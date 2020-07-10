@@ -44,7 +44,7 @@ GOTO :ENDFUNCTIONS
     SET OPEN_JDK=false
     SET ORACLE_ONE=0
     SET ORACLE_TWO=0
-    FOR /F "token\s=1,5" %%x IN ('%JAVA_EXE% -version 2^>^&1') DO (
+    FOR /F "tokens=1,5" %%x IN ('%JAVA_EXE% -version 2^>^&1') DO (
         IF "%%x" == "OpenJDK" (
             SET OPEN_JDK=true
             IF EXIST %ORACLE_HOME%\wlserver\server\lib\weblogic.jar (
