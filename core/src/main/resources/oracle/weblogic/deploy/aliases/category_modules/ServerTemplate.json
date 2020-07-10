@@ -236,7 +236,7 @@
         "Log": {
             "wlst_type": "Log",
             "child_folders_type": "single_unpredictable",
-            "default_name_value": "%SERVERTEMPLATE%",
+            "default_name_value": "${serverName}",
             "version": "[12.1.2,)",
             "folders": {},
             "attributes": {
@@ -1148,6 +1148,8 @@
             "folders": {
                 "WebServerLog": {
                     "wlst_type": "WebServerLog",
+                    "child_folders_type": "single_unpredictable",
+                    "default_name_value": "%SERVERTEMPLATE_WEBSERVER%",
                     "version": "[12.1.2,)",
                     "folders": {},
                     "attributes": {
@@ -1176,7 +1178,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebServer/%SERVERTEMPLATE_WEBSERVER%/WebServerLog/${NO_NAME_0:%SERVERTEMPLATE%}"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebServer/%SERVERTEMPLATE_WEBSERVER%/WebServerLog/%WEBSERVERLOG%"
                     }
                 }
             },
