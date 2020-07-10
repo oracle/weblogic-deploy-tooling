@@ -126,17 +126,21 @@ def validate_variable_file_exists(program_name, argument_map):
     """
     method_name = 'validate_variable_file_exists'
     if CommandLineArgUtil.VARIABLE_FILE_SWITCH in argument_map:
+        result_files = []  # type: list
         value = argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
         files = value.split(CommandLineArgUtil.MODEL_FILES_SEPARATOR)
         for file in files:
             try:
-                FileUtils.validateExistingFile(file)
+                variable_file = FileUtils.validateExistingFile(file)
+                result_files.append(variable_file.getAbsolutePath())
             except IllegalArgumentException, iae:
                 ex = exception_helper.create_cla_exception('WLSDPLY-20031', program_name, file,
                                                            iae.getLocalizedMessage(), error=iae)
                 ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=method_name)
                 raise ex
+
+        argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = ",".join(result_files)
     return
 
 
