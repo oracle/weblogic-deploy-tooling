@@ -117,19 +117,30 @@ def validate_model_present(program_name, optional_arg_map):
     return
 
 
-def validate_variable_file_exists(program_name, optional_arg_map):
-    method_name = '_validate_variable_file_arg'
-    if CommandLineArgUtil.VARIABLE_FILE_SWITCH in optional_arg_map:
-        value = optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
-        try:
-            variable_file = FileUtils.validateExistingFile(value)
-        except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20031', program_name, value,
-                                                       iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
-            __logger.throwing(ex, class_name=_class_name, method_name=method_name)
-            raise ex
-        optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = variable_file.getAbsolutePath()
+def validate_variable_file_exists(program_name, argument_map):
+    """
+    Validate that the variable file(s) exist.
+    Assume that the caller allows multiple variables files.
+    :param program_name: the name of the tool
+    :param argument_map: the program arguments
+    """
+    method_name = 'validate_variable_file_exists'
+    if CommandLineArgUtil.VARIABLE_FILE_SWITCH in argument_map:
+        result_files = []  # type: list
+        value = argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
+        files = value.split(CommandLineArgUtil.MODEL_FILES_SEPARATOR)
+        for file in files:
+            try:
+                variable_file = FileUtils.validateExistingFile(file)
+                result_files.append(variable_file.getAbsolutePath())
+            except IllegalArgumentException, iae:
+                ex = exception_helper.create_cla_exception('WLSDPLY-20031', program_name, file,
+                                                           iae.getLocalizedMessage(), error=iae)
+                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+                __logger.throwing(ex, class_name=_class_name, method_name=method_name)
+                raise ex
+
+        argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = ",".join(result_files)
     return
 
 
@@ -204,7 +215,8 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
     variable_map = {}
     try:
         if model_context.get_variable_file():
-            variable_map = variables.load_variables(model_context.get_variable_file())
+            # callers of this method allow multiple variable files
+            variable_map = variables.load_variables(model_context.get_variable_file(), allow_multiple_files=True)
     except VariableException, ex:
         __logger.severe('WLSDPLY-20004', program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
