@@ -3,7 +3,7 @@
 Many organizations are using WebLogic Server, with or without other Oracle Fusion Middleware components, to run their enterprise applications.  As more and more organizations move toward Continuous Delivery of their applications, the importance of automated testing grows.  Automating WebLogic Server domain creation and application deployment with hand-coded WLST scripts is challenging.  After those scripts exist for a project, they must be maintained as the project evolves.  The motivation for the Oracle WebLogic Server Deploy Tooling project is to remove the need for most users to write WLST scripts for routine domain creation and application deployment tasks.  Instead, the project team can write a declarative, metadata model describing the domain and applications (with their dependent resources), and use one or more of the single-purpose tools provided that perform domain lifecycle operations based on the content of the model.  The goal is to make it easy to stand up environments and perform domain lifecycle operations in a repeatable fashion based on a metadata model that can be treated as source and evolve as the project evolves.
 
 ## Table of Contents
-- [Features](#features-of-the-oracle-weblogic-server-deploy-tooling)
+- Features
     - [Create Domain Tool](site/create.md)
     - [Update Domain Tool](site/update.md)
     - [Deploy Applications Tool](site/deploy.md)
@@ -14,74 +14,38 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Prepare Model Tool](site/prepare.md)
     - [Extract Domain Resource Tool](site/kubernetes.md)
     - [Model Help Tool](site/model_help.md)
-- [The Model](#the-metadata-model)
+- The Model
     - [Top-Level Sections](#top-level-model-sections)
     - [Simple Example](#simple-example)
     - [Model Names](#model-names)
     - [Model Semantics](#model-semantics)
     - [Declaring Named MBeans to Delete](#declaring-named-mbeans-to-delete)
     - [Using Multiple Models](#using-multiple-models)
-    - [Administration Server Configuration](site/admin_server.md)
-    - [Model Security](site/security.md)
-      - [Modeling Security Providers](site/security_providers.md)
-          - [JRF Trust Service Identity Asserter](site/security_providers.md#trust-service-identity-asserter)
-          - [Custom Security Providers](site/security_providers.md#custom-security-providers)
-      - [Modeling WebLogic Users, Groups, and Roles](site/security_users_groups_roles.md)
-    - [ODL Configuration](site/odl_configuration.md)
-    - [Configuring Oracle HTTP Server (OHS)](site/ohs_configuration.md)
-    - [Configuring Oracle WebLogic Server Kubernetes Operator](site/kubernetes.md)
-    - [Model Samples](site/samples/samples.md)
     - [The Archive File](site/archive.md)
-- Configuration
-    - [Custom Configuration](site/config/custom_configuration.md)
+- Model Use Cases
+    - [Customizing the Administration Server](site/admin_server.md)
+    - [Modeling a Configured Cluster](site/samples/configured_cluster.md)
+    - [Modeling a JDBC Data Source](site/samples/jdbc.md)
+    - [Modeling a Work Manager](site/samples/work_manager.md)
+    - [Modeling Security Providers](site/security_providers.md)
+    - [Modeling WebLogic Users, Groups, and Roles](site/security_users_groups_roles.md)
+    - [Modeling ODL](site/odl_configuration.md)
+    - [Modeling Oracle HTTP Server (OHS)](site/ohs_configuration.md)
+    - [Targeting Server Groups](site/server_groups.md)
+    - [Using WDT with Oracle WebLogic Server Kubernetes Operator](site/kubernetes.md)
+- Tool Configuration
     - [Model Filters](site/tool_filters.md)
     - [Type Definitions](site/type_def.md)
     - [Variable Injection](site/variable_injection.md)
+    - [Custom Configuration](site/config/custom_configuration.md)
+- [Supported WLS Versions](site/wls_versions.md)
 - [Downloading and Installing](#downloading-and-installing-the-software)
 - [Developer Guide](site/developer/developer_guide.md)
 - [Known Issues](KnownIssues.md)
 
 ## Features of the Oracle WebLogic Server Deploy Tooling
 
-The Oracle WebLogic Server Deploy Tooling is designed to support a wide range of WebLogic Server versions. This is possible because the underlying framework, upon which the tools are built, embeds a knowledge base that encodes information about WLST folders and attributes, making it possible for the tooling to know:
-
-- The folder structures
-- Which folders are valid in the version of WLST being used
-- How to create folders
-- Which attributes a folder has in the version of WLST being used
-- The attribute data types and how to get/set their values (which isn't as easy as it might sound)
-- The differences between WLST online and WLST offline for working with folders and attributes
-
-### Supported WebLogic Server Versions
-The following table specifies the supported WebLogic Server versions, along with the JDK versions, that must be used to run the WDT tool. You must set the `JAVA_HOME` environment variable to specify a JDK version different from the system default version.
-
- To create a domain with the proper JDK (particularly if the `JAVA_HOME` is different from the one which will be used by the target domain), set the domain `JavaHome` attribute in the domain model.
-
- Note that the WDT Encryption Model Tool used to encrypt and decrypt clear text passwords in the model and variable files, requires WDT to run with a minimum JDK version of 1.8.
-
-  | WebLogic Server Version | Tool JDK Version |
-  |--------------------------|-------------------|
-  | 10.3.6                   | 1.7               |
-  | 12.1.1                   | 1.7, 1.8          |
-  | 12.1.2 <sup>[1]</sup><sup>[2]</sup>         | 1.7, 1.8          |
-  | 12.1.3                   | 1.7, 1.8          |
-  | 12.2.1 <sup>[3]</sup>               | 1.8               |
-  | 12.2.1.1 <sup>[4]</sup>             | 1.8               |
-  | 12.2.1.2                 | 1.8               |
-  | 12.2.1.3                 | 1.8               |
-  | 12.2.1.4 <sup>[5]</sup>  | 1.8               |
-  | 14.1.1                   | 1.8, 1.11         |    
-
-***1*** First release dynamic clusters are supported  
-***2*** First release Coherence clusters are supported  
-***3*** First release WLS roles are supported  
-***4*** First release multitenancy is supported  
-***5*** Last release multitenancy is supported
-
-### Metadata model
-The metadata model, described in detail in the next section, is WebLogic Server version and WLST mode independent.  As such, a metadata model written for an earlier version of WebLogic Server is designed to work with a newer version.  There is no need to port your metadata model as part of the upgrade process.  Of course, you may wish to add data to your metadata model to take advantage of new features in newer versions of WebLogic Server.
-
-Currently, the project provides five single-purpose tools, all exposed as shell scripts (both Windows and UNIX scripts are provided):
+Currently, the project provides several single-purpose tools, all exposed as shell scripts (both Windows and UNIX scripts are provided):
 
 - The [Create Domain Tool](site/create.md) (`createDomain`) understands how to create a domain and populate the domain with all resources and applications specified in the model.
 - The [Update Domain Tool](site/update.md) (`updateDomain`) understands how to update an existing domain and populate the domain with all resources and applications specified in the model, either in offline or online mode.

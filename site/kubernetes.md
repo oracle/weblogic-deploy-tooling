@@ -1,4 +1,4 @@
-## Configuring Oracle WebLogic Server Kubernetes Operator
+## Using WDT with Oracle WebLogic Server Kubernetes Operator
 
 The Extract Domain Resource Tool can be used to create a domain resource file for use with the Oracle WebLogic Server Kubernetes Operator. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
 
