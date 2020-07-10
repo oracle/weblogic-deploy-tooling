@@ -1148,6 +1148,8 @@
             "folders": {
                 "WebServerLog": {
                     "wlst_type": "WebServerLog",
+                    "child_folders_type": "single_unpredictable",
+                    "default_name_value": "%SERVERTEMPLATE%",
                     "version": "[12.1.2,)",
                     "folders": {},
                     "attributes": {
