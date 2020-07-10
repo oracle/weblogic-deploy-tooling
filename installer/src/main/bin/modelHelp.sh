@@ -35,7 +35,6 @@ usage() {
   echo "Usage: $1 [-help]"
   echo "          [-oracle_home <oracle_home>]"
   echo "          [-attributes_only | -folders_only | -recursive]"
-  echo "          [-model_sample]"
   echo "          <model_path>"
   echo ""
   echo "    where:"
@@ -65,9 +64,6 @@ usage() {
   echo "    The -recursive switch will cause the tool to list only the folders"
   echo "    for the specified model path, and recursively include the folders below"
   echo "    that path."
-  echo ""
-  echo "    The -model_sample switch will output a sample model section that can be"
-  echo "    used to create a domain model."
   echo ""
 }
 

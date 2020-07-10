@@ -56,7 +56,6 @@ class ModelContext(object):
         self._archive_file_name = None
         self._archive_file = None
         self._model_file = None
-        self._model_sample = False
         self._previous_model_file = None
         self._variable_file_name = None
         self._run_rcu = False
@@ -120,9 +119,6 @@ class ModelContext(object):
 
         if CommandLineArgUtil.MODEL_FILE_SWITCH in arg_map:
             self._model_file = arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
-
-        if CommandLineArgUtil.MODEL_SAMPLE_SWITCH in arg_map:
-            self._model_sample = arg_map[CommandLineArgUtil.MODEL_SAMPLE_SWITCH]
 
         if CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH in arg_map:
             self._previous_model_file = arg_map[CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH]
@@ -422,13 +418,6 @@ class ModelContext(object):
         :return: the -recursive command-line switch
         """
         return self._recursive
-
-    def get_model_sample_option(self):
-        """
-        Get the -model_sample command-line switch for model help tool.
-        :return: the -recursive command-line switch
-        """
-        return self._model_sample
 
     def get_variable_file(self):
         """

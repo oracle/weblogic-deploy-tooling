@@ -72,6 +72,7 @@ class CommandLineArgUtil(object):
     TRAILING_ARGS_SWITCH       = '-trailing_arguments'
     ATTRIBUTES_ONLY_SWITCH     = '-attributes_only'
     FOLDERS_ONLY_SWITCH        = '-folders_only'
+    # deprecated
     MODEL_SAMPLE_SWITCH        = '-model_sample'
     RECURSIVE_SWITCH           = '-recursive'
     UPDATE_RCU_SCHEMA_PASS_SWITCH = '-updateRCUSchemaPassword'

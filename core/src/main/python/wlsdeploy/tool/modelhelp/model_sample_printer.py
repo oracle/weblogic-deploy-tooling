@@ -192,8 +192,16 @@ class ModelSamplePrinter(object):
         if attr_infos:
             attr_list = attr_infos.keys()
             attr_list.sort()
+
+            maxlen = 0
+            for name in attr_list:
+                if len(name) > maxlen:
+                    maxlen = len(name)
+
+            format_string = '%-' + str(maxlen + 1) + 's # %s'
             for attr_name in attr_list:
-                _print_indent(attr_name + ": # " + attr_infos[attr_name], indent_level)
+                line = format_string % (attr_name + ":", attr_infos[attr_name])
+                _print_indent(line, indent_level)
         else:
             _print_indent("# no attributes", indent_level)
 
