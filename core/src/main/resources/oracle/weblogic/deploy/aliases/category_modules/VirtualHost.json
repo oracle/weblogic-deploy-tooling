@@ -35,7 +35,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/VirtualHost${:s}/%VIRTUALHOST%/WebServerLog/${NO_NAME_0:%VIRTUALHOST%}"
+                "WP001": "/VirtualHost${:s}/%VIRTUALHOST%/WebServerLog/%WEBSERVERLOG%"
             }
         }
     },

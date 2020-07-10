@@ -1178,7 +1178,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebServer/%SERVERTEMPLATE_WEBSERVER%/WebServerLog/${NO_NAME_0:%SERVERTEMPLATE%}"
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/WebServer/%SERVERTEMPLATE_WEBSERVER%/WebServerLog/%WEBSERVERLOG%"
                     }
                 }
             },
