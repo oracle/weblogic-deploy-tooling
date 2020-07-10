@@ -6,6 +6,7 @@ pipeline {
             image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
             args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
         }
+        label VM.Standard2.2
     }
 
     stages {
