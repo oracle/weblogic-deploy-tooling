@@ -1,6 +1,7 @@
 pipeline {
     agent {
         docker {
+        // using label from jenkins config
             alwaysPull true
             reuseNode true
             image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
