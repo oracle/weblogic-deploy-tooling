@@ -31,8 +31,9 @@ __required_arguments = [
 __optional_arguments = [
     CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH,
     CommandLineArgUtil.FOLDERS_ONLY_SWITCH,
-    CommandLineArgUtil.MODEL_SAMPLE_SWITCH,
-    CommandLineArgUtil.RECURSIVE_SWITCH
+    CommandLineArgUtil.RECURSIVE_SWITCH,
+    # deprecated
+    CommandLineArgUtil.MODEL_SAMPLE_SWITCH
 ]
 
 __output_types = [
@@ -65,6 +66,10 @@ def __process_args(args):
                 raise ex
             found = True
 
+    if CommandLineArgUtil.MODEL_SAMPLE_SWITCH in argument_map:
+        __logger.warning('WLSDPLY-10106', CommandLineArgUtil.MODEL_SAMPLE_SWITCH,
+                         class_name=_class_name, method_name=_method_name)
+
     return model_context_helper.create_context(_program_name, argument_map)
 
 
@@ -92,9 +97,8 @@ def print_help(model_path, model_context):
         control_option = ControlOptions.FOLDERS_ONLY
 
     aliases = Aliases(model_context)
-    as_sample = model_context.get_model_sample_option()
     printer = ModelHelpPrinter(aliases, __logger)
-    printer.print_model_help(model_path, control_option, as_sample)
+    printer.print_model_help(model_path, control_option)
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
     return CommandLineArgUtil.PROG_OK_EXIT_CODE

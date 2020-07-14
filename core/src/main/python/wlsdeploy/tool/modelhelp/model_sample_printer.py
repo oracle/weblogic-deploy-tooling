@@ -100,6 +100,8 @@ class ModelSamplePrinter(object):
         indent = 0
         model_location = LocationContext()
         for token in model_path_tokens:
+            last_location = LocationContext(model_location);
+
             if indent > 0:
                 code, message = self._alias_helper.is_valid_model_folder_name(model_location, token)
                 if code != ValidationCodes.VALID:
@@ -108,12 +110,16 @@ class ModelSamplePrinter(object):
                     raise ex
                 model_location.append_location(token)
 
+            if self._alias_helper.is_artificial_type_folder(model_location):
+                name = self._get_member_name(last_location, 0)
+                _print_indent(name + ":", indent)
+                indent += 1
+
             _print_indent(token + ":", indent)
             indent += 1
 
             if self._has_multiple_folders(model_location):
-                short_name = self._get_short_name(model_location)
-                name = "'" + short_name + "-1'"
+                name = self._get_member_name(model_location, 0)
                 _print_indent(name + ":", indent)
                 indent += 1
 
@@ -153,6 +159,9 @@ class ModelSamplePrinter(object):
         """
         _method_name = '_print_subfolder_keys_sample'
 
+        artificial_index = 0
+        parent_location = LocationContext(model_location)
+
         for key in subfolder_keys:
             model_location.append_location(key)
             name_token = self._alias_helper.get_name_token(model_location)
@@ -162,12 +171,18 @@ class ModelSamplePrinter(object):
             if control_option != ControlOptions.RECURSIVE:
                 print("")
 
-            _print_indent(key + ":", indent_level )
+            key_level = indent_level
+            if self._alias_helper.is_artificial_type_folder(model_location):
+                name = self._get_member_name(parent_location, artificial_index)
+                artificial_index += 1
+                _print_indent(name + ":", indent_level)
+                key_level += 1
 
-            child_level = indent_level
+            _print_indent(key + ":", key_level )
+
+            child_level = key_level
             if self._has_multiple_folders(model_location):
-                short_name = self._get_short_name(model_location)
-                name = "'" + short_name + "-1'"
+                name = self._get_member_name(model_location, 0)
                 child_level += 1
                 _print_indent(name + ":", child_level)
 
@@ -192,8 +207,16 @@ class ModelSamplePrinter(object):
         if attr_infos:
             attr_list = attr_infos.keys()
             attr_list.sort()
+
+            maxlen = 0
+            for name in attr_list:
+                if len(name) > maxlen:
+                    maxlen = len(name)
+
+            format_string = '%-' + str(maxlen + 1) + 's # %s'
             for attr_name in attr_list:
-                _print_indent(attr_name + ": # " + attr_infos[attr_name], indent_level)
+                line = format_string % (attr_name + ":", attr_infos[attr_name])
+                _print_indent(line, indent_level)
         else:
             _print_indent("# no attributes", indent_level)
 
@@ -203,21 +226,23 @@ class ModelSamplePrinter(object):
         :param location: the location to be checked
         :return: True if the location has multiple children
         """
+        # check this first to avoid errors on subsequent checks
         if self._alias_helper.is_artificial_type_folder(location):
             return False
 
         return self._alias_helper.supports_multiple_mbean_instances(location)
 
-    def _get_short_name(self, location):
+    def _get_member_name(self, location, index):
         """
-        Return the short name of the last folder in the location, if available.
-        :param location: the location to be checked
-        :return: the short name of the last folder, or the full name if not available
+        Return a name to be used for member of a model folder with multiple values.
+        :param location: the location of the folder
+        :param index: the index of the member in the folder
+        :return: the member name
         """
         short_name = self._alias_helper.get_folder_short_name(location)
-        if len(short_name) > 0:
-            return short_name
-        return location.get_current_model_folder()
+        if len(short_name) == 0:
+            short_name = location.get_current_model_folder()
+        return "'" + short_name + "-" + str(index + 1) + "'"
 
 
 def _print_indent(msg, level=1):

@@ -70,7 +70,6 @@ ECHO Usage: %SCRIPT_NAME%
 ECHO         [-help]
 ECHO         [-oracle_home ^<oracle_home^>]
 ECHO         [-attributes_only ^| -folders_only ^| -recursive]
-ECHO         [-model_sample]
 ECHO         ^<model_path^>
 ECHO.
 ECHO     where:
@@ -100,9 +99,6 @@ ECHO.
 ECHO     The -recursive switch will cause the tool to list only the folders
 ECHO     for the specified model path, and recursively include the folders below
 ECHO     that path.
-ECHO.
-ECHO     The -model_sample switch will output a sample model section that can be
-ECHO     used to create a domain model.
 ECHO.
 
 :exit_script
