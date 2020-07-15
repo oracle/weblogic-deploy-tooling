@@ -4,6 +4,8 @@ The Model Help Tool provides information about the folders and attributes that a
 
 **NOTE:** The Model Help Tool is new in WebLogic Deploy Tooling 1.8.
 
+**NOTE:** The `-model_sample` argument is deprecated starting with WebLogic Deploy Tooling 1.9.2, when model sample became the default output format.
+
 Here is a simple example using the Model Help Tool:
 ```yaml
 <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource
