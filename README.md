@@ -35,6 +35,7 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
     - [Using WDT with Oracle WebLogic Server Kubernetes Operator](site/kubernetes.md)
 - Tool Configuration
     - [Model Filters](site/tool_filters.md)
+    - [Target Environments](site/config/target_env.md)
     - [Type Definitions](site/type_def.md)
     - [Variable Injection](site/variable_injection.md)
     - [Custom Configuration](site/config/custom_configuration.md)
