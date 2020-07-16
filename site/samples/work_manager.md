@@ -1,4 +1,4 @@
-## Work Manager Sample
+## Modeling a Work Manager
 
 This WDT domain model sample section has typical configurations for a Work Manager and its related request classes and constraints. These elements are configured in the `SelfTuning` folder in the `resources` section of the model.
 ```yaml

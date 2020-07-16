@@ -1,4 +1,4 @@
-## JDBC Sample
+## Modeling a JDBC Data Source
 
 This WDT domain model sample section has a typical configuration for a JDBC data source, including targeting information, connection pool parameters, and other details. 
 
