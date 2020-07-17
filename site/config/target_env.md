@@ -3,7 +3,7 @@
 The [Discover Domain](../discover.md) and [Prepare Model](../prepare.md) Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
 - Using model tokens for some attributes in the model (see [Model Tokens](../../README.md#model-tokens))
 - Using Kubernetes secrets for credentials in the model
-- Apply filters to the model (see [Model Filters](../tool_filters.md))
+- Applying filters to the model (see [Model Filters](../tool_filters.md))
 - Creating additional configuration files for the target system
 
 ### Specifying a Target Environment
@@ -22,7 +22,7 @@ If a variable file is specified on the tool's command line using the `-variable_
 
 A target environment is configured in a JSON file at this location:
 ```
-$WLSDEPLOY_HOME/lib/target/<target-name>/target.json'
+$WLSDEPLOY_HOME/lib/target/<target-name>/target.json
 ```
 The `<target-name>` value corresponds to the value of the `-target` argument on the tool's command line. The WLS installation includes two pre-defined targets:
  - [Oracle Weblogic Server Kubernetes Operator](#the-oracle-weblogic-server-kubernetes-operator-target) (named `k8s`)
@@ -62,11 +62,11 @@ This field can be used to set the validation level for the resulting model. Only
 
 #### `credentials_method`
 
-This field specified how credentials in the model should be handled. There are two values available:
+This field specifies how credentials in the model should be handled. There are two values available:
 - `secrets` - the credentials in the model are replaced with references to Kubernetes secrets, and a UNIX script to create those secrets is produced.
 - `config_override_secrets` - the credentials in the model are replaced with placeholder values, such as `password1`, and a UNIX script to create corresponding Kubernetes secrets is produced.
 
-In both these cases, the script to create the Kubernetes secrets is written to `<output-directory>/create_k8s_secrets.sh`. You will need to update this scripts with credential values before executing
+In both these cases, the script to create the Kubernetes secrets is written to `<output-directory>/create_k8s_secrets.sh`. You will need to update this script with credential values before executing
 
 #### `additional_output`
 
@@ -74,20 +74,22 @@ This field can be used to create additional output for use in the target environ
 
 ### Pre-configured Target Environments
 
+These target environment configurations are included in the WebLogic Deploy Tooling installation.
+
 #### The Oracle Weblogic Server Kubernetes Operator Target
 
 This target environment can be applied by providing the command-line argument `-target k8s`. It will provide this additional processing:
 
-- the `k8s_operator_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
-- variables will be injected into the model for port, host, and URL attributes
+- The `k8s_operator_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
+- Variables will be injected into the model for port, host, and URL attributes
 - `lax` validation will be applied for the resulting model
-- credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced.
+- Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
 
 #### The Verrazzano Target
 This target environment can be applied by providing the command-line argument `-target vz`. It will provide this additional processing:
 
-- the `vz_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
-- variables will be injected into the model for port, host, and URL attributes
+- The `vz_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
+- Variables will be injected into the model for port, host, and URL attributes
 - `lax` validation will be applied for the resulting model
-- credentials in the model will be replaced with placeholder values, and a script to create corresponding secrets will be produced.
-- two additional Kubernetes resource files, `model.yaml` and `binding.yaml`, will be produced, with cluster and data source information derived from the model.
+- Credentials in the model will be replaced with placeholder values, and a script to create corresponding secrets will be produced
+- Two additional Kubernetes resource files, `model.yaml` and `binding.yaml`, will be produced, with cluster and data source information derived from the model
