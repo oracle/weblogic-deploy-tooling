@@ -645,8 +645,11 @@ class ModelContext(object):
         :param resource_dict: the dictionary to use to lookup and replace the attribute value
         """
         attribute_value = resource_dict[attribute_name]
+        if attribute_value is None:
+            return
         uri = URI(attribute_value)
-        if uri.getScheme().startsWith('file'):
+        uri_scheme = uri.getScheme()
+        if uri_scheme is not None and uri_scheme.startsWith('file'):
             attribute_value = uri.getPath()
         if attribute_value.startswith(self.ORACLE_HOME_TOKEN):
             message = "Replacing {0} in {1} {2} {3} with {4}"
