@@ -39,6 +39,8 @@ Before the model is persisted to the model file, any variable injectors or model
  - [Model Filters](tool_filters.md)
  - [Validate Model Tool](validate.md)
 
+The resulting model can also be modified for compatibility with specific target environments, such as Oracle Weblogic Server Kubernetes Operator. For more information, see [Target Environments](config/target_env.md).
+
 Any problems (or success) will be listed in the discover tool summary. The summary will print the version of the tool and Oracle home, and the WLST mode with which the tool was run (online or offline). A recap of all Warning and Severe messages will be listed, along with a total. 
 
 An example of a summary with a WARNING message:

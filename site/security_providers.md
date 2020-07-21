@@ -1,4 +1,4 @@
-### Modeling Security Providers
+## Modeling Security Providers
 WebLogic Server security configuration requires special handling and causes the need for the model semantics to differ from other folders.  Because provider ordering is important, and to make sure that the ordering is correctly set in the newly created domain, the Create Domain Tool and Update Domain Tool require that all providers be specified in the model for any provider type that will be created or altered.  For example, if you want to change one of the providers in the provider type `AuthenticationProvider`, your model must specify all of the `AuthenticationProvider` providers and any non-default attributes for those providers.  In order to apply security providers, these tools will delete all providers from the target domain for those provider types specified in the model before adding the providers from the model to the target domain. Provider types that are omitted from the model will be unchanged.  Example provider types are `Adjudicator`, `AuthenticationProvider`, `Authorizer`, `CertPathProvider`, `CredentialMapper`, `PasswordValidator`, and `RoleMapper`.
 
 For example, if the model specified an `LDAPAuthenticator` and an `LDAPX509IdentityAsserter` similar to what is shown below, the `DefaultAuthenticator` and `DefaultIdentityAsserter` would be deleted.  In this example, other provider types like `RoleMapper` and `CredentialMapper` are not specified and would be left untouched by the tools.   
@@ -90,7 +90,7 @@ topology:
                         DefaultIdentityAsserter:
 
 ```
-#### Trust Service Identity Asserter
+### Trust Service Identity Asserter
 
 **NOTE:** The Trust Identity Asserter Security Provider is installed by JRF in 12c versions and newer.
 
@@ -107,7 +107,7 @@ ORACLE_HOME/oracle_common/common/bin/prepareCustomProvider.sh -mjf=ORACLE_HOME/o
 For FMW versions 12.1.2 and 12.1.3, replace `oracle.jps` in the example path above with:
 oracle.jps_12.1.2, or oracle.jps_12.1.3, respectively.
 
-#### Custom Security Providers
+### Custom Security Providers
 
 **NOTE:** Creating and updating domains with custom security providers is limited to WebLogic version 12.1.2 and newer.
 
@@ -123,7 +123,7 @@ The format for a custom security provider is slightly different from a built-in 
                     CredentialMappingDeploymentEnabled: true:
 ```
 
-#### Known Limitations
+### Known Limitations
 
 - `Adjudicator` provider types cannot be added or modified due to a limitation in WLST.
 - `PasswordCredentials` provider types cannot be updated in WLST online.
