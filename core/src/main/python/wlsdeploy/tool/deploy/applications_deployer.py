@@ -29,6 +29,7 @@ from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SECURITY_DD_MODEL
 from wlsdeploy.aliases.model_constants import SOURCE_PATH
+from wlsdeploy.aliases.model_constants import STAGE_MODE
 from wlsdeploy.aliases.model_constants import TARGET
 from wlsdeploy.aliases.model_constants import TARGETS
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -291,7 +292,6 @@ class ApplicationsDeployer(Deployer):
         self.__start_all_apps(deployed_app_list, base_location)
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
         return
-
 
     ###########################################################################
     #                      Private utility methods                            #
@@ -851,8 +851,9 @@ class ApplicationsDeployer(Deployer):
                     self.__get_mt_names_from_location(location)
 
                 new_app_name = self.__deploy_app_online(app_name, src_path, targets, plan=plan_file,
-                                         partition=partition_name, resource_group=resource_group_name,
-                                         resource_group_template=resource_group_template_name, options=options)
+                                                        partition=partition_name, resource_group=resource_group_name,
+                                                        resource_group_template=resource_group_template_name,
+                                                        options=options)
                 location.remove_name_token(token_name)
                 deployed_applist.append(new_app_name)
         return
@@ -1135,6 +1136,7 @@ class ApplicationsDeployer(Deployer):
             self.__start_app(app)
         return
 
+
 def _get_deploy_options(model_apps, app_name, library_module):
     """
     Get the deploy command options.
@@ -1145,7 +1147,7 @@ def _get_deploy_options(model_apps, app_name, library_module):
     """
     deploy_options = OrderedDict()
     # not sure about altDD, altWlsDD
-    for option in [DEPLOYMENT_ORDER, SECURITY_DD_MODEL, PLAN_STAGE_MODE]:
+    for option in [DEPLOYMENT_ORDER, SECURITY_DD_MODEL, PLAN_STAGE_MODE, STAGE_MODE]:
         app = dictionary_utils.get_dictionary_element(model_apps, app_name)
         value = dictionary_utils.get_element(app, option)
 
@@ -1156,6 +1158,8 @@ def _get_deploy_options(model_apps, app_name, library_module):
             option_name = 'securityModel'
         elif option == PLAN_STAGE_MODE:
             option_name = 'planStageMode'
+        elif option == STAGE_MODE:
+            option_name = 'stageMode'
 
         if value is not None:
             deploy_options[option_name] = str(value)
@@ -1166,6 +1170,7 @@ def _get_deploy_options(model_apps, app_name, library_module):
     if len(deploy_options) == 0:
         deploy_options = None
     return deploy_options
+
 
 def _find_deployorder_list(apps_dict, ordered_list, order):
     """
