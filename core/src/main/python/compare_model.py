@@ -443,9 +443,13 @@ class ModelFileDiffer:
             # references a file in an archive, the compareModel will fail if
             # running in the stricter tool mode (even with lax).
             #
-            return_code = validator.validate_in_standalone_mode(model_dictionary,
-                                                                None,
-                                                                archive_file_name=None)
+            arg_map = dict()
+            arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
+            model_context_copy = self.model_context.copy(arg_map)
+            val_copy = Validator(model_context_copy, aliases, wlst_mode=WlstModes.OFFLINE)
+            return_code = val_copy.validate_in_standalone_mode(model_dictionary,
+                                                               None,
+                                                               archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
                 _logger.severe('WLSDPLY-05705', model_file_name)
@@ -457,9 +461,12 @@ class ModelFileDiffer:
             model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
             variables.substitute(model_dictionary, variable_map, self.model_context)
 
-            return_code = validator.validate_in_tool_mode(model_dictionary,
-                                            variables_file_name=None,
-                                            archive_file_name=None)
+            arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
+            model_context_copy = self.model_context.copy(arg_map)
+            val_copy = Validator(model_context_copy, aliases, wlst_mode=WlstModes.OFFLINE)
+            return_code = val_copy.validate_in_standalone_mode(model_dictionary,
+                                                               None,
+                                                               archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
                 _logger.severe('WLSDPLY-05705', model_file_name)

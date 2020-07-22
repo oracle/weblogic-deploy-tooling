@@ -45,7 +45,7 @@ topology:
                     StrictOwnershipCheck: true
                     Cluster: "cluster-2"
                     'nosuchkey' : 'value'
-appDeployments:
+appDeployment:
      Application:
          myear:
              SourcePath: /home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app.ear

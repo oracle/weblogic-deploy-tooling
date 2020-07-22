@@ -116,6 +116,7 @@ class Validator(object):
 
         # If standalone, log file will not be passed, so get a new logger with correct mode type
         self._validation_mode = _ValidationModes.STANDALONE
+        return_code = Validator.ReturnCode.STOP
         self._logger = ValidatorLogger(self._logger.get_name(), _ValidationModes.from_value(self._validation_mode))
         self._logger.entering(archive_file_name, class_name=_class_name, method_name=_method_name)
 
@@ -128,7 +129,20 @@ class Validator(object):
         self._logger.entering(archive_file_name, class_name=_class_name, method_name=_method_name)
         self.__validate_model_file(cloned_model_dict, variable_map, archive_file_name)
 
-        self._logger.exiting(class_name=_class_name, method_name=_method_name)
+        status = Validator.ValidationStatus.VALID
+        summary_handler = SummaryHandler.findInstance()
+        if summary_handler is not None:
+            summary_level = summary_handler.getMaximumMessageLevel()
+            if summary_level == Level.SEVERE:
+                status = Validator.ValidationStatus.INVALID
+            elif summary_level == Level.WARNING:
+                status = Validator.ValidationStatus.WARNINGS_INVALID
+
+        if status == Validator.ValidationStatus.VALID or status == Validator.ValidationStatus.INFOS_VALID \
+                or status == Validator.ValidationStatus.WARNINGS_INVALID:
+            return_code = Validator.ReturnCode.PROCEED
+        self._logger.exiting(class_name=_class_name, method_name=_method_name, result=return_code)
+        return return_code
 
     def validate_in_tool_mode(self, model_dict, variables_file_name=None, archive_file_name=None):
         """
