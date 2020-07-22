@@ -129,6 +129,7 @@ class Validator(object):
         self._logger.entering(archive_file_name, class_name=_class_name, method_name=_method_name)
         self.__validate_model_file(cloned_model_dict, variable_map, archive_file_name)
 
+        status = Validator.ValidationStatus.VALID
         summary_handler = SummaryHandler.findInstance()
         if summary_handler is not None:
             summary_level = summary_handler.getMaximumMessageLevel()
@@ -137,7 +138,6 @@ class Validator(object):
             elif summary_level == Level.WARNING:
                 status = Validator.ValidationStatus.WARNINGS_INVALID
 
-        status = Validator.ValidationStatus.VALID
         if status == Validator.ValidationStatus.VALID or status == Validator.ValidationStatus.INFOS_VALID \
                 or status == Validator.ValidationStatus.WARNINGS_INVALID:
             return_code = Validator.ReturnCode.PROCEED
