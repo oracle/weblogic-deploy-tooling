@@ -2,6 +2,8 @@
 Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+
+import copy
 import os
 import tempfile
 
@@ -88,6 +90,17 @@ class ModelContext(object):
 
         self._trailing_args = []
 
+        if self._wl_version is None:
+            self._wl_version = self._wls_helper.get_actual_weblogic_version()
+
+        if self._wlst_mode is None:
+            self._wlst_mode = WlstModes.OFFLINE
+
+        self.__copy_from_args(arg_map)
+
+        return
+
+    def __copy_from_args(self, arg_map):
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
             self._wl_home = self._wls_helper.get_weblogic_home(self._oracle_home)
@@ -200,10 +213,13 @@ class ModelContext(object):
 
         if CommandLineArgUtil.TARGET_MODE_SWITCH in arg_map:
             wlst_mode_string = arg_map[CommandLineArgUtil.TARGET_MODE_SWITCH]
-            if wlst_mode_string.lower() == 'online':
-                self._wlst_mode = WlstModes.ONLINE
+            if type(wlst_mode_string) == int:
+                self._wlst_mode = wlst_mode_string
             else:
-                self._wlst_mode = WlstModes.OFFLINE
+                if wlst_mode_string.lower() == 'online':
+                    self._wlst_mode = WlstModes.ONLINE
+                else:
+                    self._wlst_mode = WlstModes.OFFLINE
 
         if CommandLineArgUtil.OUTPUT_DIR_SWITCH in arg_map:
             self._output_dir = arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH]
@@ -217,13 +233,91 @@ class ModelContext(object):
         if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in arg_map:
             self._variable_properties_file = arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH]
 
-        if self._wl_version is None:
-            self._wl_version = self._wls_helper.get_actual_weblogic_version()
-
-        if self._wlst_mode is None:
-            self._wlst_mode = WlstModes.OFFLINE
-
-        return
+    def __copy__(self):
+        arg_map = dict()
+        if self._oracle_home is not None:
+            arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH] = self._oracle_home
+        if self._java_home is not None:
+            arg_map[CommandLineArgUtil.JAVA_HOME_SWITCH] = self._java_home
+        if self._domain_home is not None:
+            arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH] = self._domain_home
+        if self._domain_parent_dir is not None:
+            arg_map[CommandLineArgUtil.DOMAIN_PARENT_SWITCH] = self._domain_parent_dir
+        if self._domain_type is not None:
+            arg_map[CommandLineArgUtil.DOMAIN_TYPE_SWITCH] = self._domain_type
+        if self._admin_url is not None:
+            arg_map[CommandLineArgUtil.ADMIN_URL_SWITCH] = self._admin_url
+        if self._admin_user is not None:
+            arg_map[CommandLineArgUtil.ADMIN_USER_SWITCH] = self._admin_user
+        if self._admin_password is not None:
+            arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH] = self._admin_password
+        if self._archive_file_name is not None:
+            arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH] = self._archive_file_name
+        if self._model_file is not None:
+            arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = self._model_file
+        if self._previous_model_file is not None:
+            arg_map[CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH] = self._previous_model_file
+        if self._attributes_only is not None:
+            arg_map[CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH] = self._attributes_only
+        if self._folders_only is not None:
+            arg_map[CommandLineArgUtil.FOLDERS_ONLY_SWITCH] = self._folders_only
+        if self._recursive is not None:
+            arg_map[CommandLineArgUtil.RECURSIVE_SWITCH] = self._recursive
+        if self._variable_file_name is not None:
+            arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = self._variable_file_name
+        if self._run_rcu is not None:
+            arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]= self._run_rcu
+        if self._rcu_database is not None:
+            arg_map[CommandLineArgUtil.RCU_DB_SWITCH] = self._rcu_database
+        if self._rcu_prefix is not None:
+            arg_map[CommandLineArgUtil.RCU_PREFIX_SWITCH] = self._rcu_prefix
+        if self._rcu_sys_pass is not None:
+            arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH] = self._rcu_sys_pass
+        if self._rcu_db_user is not None:
+            arg_map[CommandLineArgUtil.RCU_DB_USER_SWITCH] = self._rcu_db_user
+        if self._rcu_schema_pass is not None:
+            arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = self._rcu_schema_pass
+        if self._domain_typedef is not None:
+            arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF] = self._domain_typedef
+        if self._encryption_passphrase is not None:
+            arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = self._encryption_passphrase
+        if self._encrypt_manual is not None:
+            arg_map[CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH] = self._encrypt_manual
+        if self._encrypt_one_pass is not None:
+            arg_map[CommandLineArgUtil.ONE_PASS_SWITCH] = self._encrypt_one_pass
+        if self._rollback_if_restart_required is not None:
+            arg_map[CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH] = self._rollback_if_restart_required
+        if self._use_encryption is not None:
+            arg_map[CommandLineArgUtil.USE_ENCRYPTION_SWITCH] = self._use_encryption
+        if self._archive_file is not None:
+            arg_map[CommandLineArgUtil.ARCHIVE_FILE] = self._archive_file
+        if self._opss_wallet_passphrase is not None:
+            arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE] = self._opss_wallet_passphrase
+        if self._opss_wallet is not None:
+            arg_map[CommandLineArgUtil.OPSS_WALLET_SWITCH] = self._opss_wallet
+        if self._update_rcu_schema_pass is not None:
+            arg_map[CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH] = self._update_rcu_schema_pass
+        if self._validation_method is not None:
+            arg_map[CommandLineArgUtil.VALIDATION_METHOD] = self._validation_method
+        if self._wl_version is not None:
+            arg_map[CommandLineArgUtil.TARGET_VERSION_SWITCH] = self._wl_version
+        if self._domain_resource_file is not None:
+            arg_map[CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH] = self._domain_resource_file
+        if self._trailing_args is not None:
+            arg_map[CommandLineArgUtil.TRAILING_ARGS_SWITCH] = self._trailing_args
+        if self._target is not None:
+            arg_map[CommandLineArgUtil.TARGET_SWITCH] = self._target
+        if self._wlst_mode is not None:
+            arg_map[CommandLineArgUtil.TARGET_MODE_SWITCH] = self._wlst_mode
+        if self._output_dir is not None:
+            arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH] = self._output_dir
+        if self._variable_injector_file is not None:
+            arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH] = self._variable_injector_file
+        if self._variable_keywords_file is not None:
+            arg_map[CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH] = self._variable_keywords_file
+        if self._variable_properties_file is not None:
+            arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH] = self._variable_properties_file
+        return ModelContext(self._program_name, arg_map)
 
     def get_program_name(self):
         """
@@ -761,6 +855,11 @@ class ModelContext(object):
 
         return separator.join(cp_elements)
 
+    def copy(self, arg_map):
+        model_context_copy = copy.copy(self)
+        model_context_copy.__copy_from_args(arg_map)
+        return model_context_copy
+
     # private methods
 
 
@@ -778,3 +877,4 @@ def _replace(string_value, token, replace_token_string):
     else:
         result = string_value.replace(token, replace_token_string)
     return result
+
