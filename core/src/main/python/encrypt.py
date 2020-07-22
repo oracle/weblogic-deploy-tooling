@@ -18,7 +18,7 @@ from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
-sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
+# Jython tools don't require sys.path modification
 
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases

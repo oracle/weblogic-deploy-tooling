@@ -17,7 +17,7 @@ from oracle.weblogic.deploy.validate import ValidateException
 
 from oracle.weblogic.deploy.logging import SummaryHandler
 
-sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
+# Jython tools don't require sys.path modification
 
 # imports from local packages start here
 from wlsdeploy.aliases.wlst_modes import WlstModes
