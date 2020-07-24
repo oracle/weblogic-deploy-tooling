@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -66,7 +66,7 @@ class DeploymentsDiscoverer(Discoverer):
         if libraries:
             _logger.info('WLSDPLY-06381', len(libraries), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for library in libraries:
                 if typedef.is_system_shared_library(library):
                     _logger.info('WLSDPLY-06401', typedef.get_domain_type(), library, class_name=_class_name,
@@ -192,7 +192,7 @@ class DeploymentsDiscoverer(Discoverer):
         if applications:
             _logger.info('WLSDPLY-06391', len(applications), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for application in applications:
                 if typedef.is_system_app(application):
                     _logger.info('WLSDPLY-06400', typedef.get_domain_type(), application, class_name=_class_name,

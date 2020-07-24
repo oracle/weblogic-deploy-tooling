@@ -17,7 +17,6 @@ from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.util import model_helper
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 
@@ -29,7 +28,7 @@ class TopologyHelper(object):
 
     def __init__(self, aliases, exception_type, logger):
         self.logger = logger
-        self.alias_helper = AliasHelper(aliases, self.logger, exception_type)
+        self.aliases = aliases
         self.wlst_helper = WlstHelper(exception_type)
 
         self._coherence_cluster_elements = [CLUSTER, SERVER, SERVER_TEMPLATE]
@@ -58,14 +57,14 @@ class TopologyHelper(object):
         _method_name = '_create_placeholder_coherence_cluster'
         original_location = self.wlst_helper.get_pwd()
         cluster_location = LocationContext().append_location(COHERENCE_CLUSTER_SYSTEM_RESOURCE)
-        existing_names = deployer_utils.get_existing_object_list(cluster_location, self.alias_helper)
+        existing_names = deployer_utils.get_existing_object_list(cluster_location, self.aliases)
 
         if cluster_name not in existing_names:
             self.logger.info('WLSDPLY-12230', cluster_name, class_name=self.__class_name, method_name=_method_name)
 
-            cluster_token = self.alias_helper.get_name_token(cluster_location)
+            cluster_token = self.aliases.get_name_token(cluster_location)
             cluster_location.add_name_token(cluster_token, cluster_name)
-            deployer_utils.create_and_cd(cluster_location, existing_names, self.alias_helper)
+            deployer_utils.create_and_cd(cluster_location, existing_names, self.aliases)
 
         self.wlst_helper.cd(original_location)
 
@@ -111,8 +110,8 @@ class TopologyHelper(object):
         original_location = self.wlst_helper.get_pwd()
         resource_location = LocationContext(location).append_location(model_type)
 
-        if self.alias_helper.get_wlst_mbean_type(resource_location) is not None:
-            existing_names = deployer_utils.get_existing_object_list(resource_location, self.alias_helper)
+        if self.aliases.get_wlst_mbean_type(resource_location) is not None:
+            existing_names = deployer_utils.get_existing_object_list(resource_location, self.aliases)
 
             name_nodes = dictionary_utils.get_dictionary_element(model_nodes, model_type)
             for name in name_nodes.keys():
@@ -124,9 +123,9 @@ class TopologyHelper(object):
                     self.logger.info('WLSDPLY-19403', model_type, name, class_name=self.__class_name,
                                      method_name=_method_name)
 
-                    token = self.alias_helper.get_name_token(resource_location)
+                    token = self.aliases.get_name_token(resource_location)
                     resource_location.add_name_token(token, name)
-                    deployer_utils.create_and_cd(resource_location, existing_names, self.alias_helper)
+                    deployer_utils.create_and_cd(resource_location, existing_names, self.aliases)
                     self._update_placeholder(model_type, name, resource_location)
                     holder_names.append(name)
 
@@ -144,7 +143,7 @@ class TopologyHelper(object):
             # for online update, Name must be assigned to each JDBCSystemResource / JdbcResource MBean.
             # (see datasource_deployer.set_attributes())
             child_location = LocationContext(location).append_location(JDBC_RESOURCE)
-            wlst_path = self.alias_helper.get_wlst_attributes_path(child_location)
+            wlst_path = self.aliases.get_wlst_attributes_path(child_location)
             if self.wlst_helper.path_exists(wlst_path):
                 original_location = self.wlst_helper.get_pwd()
                 self.wlst_helper.cd(wlst_path)
@@ -161,14 +160,14 @@ class TopologyHelper(object):
         """
         _method_name = 'clear_jdbc_placeholder_targeting'
         resource_location = LocationContext().append_location(JDBC_SYSTEM_RESOURCE)
-        token = self.alias_helper.get_name_token(resource_location)
+        token = self.aliases.get_name_token(resource_location)
 
         for name in jdbc_names:
             self.logger.info('WLSDPLY-19404', JDBC_SYSTEM_RESOURCE, name, class_name=self.__class_name,
                              method_name=_method_name)
 
             resource_location.add_name_token(token, name)
-            wlst_path = self.alias_helper.get_wlst_attributes_path(resource_location)
+            wlst_path = self.aliases.get_wlst_attributes_path(resource_location)
             if self.wlst_helper.path_exists(wlst_path):
                 mbean = self.wlst_helper.get_mbean_for_wlst_path(wlst_path)
                 mbean.setTargets(None)

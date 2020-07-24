@@ -78,13 +78,13 @@ class TopologyUpdater(Deployer):
         # For issue in setServerGroups in online mode (new configured clusters and stand-alone managed servers
         # will not have extension template resources targeted)
         existing_managed_servers, existing_configured_clusters = self._create_list_of_setservergroups_targets()
-        domain_token = deployer_utils.get_domain_token(self.alias_helper)
+        domain_token = deployer_utils.get_domain_token(self.aliases)
 
         location = LocationContext()
         location.add_name_token(domain_token, self.model_context.get_domain_name())
 
         # create a list, then remove each element as it is processed
-        folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
+        folder_list = self.aliases.get_model_topology_top_level_folder_names()
 
         # /Security cannot be updated on existing domain
         folder_list.remove(SECURITY)
@@ -152,7 +152,7 @@ class TopologyUpdater(Deployer):
         if key in folder_dict:
             nodes = dictionary_utils.get_dictionary_element(folder_dict, key)
             sub_location = LocationContext(location).append_location(key)
-            if self.alias_helper.supports_multiple_mbean_instances(sub_location):
+            if self.aliases.supports_multiple_mbean_instances(sub_location):
                 self._add_named_elements(key, nodes, location)
             else:
                 self._add_model_elements(key, nodes, location)
@@ -172,7 +172,7 @@ class TopologyUpdater(Deployer):
                 del attrib_dict[attribute]
 
         location = LocationContext()
-        attribute_path = self.alias_helper.get_wlst_attributes_path(location)
+        attribute_path = self.aliases.get_wlst_attributes_path(location)
         self.wlst_helper.cd(attribute_path)
         self.set_attributes(location, attrib_dict)
 
@@ -204,16 +204,16 @@ class TopologyUpdater(Deployer):
             return list(), list()
 
         location = LocationContext().append_location(SERVER)
-        server_path = self.alias_helper.get_wlst_list_path(location)
+        server_path = self.aliases.get_wlst_list_path(location)
         existing_managed_servers = list()
         existing_servers = self.wlst_helper.get_existing_object_list(server_path)
         if existing_servers is not None:
-            name_token = self.alias_helper.get_name_token(location)
+            name_token = self.aliases.get_name_token(location)
             for server_name in existing_servers:
                 location.add_name_token(name_token, server_name)
-                wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+                wlst_path = self.aliases.get_wlst_attributes_path(location)
                 self.wlst_helper.cd(wlst_path)
-                cluster_attribute = self.alias_helper.get_wlst_attribute_name(location, CLUSTER)
+                cluster_attribute = self.aliases.get_wlst_attribute_name(location, CLUSTER)
                 cluster_value = self.wlst_helper.get(cluster_attribute)
                 if cluster_value is None:
                     existing_managed_servers.append(server_name)
@@ -221,17 +221,17 @@ class TopologyUpdater(Deployer):
 
         existing_configured_clusters = list()
         location = LocationContext().append_location(CLUSTER)
-        cluster_path = self.alias_helper.get_wlst_list_path(location)
+        cluster_path = self.aliases.get_wlst_list_path(location)
         existing_clusters = self.wlst_helper.get_existing_object_list(cluster_path)
         if existing_clusters is not None:
-            name_token = self.alias_helper.get_name_token(location)
+            name_token = self.aliases.get_name_token(location)
             for cluster_name in existing_clusters:
                 location.add_name_token(name_token, cluster_name)
-                wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+                wlst_path = self.aliases.get_wlst_attributes_path(location)
                 self.wlst_helper.cd(wlst_path)
-                ds_mbean = self.alias_helper.get_wlst_mbean_type(location)
+                ds_mbean = self.aliases.get_wlst_mbean_type(location)
                 if not self.wlst_helper.subfolder_exists(ds_mbean,
-                                                         self.alias_helper.get_wlst_subfolders_path(location)):
+                                                         self.aliases.get_wlst_subfolders_path(location)):
                     existing_configured_clusters.append(cluster_name)
                 location.remove_name_token(name_token)
 

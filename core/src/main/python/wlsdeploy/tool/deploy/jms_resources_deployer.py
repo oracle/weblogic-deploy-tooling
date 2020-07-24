@@ -160,11 +160,11 @@ class JmsResourcesDeployer(Deployer):
                              method_name=_method_name)
             return
 
-        foreign_server_path = self.alias_helper.get_wlst_subfolders_path(location)
+        foreign_server_path = self.aliases.get_wlst_subfolders_path(location)
         properties_location = LocationContext(location).append_location(JNDI_PROPERTY)
-        properties_token = self.alias_helper.get_name_token(properties_location)
-        name_attribute = self.alias_helper.get_wlst_attribute_name(properties_location, KEY)
-        mbean_type = self.alias_helper.get_wlst_mbean_type(properties_location)
+        properties_token = self.aliases.get_name_token(properties_location)
+        name_attribute = self.aliases.get_wlst_attribute_name(properties_location, KEY)
+        mbean_type = self.aliases.get_wlst_mbean_type(properties_location)
 
         for property_name in property_name_nodes:
             if model_helper.is_delete_name(property_name):
@@ -192,7 +192,7 @@ class JmsResourcesDeployer(Deployer):
 
             folder_name = dictionary_utils.get_element(new_folder_map, property_name)
             properties_location.add_name_token(properties_token, folder_name)
-            self.wlst_helper.cd(self.alias_helper.get_wlst_attributes_path(properties_location))
+            self.wlst_helper.cd(self.aliases.get_wlst_attributes_path(properties_location))
 
             property_nodes = remaining_name_nodes[property_name]
             self.set_attributes(properties_location, property_nodes)
@@ -213,12 +213,12 @@ class JmsResourcesDeployer(Deployer):
         remaining_name_nodes = group_name_nodes.copy()
 
         parent_type, parent_name = self.get_location_type_and_name(location)
-        template_path = self.alias_helper.get_wlst_subfolders_path(location)
+        template_path = self.aliases.get_wlst_subfolders_path(location)
         groups_location = LocationContext(location)
         groups_location.append_location(GROUP_PARAMS)
-        groups_token = self.alias_helper.get_name_token(groups_location)
-        name_attribute = self.alias_helper.get_wlst_attribute_name(groups_location, SUB_DEPLOYMENT_NAME)
-        mbean_type = self.alias_helper.get_wlst_mbean_type(groups_location)
+        groups_token = self.aliases.get_name_token(groups_location)
+        name_attribute = self.aliases.get_wlst_attribute_name(groups_location, SUB_DEPLOYMENT_NAME)
+        mbean_type = self.aliases.get_wlst_mbean_type(groups_location)
 
         for group_name in group_name_nodes:
             if model_helper.is_delete_name(group_name):
@@ -252,7 +252,7 @@ class JmsResourcesDeployer(Deployer):
 
             folder_name = dictionary_utils.get_element(new_folder_map, sub_deployment_name)
             groups_location.add_name_token(groups_token, folder_name)
-            self.wlst_helper.cd(self.alias_helper.get_wlst_attributes_path(groups_location))
+            self.wlst_helper.cd(self.aliases.get_wlst_attributes_path(groups_location))
             self.set_attributes(groups_location, group_nodes)
 
     def _delete_mapped_mbean(self, folder_location, folder_token, mbean_type, name_attribute, name):
@@ -270,10 +270,10 @@ class JmsResourcesDeployer(Deployer):
         original_path = self.wlst_helper.get_pwd()
         mapped_folder_name = None
 
-        folder_names = deployer_utils.get_existing_object_list(folder_location, self.alias_helper)
+        folder_names = deployer_utils.get_existing_object_list(folder_location, self.aliases)
         for folder_name in folder_names:
             folder_location.add_name_token(folder_token, folder_name)
-            self.wlst_helper.cd(self.alias_helper.get_wlst_attributes_path(folder_location))
+            self.wlst_helper.cd(self.aliases.get_wlst_attributes_path(folder_location))
             attribute_value = self.wlst_helper.get(name_attribute)
             if attribute_value == name:
                 mapped_folder_name = folder_name
@@ -299,12 +299,12 @@ class JmsResourcesDeployer(Deployer):
         """
         original_path = self.wlst_helper.get_pwd()
 
-        folder_names = deployer_utils.get_existing_object_list(folder_location, self.alias_helper)
+        folder_names = deployer_utils.get_existing_object_list(folder_location, self.aliases)
         folder_map = OrderedDict()
 
         for folder_name in folder_names:
             folder_location.add_name_token(folder_token, folder_name)
-            self.wlst_helper.cd(self.alias_helper.get_wlst_attributes_path(folder_location))
+            self.wlst_helper.cd(self.aliases.get_wlst_attributes_path(folder_location))
             name = self.wlst_helper.get(name_attribute)
             folder_map[name] = folder_name
 
@@ -345,14 +345,14 @@ class JmsResourcesDeployer(Deployer):
         _method_name = '_create_placeholder_jms_template'
         original_location = self.wlst_helper.get_pwd()
         template_location = LocationContext(resource_location).append_location(TEMPLATE)
-        existing_names = deployer_utils.get_existing_object_list(template_location, self.alias_helper)
+        existing_names = deployer_utils.get_existing_object_list(template_location, self.aliases)
 
         if template_name not in existing_names:
             self.logger.info('WLSDPLY-09500', template_name, class_name=self._class_name, method_name=_method_name)
 
-        template_token = self.alias_helper.get_name_token(template_location)
+        template_token = self.aliases.get_name_token(template_location)
         template_location.add_name_token(template_token, template_name)
-        result = deployer_utils.create_and_cd(template_location, existing_names, self.alias_helper)
+        result = deployer_utils.create_and_cd(template_location, existing_names, self.aliases)
 
         self.wlst_helper.cd(original_location)
         return result

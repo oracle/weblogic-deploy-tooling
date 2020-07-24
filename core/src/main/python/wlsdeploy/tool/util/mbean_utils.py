@@ -26,10 +26,10 @@ class MBeanUtils(object):
     to combine the information from the MBeans helpers into different combinations are located in this class.
     """
 
-    def __init__(self, model_context, alias_helper, exception_type):
+    def __init__(self, model_context, aliases, exception_type):
         self.__model_context = model_context
         self.__exception_type = exception_type
-        self.__alias_helper = alias_helper
+        self.__aliases = aliases
         self.__wlst_helper = WlstHelper(exception_type)
         self.__helper = self.__get_helper()
         self.__ignore_list = None
@@ -134,10 +134,10 @@ class MBeanUtils(object):
         )]
 
     def __get_info_helper(self, location):
-        return MBeanInfoAttributes(self.__model_context, self.__alias_helper, self.__exception_type, location)
+        return MBeanInfoAttributes(self.__model_context, self.__aliases, self.__exception_type, location)
 
     def __get_interface_helper(self, location):
-        return InterfaceAttributes(self.__model_context, self.__alias_helper, self.__exception_type, location)
+        return InterfaceAttributes(self.__model_context, self.__aliases, self.__exception_type, location)
 
     def __remove_duplicates(self, check_list, check_list_type, main_list, main_list_type):
         _method_name = '__remove_duplicates'
@@ -158,7 +158,7 @@ class MBeanUtils(object):
     def __get_ignore_attributes(self):
         _method_name = '__get_ignore_attributes'
         if self.__ignore_list is None:
-            self.__ignore_list = self.__alias_helper.get_ignore_attribute_names()
+            self.__ignore_list = self.__aliases.get_ignore_attribute_names()
             _logger.finer('WLSDPLY-01779', self.__ignore_list,
                           class_name=self.__class__.__name__, method_name=_method_name)
         return self.__ignore_list
@@ -176,7 +176,7 @@ class MBeanUtils(object):
     def __get_lsa_attributes(self, location, lsa_map=None):
         _method_name = '__get_lsa_attributes'
         attributes = None
-        attribute_path = self.__alias_helper.get_wlst_attributes_path(location)
+        attribute_path = self.__aliases.get_wlst_attributes_path(location)
         if lsa_map is None:
             if location is not None:
                 if attribute_path is not None:
@@ -342,11 +342,11 @@ class MBeanAttributes(object):
 
     __interface_matcher = re.compile('Bean')
 
-    def __init__(self, model_context, alias_helper, exception_type, location):
+    def __init__(self, model_context, aliases, exception_type, location):
         self.__model_context = model_context
         self.__exception_type = exception_type
         self.__location = location
-        self.__alias_helper = alias_helper
+        self.__aliases = aliases
         self.__wlst_helper = WlstHelper(exception_type)
         self.__mbean_interface_name = None
         self.__mbean_instance = None
@@ -378,7 +378,7 @@ class MBeanAttributes(object):
     def get_mbean_instance(self):
         _method_name = 'get_mbean_instance'
         if self.__mbean_instance is None:
-            attribute_path = self.__alias_helper.get_wlst_attributes_path(self.__location)
+            attribute_path = self.__aliases.get_wlst_attributes_path(self.__location)
             self.__mbean_instance = self.__wlst_helper.get_mbean(attribute_path)
             if self.__mbean_instance is None:
                 ex = exception_helper.create_exception(self._get_exception_type(), 'WLSDPLY-01775', attribute_path)
@@ -478,8 +478,8 @@ class InterfaceAttributes(MBeanAttributes):
     attribute methods on the WLST CMO instance.
     """
 
-    def __init__(self,  model_context, alias_helper, exception_type, location):
-        MBeanAttributes.__init__(self,  model_context, alias_helper, exception_type, location)
+    def __init__(self,  model_context, aliases, exception_type, location):
+        MBeanAttributes.__init__(self,  model_context, aliases, exception_type, location)
 
         self.__interface_methods_list = None
         self.__interface_method_names_list = None
@@ -730,8 +730,8 @@ class MBeanInfoAttributes(MBeanAttributes):
 
     __class_name = 'MBeanInfoAttributes'
 
-    def __init__(self, model_context, alias_helper, exception_type, location):
-        MBeanAttributes.__init__(self, model_context, alias_helper, exception_type, location)
+    def __init__(self, model_context, aliases, exception_type, location):
+        MBeanAttributes.__init__(self, model_context, aliases, exception_type, location)
 
         self.__weblogic_helper = WebLogicHelper(_logger)
         self.__mbean_info_descriptors = None

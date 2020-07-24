@@ -8,10 +8,8 @@ from oracle.weblogic.deploy.exception import ExceptionHelper
 
 from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.modelhelp.model_sample_printer import ModelSamplePrinter
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import model
 
 _class_name = "ModelHelpPrinter"
@@ -29,7 +27,7 @@ class ModelHelpPrinter(object):
         :param logger: A reference to the platform logger to write to, if a log entry needs to be made
         """
         self._logger = logger
-        self._alias_helper = AliasHelper(aliases, self._logger, ExceptionType.CLA)
+        self._aliases = aliases
 
     def print_model_help(self, model_path, control_option):
         """
@@ -64,7 +62,7 @@ class ModelHelpPrinter(object):
         else:
             print _format_message('WLSDPLY-10105', model_path)
 
-        sample_printer = ModelSamplePrinter(self._alias_helper, self._logger)
+        sample_printer = ModelSamplePrinter(self._aliases, self._logger)
         sample_printer.print_model_sample(model_path_tokens, control_option)
 
     def _parse_model_path(self, model_path):
@@ -130,7 +128,7 @@ class ModelHelpPrinter(object):
         top_folder = folder_list[0]
 
         for section in KNOWN_TOPLEVEL_MODEL_SECTIONS:
-            folder_keys = self._alias_helper.get_model_section_top_level_folder_names(section)
+            folder_keys = self._aliases.get_model_section_top_level_folder_names(section)
             if top_folder in folder_keys:
                 return section
 

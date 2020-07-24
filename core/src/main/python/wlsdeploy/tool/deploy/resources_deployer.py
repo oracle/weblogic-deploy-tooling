@@ -31,7 +31,7 @@ class ResourcesDeployer(Deployer):
         Deploy resource model elements at the domain level, including multi-tenant elements.
         :param location: the location to deploy elements (includes basic tokens)
         """
-        domain_token = deployer_utils.get_domain_token(self.alias_helper)
+        domain_token = deployer_utils.get_domain_token(self.aliases)
         location.add_name_token(domain_token, self.model_context.get_domain_name())
 
         self._add_resources(location)
@@ -45,7 +45,7 @@ class ResourcesDeployer(Deployer):
         Deploy resource model elements that must be done after WLST updateDomain.
         :param location: the location to deploy elements (includes basic tokens)
         """
-        domain_token = deployer_utils.get_domain_token(self.alias_helper)
+        domain_token = deployer_utils.get_domain_token(self.aliases)
         location.add_name_token(domain_token, self.model_context.get_domain_name())
 
         odl_deployer = OdlDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)

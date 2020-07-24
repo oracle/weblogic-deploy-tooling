@@ -17,13 +17,13 @@ class ModelSamplePrinter(object):
     Class for printing the recognized model metadata as a model sample.
     """
 
-    def __init__(self, alias_helper, logger):
+    def __init__(self, aliases, logger):
         """
-        :param alias_helper: A reference to an Alias helper class instance
+        :param aliases: A reference to an Aliases class instance
         :param logger: A reference to the platform logger to write to, if a log entry needs to be made
         """
         self._logger = logger
-        self._alias_helper = alias_helper
+        self._aliases = aliases
 
     def print_model_sample(self, model_path_tokens, control_option):
         """
@@ -33,7 +33,7 @@ class ModelSamplePrinter(object):
         :raises CLAException: if a problem is encountered
         """
         section_name = model_path_tokens[0]
-        valid_section_folder_keys = self._alias_helper.get_model_section_top_level_folder_names(section_name)
+        valid_section_folder_keys = self._aliases.get_model_section_top_level_folder_names(section_name)
 
         if model_path_tokens[0] == 'top':
             self._print_model_top_level_sample()
@@ -67,7 +67,7 @@ class ModelSamplePrinter(object):
         _print_indent(section_name + ":", 0)
 
         if model_help_utils.show_attributes(control_option):
-            attributes_location = self._alias_helper.get_model_section_attribute_location(section_name)
+            attributes_location = self._aliases.get_model_section_attribute_location(section_name)
             if attributes_location is not None:
                 self._print_attributes_sample(attributes_location, 1)
 
@@ -100,17 +100,17 @@ class ModelSamplePrinter(object):
         indent = 0
         model_location = LocationContext()
         for token in model_path_tokens:
-            last_location = LocationContext(model_location);
+            last_location = LocationContext(model_location)
 
             if indent > 0:
-                code, message = self._alias_helper.is_valid_model_folder_name(model_location, token)
+                code, message = self._aliases.is_valid_model_folder_name(model_location, token)
                 if code != ValidationCodes.VALID:
                     ex = exception_helper.create_cla_exception("WLSDPLY-05027", message)
                     self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                     raise ex
                 model_location.append_location(token)
 
-            if self._alias_helper.is_artificial_type_folder(model_location):
+            if self._aliases.is_artificial_type_folder(model_location):
                 name = self._get_member_name(last_location, 0)
                 _print_indent(name + ":", indent)
                 indent += 1
@@ -144,7 +144,7 @@ class ModelSamplePrinter(object):
         """
         _method_name = '_print_subfolders_sample'
 
-        valid_subfolder_keys = self._alias_helper.get_model_subfolder_names(model_location)
+        valid_subfolder_keys = self._aliases.get_model_subfolder_names(model_location)
 
         valid_subfolder_keys.sort()
         self._print_subfolder_keys_sample(model_location, valid_subfolder_keys, control_option, indent_level)
@@ -164,7 +164,7 @@ class ModelSamplePrinter(object):
 
         for key in subfolder_keys:
             model_location.append_location(key)
-            name_token = self._alias_helper.get_name_token(model_location)
+            name_token = self._aliases.get_name_token(model_location)
             if name_token is not None:
                 model_location.add_name_token(name_token, '%s-0' % key)
 
@@ -172,13 +172,13 @@ class ModelSamplePrinter(object):
                 print("")
 
             key_level = indent_level
-            if self._alias_helper.is_artificial_type_folder(model_location):
+            if self._aliases.is_artificial_type_folder(model_location):
                 name = self._get_member_name(parent_location, artificial_index)
                 artificial_index += 1
                 _print_indent(name + ":", indent_level)
                 key_level += 1
 
-            _print_indent(key + ":", key_level )
+            _print_indent(key + ":", key_level)
 
             child_level = key_level
             if self._has_multiple_folders(model_location):
@@ -202,7 +202,7 @@ class ModelSamplePrinter(object):
         """
         _method_name = '_print_attributes_sample'
 
-        attr_infos = self._alias_helper.get_model_attribute_names_and_types(model_location)
+        attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
 
         if attr_infos:
             attr_list = attr_infos.keys()
@@ -227,10 +227,10 @@ class ModelSamplePrinter(object):
         :return: True if the location has multiple children
         """
         # check this first to avoid errors on subsequent checks
-        if self._alias_helper.is_artificial_type_folder(location):
+        if self._aliases.is_artificial_type_folder(location):
             return False
 
-        return self._alias_helper.supports_multiple_mbean_instances(location)
+        return self._aliases.supports_multiple_mbean_instances(location)
 
     def _get_member_name(self, location, index):
         """
@@ -239,7 +239,7 @@ class ModelSamplePrinter(object):
         :param index: the index of the member in the folder
         :return: the member name
         """
-        short_name = self._alias_helper.get_folder_short_name(location)
+        short_name = self._aliases.get_folder_short_name(location)
         if len(short_name) == 0:
             short_name = location.get_current_model_folder()
         return "'" + short_name + "-" + str(index + 1) + "'"

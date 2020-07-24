@@ -488,7 +488,7 @@ def main(args):
                         ex.getLocalizedMessage(), error=ex, class_name=_class_name, method_name=_method_name)
         __log_and_exit(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
 
-    aliases = Aliases(model_context, wlst_mode=__wlst_mode)
+    aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DISCOVER)
     model = None
     discover_injector = None
     if model_context.get_variable_file() is not None:

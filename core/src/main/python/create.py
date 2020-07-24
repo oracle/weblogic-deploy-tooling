@@ -33,7 +33,6 @@ from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.domain_creator import DomainCreator
 from wlsdeploy.tool.create.domain_typedef import CREATE_DOMAIN
 from wlsdeploy.tool.util import model_context_helper
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util import wlst_helper
@@ -230,14 +229,14 @@ def __process_opss_args(optional_arg_map):
     return
 
 
-def validate_rcu_args_and_model(model_context, model, archive_helper, alias_helper):
+def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
     _method_name = 'validate_rcu_args_and_model'
 
     has_atpdbinfo = 0
     domain_info = model[model_constants.DOMAIN_INFO]
     if domain_info is not None:
         if model_constants.RCU_DB_INFO in domain_info:
-            rcu_db_info = RcuDbInfo(alias_helper, domain_info[model_constants.RCU_DB_INFO])
+            rcu_db_info = RcuDbInfo(aliases, domain_info[model_constants.RCU_DB_INFO])
             has_tns_admin = rcu_db_info.has_tns_admin()
             has_regular_db = rcu_db_info.is_regular_db()
             has_atpdbinfo = rcu_db_info.has_atpdbinfo()
@@ -316,7 +315,7 @@ def main(args):
         model_context = model_context_helper.create_exit_context(_program_name)
         tool_exit.end(model_context, exit_code)
 
-    aliases = Aliases(model_context, wlst_mode=__wlst_mode)
+    aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.CREATE)
 
     model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "create", __wlst_mode)
 
@@ -327,8 +326,7 @@ def main(args):
             domain_path = _get_domain_path(model_context, model_dictionary)
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
 
-        alias_helper = AliasHelper(aliases, __logger, ExceptionType.CREATE)
-        has_atp = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, alias_helper)
+        has_atp = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
 
         # check if there is an atpwallet and extract in the domain dir
         # it is to support non JRF domain but user wants to use ATP database
@@ -340,7 +338,7 @@ def main(args):
 
         if has_atp:
             rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
-            rcu_db_info = RcuDbInfo(alias_helper, rcu_properties_map)
+            rcu_db_info = RcuDbInfo(aliases, rcu_properties_map)
             atp_helper.fix_jps_config(rcu_db_info, model_context)
 
     except WLSDeployArchiveIOException, ex:

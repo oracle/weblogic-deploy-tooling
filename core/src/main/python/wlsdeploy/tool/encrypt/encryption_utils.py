@@ -22,16 +22,16 @@ class _ModelEncrypter(object):
     _class_name = '_ModelEncrypter'
     _logger = PlatformLogger('wlsdeploy.encrypt')
 
-    def __init__(self, passphrase, alias_helper, variables=None):
+    def __init__(self, passphrase, aliases, variables=None):
         """
         Initialize variables for use throughout.
         :param passphrase: the passphrase used to encrypt/decrypt the passwords
-        :param alias_helper: the alias helper for the tool
+        :param aliases: the alias helper for the tool
         :param variables: the variables property object
         :raises EncryptionException if an error occurs
         """
         self.passphrase = passphrase
-        self.alias_helper = alias_helper
+        self.aliases = aliases
         self.variables = variables
         self.model_changes = 0
         self.variable_changes = 0
@@ -49,19 +49,19 @@ class _ModelEncrypter(object):
             self._encrypt_info_nodes(domain_info_dict)
 
         if model.get_model_topology_key() in model_dict:
-            top_folder_names = self.alias_helper.get_model_topology_top_level_folder_names()
+            top_folder_names = self.aliases.get_model_topology_top_level_folder_names()
             topology_nodes = model_dict[model.get_model_topology_key()]
             location = LocationContext()
             self._encrypt_nodes(location, topology_nodes, top_folder_names)
 
         if model.get_model_resources_key() in model_dict:
-            top_folder_names = self.alias_helper.get_model_resources_top_level_folder_names()
+            top_folder_names = self.aliases.get_model_resources_top_level_folder_names()
             resources_nodes = model_dict[model.get_model_resources_key()]
             location = LocationContext()
             self._encrypt_nodes(location, resources_nodes, top_folder_names)
 
         if model.get_model_deployments_key() in model_dict:
-            top_folder_names = self.alias_helper.get_model_app_deployments_top_level_folder_names()
+            top_folder_names = self.aliases.get_model_app_deployments_top_level_folder_names()
             deployments_nodes = model_dict[model.get_model_deployments_key()]
             location = LocationContext()
             self._encrypt_nodes(location, deployments_nodes, top_folder_names)
@@ -73,10 +73,10 @@ class _ModelEncrypter(object):
         Encrypt a set of nodes from the domainInfo section of the model.
         :param info_nodes: the model nodes
         """
-        info_location = self.alias_helper.get_model_section_attribute_location(DOMAIN_INFO)
-        password_attribute_names = self.alias_helper.get_model_password_type_attribute_names(info_location)
+        info_location = self.aliases.get_model_section_attribute_location(DOMAIN_INFO)
+        password_attribute_names = self.aliases.get_model_password_type_attribute_names(info_location)
 
-        subfolder_names = self.alias_helper.get_model_section_top_level_folder_names(DOMAIN_INFO)
+        subfolder_names = self.aliases.get_model_section_top_level_folder_names(DOMAIN_INFO)
 
         for node in info_nodes:
             if node in subfolder_names:
@@ -98,19 +98,19 @@ class _ModelEncrypter(object):
 
         folder_name = location.get_folder_path()
 
-        password_attribute_names = self.alias_helper.get_model_password_type_attribute_names(location)
+        password_attribute_names = self.aliases.get_model_password_type_attribute_names(location)
 
         if subfolder_names is None:
-            subfolder_names = self.alias_helper.get_model_subfolder_names(location)
+            subfolder_names = self.aliases.get_model_subfolder_names(location)
 
         for node in model_nodes:
             if node in subfolder_names:
                 child_location = LocationContext(location).append_location(node)
 
                 # check artificial type first, those locations will cause error in other checks
-                has_multiple = (not self.alias_helper.is_artificial_type_folder(child_location)) and \
-                               (self.alias_helper.requires_artificial_type_subfolder_handling(child_location) or
-                                self.alias_helper.supports_multiple_mbean_instances(child_location))
+                has_multiple = (not self.aliases.is_artificial_type_folder(child_location)) and \
+                               (self.aliases.requires_artificial_type_subfolder_handling(child_location) or
+                                self.aliases.supports_multiple_mbean_instances(child_location))
 
                 if has_multiple:
                     name_nodes = model_nodes[node]
@@ -121,8 +121,8 @@ class _ModelEncrypter(object):
                     child_nodes = model_nodes[node]
                     self._encrypt_nodes(child_location, child_nodes)
 
-            elif (not self.alias_helper.is_artificial_type_folder(location)) and \
-                    self.alias_helper.requires_artificial_type_subfolder_handling(location):
+            elif (not self.aliases.is_artificial_type_folder(location)) and \
+                    self.aliases.requires_artificial_type_subfolder_handling(location):
                 # if a child of a security provider type is not a known subfolder, possibly a custom provider
                 self._logger.info('WLSDPLY-04108', node, folder_name,
                                   class_name=self._class_name, method_name=_method_name)
@@ -194,17 +194,17 @@ class _ModelEncrypter(object):
             raise ex
 
 
-def encrypt_model_dictionary(passphrase, model_dict, alias_helper, variables):
+def encrypt_model_dictionary(passphrase, model_dict, aliases, variables):
     """
     Encrypt password attributes and replace them in the specified model.
     :param passphrase: the password to use for encryption
     :param model_dict: the model dictionary
-    :param alias_helper: the alias helper for the tool
+    :param aliases: the alias helper for the tool
     :param variables: the variables property object
     :return: the number of model elements encrypted, and the number of variables encrypted
     :raises EncryptionException if an error occurs
     """
-    encrypter = _ModelEncrypter(passphrase, alias_helper, variables)
+    encrypter = _ModelEncrypter(passphrase, aliases, variables)
     return encrypter.encrypt_model_dictionary(model_dict)
 
 

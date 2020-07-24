@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases import alias_utils
@@ -26,8 +26,8 @@ class RcuDbInfo(object):
     Returns default values for some unspecified fields.
     """
 
-    def __init__(self, alias_helper, rcu_properties_map):
-        self.alias_helper = alias_helper
+    def __init__(self, aliases, rcu_properties_map):
+        self.aliases = aliases
         self.rcu_properties_map = rcu_properties_map
 
     def get_atp_tns_admin(self):
@@ -41,19 +41,19 @@ class RcuDbInfo(object):
 
     def get_rcu_schema_password(self):
         password = self.rcu_properties_map[RCU_SCHEMA_PASSWORD]
-        return self.alias_helper.decrypt_password(password)
+        return self.aliases.decrypt_password(password)
 
     def get_keystore_password(self):
         password = self.rcu_properties_map[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY]
-        return self.alias_helper.decrypt_password(password)
+        return self.aliases.decrypt_password(password)
 
     def get_truststore_password(self):
         password = self.rcu_properties_map[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY]
-        return self.alias_helper.decrypt_password(password)
+        return self.aliases.decrypt_password(password)
 
     def get_admin_password(self):
         password = self.rcu_properties_map[RCU_ADMIN_PASSWORD]
-        return self.alias_helper.decrypt_password(password)
+        return self.aliases.decrypt_password(password)
 
     def get_rcu_regular_db_conn(self):
         return self.rcu_properties_map[RCU_DB_CONN]

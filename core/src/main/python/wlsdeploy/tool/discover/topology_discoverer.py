@@ -118,7 +118,7 @@ class TopologyDiscoverer(Discoverer):
         clusters = self._find_names_in_folder(location)
         if clusters is not None:
             _logger.info('WLSDPLY-06601', len(clusters), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for cluster in clusters:
                 _logger.info('WLSDPLY-06602', cluster, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, cluster)
@@ -145,7 +145,7 @@ class TopologyDiscoverer(Discoverer):
         servers = self._find_names_in_folder(location)
         if servers is not None:
             _logger.info('WLSDPLY-06603', len(servers), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for server in servers:
                 _logger.info('WLSDPLY-06604', server, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, server)
@@ -170,7 +170,7 @@ class TopologyDiscoverer(Discoverer):
         templates = self._find_names_in_folder(location)
         if templates is not None:
             _logger.info('WLSDPLY-06605', len(templates), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for template in templates:
                 _logger.info('WLSDPLY-06606', template, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, template)
@@ -195,7 +195,7 @@ class TopologyDiscoverer(Discoverer):
         targets = self._find_names_in_folder(location)
         if targets is not None:
             _logger.info('WLSDPLY-06607', len(targets), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for target in targets:
                 _logger.info('WLSDPLY-06608', target, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, target)
@@ -221,7 +221,7 @@ class TopologyDiscoverer(Discoverer):
         machines = self._find_names_in_folder(location)
         if machines is not None:
             _logger.info('WLSDPLY-06609', len(machines), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for machine in machines:
                 _logger.info('WLSDPLY-06610', machine, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, machine)
@@ -251,7 +251,7 @@ class TopologyDiscoverer(Discoverer):
         location.append_location(model_top_folder_name)
         machines = self._find_names_in_folder(location)
         if machines is not None:
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for unix_machine in unix_machines:
                 if unix_machine in machines:
                     machines.remove(unix_machine)
@@ -314,7 +314,7 @@ class TopologyDiscoverer(Discoverer):
         security_configuration = self._find_singleton_name_in_folder(location)
         if security_configuration is not None:
             _logger.info('WLSDPLY-06622', class_name=_class_name, method_name=_method_name)
-            location.add_name_token(self._alias_helper.get_name_token(location), security_configuration)
+            location.add_name_token(self._aliases.get_name_token(location), security_configuration)
             self._populate_model_parameters(result, location)
             try:
                 self._discover_subfolders(result, location)
@@ -339,7 +339,7 @@ class TopologyDiscoverer(Discoverer):
         location.append_location(model_top_folder_name)
         embedded_ldap_configuration = self._find_singleton_name_in_folder(location)
         if embedded_ldap_configuration is not None:
-            location.add_name_token(self._alias_helper.get_name_token(location), embedded_ldap_configuration)
+            location.add_name_token(self._aliases.get_name_token(location), embedded_ldap_configuration)
             self._populate_model_parameters(result, location)
             # IFF credential is the only attribute, skip adding the Embedded LDAP server configuration
             if len(result) == 1 and model_constants.CREDENTIAL_ENCRYPTED in result:
@@ -386,7 +386,7 @@ class TopologyDiscoverer(Discoverer):
         filters = self._find_names_in_folder(location)
         if filters is not None:
             _logger.info('WLSDPLY-06628', len(filters), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for logfilter in filters:
                 _logger.info('WLSDPLY-06629', logfilter, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, logfilter)
@@ -411,7 +411,7 @@ class TopologyDiscoverer(Discoverer):
         policies = self._find_names_in_folder(location)
         if policies is not None:
             _logger.info('WLSDPLY-06630', len(policies), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for policy in policies:
                 _logger.info('WLSDPLY-06631', policy, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, policy)
@@ -436,7 +436,7 @@ class TopologyDiscoverer(Discoverer):
         caches = self._find_names_in_folder(location)
         if caches is not None:
             _logger.info('WLSDPLY-06632', len(caches), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for cache in caches:
                 _logger.info('WLSDPLY-06633', cache, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, cache)
@@ -461,7 +461,7 @@ class TopologyDiscoverer(Discoverer):
         registries = self._find_names_in_folder(location)
         if registries is not None:
             _logger.info('WLSDPLY-06634', len(registries), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for registry in registries:
                 _logger.info('WLSDPLY-06635', registry, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, registry)
@@ -651,7 +651,7 @@ class TopologyDiscoverer(Discoverer):
         """
         temp = LocationContext()
         temp.append_location(model_constants.SERVER)
-        return location.get_name_for_token(self._alias_helper.get_name_token(temp))
+        return location.get_name_for_token(self._aliases.get_name_token(temp))
 
 
 def _kss_file_type(file_name):

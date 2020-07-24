@@ -9,7 +9,6 @@ from shutil import copy
 from wlsdeploy.aliases.model_constants import DOMAIN_SCRIPTS
 from wlsdeploy.aliases.model_constants import DOMAIN_LIBRARIES
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
@@ -27,7 +26,7 @@ class LibraryHelper(object):
         self.model = model
         self.model_context = model_context
         self.domain_home = domain_home
-        self.alias_helper = AliasHelper(aliases, self.logger, exception_type)
+        self.aliases = aliases
         self.wlst_helper = WlstHelper(exception_type)
 
         self.archive_helper = None

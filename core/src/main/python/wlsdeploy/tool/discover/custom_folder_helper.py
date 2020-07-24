@@ -21,7 +21,6 @@ import oracle.weblogic.deploy.util.PyOrderedDict as PyOrderedDict
 import wlsdeploy.aliases.alias_constants as alias_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
@@ -47,10 +46,9 @@ class CustomFolderHelper(object):
         self._model_context = model_context
         if logger is not None:
             _logger = logger
-        self._alias_helper = AliasHelper(aliases, _logger, self._exception_type)
         self._weblogic_helper = WebLogicHelper(_logger)
         self._wlst_helper = WlstHelper(self._exception_type)
-        self._info_helper = MBeanUtils(self._model_context, self._alias_helper, self._exception_type)
+        self._info_helper = MBeanUtils(self._model_context, aliases, self._exception_type)
         self._variable_injector = variable_injector
 
     def discover_custom_mbean(self, base_location, model_type, mbean_name):

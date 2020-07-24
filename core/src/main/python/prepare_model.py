@@ -40,7 +40,6 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import variable_injector_functions
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.tool.validate.validator import Validator
@@ -108,8 +107,8 @@ class PrepareModel:
         self.model_files = model_files
         self.output_dir = output_dir
         self.model_context = model_context
-        self._aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE)
-        self._alias_helper = AliasHelper(self._aliases, logger, ExceptionType.COMPARE)
+        self._aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE,
+                                exception_type=ExceptionType.COMPARE)
         self._logger = logger
         self._name_tokens_location = LocationContext()
         self._name_tokens_location.add_name_token('DOMAIN', "testdomain")
@@ -124,14 +123,14 @@ class PrepareModel:
             return
 
         # only specific top-level sections have attributes
-        attribute_location = self._alias_helper.get_model_section_attribute_location(model_section_key)
+        attribute_location = self._aliases.get_model_section_attribute_location(model_section_key)
 
         valid_attr_infos = []
         path_tokens_attr_keys = []
 
         if attribute_location is not None:
-            valid_attr_infos = self._alias_helper.get_model_attribute_names_and_types(attribute_location)
-            path_tokens_attr_keys = self._alias_helper.get_model_uses_path_tokens_attribute_names(attribute_location)
+            valid_attr_infos = self._aliases.get_model_attribute_names_and_types(attribute_location)
+            path_tokens_attr_keys = self._aliases.get_model_uses_path_tokens_attribute_names(attribute_location)
 
         model_section_dict = model_dict[model_section_key]
         for section_dict_key, section_dict_value in model_section_dict.iteritems():
@@ -158,16 +157,16 @@ class PrepareModel:
     def __walk_section_folder(self, model_node, validation_location):
         _method_name = '__validate_section_folder'
 
-        model_folder_path = self._alias_helper.get_model_folder_path(validation_location)
+        model_folder_path = self._aliases.get_model_folder_path(validation_location)
 
-        if self._alias_helper.supports_multiple_mbean_instances(validation_location):
+        if self._aliases.supports_multiple_mbean_instances(validation_location):
 
             for name in model_node:
                 expanded_name = name
 
                 new_location = LocationContext(validation_location)
 
-                name_token = self._alias_helper.get_name_token(new_location)
+                name_token = self._aliases.get_name_token(new_location)
 
                 if name_token is not None:
                     new_location.add_name_token(name_token, expanded_name)
@@ -176,14 +175,14 @@ class PrepareModel:
 
                 self.__walk_model_node(value_dict, new_location)
 
-        elif self._alias_helper.requires_artificial_type_subfolder_handling(validation_location):
+        elif self._aliases.requires_artificial_type_subfolder_handling(validation_location):
 
             for name in model_node:
                 expanded_name = name
 
                 new_location = LocationContext(validation_location)
 
-                name_token = self._alias_helper.get_name_token(new_location)
+                name_token = self._aliases.get_name_token(new_location)
 
                 if name_token is not None:
                     new_location.add_name_token(name_token, expanded_name)
@@ -193,7 +192,7 @@ class PrepareModel:
                 self.__walk_model_node(value_dict, new_location)
 
         else:
-            name_token = self._alias_helper.get_name_token(validation_location)
+            name_token = self._aliases.get_name_token(validation_location)
 
             if name_token is not None:
                 name = self._name_tokens_location.get_name_for_token(name_token)
@@ -208,18 +207,18 @@ class PrepareModel:
     def __walk_model_node(self, model_node, validation_location):
         _method_name = '__process_model_node'
 
-        valid_folder_keys = self._alias_helper.get_model_subfolder_names(validation_location)
-        valid_attr_infos = self._alias_helper.get_model_attribute_names_and_types(validation_location)
-        model_folder_path = self._alias_helper.get_model_folder_path(validation_location)
+        valid_folder_keys = self._aliases.get_model_subfolder_names(validation_location)
+        valid_attr_infos = self._aliases.get_model_attribute_names_and_types(validation_location)
+        model_folder_path = self._aliases.get_model_folder_path(validation_location)
 
         for key, value in model_node.iteritems():
 
             if key in valid_folder_keys:
                 new_location = LocationContext(validation_location).append_location(key)
 
-                if self._alias_helper.is_artificial_type_folder(new_location):
+                if self._aliases.is_artificial_type_folder(new_location):
                     # key is an ARTIFICIAL_TYPE folder
-                    valid_attr_infos = self._alias_helper.get_model_attribute_names_and_types(new_location)
+                    valid_attr_infos = self._aliases.get_model_attribute_names_and_types(new_location)
 
                     self.__walk_attributes(value, valid_attr_infos, new_location)
                 else:
@@ -237,7 +236,7 @@ class PrepareModel:
 
                 else:
                     path_tokens_attr_keys = \
-                        self._alias_helper.get_model_uses_path_tokens_attribute_names(validation_location)
+                        self._aliases.get_model_uses_path_tokens_attribute_names(validation_location)
 
                     self.__walk_attribute(key, value, valid_attr_infos, path_tokens_attr_keys, model_folder_path,
                                           validation_location)
@@ -245,9 +244,9 @@ class PrepareModel:
     def __walk_attributes(self, attributes_dict, valid_attr_infos, validation_location):
         _method_name = '__validate_attributes'
 
-        path_tokens_attr_keys = self._alias_helper.get_model_uses_path_tokens_attribute_names(validation_location)
+        path_tokens_attr_keys = self._aliases.get_model_uses_path_tokens_attribute_names(validation_location)
 
-        model_folder_path = self._alias_helper.get_model_folder_path(validation_location)
+        model_folder_path = self._aliases.get_model_folder_path(validation_location)
 
         for attribute_name, attribute_value in attributes_dict.iteritems():
             self.__walk_attribute(attribute_name, attribute_value, valid_attr_infos, path_tokens_attr_keys,
@@ -399,14 +398,14 @@ class PrepareModel:
                 self.cache[key] = ''
 
             # use a merged, substituted, filtered model to get domain name and create additional target output.
-            full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._alias_helper,
+            full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._aliases,
                                                           "discover", WlstModes.OFFLINE)
 
             target_configuration_helper.generate_k8s_script(self.model_context, self.cache, full_model_dictionary)
 
             # create any additional outputs from full model dictionary
             target_configuration_helper.create_additional_output(Model(full_model_dictionary), self.model_context,
-                                                                 self._alias_helper, ExceptionType.VALIDATE)
+                                                                 self._aliases, ExceptionType.VALIDATE)
 
         except ValidateException, te:
             self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),

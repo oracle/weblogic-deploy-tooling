@@ -293,10 +293,10 @@ class WlstHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return result
 
-    def create_and_cd(self, alias_helper, type_name, name, location, create_path=None):
+    def create_and_cd(self, aliases, type_name, name, location, create_path=None):
         """
         Create a new MBean instance and change directories to its attributes location.
-        :param alias_helper: the alias helper object
+        :param aliases: the alias helper object
         :param type_name: the WLST type
         :param name: the name for the new object
         :param location: the location
@@ -310,7 +310,7 @@ class WlstHelper(object):
         if create_path is not None:
             self.cd(create_path)
         self.create(name, type_name)
-        result = self.cd(alias_helper.get_wlst_attributes_path(location))
+        result = self.cd(aliases.get_wlst_attributes_path(location))
         self.__logger.exiting(result=result, class_name=self.__class_name, method_name=_method_name)
         return result
 

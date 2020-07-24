@@ -4,16 +4,13 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The main module for the WLSDeploy tool to encrypt passwords.
 """
-import os
 import sys
 
 from java.io import IOException
-from java.lang import IllegalArgumentException
 from java.lang import String, System
 
 from oracle.weblogic.deploy.encrypt import EncryptionException
 from oracle.weblogic.deploy.util import CLAException
-from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
@@ -27,7 +24,6 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.encrypt import encryption_utils
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import variables as variable_helper
@@ -165,14 +161,13 @@ def __encrypt_model_and_variables(model_context):
                             class_name=_class_name, method_name=_method_name)
             return CommandLineArgUtil.PROG_ERROR_EXIT_CODE
 
-    aliases = Aliases(model_context, wlst_mode=WlstModes.OFFLINE)
-    alias_helper = AliasHelper(aliases, __logger, ExceptionType.ENCRYPTION)
+    aliases = Aliases(model_context, wlst_mode=WlstModes.OFFLINE, exception_type=ExceptionType.ENCRYPTION)
 
     for model_file, model in models.iteritems():
         try:
             passphrase = model_context.get_encryption_passphrase()
             model_change_count, variable_change_count = \
-                encryption_utils.encrypt_model_dictionary(passphrase, model, alias_helper, variables)
+                encryption_utils.encrypt_model_dictionary(passphrase, model, aliases, variables)
         except EncryptionException, ee:
             __logger.severe('WLSDPLY-04208', _program_name, ee.getLocalizedMessage(), error=ee,
                             class_name=_class_name, method_name=_method_name)

@@ -28,39 +28,39 @@ _logger = platform_logger.PlatformLogger('wlsdeploy.deploy.utils')
 _wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 
 
-def get_existing_object_list(location, alias_helper):
+def get_existing_object_list(location, aliases):
     """
     Get a list of the existing names at the specified location.
     :param location: the location to be examined, for example, location MACHINE returns names under /Machines
-    :param alias_helper: the alias helper used to determine path names
+    :param aliases: the alias helper used to determine path names
     """
     method_name = 'get_existing_object_list'
-    list_path = alias_helper.get_wlst_list_path(location)
+    list_path = aliases.get_wlst_list_path(location)
     existing_names = _wlst_helper.get_existing_object_list(list_path)
     _logger.finer("WLSDPLY-09100", existing_names, class_name=_class_name, method_name=method_name)
     return existing_names
 
 
-def create_and_cd(location, existing_names, alias_helper):
+def create_and_cd(location, existing_names, aliases):
     """
     Create the directories specified by location (if they do not exist), then CD to the attributes path for the
     location.
     :param location: the location of the directory to be created
     :param existing_names: names that already exist at the specified location
-    :param alias_helper: the alias helper used to determine path names
+    :param aliases: the alias helper used to determine path names
     """
     method_name = 'create_and_cd'
     _logger.entering(str(location), existing_names, _class_name, method_name)
 
-    mbean_name = get_mbean_name(location, existing_names, alias_helper)
-    create_path = alias_helper.get_wlst_create_path(location)
+    mbean_name = get_mbean_name(location, existing_names, aliases)
+    create_path = aliases.get_wlst_create_path(location)
     _wlst_helper.cd(create_path)
 
     create_if_not_exist(mbean_name,
-                        alias_helper.get_wlst_mbean_type(location),
+                        aliases.get_wlst_mbean_type(location),
                         existing_names)
 
-    wlst_path = alias_helper.get_wlst_attributes_path(location)
+    wlst_path = aliases.get_wlst_attributes_path(location)
     _logger.exiting(_class_name, method_name, wlst_path)
     return _wlst_helper.cd(wlst_path)
 
@@ -85,7 +85,7 @@ def create_if_not_exist(object_name, object_type, existing_names):
     return result
 
 
-def get_mbean_name(location, existing_names, alias_helper):
+def get_mbean_name(location, existing_names, aliases):
     """
     Return the mbean name for the specified location.
     For unpredictable single folders:
@@ -93,39 +93,39 @@ def get_mbean_name(location, existing_names, alias_helper):
       2. set the location's token to the mbean name.
     :param location: the location to examine
     :param existing_names: a list of existing names at the location
-    :param alias_helper: the alias helper to use for name and path resolution
+    :param aliases: the alias helper to use for name and path resolution
     """
-    mbean_name = alias_helper.get_wlst_mbean_name(location)
+    mbean_name = aliases.get_wlst_mbean_name(location)
 
-    if alias_helper.requires_unpredictable_single_name_handling(location):
+    if aliases.requires_unpredictable_single_name_handling(location):
         if len(existing_names) > 0:
             mbean_name = existing_names[0]
-        token = alias_helper.get_name_token(location)
+        token = aliases.get_name_token(location)
         location.add_name_token(token, mbean_name)
 
     return mbean_name
 
 
-def check_flattened_folder(location, alias_helper):
+def check_flattened_folder(location, aliases):
     """
     The paths for a location may contain a flattened folder - a type/name level that is not reflected in the model.
     For these cases, create the required type/name directory pair.
     :param location: the location to examine
-    :param alias_helper: the alias helper to use for name and path resolution
+    :param aliases: the alias helper to use for name and path resolution
     """
-    if alias_helper.is_flattened_folder(location):
-        create_path = alias_helper.get_wlst_flattened_folder_create_path(location)
+    if aliases.is_flattened_folder(location):
+        create_path = aliases.get_wlst_flattened_folder_create_path(location)
         existing_types = _wlst_helper.get_existing_object_list(create_path)
 
-        mbean_type = alias_helper.get_wlst_flattened_mbean_type(location)
+        mbean_type = aliases.get_wlst_flattened_mbean_type(location)
         if mbean_type not in existing_types:
-            mbean_name = alias_helper.get_wlst_flattened_mbean_name(location)
+            mbean_name = aliases.get_wlst_flattened_mbean_name(location)
             _wlst_helper.cd(create_path)
             create_if_not_exist(mbean_name, mbean_type, [])
     return
 
 
-def get_domain_token(alias_helper):
+def get_domain_token(aliases):
     """
     Returns the domain token required by some root-level WLST elements.
     :return: the domain token
@@ -180,24 +180,24 @@ def merge_lists(existing_list, model_list, separator=',', return_as_string=True)
     return result
 
 
-def delete_named_element(location, delete_name, existing_names, alias_helper):
+def delete_named_element(location, delete_name, existing_names, aliases):
     """
     Delete the specified named element if present. If the name is not present, log a warning and return.
     :param location: the location of the element to be deleted
     :param delete_name: the name of the element to be deleted, assumed to include the "!" prefix
     :param existing_names: a list of names to check against
-    :param alias_helper: alias helper for lookups
+    :param aliases: alias helper for lookups
     """
     _method_name = 'delete_named_element'
 
     name = model_helper.get_delete_item_name(delete_name)
-    type_name = alias_helper.get_wlst_mbean_type(location)
+    type_name = aliases.get_wlst_mbean_type(location)
 
     if name not in existing_names:
         _logger.warning('WLSDPLY-09109', type_name, name, class_name=_class_name, method_name=_method_name)
     else:
         _logger.info('WLSDPLY-09110', type_name, name, class_name=_class_name, method_name=_method_name)
-        type_path = alias_helper.get_wlst_create_path(location)
+        type_path = aliases.get_wlst_create_path(location)
         _wlst_helper.cd(type_path)
         _wlst_helper.delete(name, type_name)
 

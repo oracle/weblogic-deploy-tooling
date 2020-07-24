@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -66,7 +66,7 @@ class MultiTenantDiscoverer(Discoverer):
         templates = self._find_names_in_folder(location)
         if templates is not None:
             _logger.info('WLSDPLY-06701', len(templates), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for template in templates:
                 _logger.info('WLSDPLY-06702', template, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, template)
@@ -94,9 +94,9 @@ class MultiTenantDiscoverer(Discoverer):
         resource_groups = self._find_names_in_folder(location)
         if resource_groups is not None:
             _logger.info('WLSDPLY-06703', len(resource_groups), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for resource_group in resource_groups:
-                _logger.info('WLSDPLY-06704', resource_group, self._alias_helper.get_model_folder_path(location),
+                _logger.info('WLSDPLY-06704', resource_group, self._aliases.get_model_folder_path(location),
                              class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, resource_group)
                 result[resource_group] = self._discover_single_folder(location)
@@ -122,7 +122,7 @@ class MultiTenantDiscoverer(Discoverer):
         partitions = self._find_names_in_folder(location)
         if partitions is not None:
             _logger.info('WLSDPLY-06705', len(partitions), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for partition in partitions:
                 _logger.info('WLSDPLY-06706', partition, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, partition)

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -17,9 +17,7 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import dictionary_utils
 
 _ADD_JVM_NUMBER = "AddJvmNumber"
@@ -47,9 +45,9 @@ class OdlDeployer(object):
     def __init__(self, model, model_context, aliases, wlst_mode):
         self.model = model
         self.model_context = model_context
+        self.aliases = aliases
 
         self.logger = PlatformLogger('wlsdeploy.deploy')
-        self.alias_helper = AliasHelper(aliases, self.logger, ExceptionType.DEPLOY)
         self.wlst_mode = wlst_mode
 
     def configure_odl(self, parent_dict, parent_location):
@@ -79,7 +77,7 @@ class OdlDeployer(object):
         _method_name = '_update_config'
 
         config_location = LocationContext(parent_location).append_location(ODL_CONFIGURATION)
-        token = self.alias_helper.get_name_token(config_location)
+        token = self.aliases.get_name_token(config_location)
         config_location.add_name_token(token, config_name)
 
         servers = dictionary_utils.get_element(config_dictionary, _SERVERS)
@@ -156,9 +154,9 @@ class OdlDeployer(object):
         _method_name = '_configure_handler'
 
         handler_location = LocationContext(config_location).append_location(_HANDLER)
-        token = self.alias_helper.get_name_token(handler_location)
+        token = self.aliases.get_name_token(handler_location)
         handler_location.add_name_token(token, handler_name)
-        handler_path = self.alias_helper.get_model_folder_path(handler_location)
+        handler_path = self.aliases.get_model_folder_path(handler_location)
 
         handler_class = dictionary_utils.get_element(handler, _CLASS)
 
@@ -239,9 +237,9 @@ class OdlDeployer(object):
         _method_name = '_configure_logger'
 
         logger_location = LocationContext(config_location).append_location(_LOGGER)
-        token = self.alias_helper.get_name_token(logger_location)
+        token = self.aliases.get_name_token(logger_location)
         logger_location.add_name_token(token, logger_name)
-        logger_path = self.alias_helper.get_model_folder_path(logger_location)
+        logger_path = self.aliases.get_model_folder_path(logger_location)
 
         if logger_name not in existing_names:
             try:

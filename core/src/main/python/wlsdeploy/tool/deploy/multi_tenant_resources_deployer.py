@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import wlsdeploy.util.dictionary_utils as dictionary_utils
@@ -73,7 +73,7 @@ class MultiTenantResourcesDeployer(Deployer):
         parent_type = self.get_location_type(location)
         if parent_type == PARTITION:
             self._add_subfolders(model_nodes, location)
-            self.wlst_helper.cd(self.alias_helper.get_wlst_attributes_path(location))
+            self.wlst_helper.cd(self.aliases.get_wlst_attributes_path(location))
             self.set_attributes(location, model_nodes)
             return
 

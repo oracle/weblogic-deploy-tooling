@@ -16,7 +16,6 @@ from wlsdeploy.aliases.alias_jvmargs import JVMArguments
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 from wlsdeploy.aliases.model_constants import CAPACITY
@@ -149,7 +148,7 @@ class AttributeSetter(object):
         self.__logger = logger
         self.__exception_type = exception_type
         self.__wlst_mode = wlst_mode
-        self.__alias_helper = AliasHelper(aliases, self.__logger, exception_type)
+        self.__aliases = aliases
         self.__wlst_helper = WlstHelper(exception_type)
         return
 
@@ -352,7 +351,7 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if the cluster is not found
         """
 
-        entity_type, entity_name = self.__alias_helper.get_model_type_and_name(location)
+        entity_type, entity_name = self.__aliases.get_model_type_and_name(location)
 
         self.__wlst_helper.assign(entity_type, entity_name, key, value)
         return
@@ -575,7 +574,7 @@ class AttributeSetter(object):
             mbean = self.__find_in_location(domain_location, PARTITION_WORK_MANAGER, value)
 
         if mbean is None:
-            _type, partition_name = self.__alias_helper.get_model_type_and_name(location)
+            _type, partition_name = self.__aliases.get_model_type_and_name(location)
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19206', value, partition_name)
             self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
             raise ex
@@ -600,7 +599,7 @@ class AttributeSetter(object):
             mbean = self.__find_in_location(management_location, RESOURCE_MANAGER, value)
 
         if mbean is None:
-            _type, manager_name = self.__alias_helper.get_model_type_and_name(location)
+            _type, manager_name = self.__aliases.get_model_type_and_name(location)
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19207', value, manager_name)
             self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
             raise ex
@@ -648,12 +647,12 @@ class AttributeSetter(object):
         _method_name = 'set_attribute'
 
         if use_raw_value:
-            wlst_param = self.__alias_helper.get_wlst_attribute_name(location, model_key)
+            wlst_param = self.__aliases.get_wlst_attribute_name(location, model_key)
             wlst_value = model_value
         else:
             wlst_param, wlst_value = \
-                self.__alias_helper.get_wlst_attribute_name_and_value(location, model_key, model_value,
-                                                                      existing_wlst_value=wlst_merge_value)
+                self.__aliases.get_wlst_attribute_name_and_value(location, model_key, model_value,
+                                                                 existing_wlst_value=wlst_merge_value)
 
         if wlst_param is None:
             self.__logger.info('WLSDPLY-20011', model_key, class_name=self._class_name, method_name=_method_name)
@@ -664,7 +663,7 @@ class AttributeSetter(object):
             if self.__logger.is_finer_enabled():
                 print_model_value = model_value
                 print_wlst_value = wlst_value
-                if self.__alias_helper.is_model_password_attribute(location, model_key):
+                if self.__aliases.is_model_password_attribute(location, model_key):
                     print_model_value = MASKED_PASSWORD
                     print_wlst_value = MASKED_PASSWORD
                 self.__logger.finer('WLSDPLY-19211', wlst_param, print_model_value, print_wlst_value,
@@ -677,7 +676,7 @@ class AttributeSetter(object):
         _method_name = 'set_attribute_with_cmo'
 
         wlst_attr_name, wlst_attr_value = \
-            self.__alias_helper.get_wlst_attribute_name_and_value(location, key, value, existing_wlst_value=wlst_value)
+            self.__aliases.get_wlst_attribute_name_and_value(location, key, value, existing_wlst_value=wlst_value)
 
         if wlst_attr_name is None:
             self.__logger.info('WLSDPLY-20011', key, class_name=self._class_name, method_name=_method_name)
@@ -687,7 +686,7 @@ class AttributeSetter(object):
                 log_value = '<masked>'
             self.__logger.info('WLSDPLY-20012', key, log_value, class_name=self._class_name, method_name=_method_name)
         else:
-            attrib_path = self.__alias_helper.get_wlst_attributes_path(location)
+            attrib_path = self.__aliases.get_wlst_attributes_path(location)
             self.__wlst_helper.cd(attrib_path)
             self.__wlst_helper.set_with_cmo(wlst_attr_name, wlst_attr_value, masked=masked)
         return
@@ -799,7 +798,7 @@ class AttributeSetter(object):
             if mbean is not None:
                 return mbean
 
-        _resource_type, resource_name = self.__alias_helper.get_model_type_and_name(resource_location)
+        _resource_type, resource_name = self.__aliases.get_model_type_and_name(resource_location)
         ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19201', destination_name, resource_name)
         self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
         raise ex
@@ -835,7 +834,7 @@ class AttributeSetter(object):
         destination_location = LocationContext(resource_location).append_location(SAF_IMPORTED_DESTINATION)
         existing_sets = self.__get_existing_object_list(destination_location)
 
-        token_name = self.__alias_helper.get_name_token(destination_location)
+        token_name = self.__aliases.get_name_token(destination_location)
         for set_name in existing_sets:
             if token_name is not None:
                 destination_location.add_name_token(token_name, set_name)
@@ -844,7 +843,7 @@ class AttributeSetter(object):
                 if mbean is not None:
                     return mbean
 
-        _resource_type, resource_name = self.__alias_helper.get_model_type_and_name(resource_location)
+        _resource_type, resource_name = self.__aliases.get_model_type_and_name(resource_location)
         ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19203', destination_name, resource_name)
         self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
         raise ex
@@ -910,20 +909,20 @@ class AttributeSetter(object):
         method_name = '__find_in_location'
 
         location = LocationContext(location).append_location(element_type)
-        if self.__alias_helper.get_wlst_mbean_type(location) is not None:
+        if self.__aliases.get_wlst_mbean_type(location) is not None:
             existing_names = self.__get_existing_object_list(location)
             if name in existing_names:
-                location_type, location_name = self.__alias_helper.get_model_type_and_name(location)
+                location_type, location_name = self.__aliases.get_model_type_and_name(location)
                 self.__logger.fine('WLSDPLY-19204', element_type, name, location_type, location_name,
                                    class_name=self._class_name, method_name=method_name)
-                token = self.__alias_helper.get_name_token(location)
+                token = self.__aliases.get_name_token(location)
                 location.add_name_token(token, name)
-                path = self.__alias_helper.get_wlst_attributes_path(location)
+                path = self.__aliases.get_wlst_attributes_path(location)
                 return self.__wlst_helper.get_mbean_for_wlst_path(path)
 
         if required:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19210', element_type, name,
-                                                   self.__alias_helper.get_model_folder_path(location))
+                                                   self.__aliases.get_model_folder_path(location))
             self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
             raise ex
 
@@ -975,7 +974,7 @@ class AttributeSetter(object):
         _method_name = '__get_existing_object_list'
 
         self.__logger.entering(str(location), class_name=self._class_name, method_name=_method_name)
-        list_path = self.__alias_helper.get_wlst_list_path(location)
+        list_path = self.__aliases.get_wlst_list_path(location)
         existing_names = self.__wlst_helper.get_existing_object_list(list_path)
         self.__logger.exiting(class_name=self._class_name, method_name=_method_name, result=existing_names)
         return existing_names
