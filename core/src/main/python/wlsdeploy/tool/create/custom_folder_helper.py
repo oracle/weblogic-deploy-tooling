@@ -81,7 +81,8 @@ class CustomFolderHelper(object):
             property_descriptor = property_map.get(model_key)
 
             if not property_descriptor:
-                ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12128', model_key)
+                folder_path = self.aliases.get_model_folder_path(type_location)
+                ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12128', model_key, folder_path)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
