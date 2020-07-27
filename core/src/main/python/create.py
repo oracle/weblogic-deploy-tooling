@@ -237,7 +237,7 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, alias_help
     domain_info = model[model_constants.DOMAIN_INFO]
     if domain_info is not None:
         if model_constants.RCU_DB_INFO in domain_info:
-            rcu_db_info = RcuDbInfo(alias_helper, domain_info[model_constants.RCU_DB_INFO])
+            rcu_db_info = RcuDbInfo(model_context, alias_helper, domain_info[model_constants.RCU_DB_INFO])
             has_tns_admin = rcu_db_info.has_tns_admin()
             has_regular_db = rcu_db_info.is_regular_db()
             has_atpdbinfo = rcu_db_info.has_atpdbinfo()
@@ -340,7 +340,7 @@ def main(args):
 
         if has_atp:
             rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
-            rcu_db_info = RcuDbInfo(alias_helper, rcu_properties_map)
+            rcu_db_info = RcuDbInfo(model_context, alias_helper, rcu_properties_map)
             atp_helper.fix_jps_config(rcu_db_info, model_context)
 
     except WLSDeployArchiveIOException, ex:
