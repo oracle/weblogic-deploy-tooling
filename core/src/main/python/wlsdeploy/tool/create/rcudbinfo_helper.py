@@ -11,12 +11,15 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
+from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
+from wlsdeploy.aliases.model_constants import RCU_DB_USER
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
-from wlsdeploy.aliases.model_constants import RCU_DB_USER
+from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RCU_VARIABLES
 from wlsdeploy.aliases.model_constants import USE_ATP
+from wlsdeploy.util.model_context import ModelContext
 
 
 class RcuDbInfo(object):
@@ -26,7 +29,8 @@ class RcuDbInfo(object):
     Returns default values for some unspecified fields.
     """
 
-    def __init__(self, alias_helper, rcu_properties_map):
+    def __init__(self, model_context, alias_helper, rcu_properties_map):
+        self.model_context = model_context
         self.alias_helper = alias_helper
         self.rcu_properties_map = rcu_properties_map
 
@@ -81,6 +85,16 @@ class RcuDbInfo(object):
             return self.rcu_properties_map[RCU_DB_USER]
         else:
             return 'SYS'
+
+    def get_comp_info_location(self):
+        if RCU_COMP_INFO in self.rcu_properties_map:
+            return self.model_context.replace_token_string(self.rcu_properties_map[RCU_COMP_INFO])
+        return None
+
+    def get_storage_location(self):
+        if RCU_STG_INFO in self.rcu_properties_map:
+            return self.model_context.replace_token_string(self.rcu_properties_map[RCU_STG_INFO])
+        return None
 
     def get_rcu_variables(self):
         if RCU_VARIABLES in self.rcu_properties_map:
