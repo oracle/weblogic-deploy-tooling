@@ -45,3 +45,16 @@ domainInfo:
 ```    
 
 **Note: Prior to release 0.23, the useATP flag only accepts values of 0, 1, 'true' or 'false'.**
+
+When creating a domain using WDT and the -run_rcu option, you can specify your extended XML files in the RCUDbInfo section. 
+
+RCU `-compInfoXMLLocation` `<file path>` `-storageXMLLocation`
+
+Include your XML files in the archive file under the location `wlsdeploy/rcu/config`
+
+```yaml
+domainInfo:
+    RCUDbInfo:
+        compInfoXMLLocation: 'wlsdeploy/rcu/config/MyComponentInfo.xml'
+        storageXMLLocation: 'wlsdeploy/rcu/config/MyStorage.xml'
+```
