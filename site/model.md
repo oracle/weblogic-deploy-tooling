@@ -30,12 +30,12 @@ All assignment statements must have one or more spaces between the colon and the
 - [Top-Level Sections](#top-level-model-sections)
 - [Simple Example](#simple-example)
 - [Model Names](#model-names)
+- [Model Tokens](#model-tokens)
 - [Model Semantics](#model-semantics)
 - [Declaring Named MBeans to Delete](#declaring-named-mbeans-to-delete)
 - [Using Multiple Models](#using-multiple-models)
-- [The Archive File](site/archive.md)
 
-##### Top-Level Model Sections
+### Top-Level Model Sections
 The tooling has four top-level model sections:
 
 - `domainInfo`     - The location where special information not represented in WLST is specified (for example, the libraries that go in `$DOMAIN_HOME/lib`).
@@ -44,7 +44,7 @@ The tooling has four top-level model sections:
 - `appDeployments` - The location where shared libraries and applications are specified.
 - `kubernetes`     - The location where the WLS Kubernetes Operator domain configuration is specified.
 
-##### Simple Example
+### Simple Example
 Here is a simple example of a model to deploy an application and its data source:
 
 ```yaml
@@ -83,7 +83,7 @@ The above example shows two important features of the framework.  First, notice 
 
 Second, notice that the `jsf#2.0` shared library `SourcePath` attribute value starts with `@@WL_HOME@@`. This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  See [Model Tokens](#model-tokens) for more information and a list of available path tokens.
 
-The example above shows the attribute `SourcePath` of the `simpleear` application with a value of `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory within the domain, in this case `<domain-home>/wlsdeploy/applications/simpleear.ear`. See [The Archive File](site/archive.md) for more details about using the archive file.
+The example above shows the attribute `SourcePath` of the `simpleear` application with a value of `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory within the domain, in this case `<domain-home>/wlsdeploy/applications/simpleear.ear`. See [The Archive File](archive.md) for more details about using the archive file.
 
 Users can create further directory structures underneath the above locations to organize the files and directories as they see fit.  Note that any binary that already exists on the target system need not be included in the archive provided that the model specified the correct location on the target system.
 
@@ -248,7 +248,7 @@ This feature can also remove items that were created by WebLogic Server template
                 ...
 ```
 
-This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling Security Providers](site/security_providers.md) for detailed information.
+This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling Security Providers](use_cases.md#modeling-security-providers) for detailed information.
 
 This feature cannot be use to un-deploy applications or remove libraries.
 

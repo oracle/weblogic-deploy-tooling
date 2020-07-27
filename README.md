@@ -13,8 +13,9 @@ Currently, the project provides several single-purpose tools, all exposed as she
 - The [Encrypt Model Tool](site/encrypt.md) (`encryptModel`) encrypts the passwords in a model (or its variable file) using a user-provided passphrase.
 - The [Validate Model Tool](site/validate.md) (`validateModel`) provides both standalone validation of a model as well as model usage information to help users write or edit their models.
 - The [Compare Model Tool](site/compare.md) (`compareModel`) compares two model files.
-- The [Prepare Model Tool](site/prepare.md) (`prepareModel`) prepare model files for deploying to WebLogic Kubernetes Operator environment.
+- The [Prepare Model Tool](site/prepare.md) (`prepareModel`) prepares model files for deploying to WebLogic Server Kubernetes Operator environment.
 - The [Extract Domain Resource Tool](site/kubernetes.md) (`extractDomainResource`) generates a domain resource YAML for use with the Oracle WebLogic Server Kubernetes Operator.
+- The [Variable Injector Tool](site/variable_injection.md) is used to tokenize a model with variables.
 - The [Model Help Tool](site/model_help.md) (`modelHelp.sh`) provides information about the folders and attributes that are valid for sections and folders of a domain model.
 
 As new use cases are discovered, new tools will likely be added to cover those operations but all will use the metadata model to describe what needs to be done.
@@ -31,6 +32,7 @@ The Oracle WebLogic Server Deploy Tooling project repository is located at [`htt
 ## Concepts
 
 - [The Model](site/model.md)
+- [The Archive File](site/archive.md)
 - [Model Use Cases](site/use_cases.md)
 - [Tool Configuration](site/tool_configuration.md)
 

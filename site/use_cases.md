@@ -1,12 +1,740 @@
 ## Model Use Cases
 
- - [Customizing the Administration Server](site/admin_server.md)
- - [Modeling a Configured Cluster](site/samples/configured_cluster.md)
- - [Modeling a JDBC Data Source](site/samples/jdbc.md)
- - [Modeling a Work Manager](site/samples/work_manager.md)
- - [Modeling Security Providers](site/security_providers.md)
- - [Modeling WebLogic Users, Groups, and Roles](site/security_users_groups_roles.md)
- - [Modeling ODL](site/odl_configuration.md)
- - [Modeling Oracle HTTP Server (OHS)](site/ohs_configuration.md)
- - [Targeting Server Groups](site/server_groups.md)
- - [Using WDT with Oracle WebLogic Server Kubernetes Operator](site/kubernetes.md)
+ - [Customizing the Administration Server](#administration-server-configuration)
+ - [Modeling a Configured Cluster](#configured-cluster-sample)
+ - [Modeling a JDBC Data Source](#jdbc-sample)
+ - [Modeling a Work Manager](#work-manager-sample)
+ - [Modeling Security Providers](#modeling-security-providers)
+ - [Modeling WebLogic Users, Groups, and Roles](#modeling-weblogic-users-groups-and-roles)
+ - [Modeling ODL](#odl-configuration)
+ - [Modeling Oracle HTTP Server (OHS)](#configuring-oracle-http-server)
+ - [Targeting Server Groups](#targeting-server-groups)
+ - [Using WDT with Oracle WebLogic Server Kubernetes Operator](#using-wdt-with-oracle-weblogic-server-kubernetes-operator)
+
+ ### Administration Server Configuration
+
+ The Create Domain Tool allows you to configure the Administration Server using a domain model. These examples show how some common configurations can be represented in the model.
+
+ #### Using the Default Administration Server Configuration
+
+ When the Create Domain Tool is run, the templates associated with your domain type will automatically create an Administration Server named `AdminServer`, with default values for all the attributes. If you don't need to change any of these attributes, such as `ListenAddress` or `ListenPort`, or any of the sub-folders, such as `SSL` or `ServerStart`, nothing needs to be added to the model.
+
+ #### Customizing the Administration Server Configuration
+
+ To customize the configuration of the default Administration Server, you will need to add a server with the default name `AdminServer`. Because you are not changing the name of the Administration Server, there is no need to specify the `AdminServerName` attribute under the topology section. This example shows some attributes and sub-folders:
+
+ ```yaml
+ topology:
+     Server:
+         AdminServer:
+             ListenPort: 9071
+             RestartDelaySeconds: 10
+             ListenAddress: 'my-host-1'
+             Log:
+                 FileCount: 9
+                 LogFileSeverity: Info
+                 FileMinSize: 5000
+             SSL:
+                 HostnameVerificationIgnored: true
+                 JSSEEnabled: true
+                 ListenPort: 9072
+                 Enabled: true
+ ```
+
+ The most common problem with this type of configuration is to misspell the name of the folder under `Server`, when it should be `AdminServer`. This will result in the creation of an Administration Server with the default name, and an additional Managed Server with the misspelled name.
+
+ #### Configuring the Administration Server with a Different Name
+
+ If you want the Administration Server to have a name other than the default `AdminServer`, you will need to specify that name in the `AdminServerName` attribute, and use that name in the `Server` section. This example uses the name `my-admin-server`:
+
+ ```yaml
+ topology:
+     AdminServerName: 'my-admin-server'
+     Server:
+         'my-admin-server':
+             ListenPort: 9071
+             RestartDelaySeconds: 10
+             ListenAddress: 'my-host-1'
+             Log:
+                 FileCount: 9
+                 LogFileSeverity: Info
+                 FileMinSize: 5000
+             SSL:
+                 HostnameVerificationIgnored: true
+                 JSSEEnabled: true
+                 ListenPort: 9072
+                 Enabled: true
+ ```
+
+ The most common problem with this type of configuration is to mismatch the `AdminServerName` attribute with the name in the `Server` folder. This will change the name of the default Administration Server to the value of `AdminServerName`, and the folder under `Server` to be created as an additional Managed Server.
+
+ The name of the Administration Server cannot be changed after domain creation, so any changes to the `AdminServerName` attribute will be ignored by the Update Domain Tool.
+
+
+ ### Configured Cluster Sample
+
+ This WDT domain model sample section has a typical configuration for a configured cluster with a single managed server, including connection information, logging setup, and other details.
+
+ ```yaml
+ topology:
+     Cluster:
+         'cluster-1':
+             ClientCertProxyEnabled: true
+             AutoMigrationTableName: MIGRATION_1
+             DataSourceForAutomaticMigration: 'jdbc-1'
+             ClusterMessagingMode: unicast
+             FrontendHost: frontend.com
+             FrontendHTTPPort: 9001
+             FrontendHTTPSPort: 9002
+             MigrationBasis: database
+             NumberOfServersInClusterAddress: 5
+             WeblogicPluginEnabled: true
+
+     Server:
+         'server-1':
+             Cluster: 'cluster-1'  # this server belongs to cluster-1
+             ListenAddress: 127.0.0.1
+             ListenPort: 8001
+             Machine: 'machine-1'
+             Log:
+                 DomainLogBroadcastSeverity: Error
+                 FileCount: 7
+                 FileMinSize: 5000
+                 FileName: 'logs/AdminServer.log'
+                 LogFileSeverity: Info
+                 MemoryBufferSeverity: Notice
+                 NumberOfFilesLimited: true
+                 RotateLogOnStartup: true
+                 RotationType: bySize
+             SSL:
+                 Enabled: true
+                 ListenPort: 8002
+             ServerStart:
+                 Arguments: '-Dosgi=true -Dtangosol.coherence.management=all'
+                 ClassPath: '/foo/bar,wlsdeploy/classpathLibraries/mylib.jar'
+ ```
+ There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool](model_help.md). For example, this command will list the attributes and sub-folders for the `Server` folder:
+ ```yaml
+ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle topology:/Server
+ ```
+
+ For this sample, the machine named `machine-1` and the data source named `jdbc-1` should be defined elsewhere within this model, or should already exist in a domain that is being updated.
+
+
+ ### JDBC Sample
+
+ This WDT domain model sample section has a typical configuration for a JDBC data source, including targeting information, connection pool parameters, and other details.
+
+ ```yaml
+ resources:
+     JDBCSystemResource:
+         'datasource-1':
+             Target: 'AdminServer,cluster-1'
+             JdbcResource:
+                 DatasourceType: GENERIC
+                 JDBCConnectionPoolParams:
+                     ConnectionReserveTimeoutSeconds: 10
+                     InitialCapacity: 0
+                     MaxCapacity: 5
+                     MinCapacity: 0
+                     TestConnectionsOnReserve: true
+                     TestTableName: SQL ISVALID
+                 JDBCDriverParams:
+                     DriverName: oracle.jdbc.OracleDriver
+                     PasswordEncrypted: '@@PROP:jdbc.password@@'
+                     URL: 'jdbc:oracle:thin:@//localhost:1521/myDB'
+                     Properties:
+                         user:
+                             Value: scott
+ ```
+ There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool](model_help.md). For example, this command will list the attributes and sub-folders for the `JDBCSystemResource/JdbcResource` folder:
+ ```yaml
+ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource/JdbcResource
+ ```
+
+ For this sample, the target cluster `cluster-1` should be defined elsewhere within this model, or should already exist in a domain that is being updated.
+
+ It is recommended that credential fields, such as `PasswordEncrypted`, should not be stored as clear text in the model. Those values can be referenced in a separate variables file or in Kubernetes secrets, or the model can be encrypted using the [Encrypt Model Tool](encrypt.md).
+
+
+ ### Work Manager Sample
+
+ This WDT domain model sample section has typical configurations for a Work Manager and its related request classes and constraints. These elements are configured in the `SelfTuning` folder in the `resources` section of the model.
+ ```yaml
+ resources:
+     SelfTuning:
+         Capacity:
+             capacity40:
+                 Target: 'cluster-1'
+                 Count: 40
+         MaxThreadsConstraint:
+             threeMax:
+                 Target: 'cluster-1'
+                 Count: 3
+         MinThreadsConstraint:
+             twoMin:
+                 Target: 'cluster-1'
+                 Count: 2
+         FairShareRequestClass:
+             appFairShare:
+                 Target: 'cluster-1'
+                 FairShare: 50
+             highFairshare:
+                 Target: 'cluster-1'
+                 FairShare: 80
+             lowFairshare:
+                 Target: 'cluster-1'
+                 FairShare: 20
+         ResponseTimeRequestClass:
+             fiveSecondResponse:
+                 Target: 'cluster-1'
+                 GoalMs: 5000
+         ContextRequestClass:
+             appContextRequest:
+                 Target: 'cluster-1'
+                 ContextCase:
+                     Case1:
+                         GroupName: Administrators
+                         RequestClassName: highFairshare
+                         Target: 'cluster-1'
+                     Case2:
+                         UserName: weblogic
+                         RequestClassName: lowFairshare
+                         Target: 'cluster-1'
+         WorkManager:
+             myWorkManager:
+                 Capacity: capacity40
+                 ContextRequestClass: appContextRequest
+                 # FairShareRequestClass: appFairShare
+                 IgnoreStuckThreads: true
+                 MaxThreadsConstraint: threeMax
+                 MinThreadsConstraint: twoMin
+                 # ResponseTimeRequestClass: fiveSecondResponse
+                 Target: 'cluster-1'
+ ```
+ In this sample, assignments for `FairShareRequestClass` and `ResponseTimeRequestClass` are included as comments under `myWorkManager`. A Work Manager can only specify one request class type.
+
+ There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool](model_help.md). For example, this command will list the attributes and sub-folders for the `WorkManager` folder:
+ ```yaml
+ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/WorkManager
+ ```
+
+ For this sample, the target cluster `cluster-1` should be defined elsewhere within this model, or should already exist in a domain that is being updated.
+
+
+ ### Modeling Security Providers
+
+ WebLogic Server security configuration requires special handling and causes the need for the model semantics to differ from other folders.  Because provider ordering is important, and to make sure that the ordering is correctly set in the newly created domain, the Create Domain Tool and Update Domain Tool require that all providers be specified in the model for any provider type that will be created or altered.  For example, if you want to change one of the providers in the provider type `AuthenticationProvider`, your model must specify all of the `AuthenticationProvider` providers and any non-default attributes for those providers.  In order to apply security providers, these tools will delete all providers from the target domain for those provider types specified in the model before adding the providers from the model to the target domain. Provider types that are omitted from the model will be unchanged.  Example provider types are `Adjudicator`, `AuthenticationProvider`, `Authorizer`, `CertPathProvider`, `CredentialMapper`, `PasswordValidator`, and `RoleMapper`.
+
+ For example, if the model specified an `LDAPAuthenticator` and an `LDAPX509IdentityAsserter` similar to what is shown below, the `DefaultAuthenticator` and `DefaultIdentityAsserter` would be deleted.  In this example, other provider types like `RoleMapper` and `CredentialMapper` are not specified and would be left untouched by the tools.   
+
+ ```yaml
+ topology:
+     SecurityConfiguration:
+         Realm:
+             myrealm:
+                 AuthenticationProvider:
+                     My LDAP authenticator:
+                         LDAPAuthenticator:
+                             ControlFlag: SUFFICIENT
+                             PropagateCauseForLoginException: true
+                             EnableGroupMembershipLookupHierarchyCaching: true
+                             Host: myldap.example.com
+                             Port: 389
+                             UserObjectClass: person
+                             GroupHierarchyCacheTTL: 600
+                             SSLEnabled: true
+                             UserNameAttribute: cn
+                             Principal: 'cn=foo,ou=users,dc=example,dc=com'
+                             UserBaseDn: 'OU=Users,DC=example,DC=com'
+                             UserSearchScope: subtree
+                             UserFromNameFilter: '(&(cn=%u)(objectclass=person))'
+                             AllUsersFilter: '(memberOf=CN=foo,OU=mygroups,DC=example,DC=com)'
+                             GroupBaseDN: 'OU=mygroups,DC=example,DC=com'
+                             AllGroupsFilter: '(&(foo)(objectclass=group))'
+                             StaticGroupObjectClass: group
+                             StaticMemberDNAttribute: cn
+                             StaticGroupDNsfromMemberDNFilter: '(&(member=%M)(objectclass=group))'
+                             DynamicGroupObjectClass: group
+                             DynamicGroupNameAttribute: cn
+                             UseRetrievedUserNameAsPrincipal: true
+                             KeepAliveEnabled: true
+                             GuidAttribute: uuid
+                     My LDAP IdentityAsserter:
+                         LDAPX509IdentityAsserter:
+                             ActiveType: AuthenticatedUser
+                             Host: myldap.example.com
+                             Port: 389
+                             SSLEnabled: true
+ ```    
+
+ In order to keep the `DefaultAuthenticator` and `DefaultIdentityAsserter` while changing/adding providers, they must be specified in the model with any non-default attributes as shown in the example below.  Keep in mind, the ordering of providers in the model will be the order the providers are set in the WebLogic security configuration.
+
+ ```yaml
+ topology:
+     SecurityConfiguration:
+         Realm:
+             myrealm:
+                 AuthenticationProvider:
+                     My LDAP authenticator:
+                         LDAPAuthenticator:
+                             ControlFlag: SUFFICIENT
+                             PropagateCauseForLoginException: true
+                             EnableGroupMembershipLookupHierarchyCaching: true
+                             Host: myldap.example.com
+                             Port: 389
+                             UserObjectClass: person
+                             GroupHierarchyCacheTTL: 600
+                             SSLEnabled: true
+                             UserNameAttribute: cn
+                             Principal: 'cn=foo,ou=users,dc=example,dc=com'
+                             UserBaseDn: 'OU=Users,DC=example,DC=com'
+                             UserSearchScope: subtree
+                             UserFromNameFilter: '(&(cn=%u)(objectclass=person))'
+                             AllUsersFilter: '(memberOf=CN=foo,OU=mygroups,DC=example,DC=com)'
+                             GroupBaseDN: 'OU=mygroups,DC=example,DC=com'
+                             AllGroupsFilter: '(&(foo)(objectclass=group))'
+                             StaticGroupObjectClass: group
+                             StaticMemberDNAttribute: cn
+                             StaticGroupDNsfromMemberDNFilter: '(&(member=%M)(objectclass=group))'
+                             DynamicGroupObjectClass: group
+                             DynamicGroupNameAttribute: cn
+                             UseRetrievedUserNameAsPrincipal: true
+                             KeepAliveEnabled: true
+                             GuidAttribute: uuid
+                     My LDAP IdentityAsserter:
+                         LDAPX509IdentityAsserter:
+                             ActiveType: AuthenticatedUser
+                             Host: myldap.example.com
+                             Port: 389
+                             SSLEnabled: true
+                     DefaultAuthenticator:
+                         DefaultAuthenticator:
+                             ControlFlag: SUFFICIENT
+                     DefaultIdentityAsserter:
+                         DefaultIdentityAsserter:
+
+ ```
+ #### Trust Service Identity Asserter
+
+ **NOTE:** The Trust Identity Asserter Security Provider is installed by JRF in 12c versions and newer.
+
+ The JRF installed Trust Identity Asserter does not supply a schema file by default.  Before you can configure this asserter with WLST offline or WDT offline, you must first build the schema file using the `prepareCustomProvider` script.
+
+ Here is an example of how to prepare and install a schema file from its MBean Jar File (MJF):
+
+ ```bash
+ export CONFIG_JVM_ARGS=-DSchemaTypeSystemName=TrustServiceIdentityAsserter
+
+ ORACLE_HOME/oracle_common/common/bin/prepareCustomProvider.sh -mjf=ORACLE_HOME/oracle_common/modules/oracle.jps/jps-wls-trustprovider.jar -out ORACLE_HOME/oracle_common/lib/schematypes/jps-wls-trustprovider.schema.jar
+
+ ```
+ For FMW versions 12.1.2 and 12.1.3, replace `oracle.jps` in the example path above with:
+ oracle.jps_12.1.2, or oracle.jps_12.1.3, respectively.
+
+ #### Custom Security Providers
+
+ **NOTE:** Creating and updating domains with custom security providers is limited to WebLogic version 12.1.2 and newer.
+
+ Prior to using this tooling to create or update a domain with a custom security provider, there are several prerequisites.  First, WebLogic Server requires the custom MBean JAR to be in the Oracle Home directory before it can be configured, `WLSERVER/server/lib/mbeantypes`.  Second, WebLogic Scripting Tool, WLST, requires that the schema JAR be placed in the Oracle Home directory before WLST offline can be used to configure it, `ORACLEHOME/oracle_common/lib/schematypes`.  Generating an MBean JAR documentation can be found in the WebLogic Server [documentation](https://docs.oracle.com/middleware/12213/wls/DEVSP/generate_mbeantype.htm#DEVSP617).  Generating the schema JAR can be done with the `prepareCustomProvider` script provided in the WebLogic Server installation.
+
+ The format for a custom security provider is slightly different from a built-in provider in that the custom provider must supply the fully-qualified name of the class for the provider in the model between the provider name and the attributes for that provider.  Note that the generated Impl suffix is omitted from the name. In the custom `CredentialMapper` example below, note the location in the model of 'examples.security.providers.SampleCredentialMapper':
+
+ ```yaml
+         CredentialMapper:
+             'Sample CredentialMapper':
+                 'examples.security.providers.SampleCredentialMapper':
+                     UserNameMapperClassName: 'examples.security.providers.CredentialMapperProviderImpl'
+                     CredentialMappingDeploymentEnabled: true:
+ ```
+
+ #### Known Limitations
+
+ - `Adjudicator` provider types cannot be added or modified due to a limitation in WLST.
+ - `PasswordCredentials` provider types cannot be updated in WLST online.
+
+
+ ### Modeling WebLogic Users, Groups, and Roles
+ WebLogic Server has the ability to establish a set of users, groups, and global roles as part of the WebLogic domain creation. The WebLogic global roles become part of the WebLogic role mapper (i.e. `XACMLRoleMapper`) and are specified under `domainInfo` in the `WLSRoles` section. The users and groups become part of the Embedded LDAP server (i.e. `DefaultAuthenticator`) and are specified under `topology` in the `Security` section.
+
+ #### WebLogic Global Roles
+ The model allows for the definition of WebLogic roles that can augment the well known WebLogic global roles (e.g. `Admin`, `Deployer`, `Monitor`, ...) in addition to defining new roles. When updating the well known WebLogic roles, an `UpdateMode` can be specified as `{ append | prepend | replace }` with the default being `replace` when not specified. Also, when updating the well known roles, the specified `Expression` will be a logical `OR` with the default expression. The `Expression` value for the role is the same as when using the WebLogic `RoleEditorMBean` for a WebLogic security role mapping provider.
+
+ For example, the `WLSRoles` section below updates the well known `Admin`, `Deployer` and `Monitor` roles while adding a new global role with `Tester` as the role name:
+
+ ```yaml
+ domainInfo:
+   WLSRoles:
+     Admin:
+       UpdateMode: append
+       Expression: "?weblogic.entitlement.rules.IDCSAppRoleName(AppAdmin,@@PROP:AppName@@)"
+     Deployer:
+       UpdateMode: replace
+       Expression: "?weblogic.entitlement.rules.AdministrativeGroup(@@PROP:Deployers@@)"
+     Monitor:
+       UpdateMode: prepend
+       Expression: "?weblogic.entitlement.rules.AdministrativeGroup(AppMonitors)"
+     Tester:
+       Expression: "?weblogic.entitlement.rules.IDCSAppRoleName(AppTester,@@PROP:AppName@@)"
+ ```
+
+ The `Admin` role will have the expression appended to the default expression, the `Deployer` role expression will replace the default, the `Monitor` role expression will be prepended to the default expression and `Tester` will be a new role with the specified expression.
+
+ In addition, the `Expression` value can use the variable placeholder syntax specified when running the [Create Tool](create.md) as shown in the above example.
+
+ #### WebLogic Users and Groups
+ The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP Server (i.e. `DefaultAuthenticator`). New groups can be specified and users can be added as members of the new groups or existing groups such as the `Administrators` group which is defaulted to be in the WebLogic `Admin` global role. Please see [known limitations](#known-limitations) below for additional information on users and groups.
+
+ The user password can be specified with a placeholder or encrypted with the [Encrypt Tool](encrypt.md). An example `Security` section that adds an additional group `AppMonitors`, adds two new users and places the users into groups is as follows:
+
+ ```yaml
+ topology:
+   Security:
+     Group:
+       AppMonitors:
+         Description: Application Monitors
+     User:
+       john:
+          Password: welcome1
+          GroupMemberOf: [ AppMonitors, Administrators ]
+       joe:
+          Password: welcome1
+          GroupMemberOf: [ AppMonitors ]
+ ```
+
+ #### Known Limitations
+
+ - The processing of users, groups, and roles will only take place when using the [Create Domain Tool](create.md)
+ - WebLogic global roles are only supported with WebLogic Server version 12.2.1 or greater
+ - WebLogic global roles are only updated for the WebLogic security XACML role mapping provider (i.e. `XACMLRoleMapper`)
+ - The user and group processing is not complete, currently, users cannot be assigned to groups. Users created using the `Security` section are automatically added to the `Administrators` group and are not added to the groups specified. As soon as a patch to correct the user and group processing is available, we will post it here.
+
+
+ ### ODL Configuration
+
+ Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tools, starting with WDT release 1.5.2. ODL configuration is only supported for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool. This example shows how some common configuration elements can be represented in the model.
+
+ ```yaml
+ resources:
+     ODLConfiguration:
+         config1:
+             Servers: "m1, m2"
+             AddJvmNumber: true
+             HandlerDefaults:
+                 abc: r123
+                 xyz: k890
+             Handler:
+                 'my-handler':
+                     Class: 'com.my.MyHandler'
+                     Level: 'TRACE:32'
+                     ErrorManager: 'com.my.MyErrorManager'
+                     Filter: 'com.my.MyFilter'
+                     Formatter: 'com.my.MyFormatter'
+                     Encoding: 'UTF-8'
+                     Properties:
+                         'path': '/home/me/mypath"
+                 'quicktrace-handler':
+                     Filter: 'oracle:dfw:incident:IncidentDetectionLogFilter'
+                     Properties:
+                         path: '${domain.home}/servers/${weblogic.Name}/logs/${weblogic.Name}-myhistory.log'
+                         useSourceClassandMethod: 'true'
+             Logger:
+                 'my-logger':
+                     Level: 'NOTIFICATION:1'
+                     UseParentHandlers: true
+                     Filter: 'oracle:dfw:incident:IncidentDetectionLogFilter'
+                     Handlers: 'richard-handler,owsm-message-handler'
+                 'oracle.sysman':
+                     Handlers: [
+                         'my-handler',
+                         'owsm-message-handler'
+                     ]
+         config2:
+             Servers: 'AdminServer'
+             HandlerDefaults:
+                 path: '/home/me/otherpath'
+                 maxFileSize: 5242880
+ ```
+
+ Each named ODL configuration (such as `config1`) is updated for each of the managed servers in the `Servers` list. Handlers and loggers that exist in the current configuration are updated, and any new ones are created and updated.
+
+ Unlike other WDT model elements, ODL configuration is not updated using WLST MBeans. The configuration is written directly to the file system, in the file `<domain_home>/config/fmwconfig/servers/<server>/logging.xml`.  
+
+
+ ### Configuring Oracle HTTP Server
+
+ Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.
+
+ #### Prerequisites
+
+ In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS [here](https://www.oracle.com/middleware/technologies/webtier-downloads.html).
+
+ The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see [Domain Type Definitions](tool_configuration.md#domain-type-definitions).
+
+ You create a copy of an existing domain type definition file, add the template to that file, and then reference that file on the WDT command line. For example, if you want to create a domain with Oracle HTTP Server based on a Restricted JRF domain, then you would first create a copy of the file `WLSDEPLOY_HOME/lib/typedefs/RestrictedJRF.json` in the same directory, such as `WLSDEPLOY_HOME/lib/typedefs/HttpServer.json`. In this example, you would change the existing `extensionTemplates` section to include the additional OHS template. The original value is:
+ ```
+ "extensionTemplates": [ "Oracle Restricted JRF", "Oracle Enterprise Manager-Restricted JRF" ],
+ ```
+ The revised value would be:
+ ```
+ "extensionTemplates": [ "Oracle Restricted JRF", "Oracle Enterprise Manager-Restricted JRF", "Oracle HTTP Server (Restricted JRF)" ],
+ ```
+ The file name of this new domain type (without the `.json` extension) is used with the `-domain_type` argument on the WDT command line. For example, the command line to create a domain using the `HttpServer.json` file from the previous steps would look like:  
+ ```
+ WLSDEPLOY_HOME/bin/createDomain -oracle_home /etc/oracle ... -domain_type HttpServer
+ ```
+
+ #### Configuring the Model
+
+ Configuring OHS typically involves adding two top-level folders to the `resources` section of the model, `SystemComponent` and `OHS`. Here is an example:
+ ```yaml
+ resources:
+     SystemComponent:
+         'my-ohs':
+             ComponentType: 'OHS'
+             Machine: 'my-machine'
+     OHS:
+         'my-ohs':
+             AdminHost: '127.0.0.1'
+             AdminPort: '9324'
+             ListenAddress: '127.0.0.1'
+             ListenPort: '7323'
+             SSLListenPort: '4323'
+             ServerName: 'http://localhost:7323'
+ ```
+ Each name under the `OHS` folder must match a name under the `SystemComponent` folder in the model, or the name of a `SystemComponent` element that has been previously created. In this example, the name `my-ohs` is in both places.
+
+ The `ComponentType` field of the `SystemComponent` element must be set to `OHS` in order to allow configuration of the corresponding `OHS` folders.
+
+ You can use the [Model Help Tool](model_help.md) to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the `OHS` folder:
+ ```yaml
+ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/OHS
+ ```
+
+
+ ### Targeting Server Groups
+
+ To create more complex domains with clusters of different types, it is necessary to control the targeting of server groups to managed servers.  By default, all server groups in the domain type definition are targeted to all managed servers.  To create a SOA domain with SOA and OSB clusters, simply add the OSB template and server group to the SOA domain definition, as shown below.
+
+ ```json
+ {
+     "name": "SOA",
+     "description": "SOA type domain definitions",
+     "versions": {
+         "12.2.1.3": "SOA_12213"
+     },
+     "definitions": {
+         "SOA_12213": {
+             "baseTemplate": "Basic WebLogic Server Domain",
+             "extensionTemplates": [
+                 "Oracle SOA Suite",
+                 "Oracle Service Bus"
+             ],
+             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR",  "SOA-MGD-SVRS",  "OSB-MGD-SVRS-COMBINED" ],
+             "dynamicClusterServerGroupsToTarget": [ "SOA-DYN-CLUSTER" ],
+             "rcuSchemas": [ "STB", "WLS", "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "UCSUMS", "SOAINFRA" ]
+         }
+     }
+ }
+ ```
+
+ Then, use the `ServerGroupTargetingLimits` map in the `domainInfo` section to limit the targeting of the Web Services Manager, SOA, and OSB server groups to the `soa_cluster` or `osb_cluster`, as appropriate.  In the example below, notice that the `JRF-MAN-SVR` server group is not listed; therefore, it will use the default targeting and be targeted to all managed servers.  The value of each element in this section is a logical list of server and/or cluster names.  As shown in the example, the value for each server group can be specified as a list, a comma-separated string, or a single-valued string.  There is no semantic difference between listing a cluster's member server names versus using the cluster name; the example uses these simply to show what is possible.
+
+ ```yaml
+ domainInfo:
+     AdminUserName: weblogic
+     AdminPassword: welcome1
+     ServerStartMode: prod
+     ServerGroupTargetingLimits:
+         'WSMPM-MAN-SVR': soa_cluster
+         'SOA-MGD-SVRS': 'soa_server1,soa_server2'
+         'OSB-MGD-SVRS-COMBINED': [ osb_server1, osb_server2 ]
+
+ topology:
+     Name: soa_domain
+     AdminServerName: AdminServer
+     Cluster:
+         soa_cluster:
+         osb_cluster:
+     Server:
+         AdminServer:
+             ListenAddress: myadmin.example.com
+             ListenPort: 7001
+             Machine: machine1
+             SSL:
+                 Enabled: true
+                 ListenPort: 7002
+         soa_server1:
+             ListenAddress: managed1.example.com
+             ListenPort: 8001
+             Cluster: soa_cluster
+             Machine: machine2
+             SSL:
+                 Enabled: true
+                 ListenPort: 8002
+         soa_server2:
+             ListenAddress: managed2.example.com
+             ListenPort: 8001
+             Cluster: soa_cluster
+             Machine: machine3
+             SSL:
+                 Enabled: true
+                 ListenPort: 8002
+         osb_server1:
+             ListenAddress: managed1.example.com
+             ListenPort: 9001
+             Cluster: osb_cluster
+             Machine: machine2
+             SSL:
+                 Enabled: true
+                 ListenPort: 9002
+         osb_server2:
+             ListenAddress: managed2.example.com
+             ListenPort: 9001
+             Cluster: osb_cluster
+             Machine: machine3
+             SSL:
+                 Enabled: true
+                 ListenPort: 9002
+     UnixMachine:
+         machine1:
+             NodeManager:
+                 ListenAddress: myadmin.example.com
+                 ListenPort: 5556
+         machine2:
+             NodeManager:
+                 ListenAddress: managed1.example.com
+                 ListenPort: 5556
+         machine3:
+             NodeManager:
+                 ListenAddress: managed2.example.com
+                 ListenPort: 5556
+     SecurityConfiguration:
+         NodeManagerUsername: weblogic
+         NodeManagerPasswordEncrypted: welcome1
+ ```
+
+ #### Targeting Dynamic Cluster Server Groups
+ Dynamic Cluster Server Groups are server groups that can be targeted to dynamic clusters. Dynamic clusters were added in WebLogic Server version 12.1.2. In WebLogic Server version 12.2.1.1, the ability to target a single dynamic server group to a dynamic cluster was added. In WebLogic Server Version 12.2.1.4, you now have the ability to target multiple dynamic server groups to a dynamic cluster.
+
+ To enable targeting of dynamic server groups to dynamic clusters, add the dynamicClusterServerGroupsToTarget entry with any dynamic server groups you wish to be targeted to the dynamic clusters in your model or domain. This list must only contain one dynamic server group if you are running a version of WebLogic Server earlier than 12.2.1.4.
+ ```json
+ {
+   "definitions": {
+     "dynamicClusterServerGroupsToTarget" : [ "WSMPM-DYN-CLUSTER", "WSM-CACHE-DYN-CLUSTER" ]
+   }
+ }
+ ```
+ If you wish to specify which dynamic server group to target to a dynamic server, add DynamicClusterServerGroupTargetingLimits to the domainInfo of your model. This entry can coexist with managed servers defined in ServerGroupTargetingLimits.
+ ```yaml
+ domainInfo:
+     AdminUserName: weblogic
+     AdminPassword: welcome1
+     ServerStartMode: prod
+     DynamicClusterServerGroupTargetingLimits:
+         'SOA-DYN-CLUSTER': 'soa_dynamic_cluster'
+ ```
+
+
+ ### Using WDT with Oracle WebLogic Server Kubernetes Operator
+
+ The Extract Domain Resource Tool can be used to create a domain resource file for use with the Oracle WebLogic Server Kubernetes Operator. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
+
+ This is especially useful when making configuration changes to the domain that also need to be reflected in the domain resource file. For example, adding a cluster to the domain only requires that it be added to the `topology` section of the WDT model, then a new domain resource file can be generated to apply to Kubernetes.
+
+ More information about the Oracle WebLogic Server Kubernetes Operator can be found [here](https://oracle.github.io/weblogic-kubernetes-operator).
+
+ NOTE: The Extract Domain Resource Tool is available with WDT releases 1.7.0 and later.
+
+ Here is an example command line for the Extract Domain Resource Tool:
+ ```
+ <wls-deploy-home>/bin/extractDomainResource.sh -oracle_home /tmp/oracle -domain_home /u01/mydomain -model_file /tmp/mymodel.yaml -variable_file /tmp/my.properties -domain_resource_file /tmp/operator/domain-resource.yaml
+ ```
+
+ For the simplest case, the Extract Domain Resource Tool will create a sparse domain file. This is what is generated when there is not a `kubernetes` section in the model, or that section is empty.
+ ```yaml
+ apiVersion: weblogic.oracle/v6
+ kind: Domain
+ metadata:
+     name: DemoDomain
+ spec:
+     domainHome: /u01/mydomain
+     image: '--FIX ME--'
+     imagePullSecrets:
+     -   name: '--FIX ME--'
+     webLogicCredentialsSecret: '--FIX ME--'
+     clusters:
+     -   clusterName: mycluster
+         replicas: 2
+     -   clusterName: mycluster3
+         replicas: 4
+ ```
+
+ In this example, the value for `domainHome` was set as an input parameter to the extractDomainResource script from the command line. The `kind` and `name` were set to the domain name derived from the topology section of the model, or the default `base_domain`. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.
+
+ The user is expected to fill in the image and secrets information identified by `--FIX ME--` in the domain resource output.
+
+ For more advanced configurations, including pre-populating the `--FIX ME--` values, the user can populate the `kubernetes` section of the WDT model, and those values will appear in the resulting domain resources file. This model section overrides and adds some values to the result.
+ ```yaml
+ kubernetes:
+     metadata:
+         name: myName
+         namespace: myNamespace
+     spec:
+         image: 'my.repo/my-image:2.0'
+         imagePullSecrets:
+             WEBLOGIC_IMAGE_PULL_SECRET_NAME:
+         webLogicCredentialsSecret:
+             name: '@@PROP:mySecret@@'
+         serverPod:
+             env:
+                 USER_MEM_ARGS:
+                     value: '-XX:+UseContainerSupport -Djava.security.egd=file:/dev/./urandom'
+                 JAVA_OPTIONS:
+                     value: '-Dmydir=/home/me'
+ ```
+ This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the `kubernetes` section of the model. More details about using model variables can be found [here](model.md#simple-example).
+
+ For this example, the resulting domain resource file would contain:
+ ```yaml
+ metadata:
+     name: myName
+     namespace: myNamespace
+ spec:
+     image: 'my.repo/my-image:2.0'
+     imagePullSecrets:
+     -   name: WEBLOGIC_IMAGE_PULL_SECRET_NAME
+     webLogicCredentialsSecret:
+         name: WEBLOGIC_CREDENTIALS_SECRET_NAME
+     serverPod:
+         env:
+         -   name: USER_MEM_ARGS
+             value: '-XX:+UseContainerSupport -Djava.security.egd=file:/dev/./urandom'
+         -   name: JAVA_OPTIONS
+             value: '-Dmydir=/home/me'
+     domainHome: /u01/mine/domain
+     clusters:
+     -   clusterName: mycluster
+         replicas: 2
+     -   clusterName: mycluster3
+         replicas: 4
+ apiVersion: weblogic.oracle/v6
+ kind: Domain
+ ```
+
+ The syntax of the `spec/serverPod/env` and other list sections in the WDT model are different from the syntax in the target file. The WDT tools do not recognize the hyphenated list syntax, so these elements are specified in a similar manner to other model lists.
+
+ If clusters are specified in the `kubernetes/spec` section of the model, those clusters will be configured in the domain resource file, and clusters from the `topology` section will be disregarded.
+
+ If the WDT model has a value of `Never` for `spec/imagePullPolicy`, the `imagePullSecrets` default value will not be added.
+
+ A full list of sections and variables supported by the Oracle WebLogic Server Kubernetes Operator is available [here](https://github.com/oracle/weblogic-kubernetes-operator/blob/master/docs/domains/Domain.md).
+
+ The Extract Domain Resource Tool supports a subset of these sections, including `metadata`, `serverPod`, and `spec`.
+
+ The [Model Help Tool](model_help.md) can be used to determine the folders and attributes that can be used in the `kubernetes` section of the model. For example, this command will list the folders and attributes in the `spec` folder:
+ ```yaml
+ <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle kubernetes:/spec
+ ```
+
+ The content in the `kubernetes` section is not generated when a model is discovered by the Discover Domain Tool.  
