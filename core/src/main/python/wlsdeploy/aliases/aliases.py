@@ -1286,7 +1286,6 @@ class Aliases(object):
         :param method_name: the method name of the caller
         :param message_key: the key of the message
         :param args: arguments for the message
-        :param kwargs: keyword arguments for the message
         """
         ex = exception_helper.create_exception(self._exception_type, message_key, error=error, *args)
         self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
