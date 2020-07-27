@@ -4,36 +4,51 @@ The Model Help Tool provides information about the folders and attributes that a
 
 **NOTE:** The Model Help Tool is new in WebLogic Deploy Tooling 1.8.
 
+**NOTE:** The `-model_sample` argument is deprecated starting with WebLogic Deploy Tooling 1.9.2, when model sample became the default output format.
+
 Here is a simple example using the Model Help Tool:
 ```yaml
 <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource
 ```
 This will result in the following output:
 ```yaml
-Path: resources:/JDBCSystemResource
+Attributes and sub-folders for resources:/JDBCSystemResource
 
-  Valid Attributes:
-    CompatibilityName           string
-    DeploymentOrder             integer
-    DeploymentPrincipalName     string
-    DescriptorFileName          string
-    ModuleType                  string
-    Notes                       string
-    SourcePath                  string
-    Target                      delimited_string
+resources:
+    JDBCSystemResource:
+        'JDBC-1':
+            CompatibilityName:       # string
+            DeploymentOrder:         # integer
+            DeploymentPrincipalName: # string
+            DescriptorFileName:      # string
+            ModuleType:              # string
+            Notes:                   # string
+            SourcePath:              # string
+            Target:                  # delimited_string
 
-  Valid Folders:
-    JdbcResource
-    SubDeployment (multiple)
+            JdbcResource:
+                # see /JDBCSystemResource/JdbcResource
+
+            SubDeployment:
+                'SubDeployment-1':
+                    # see /JDBCSystemResource/SubDeployment
 ```
-This result lists the attributes and folders available for the `JDBCSystemResource` folder in the `resources` section of the model. You can use this information to construct this model section:
+This output shows the eight attributes and two sub-folders available for the `JDBCSystemResource` folder in the `resources` section of the model. Each attribute includes a comment describing the type of the value to be added.
+
+Folders that support multiple instances, such as `JDBCSystemResource` in this example, are shown with a derived name, such as `'JDBC-1'`.
+
+Each sub-folder includes a comment with a model path that can be used to display additional information about that sub-folder. For example, to determine the attributes and sub-folders for `'SubDeployment-1'`, the Model Help Tool could be re-invoked with the model path from the comment:
+```yaml
+<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -model_sample /JDBCSystemResource/SubDeployment
+```
+You can use the information above to construct this model section:
 ```yaml
 resources:
     JDBCSystemResource:
         CompatibilityName: 'myName'
         DeploymentOrder: 5
         Target: 'ms1,ms2'
-        JdbcSystemResource:
+        'JDBC-1':
             # JdbcSystemResource attributes and folders
         SubDeployment:
             deployment1:
@@ -41,7 +56,7 @@ resources:
             deployment2:
                 # SubDeployment attributes and folders
 ```
-The `(multiple)` notation on the `SubDeployment` folder indicates that it should have one or more named sub-folders containing its attributes and sub-folders.
+If you are copying elements from the sample model to create a full domain model, you should exclude any attributes or sub-folders that you do not intend to declare or override. 
 
 ### Path Patterns
 There are a number of ways to specify model location in the path argument. Here are some examples:
@@ -73,13 +88,13 @@ There are several command-line options that you can use to control the output te
 When the top sections are listed using the path ```top```, any output options are ignored.  
 
 #### ```-attributes_only```
-This option will list only the attributes for the specified path. If there are no attributes, then the section heading will appear with an empty list.
+This option will list only the attributes for the specified path.
 
 #### ```-folders_only```
-This option will list only the immediate sub-folders for the specified path. If there are no sub-folders, then the section heading will appear with an empty list.
+This option will list only the immediate sub-folders for the specified path.
 
 #### ```-recursive```
-This option will recursively list all the sub-folders within the specified path. No attributes are listed. If there are no sub-folders, then the section heading will appear with an empty list.
+This option will recursively list all the sub-folders within the specified path. No attributes are listed.
   
 Here is an example using the `-recursive` option:
 ```yaml
@@ -87,54 +102,19 @@ Here is an example using the `-recursive` option:
 ```
 The output is:
 ```yaml
-Filtering output to recursively display the sub-folders of the specified model section or path
+Recursive sub-folders only for resources:/JDBCSystemResource
 
-Path: resources:/JDBCSystemResource
-
-  Valid Folders:
-    JdbcResource
-      JDBCConnectionPoolParams
-      JDBCDataSourceParams
-      JDBCDriverParams
-        Properties (multiple)
-      JDBCOracleParams
-      JDBCXAParams
-    SubDeployment (multiple)
-```
-
-### Model Sample Output
-You can use the `-model_sample` argument to output a model sample for the specified model path. Depending on the output options specified, this argument will create a sample with the available attributes and sub-folders for the specified path.
-
-If you are copying elements from the sample model to create a full domain model, you should exclude any attributes or sub-folders that you do not intend to declare or override. 
-
-Here is an example using the `-model_sample` argument:
-```yaml
-<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -model_sample resources:/JDBCSystemResource
-```
-The output is:
-```yaml
 resources:
     JDBCSystemResource:
         'JDBC-1':
-            CompatibilityName: # string
-            DeploymentOrder: # integer
-            DeploymentPrincipalName: # string
-            DescriptorFileName: # string
-            ModuleType: # string
-            Notes: # string
-            SourcePath: # string
-            Target: # delimited_string
-
             JdbcResource:
-                # see /JDBCSystemResource/JdbcResource
-
+                JDBCConnectionPoolParams:
+                JDBCDataSourceParams:
+                JDBCDriverParams:
+                    Properties:
+                        'Properties-1':
+                JDBCOracleParams:
+                JDBCXAParams:
             SubDeployment:
                 'SubDeployment-1':
-                    # see /JDBCSystemResource/SubDeployment
-```
-This output shows the eight attributes and two sub-folders available for the model path. Each attribute includes a comment describing the type of the value to be added.
- 
-Each sub-folder includes a comment with a model path that can be used to display additional information about that sub-folder. For example, to determine the attributes and sub-folders for `'SubDeployment-1'`, the Model Help Tool could be re-invoked with the model path from the comment:
-```yaml
-<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -model_sample /JDBCSystemResource/SubDeployment
 ```

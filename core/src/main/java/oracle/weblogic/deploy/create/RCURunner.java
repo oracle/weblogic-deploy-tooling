@@ -19,7 +19,10 @@ import oracle.weblogic.deploy.util.ScriptRunner;
 import oracle.weblogic.deploy.util.ScriptRunnerException;
 import oracle.weblogic.deploy.util.StringUtils;
 
+import org.python.core.Py;
 import org.python.core.PyDictionary;
+import org.python.core.PyList;
+import org.python.core.PyObject;
 import org.python.core.PyString;
 
 
@@ -80,6 +83,7 @@ public class RCURunner {
     private String atpDefaultTablespace = null;
     private String atpTemporaryTablespace = null;
     private String rcuVariables = null;
+    private Map<String, String> extraArgs = new HashMap<>();
 
     /**
      * The constructor.
@@ -90,10 +94,12 @@ public class RCURunner {
      * @param rcuDb      the RCU database connect string
      * @param rcuPrefix  the RCU prefix to use
      * @param rcuSchemas the list of RCU schemas to create (this list should not include STB)
+     * @param rcuVariables a comma separated list of key=value variables
+     * @param extraArgs  Additional dictionary of arguments to add on the command line
      * @throws CreateException if a parameter validation error occurs
      */
     public RCURunner(String domainType, String oracleHome, String javaHome, String rcuDb, String rcuPrefix,
-        List<String> rcuSchemas, String rcuVariables) throws CreateException {
+        List<String> rcuSchemas, String rcuVariables, PyDictionary extraArgs) throws CreateException {
 
         this.oracleHome = validateExistingDirectory(oracleHome, "ORACLE_HOME");
         this.javaHome = validateExistingDirectory(javaHome, "JAVA_HOME");
@@ -101,10 +107,7 @@ public class RCURunner {
         this.rcuPrefix = validateNonEmptyString(rcuPrefix, "rcu_prefix");
         this.rcuSchemas = validateNonEmptyListOfStrings(rcuSchemas, "rcu_schema_list");
         this.rcuVariables = rcuVariables;
-//        if (this.rcuSchemas.contains(SERVICE_TABLE_COMPONENT)) {
-//            LOGGER.warning("WLSDPLY-12000", CLASS, domainType, SERVICE_TABLE_COMPONENT);
-//            this.rcuSchemas.remove(SERVICE_TABLE_COMPONENT);
-//        }
+        createExtraArgs(extraArgs);
     }
 
     /**
@@ -113,10 +116,14 @@ public class RCURunner {
      * @param domainType the domain type
      * @param oracleHome the ORACLE_HOME location
      * @param javaHome   the JAVA_HOME location
+     * @param rcuSchemas the list of RCU schemas to create (this list should not include STB)
+     * @param rcuProperties dictionary of ATP specific arguments
+     * @param rcuVariables a comma separated list of key=value variables
+     * @param extraArgs  Additional dictionary of arguments to add on the command line
      * @throws CreateException if a parameter validation error occurs
      */
     public RCURunner(String domainType, String oracleHome, String javaHome, List<String> rcuSchemas,
-        PyDictionary rcuProperties, String rcuVariables)
+        PyDictionary rcuProperties, String rcuVariables, PyDictionary extraArgs)
         throws CreateException {
 
 
@@ -153,13 +160,8 @@ public class RCURunner {
         this.atpDefaultTablespace = rcuProperties.get(new PyString("atp.default.tablespace")).toString();
         this.atpTemporaryTablespace = rcuProperties.get(new PyString("atp.temp.tablespace")).toString();
         this.rcuVariables = rcuVariables;
-
-//        if (!this.rcuSchemas.contains(SERVICE_TABLE_COMPONENT)) {
-//            LOGGER.warning("WLSDPLY-12000", CLASS, domainType, SERVICE_TABLE_COMPONENT);
-//            this.rcuSchemas.add(SERVICE_TABLE_COMPONENT);
-//        }
+        createExtraArgs(extraArgs);
     }
-
 
     /**
      * Run RCU to drop and recreate the RCU schemas.
@@ -275,10 +277,11 @@ public class RCURunner {
             dropArgs.add(COMPONENT_SWITCH);
             dropArgs.add(rcuSchema);
         }
-        // Add STB to the drop list since it is never specified in the create list...
-//        dropArgs.add(COMPONENT_SWITCH);
-//        dropArgs.add(SERVICE_TABLE_COMPONENT);
-
+        // extra arguments are for both create and drop. If add one only for create, need extra logic here
+        for (Map.Entry<String, String> entry : extraArgs.entrySet()) {
+            dropArgs.add("-" + entry.getKey());
+            dropArgs.add(entry.getValue());
+        }
         dropArgs.add(READ_STDIN_SWITCH);
 
         String[] result = new String[dropArgs.size()];
@@ -322,6 +325,10 @@ public class RCURunner {
                 createArgs.add(TEMPTABLESPACE_SWITCH);
                 createArgs.add(this.atpTemporaryTablespace);
             }
+        }
+        for (Map.Entry<String, String> entry : extraArgs.entrySet()) {
+            createArgs.add("-" + entry.getKey());
+            createArgs.add(entry.getValue());
         }
         if (rcuVariables != null) {
             createArgs.add(RCU_VARIABLES_SWITCH);
@@ -483,8 +490,22 @@ public class RCURunner {
         LOGGER.exiting(CLASS, METHOD);
     }
 
+    private void createExtraArgs(PyDictionary extraArgs) {
+        if (extraArgs != null) {
+            PyList keys = extraArgs.keys();
+            for (int idx = 0; idx<keys.size(); idx++) {
+                Object key = keys.get(idx);
+                if (key instanceof String) {
+                    String value = extraArgs.get(new PyString((String)key)).toString();
+                    this.extraArgs.put((String)key, value);
+                }
+            }
+        }
+    }
+
     /**
      * RCU Operation Type enum.
      */
     private enum RcuOpType { DROP, CREATE}
 }
+

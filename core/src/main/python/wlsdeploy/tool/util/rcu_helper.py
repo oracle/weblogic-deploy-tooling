@@ -35,7 +35,7 @@ class RCUHelper(Deployer):
 
         domain_info = self.model.get_model_domain_info()
         if RCU_DB_INFO in domain_info:
-            rcu_db_info = RcuDbInfo(self.aliases, domain_info[RCU_DB_INFO])
+            rcu_db_info = RcuDbInfo(self.model_context, self.aliases, domain_info[RCU_DB_INFO])
             rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
             rcu_prefix = rcu_db_info.get_rcu_prefix()
 

@@ -8,6 +8,11 @@ pipeline {
         }
     }
 
+    triggers {
+        // timer trigger for "nightly build" on master branch
+        cron( env.BRANCH_NAME.equals('master') ? 'H H(0-3) * * 1-5' : '')
+    }
+
     stages {
         stage ('Environment') {
             steps {
@@ -38,7 +43,11 @@ pipeline {
         }
         stage ('Verify') {
             when {
-                changeRequest()
+                anyOf {
+                    changeRequest()
+                    triggeredBy 'TimerTrigger'
+                    tag "release-*"
+                }
             }
             steps {
                 sh 'mvn -P system-test -Dmw_home=${ORACLE_HOME} test-compile failsafe:integration-test'
@@ -49,5 +58,19 @@ pipeline {
                 }
             }
         }
+        stage ('Save Nightly Installer'){
+            when {
+                allOf {
+                    triggeredBy 'TimerTrigger'
+                    branch "master"
+                }
+            }
+            steps {
+                sh '''
+                    oci os object put --namespace=weblogick8s --bucket-name=wko-system-test-files --config-file=/dev/null --auth=instance_principal --force --file=installer/target/weblogic-deploy.zip --name=weblogic-deploy-master.zip
+                '''
+            }
+        }
+
     }
 }
