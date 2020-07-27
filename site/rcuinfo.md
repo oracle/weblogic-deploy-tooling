@@ -48,9 +48,9 @@ domainInfo:
 
 When creating a domain using WDT and the -run_rcu option, you can specify your extended XML files in the RCUDbInfo section. 
 
-RCU `-compInfoXMLLocation` `<file path>` `-storageXMLLocation`
+This correlates to the `createRepository` and `dropRepository` command line arguments ``RCU -compInfoXMLLocation <file path> -storageXMLLocation <file path>`
 
-Include your XML files in the archive file under the location `wlsdeploy/rcu/config`
+Include your XML files in your archive file using location `wlsdeploy/rcu/config`. Then include this relative location in the RCUDbInfo section of the model.
 
 ```yaml
 domainInfo:
