@@ -6,6 +6,7 @@ import os
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
 import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
 from java.io import FileOutputStream
+from java.lang import IllegalArgumentException
 from java.util import Properties
 from oracle.weblogic.deploy.create import RCURunner
 from oracle.weblogic.deploy.util import WLSDeployArchive, FileUtils
@@ -51,10 +52,12 @@ from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
+from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
+from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SECURITY
@@ -222,6 +225,26 @@ class DomainCreator(Creator):
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
+    def __extract_rcu_xml_file(self, xml_type, path):
+        _method_name = '__extract_rcu_xml_files'
+        self.logger.entering(path, class_name=self.__class_name, method_name=_method_name)
+        result = None
+        if path is not None:
+            resolved_path = self.model_context.replace_token_string(path)
+            if self.archive_helper is not None and self.archive_helper.contains_file(resolved_path):
+                resolved_path = self.archive_helper.extract_file(resolved_path)
+            try:
+                resolved_file = FileUtils.validateFileName(resolved_path)
+                result = resolved_file.getPath()
+            except IllegalArgumentException, iae:
+                ex = exception_helper.create_create_exception('WLSDPLY-12258', xml_type, path,
+                                                              iae.getLocalizedMessage(), error=iae)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
     def __run_rcu(self):
         """
         The method that runs RCU to drop and then create the schemas.
@@ -251,7 +274,15 @@ class DomainCreator(Creator):
         if RCU_DB_INFO in self.model.get_model_domain_info():
 
             rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
-            rcu_db_info = RcuDbInfo(self.alias_helper, rcu_properties_map)
+            rcu_db_info = RcuDbInfo(self.model_context, self.alias_helper, rcu_properties_map)
+            rcu_extra_args = dict()
+
+            rcu_comp_info = self.__extract_rcu_xml_file(RCU_COMP_INFO, rcu_db_info.get_comp_info_location())
+            if rcu_comp_info is not None:
+                rcu_extra_args[RCU_COMP_INFO] = rcu_comp_info
+            rcu_stg_info = self.__extract_rcu_xml_file(RCU_STG_INFO, rcu_db_info.get_storage_location())
+            if rcu_stg_info is not None:
+                rcu_extra_args[RCU_STG_INFO] = rcu_stg_info
 
             if rcu_db_info.has_atpdbinfo():
 
@@ -280,7 +311,7 @@ class DomainCreator(Creator):
                                                                    DRIVER_PARAMS_KEYSTOREPWD_PROPERTY])
 
                 runner = RCURunner(domain_type, oracle_home, java_home, rcu_schemas, rcu_runner_map,
-                                   rcu_db_info.get_rcu_variables())
+                                   rcu_db_info.get_rcu_variables(), rcu_extra_args)
                 runner.runRcu(rcu_sys_pass, rcu_schema_pass)
             else:
                 # Has RCUDbInfo in the model but non ATP case
@@ -292,7 +323,7 @@ class DomainCreator(Creator):
                 self.__validate_rcudbinfo_entries(rcu_properties_map, [RCU_PREFIX, RCU_SCHEMA_PASSWORD,
                                                                        RCU_ADMIN_PASSWORD, RCU_DB_CONN])
                 runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
-                                   rcu_db_info.get_rcu_variables())
+                                   rcu_db_info.get_rcu_variables(), rcu_extra_args)
                 runner.setRCUAdminUser(rcu_db_user)
                 runner.runRcu(rcu_sys_pass, rcu_schema_pass)
         else:
@@ -880,7 +911,7 @@ class DomainCreator(Creator):
         domain_info = self.model.get_model_domain_info()
 
         if RCU_DB_INFO in domain_info:
-            rcu_db_info = RcuDbInfo(self.alias_helper, domain_info[RCU_DB_INFO])
+            rcu_db_info = RcuDbInfo(self.model_context, self.alias_helper, domain_info[RCU_DB_INFO])
 
             # HANDLE ATP case
 
@@ -896,7 +927,7 @@ class DomainCreator(Creator):
                 keystore_pwd = rcu_db_info.get_keystore_password()
                 truststore_pwd = rcu_db_info.get_truststore_password()
 
-                # Need to set for the connection proeprty for each datasource
+                # Need to set for the connection property for each datasource
 
                 fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
 
@@ -963,7 +994,7 @@ class DomainCreator(Creator):
 
         if not has_atp:
             if RCU_DB_INFO in domain_info:
-                rcu_db_info = RcuDbInfo(self.alias_helper, domain_info[RCU_DB_INFO])
+                rcu_db_info = RcuDbInfo(self.model_context, self.alias_helper, domain_info[RCU_DB_INFO])
                 rcu_prefix = rcu_db_info.get_rcu_prefix()
                 rcu_database = rcu_db_info.get_rcu_regular_db_conn()
                 rcu_schema_pwd = rcu_db_info.get_rcu_schema_password()

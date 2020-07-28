@@ -1,4 +1,4 @@
-## Configured Cluster Sample
+## Modeling a Configured Cluster
 
 This WDT domain model sample section has a typical configuration for a configured cluster with a single managed server, including connection information, logging setup, and other details. 
 

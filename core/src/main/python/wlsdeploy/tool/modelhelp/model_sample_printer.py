@@ -164,6 +164,12 @@ class ModelSamplePrinter(object):
 
         for key in subfolder_keys:
             model_location.append_location(key)
+
+            # folder may not be valid for WLS version
+            if self._alias_helper.get_wlst_mbean_type(model_location) is None:
+                model_location.pop_location()
+                continue
+
             name_token = self._alias_helper.get_name_token(model_location)
             if name_token is not None:
                 model_location.add_name_token(name_token, '%s-0' % key)

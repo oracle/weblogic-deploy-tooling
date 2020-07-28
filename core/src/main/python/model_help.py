@@ -9,7 +9,7 @@ import sys
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
-sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
+# Jython tools don't require sys.path modification
 
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.exception import exception_helper

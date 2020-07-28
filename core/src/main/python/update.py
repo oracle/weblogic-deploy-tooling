@@ -15,7 +15,7 @@ from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
-sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
+sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases

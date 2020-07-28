@@ -4,7 +4,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the injectVariables tool.
 """
-import os
 import sys
 
 from java.io import File
@@ -15,7 +14,7 @@ from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
-sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
+# Jython tools don't require sys.path modification
 
 import wlsdeploy.tool.util.variable_injector as variable_injector
 from wlsdeploy.aliases.wlst_modes import WlstModes

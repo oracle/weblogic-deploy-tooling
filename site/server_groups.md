@@ -1,4 +1,4 @@
-### Targeting Server Groups
+## Targeting Server Groups
 
 To create more complex domains with clusters of different types, it is necessary to control the targeting of server groups to managed servers.  By default, all server groups in the domain type definition are targeted to all managed servers.  To create a SOA domain with SOA and OSB clusters, simply add the OSB template and server group to the SOA domain definition, as shown below.
 
@@ -100,7 +100,7 @@ topology:
         NodeManagerPasswordEncrypted: welcome1
 ```
 
-#### Targeting Dynamic Cluster Server Groups
+### Targeting Dynamic Cluster Server Groups
 Dynamic Cluster Server Groups are server groups that can be targeted to dynamic clusters. Dynamic clusters were added in WebLogic Server version 12.1.2. In WebLogic Server version 12.2.1.1, the ability to target a single dynamic server group to a dynamic cluster was added. In WebLogic Server Version 12.2.1.4, you now have the ability to target multiple dynamic server groups to a dynamic cluster. 
 
 To enable targeting of dynamic server groups to dynamic clusters, add the dynamicClusterServerGroupsToTarget entry with any dynamic server groups you wish to be targeted to the dynamic clusters in your model or domain. This list must only contain one dynamic server group if you are running a version of WebLogic Server earlier than 12.2.1.4.
