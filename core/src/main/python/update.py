@@ -312,7 +312,7 @@ def main(args):
         model_context = model_context_helper.create_exit_context(_program_name)
         tool_exit.end(model_context, exit_code)
 
-    aliases = Aliases(model_context, wlst_mode=__wlst_mode)
+    aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DEPLOY)
 
     model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "update", __wlst_mode)
 

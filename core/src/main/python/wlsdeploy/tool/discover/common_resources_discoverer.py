@@ -92,7 +92,7 @@ class CommonResourcesDiscoverer(Discoverer):
         if datasources is not None:
             _logger.info('WLSDPLY-06340', len(datasources), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for datasource in datasources:
                 if typedef.is_system_datasource(datasource):
                     _logger.info('WLSDPLY-06361', typedef.get_domain_type(), datasource, class_name=_class_name,
@@ -104,7 +104,7 @@ class CommonResourcesDiscoverer(Discoverer):
                     self._populate_model_parameters(result[datasource], location)
 
                     location.append_location(model_second_folder)
-                    if self.wlst_cd(self._alias_helper.get_wlst_attributes_path(location), location):
+                    if self.wlst_cd(self._aliases.get_wlst_attributes_path(location), location):
                         result[datasource][model_second_folder] = OrderedDict()
                         resource_result = result[datasource][model_second_folder]
                         self._populate_model_parameters(resource_result, location)
@@ -128,7 +128,7 @@ class CommonResourcesDiscoverer(Discoverer):
         providers = self._find_names_in_folder(location)
         if providers is not None:
             _logger.info('WLSDPLY-06342', len(providers), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for provider in providers:
                 _logger.info('WLSDPLY-06343', provider, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, provider)
@@ -153,7 +153,7 @@ class CommonResourcesDiscoverer(Discoverer):
         mail_sessions = self._find_names_in_folder(location)
         if mail_sessions is not None:
             _logger.info('WLSDPLY-06344', len(mail_sessions), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for mail_session in mail_sessions:
                 _logger.info('WLSDPLY-06345', mail_session, class_name=_class_name, method_name=_method_name)
                 result[mail_session] = OrderedDict()
@@ -181,7 +181,7 @@ class CommonResourcesDiscoverer(Discoverer):
         if file_stores is not None:
             _logger.info('WLSDPLY-06346', len(file_stores), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for file_store in file_stores:
                 if typedef.is_system_file_store(file_store):
                     _logger.info('WLSDPLY-06363', typedef.get_domain_type(), file_store, class_name=_class_name,
@@ -232,7 +232,7 @@ class CommonResourcesDiscoverer(Discoverer):
         jdbc_stores = self._find_names_in_folder(location)
         if jdbc_stores is not None:
             _logger.info('WLSDPLY-06350', len(jdbc_stores), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for jdbc_store in jdbc_stores:
                 _logger.info('WLSDPLY-06351', jdbc_store, class_name=_class_name, method_name=_method_name)
                 result[jdbc_store] = OrderedDict()
@@ -291,7 +291,7 @@ class CommonResourcesDiscoverer(Discoverer):
         path_services = self._find_names_in_folder(location)
         if path_services is not None:
             _logger.info('WLSDPLY-06355', len(path_services), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for path_service in path_services:
                 _logger.info('WLSDPLY-06356', path_service, class_name=_class_name, method_name=_method_name)
                 result[path_service] = OrderedDict()
@@ -316,7 +316,7 @@ class CommonResourcesDiscoverer(Discoverer):
         if wldf_resources is not None:
             _logger.info('WLSDPLY-06357', len(wldf_resources), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for wldf_resource in wldf_resources:
                 if typedef.is_system_wldf(wldf_resource):
                     _logger.info('WLSDPLY-06362', typedef.get_domain_type(), wldf_resource, class_name=_class_name,
@@ -375,7 +375,7 @@ class CommonResourcesDiscoverer(Discoverer):
         new_script_name = model_value
         if model_value is not None:
             file_name = self._convert_path(model_value)
-            _logger.info('WLSDPLY-06359', file_name, self._alias_helper.get_model_folder_path(location),
+            _logger.info('WLSDPLY-06359', file_name, self._aliases.get_model_folder_path(location),
                          class_name=_class_name, method_name=_method_name)
             archive_file = self._model_context.get_archive_file()
             # Set model_value to None if unable to add it to archive file
@@ -383,12 +383,12 @@ class CommonResourcesDiscoverer(Discoverer):
             try:
                 modified_name = archive_file.addScript(File(file_name))
             except IllegalArgumentException, iae:
-                _logger.warning('WLSDPLY-06360', self._alias_helper.get_model_folder_path(location), file_name,
+                _logger.warning('WLSDPLY-06360', self._aliases.get_model_folder_path(location), file_name,
                                 iae.getLocalizedMessage(), class_name=_class_name,
                                 method_name=_method_name)
             except WLSDeployArchiveIOException, wioe:
                 de = exception_helper.create_discover_exception('WLSDPLY-06354',
-                                                                self._alias_helper.get_model_folder_path(location),
+                                                                self._aliases.get_model_folder_path(location),
                                                                 file, wioe.getLocalizedMessage())
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                 raise de
@@ -412,7 +412,7 @@ class CommonResourcesDiscoverer(Discoverer):
         if resource_names is not None:
             _logger.info('WLSDPLY-06364', len(resource_names), folder_name, class_name=_class_name,
                          method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for resource_name in resource_names:
                 _logger.info('WLSDPLY-06365', folder_name, resource_name, class_name=_class_name,
                              method_name=_method_name)

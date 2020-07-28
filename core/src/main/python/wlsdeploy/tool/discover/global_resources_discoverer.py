@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -73,7 +73,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         location.append_location(model_top_folder_name)
         tuning = self._find_singleton_name_in_folder(location)
         if tuning is not None:
-            location.add_name_token(self._alias_helper.get_name_token(location), tuning)
+            location.add_name_token(self._aliases.get_name_token(location), tuning)
             _logger.info('WLSDPLY-06441', class_name=_class_name, method_name=_method_name)
             self._discover_subfolders(result, location)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -94,7 +94,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         if startup_classes is not None:
             _logger.info('WLSDPLY-06442', len(startup_classes), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for startup_class in startup_classes:
                 if typedef.is_system_startup_class(startup_class):
                     _logger.info('WLSDPLY-06447', typedef.get_domain_type(), startup_class, class_name=_class_name,
@@ -124,7 +124,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         if shutdown_classes is not None:
             _logger.info('WLSDPLY-06445', len(shutdown_classes), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for shutdown_class in shutdown_classes:
                 if typedef.is_system_shutdown_class(shutdown_class):
                     _logger.info('WLSDPLY-06448', typedef.get_domain_type(), shutdown_class, class_name=_class_name,
@@ -153,7 +153,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         webapp_container = self._find_singleton_name_in_folder(location)
         if webapp_container is not None:
             _logger.info('WLSDPLY-06615', class_name=_class_name, method_name=_method_name)
-            location.add_name_token(self._alias_helper.get_name_token(location), webapp_container)
+            location.add_name_token(self._aliases.get_name_token(location), webapp_container)
             self._populate_model_parameters(result, location)
             self._discover_subfolders(result, location)
             new_name = self._add_mimemapping_file_to_archive(result)
@@ -197,7 +197,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         singleton_services = self._find_names_in_folder(location)
         if singleton_services is not None:
             _logger.info('WLSDPLY-06445', len(singleton_services), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for singleton_service in singleton_services:
                 _logger.info('WLSDPLY-06446', singleton_service, class_name=_class_name, method_name=_method_name)
                 result[singleton_service] = OrderedDict()
@@ -222,7 +222,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         jolt_pools = self._find_names_in_folder(location)
         if jolt_pools is not None:
             _logger.info('WLSDPLY-06449', len(jolt_pools), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for jolt_pool in jolt_pools:
                 _logger.info('WLSDPLY-06450', jolt_pool, class_name=_class_name, method_name=_method_name)
                 result[jolt_pool] = OrderedDict()
@@ -247,7 +247,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         wtc_servers = self._find_names_in_folder(location)
         if wtc_servers is not None:
             _logger.info('WLSDPLY-06451', len(wtc_servers), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for wtc_server in wtc_servers:
                 _logger.info('WLSDPLY-06452', wtc_server, class_name=_class_name, method_name=_method_name)
                 result[wtc_server] = OrderedDict()

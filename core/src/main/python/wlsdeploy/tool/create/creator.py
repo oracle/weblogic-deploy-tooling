@@ -11,7 +11,6 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.custom_folder_helper import CustomFolderHelper
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
@@ -33,7 +32,6 @@ class Creator(object):
         self.logger = logger
         self.aliases = aliases
         self._exception_type = exception_type
-        self.alias_helper = AliasHelper(self.aliases, self.logger, exception_type)
         self.wlst_helper = WlstHelper(exception_type)
         self.model = Model(model)
         self.model_context = model_context
@@ -66,20 +64,20 @@ class Creator(object):
         location = LocationContext(base_location).append_location(type_name)
         self._process_flattened_folder(location)
 
-        token_name = self.alias_helper.get_name_token(location)
-        create_path = self.alias_helper.get_wlst_create_path(location)
-        list_path = self.alias_helper.get_wlst_list_path(location)
+        token_name = self.aliases.get_name_token(location)
+        create_path = self.aliases.get_wlst_create_path(location)
+        list_path = self.aliases.get_wlst_list_path(location)
         existing_folder_names = self._get_existing_folders(list_path)
         for model_name in model_nodes.keys():
             name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
             if model_helper.is_delete_name(name):
-                deployer_utils.delete_named_element(location, name, existing_folder_names, self.alias_helper)
+                deployer_utils.delete_named_element(location, name, existing_folder_names, self.aliases)
                 continue
 
             if token_name is not None:
                 location.add_name_token(token_name, name)
 
-            wlst_type, wlst_name = self.alias_helper.get_wlst_mbean_type_and_name(location)
+            wlst_type, wlst_name = self.aliases.get_wlst_mbean_type_and_name(location)
             if wlst_name not in existing_folder_names:
                 if log_created:
                     self.logger.info('WLSDPLY-12100', type_name, name,
@@ -87,7 +85,7 @@ class Creator(object):
                 else:
                     self.logger.fine('WLSDPLY-12100', type_name, name,
                                      class_name=self.__class_name, method_name=_method_name)
-                self.wlst_helper.create_and_cd(self.alias_helper, wlst_type, wlst_name, location, create_path)
+                self.wlst_helper.create_and_cd(self.aliases, wlst_type, wlst_name, location, create_path)
             else:
                 if log_created:
                     self.logger.info('WLSDPLY-12101', type_name, name,
@@ -96,7 +94,7 @@ class Creator(object):
                     self.logger.fine('WLSDPLY-12101', type_name, name,
                                      class_name=self.__class_name, method_name=_method_name)
 
-                attribute_path = self.alias_helper.get_wlst_attributes_path(location)
+                attribute_path = self.aliases.get_wlst_attributes_path(location)
                 self.wlst_helper.cd(attribute_path)
 
             child_nodes = dictionary_utils.get_dictionary_element(model_nodes, name)
@@ -122,21 +120,21 @@ class Creator(object):
             return
 
         location = LocationContext(base_location).append_location(type_name)
-        result, message = self.alias_helper.is_version_valid_location(location)
+        result, message = self.aliases.is_version_valid_location(location)
         if result == ValidationCodes.VERSION_INVALID:
             self.logger.warning('WLSDPLY-12123', message,
                                 class_name=self.__class_name, method_name=_method_name)
             return
 
-        create_path = self.alias_helper.get_wlst_create_path(location)
+        create_path = self.aliases.get_wlst_create_path(location)
         existing_folder_names = self._get_existing_folders(create_path)
 
-        mbean_type, mbean_name = self.alias_helper.get_wlst_mbean_type_and_name(location)
+        mbean_type, mbean_name = self.aliases.get_wlst_mbean_type_and_name(location)
 
-        token_name = self.alias_helper.get_name_token(location)
+        token_name = self.aliases.get_name_token(location)
         if token_name is not None:
-            if self.alias_helper.requires_unpredictable_single_name_handling(location):
-                existing_subfolder_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
+            if self.aliases.requires_unpredictable_single_name_handling(location):
+                existing_subfolder_names = deployer_utils.get_existing_object_list(location, self.aliases)
                 if len(existing_subfolder_names) > 0:
                     mbean_name = existing_subfolder_names[0]
 
@@ -149,14 +147,14 @@ class Creator(object):
             else:
                 self.logger.fine('WLSDPLY-12102', type_name, class_name=self.__class_name, method_name=_method_name)
 
-            self.wlst_helper.create_and_cd(self.alias_helper, mbean_type, mbean_name, location, create_path)
+            self.wlst_helper.create_and_cd(self.aliases, mbean_type, mbean_name, location, create_path)
         else:
             if log_created:
                 self.logger.info('WLSDPLY-20013', type_name, class_name=self.__class_name, method_name=_method_name)
             else:
                 self.logger.fine('WLSDPLY-12102', type_name, class_name=self.__class_name, method_name=_method_name)
 
-            attribute_path = self.alias_helper.get_wlst_attributes_path(location)
+            attribute_path = self.aliases.get_wlst_attributes_path(location)
             self.wlst_helper.cd(attribute_path)
 
         self._process_child_nodes(location, model_nodes)
@@ -187,7 +185,7 @@ class Creator(object):
         _method_name = '_create_subfolders'
 
         self.logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
-        model_subfolder_names = self.alias_helper.get_model_subfolder_names(location)
+        model_subfolder_names = self.aliases.get_model_subfolder_names(location)
         for key in model_nodes:
             if key in model_subfolder_names:
                 subfolder_nodes = model_nodes[key]
@@ -195,15 +193,15 @@ class Creator(object):
 
                 sub_location = LocationContext(location).append_location(key)
 
-                if self.alias_helper.requires_artificial_type_subfolder_handling(sub_location):
+                if self.aliases.requires_artificial_type_subfolder_handling(sub_location):
                     self.logger.finest('WLSDPLY-12116', key, str(sub_location), subfolder_nodes,
                                        class_name=self.__class_name, method_name=_method_name)
                     self._create_named_subtype_mbeans(key, subfolder_nodes, location, True)
-                elif self.alias_helper.supports_multiple_mbean_instances(sub_location):
+                elif self.aliases.supports_multiple_mbean_instances(sub_location):
                     self.logger.finest('WLSDPLY-12109', key, str(sub_location), subfolder_nodes,
                                        class_name=self.__class_name, method_name=_method_name)
                     self._create_named_mbeans(key, subfolder_nodes, location)
-                elif self.alias_helper.is_artificial_type_folder(sub_location):
+                elif self.aliases.is_artificial_type_folder(sub_location):
                     # these should have been handled inside create_named_subtype_mbeans
                     ex = exception_helper.create_create_exception('WLSDPLY-12120', str(sub_location),
                                                                   key, str(location))
@@ -228,7 +226,7 @@ class Creator(object):
         """
         _method_name = '_process_child_nodes'
 
-        self.logger.finest('WLSDPLY-12111', self.alias_helper.get_model_folder_path(location),
+        self.logger.finest('WLSDPLY-12111', self.aliases.get_model_folder_path(location),
                            self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
         self._set_attributes(location, model_nodes)
         self._create_subfolders(location, model_nodes)
@@ -242,11 +240,11 @@ class Creator(object):
         """
         _method_name = '_set_attributes'
 
-        model_attribute_names = self.alias_helper.get_model_attribute_names_and_types(location)
-        password_attribute_names = self.alias_helper.get_model_password_type_attribute_names(location)
-        set_method_map = self.alias_helper.get_model_mbean_set_method_attribute_names_and_types(location)
-        uses_path_tokens_attribute_names = self.alias_helper.get_model_uses_path_tokens_attribute_names(location)
-        model_folder_path = self.alias_helper.get_model_folder_path(location)
+        model_attribute_names = self.aliases.get_model_attribute_names_and_types(location)
+        password_attribute_names = self.aliases.get_model_password_type_attribute_names(location)
+        set_method_map = self.aliases.get_model_mbean_set_method_attribute_names_and_types(location)
+        uses_path_tokens_attribute_names = self.aliases.get_model_uses_path_tokens_attribute_names(location)
+        model_folder_path = self.aliases.get_model_folder_path(location)
         pwd = self.wlst_helper.get_pwd()
 
         for key, value in model_nodes.iteritems():
@@ -288,13 +286,13 @@ class Creator(object):
                 set_method(location, model_key, model_value, None)
             except AttributeError, ae:
                 ex = exception_helper.create_create_exception('WLSDPLY-12104', set_method_name, model_key,
-                                                              self.alias_helper.get_model_folder_path(location),
+                                                              self.aliases.get_model_folder_path(location),
                                                               error=ae)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
         else:
             ex = exception_helper.create_create_exception('WLSDPLY-12105', model_key,
-                                                          self.alias_helper.get_model_folder_path(location))
+                                                          self.aliases.get_model_folder_path(location))
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return
@@ -314,17 +312,17 @@ class Creator(object):
         if (model_name in uses_path_tokens_names) and (model_value is not None):
             self._extract_archive_files(location, model_name, model_value)
 
-        wlst_name, wlst_value = self.alias_helper.get_wlst_attribute_name_and_value(location, model_name, model_value)
+        wlst_name, wlst_value = self.aliases.get_wlst_attribute_name_and_value(location, model_name, model_value)
 
         if wlst_name is None:
-            self.logger.info('WLSDPLY-12106', model_name, self.alias_helper.get_model_folder_path(location),
+            self.logger.info('WLSDPLY-12106', model_name, self.aliases.get_model_folder_path(location),
                              class_name=self.__class_name, method_name=_method_name)
         elif wlst_value is None:
             logged_value = model_value
             if masked:
                 logged_value = '<masked>'
             self.logger.info('WLSDPLY-12107', model_name, logged_value,
-                             self.alias_helper.get_model_folder_path(location),
+                             self.aliases.get_model_folder_path(location),
                              class_name=self.__class_name, method_name=_method_name)
         else:
             logged_value = wlst_value
@@ -366,14 +364,14 @@ class Creator(object):
                         #
                         self.files_to_extract_from_archive.append(model_path)
                     else:
-                        path = self.alias_helper.get_model_folder_path(location)
+                        path = self.aliases.get_model_folder_path(location)
                         archive_file_name = self.model_context.get_archive_file_name()
                         ex = exception_helper.create_create_exception('WLSDPLY-12121', model_name, path,
                                                                       model_path, archive_file_name)
                         self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                         raise ex
                 else:
-                    path = self.alias_helper.get_model_folder_path(location)
+                    path = self.aliases.get_model_folder_path(location)
                     ex = exception_helper.create_create_exception('WLSDPLY-12122', model_name, path, model_path)
                     self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                     raise ex
@@ -389,7 +387,7 @@ class Creator(object):
         """
         _method_name = '_check_location'
 
-        code, message = self.alias_helper.is_valid_model_folder_name(location, type_name)
+        code, message = self.aliases.is_valid_model_folder_name(location, type_name)
         result = False
         if code == ValidationCodes.VALID:
             result = True
@@ -406,10 +404,10 @@ class Creator(object):
         :param location: the location
         :raises: CreateException: if an error occurs
         """
-        if self.alias_helper.is_flattened_folder(location):
-            create_path = self.alias_helper.get_wlst_flattened_folder_create_path(location)
-            mbean_type = self.alias_helper.get_wlst_flattened_mbean_type(location)
-            mbean_name = self.alias_helper.get_wlst_flattened_mbean_name(location)
+        if self.aliases.is_flattened_folder(location):
+            create_path = self.aliases.get_wlst_flattened_folder_create_path(location)
+            mbean_type = self.aliases.get_wlst_flattened_mbean_type(location)
+            mbean_name = self.aliases.get_wlst_flattened_mbean_name(location)
             existing_folders = self._get_existing_folders(create_path)
             if mbean_type not in existing_folders:
                 self.wlst_helper.create(mbean_name, mbean_type)
@@ -430,7 +428,7 @@ class Creator(object):
         :param name: the name to append to the model folder path
         :return: the path of the specified name
         """
-        path = self.alias_helper.get_model_folder_path(location)
+        path = self.aliases.get_model_folder_path(location)
         if not path.endswith('/'):
             path += '/'
         path += name

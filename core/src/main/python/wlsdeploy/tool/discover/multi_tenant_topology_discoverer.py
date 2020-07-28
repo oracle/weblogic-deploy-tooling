@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -53,7 +53,7 @@ class MultiTenantTopologyDiscoverer(Discoverer):
         targets = self._find_names_in_folder(location)
         if targets:
             _logger.info('WLSDPLY-06710', len(targets), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for target in targets:
                 _logger.info('WLSDPLY-06711', target, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, target)

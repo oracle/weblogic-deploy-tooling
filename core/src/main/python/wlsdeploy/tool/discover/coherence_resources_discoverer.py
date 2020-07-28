@@ -74,7 +74,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         if coherence_clusters is not None:
             _logger.info('WLSDPLY-06311', len(coherence_clusters), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for coherence_cluster in coherence_clusters:
                 if typedef.is_system_coherence_cluster(coherence_cluster):
                     _logger.info('WLSDPLY-06322', typedef.get_domain_type(), coherence_cluster, class_name=_class_name,
@@ -111,9 +111,9 @@ class CoherenceResourcesDiscoverer(Discoverer):
         location.append_location(model_top_folder_name)
         cache_configs = self._find_names_in_folder(location)
         if cache_configs is not None:
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for cache_config in cache_configs:
-                _logger.fine('WLSDPLY-06313', cache_config, self._alias_helper.get_model_folder_path(location),
+                _logger.fine('WLSDPLY-06313', cache_config, self._aliases.get_model_folder_path(location),
                              class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, cache_config)
                 result[cache_config] = OrderedDict()
@@ -155,7 +155,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         _method_name = '_add_custom_configuration_to_archive'
         temp = LocationContext()
         temp.append_location(model_constants.COHERENCE_CLUSTER_SYSTEM_RESOURCE)
-        cluster_name = location.get_name_for_token(self._alias_helper.get_name_token(temp))
+        cluster_name = location.get_name_for_token(self._aliases.get_name_token(temp))
         _logger.entering(cluster_name, model_name, model_value, class_name=_class_name, method_name=_method_name)
         new_name = model_value
         if model_value is not None:
@@ -194,7 +194,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         _method_name = '_add_cache_config'
         temp = LocationContext()
         temp.append_location(model_constants.COHERENCE_CLUSTER_SYSTEM_RESOURCE)
-        cluster_name = location.get_name_for_token(self._alias_helper.get_name_token(temp))
+        cluster_name = location.get_name_for_token(self._aliases.get_name_token(temp))
         _logger.entering(cluster_name, model_name, model_value, class_name=_class_name, method_name=_method_name)
         new_name = model_value
         if model_value is not None:
@@ -245,7 +245,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         _method_name = '_add_persistence_directory'
         temp = LocationContext()
         temp.append_location(model_constants.COHERENCE_CLUSTER_SYSTEM_RESOURCE)
-        cluster_name = location.get_name_for_token(self._alias_helper.get_name_token(temp))
+        cluster_name = location.get_name_for_token(self._aliases.get_name_token(temp))
         _logger.entering(cluster_name, model_name, model_value, class_name=_class_name, method_name=_method_name)
         new_name = model_value
         if model_value is not None:

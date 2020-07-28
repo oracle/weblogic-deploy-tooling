@@ -19,7 +19,6 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.create import wlsroles_helper
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.tool.validate.validator_logger import ValidatorLogger
@@ -84,10 +83,9 @@ class Validator(object):
             self._wls_version = model_context.get_target_wls_version()
 
         if aliases is None:
-            self._aliases = Aliases(model_context=model_context)
+            self._aliases = Aliases(model_context=model_context, exception_type=ExceptionType.VALIDATE)
         else:
             self._aliases = aliases
-        self._alias_helper = AliasHelper(self._aliases, self._logger, ExceptionType.VALIDATE)
 
         self._name_tokens_location = LocationContext()
         self._name_tokens_location.add_name_token('DOMAIN', domain_name)
@@ -354,16 +352,16 @@ class Validator(object):
             return
 
         # only specific top-level sections have attributes
-        attribute_location = self._alias_helper.get_model_section_attribute_location(model_section_key)
+        attribute_location = self._aliases.get_model_section_attribute_location(model_section_key)
 
         valid_attr_infos = []
         path_tokens_attr_keys = []
 
         if attribute_location is not None:
-            valid_attr_infos = self._alias_helper.get_model_attribute_names_and_types(attribute_location)
+            valid_attr_infos = self._aliases.get_model_attribute_names_and_types(attribute_location)
             self._logger.finer('WLSDPLY-05012', str(attribute_location), str(valid_attr_infos),
                                class_name=_class_name, method_name=_method_name)
-            path_tokens_attr_keys = self._alias_helper.get_model_uses_path_tokens_attribute_names(attribute_location)
+            path_tokens_attr_keys = self._aliases.get_model_uses_path_tokens_attribute_names(attribute_location)
             self._logger.finer('WLSDPLY-05013', str(attribute_location), str(path_tokens_attr_keys),
                                class_name=_class_name, method_name=_method_name)
 
@@ -408,7 +406,7 @@ class Validator(object):
                 # It's not one of the section's folders and it's not an attribute of the section.
                 # Record this as a validate ERROR in the validate results.
                 if isinstance(section_dict_value, dict):
-                    result, message = self._alias_helper.is_valid_model_folder_name(validation_location,
+                    result, message = self._aliases.is_valid_model_folder_name(validation_location,
                                                                                     section_dict_key)
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID folder
@@ -419,7 +417,7 @@ class Validator(object):
                                             method_name=_method_name)
 
                 elif attribute_location is not None:
-                    result, message = self._alias_helper.is_valid_model_attribute_name(attribute_location,
+                    result, message = self._aliases.is_valid_model_attribute_name(attribute_location,
                                                                                        section_dict_key)
                     if result == ValidationCodes.VERSION_INVALID:
                         self._logger.warning('WLSDPLY-05027', message, class_name=_class_name,
@@ -437,7 +435,7 @@ class Validator(object):
     def __validate_section_folder(self, model_node, validation_location):
         _method_name = '__validate_section_folder'
 
-        result, message = self._alias_helper.is_version_valid_location(validation_location)
+        result, message = self._aliases.is_version_valid_location(validation_location)
         if result == ValidationCodes.VERSION_INVALID:
             self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
             return
@@ -445,11 +443,11 @@ class Validator(object):
             self._logger.severe('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
             return
 
-        model_folder_path = self._alias_helper.get_model_folder_path(validation_location)
+        model_folder_path = self._aliases.get_model_folder_path(validation_location)
         self._logger.finest('1 model_folder_path={0}', model_folder_path,
                             class_name=_class_name, method_name=_method_name)
 
-        if self._alias_helper.supports_multiple_mbean_instances(validation_location):
+        if self._aliases.supports_multiple_mbean_instances(validation_location):
             self._logger.finer('2 model_node_type={0}',
                                _ModelNodeTypes.from_value(_ModelNodeTypes.NAME_TYPE),
                                class_name=_class_name, method_name=_method_name)
@@ -464,7 +462,7 @@ class Validator(object):
 
                 new_location = LocationContext(validation_location)
 
-                name_token = self._alias_helper.get_name_token(new_location)
+                name_token = self._aliases.get_name_token(new_location)
                 self._logger.finest('WLSDPLY-05014', str(validation_location), name_token,
                                     class_name=_class_name, method_name=_method_name)
 
@@ -478,7 +476,7 @@ class Validator(object):
 
                 self.__process_model_node(value_dict, new_location)
 
-        elif self._alias_helper.requires_artificial_type_subfolder_handling(validation_location):
+        elif self._aliases.requires_artificial_type_subfolder_handling(validation_location):
             self._logger.finer('3 model_node_type={0}',
                                _ModelNodeTypes.from_value(_ModelNodeTypes.ARTIFICIAL_TYPE),
                                class_name=_class_name, method_name=_method_name)
@@ -493,7 +491,7 @@ class Validator(object):
 
                 new_location = LocationContext(validation_location)
 
-                name_token = self._alias_helper.get_name_token(new_location)
+                name_token = self._aliases.get_name_token(new_location)
                 self._logger.finest('3 name_token={0}', name_token,
                                     class_name=_class_name, method_name=_method_name)
 
@@ -512,7 +510,7 @@ class Validator(object):
                                _ModelNodeTypes.from_value(_ModelNodeTypes.FOLDER_TYPE),
                                class_name=_class_name, method_name=_method_name)
 
-            name_token = self._alias_helper.get_name_token(validation_location)
+            name_token = self._aliases.get_name_token(validation_location)
             self._logger.finest('4 name_token={0}', name_token,
                                 class_name=_class_name, method_name=_method_name)
 
@@ -533,9 +531,9 @@ class Validator(object):
     def __process_model_node(self, model_node, validation_location):
         _method_name = '__process_model_node'
 
-        valid_folder_keys = self._alias_helper.get_model_subfolder_names(validation_location)
-        valid_attr_infos = self._alias_helper.get_model_attribute_names_and_types(validation_location)
-        model_folder_path = self._alias_helper.get_model_folder_path(validation_location)
+        valid_folder_keys = self._aliases.get_model_subfolder_names(validation_location)
+        valid_attr_infos = self._aliases.get_model_attribute_names_and_types(validation_location)
+        model_folder_path = self._aliases.get_model_folder_path(validation_location)
 
         self._logger.finest('5 model_node={0}', str(model_node), class_name=_class_name, method_name=_method_name)
         self._logger.finest('5 aliases.get_model_subfolder_names(validation_location) returned: {0}',
@@ -561,11 +559,11 @@ class Validator(object):
                 self._logger.finer('6 new_location={0}', new_location,
                                    class_name=_class_name, method_name=_method_name)
 
-                if self._alias_helper.is_artificial_type_folder(new_location):
+                if self._aliases.is_artificial_type_folder(new_location):
                     # key is an ARTIFICIAL_TYPE folder
                     self._logger.finest('6 is_artificial_type_folder=True',
                                         class_name=_class_name, method_name=_method_name)
-                    valid_attr_infos = self._alias_helper.get_model_attribute_names_and_types(new_location)
+                    valid_attr_infos = self._aliases.get_model_attribute_names_and_types(new_location)
 
                     self.__validate_attributes(value, valid_attr_infos, new_location)
                 else:
@@ -583,12 +581,12 @@ class Validator(object):
 
                 else:
                     path_tokens_attr_keys = \
-                        self._alias_helper.get_model_uses_path_tokens_attribute_names(validation_location)
+                        self._aliases.get_model_uses_path_tokens_attribute_names(validation_location)
 
                     self.__validate_attribute(key, value, valid_attr_infos, path_tokens_attr_keys, model_folder_path,
                                               validation_location)
 
-            elif self._alias_helper.is_custom_folder_allowed(validation_location):
+            elif self._aliases.is_custom_folder_allowed(validation_location):
                 # custom folders are not validated, just log this and continue
                 self._logger.info('WLSDPLY-05037', model_folder_path,
                                   class_name=_class_name, method_name=_method_name)
@@ -601,11 +599,11 @@ class Validator(object):
                 #
                 if isinstance(value, dict):
                     # value is a dict, so key must be the name of a folder. key cannot be a folder
-                    # instance name, because the _alias_helper.supports_multiple_mbean_instances()
+                    # instance name, because the _aliases.supports_multiple_mbean_instances()
                     # method pulls those out, in the self.__validate_section_folder().
 
                     # See if it's a version invalid folder
-                    result, message = self._alias_helper.is_valid_model_folder_name(validation_location, key)
+                    result, message = self._aliases.is_valid_model_folder_name(validation_location, key)
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID folder
                         self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
@@ -616,11 +614,11 @@ class Validator(object):
                                             method_name=_method_name)
                 else:
                     # value is not a dict, so key must be the name of an attribute. key cannot be a
-                    # folder instance name, because the _alias_helper.supports_multiple_mbean_instances()
+                    # folder instance name, because the _aliases.supports_multiple_mbean_instances()
                     # method pulls those out, in the self.__validate_section_folder().
 
                     # See if it's a version invalid attribute
-                    result, message = self._alias_helper.is_valid_model_attribute_name(validation_location, key)
+                    result, message = self._aliases.is_valid_model_attribute_name(validation_location, key)
                     if result == ValidationCodes.VERSION_INVALID:
                         # key is a VERSION_INVALID attribute
                         self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
@@ -636,11 +634,11 @@ class Validator(object):
         self._logger.finest('attributes_dict={0}', str(attributes_dict),
                             class_name=_class_name, method_name=_method_name)
 
-        path_tokens_attr_keys = self._alias_helper.get_model_uses_path_tokens_attribute_names(validation_location)
+        path_tokens_attr_keys = self._aliases.get_model_uses_path_tokens_attribute_names(validation_location)
         self._logger.finer('WLSDPLY-05013', str(validation_location), str(path_tokens_attr_keys),
                            class_name=_class_name, method_name=_method_name)
 
-        model_folder_path = self._alias_helper.get_model_folder_path(validation_location)
+        model_folder_path = self._aliases.get_model_folder_path(validation_location)
 
         for attribute_name, attribute_value in attributes_dict.iteritems():
             self.__validate_attribute(attribute_name, attribute_value, valid_attr_infos, path_tokens_attr_keys,
@@ -673,7 +671,7 @@ class Validator(object):
             if attribute_name in path_tokens_attr_keys:
                 self.__validate_path_tokens_attribute(attribute_name, attribute_value, model_folder_path)
         else:
-            result, message = self._alias_helper.is_valid_model_attribute_name(validation_location, attribute_name)
+            result, message = self._aliases.is_valid_model_attribute_name(validation_location, attribute_name)
             if result == ValidationCodes.VERSION_INVALID:
                 self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
             elif result == ValidationCodes.INVALID:

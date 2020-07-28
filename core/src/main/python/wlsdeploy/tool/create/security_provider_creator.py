@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -75,9 +75,9 @@ class SecurityProviderCreator(Creator):
         # This is called after the domain is written, but check to make sure the mbean does exist.
         # It missing it will be created to initialize the default realm and security providers.
         config_location = LocationContext(location).append_location(SECURITY_CONFIGURATION)
-        existing_names = deployer_utils.get_existing_object_list(config_location, self.alias_helper)
+        existing_names = deployer_utils.get_existing_object_list(config_location, self.aliases)
         if len(existing_names) == 0:
-            mbean_type, mbean_name = self.alias_helper.get_wlst_mbean_type_and_name(config_location)
+            mbean_type, mbean_name = self.aliases.get_wlst_mbean_type_and_name(config_location)
             self.wlst_helper.create(mbean_name, mbean_type)
 
         if len(security_configuration_nodes) > 0:
@@ -118,12 +118,12 @@ class SecurityProviderCreator(Creator):
         if model_nodes is None or len(model_nodes) == 0:
             return
 
-        token_name = self.alias_helper.get_name_token(location)
-        create_path = self.alias_helper.get_wlst_create_path(location)
-        list_path = self.alias_helper.get_wlst_list_path(location)
+        token_name = self.aliases.get_name_token(location)
+        create_path = self.aliases.get_wlst_create_path(location)
+        list_path = self.aliases.get_wlst_list_path(location)
         existing_folder_names = self._get_existing_folders(list_path)
-        known_providers = self.alias_helper.get_model_subfolder_names(location)
-        allow_custom = str(self.alias_helper.is_custom_folder_allowed(location))
+        known_providers = self.aliases.get_model_subfolder_names(location)
+        allow_custom = str(self.aliases.is_custom_folder_allowed(location))
 
         for model_name in model_nodes:
             model_node = model_nodes[model_name]
@@ -154,10 +154,10 @@ class SecurityProviderCreator(Creator):
             if token_name is not None:
                 prov_location.add_name_token(token_name, name)
 
-            wlst_base_provider_type, wlst_name = self.alias_helper.get_wlst_mbean_type_and_name(prov_location)
+            wlst_base_provider_type, wlst_name = self.aliases.get_wlst_mbean_type_and_name(prov_location)
 
             prov_location.append_location(model_type_subfolder_name)
-            wlst_type = self.alias_helper.get_wlst_mbean_type(prov_location)
+            wlst_type = self.aliases.get_wlst_mbean_type(prov_location)
 
             if wlst_name not in existing_folder_names:
                 if log_created:
@@ -176,10 +176,10 @@ class SecurityProviderCreator(Creator):
                     self.logger.fine('WLSDPLY-12119', type_name, model_type_subfolder_name, name, create_path,
                                      class_name=self.__class_name, method_name=_method_name)
 
-            attribute_path = self.alias_helper.get_wlst_attributes_path(prov_location)
+            attribute_path = self.aliases.get_wlst_attributes_path(prov_location)
             self.wlst_helper.cd(attribute_path)
 
-            self.logger.finest('WLSDPLY-12111', self.alias_helper.get_model_folder_path(prov_location),
+            self.logger.finest('WLSDPLY-12111', self.aliases.get_model_folder_path(prov_location),
                                self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
             self._set_attributes(prov_location, child_nodes)
             self._create_subfolders(prov_location, child_nodes)
@@ -200,13 +200,13 @@ class SecurityProviderCreator(Creator):
         """
         _method_name = '_process_child_nodes'
 
-        model_type, model_name = self.alias_helper.get_model_type_and_name(location)
+        model_type, model_name = self.aliases.get_model_type_and_name(location)
         if model_type in [SECURITY_CONFIGURATION, REALM]:
-            self.logger.finest('WLSDPLY-12143', self.alias_helper.get_model_folder_path(location),
+            self.logger.finest('WLSDPLY-12143', self.aliases.get_model_folder_path(location),
                                self.wlst_helper.get_pwd(), class_name=self.__class_name, method_name=_method_name)
 
             self._create_subfolders(location, model_nodes)
-            self.wlst_helper.cd(self.alias_helper.get_wlst_attributes_path(location))
+            self.wlst_helper.cd(self.aliases.get_wlst_attributes_path(location))
             self._set_attributes(location, model_nodes)
             return
 
@@ -243,14 +243,14 @@ class SecurityProviderCreator(Creator):
         _method_name = '_delete_existing_providers'
         self.logger.entering(location.get_folder_path(), class_name=self.__class_name, method_name=_method_name)
 
-        list_path = self.alias_helper.get_wlst_list_path(location)
+        list_path = self.aliases.get_wlst_list_path(location)
         existing_folder_names = self._get_existing_folders(list_path)
-        wlst_base_provider_type = self.alias_helper.get_wlst_mbean_type(location)
+        wlst_base_provider_type = self.aliases.get_wlst_mbean_type(location)
         if len(existing_folder_names) == 0:
             self.logger.finer('WLSDPLY-12136', wlst_base_provider_type, list_path, class_name=self.__class_name,
                               method_name=_method_name)
         else:
-            create_path = self.alias_helper.get_wlst_create_path(location)
+            create_path = self.aliases.get_wlst_create_path(location)
             self.wlst_helper.cd(create_path)
             for existing_folder_name in existing_folder_names:
                 try:

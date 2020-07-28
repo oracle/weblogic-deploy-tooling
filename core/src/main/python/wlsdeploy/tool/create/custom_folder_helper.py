@@ -9,7 +9,6 @@ from oracle.weblogic.deploy.create import CustomBeanUtils
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -23,10 +22,10 @@ class CustomFolderHelper(object):
     __cipher_text_prefixes = ["{AES}", "{AES-256}"]
 
     def __init__(self, aliases, logger, model_context, exception_type):
+        self.aliases = aliases
         self.logger = logger
         self.model_context = model_context
         self.exception_type = exception_type
-        self.alias_helper = AliasHelper(aliases, self.logger, self.exception_type)
         self.weblogic_helper = WebLogicHelper(self.logger)
         self.wlst_helper = WlstHelper(self.exception_type)
 
@@ -42,26 +41,26 @@ class CustomFolderHelper(object):
         """
         _method_name = 'update_security_folder'
 
-        location_path = self.alias_helper.get_model_folder_path(location)
+        location_path = self.aliases.get_model_folder_path(location)
         self.logger.entering(location_path, model_subtype, model_name,
                              class_name=self.__class_name, method_name=_method_name)
 
         self.logger.info('WLSDPLY-12124', model_type, model_name, model_subtype, location_path,
                          class_name=self.__class_name, method_name=_method_name)
 
-        create_path = self.alias_helper.get_wlst_subfolders_path(location)
+        create_path = self.aliases.get_wlst_subfolders_path(location)
         self.wlst_helper.cd(create_path)
 
         # create the MBean using the model type, name, and subtype
 
         type_location = LocationContext(location).append_location(model_type)
-        token = self.alias_helper.get_name_token(type_location)
+        token = self.aliases.get_name_token(type_location)
         type_location.add_name_token(token, model_name)
 
-        mbean_type = self.alias_helper.get_wlst_mbean_type(type_location)
+        mbean_type = self.aliases.get_wlst_mbean_type(type_location)
         self.wlst_helper.create(model_name, model_subtype, mbean_type)
 
-        provider_path = self.alias_helper.get_wlst_attributes_path(type_location)
+        provider_path = self.aliases.get_wlst_attributes_path(type_location)
         provider_mbean = self.wlst_helper.cd(provider_path)
 
         interface_name = model_subtype + 'MBean'
@@ -82,7 +81,7 @@ class CustomFolderHelper(object):
             property_descriptor = property_map.get(model_key)
 
             if not property_descriptor:
-                folder_path = self.alias_helper.get_model_folder_path(type_location)
+                folder_path = self.aliases.get_model_folder_path(type_location)
                 ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12128', model_key, folder_path)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex

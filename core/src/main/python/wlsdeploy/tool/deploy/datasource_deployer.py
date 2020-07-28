@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -44,7 +44,7 @@ class DatasourceDeployer(Deployer):
             if existing_name is None:
                 parent_location = LocationContext(location)
                 parent_location.pop_location()
-                data_source_token = self.alias_helper.get_name_token(parent_location)
+                data_source_token = self.aliases.get_name_token(parent_location)
                 data_source_name = location.get_name_for_token(data_source_token)
                 self.wlst_helper.set('Name', data_source_name)
             # continue

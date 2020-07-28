@@ -32,7 +32,6 @@ from oracle.weblogic.deploy.util import PyWLSTException
 from wlsdeploy.exception import exception_helper
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import variables
 from wlsdeploy.util.model_translator import FileToPython
@@ -252,10 +251,9 @@ class ModelDiffer:
         debug("DEBUG: Entering is_alias_folder %s", path)
         path_tokens = path.split(PATH_TOKEN)
         model_context = ModelContext("test", { })
-        aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE)
         location = LocationContext()
         last_token = path_tokens[-1]
-        alias_helper = AliasHelper(aliases, _logger, ExceptionType.COMPARE)
+        aliases = Aliases(model_context, wlst_mode=WlstModes.OFFLINE, exception_type=ExceptionType.COMPARE)
 
         found = True
         name_token_next = False
@@ -268,8 +266,8 @@ class ModelDiffer:
                 location.append_location(path_token)
                 if last_token == path_token:
                     break
-                name_token_next = alias_helper.supports_multiple_mbean_instances(location)
-            attrib_names = alias_helper.get_model_attribute_names(location)
+                name_token_next = aliases.supports_multiple_mbean_instances(location)
+            attrib_names = aliases.get_model_attribute_names(location)
             if last_token in attrib_names:
                 found = False
 

@@ -18,7 +18,6 @@ from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import string_utils
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -34,7 +33,7 @@ class TargetHelper(object):
         self.logger = logger
         self.model = model
         self.model_context = model_context
-        self.alias_helper = AliasHelper(aliases, self.logger, exception_type)
+        self.aliases = aliases
         self.wlst_helper = WlstHelper(exception_type)
         self.wls_helper = WebLogicHelper(self.logger)
         self.exception_type = exception_type
@@ -57,7 +56,7 @@ class TargetHelper(object):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         location = LocationContext()
-        root_path = self.alias_helper.get_wlst_attributes_path(location)
+        root_path = self.aliases.get_wlst_attributes_path(location)
         self.wlst_helper.cd(root_path)
         admin_server_name = self.wlst_helper.get(ADMIN_SERVER_NAME)
 
@@ -100,7 +99,7 @@ class TargetHelper(object):
             return list()
 
         location = LocationContext()
-        root_path = self.alias_helper.get_wlst_attributes_path(location)
+        root_path = self.aliases.get_wlst_attributes_path(location)
         self.wlst_helper.cd(root_path)
 
         # We need to get the effective list of servers for the domain.  Since any servers
@@ -189,7 +188,7 @@ class TargetHelper(object):
             return list()
 
         location = LocationContext()
-        root_path = self.alias_helper.get_wlst_attributes_path(location)
+        root_path = self.aliases.get_wlst_attributes_path(location)
         self.wlst_helper.cd(root_path)
 
         # Get the clusters and and their members
@@ -308,7 +307,7 @@ class TargetHelper(object):
 
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         server_location = LocationContext().append_location(SERVER)
-        server_list_path = self.alias_helper.get_wlst_list_path(server_location)
+        server_list_path = self.aliases.get_wlst_list_path(server_location)
         result = self.wlst_helper.get_existing_object_list(server_list_path)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
@@ -323,13 +322,13 @@ class TargetHelper(object):
 
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         server_location = LocationContext().append_location(SERVER)
-        server_list_path = self.alias_helper.get_wlst_list_path(server_location)
+        server_list_path = self.aliases.get_wlst_list_path(server_location)
         server_names = self.wlst_helper.get_existing_object_list(server_list_path)
-        server_token = self.alias_helper.get_name_token(server_location)
+        server_token = self.aliases.get_name_token(server_location)
         cluster_map = OrderedDict()
         for server_name in server_names:
             server_location.add_name_token(server_token, server_name)
-            server_attributes_path = self.alias_helper.get_wlst_attributes_path(server_location)
+            server_attributes_path = self.aliases.get_wlst_attributes_path(server_location)
             self.wlst_helper.cd(server_attributes_path)
 
             server_attributes_map = self.wlst_helper.lsa()
@@ -343,19 +342,19 @@ class TargetHelper(object):
             cluster_map[cluster_name].append(server_name)
 
         clusters_location = LocationContext().append_location(CLUSTER)
-        cluster_list_path = self.alias_helper.get_wlst_list_path(clusters_location)
+        cluster_list_path = self.aliases.get_wlst_list_path(clusters_location)
         cluster_names = self.wlst_helper.get_existing_object_list(cluster_list_path)
-        cluster_token = self.alias_helper.get_name_token(clusters_location)
+        cluster_token = self.aliases.get_name_token(clusters_location)
         # Add the cluster with dynamic servers, if not already in the cluster member list.
         # A cluster may contain both dynamic and configured servers (referred to as mixed cluster).
         # Add a token marking DYNAMIC SERVERS in the member list.
         for cluster_name in cluster_names:
             cluster_location = LocationContext(clusters_location)
             cluster_location.add_name_token(cluster_token, cluster_name)
-            cluster_attributes_path = self.alias_helper.get_wlst_attributes_path(cluster_location)
+            cluster_attributes_path = self.aliases.get_wlst_attributes_path(cluster_location)
             self.wlst_helper.cd(cluster_attributes_path)
             cluster_location.append_location(DYNAMIC_SERVERS)
-            wlst_subfolder_name = self.alias_helper.get_wlst_mbean_type(cluster_location)
+            wlst_subfolder_name = self.aliases.get_wlst_mbean_type(cluster_location)
             if self.wlst_helper.subfolder_exists(wlst_subfolder_name):
                 if cluster_name not in cluster_map:
                     cluster_map[cluster_name] = list()
@@ -374,7 +373,7 @@ class TargetHelper(object):
 
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         server_location = LocationContext().append_location(SERVER)
-        server_list_path = self.alias_helper.get_wlst_list_path(server_location)
+        server_list_path = self.aliases.get_wlst_list_path(server_location)
         result = self.wlst_helper.get_existing_object_list(server_list_path)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
@@ -389,7 +388,7 @@ class TargetHelper(object):
 
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         cluster_location = LocationContext().append_location(CLUSTER)
-        cluster_list_path = self.alias_helper.get_wlst_list_path(cluster_location)
+        cluster_list_path = self.aliases.get_wlst_list_path(cluster_location)
         result = self.wlst_helper.get_existing_object_list(cluster_list_path)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result

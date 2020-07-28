@@ -161,7 +161,7 @@ class DomainCreator(Creator):
         #
         # This list gets modified as the domain is being created so do use this list for anything else...
         #
-        self.__topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
+        self.__topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
         return
 
     def create(self):
@@ -274,7 +274,7 @@ class DomainCreator(Creator):
         if RCU_DB_INFO in self.model.get_model_domain_info():
 
             rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
-            rcu_db_info = RcuDbInfo(self.model_context, self.alias_helper, rcu_properties_map)
+            rcu_db_info = RcuDbInfo(self.model_context, self.aliases, rcu_properties_map)
             rcu_extra_args = dict()
 
             rcu_comp_info = self.__extract_rcu_xml_file(RCU_COMP_INFO, rcu_db_info.get_comp_info_location())
@@ -482,7 +482,7 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.add_template(custom_template)
 
-        topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
+        topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
         self.__apply_base_domain_config(topology_folder_list)
         self.__configure_fmw_infra_database()
 
@@ -551,7 +551,7 @@ class DomainCreator(Creator):
             self.__set_app_dir()
             self.__configure_fmw_infra_database()
             self.__configure_opss_secrets()
-        topology_folder_list = self.alias_helper.get_model_topology_top_level_folder_names()
+        topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
         self.__apply_base_domain_config(topology_folder_list)
 
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
@@ -614,7 +614,7 @@ class DomainCreator(Creator):
         self.logger.fine('WLSDPLY-12219', class_name=self.__class_name, method_name=_method_name)
 
         location = LocationContext()
-        domain_name_token = self.alias_helper.get_name_token(location)
+        domain_name_token = self.aliases.get_name_token(location)
         location.add_name_token(domain_name_token, self._domain_name)
 
         self.__create_security_folder(location)
@@ -857,7 +857,7 @@ class DomainCreator(Creator):
 
             if len(mbean_nodes) > 0:
                 mbean_location = LocationContext(location).append_location(mbean_type)
-                if self.alias_helper.supports_multiple_mbean_instances(mbean_location):
+                if self.aliases.supports_multiple_mbean_instances(mbean_location):
                     self._create_named_mbeans(mbean_type, mbean_nodes, location, log_created=True)
                 else:
                     self._create_mbean(mbean_type, mbean_nodes, location, log_created=True)
@@ -866,26 +866,26 @@ class DomainCreator(Creator):
         return
 
     def __set_atp_connection_property(self, root_location, property_name, property_value):
-        create_path = self.alias_helper.get_wlst_create_path(root_location)
+        create_path = self.aliases.get_wlst_create_path(root_location)
 
         self.wlst_helper.cd(create_path)
 
-        token_name = self.alias_helper.get_name_token(root_location)
+        token_name = self.aliases.get_name_token(root_location)
 
         if token_name is not None:
             root_location.add_name_token(token_name, property_name)
 
-        mbean_name = self.alias_helper.get_wlst_mbean_name(root_location)
-        mbean_type = self.alias_helper.get_wlst_mbean_type(root_location)
+        mbean_name = self.aliases.get_wlst_mbean_name(root_location)
+        mbean_type = self.aliases.get_wlst_mbean_type(root_location)
 
         self.wlst_helper.create(mbean_name, mbean_type)
 
-        wlst_path = self.alias_helper.get_wlst_attributes_path(root_location)
+        wlst_path = self.aliases.get_wlst_attributes_path(root_location)
 
         self.wlst_helper.cd(wlst_path)
 
         wlst_name, wlst_value = \
-            self.alias_helper.get_wlst_attribute_name_and_value(root_location, DRIVER_PARAMS_PROPERTY_VALUE,
+            self.aliases.get_wlst_attribute_name_and_value(root_location, DRIVER_PARAMS_PROPERTY_VALUE,
                                                                 property_value)
         self.wlst_helper.set(wlst_name, wlst_value)
 
@@ -911,7 +911,7 @@ class DomainCreator(Creator):
         domain_info = self.model.get_model_domain_info()
 
         if RCU_DB_INFO in domain_info:
-            rcu_db_info = RcuDbInfo(self.model_context, self.alias_helper, domain_info[RCU_DB_INFO])
+            rcu_db_info = RcuDbInfo(self.model_context, self.aliases, domain_info[RCU_DB_INFO])
 
             # HANDLE ATP case
 
@@ -934,41 +934,41 @@ class DomainCreator(Creator):
                 location = LocationContext()
                 location.append_location(JDBC_SYSTEM_RESOURCE)
 
-                folder_path = self.alias_helper.get_wlst_list_path(location)
+                folder_path = self.aliases.get_wlst_list_path(location)
                 self.wlst_helper.cd(folder_path)
                 ds_names = self.wlst_helper.lsc()
 
                 for ds_name in ds_names:
                     location = LocationContext()
                     location.append_location(JDBC_SYSTEM_RESOURCE)
-                    token_name = self.alias_helper.get_name_token(location)
+                    token_name = self.aliases.get_name_token(location)
                     location.add_name_token(token_name, ds_name)
 
                     location.append_location(JDBC_RESOURCE)
                     location.append_location(JDBC_DRIVER_PARAMS)
-                    wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+                    wlst_path = self.aliases.get_wlst_attributes_path(location)
                     self.wlst_helper.cd(wlst_path)
 
                     wlst_name, wlst_value = \
-                        self.alias_helper.get_wlst_attribute_name_and_value(location, URL, fmw_database)
+                        self.aliases.get_wlst_attribute_name_and_value(location, URL, fmw_database)
                     self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
                     wlst_name, wlst_value = \
-                        self.alias_helper.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
+                        self.aliases.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
                                                                             rcu_schema_pwd, masked=True)
                     self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
                     location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
-                    token_name = self.alias_helper.get_name_token(location)
+                    token_name = self.aliases.get_name_token(location)
                     if token_name is not None:
                         location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
 
-                    wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+                    wlst_path = self.aliases.get_wlst_attributes_path(location)
                     self.wlst_helper.cd(wlst_path)
                     orig_user = self.wlst_helper.get('Value')
                     stb_user = orig_user.replace('DEV', rcu_prefix)
                     wlst_name, wlst_value = \
-                        self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE,
+                        self.aliases.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE,
                                                                             stb_user)
                     self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
@@ -994,7 +994,7 @@ class DomainCreator(Creator):
 
         if not has_atp:
             if RCU_DB_INFO in domain_info:
-                rcu_db_info = RcuDbInfo(self.model_context, self.alias_helper, domain_info[RCU_DB_INFO])
+                rcu_db_info = RcuDbInfo(self.model_context, self.aliases, domain_info[RCU_DB_INFO])
                 rcu_prefix = rcu_db_info.get_rcu_prefix()
                 rcu_database = rcu_db_info.get_rcu_regular_db_conn()
                 rcu_schema_pwd = rcu_db_info.get_rcu_schema_password()
@@ -1010,42 +1010,42 @@ class DomainCreator(Creator):
 
             location = LocationContext()
             location.append_location(JDBC_SYSTEM_RESOURCE)
-            token_name = self.alias_helper.get_name_token(location)
+            token_name = self.aliases.get_name_token(location)
             svc_table_ds_name = self.wls_helper.get_jrf_service_table_datasource_name()
             if token_name is not None:
                 location.add_name_token(token_name, svc_table_ds_name)
 
             location.append_location(JDBC_RESOURCE)
             location.append_location(JDBC_DRIVER_PARAMS)
-            wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+            wlst_path = self.aliases.get_wlst_attributes_path(location)
             self.wlst_helper.cd(wlst_path)
 
             svc_table_driver_name = self.wls_helper.get_stb_data_source_jdbc_driver_name()
             wlst_name, wlst_value = \
-                self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_NAME, svc_table_driver_name)
+                self.aliases.get_wlst_attribute_name_and_value(location, DRIVER_NAME, svc_table_driver_name)
             self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
             wlst_name, wlst_value = \
-                self.alias_helper.get_wlst_attribute_name_and_value(location, URL, fmw_database)
+                self.aliases.get_wlst_attribute_name_and_value(location, URL, fmw_database)
             self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
             wlst_name, wlst_value = \
-                self.alias_helper.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
+                self.aliases.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
                                                                     rcu_schema_pwd, masked=True)
             self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
             location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
-            token_name = self.alias_helper.get_name_token(location)
+            token_name = self.aliases.get_name_token(location)
 
             if token_name is not None:
                 location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
 
             stb_user = self.wls_helper.get_stb_user_name(rcu_prefix)
             self.logger.fine('WLSDPLY-12222', stb_user, class_name=self.__class_name, method_name=_method_name)
-            wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+            wlst_path = self.aliases.get_wlst_attributes_path(location)
             self.wlst_helper.cd(wlst_path)
             wlst_name, wlst_value = \
-                self.alias_helper.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE, stb_user)
+                self.aliases.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE, stb_user)
             self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
             self.logger.info('WLSDPLY-12223', class_name=self.__class_name, method_name=_method_name)
@@ -1121,22 +1121,22 @@ class DomainCreator(Creator):
                 admin_username = self._domain_info[ADMIN_USERNAME]
 
             location = LocationContext().append_location(SECURITY)
-            token_name = self.alias_helper.get_name_token(location)
+            token_name = self.aliases.get_name_token(location)
             if token_name is not None:
                 location.add_name_token(token_name, self._domain_name)
 
             location.append_location(USER)
-            token_name = self.alias_helper.get_name_token(location)
+            token_name = self.aliases.get_name_token(location)
             if token_name is not None:
                 location.add_name_token(token_name, self.wls_helper.get_default_admin_username())
 
-            admin_user_path = self.alias_helper.get_wlst_attributes_path(location)
+            admin_user_path = self.aliases.get_wlst_attributes_path(location)
             self.wlst_helper.cd(admin_user_path)
             wlst_name, wlst_value = \
-                self.alias_helper.get_wlst_attribute_name_and_value(location, NAME, admin_username)
+                self.aliases.get_wlst_attribute_name_and_value(location, NAME, admin_username)
             self.wlst_helper.set_if_needed(wlst_name, wlst_value)
             wlst_name, wlst_value = \
-                self.alias_helper.get_wlst_attribute_name_and_value(location, PASSWORD, admin_password, masked=True)
+                self.aliases.get_wlst_attribute_name_and_value(location, PASSWORD, admin_password, masked=True)
             self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
         else:
@@ -1158,11 +1158,11 @@ class DomainCreator(Creator):
         self.__default_admin_server_name = self.wlst_helper.get(ADMIN_SERVER_NAME)
         if self._admin_server_name != self.__default_admin_server_name:
             location = LocationContext().append_location(SERVER)
-            token_name = self.alias_helper.get_name_token(location)
+            token_name = self.aliases.get_name_token(location)
             if token_name is not None:
                 location.add_name_token(token_name, self.__default_admin_server_name)
 
-            wlst_path = self.alias_helper.get_wlst_attributes_path(location)
+            wlst_path = self.aliases.get_wlst_attributes_path(location)
             self.wlst_helper.cd(wlst_path)
             #
             # We cannot use the aliases for the Server Name attribute since we
@@ -1189,7 +1189,7 @@ class DomainCreator(Creator):
                 del attrib_dict[attribute]
 
         location = LocationContext()
-        attribute_path = self.alias_helper.get_wlst_attributes_path(location)
+        attribute_path = self.aliases.get_wlst_attributes_path(location)
         self.wlst_helper.cd(attribute_path)
         self._set_attributes(location, attrib_dict)
         return
@@ -1204,7 +1204,7 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         # SecurityConfiguration is special since the subfolder name does not change when you change the domain name.
         # It only changes once the domain is written and re-read...
-        domain_name_token = deployer_utils.get_domain_token(self.alias_helper)
+        domain_name_token = deployer_utils.get_domain_token(self.aliases)
         security_config_location = LocationContext().add_name_token(domain_name_token, self._domain_name)
         self.security_provider_creator.create_security_configuration(security_config_location)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)

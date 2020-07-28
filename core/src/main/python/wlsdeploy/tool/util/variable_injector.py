@@ -101,7 +101,7 @@ class VariableInjector(object):
         self.__section_keys.remove(model_sections.get_model_domain_info_key())
 
         if version:
-            self.__aliases = Aliases(model_context, self.__wlst_mode, version, None)
+            self.__aliases = Aliases(model_context, wlst_mode=self.__wlst_mode, wls_version=version)
         else:
             self.__aliases = Aliases(model_context)
         self.__variable_dictionary = variable_dictionary

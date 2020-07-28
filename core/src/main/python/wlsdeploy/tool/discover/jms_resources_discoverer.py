@@ -68,7 +68,7 @@ class JmsResourcesDiscoverer(Discoverer):
         if jms_servers is not None:
             _logger.info('WLSDPLY-06470', len(jms_servers), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for jms_server in jms_servers:
                 if typedef.is_system_jms_server(jms_server):
                     _logger.info('WLSDPLY-06490', typedef.get_domain_type(), jms_server, class_name=_class_name,
@@ -98,7 +98,7 @@ class JmsResourcesDiscoverer(Discoverer):
         agents = self._find_names_in_folder(location)
         if agents is not None:
             _logger.info('WLSDPLY-06472', len(agents), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for agent in agents:
                 _logger.info('WLSDPLY-06473', agent, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, agent)
@@ -123,7 +123,7 @@ class JmsResourcesDiscoverer(Discoverer):
         destinations = self._find_names_in_folder(location)
         if destinations is not None:
             _logger.info('WLSDPLY-06474', len(destinations), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for destination in destinations:
                 _logger.info('WLSDPLY-06475', destination, class_name=_class_name, method_name=_method_name)
                 result[destination] = OrderedDict()
@@ -147,7 +147,7 @@ class JmsResourcesDiscoverer(Discoverer):
         bridges = self._find_names_in_folder(location)
         if bridges is not None:
             _logger.info('WLSDPLY-06476', len(bridges), class_name=_class_name, method_name=_method_name)
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for bridge in bridges:
                 _logger.info('WLSDPLY-06477', bridge, class_name=_class_name, method_name=_method_name)
                 result[bridge] = OrderedDict()
@@ -173,7 +173,7 @@ class JmsResourcesDiscoverer(Discoverer):
         if jms_resources is not None:
             _logger.info('WLSDPLY-06478', len(jms_resources), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for jms_resource in jms_resources:
                 if typedef.is_system_jms(jms_resource):
                     _logger.info('WLSDPLY-06491', typedef.get_domain_type(), jms_resource, class_name=_class_name,
@@ -200,7 +200,7 @@ class JmsResourcesDiscoverer(Discoverer):
         model_subfolder_name = model_constants.SUB_DEPLOYMENT
         location.append_location(model_subfolder_name)
         result = self._discover_subfolder_with_names(model_subfolder_name, location,
-                                                     self._alias_helper.get_name_token(location))
+                                                     self._aliases.get_name_token(location))
         location.pop_location()
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_subfolder_name, result
@@ -242,9 +242,9 @@ class JmsResourcesDiscoverer(Discoverer):
         location.append_location(model_top_folder_name)
         servers = self._find_names_in_folder(location)
         if servers is not None:
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for server in servers:
-                _logger.finer('WLSDPLY-06480', server, self._alias_helper.get_model_folder_path(location),
+                _logger.finer('WLSDPLY-06480', server, self._aliases.get_model_folder_path(location),
                               class_name=_class_name, method_name=_method_name)
                 result[server] = OrderedDict()
                 location.add_name_token(name_token, server)
@@ -281,9 +281,9 @@ class JmsResourcesDiscoverer(Discoverer):
         location.append_location(model_top_folder_name)
         templates = self._find_names_in_folder(location)
         if templates is not None:
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for template in templates:
-                _logger.finer('WLSDPLY-06481', template, self._alias_helper.get_model_folder_path(location),
+                _logger.finer('WLSDPLY-06481', template, self._aliases.get_model_folder_path(location),
                               class_name=_class_name, method_name=_method_name)
                 result[template] = OrderedDict()
                 location.add_name_token(name_token, template)
@@ -291,7 +291,7 @@ class JmsResourcesDiscoverer(Discoverer):
                 wlst_subfolders = self._find_subfolders(location)
                 if wlst_subfolders is not None:
                     for wlst_subfolder in wlst_subfolders:
-                        model_subfolder_name = self._alias_helper.get_model_subfolder_name(location, wlst_subfolder)
+                        model_subfolder_name = self._aliases.get_model_subfolder_name(location, wlst_subfolder)
                         _logger.finer('WLSDPLY-06485', model_subfolder_name, template, class_name=_class_name,
                                       method_name=_method_name)
                         if model_subfolder_name == model_constants.GROUP_PARAMS:
@@ -321,24 +321,24 @@ class JmsResourcesDiscoverer(Discoverer):
         location.append_location(model_subfolder_name)
         folder_names = self._find_names_in_folder(location)
         if folder_names is not None:
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for folder_name in folder_names:
                 location.add_name_token(name_token, folder_name)
-                wlst_subdeployment = self._alias_helper.get_wlst_attribute_name(location,
+                wlst_subdeployment = self._aliases.get_wlst_attribute_name(location,
                                                                                 model_constants.SUB_DEPLOYMENT_NAME)
                 attributes = self._get_attributes_for_current_location(location)
                 if wlst_subdeployment is None or wlst_subdeployment not in attributes:
-                    _logger.warning('WLSDPLY-06486', folder_name, self._alias_helper.get_model_folder_path(location),
+                    _logger.warning('WLSDPLY-06486', folder_name, self._aliases.get_model_folder_path(location),
                                     class_name=_class_name, method_name=_method_name)
                 else:
                     group_param_name = attributes[wlst_subdeployment]
                     if group_param_name is None:
                         _logger.warning('WLSDPLY-06486', folder_name,
-                                        self._alias_helper.get_model_folder_path(location),
+                                        self._aliases.get_model_folder_path(location),
                                         class_name=_class_name, method_name=_method_name)
                     else:
                         _logger.finer('WLSDPLY-06487', group_param_name,
-                                      self._alias_helper.get_model_folder_path(location),
+                                      self._aliases.get_model_folder_path(location),
                                       class_name=_class_name, method_name=_method_name)
                         subfolder_result[group_param_name] = OrderedDict()
                         self._populate_model_parameters(subfolder_result[group_param_name], location)
@@ -365,17 +365,17 @@ class JmsResourcesDiscoverer(Discoverer):
         location.append_location(model_subfolder_name)
         folder_names = self._find_names_in_folder(location)
         if folder_names is not None:
-            name_token = self._alias_helper.get_name_token(location)
+            name_token = self._aliases.get_name_token(location)
             for folder_name in folder_names:
                 location.add_name_token(name_token, folder_name)
-                wlst_key = self._alias_helper.get_wlst_attribute_name(location, model_constants.KEY)
+                wlst_key = self._aliases.get_wlst_attribute_name(location, model_constants.KEY)
                 attributes = self._get_attributes_for_current_location(location)
                 if wlst_key is None or wlst_key not in attributes:
-                    _logger.warning('WLSDPLY-06488', folder_name, self._alias_helper.get_model_folder_path(location),
+                    _logger.warning('WLSDPLY-06488', folder_name, self._aliases.get_model_folder_path(location),
                                     class_name=_class_name, method_name=_method_name)
                 else:
                     property_name = attributes[wlst_key]
-                    _logger.finer('WLSDPLY-06489', property_name, self._alias_helper.get_model_folder_path(location),
+                    _logger.finer('WLSDPLY-06489', property_name, self._aliases.get_model_folder_path(location),
                                   class_name=_class_name, method_name=_method_name)
                     subfolder_result[property_name] = OrderedDict()
                     self._populate_model_parameters(subfolder_result[property_name], location)

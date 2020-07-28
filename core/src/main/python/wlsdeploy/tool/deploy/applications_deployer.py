@@ -90,10 +90,10 @@ class ApplicationsDeployer(Deployer):
                               class_name=self._class_name, method_name=_method_name)
             return
 
-        root_path = self.alias_helper.get_wlst_subfolders_path(self._base_location)
+        root_path = self.aliases.get_wlst_subfolders_path(self._base_location)
         shared_library_location = LocationContext(self._base_location).append_location(LIBRARY)
-        shared_library_token = self.alias_helper.get_name_token(shared_library_location)
-        existing_shared_libraries = deployer_utils.get_existing_object_list(shared_library_location, self.alias_helper)
+        shared_library_token = self.aliases.get_name_token(shared_library_location)
+        existing_shared_libraries = deployer_utils.get_existing_object_list(shared_library_location, self.aliases)
 
         for shared_library_name in shared_libraries:
             self.logger.info('WLSDPLY-09608', LIBRARY, shared_library_name, self._parent_type, self._parent_name,
@@ -105,8 +105,8 @@ class ApplicationsDeployer(Deployer):
 
                 location = LocationContext()
                 location.append_location(model_constants.LIBRARY)
-                existing_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
-                deployer_utils.delete_named_element(location, shared_library_name, existing_names, self.alias_helper)
+                existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
+                deployer_utils.delete_named_element(location, shared_library_name, existing_names, self.aliases)
                 continue
 
             #
@@ -141,7 +141,7 @@ class ApplicationsDeployer(Deployer):
             shared_library_location.add_name_token(shared_library_token, quoted_library_name)
 
             self.wlst_helper.cd(root_path)
-            deployer_utils.create_and_cd(shared_library_location, existing_shared_libraries, self.alias_helper)
+            deployer_utils.create_and_cd(shared_library_location, existing_shared_libraries, self.aliases)
             self.set_attributes(shared_library_location, shared_library)
             shared_library_location.remove_name_token(shared_library_token)
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
@@ -162,10 +162,10 @@ class ApplicationsDeployer(Deployer):
                               class_name=self._class_name, method_name=_method_name)
             return
 
-        root_path = self.alias_helper.get_wlst_subfolders_path(self._base_location)
+        root_path = self.aliases.get_wlst_subfolders_path(self._base_location)
         application_location = LocationContext(self._base_location).append_location(APPLICATION)
-        application_token = self.alias_helper.get_name_token(application_location)
-        existing_applications = deployer_utils.get_existing_object_list(application_location, self.alias_helper)
+        application_token = self.aliases.get_name_token(application_location)
+        existing_applications = deployer_utils.get_existing_object_list(application_location, self.aliases)
 
         for application_name in applications:
             self.logger.info('WLSDPLY-09301', APPLICATION, application_name, self._parent_type, self._parent_name,
@@ -177,8 +177,8 @@ class ApplicationsDeployer(Deployer):
 
                 location = LocationContext()
                 location.append_location(model_constants.APPLICATION)
-                existing_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
-                deployer_utils.delete_named_element(location, application_name, existing_names, self.alias_helper)
+                existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
+                deployer_utils.delete_named_element(location, application_name, existing_names, self.aliases)
                 continue
 
             application = \
@@ -208,7 +208,7 @@ class ApplicationsDeployer(Deployer):
             application_location.add_name_token(application_token, quoted_application_name)
 
             self.wlst_helper.cd(root_path)
-            deployer_utils.create_and_cd(application_location, existing_applications, self.alias_helper)
+            deployer_utils.create_and_cd(application_location, existing_applications, self.aliases)
             self.set_attributes(application_location, application)
             application_location.remove_name_token(application_token)
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
@@ -321,7 +321,7 @@ class ApplicationsDeployer(Deployer):
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
-            rgt_token = self.alias_helper.get_name_token(location)
+            rgt_token = self.aliases.get_name_token(location)
             rgt_name = location.get_name_for_token(rgt_token)
             if rgt_name is None:
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09306', rgt_token, RESOURCE_GROUP_TEMPLATE)
@@ -344,7 +344,7 @@ class ApplicationsDeployer(Deployer):
                 raise ex
 
             part_location = LocationContext().append_location(PARTITION)
-            part_token = self.alias_helper.get_name_token(part_location)
+            part_token = self.aliases.get_name_token(part_location)
             part_name = location.get_name_for_token(part_token)
             if part_name is None:
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09306', part_token, PARTITION)
@@ -378,7 +378,7 @@ class ApplicationsDeployer(Deployer):
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-        rg_token = self.alias_helper.get_name_token(location)
+        rg_token = self.aliases.get_name_token(location)
         rg_name = location.get_name_for_token(rg_token)
         if rg_name is None:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09306', rg_token, RESOURCE_GROUP)
@@ -397,8 +397,8 @@ class ApplicationsDeployer(Deployer):
         ref_dictionary = OrderedDict()
 
         location = LocationContext(base_location).append_location(APPLICATION)
-        wlst_list_path = self.alias_helper.get_wlst_list_path(location)
-        token_name = self.alias_helper.get_name_token(location)
+        wlst_list_path = self.aliases.get_wlst_list_path(location)
+        token_name = self.aliases.get_name_token(location)
 
         self.wlst_helper.server_config()
         self.wlst_helper.cd(wlst_list_path)
@@ -414,7 +414,7 @@ class ApplicationsDeployer(Deployer):
         for app in apps:
             if running_apps is not None and app in running_apps:
                 app_location = LocationContext(location).add_name_token(token_name, app)
-                wlst_attributes_path = self.alias_helper.get_wlst_attributes_path(app_location)
+                wlst_attributes_path = self.aliases.get_wlst_attributes_path(app_location)
                 self.wlst_helper.cd(wlst_attributes_path)
                 attributes_map = self.wlst_helper.lsa()
                 absolute_sourcepath = attributes_map['AbsoluteSourcePath']
@@ -458,7 +458,7 @@ class ApplicationsDeployer(Deployer):
         internal_skip_list = ['bea_wls_async_response']
 
         location = LocationContext(base_location).append_location(LIBRARY)
-        token_name = self.alias_helper.get_name_token(location)
+        token_name = self.aliases.get_name_token(location)
 
         existing_libraries = OrderedDict()
         self.wlst_helper.domain_runtime()
@@ -479,7 +479,7 @@ class ApplicationsDeployer(Deployer):
                 runtime_attributes = self.wlst_helper.lsa()
 
                 lib_location = LocationContext(location).add_name_token(token_name, lib)
-                wlst_attributes_path = self.alias_helper.get_wlst_attributes_path(lib_location)
+                wlst_attributes_path = self.aliases.get_wlst_attributes_path(lib_location)
                 self.wlst_helper.server_config()
                 self.wlst_helper.cd(wlst_attributes_path)
                 config_attributes = self.wlst_helper.lsa()
@@ -693,11 +693,11 @@ class ApplicationsDeployer(Deployer):
 
     def __get_uses_path_tokens_attribute_names(self, app_location):
         location = LocationContext(app_location)
-        token_name = self.alias_helper.get_name_token(location)
+        token_name = self.aliases.get_name_token(location)
         if token_name is not None:
             location.add_name_token(token_name, 'dummy-app')
 
-        return self.alias_helper.get_model_uses_path_tokens_attribute_names(location)
+        return self.aliases.get_model_uses_path_tokens_attribute_names(location)
 
     def __get_file_hash(self, filename):
         _method_name = '__get_file_hash'
@@ -806,7 +806,7 @@ class ApplicationsDeployer(Deployer):
             uses_path_tokens_attribute_names = self.__get_uses_path_tokens_attribute_names(lib_location)
             deploy_ordered_keys = self.__get_deployment_ordering(model_libs)
             location = LocationContext(lib_location)
-            token_name = self.alias_helper.get_name_token(location)
+            token_name = self.aliases.get_name_token(location)
             for lib_name in deploy_ordered_keys:
                 lib_dict = model_libs[lib_name]
                 src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
@@ -831,7 +831,7 @@ class ApplicationsDeployer(Deployer):
             uses_path_tokens_attribute_names = self.__get_uses_path_tokens_attribute_names(app_location)
             deploy_ordered_keys = self.__get_deployment_ordering(model_apps)
             location = LocationContext(app_location)
-            token_name = self.alias_helper.get_name_token(location)
+            token_name = self.aliases.get_name_token(location)
             for app_name in deploy_ordered_keys:
                 app_dict = model_apps[app_name]
                 src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
@@ -860,21 +860,21 @@ class ApplicationsDeployer(Deployer):
 
     def __get_mt_names_from_location(self, app_location):
         dummy_location = LocationContext()
-        token_name = self.alias_helper.get_name_token(dummy_location)
+        token_name = self.aliases.get_name_token(dummy_location)
         dummy_location.add_name_token(token_name, self.model_context.get_domain_name())
 
         dummy_location.append_location(RESOURCE_GROUP_TEMPLATE)
-        token_name = self.alias_helper.get_name_token(dummy_location)
+        token_name = self.aliases.get_name_token(dummy_location)
         resource_group_template_name = app_location.get_name_for_token(token_name)
         dummy_location.pop_location()
 
         dummy_location.append_location(RESOURCE_GROUP)
-        token_name = self.alias_helper.get_name_token(dummy_location)
+        token_name = self.aliases.get_name_token(dummy_location)
         resource_group_name = app_location.get_name_for_token(token_name)
         dummy_location.pop_location()
 
         dummy_location.append_location(PARTITION)
-        token_name = self.alias_helper.get_name_token(dummy_location)
+        token_name = self.aliases.get_name_token(dummy_location)
         partition_name = app_location.get_name_for_token(token_name)
         dummy_location.pop_location()
         return resource_group_template_name, resource_group_name, partition_name
@@ -1118,12 +1118,12 @@ class ApplicationsDeployer(Deployer):
 
         temp_app_dict = OrderedDict()
         location = LocationContext(base_location).append_location(APPLICATION)
-        token_name = self.alias_helper.get_name_token(location)
+        token_name = self.aliases.get_name_token(location)
 
         self.wlst_helper.server_config()
         for app in deployed_app_list:
             location.add_name_token(token_name, app)
-            wlst_attribute_path = self.alias_helper.get_wlst_attributes_path(location)
+            wlst_attribute_path = self.aliases.get_wlst_attributes_path(location)
             self.wlst_helper.cd(wlst_attribute_path)
             deployment_order = self.wlst_helper.get(DEPLOYMENT_ORDER)
 

@@ -14,9 +14,7 @@ from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.util import k8s_helper
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_translator import PythonToFile
 from wlsdeploy.yaml.dictionary_list import DictionaryList
@@ -60,7 +58,7 @@ class DomainResourceExtractor:
     def __init__(self, model, model_context, aliases, logger):
         self._model = model
         self._model_context = model_context
-        self._aliases = AliasHelper(aliases, logger, ExceptionType.DEPLOY)
+        self._aliases = aliases
         self._logger = logger
         return
 

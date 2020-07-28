@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -48,7 +48,7 @@ class MultiTenantResourcesDiscoverer(Discoverer):
         resource = self._find_singleton_name_in_folder(location)
         if resource is not None:
             _logger.info('WLSDPLY-06708', class_name=_class_name, method_name=_method_name)
-            location.add_name_token(self._alias_helper.get_name_token(location), resource)
+            location.add_name_token(self._aliases.get_name_token(location), resource)
             self._populate_model_parameters(result, location)
             self._discover_subfolders(result, location)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)

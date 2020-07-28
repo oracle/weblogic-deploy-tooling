@@ -16,7 +16,6 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import model_helper
 from wlsdeploy.tool.deploy import log_helper
-from wlsdeploy.tool.util.alias_helper import AliasHelper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
@@ -44,7 +43,6 @@ class Deployer(object):
         self.model_context = model_context
         self.aliases = aliases
         self.logger = PlatformLogger('wlsdeploy.deploy')
-        self.alias_helper = AliasHelper(aliases, self.logger, ExceptionType.DEPLOY)
         self.wls_helper = WebLogicHelper(self.logger)
         self.wlst_helper = WlstHelper(ExceptionType.DEPLOY)
         self.attribute_setter = AttributeSetter(self.aliases, self.logger, ExceptionType.DEPLOY, wlst_mode=wlst_mode)
@@ -76,13 +74,13 @@ class Deployer(object):
         if not self._check_location(location):
             return
 
-        deployer_utils.check_flattened_folder(location, self.alias_helper)
-        existing_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
+        deployer_utils.check_flattened_folder(location, self.aliases)
+        existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
 
-        token = self.alias_helper.get_name_token(location)
+        token = self.aliases.get_name_token(location)
         for name in model_nodes:
             if model_helper.is_delete_name(name):
-                deployer_utils.delete_named_element(location, name, existing_names, self.alias_helper)
+                deployer_utils.delete_named_element(location, name, existing_names, self.aliases)
                 continue
 
             is_add = name not in existing_names
@@ -91,7 +89,7 @@ class Deployer(object):
 
             if token is not None:
                 location.add_name_token(token, name)
-            deployer_utils.create_and_cd(location, existing_names, self.alias_helper)
+            deployer_utils.create_and_cd(location, existing_names, self.aliases)
 
             child_nodes = dictionary_utils.get_dictionary_element(model_nodes, name)
             self._set_attributes_and_add_subfolders(location, child_nodes)
@@ -105,7 +103,7 @@ class Deployer(object):
         :param excludes: optional list of sub-folder names to be excluded from processing
         """
         location = LocationContext(location)
-        model_subfolder_names = self.alias_helper.get_model_subfolder_names(location)
+        model_subfolder_names = self.aliases.get_model_subfolder_names(location)
 
         for subfolder in model_nodes:
             key_excluded = (excludes is not None) and (subfolder in excludes)
@@ -113,7 +111,7 @@ class Deployer(object):
                 subfolder_nodes = model_nodes[subfolder]
                 if len(subfolder_nodes) != 0:
                     sub_location = LocationContext(location).append_location(subfolder)
-                    if self.alias_helper.supports_multiple_mbean_instances(sub_location):
+                    if self.aliases.supports_multiple_mbean_instances(sub_location):
                         self._add_named_elements(subfolder, subfolder_nodes, location)
                     else:
                         self._add_model_elements(subfolder, subfolder_nodes, location)
@@ -133,14 +131,14 @@ class Deployer(object):
         if not self._check_location(location):
             return
 
-        deployer_utils.check_flattened_folder(location, self.alias_helper)
-        existing_subfolder_names = deployer_utils.get_existing_object_list(location, self.alias_helper)
+        deployer_utils.check_flattened_folder(location, self.aliases)
+        existing_subfolder_names = deployer_utils.get_existing_object_list(location, self.aliases)
 
-        mbean_name = deployer_utils.get_mbean_name(location, existing_subfolder_names, self.alias_helper)
+        mbean_name = deployer_utils.get_mbean_name(location, existing_subfolder_names, self.aliases)
         is_add = mbean_name not in existing_subfolder_names
         log_helper.log_updating_folder(type_name, parent_type, parent_name, is_add, self._class_name, _method_name)
 
-        deployer_utils.create_and_cd(location, existing_subfolder_names, self.alias_helper)
+        deployer_utils.create_and_cd(location, existing_subfolder_names, self.aliases)
 
         self._set_attributes_and_add_subfolders(location, model_nodes)
         return
@@ -166,12 +164,12 @@ class Deployer(object):
         :raise: DeployException: if an error condition is encountered
         """
         _method_name = 'set_attributes'
-        attribute_names = self.alias_helper.get_model_attribute_names(location)
-        uses_path_tokens_attribute_names = self.alias_helper.get_model_uses_path_tokens_attribute_names(location)
-        restart_attribute_names = self.alias_helper.get_model_restart_required_attribute_names(location)
-        merge_attribute_names = self.alias_helper.get_model_merge_required_attribute_names(location)
+        attribute_names = self.aliases.get_model_attribute_names(location)
+        uses_path_tokens_attribute_names = self.aliases.get_model_uses_path_tokens_attribute_names(location)
+        restart_attribute_names = self.aliases.get_model_restart_required_attribute_names(location)
+        merge_attribute_names = self.aliases.get_model_merge_required_attribute_names(location)
         lsa_required_attribute_names = self.aliases.get_model_lsa_required_attribute_names(location)
-        set_method_map = self.alias_helper.get_model_mbean_set_method_attribute_names_and_types(location)
+        set_method_map = self.aliases.get_model_mbean_set_method_attribute_names_and_types(location)
 
         for key in model_nodes:
             key_excluded = (excludes is not None) and (key in excludes)
@@ -224,7 +222,7 @@ class Deployer(object):
         """
         _method_name = '_get_existing_wlst_value'
 
-        wlst_key = self.alias_helper.get_wlst_attribute_name(location, key)
+        wlst_key = self.aliases.get_wlst_attribute_name(location, key)
         if wlst_key is None:
             return None
 
@@ -238,7 +236,7 @@ class Deployer(object):
             if wlst_key in attribute_map:
                 wlst_value = attribute_map[wlst_key]
             else:
-                path = self.alias_helper.get_model_folder_path(location)
+                path = self.aliases.get_model_folder_path(location)
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09201', key, path, wlst_key)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
@@ -279,7 +277,7 @@ class Deployer(object):
         :param location:the location to be examined
         :return: the type and name of the last element in the location
         """
-        return self.alias_helper.get_model_type_and_name(location)
+        return self.aliases.get_model_type_and_name(location)
 
     def get_location_type(self, location):
         """
@@ -322,7 +320,7 @@ class Deployer(object):
         :return: True if the location is valid, False otherwise
         """
         _method_name = '_check_location'
-        if self.alias_helper.get_wlst_mbean_type(location) is None:
+        if self.aliases.get_wlst_mbean_type(location) is None:
             the_type = self.get_location_type(location)
             self.logger.warning('WLSDPLY-09203', the_type, self.wls_helper.get_weblogic_version(),
                                 class_name=self._class_name, method_name=_method_name)
@@ -347,7 +345,7 @@ class Deployer(object):
             if self.archive_helper is not None:
                 result = self.__process_archive_entry(location, key, short_value)
             else:
-                path = self.alias_helper.get_model_folder_path(location)
+                path = self.aliases.get_model_folder_path(location)
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09110', key, path, value)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
@@ -401,7 +399,7 @@ class Deployer(object):
             # but not in the archive, just create it to help the user.
             result = self.__process_directory_entry(fullpath)
         else:
-            path = self.alias_helper.get_model_folder_path(location)
+            path = self.aliases.get_model_folder_path(location)
             ex = exception_helper.create_deploy_exception('WLSDPLY-09204', key, path, value,
                                                           self.model_context.get_archive_file_name())
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
