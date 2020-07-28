@@ -30,4 +30,4 @@ When running the tool in WLST online mode, the deploy operation may require serv
 
 ### Using Multiple Models
 
-The Deploy Applications Tool supports the use of multiple models, as described in [Using Multiple Models](../README.md#using-multiple-models).
+The Deploy Applications Tool supports the use of multiple models, as described in [Using Multiple Models](model.md#using-multiple-models).

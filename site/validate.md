@@ -91,4 +91,4 @@ Results in output similar to that shown below, if the `simpleear.ear` file is no
 
 ### Using Multiple Models
 
-The Validate Model Tool supports the use of multiple models, as described in [Using Multiple Models](../README.md#using-multiple-models).
+The Validate Model Tool supports the use of multiple models, as described in [Using Multiple Models](model.md#using-multiple-models).

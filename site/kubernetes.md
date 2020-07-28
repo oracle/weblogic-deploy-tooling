@@ -55,7 +55,7 @@ kubernetes:
                 JAVA_OPTIONS:
                     value: '-Dmydir=/home/me'
 ```
-This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the `kubernetes` section of the model. More details about using model variables can be found [here](model.md/#simple-example).
+This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the `kubernetes` section of the model. More details about using model variables can be found [here](model.md#simple-example).
 
 For this example, the resulting domain resource file would contain:
 ```yaml

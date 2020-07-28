@@ -25,4 +25,4 @@ When running the tool in WLST online mode, the update operation may require serv
 
 ### Using Multiple Models
 
-The Update Domain Tool supports the use of multiple models, as described in [Using Multiple Models](../README.md#using-multiple-models).
+The Update Domain Tool supports the use of multiple models, as described in [Using Multiple Models](model.md#using-multiple-models).
