@@ -30,4 +30,4 @@ If the model or variables file contains passwords encrypted with the WDT Encrypt
 
 ### Using Multiple Models
 
-The Update Domain Tool supports the use of multiple models, as described in [Using Multiple Models](../README.md#using-multiple-models).
+The Update Domain Tool supports the use of multiple models, as described in [Using Multiple Models](model.md#using-multiple-models).

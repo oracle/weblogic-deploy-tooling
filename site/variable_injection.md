@@ -3,8 +3,8 @@
 The Variable Injector Tool is used to tokenize a model with variables. The values for these variables are assigned using an external property file. This facilitates using the same domain model to create new domains in different environments. The Variable Injector Tool can be run as an option in the Discover Domain Tool, or from the standalone command-line interface.
 
 To enable the Variable Injector Tool during the Discover Domain Tool run, create a variable injector configuration by placing a JSON file named `model_variable_injector.json` into the `<WLSDEPLOY>/lib` directory using one or more of the pre-defined keywords and/or a CUSTOM list of files.
- 
-Another option is to configure variable injection in a [Custom Configuration](config/custom_configuration.md) directory. Create the `model_variable_injector.json` file in the `$WDT_CUSTOM_CONFIG` directory. 
+
+Another option is to configure variable injection in a [Custom Configuration](tool_configuration.md#custom-configuration) directory. Create the `model_variable_injector.json` file in the `$WDT_CUSTOM_CONFIG` directory. 
 
 A keyword points to an injector directive file. The tool applies the directives to the attributes in a model, and if the directive matches an attribute, then a property token with a unique variable name is injected into the model and replaces the attribute value. The variable name and model attribute value are placed into the external variable properties file.
 
