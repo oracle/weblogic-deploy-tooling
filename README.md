@@ -26,7 +26,9 @@ As new use cases are discovered, new tools will likely be added to cover those o
 The Oracle WebLogic Server Deploy Tooling project repository is located at [`https://github.com/oracle/weblogic-deploy-tooling`](https://github.com/oracle/weblogic-deploy-tooling).  Binary distributions of the `weblogic-deploy.zip` installer can be downloaded from the [GitHub Releases page](https://github.com/oracle/weblogic-deploy-tooling/releases).  To install the software, simply unzip the `weblogic-deploy.zip` installer on a machine that has the desired versions of WebLogic Server installed.  After being unzipped, the software is ready to use, just set the `JAVA_HOME` environment variable to point to a Java 7 or higher JDK  and the shell scripts are ready to run.
 
 
-## [Supported WLS Versions](site/wls_versions.md)
+## Supported WLS Versions
+
+For the supported WebLogic Server and JDK versions required to run WebLogic Server Deploy Tooling, see [Supported WLS Versions](site/wls_versions.md).
 
 
 ## Concepts
@@ -36,6 +38,10 @@ The Oracle WebLogic Server Deploy Tooling project repository is located at [`htt
 - [Model Use Cases](site/use_cases.md)
 - [Tool Configuration](site/tool_configuration.md)
 
-## [Developer Guide](site/developer/developer_guide.md)
+## Developer Guide
 
-## [Known Issues](KnownIssues.md)
+For information for developers, see the [Developer Guide](site/developer/developer_guide.md).
+
+## Known Issues
+
+See the following list of [Known Issues](KnownIssues.md) and workarounds.
