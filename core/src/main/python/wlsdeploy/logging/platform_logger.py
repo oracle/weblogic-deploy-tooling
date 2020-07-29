@@ -2,6 +2,7 @@
 Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import java.lang.Object as JObject
 import java.lang.System as JSystem
 import java.lang.Thread as JThread
 import java.lang.Throwable as Throwable
@@ -286,6 +287,14 @@ def _get_args_as_java_array(*args):
     result = JArrayList()
     if args is not None and len(args) > 0:
         for arg in args:
-            result.add(str(arg))
+            if arg is not None:
+                if isinstance(arg, unicode) or isinstance(arg, str):
+                    result.add(arg)
+                elif isinstance(arg, JObject):
+                    result.add(arg.toString())
+                else:
+                    result.add(unicode(arg))
+            else:
+                result.add(str(arg))
     return result.toArray()
 
