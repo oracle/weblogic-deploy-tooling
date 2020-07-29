@@ -8,7 +8,6 @@ from java.net import URI
 from java.net import URISyntaxException
 from java.net import MalformedURLException
 
-from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import StringUtils
@@ -157,7 +156,7 @@ class Discoverer(object):
             model_param, model_value = self._aliases.get_model_attribute_name_and_value(location,
                                                                                         wlst_param,
                                                                                         wlst_value)
-        except AliasException, de:
+        except DiscoverException, de:
             _logger.info('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
                          class_name=_class_name, method_name=_method_name)
             return
@@ -668,7 +667,7 @@ class Discoverer(object):
                     wlst_attribute = self._aliases.get_wlst_attribute_name(location, model_attribute)
                     if wlst_attribute:
                         wlst_attributes.append(wlst_attribute)
-                except AliasException:
+                except DiscoverException:
                     continue
         return wlst_attributes
 
