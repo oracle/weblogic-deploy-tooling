@@ -158,7 +158,6 @@ class ModelDiffer:
                     last=token.rfind(PATH_TOKEN)
                     token=root
 
-
         # already out of recursive calls, add all entries from current dictionary
         # resources.JDBCSubsystemResources.* (note it may not have the lower level nodes
         added_token=token
@@ -227,7 +226,7 @@ class ModelDiffer:
             # Top level:  e.g. delete all resources, all appDeployments
 
             for s in removed:
-                self.recursive_changed_detail(s,token, s)
+                self.recursive_changed_detail(s, s, s)
                 self._add_results(all_removed, True)
 
         except (KeyError, IndexError), ke:
