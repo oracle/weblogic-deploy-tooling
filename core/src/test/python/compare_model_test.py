@@ -190,6 +190,60 @@ class CompareModelTestCase(unittest.TestCase):
 
         self.assertNotEqual(return_code, 0)
 
+    def testDeleteModelAppDeploymentsRemoved(self):
+        _method_name = 'testCompareModelFull'
+
+        _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
+        _new_model_file = self._resources_dir + '/compare_model_model5.yaml'
+        _old_model_file = self._resources_dir + '/compare_model_model1.yaml'
+        _temp_dir = os.path.join(tempfile.gettempdir(), _method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+
+        os.mkdir(_temp_dir)
+
+        mw_home = os.environ['MW_HOME']
+        args_map = {
+            '-oracle_home': mw_home,
+            '-variable_file': _variables_file,
+            '-output_dir' : _temp_dir,
+            '-domain_type' : 'WLS',
+            '-trailing_arguments': [ _new_model_file, _old_model_file ]
+        }
+
+        try:
+            model_context = ModelContext('CompareModelTestCase', args_map)
+            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            return_code = obj.compare()
+            self.assertEqual(return_code, 0)
+
+            yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
+            stdout_result = obj.get_compare_msgs()
+            model_dictionary = FileToPython(yaml_result).parse()
+            yaml_exists = os.path.exists(yaml_result)
+
+            self.assertEqual(yaml_exists, True)
+            self.assertEqual(len(stdout_result), 1)
+
+            self.assertEqual(model_dictionary.has_key('appDeployments'), True)
+            self.assertEqual(model_dictionary['appDeployments'].has_key('Library'), True)
+            self.assertEqual(model_dictionary['appDeployments'].has_key('Application'), True)
+            self.assertEqual(model_dictionary['appDeployments']['Application'].has_key('!myear'), True)
+            self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jax-rs#2.0@2.22.4.0'), True)
+            self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jsf#1.2@1.2.9.0'), True)
+
+        except (CompareException, PyWLSTException), te:
+            return_code = 2
+            self._logger.severe('WLSDPLY-05709',
+                                te.getLocalizedMessage(), error=te,
+                                class_name=self._program_name, method_name=_method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+
+        self.assertEqual(return_code, 0)
+
 
 if __name__ == '__main__':
     unittest.main()
