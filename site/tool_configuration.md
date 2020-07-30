@@ -1,5 +1,6 @@
-## Tool Configuration
+## Tools Configuration
  - [Model Filters](#model-filters)
+ - [Target Environments](config/target_env.md)
  - [Type Definitions](#domain-type-definitions)
  - [Variable Injection](variable_injection.md)
  - [Custom Configuration](#custom-configuration)
@@ -13,14 +14,14 @@
  The following filter example (`fix-password.py`) sets the password for two attributes in the `SecurityConfiguration` WLST folder.
 
  ```python
- def filter_model(model):
- 	if model and 'topology' in model:
- 		if 'SecurityConfiguration' in model['topology']:
- 			model['topology']['SecurityConfiguration']['CredentialEncrypted'] = 'welcome1'
- 			model['topology']['SecurityConfiguration']['NodeManagerPasswordEncrypted'] = 'welcome1'
- 			print 'Replaced SecurityConfiguration password'
- 		else:
- 			print 'SecurityConfiguration not in the model'
+def filter_model(model):
+    if model and 'topology' in model:
+        if 'SecurityConfiguration' in model['topology']:
+            model['topology']['SecurityConfiguration']['CredentialEncrypted'] = 'welcome1'
+            model['topology']['SecurityConfiguration']['NodeManagerPasswordEncrypted'] = 'welcome1'
+            print 'Replaced SecurityConfiguration password'
+        else:
+            print 'SecurityConfiguration not in the model'
  ```
 
  Model filters are configured by creating a `model_filters.json` file in the `WLSDEPLOY_HOME/lib` directory. This file has separate sections for filters to be applied for specific tools.
