@@ -36,7 +36,7 @@ For the supported WebLogic Server and JDK versions required to run WebLogic Serv
 - [The Model](site/model.md)
 - [The Archive File](site/archive.md)
 - [Model Use Cases](site/use_cases.md)
-- [Tool Configuration](site/tool_configuration.md)
+- [Tools Configuration](site/tool_configuration.md)
 
 ## Developer Guide
 
