@@ -190,7 +190,7 @@ class CompareModelTestCase(unittest.TestCase):
 
         self.assertNotEqual(return_code, 0)
 
-    def testDeleteModelAppDeploymentsRemoved(self):
+    def testDeleteModelAppDeployments(self):
         _method_name = 'testCompareModelFull'
 
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
