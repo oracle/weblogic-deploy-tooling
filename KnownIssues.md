@@ -1,4 +1,4 @@
-The following list are known issues. The issue may contain a work-around or an associated Issue number.
+The following list are known issues. The issue may contain a workaround or an associated Issue number.
 
 **ISSUE**:
    The createDomain and updateDomain tools cannot target non-JRF product resources to dynamic clusters because
@@ -18,7 +18,7 @@ The following list are known issues. The issue may contain a work-around or an a
 **ACTION**:
 
    You must contact WebLogic support to assist you with a solution for this targeting dilemma. You can perform
-   the following action as a temporary work-around to the described issue.
+   the following action as a temporary workaround to the described issue.
 
    1. Add a configured managed server to your dynamic cluster and re-run the createDomain or updateDomain tool.
       The dynamic cluster becomes a "mixed" cluster once the managed server is added. When the WDT tool targets the
@@ -44,21 +44,20 @@ The following list are known issues. The issue may contain a work-around or an a
 
 **ACTION**:
    Run RCU before executing createDomain for JRF domains
-   
+
 **ISSUE**:
    The discoverDomain or createDomain tool cannot handle object name with slashes and finished with  
    warnings.  For example:
-   
-    2. WLSDPLY-06140: Unable to cd to the expected path /SelfTuning/NO_NAME_0/WorkManager/wm/SOAWorkManager 
-    constructed from location context model_folders = ['SelfTuning', 'WorkManager'],  'name_tokens' = 
-    {'SELFTUNING': 'NO_NAME_0','DOMAIN': 'basesoa','WORKMANAGER': 'wm/SOAWorkManager'}; the current folder and 
-    its sub-folders cannot be discovered : wlst.cd(/SelfTuning/NO_NAME_0/WorkManager/wm/SOAWorkManager) in 
+
+    2. WLSDPLY-06140: Unable to cd to the expected path /SelfTuning/NO_NAME_0/WorkManager/wm/SOAWorkManager
+    constructed from location context model_folders = ['SelfTuning', 'WorkManager'],  'name_tokens' =
+    {'SELFTUNING': 'NO_NAME_0','DOMAIN': 'basesoa','WORKMANAGER': 'wm/SOAWorkManager'}; the current folder and
+    its sub-folders cannot be discovered : wlst.cd(/SelfTuning/NO_NAME_0/WorkManager/wm/SOAWorkManager) in
     offline mode failed: com.oracle.cie.domain.script.ScriptException: No such element WorkManager named wm
 
-   The reason for this warning is because of the slash(es) in the object name. In this case the object name is 
+   The reason for this warning is because of the slash(es) in the object name. In this case the object name is
    wm/SOAWorkManager
-   
+
 **ACTION**:
-   Contact Oracle Support to obtain the patch for the bug number 25790276 for your weblogic version 
+   Contact Oracle Support to obtain the patch for the bug number 25790276 for your weblogic version
    before running the tool.
-      
