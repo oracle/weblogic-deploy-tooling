@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'maven-3.6.0'
-        jdk 'jdk8'
-    }
-
     triggers {
         // timer trigger for "nightly build" on master branch
         cron( env.BRANCH_NAME.equals('master') ? 'H H(0-3) * * 1-5' : '')
@@ -13,6 +8,10 @@ pipeline {
 
     stages {
         stage ('Environment') {
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk8'
+            }
             steps {
                 sh '''
                     echo "PATH = ${PATH}"
@@ -23,6 +22,10 @@ pipeline {
             }
         }
         stage ('Build') {
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk8'
+            }
             steps {
                 sh '''
                     mvn -B -DskipTests clean package
