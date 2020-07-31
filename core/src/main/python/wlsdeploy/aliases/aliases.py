@@ -286,7 +286,7 @@ class Aliases(object):
         _method_name = 'requires_unpredictable_single_name_handling'
 
         try:
-            return self._alias_entries.is_location_child_folder_type(location, ChildFoldersTypes.SINGLE_UNPREDICTABLE)
+            return self._alias_entries.is_location_child_folder_type(location, ChildFoldersTypes.SINGLE)
         except AliasException, ae:
             self._raise_exception(ae, _method_name, 'WLSDPLY-19021', location.get_current_model_folder(),
                                   location.get_folder_path(), ae.getLocalizedMessage())

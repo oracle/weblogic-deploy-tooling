@@ -7,7 +7,6 @@
     "folders": {
         "WebServerLog": {
             "wlst_type": "WebServerLog",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "%VIRTUALHOST%",
             "folders": {},
             "attributes": {

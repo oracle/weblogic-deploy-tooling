@@ -774,8 +774,6 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(mbean_name, 'MyWorkManager')
 
         location.append_location('WorkManagerShutdownTrigger')
-        result = self.aliases.requires_unpredictable_single_name_handling(location)
-        self.assertEqual(result, False)
         result = self.aliases.supports_multiple_mbean_instances(location)
         self.assertEqual(result, False)
 

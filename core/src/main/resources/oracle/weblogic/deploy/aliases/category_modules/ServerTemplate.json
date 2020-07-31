@@ -33,7 +33,6 @@
         },
         "COM": {
             "wlst_type": "COM",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -89,7 +88,6 @@
         },
         "DefaultFileStore": {
             "wlst_type": "DefaultFileStore",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -171,7 +169,6 @@
         },
         "IIOP": {
             "wlst_type": "IIOP",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -201,7 +198,6 @@
         "JTAMigratableTarget": {
             "wlst_type": "JTAMigratableTarget",
             "version": "[12.1.2,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${serverName}",
             "folders": {},
             "attributes": {
@@ -235,7 +231,6 @@
         },
         "Log": {
             "wlst_type": "Log",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${serverName}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -395,7 +390,6 @@
         },
         "ServerDebug": {
             "wlst_type": "ServerDebug",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -940,7 +934,6 @@
         },
         "ServerStart": {
             "wlst_type": "ServerStart",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -1029,7 +1022,6 @@
         },
         "SSL": {
             "wlst_type": "SSL",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "short_name": "SSL",
@@ -1142,13 +1134,11 @@
         },
         "WebServer": {
             "wlst_type": "WebServer",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {
                 "WebServerLog": {
                     "wlst_type": "WebServerLog",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "%SERVERTEMPLATE_WEBSERVER%",
                     "version": "[12.1.2,)",
                     "folders": {},
@@ -1223,7 +1213,6 @@
         },
         "WebService": {
             "wlst_type": "WebService",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {
@@ -1343,7 +1332,6 @@
                 },
                 "WebServiceResiliency": {
                     "wlst_type": "WebServiceResiliency",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
                     "version": "[12.2.1.4,)",
                     "folders": {},

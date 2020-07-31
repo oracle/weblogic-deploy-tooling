@@ -8,13 +8,11 @@
     "folders": {
         "WebServer": {
             "wlst_type": "WebServer",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%VIRTUALTARGET%}",
             "version": "[12.2.1,)",
             "folders": {
                 "WebServerLog": {
                     "wlst_type": "WebServerLog",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "%VIRTUALTARGET%",
                     "version": "[12.2.1,)",
                     "folders": {},

@@ -2,14 +2,12 @@
     "copyright": "Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "WebAppContainer",
-    "child_folders_type": "single_unpredictable",
     "default_name_value": "${NO_NAME_0:%DOMAIN%}",
     "short_name": "WebApp",
     "folders": {
         "GzipCompression" : {
             "wlst_type": "GzipCompression",
             "version": "[12.2,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders": {},
             "attributes": {

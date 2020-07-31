@@ -2,13 +2,11 @@
     "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SecurityConfiguration",
-    "child_folders_type": "single_unpredictable",
     "default_name_value": "%DOMAIN%",
     "short_name": "SecurityConfig",
     "folders": {
         "CertRevoc" : {
             "wlst_type": "CertRevoc",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders" : {
                     "CertRevocCa" : {
@@ -1152,7 +1150,6 @@
                 },
                 "RDBMSSecurityStore" : {
                     "wlst_type" : "RDBMSSecurityStore",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:RDBMSSecurityStore}",
                     "folders" : {},
                     "attributes" : {
@@ -1221,7 +1218,6 @@
                 "UserLockoutManager" : {
                     "wlst_type" : "UserLockoutManager",
                     "folders" : {},
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:UserLockoutManager}",
                     "attributes" : {
                         "CompatibilityObjectName":            [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "CompatibilityObjectName",            "wlst_path": "WP001", "value": {"default": "None" },    "wlst_type": "string", "access": "RO"  } ],
@@ -1286,7 +1282,6 @@
         "SecureMode" : {
             "wlst_type" : "SecureMode",
             "version": "[12.2.1.1,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders" : {},
             "attributes" : {

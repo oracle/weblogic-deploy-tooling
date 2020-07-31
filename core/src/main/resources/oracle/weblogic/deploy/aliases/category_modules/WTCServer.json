@@ -142,7 +142,6 @@
     },
     "WTCResources": {
       "wlst_type": "WTCResources",
-      "child_folders_type": "single_unpredictable",
       "default_name_value": "${NO_NAME_0:%WTCSERVER%}",
       "short_name": "Resources",
       "folders": {},
@@ -165,7 +164,6 @@
     },
     "WTCtBridgeGlobal": {
       "wlst_type": "WTCtBridgeGlobal",
-      "child_folders_type": "single_unpredictable",
       "default_name_value": "${NO_NAME_0:%WTCSERVER%}",
       "short_name": "Global",
       "folders": {},

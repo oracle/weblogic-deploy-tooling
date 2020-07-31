@@ -10,7 +10,6 @@
             "folders" : {
                 "Harvester": {
                     "wlst_type": "Harvester",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:%WLDFRESOURCE%}",
                     "folders": {
                         "HarvestedType": {
@@ -41,7 +40,6 @@
                 },
                 "Instrumentation": {
                     "wlst_type": "Instrumentation",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:%WLDFRESOURCE%}",
                     "folders": {
                         "WLDFInstrumentationMonitor": {
@@ -78,7 +76,6 @@
                 },
                 "WatchNotification": {
                     "wlst_type": "WatchNotification",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:%WLDFRESOURCE%}",
                     "folders": {
                         "HeapDumpAction": {
@@ -280,7 +277,6 @@
                             "folders": {
                                 "Schedule": {
                                     "wlst_type": "Schedule",
-                                    "child_folders_type": "single_unpredictable",
                                     "default_name_value": "${NO_NAME_0:%WATCH%}",
                                     "version": "[12.2.1,)",
                                     "folders": {},

@@ -54,7 +54,7 @@ NONE_CHILD_FOLDERS_TYPE = 'none'
 SINGLE = 'single'
 SINGLE_UNPREDICTABLE = 'single_unpredictable'
 
-ChildFoldersTypes = Enum(['MULTIPLE', 'MULTIPLE_WITH_TYPE_SUBFOLDER', 'NONE', 'SINGLE', 'SINGLE_UNPREDICTABLE'])
+ChildFoldersTypes = Enum(['MULTIPLE', 'MULTIPLE_WITH_TYPE_SUBFOLDER', 'NONE', 'SINGLE'])
 
 # get_method values
 GET = 'GET'

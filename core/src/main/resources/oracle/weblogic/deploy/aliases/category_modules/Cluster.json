@@ -8,7 +8,6 @@
         "DynamicServers": {
             "wlst_type": "DynamicServers",
             "version": "[12.1.2,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%CLUSTER%}",
             "folders": {},
             "attributes": {
@@ -63,7 +62,6 @@
         "DatabaseLessLeasingBasis" : {
             "wlst_type": "DatabaseLessLeasingBasis",
             "version": "[10.3.6,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%CLUSTER%}",
             "folders": {},
             "attributes" : {

@@ -6,7 +6,6 @@
     "folders": {
         "SystemComponentStart": {
             "wlst_type": "SystemComponentStart",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SYSTEMCOMPONENT%}",
             "folders": {},
             "attributes": {
