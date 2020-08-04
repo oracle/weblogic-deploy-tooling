@@ -5,7 +5,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 The WLS Deploy tooling entry point for the validateModel tool.
 """
 import copy
-import os
 import sys
 from java.util.logging import Level
 
@@ -26,6 +25,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -68,16 +68,26 @@ def __process_args(args):
     return model_context_helper.create_context(_program_name, argument_map)
 
 
-def __process_model_args(optional_arg_map):
+def __process_model_args(argument_map):
     """
     Determine if the model file was passed separately or requires extraction from the archive.
-    :param optional_arg_map: the optional arguments map
+    :param argument_map: the arguments map
     :raises CLAException: if the arguments were not valid or an error occurred extracting the model from the archive
     """
     _method_name = '__process_model_args'
 
-    cla_helper.validate_optional_archive(_program_name, optional_arg_map)
-    cla_helper.validate_model_present(_program_name, optional_arg_map)
+    cla_helper.validate_optional_archive(_program_name, argument_map)
+
+    try:
+        cla_helper.validate_model_present(_program_name, argument_map)
+    except CLAException, ce:
+        # in lax validation mode, if no model is found, log at INFO and exit
+        method = dictionary_utils.get_element(argument_map, CommandLineArgUtil.VALIDATION_METHOD)
+        if method == CommandLineArgUtil.LAX_VALIDATION_METHOD:
+            __logger.info('WLSDPLY-20032', _program_name, class_name=_class_name, method_name=_method_name)
+            model_context = model_context_helper.create_exit_context(_program_name)
+            tool_exit.end(model_context, CommandLineArgUtil.PROG_OK_EXIT_CODE)
+        raise ce
     return
 
 
