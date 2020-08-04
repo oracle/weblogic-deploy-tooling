@@ -46,7 +46,6 @@
     "wlst_attributes_path": "WP001",
     "wlst_list_path": "WP002",
     "wlst_paths": {
-        "WP001": "/${Machine:Machines}/%MACHINE%",
-        "WP002": "/${UnixMachine:Machines}"
+        "WP001": "/${UnixMachine:Machines}/%MACHINE%"
     }
 }

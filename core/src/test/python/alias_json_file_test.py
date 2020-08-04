@@ -141,6 +141,7 @@ class ListTestCase(unittest.TestCase):
     ]
 
     _token_pattern = re.compile("^%([\\w-]+)%$")
+    _base_wlst_path_name = 'WP001'
 
     def setUp(self):
         self.alias_entries = AliasEntries(wls_version='12.2.1.3')
@@ -188,7 +189,7 @@ class ListTestCase(unittest.TestCase):
     def _scan_category_dict_for_unknown_fields(self, category_name, category_dict):
         return self._process_folder(category_name, category_dict, True)
 
-    def _process_folder(self, folder_path, folder_dict, top_level_folder=False):
+    def _process_folder(self, folder_path, folder_dict, top_level_folder=False, parent_path=""):
         result = []
 
         folder_keys = folder_dict.keys()
@@ -209,7 +210,12 @@ class ListTestCase(unittest.TestCase):
             else:
                 result.append(self._get_unknown_folder_key_message(folder_path, key))
 
-        result.extend(self._check_folder_type(folder_path, folder_dict))
+        result.extend(self._check_folder_type(folder_path, folder_dict, parent_path))
+        wlst_paths = dictionary_utils.get_dictionary_element(folder_dict, WLST_PATHS)
+        next_parent = dictionary_utils.get_element(wlst_paths, self._base_wlst_path_name)
+        if next_parent is None:
+            result.append("Folder at path %s does not have %s entry named \"%s\"" %
+                          (folder_path, WLST_PATHS, self._base_wlst_path_name))
 
         #
         # Now, verify the dictionary attribute types
@@ -222,7 +228,7 @@ class ListTestCase(unittest.TestCase):
                                                                         subfolder_value))
             else:
                 new_folder_path += '/' + subfolder_name
-                result.extend(self._process_folder(new_folder_path, subfolder_value))
+                result.extend(self._process_folder(new_folder_path, subfolder_value, parent_path=next_parent))
 
         attributes = folder_dict[ATTRIBUTES]
         for attribute_name, attribute_value in attributes.iteritems():
@@ -696,13 +702,14 @@ class ListTestCase(unittest.TestCase):
                                                                     constrained_values, wlst_mode))
         return result
 
-    def _check_folder_type(self, folder_path, folder_dict):
+    def _check_folder_type(self, folder_path, folder_dict, parent_path):
         """
         Verify that the folder is correctly configured for the specified child folder type.
         All folder types should have tokens for folder names.
         Single MBean folders should have create_name, and a unique token at the end of each path.
         :param folder_path: the folder path, used for logging
         :param folder_dict: the dictionary for the folder
+        :param parent_path: the WLST path of the parent folder
         :return: an array containing any error messages
         """
         result = []
@@ -733,6 +740,10 @@ class ListTestCase(unittest.TestCase):
                         tokens_found = True
                 # toggle the token required flag
                 token_required = not token_required
+
+            if not wlst_path.startswith(parent_path):
+                result.append("Folder at path %s: %s %s should start with \"%s\"" %
+                              (folder_path, WLST_PATHS, key, parent_path))
 
             # for single folder, the final token in each wlst_path should be correspond to the folder name.
             # this will ensure that the final token is unique in the path.
