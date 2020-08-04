@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "XMLRegistr${y:ies}",
     "child_folders_type": "multiple",
@@ -20,7 +20,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "//XMLRegistr${y:ies}/%XMLREGISTRY%/XMLEntitySpecRegistryEntr${y:ies}/%XMLSPECENTRY%"
+                "WP001": "/XMLRegistr${y:ies}/%XMLREGISTRY%/XMLEntitySpecRegistryEntr${y:ies}/%XMLSPECENTRY%"
             }
         },
         "XMLParserSelectRegistryEntry": {

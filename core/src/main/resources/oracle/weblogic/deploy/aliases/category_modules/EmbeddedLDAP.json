@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "EmbeddedLDAP",
     "default_name_value": "%DOMAIN%",
@@ -22,6 +22,6 @@
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
-        "WP001": "/EmbeddedLDAP/%EMBEDDED_LDAP%"
+        "WP001": "/EmbeddedLDAP/%EMBEDDEDLDAP%"
     }
 }

@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "WLDFSystemResource${:s}",
     "child_folders_type": "multiple",
@@ -7,6 +7,7 @@
     "folders": {
         "WLDFResource" : {
             "wlst_type" : "WLDFResource",
+            "default_name_value": "%WLDFSYSTEMRESOURCE%",
             "folders" : {
                 "Harvester": {
                     "wlst_type": "Harvester",
@@ -25,7 +26,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/Harvester/%HARVESTER%/HarvestedType${:s}/%HARVESTEDTYPE%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/Harvester/%HARVESTER%/HarvestedType${:s}/%HARVESTEDTYPE%"
                             }
                         }
                     },
@@ -35,7 +36,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/Harvester/%HARVESTER%"
+                        "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/Harvester/%HARVESTER%"
                     }
                 },
                 "Instrumentation": {
@@ -60,7 +61,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/Instrumentation/%INSTRUMENTATION%/WLDFInstrumentationMonitor${:s}/%INSTRUMENTATIONMONITOR%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/Instrumentation/%INSTRUMENTATION%/WLDFInstrumentationMonitor${:s}/%INSTRUMENTATIONMONITOR%"
                             }
                         }
                     },
@@ -71,7 +72,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/Instrumentation/%INSTRUMENTATION%"
+                        "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/Instrumentation/%INSTRUMENTATION%"
                     }
                 },
                 "WatchNotification": {
@@ -90,7 +91,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/HeapDumpAction${:s}/%HEAPDUMPACTION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/HeapDumpAction${:s}/%HEAPDUMPACTION%"
                             }
                         },
                         "ImageNotification": {
@@ -105,7 +106,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/ImageNotification${:s}/%IMAGENOTIFICATION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/ImageNotification${:s}/%IMAGENOTIFICATION%"
                             }
                         },
                         "JMSNotification": {
@@ -120,7 +121,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/JMSNotification${:s}/%JMSNOTIFICATION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/JMSNotification${:s}/%JMSNOTIFICATION%"
                             }
                         },
                         "JMXNotification": {
@@ -134,7 +135,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/JMXNotification${:s}/%JMXNOTIFICATION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/JMXNotification${:s}/%JMXNOTIFICATION%"
                             }
                         },
                         "LogAction": {
@@ -151,7 +152,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/LogAction${:s}/%LOGACTION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/LogAction${:s}/%LOGACTION%"
                             }
                         },
                         "RestNotification": {
@@ -172,7 +173,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/${RestNotification:RESTNotifications}/%RESTNOTIFICATION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/${RestNotification:RESTNotifications}/%RESTNOTIFICATION%"
                             }
                         },
                         "ScaleDownAction": {
@@ -188,7 +189,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/ScaleDownAction${:s}/%SCALEDOWNACTION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/ScaleDownAction${:s}/%SCALEDOWNACTION%"
                             }
                         },
                         "ScaleUpAction": {
@@ -204,7 +205,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/ScaleUpAction${:s}/%SCALEUPACTION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/ScaleUpAction${:s}/%SCALEUPACTION%"
                             }
                         },
                         "ScriptAction": {
@@ -222,7 +223,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/ScriptAction${:s}/%SCRIPTACTION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/ScriptAction${:s}/%SCRIPTACTION%"
                             }
                         },
                         "SMTPNotification": {
@@ -239,7 +240,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/SMTPNotification${:s}/%SMTPNOTIFICATION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/SMTPNotification${:s}/%SMTPNOTIFICATION%"
                             }
                         },
                         "SNMPNotification": {
@@ -252,7 +253,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/SNMPNotification${:s}/%SNMPNOTIFICATION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/SNMPNotification${:s}/%SNMPNOTIFICATION%"
                             }
                         },
                         "ThreadDumpAction": {
@@ -268,7 +269,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/ThreadDumpAction${:s}/%THREADDUMPACTION%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/ThreadDumpAction${:s}/%THREADDUMPACTION%"
                             }
                         },
                         "Watch": {
@@ -293,7 +294,7 @@
                                     },
                                     "wlst_attributes_path": "WP001",
                                     "wlst_paths": {
-                                        "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/Watch${:es}/%WATCH%/Schedule/%SCHEDULE%"
+                                        "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/Watch${:es}/%WATCH%/Schedule/%SCHEDULE%"
                                     }
                                 }
                             },
@@ -310,7 +311,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/Watch${:es}/%WATCH%"
+                                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%/Watch${:es}/%WATCH%"
                             }
                         }
                     },
@@ -321,14 +322,14 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%"
+                        "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%/WatchNotification/%WATCHNOTIFICATION%"
                     }
                 }
             },
             "attributes": {},
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/WLDFResource/%WLDFRESOURCE%"
+                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/WLDFResource/%WLDFRESOURCE%"
             }
         },
         "SubDeployment" : {
@@ -345,8 +346,8 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%",
-                "WP002": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%/Targets"
+                "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%",
+                "WP002": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%/Targets"
             }
         }
     },
@@ -365,7 +366,7 @@
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
-        "WP001": "/WLDFSystemResource${:s}/%WLDFRESOURCE%",
-        "WP002": "/WLDFSystemResource${:s}/%WLDFRESOURCE%/Targets"
+        "WP001": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%",
+        "WP002": "/WLDFSystemResource${:s}/%WLDFSYSTEMRESOURCE%/Targets"
     }
 }

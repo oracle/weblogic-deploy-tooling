@@ -81,7 +81,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Partition${:s}/%PARTITION%/DataSourcePartition/%DSPARTITION%"
+                "WP001": "/Partition${:s}/%PARTITION%/DataSourcePartition/%DATASOURCEPARTITION%"
             }
         },
         "ForeignJndiProviderOverride": {
@@ -334,7 +334,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WSBUFFERING%/WebServiceRequestBufferingQueue/%WSREQUESTQUEUE%"
+                                "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WEBSERVICEBUFFERING%/WebServiceRequestBufferingQueue/%WEBSERVICEREQUESTBUFFERINGQUEUE%"
                             }
                         },
                         "WebServiceResponseBufferingQueue": {
@@ -350,7 +350,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WSBUFFERING%/WebServiceResponseBufferingQueue/%WSRESPONSEQUEUE%"
+                                "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WEBSERVICEBUFFERING%/WebServiceResponseBufferingQueue/%WEBSERVICERESPONSEBUFFERINGQUEUE%"
                             }
                         }
                     },
@@ -361,7 +361,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WSBUFFERING%"
+                        "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WEBSERVICEBUFFERING%"
                     }
                 }
             },
@@ -399,7 +399,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%/FairShareConstraint/%FAIRSHARE%"
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTILIZATION%/FairShareConstraint/%FAIRSHARECONSTRAINT%"
                             }
                         },
                         "Trigger": {
@@ -416,7 +416,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%/Trigger${:s}/%TRIGGER%"
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTILIZATION%/Trigger${:s}/%TRIGGER%"
                             }
                         }
                     },
@@ -425,7 +425,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%"
+                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTILIZATION%"
                     }
                 },
                 "FileOpen": {
@@ -476,7 +476,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%/FairShareConstraint/%FAIRSHARE%"
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAINED%/FairShareConstraint/%FAIRSHARECONSTRAINT%"
                             }
                         },
                         "Trigger": {
@@ -493,7 +493,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%/Trigger${:s}/%TRIGGER%"
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAINED%/Trigger${:s}/%TRIGGER%"
                             }
                         }
                     },
@@ -502,7 +502,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%"
+                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAINED%"
                     }
                 },
                 "RestartLoopProtection": {
@@ -519,7 +519,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/RestartLoopProtection/%RESTARTLOOP%"
+                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/RestartLoopProtection/%RESTARTLOOPPROTECTION%"
                     }
                 }
             },

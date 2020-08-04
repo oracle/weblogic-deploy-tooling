@@ -12,6 +12,6 @@
   },
   "wlst_attributes_path": "WP001",
   "wlst_paths": {
-    "WP001": "/CdiContainer/%CdiContainer%"
+    "WP001": "/CdiContainer/%CDICONTAINER%"
   }
 }

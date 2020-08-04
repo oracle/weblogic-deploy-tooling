@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Cluster${:s}",
     "child_folders_type": "multiple",
@@ -47,6 +47,7 @@
             "wlst_type": "CoherenceTier",
             "version": "[12.1.2,)",
             "child_folders_type": "single",
+            "default_name_value": "${NO_NAME_0:%CLUSTER%}",
             "folders" : {},
             "attributes" : {
                 "CoherenceWebFederatedStorageEnabled": [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "CoherenceWebFederatedStorageEnabled", "wlst_path": "WP001", "value": {"default": "false" }, "wlst_type": "boolean"  } ],
@@ -56,7 +57,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Cluster${:s}/%CLUSTER%/CoherenceTier/${NO_NAME_0:%CLUSTER%}"
+                "WP001": "/Cluster${:s}/%CLUSTER%/CoherenceTier/%COHERENCETIER%"
             }
         },
         "DatabaseLessLeasingBasis" : {
@@ -82,6 +83,7 @@
             "wlst_type": "JTACluster",
             "version": "[12.1.3,)",
             "child_folders_type": "single",
+            "default_name_value": "${NO_NAME_0:%CLUSTER%}",
             "folders" : {},
             "attributes" : {
                 "AbandonTimeoutSeconds":                      [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "AbandonTimeoutSeconds",                      "wlst_path": "WP001", "value": {"default": 86400   }, "wlst_type": "integer" } ],
@@ -125,16 +127,18 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Cluster${:s}/%CLUSTER%/JTACluster/${NO_NAME_0:%CLUSTER%}"
+                "WP001": "/Cluster${:s}/%CLUSTER%/JTACluster/%JTACLUSTER%"
             }
         },
         "OverloadProtection" : {
             "wlst_type": "OverloadProtection",
             "child_folders_type": "single",
+            "default_name_value": "${NO_NAME_0:%CLUSTER%}",
             "folders" : {
                 "ServerFailureTrigger" : {
                     "wlst_type": "ServerFailureTrigger",
                     "child_folders_type": "single",
+                    "default_name_value": "${NO_NAME_0:%CLUSTER%}",
                     "folders" : {},
                     "attributes" : {
                         "MaxStuckThreadTime": [ {"version": "[10,)",           "wlst_mode": "both",   "wlst_name": "MaxStuckThreadTime", "wlst_path": "WP001", "value": {"default": 600     }, "wlst_type": "integer" } ],
@@ -143,7 +147,7 @@
                 },
                 "wlst_attributes_path": "WP001",
                 "wlst_paths": {
-                    "WP001": "/Cluster${:s}/%CLUSTER%/OverloadProtection/${NO_NAME_0:%CLUSTER%}/ServerFailureTrigger/${NO_NAME_0:%CLUSTER%}"
+                    "WP001": "/Cluster${:s}/%CLUSTER%/OverloadProtection/%OVERLOADPROTECTION%/ServerFailureTrigger/%SERVERFAILURETRIGGER%"
                 }
               }
             },
@@ -159,7 +163,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Cluster${:s}/%CLUSTER%/OverloadProtection/${NO_NAME_0:%CLUSTER%}"
+                "WP001": "/Cluster${:s}/%CLUSTER%/OverloadProtection/%OVERLOADPROTECTION%"
             }
       }
     },

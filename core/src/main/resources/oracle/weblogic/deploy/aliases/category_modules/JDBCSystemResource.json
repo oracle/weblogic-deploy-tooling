@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "JDBCSystemResource${:s}",
     "child_folders_type": "multiple",
@@ -7,9 +7,11 @@
     "folders": {
         "JdbcResource" : {
             "wlst_type": "${Jdbc:JDBC}Resource",
+            "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
             "folders": {
                 "JDBCConnectionPoolParams": {
                     "wlst_type": "JDBCConnectionPoolParams",
+                    "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
                     "folders": {},
                     "attributes": {
                         "CapacityIncrement":                     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "CapacityIncrement",                      "wlst_path": "WP001", "value": {"default": "${None:1}"          },  "wlst_type": "integer",       "get_method": "LSA"} ],
@@ -54,11 +56,12 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCConnectionPoolParams/${NO_NAME_0:%DATASOURCE%}"
+                        "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%JDBCRESOURCE%/JDBCConnectionPoolParams/%JDBCCONNECTIONPOOLPARAMS%"
                     }
                 },
                 "JDBCDataSourceParams": {
                     "wlst_type": "JDBCDataSourceParams",
+                    "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
                     "folders": {},
                     "attributes": {
                         "AlgorithmType":                         [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AlgorithmType",                          "wlst_path": "WP001", "value": {"default": "${None:Failover}"      },  "wlst_type": "string"           } ],
@@ -78,11 +81,12 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCDataSourceParams/${NO_NAME_0:%DATASOURCE%}"
+                        "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%JDBCRESOURCE%/JDBCDataSourceParams/%JDBCDATASOURCEPARAMS%"
                     }
                 },
                 "JDBCDriverParams": {
                     "wlst_type": "JDBCDriverParams",
+                    "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
                     "folders": {
                         "Properties": {
                             "wlst_type": "Propert${y:ies}",
@@ -99,7 +103,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCDriverParams/${NO_NAME_0:%DATASOURCE%}/Properties/${NO_NAME_0:%DATASOURCE%}/Propert${y:ies}/%PROPERTY_NAME%"
+                                "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%JDBCRESOURCE%/JDBCDriverParams/%JDBCDRIVERPARAMS%/Properties/%JDBCDRIVERPARAMS%/Propert${y:ies}/%PROPERTY_NAME%"
                             }
                         }
                     },
@@ -113,11 +117,12 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCDriverParams/${NO_NAME_0:%DATASOURCE%}"
+                        "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%JDBCRESOURCE%/JDBCDriverParams/%JDBCDRIVERPARAMS%"
                     }
                 },
                 "JDBCOracleParams": {
                     "wlst_type": "JDBCOracleParams",
+                    "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
                     "folders": {},
                     "attributes": {
                         "ActiveGridlink":                    [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "ActiveGridlink",                    "wlst_path": "WP001", "value": {"default": "${None:false}"        },  "wlst_type": "boolean",        "get_method": "LSA"} ],
@@ -135,11 +140,12 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCOracleParams/${NO_NAME_0:%DATASOURCE%}"
+                        "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%JDBCRESOURCE%/JDBCOracleParams/%JDBCORACLEPARAMS%"
                     }
                 },
                 "JDBCXAParams": {
                     "wlst_type": "JDBCXAParams",
+                    "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
                     "folders": {},
                     "attributes": {
                         "KeepLogicalConnOpenOnRelease":        [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "KeepLogicalConnOpenOnRelease",   "wlst_path": "WP001", "value": {"default": "${None:false}"  },  "wlst_type": "boolean", "get_method": "LSA"} ],
@@ -157,7 +163,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCXAParams/${NO_NAME_0:%DATASOURCE%}"
+                        "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%JDBCRESOURCE%/JDBCXAParams/%JDBCXAPARAMS%"
                     }
                 }
             },
@@ -167,7 +173,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%"
+                "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%JDBCRESOURCE%"
             }
         },
         "SubDeployment" : {

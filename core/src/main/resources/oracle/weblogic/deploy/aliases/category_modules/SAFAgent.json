@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SAFAgent${:s}",
     "child_folders_type": "multiple",
@@ -11,6 +11,7 @@
             }, {
                 "version": "[12.2.1,)"
             }],
+            "default_name_value": "${NO_NAME_0:%SAFAGENT%}",
             "folders": {},
             "attributes": {
                 "BufferSizeKb":         [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "BufferSize${Kb:KB}",   "wlst_path": "WP001", "value": {"default": 8                                                        }, "wlst_type": "integer" } ],
@@ -35,7 +36,7 @@
             "wlst_type": "${Jmssaf:JMSSAF}MessageLogFile",
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/SAFAgent${:s}/%SAFAGENT%/${Jmssaf:JMSSAF}MessageLogFile/${NO_NAME_0:%SAFAGENT%}"
+                "WP001": "/SAFAgent${:s}/%SAFAGENT%/${Jmssaf:JMSSAF}MessageLogFile/%JMSSAFMESSAGELOGFILE%"
             }
         }
     },

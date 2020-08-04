@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "ResourceManager${:s}",
     "version": "[12.2.1,)",
@@ -22,7 +22,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%/FairShareConstraint/%FAIRSHARE%"
+                        "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/CpuUtilization/%CPUUTILIZATION%/FairShareConstraint/%FAIRSHARECONSTRAINT%"
                     }
                 },
                 "Trigger": {
@@ -39,7 +39,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%/Trigger${:s}/%TRIGGER%"
+                        "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/CpuUtilization/%CPUUTILIZATION%/Trigger${:s}/%TRIGGER%"
                     }
                 }
             },
@@ -48,7 +48,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%"
+                "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/CpuUtilization/%CPUUTILIZATION%"
             }
         },
         "FileOpen": {
@@ -99,7 +99,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%/FairShareConstraint/%FAIRSHARE%"
+                        "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAINED%/FairShareConstraint/%FAIRSHARECONSTRAINT%"
                     }
                 },
                 "Trigger": {
@@ -116,7 +116,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%/Trigger${:s}/%TRIGGER%"
+                        "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAINED%/Trigger${:s}/%TRIGGER%"
                     }
                 }
             },
@@ -125,7 +125,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%"
+                "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAINED%"
             }
         },
         "RestartLoopProtection": {
@@ -142,7 +142,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/RestartLoopProtection/%RESTARTLOOP%"
+                "WP001": "/ResourceManager${:s}/%RESOURCEMANAGER%/RestartLoopProtection/%RESTARTLOOPPROTECTION%"
             }
         }
     },

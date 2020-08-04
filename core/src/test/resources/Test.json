@@ -1,5 +1,5 @@
 {
-  "copyright": "Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+  "copyright": "Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
   "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
   "folder_params": [],
   "wlst_type": "Test",
@@ -20,12 +20,13 @@
       "wlst_type": "ChildFolder-1",
       "folders": {},
       "child_folders_type": "single",
+      "default_name_value": "NO_NAME_0",
       "attributes": {
         "Notes": [{"version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "Notes", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"}]
       },
       "wlst_attributes_path": "WP001",
       "wlst_paths": {
-        "WP001": "/Test/%TEST%/ChildFolder-1/"
+        "WP001": "/Test/%TEST%/ChildFolder-1/%CHILDFOLDER-12213%"
       }
     },
     "ChildFolder-2": {

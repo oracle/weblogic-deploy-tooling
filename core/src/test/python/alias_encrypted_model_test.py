@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
@@ -41,7 +41,9 @@ class AliasEncryptedModelTestCase(unittest.TestCase):
         self.location.append_location(JDBC_SYSTEM_RESOURCE)
         self.location.add_name_token(self.aliases.get_name_token(self.location), "Mine")
         self.location.append_location(JDBC_RESOURCE)
+        self.location.add_name_token(self.aliases.get_name_token(self.location), "Mine")
         self.location.append_location(JDBC_DRIVER_PARAMS)
+        self.location.add_name_token(self.aliases.get_name_token(self.location), "Mine")
 
     def testOfflineWlstNames(self):
         # Using offline WLST, the PasswordEncrypted model attribute should translate to the PasswordEncrypted WLST

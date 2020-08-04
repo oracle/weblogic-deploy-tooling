@@ -187,7 +187,7 @@
       },
       "wlst_attributes_path": "WP001",
       "wlst_paths": {
-        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCtBridgeGlobal/%WTCBRIDGEGLOBAL%"
+        "WP001": "/WTCServer${:s}/%WTCSERVER%/WTCtBridgeGlobal/%WTCTBRIDGEGLOBAL%"
       }
     },
     "WTCtBridgeRedirect": {
