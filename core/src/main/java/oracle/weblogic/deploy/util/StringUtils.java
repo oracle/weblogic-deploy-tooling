@@ -163,4 +163,17 @@ public final class StringUtils {
         }
     }
 
+    /***
+     * Convert the String to an Integer. If the string does not contain a valid integer, return a null.
+     * @param value String to convert to an Integer
+     * @return converted Integer or null if invalid number
+     */
+    public static Integer stringToInteger(String value) {
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException nfe) {
+            return null;
+        }
+    }
+
 }
