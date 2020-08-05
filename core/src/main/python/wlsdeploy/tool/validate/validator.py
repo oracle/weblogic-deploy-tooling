@@ -443,6 +443,12 @@ class Validator(object):
             self._logger.severe('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
             return
 
+        # generate and add a flattened folder token, if required
+        flattened_folder_info = self._aliases.get_wlst_flattened_folder_info(validation_location)
+        if flattened_folder_info is not None:
+            path_token = flattened_folder_info.get_path_token()
+            validation_location.add_name_token(path_token, '%s-0' % path_token)
+
         model_folder_path = self._aliases.get_model_folder_path(validation_location)
         self._logger.finest('1 model_folder_path={0}', model_folder_path,
                             class_name=_class_name, method_name=_method_name)
