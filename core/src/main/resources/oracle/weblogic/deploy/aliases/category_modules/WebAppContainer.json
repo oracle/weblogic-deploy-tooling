@@ -11,7 +11,6 @@
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders": {},
             "attributes": {
-                "DynamicallyCreated":                  [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "DynamicallyCreated",                 "wlst_path": "WP001", "value": {"default": false    }, "wlst_type": "boolean"           } ],
                 "GzipCompressionContentType":          [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionContentType",         "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "${list:jarray}",  "wlst_read_type": "delimited_string[semicolon]", "get_method": "${LSA:GET}", "preferred_model_type": "list" } ],
                 "GzipCompressionEnabled":              [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionEnabled",             "wlst_path": "WP001", "value": {"default": false    }, "wlst_type": "boolean"           } ],
                 "GzipCompressionMinContentLength":     [ {"version": "[12.2,)",       "wlst_mode": "both",    "wlst_name": "GzipCompressionMinContentLength",    "wlst_path": "WP001", "value": {"default": 2048     }, "wlst_type": "integer"           } ],
@@ -28,7 +27,6 @@
         "AuthCookieEnabled":                   [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AuthCookieEnabled",                  "wlst_path": "WP001", "value": {"default": false                              }, "wlst_type": "boolean"           } ],
         "ChangeSessionIDOnAuthentication":     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ChangeSessionIDOnAuthentication",    "wlst_path": "WP001", "value": {"default": false                              }, "wlst_type": "boolean"           } ],
         "ClientCertProxyEnabled":              [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClientCertProxyEnabled",             "wlst_path": "WP001", "value": {"default": false                              }, "wlst_type": "boolean"           } ],
-        "DynamicallyCreated":                  [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "DynamicallyCreated",                 "wlst_path": "WP001", "value": {"default": false                              }, "wlst_type": "boolean"           } ],
         "FilterDispatchedRequestsEnabled":     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "FilterDispatchedRequestsEnabled",    "wlst_path": "WP001", "value": {"default": false                              }, "wlst_type": "boolean"           } ],
         "HttpTraceSupportEnabled":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "HttpTraceSupportEnabled",            "wlst_path": "WP001", "value": {"default": false                              }, "wlst_type": "boolean"           } ],
         "JSPCompilerBackwardsCompatible":      [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "JSPCompilerBackwardsCompatible",     "wlst_path": "WP001", "value": {"default": false                              }, "wlst_type": "boolean"           } ],
