@@ -143,6 +143,7 @@ class TopologyHelper(object):
             # for online update, Name must be assigned to each JDBCSystemResource / JdbcResource MBean.
             # (see datasource_deployer.set_attributes())
             child_location = LocationContext(location).append_location(JDBC_RESOURCE)
+            deployer_utils.set_single_folder_token(child_location, self.aliases)
             wlst_path = self.aliases.get_wlst_attributes_path(child_location)
             if self.wlst_helper.path_exists(wlst_path):
                 original_location = self.wlst_helper.get_pwd()

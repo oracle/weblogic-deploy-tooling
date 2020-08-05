@@ -106,6 +106,20 @@ def get_mbean_name(location, existing_names, aliases):
     return mbean_name
 
 
+def set_single_folder_token(location, aliases):
+    """
+    Determine the name of the MBean at the specified location, and set the corresponding token.
+    :param location: the single-folder location to be updated
+    :param aliases: the aliases object to use for name and path resolution
+    """
+    list_path = aliases.get_wlst_list_path(location)
+    existing_names = _wlst_helper.get_existing_object_list(list_path)
+    if len(existing_names) > 0:
+        mbean_name = existing_names[0]
+        token = aliases.get_name_token(location)
+        location.add_name_token(token, mbean_name)
+
+
 def check_flattened_folder(location, aliases):
     """
     The paths for a location may contain a flattened folder - a type/name level that is not reflected in the model.

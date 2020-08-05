@@ -119,6 +119,7 @@ class JmsResourcesDeployer(Deployer):
         location = LocationContext(location).append_location(JMS_RESOURCE)
         if not self._check_location(location):
             return
+        deployer_utils.set_single_folder_token(location, self.aliases)
 
         # SAF imported destination may reference error handling, and vice versa
         self.topology_helper.create_placeholder_named_elements(location, SAF_ERROR_HANDLING, resource_nodes)
