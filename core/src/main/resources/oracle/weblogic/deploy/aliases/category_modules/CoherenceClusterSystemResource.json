@@ -39,7 +39,8 @@
                     "child_folders_type": "multiple",
                     "flattened_folder_data": {
                         "wlst_type": "CoherenceAddressProviders",
-                        "name_value": "${NO_NAME_0:%COHERENCECLUSTER%}"
+                        "name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
+                        "path_token": "COHERENCEADDRESSPROVIDERS"
                     },
                     "folders": {
                         "CoherenceSocketAddress": {
@@ -53,14 +54,14 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/CoherenceClusterSystemResource${:s}/%COHERENCECLUSTER%/Coherence${:Cluster}Resource/%COHERENCERESOURCE%/CoherenceAddressProviders/%COHERENCEADDRESSPROVIDER%/CoherenceAddressProvider${:s}/%COHERENCEADDRESSPROVIDER%/CoherenceSocketAddress${:es}/%COHERENCESOCKETADDRESS%"
+                                "WP001": "/CoherenceClusterSystemResource${:s}/%COHERENCECLUSTER%/Coherence${:Cluster}Resource/%COHERENCERESOURCE%/CoherenceAddressProviders/%COHERENCEADDRESSPROVIDERS%/CoherenceAddressProvider${:s}/%COHERENCEADDRESSPROVIDER%/CoherenceSocketAddress${:es}/%COHERENCESOCKETADDRESS%"
                             }
                         }
                     },
                     "attributes": { },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/CoherenceClusterSystemResource${:s}/%COHERENCECLUSTER%/Coherence${:Cluster}Resource/%COHERENCERESOURCE%/CoherenceAddressProviders/%COHERENCEADDRESSPROVIDER%/CoherenceAddressProvider${:s}/%COHERENCEADDRESSPROVIDER%"
+                        "WP001": "/CoherenceClusterSystemResource${:s}/%COHERENCECLUSTER%/Coherence${:Cluster}Resource/%COHERENCERESOURCE%/CoherenceAddressProviders/%COHERENCEADDRESSPROVIDERS%/CoherenceAddressProvider${:s}/%COHERENCEADDRESSPROVIDER%"
                     }
                 },
                 "CoherenceClusterParams": {
@@ -129,7 +130,8 @@
                             "child_folders_type": "multiple",
                             "flattened_folder_data": {
                                 "wlst_type": "CoherenceClusterWellKnownAddresses",
-                                "name_value": "${NO_NAME_0:%COHERENCECLUSTER%}"
+                                "name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
+                                "path_token": "COHERENCECLUSTERWELLKNOWNADDRESSES"
                             },
                             "folders": {},
                             "attributes": {
@@ -138,7 +140,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/CoherenceClusterSystemResource${:s}/%COHERENCECLUSTER%/Coherence${:Cluster}Resource/%COHERENCERESOURCE%/CoherenceClusterParams/%COHERENCECLUSTERPARAMS%/CoherenceClusterWellKnownAddresses/%COHERENCECLUSTERPARAMS%/CoherenceClusterWellKnownAddress${:es}/%COHERENCEWKA%"
+                                "WP001": "/CoherenceClusterSystemResource${:s}/%COHERENCECLUSTER%/Coherence${:Cluster}Resource/%COHERENCERESOURCE%/CoherenceClusterParams/%COHERENCECLUSTERPARAMS%/CoherenceClusterWellKnownAddresses/%COHERENCECLUSTERWELLKNOWNADDRESSES%/CoherenceClusterWellKnownAddress${:es}/%COHERENCEWKA%"
                             }
                         },
                         "CoherenceService": {

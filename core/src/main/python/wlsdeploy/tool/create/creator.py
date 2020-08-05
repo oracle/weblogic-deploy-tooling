@@ -404,13 +404,17 @@ class Creator(object):
         :param location: the location
         :raises: CreateException: if an error occurs
         """
-        if self.aliases.is_flattened_folder(location):
+        flattened_folder_info = self.aliases.get_wlst_flattened_folder_info(location)
+        if flattened_folder_info is not None:
             create_path = self.aliases.get_wlst_flattened_folder_create_path(location)
-            mbean_type = self.aliases.get_wlst_flattened_mbean_type(location)
-            mbean_name = self.aliases.get_wlst_flattened_mbean_name(location)
+            mbean_type = flattened_folder_info.get_mbean_type()
+            mbean_name = flattened_folder_info.get_mbean_name()
             existing_folders = self._get_existing_folders(create_path)
             if mbean_type not in existing_folders:
                 self.wlst_helper.create(mbean_name, mbean_type)
+
+            path_token = flattened_folder_info.get_path_token()
+            location.add_name_token(path_token, mbean_name)
         return
 
     def _get_existing_folders(self, wlst_path):

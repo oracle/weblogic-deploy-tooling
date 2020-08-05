@@ -13,6 +13,7 @@ from oracle.weblogic.deploy.json import JsonStreamTranslator
 from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
+from wlsdeploy.aliases.alias_constants import PATH_TOKEN
 from wlsdeploy.aliases.alias_constants import SINGLE
 from wlsdeploy.aliases.alias_entries import AliasEntries
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -395,6 +396,14 @@ class ListTestCase(unittest.TestCase):
                 new_folder_name = folder_name + '/' + FLATTENED_FOLDER_DATA
                 result.append(self._get_invalid_string_type_message(new_folder_name, NAME_VALUE,
                                                                     attribute_value[NAME_VALUE]))
+
+            if PATH_TOKEN not in attribute_value:
+                new_folder_name = folder_name + '/' + FLATTENED_FOLDER_DATA
+                result.append(self._get_missing_required_folder_key_message(new_folder_name, PATH_TOKEN))
+            elif type(attribute_value[PATH_TOKEN]) is not str:
+                new_folder_name = folder_name + '/' + FLATTENED_FOLDER_DATA
+                result.append(self._get_invalid_string_type_message(new_folder_name, PATH_TOKEN,
+                                                                    attribute_value[PATH_TOKEN]))
         return result
 
     def _verify_folder_folder_params_attribute_value(self, folder_name, attribute_value):

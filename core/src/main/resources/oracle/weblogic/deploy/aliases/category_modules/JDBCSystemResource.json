@@ -93,7 +93,8 @@
                             "child_folders_type": "multiple",
                             "flattened_folder_data": {
                                 "wlst_type": "Properties",
-                                "name_value": "${NO_NAME_0:%DATASOURCE%}"
+                                "name_value": "${NO_NAME_0:%DATASOURCE%}",
+                                "path_token": "PROPERTIES"
                             },
                             "folders": { },
                             "attributes": {
@@ -103,7 +104,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%JDBCRESOURCE%/JDBCDriverParams/%JDBCDRIVERPARAMS%/Properties/%JDBCDRIVERPARAMS%/Propert${y:ies}/%PROPERTY_NAME%"
+                                "WP001": "/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%JDBCRESOURCE%/JDBCDriverParams/%JDBCDRIVERPARAMS%/Properties/%PROPERTIES%/Propert${y:ies}/%PROPERTY_NAME%"
                             }
                         }
                     },

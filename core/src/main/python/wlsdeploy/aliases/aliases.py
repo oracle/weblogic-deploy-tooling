@@ -403,45 +403,17 @@ class Aliases(object):
         except AliasException, ae:
             self._raise_exception(ae, _method_name, 'WLSDPLY-19010', str(location), ae.getLocalizedMessage())
 
-    def is_flattened_folder(self, location):
+    def get_wlst_flattened_folder_info(self, location):
         """
-        Is the current location one that contains a flattened WLST folder?
+        Get the information used to create the flattened folder.
         :param location: the location
-        :return: True, if the specified location contains a flattened WLST tuple of folders, False otherwise
+        :return: a FlattenedFolder object, or None if the location does not have a flattened folder
         :raises: Tool type exception: if an error occurs due to a bad location or bad alias data
         """
-        _method_name = 'is_flattened_folder'
+        _method_name = 'get_wlst_flattened_mbean_info'
 
         try:
-            return self._alias_entries.location_contains_flattened_folder(location)
-        except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19011', str(location), ae.getLocalizedMessage())
-
-    def get_wlst_flattened_mbean_name(self, location):
-        """
-        Get the flattened WLST folder name.
-        :param location: the location
-        :return: the flattened folder name
-        :raises: Tool type exception: if an error occurs due to a bad location or bad alias data
-        """
-        _method_name = 'get_wlst_flattened_mbean_name'
-
-        try:
-            return self._alias_entries.get_wlst_flattened_name_for_location(location)
-        except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19012', str(location), ae.getLocalizedMessage())
-
-    def get_wlst_flattened_mbean_type(self, location):
-        """
-        Get the flattened WLST folder type.
-        :param location: the location
-        :return: the flattened folder type
-        :raises: Tool type exception: if an error occurs due to a bad location or bad alias data
-        """
-        _method_name = 'get_wlst_flattened_mbean_type'
-
-        try:
-            return self._alias_entries.get_wlst_flattened_type_for_location(location)
+            return self._alias_entries.get_wlst_flattened_folder_info_for_location(location)
         except AliasException, ae:
             self._raise_exception(ae, _method_name, 'WLSDPLY-19013', str(location), ae.getLocalizedMessage())
 

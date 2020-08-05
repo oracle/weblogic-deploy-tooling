@@ -25,6 +25,7 @@ from wlsdeploy.aliases.alias_constants import GET_METHOD
 from wlsdeploy.aliases.alias_constants import MODEL_NAME
 from wlsdeploy.aliases.alias_constants import NAME_VALUE
 from wlsdeploy.aliases.alias_constants import NONE_CHILD_FOLDERS_TYPE
+from wlsdeploy.aliases.alias_constants import PATH_TOKEN
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_NAME_MAP
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
@@ -44,6 +45,7 @@ from wlsdeploy.aliases.alias_constants import WLST_PATHS
 from wlsdeploy.aliases.alias_constants import WLST_SKIP_NAMES
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
+from wlsdeploy.aliases.flattened_folder import FlattenedFolder
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import APPLICATION
@@ -488,53 +490,25 @@ class AliasEntries(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
 
-    def location_contains_flattened_folder(self, location):
+    def get_wlst_flattened_folder_info_for_location(self, location):
         """
-        Does the location folder specified refer to a WLST location that has been flattened to simplify the model?
+        Get the information used to create the flattened folder.
         :param location: the location
-        :return: True, if this location contains a flattened WLST folder, False otherwise
+        :return: a FlattenedFolder object, or None if the location does not have a flattened folder
         """
-        _method_name = 'location_contains_flattened_folder'
-
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
-        result = False
-        folder_dict = self.__get_dictionary_for_location(location, False)
-        if folder_dict is not None and FLATTENED_FOLDER_DATA in folder_dict:
-            result = True
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
-        return result
-
-    def get_wlst_flattened_type_for_location(self, location):
-        """
-        Get the type of the flattened WLST folder to use to create the folder.
-        :param location: the location
-        :return: the type of the flattened WLST folder
-        """
-        _method_name = 'get_wlst_flattened_type_for_location'
+        _method_name = 'get_wlst_flattened_folder_info_for_location'
 
         _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         result = None
-        folder_dict = self.__get_dictionary_for_location(location, False)
-        if folder_dict is not None and FLATTENED_FOLDER_DATA in folder_dict and \
-                WLST_TYPE in folder_dict[FLATTENED_FOLDER_DATA]:
-            result = folder_dict[FLATTENED_FOLDER_DATA][WLST_TYPE]
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
-        return result
 
-    def get_wlst_flattened_name_for_location(self, location):
-        """
-        Get the name of the flattened WLST folder to use to create the folder.
-        :param location: the location
-        :return: the name of the flattened WLST folder
-        """
-        _method_name = 'get_wlst_flattened_name_for_location'
-
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
-        result = None
         folder_dict = self.__get_dictionary_for_location(location, False)
-        if folder_dict is not None and FLATTENED_FOLDER_DATA in folder_dict and \
-                NAME_VALUE in folder_dict[FLATTENED_FOLDER_DATA]:
-            result = alias_utils.get_token_value(location, folder_dict[FLATTENED_FOLDER_DATA][NAME_VALUE])
+        flattened_folder_data = dictionary_utils.get_element(folder_dict, FLATTENED_FOLDER_DATA)
+        if flattened_folder_data is not None:
+            mbean_type = flattened_folder_data[WLST_TYPE]
+            mbean_name = alias_utils.get_token_value(location, flattened_folder_data[NAME_VALUE])
+            path_token = flattened_folder_data[PATH_TOKEN]
+            result = FlattenedFolder(mbean_type, mbean_name, path_token)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
 

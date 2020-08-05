@@ -480,8 +480,7 @@ class AliasesTestCase(unittest.TestCase):
         create_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams' \
                           '/my-datasource/Properties/my-datasource'
 
-        location.append_location(FOLDERS.JDBC_DRIVER_PARAMS_PROPERTIES)
-        location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
+        self._add_jdbc_params_properties(location, 'my-datasource')
         token = self.aliases.get_name_token(location)
         if token:
             location.add_name_token(token, 'user')
@@ -711,11 +710,12 @@ class AliasesTestCase(unittest.TestCase):
 
     def testFlattenedFolders(self):
         location = self._get_jdbc_params_properties_location('my-datasource')
-        result = self.aliases.is_flattened_folder(location)
-        self.assertEqual(result, True)
-        name = self.aliases.get_wlst_flattened_mbean_name(location)
-        online_name = self.online_aliases.get_wlst_flattened_mbean_name(location)
-        type = self.aliases.get_wlst_flattened_mbean_type(location)
+        flattened_info = self.aliases.get_wlst_flattened_folder_info(location)
+        online_flattened_info = self.online_aliases.get_wlst_flattened_folder_info(location)
+        self.assertNotEqual(flattened_info, None)
+        name = flattened_info.get_mbean_name()
+        online_name = online_flattened_info.get_mbean_name()
+        type = flattened_info.get_mbean_type()
         self.assertEqual(name, 'NO_NAME_0')
         self.assertEqual(online_name, 'my-datasource')
         self.assertEqual(type, 'Properties')
@@ -1281,9 +1281,16 @@ class AliasesTestCase(unittest.TestCase):
 
     def _get_jdbc_params_properties_location(self, name):
         location = self._get_jdbc_params_location(name)
+        self._add_jdbc_params_properties(location, name)
+        return location
+
+    def _add_jdbc_params_properties(self, location, name):
         location.append_location(FOLDERS.JDBC_DRIVER_PARAMS_PROPERTIES)
         # don't add the token for property name
-        return location
+
+        # token for flattened Properties folder
+        flat_token = self.aliases.get_wlst_flattened_folder_info(location).get_path_token()
+        location.add_name_token(flat_token, name)
 
     def _get_jdbc_params_location(self, name):
         location = self._get_jdbc_resource_location(name)
@@ -1298,6 +1305,7 @@ class AliasesTestCase(unittest.TestCase):
         location.append_location(FOLDERS.JDBC_RESOURCE)
         location.add_name_token(self.aliases.get_name_token(location), name)
         return location
+
 
 if __name__ == '__main__':
     unittest.main()

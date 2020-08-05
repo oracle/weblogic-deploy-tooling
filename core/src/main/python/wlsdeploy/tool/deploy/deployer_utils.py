@@ -113,15 +113,19 @@ def check_flattened_folder(location, aliases):
     :param location: the location to examine
     :param aliases: the alias helper to use for name and path resolution
     """
-    if aliases.is_flattened_folder(location):
+    flattened_folder_info = aliases.get_wlst_flattened_folder_info(location)
+    if flattened_folder_info is not None:
         create_path = aliases.get_wlst_flattened_folder_create_path(location)
         existing_types = _wlst_helper.get_existing_object_list(create_path)
 
-        mbean_type = aliases.get_wlst_flattened_mbean_type(location)
+        mbean_type = flattened_folder_info.get_mbean_type()
+        mbean_name = flattened_folder_info.get_mbean_name()
         if mbean_type not in existing_types:
-            mbean_name = aliases.get_wlst_flattened_mbean_name(location)
             _wlst_helper.cd(create_path)
             create_if_not_exist(mbean_name, mbean_type, [])
+
+        path_token = flattened_folder_info.get_path_token()
+        location.add_name_token(path_token, mbean_name)
     return
 
 

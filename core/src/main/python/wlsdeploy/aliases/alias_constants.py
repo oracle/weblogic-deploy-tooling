@@ -21,6 +21,7 @@ MERGE = 'merge'
 MODEL_NAME = 'model_name'
 NAME_VALUE = 'name_value'
 PASSWORD_TOKEN = "--FIX ME--"
+PATH_TOKEN = 'path_token'
 PREFERRED_MODEL_TYPE = 'preferred_model_type'
 RESTART_REQUIRED = 'restart_required'
 SET_MBEAN_TYPE = 'set_mbean_type'
