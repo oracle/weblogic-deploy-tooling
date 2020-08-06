@@ -167,6 +167,7 @@ def get_jdbc_driver_params_location(ds_name, aliases):
     Return the JDBC_DRIVER_PARAMS location for the specified datasource name.
     :param ds_name: the name of the datasource
     :param aliases: the alias helper to use for name and token resolution
+    :return: the resulting location
     """
     location = LocationContext()
     location.append_location(JDBC_SYSTEM_RESOURCE)
@@ -177,6 +178,7 @@ def get_jdbc_driver_params_location(ds_name, aliases):
     set_single_folder_token(location, aliases)
     location.append_location(JDBC_DRIVER_PARAMS)
     set_single_folder_token(location, aliases)
+    return location
 
 
 def get_domain_token(aliases):
