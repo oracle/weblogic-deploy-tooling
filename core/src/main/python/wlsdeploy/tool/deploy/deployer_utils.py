@@ -106,14 +106,16 @@ def get_mbean_name(location, existing_names, aliases):
     return mbean_name
 
 
-def set_single_folder_token(location, aliases):
+def set_single_folder_token(location, aliases, exception_type):
     """
-    Determine the name of the MBean at the specified location, and set the corresponding token.
+    Determine the name of the MBean at the specified WLST location, and set the corresponding token.
     :param location: the single-folder location to be updated
     :param aliases: the aliases object to use for name and path resolution
+    :param exception_type: the type of exception to be thrown
     """
+    wlst_helper = WlstHelper(exception_type)
     list_path = aliases.get_wlst_list_path(location)
-    existing_names = _wlst_helper.get_existing_object_list(list_path)
+    existing_names = wlst_helper.get_existing_object_list(list_path)
     if len(existing_names) > 0:
         mbean_name = existing_names[0]
         token = aliases.get_name_token(location)

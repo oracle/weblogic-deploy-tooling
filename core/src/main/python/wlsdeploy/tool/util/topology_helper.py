@@ -29,6 +29,7 @@ class TopologyHelper(object):
     def __init__(self, aliases, exception_type, logger):
         self.logger = logger
         self.aliases = aliases
+        self.exception_type = exception_type
         self.wlst_helper = WlstHelper(exception_type)
 
         self._coherence_cluster_elements = [CLUSTER, SERVER, SERVER_TEMPLATE]
@@ -143,7 +144,7 @@ class TopologyHelper(object):
             # for online update, Name must be assigned to each JDBCSystemResource / JdbcResource MBean.
             # (see datasource_deployer.set_attributes())
             child_location = LocationContext(location).append_location(JDBC_RESOURCE)
-            deployer_utils.set_single_folder_token(child_location, self.aliases)
+            deployer_utils.set_single_folder_token(child_location, self.aliases, self.exception_type)
             wlst_path = self.aliases.get_wlst_attributes_path(child_location)
             if self.wlst_helper.path_exists(wlst_path):
                 original_location = self.wlst_helper.get_pwd()

@@ -469,6 +469,8 @@ class Discoverer(object):
         _logger.entering(model_subfolder_name, location.get_folder_path(), class_name=_class_name,
                          method_name=_method_name)
         location.append_location(model_subfolder_name)
+        self._check_flattened_folder(location)
+
         _logger.finer('WLSDPLY-06115', model_subfolder_name, self._aliases.get_model_folder_path(location),
                       class_name=_class_name, method_name=_method_name)
         # handle null model_subfolder name which should never happen in discover. throw exception about version
@@ -771,6 +773,19 @@ class Discoverer(object):
             return False, None, None
 
         return True, url, path
+
+    def _check_flattened_folder(self, location):
+        """
+        If the specified model location contains a flattened folder,
+        add the corresponding token to the location with the MBean name.
+        :param location: the location to be checked
+        """
+        flattened_folder_info = self._aliases.get_wlst_flattened_folder_info(location)
+        if flattened_folder_info is not None:
+            path_token = flattened_folder_info.get_path_token()
+            mbean_name = flattened_folder_info.get_mbean_name()
+            location.add_name_token(path_token, mbean_name)
+
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
     """

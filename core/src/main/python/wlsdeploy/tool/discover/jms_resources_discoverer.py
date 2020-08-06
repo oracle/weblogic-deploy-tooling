@@ -12,7 +12,9 @@ from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import FILE_URI
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 
@@ -211,6 +213,7 @@ class JmsResourcesDiscoverer(Discoverer):
         result = OrderedDict()
         model_name = model_constants.JMS_RESOURCE
         location.append_location(model_name)
+        deployer_utils.set_single_folder_token(location, self._aliases, ExceptionType.DISCOVER)
         self._populate_model_parameters(result, location)
         wlst_subfolders = self._find_subfolders(location)
         if wlst_subfolders is not None:

@@ -13,7 +13,9 @@ from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.coherence_resources_discoverer import CoherenceResourcesDiscoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
@@ -104,6 +106,7 @@ class CommonResourcesDiscoverer(Discoverer):
                     self._populate_model_parameters(result[datasource], location)
 
                     location.append_location(model_second_folder)
+                    deployer_utils.set_single_folder_token(location, self._aliases, ExceptionType.DISCOVER)
                     if self.wlst_cd(self._aliases.get_wlst_attributes_path(location), location):
                         result[datasource][model_second_folder] = OrderedDict()
                         resource_result = result[datasource][model_second_folder]
