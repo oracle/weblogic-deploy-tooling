@@ -12,7 +12,11 @@ from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
+from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import FILE_URI
+from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
+from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
+from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -122,6 +126,19 @@ def set_single_folder_token(location, aliases):
         location.add_name_token(token, mbean_name)
 
 
+def set_flattened_folder_token(location, aliases):
+    """
+    If the specified model location contains a flattened folder,
+    add the corresponding token to the location with the MBean name.
+    :param location: the location to be checked
+    """
+    flattened_folder_info = aliases.get_wlst_flattened_folder_info(location)
+    if flattened_folder_info is not None:
+        path_token = flattened_folder_info.get_path_token()
+        mbean_name = flattened_folder_info.get_mbean_name()
+        location.add_name_token(path_token, mbean_name)
+
+
 def check_flattened_folder(location, aliases):
     """
     The paths for a location may contain a flattened folder - a type/name level that is not reflected in the model.
@@ -143,6 +160,23 @@ def check_flattened_folder(location, aliases):
         path_token = flattened_folder_info.get_path_token()
         location.add_name_token(path_token, mbean_name)
     return
+
+
+def get_jdbc_driver_params_location(ds_name, aliases):
+    """
+    Return the JDBC_DRIVER_PARAMS location for the specified datasource name.
+    :param ds_name: the name of the datasource
+    :param aliases: the alias helper to use for name and token resolution
+    """
+    location = LocationContext()
+    location.append_location(JDBC_SYSTEM_RESOURCE)
+    token_name = aliases.get_name_token(location)
+    location.add_name_token(token_name, ds_name)
+
+    location.append_location(JDBC_RESOURCE)
+    set_single_folder_token(location, aliases)
+    location.append_location(JDBC_DRIVER_PARAMS)
+    set_single_folder_token(location, aliases)
 
 
 def get_domain_token(aliases):

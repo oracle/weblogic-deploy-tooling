@@ -4,12 +4,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
-from wlsdeploy.aliases.model_constants import RCU_PREFIX
-from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
-from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
-from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
@@ -56,21 +52,14 @@ class RCUHelper(Deployer):
                 rcu_schemas[i] = rcu_prefix + '_' + rcu_schemas[i]
 
             for ds_name in ds_names:
-                location = LocationContext()
-                location.append_location(JDBC_SYSTEM_RESOURCE)
-                token_name = self.aliases.get_name_token(location)
-                location.add_name_token(token_name, ds_name)
-
-                location.append_location(JDBC_RESOURCE)
-                deployer_utils.set_single_folder_token(location, self.aliases)
-                location.append_location(JDBC_DRIVER_PARAMS)
-                deployer_utils.set_single_folder_token(location, self.aliases)
+                location = deployer_utils.get_jdbc_driver_params_location(ds_name, self.aliases)
                 password_location = LocationContext(location)
 
                 wlst_path = self.aliases.get_wlst_attributes_path(location)
                 self.wlst_helper.cd(wlst_path)
 
                 location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+                deployer_utils.set_flattened_folder_token(location, self.aliases)
                 token_name = self.aliases.get_name_token(location)
                 if token_name is not None:
                     location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)

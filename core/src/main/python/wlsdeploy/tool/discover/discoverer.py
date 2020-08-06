@@ -19,6 +19,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.mbean_utils import get_interface_name
@@ -469,7 +470,7 @@ class Discoverer(object):
         _logger.entering(model_subfolder_name, location.get_folder_path(), class_name=_class_name,
                          method_name=_method_name)
         location.append_location(model_subfolder_name)
-        self._check_flattened_folder(location)
+        deployer_utils.set_flattened_folder_token(location, self._aliases)
 
         _logger.finer('WLSDPLY-06115', model_subfolder_name, self._aliases.get_model_folder_path(location),
                       class_name=_class_name, method_name=_method_name)
@@ -773,18 +774,6 @@ class Discoverer(object):
             return False, None, None
 
         return True, url, path
-
-    def _check_flattened_folder(self, location):
-        """
-        If the specified model location contains a flattened folder,
-        add the corresponding token to the location with the MBean name.
-        :param location: the location to be checked
-        """
-        flattened_folder_info = self._aliases.get_wlst_flattened_folder_info(location)
-        if flattened_folder_info is not None:
-            path_token = flattened_folder_info.get_path_token()
-            mbean_name = flattened_folder_info.get_mbean_name()
-            location.add_name_token(path_token, mbean_name)
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
