@@ -108,6 +108,10 @@ class CommandLineArgUtil(object):
     ARCHIVE_FILES_SEPARATOR = ','
     MODEL_FILES_SEPARATOR = ','
 
+    LAX_VALIDATION_METHOD = 'lax'
+    STRICT_VALIDATION_METHOD = 'strict'
+    VALIDATION_METHODS = [LAX_VALIDATION_METHOD, STRICT_VALIDATION_METHOD]
+
     HELP_EXIT_CODE                 = 100
     USAGE_ERROR_EXIT_CODE          = 99
     ARG_VALIDATION_ERROR_EXIT_CODE = 98
@@ -783,8 +787,8 @@ class CommandLineArgUtil(object):
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
-        elif value.lower() != 'strict' and value.lower() != 'lax':
-            ex = exception_helper.create_cla_exception('WLSDPLY-20030', value, "strict, or lax")
+        elif value not in self.VALIDATION_METHODS:
+            ex = exception_helper.create_cla_exception('WLSDPLY-20030', value, self.VALIDATION_METHODS)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -1068,7 +1072,7 @@ class CommandLineArgUtil(object):
                 config_dictionary = eval(file_handle.read())
                 target_configuration = TargetConfiguration(config_dictionary)
                 validation_method = target_configuration.get_validation_method()
-                if (validation_method is not None) and (validation_method not in ['strict', 'lax']):
+                if (validation_method is not None) and (validation_method not in self.VALIDATION_METHODS):
                     ex = exception_helper.create_cla_exception('WLSDPLY-01645', target_configuration_file)
                     ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
                     self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)

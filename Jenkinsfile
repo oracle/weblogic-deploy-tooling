@@ -1,12 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            alwaysPull true
-            reuseNode true
-            image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
-            args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     triggers {
         // timer trigger for "nightly build" on master branch
@@ -15,6 +8,10 @@ pipeline {
 
     stages {
         stage ('Environment') {
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk8'
+            }
             steps {
                 sh '''
                     echo "PATH = ${PATH}"
@@ -25,6 +22,10 @@ pipeline {
             }
         }
         stage ('Build') {
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk8'
+            }
             steps {
                 sh '''
                     mvn -B -DskipTests clean package
@@ -32,6 +33,14 @@ pipeline {
             }
         }
         stage ('Test') {
+            agent {
+                docker {
+                    alwaysPull true
+                    reuseNode true
+                    image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
+                    args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} test'
             }
@@ -47,6 +56,14 @@ pipeline {
                     changeRequest()
                     triggeredBy 'TimerTrigger'
                     tag "release-*"
+                }
+            }
+            agent {
+                docker {
+                    alwaysPull true
+                    reuseNode true
+                    image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
+                    args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {

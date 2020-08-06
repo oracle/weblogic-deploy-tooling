@@ -147,11 +147,12 @@ class TopologyDiscoverer(Discoverer):
             _logger.info('WLSDPLY-06603', len(servers), class_name=_class_name, method_name=_method_name)
             name_token = self._aliases.get_name_token(location)
             for server in servers:
-                _logger.info('WLSDPLY-06604', server, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, server)
-                result[server] = OrderedDict()
-                self._populate_model_parameters(result[server], location)
-                self._discover_subfolders(result[server], location)
+                if not self._dynamic_server(server, location):
+                    _logger.info('WLSDPLY-06604', server, class_name=_class_name, method_name=_method_name)
+                    result[server] = OrderedDict()
+                    self._populate_model_parameters(result[server], location)
+                    self._discover_subfolders(result[server], location)
                 location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
@@ -197,12 +198,13 @@ class TopologyDiscoverer(Discoverer):
             _logger.info('WLSDPLY-06607', len(targets), class_name=_class_name, method_name=_method_name)
             name_token = self._aliases.get_name_token(location)
             for target in targets:
-                _logger.info('WLSDPLY-06608', target, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, target)
-                result[target] = OrderedDict()
-                self._populate_model_parameters(result[target], location)
-                self._discover_subfolders(result[target], location)
-                location.remove_name_token(name_token)
+                if not self._dynamic_target(target, location):
+                    _logger.info('WLSDPLY-06608', target, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, target)
+                    result[target] = OrderedDict()
+                    self._populate_model_parameters(result[target], location)
+                    self._discover_subfolders(result[target], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_top_folder_name, result
@@ -652,6 +654,75 @@ class TopologyDiscoverer(Discoverer):
         temp = LocationContext()
         temp.append_location(model_constants.SERVER)
         return location.get_name_for_token(self._aliases.get_name_token(temp))
+
+    def _dynamic_target(self, target, location):
+        """
+        Determine if the Migratable Target is connected to a dynamic server. This is determined in online mode
+        only when the dynamic server and dynamic migratable target are created.
+        :param target: migratable target to test for connection to dynamic server
+        :param location: current location context
+        :return: True if a dynamic server Migratable Target
+        """
+        if target.endswith('(migratable)'):
+            server_name = target.split('(migratable)')[0].strip()
+            server_location = LocationContext()
+            server_location.append_location(model_constants.SERVER)
+            server_location.add_name_token(self._aliases.get_name_token(server_location), server_name)
+            wlst_path = self._aliases.get_wlst_attributes_path(server_location)
+            if self._wlst_helper.path_exists(wlst_path):
+                return self._dynamic_server(server_name, server_location)
+        return False
+
+    def _dynamic_server(self, server, location):
+        """
+        If this is online discover, determine if the server is part of a dynamic cluster.
+        :param server: name of the server
+        :param location: current location of the server
+        :return: True if dynamic server
+        """
+        _method_name = '_dynamic_server'
+        if self._wlst_mode == WlstModes.ONLINE and self._weblogic_helper.is_dynamic_clusters_supported():
+            wlst_path = self._aliases.get_wlst_attributes_path(location)
+            self._wlst_helper.cd(wlst_path)
+            cluster_attr = self._aliases.get_wlst_attribute_name(location, model_constants.CLUSTER)
+            cluster = self._wlst_helper.get(cluster_attr)
+            if cluster is not None:
+                __, cluster_name = self._aliases.get_model_attribute_name_and_value(location, cluster_attr, cluster)
+                cluster_location = LocationContext()
+                cluster_location.append_location(model_constants.CLUSTER)
+                cluster_location.add_name_token(self._aliases.get_name_token(cluster_location), cluster_name)
+                cluster_location.append_location(model_constants.DYNAMIC_SERVERS)
+                cluster_location.add_name_token(self._aliases.get_name_token(cluster_location), cluster_name)
+                wlst_path = self._aliases.get_wlst_attributes_path(cluster_location)
+                if self._wlst_helper.path_exists(wlst_path):
+                    _logger.fine('WLSDPLY-06613', server, class_name=_class_name, method_name=_method_name)
+                    self._wlst_helper.cd(wlst_path)
+                    attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
+                                                                      model_constants.DYNAMIC_CLUSTER_SIZE)
+                    dynamic_size = self._wlst_helper.get(attr_name)
+                    attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
+                                                                      model_constants.SERVER_NAME_PREFIX)
+                    prefix = self._wlst_helper.get(attr_name)
+                    starting = 1
+                    present, __ = self._aliases.is_valid_model_attribute_name(location,
+                                                                              model_constants.SERVER_NAME_PREFIX)
+                    if present:
+                        attr_name = self._aliases.get_model_attribute_name(cluster_location,
+                                                                           model_constants.SERVER_NAME_START_IDX)
+                        starting = self._wlst_helper.get(attr_name)
+                    return check_against_server_list(server, dynamic_size, prefix, starting)
+        _logger.finer('WLSDPLY-06614', server, class_name=_class_name, method_name=_method_name)
+        return False
+
+
+def check_against_server_list(server_name, dynamic_size, prefix, starting):
+    if dynamic_size > 0 and prefix is not None and server_name.startswith(prefix):
+        split_it = server_name.split(prefix)
+        if len(split_it) == 2:
+            number = StringUtils.stringToInteger(split_it[1].strip())
+            if number is not None and starting <= number < (dynamic_size + starting):
+                return True
+    return False
 
 
 def _kss_file_type(file_name):

@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "WebAppContainer",
     "default_name_value": "${NO_NAME_0:%DOMAIN%}",
@@ -33,7 +33,7 @@
         "JaxRsMonitoringDefaultBehavior":      [ {"version": "[12.2,)",     "wlst_mode": "both",    "wlst_name": "JaxRsMonitoringDefaultBehavior",     "wlst_path": "WP001", "value": {"default": false                              }, "wlst_type": "boolean"           } ],
         "MaxPostSize":                         [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MaxPostSize",                        "wlst_path": "WP001", "value": {"default": -1                                 }, "wlst_type": "integer"           } ],
         "MaxPostTimeSecs":                     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MaxPostTimeSecs",                    "wlst_path": "WP001", "value": {"default": -1                                 }, "wlst_type": "integer"           } ],
-        "MaxRequestParamterCount":             [ {"version": "[10]",        "wlst_mode": "both",    "wlst_name": "MaxRequestParamterCount",           "wlst_path": "WP001", "value": {"default":  10000                              }, "wlst_type": "integer",          "get_method": "GET" } ],
+        "MaxRequestParamterCount":             [ {"version": "[10,12.2.1.4)", "wlst_mode": "both",  "wlst_name": "MaxRequestParamterCount",            "wlst_path": "WP001", "value": {"default": 10000                              }, "wlst_type": "integer",          "get_method": "GET" } ],
         "MaxRequestParameterCount":            [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "MaxRequestParameterCount",           "wlst_path": "WP001", "value": {"default": 10000                              }, "wlst_type": "integer",          "get_method": "GET" } ],
         "MimeMappingFile":                     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MimeMappingFile",                    "wlst_path": "WP001", "value": {"default": "./config/mimemappings.properties" }, "wlst_type": "string",           "uses_path_tokens": "true" } ],
         "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "value": {"default": "None"                             }, "wlst_type": "string"            } ],
