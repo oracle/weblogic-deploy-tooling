@@ -14,6 +14,7 @@ from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.exception.expection_types import ExceptionType
 
@@ -61,7 +62,9 @@ class RCUHelper(Deployer):
                 location.add_name_token(token_name, ds_name)
 
                 location.append_location(JDBC_RESOURCE)
+                deployer_utils.set_single_folder_token(location, self.aliases)
                 location.append_location(JDBC_DRIVER_PARAMS)
+                deployer_utils.set_single_folder_token(location, self.aliases)
                 password_location = LocationContext(location)
 
                 wlst_path = self.aliases.get_wlst_attributes_path(location)

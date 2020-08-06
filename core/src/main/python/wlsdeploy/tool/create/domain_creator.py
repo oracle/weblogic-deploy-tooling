@@ -945,7 +945,9 @@ class DomainCreator(Creator):
                     location.add_name_token(token_name, ds_name)
 
                     location.append_location(JDBC_RESOURCE)
+                    deployer_utils.set_single_folder_token(location, self.aliases)
                     location.append_location(JDBC_DRIVER_PARAMS)
+                    deployer_utils.set_single_folder_token(location, self.aliases)
                     wlst_path = self.aliases.get_wlst_attributes_path(location)
                     self.wlst_helper.cd(wlst_path)
 
@@ -1016,7 +1018,9 @@ class DomainCreator(Creator):
                 location.add_name_token(token_name, svc_table_ds_name)
 
             location.append_location(JDBC_RESOURCE)
+            deployer_utils.set_single_folder_token(location, self.aliases)
             location.append_location(JDBC_DRIVER_PARAMS)
+            deployer_utils.set_single_folder_token(location, self.aliases)
             wlst_path = self.aliases.get_wlst_attributes_path(location)
             self.wlst_helper.cd(wlst_path)
 
