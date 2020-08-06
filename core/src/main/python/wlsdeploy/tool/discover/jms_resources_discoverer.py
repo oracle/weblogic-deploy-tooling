@@ -213,7 +213,7 @@ class JmsResourcesDiscoverer(Discoverer):
         result = OrderedDict()
         model_name = model_constants.JMS_RESOURCE
         location.append_location(model_name)
-        deployer_utils.set_single_folder_token(location, self._aliases, ExceptionType.DISCOVER)
+        deployer_utils.set_single_folder_token(location, self._aliases)
         self._populate_model_parameters(result, location)
         wlst_subfolders = self._find_subfolders(location)
         if wlst_subfolders is not None:

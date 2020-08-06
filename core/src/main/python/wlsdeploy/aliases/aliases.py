@@ -1176,6 +1176,13 @@ class Aliases(object):
     #                          Convenience Methods                            #
     ###########################################################################
 
+    def get_exception_type(self):
+        """
+        Get the exception type for this Aliases instance.
+        :return: the exception type
+        """
+        return self._exception_type
+
     def get_wlst_mbean_type_and_name(self, location):
         """
         Get the MBean type and name from the specified location.

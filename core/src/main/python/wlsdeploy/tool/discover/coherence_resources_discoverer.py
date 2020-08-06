@@ -138,7 +138,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         result = OrderedDict()
         model_top_folder_name = model_constants.COHERENCE_RESOURCE
         location.append_location(model_top_folder_name)
-        deployer_utils.set_single_folder_token(location, self._aliases, ExceptionType.DISCOVER)
+        deployer_utils.set_single_folder_token(location, self._aliases)
         self._populate_model_parameters(result, location)
         self._discover_subfolders(result, location)
         location.pop_location()

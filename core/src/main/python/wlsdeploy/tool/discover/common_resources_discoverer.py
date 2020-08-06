@@ -106,7 +106,7 @@ class CommonResourcesDiscoverer(Discoverer):
                     self._populate_model_parameters(result[datasource], location)
 
                     location.append_location(model_second_folder)
-                    deployer_utils.set_single_folder_token(location, self._aliases, ExceptionType.DISCOVER)
+                    deployer_utils.set_single_folder_token(location, self._aliases)
                     if self.wlst_cd(self._aliases.get_wlst_attributes_path(location), location):
                         result[datasource][model_second_folder] = OrderedDict()
                         resource_result = result[datasource][model_second_folder]
