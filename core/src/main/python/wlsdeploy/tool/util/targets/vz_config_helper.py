@@ -36,6 +36,8 @@ DOMAIN_NAME = 'domainName'
 DOMAIN_PREFIX = 'domainPrefix'
 DOMAIN_UID = 'domainUid'
 DS_URL = 'url'
+HAS_CLUSTERS = 'hasClusters'
+HAS_DATABASES = 'hasDatabases'
 REPLICAS = 'replicas'
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 
@@ -122,6 +124,7 @@ def _build_template_hash(model, aliases):
         clusters.append(cluster_hash)
 
     template_hash[CLUSTERS] = clusters
+    template_hash[HAS_CLUSTERS] = len(clusters) != 0
 
     # databases
 
@@ -155,5 +158,6 @@ def _build_template_hash(model, aliases):
         databases.append(database_hash)
 
     template_hash[DATABASES] = databases
+    template_hash[HAS_DATABASES] = len(databases) != 0
 
     return template_hash

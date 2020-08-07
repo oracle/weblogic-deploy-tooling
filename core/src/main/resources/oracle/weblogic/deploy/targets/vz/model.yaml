@@ -17,7 +17,9 @@ spec:
           - name: ocir
         logHomeEnabled: false
         logHome: {{{domainHome}}}/logs
+{{#hasClusters}}
         clusters:
+{{/hasClusters}}
 {{#clusters}}
           - clusterName: {{{clusterName}}}
             replicas: {{{replicas}}}
@@ -34,7 +36,9 @@ spec:
               match:
                 - uri:
                     prefix: "/todo"
+{{#hasDatabases}}
         - database:
+{{/hasDatabases}}
 {{#databases}}
             - target: {{{databasePrefix}}}-db
               datasourceName: {{{datasourceName}}}

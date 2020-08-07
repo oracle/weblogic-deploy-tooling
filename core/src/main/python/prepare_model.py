@@ -513,17 +513,17 @@ def main():
         tool_exit.end(model_context, exit_code)
     except CompareException, ce:
         cla_helper.clean_up_temp_files()
-        __logger.severe('WLSDPLY-05704', ce.getLocalizedMessage())
+        __logger.severe('WLSDPLY-05801', ce.getLocalizedMessage())
         tool_exit.end(model_context, 2)
     except PyWLSTException, pe:
         cla_helper.clean_up_temp_files()
-        __logger.severe('WLSDPLY-05704', pe.getLocalizedMessage())
+        __logger.severe('WLSDPLY-05801', pe.getLocalizedMessage())
         tool_exit.end(model_context, 2)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         eeString = traceback.format_exception(exc_type, exc_obj, exc_tb)
         cla_helper.clean_up_temp_files()
-        __logger.severe('WLSDPLY-05704', eeString)
+        __logger.severe('WLSDPLY-05801', eeString)
         tool_exit.end(model_context, 2)
 
 def format_message(key, *args):
