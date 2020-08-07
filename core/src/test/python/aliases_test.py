@@ -85,28 +85,29 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testDatasourceParamsPath(self):
-        expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDataSourceParams/my-datasource'
-        location = self._get_jdbc_ds_params_location('my-datasource')
+        expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDataSourceParams/NO_NAME_0'
+        location = get_jdbc_ds_params_location('my-datasource', self.aliases)
 
         path = self.aliases.get_wlst_attributes_path(location)
         self.assertEqual(path, expected)
         return
 
     def testDatasourceDriverPropertiesPath(self):
-        location = self._get_jdbc_params_properties_location('my-datasource')
+        location = get_jdbc_params_properties_location('my-datasource', self.aliases)
         expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/' \
-                   'JDBCDriverParams/my-datasource/Properties/my-datasource/Property'
+                   'JDBCDriverParams/NO_NAME_0/Properties/NO_NAME_0/Property'
         path1 = self.aliases.get_wlst_list_path(location)
         self.assertEqual(path1, expected)
 
+        online_location = get_jdbc_params_properties_location('my-datasource', self.online_aliases)
         expected = '/JDBCSystemResources/my-datasource/JDBCResource/my-datasource/' \
                    'JDBCDriverParams/my-datasource/Properties/my-datasource/Properties'
-        path2 = self.online_aliases.get_wlst_list_path(location)
+        path2 = self.online_aliases.get_wlst_list_path(online_location)
         self.assertEqual(path2, expected)
 
         # Path to access a single property by name (user in this example)
         expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/' \
-                   'JDBCDriverParams/my-datasource/Properties/my-datasource/Property/user'
+                   'JDBCDriverParams/NO_NAME_0/Properties/NO_NAME_0/Property/user'
         token = self.aliases.get_name_token(location)
         if token:
             location.add_name_token(token, 'user')
@@ -115,7 +116,8 @@ class AliasesTestCase(unittest.TestCase):
 
         expected = '/JDBCSystemResources/my-datasource/JDBCResource/my-datasource/' \
                    'JDBCDriverParams/my-datasource/Properties/my-datasource/Properties/user'
-        path2 = self.online_aliases.get_wlst_attributes_path(location)
+        online_location.add_name_token(self.aliases.get_name_token(online_location), 'user')
+        path2 = self.online_aliases.get_wlst_attributes_path(online_location)
         self.assertEqual(path2, expected)
         return
 
@@ -129,7 +131,7 @@ class AliasesTestCase(unittest.TestCase):
 
     def testDatasourceSubfoldersPath(self):
         expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource'
-        location = self._get_jdbc_resource_location('my-datasource')
+        location = get_jdbc_resource_location('my-datasource', self.aliases)
         path = self.aliases.get_wlst_subfolders_path(location)
         self.assertEqual(path, expected)
         return
@@ -152,14 +154,14 @@ class AliasesTestCase(unittest.TestCase):
 
     def testDatasourceSubfolderMbeanType(self):
         expected = 'JDBCDriverParams'
-        location = self._get_jdbc_params_location('my-datasource')
+        location = get_jdbc_driver_params_location('my-datasource', self.aliases)
         mbean_type = self.aliases.get_wlst_mbean_type(location)
         self.assertEqual(mbean_type, expected)
         return
 
     def testDatasourceSubFolderMbeanName(self):
         expected = 'NO_NAME_0'
-        location = self._get_jdbc_ds_params_location('my-datasource')
+        location = get_jdbc_ds_params_location('my-datasource', self.aliases)
         mbean_name = self.aliases.get_wlst_mbean_name(location)
         self.assertEqual(mbean_name, expected)
         return
@@ -167,7 +169,7 @@ class AliasesTestCase(unittest.TestCase):
     def testGetModelSubFolders(self):
         expected = ['JDBCOracleParams', 'JDBCConnectionPoolParams', 'JDBCXAParams',
                     'JDBCDataSourceParams', 'JDBCDriverParams']
-        location = self._get_jdbc_resource_location('my-datasource')
+        location = get_jdbc_resource_location('my-datasource', self.aliases)
         names = self.aliases.get_model_subfolder_names(location)
         self.assertEqual(len(names), len(expected))
         for name in names:
@@ -218,7 +220,7 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testWlstAttributeValueConversion(self):
-        location = self._get_jdbc_ds_params_location('my-datasource')
+        location = get_jdbc_ds_params_location('my-datasource', self.aliases)
 
         string_value = ['Hello', 'Hello']
         model_attribute_name = 'AlgorithmType'
@@ -239,11 +241,11 @@ class AliasesTestCase(unittest.TestCase):
         jms_location.append_location(FOLDERS.JMS_SYSTEM_RESOURCE)
         jms_location.add_name_token(self.aliases.get_name_token(jms_location), 'my-module')
         jms_location.append_location(FOLDERS.JMS_RESOURCE)
-        jms_location.add_name_token(self.aliases.get_name_token(jms_location), 'my-module')
+        add_default_token_value(jms_location, self.aliases)
         jms_location.append_location(FOLDERS.CONNECTION_FACTORY)
         jms_location.add_name_token(self.aliases.get_name_token(jms_location), 'my-connectionfactory')
         jms_location.append_location(FOLDERS.DEFAULT_DELIVERY_PARAMS)
-        jms_location.add_name_token(self.aliases.get_name_token(jms_location), 'my-connectionfactory')
+        add_default_token_value(jms_location, self.aliases)
 
         model_attribute_name = 'DefaultTimeToLive'
         model_attribute_value = string_value[0]
@@ -261,7 +263,7 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testWlstAttributeListValueConversion(self):
-        location = self._get_jdbc_ds_params_location('my-datasource')
+        location = get_jdbc_ds_params_location('my-datasource', self.aliases)
 
         model_attribute_name = 'JNDIName'
         model_attribute_value = 'com.bea.datasource1, com.bea.datasource2'
@@ -331,7 +333,7 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testGetWlstAttributeNameAndValue(self):
-        location = self._get_jdbc_ds_params_location('my-datasource')
+        location = get_jdbc_ds_params_location('my-datasource', self.aliases)
 
         # get wlst attribute value should return the value even if its the default
         string_value = ['0', 0]
@@ -343,7 +345,7 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testGetModelAttributeNameAndValue(self):
-        location = self._get_jdbc_ds_params_location('my-datasource')
+        location = get_jdbc_ds_params_location('my-datasource', self.aliases)
 
         # get model attribute value should return the value only if its NOT the default
         boolean_values = ['false', None]
@@ -390,7 +392,7 @@ class AliasesTestCase(unittest.TestCase):
         location=LocationContext().append_location(FOLDERS.JMS_SYSTEM_RESOURCE)
         location.add_name_token(self.aliases.get_name_token(location), 'TheModule')
         location.append_location(FOLDERS.JMS_RESOURCE)
-        location.add_name_token(self.aliases.get_name_token(location), 'TheModule')
+        add_default_token_value(location, self.aliases)
         location.append_location(FOLDERS.DISTRIBUTED_TOPIC)
         location.add_name_token(self.aliases.get_name_token(location), 'TheTopic')
 
@@ -406,7 +408,7 @@ class AliasesTestCase(unittest.TestCase):
     def testIsWlstModelAttributeName(self):
         wls_version = '10.3.6'
         online_aliases = Aliases(self.model_context, WlstModes.ONLINE, wls_version)
-        location = self._get_jdbc_params_location('my-datasource')
+        location = get_jdbc_driver_params_location('my-datasource', self.aliases)
         model_attribute_name = 'QosDegradationAllowed'
         path = self.aliases.get_model_folder_path(location)
         expected = exception_helper.get_message('WLSDPLY-08408', model_attribute_name, path, wls_version)
@@ -417,7 +419,7 @@ class AliasesTestCase(unittest.TestCase):
         offline_aliases = Aliases(self.model_context, WlstModes.OFFLINE, wls_version)
         location.pop_location()
         location.append_location(FOLDERS.JDBC_ORACLE_PARAMS)
-        location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
+        add_default_token_value(location, self.aliases)
         model_attribute_name = 'OnsWalletPasswordEncrypted'
         path = self.aliases.get_model_folder_path(location)
         expected = exception_helper.get_message('WLSDPLY-08407', model_attribute_name, path, wls_version)
@@ -427,7 +429,7 @@ class AliasesTestCase(unittest.TestCase):
 
         location.pop_location()
         location.append_location(FOLDERS.JDBC_CONNECTION_POOL_PARAMS)
-        location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
+        add_default_token_value(location, self.aliases)
         model_attribute_name = 'CountOfTestFailuresTillFlush'
         earliest_version = '12.1.2'
         path = self.aliases.get_model_folder_path(location)
@@ -453,12 +455,12 @@ class AliasesTestCase(unittest.TestCase):
         self._assertMapEqual(expected, result)
 
     def testNewGetWlstPaths(self):
-        attr_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams/my-datasource'
+        attr_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams/NO_NAME_0'
         folder_expected = attr_expected
         list_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams'
         create_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource'
 
-        location = self._get_jdbc_params_location('my-datasource')
+        location = get_jdbc_driver_params_location('my-datasource', self.aliases)
 
         result = self.aliases.get_wlst_attributes_path(location)
         self.assertEqual(result, attr_expected)
@@ -473,14 +475,14 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(result, create_expected)
 
         attr_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams' \
-                        '/my-datasource/Properties/my-datasource/Property/user'
+                        '/NO_NAME_0/Properties/NO_NAME_0/Property/user'
         folder_expected = attr_expected
         list_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams' \
-                        '/my-datasource/Properties/my-datasource/Property'
+                        '/NO_NAME_0/Properties/NO_NAME_0/Property'
         create_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams' \
-                          '/my-datasource/Properties/my-datasource'
+                          '/NO_NAME_0/Properties/NO_NAME_0'
 
-        self._add_jdbc_params_properties(location, 'my-datasource')
+        add_jdbc_params_properties(location, self.aliases)
         token = self.aliases.get_name_token(location)
         if token:
             location.add_name_token(token, 'user')
@@ -550,12 +552,12 @@ class AliasesTestCase(unittest.TestCase):
     def testMTAliasLoading(self):
         aliases = Aliases(self.model_context, WlstModes.OFFLINE)
 
-        attr_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams/my-datasource'
+        attr_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams/NO_NAME_0'
         folder_expected = attr_expected
         list_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams'
         create_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource'
 
-        location = self._get_jdbc_params_location('my-datasource')
+        location = get_jdbc_driver_params_location('my-datasource', self.aliases)
 
         result = aliases.get_wlst_attributes_path(location)
         self.assertEqual(result, attr_expected)
@@ -567,7 +569,7 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(result, create_expected)
 
         attr_expected = '/ResourceGroupTemplate/MyResourceGroupTemplate/JDBCSystemResource/my-datasource' \
-                        '/JdbcResource/my-datasource/JDBCDriverParams/my-datasource'
+                        '/JdbcResource/my-datasource/JDBCDriverParams/NO_NAME_0'
         folder_expected = attr_expected
         list_expected = '/ResourceGroupTemplate/MyResourceGroupTemplate/JDBCSystemResource/my-datasource' \
                         '/JdbcResource/my-datasource/JDBCDriverParams'
@@ -583,9 +585,9 @@ class AliasesTestCase(unittest.TestCase):
         location.append_location(FOLDERS.JDBC_SYSTEM_RESOURCE)
         location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
         location.append_location(FOLDERS.JDBC_RESOURCE)
-        location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
+        add_default_token_value(location, self.aliases)
         location.append_location(FOLDERS.JDBC_DRIVER_PARAMS)
-        location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
+        add_default_token_value(location, self.aliases)
 
         result = aliases.get_wlst_attributes_path(location)
         self.assertEqual(result, attr_expected)
@@ -597,7 +599,7 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(result, create_expected)
 
         attr_expected = '/ResourceGroup/MyResourceGroup/JDBCSystemResource/my-datasource/JdbcResource' \
-                        '/my-datasource/JDBCDriverParams/my-datasource'
+                        '/my-datasource/JDBCDriverParams/NO_NAME_0'
         folder_expected = attr_expected
         list_expected = '/ResourceGroup/MyResourceGroup/JDBCSystemResource/my-datasource/JdbcResource' \
                         '/my-datasource/JDBCDriverParams'
@@ -611,9 +613,9 @@ class AliasesTestCase(unittest.TestCase):
         location.append_location(FOLDERS.JDBC_SYSTEM_RESOURCE)
         location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
         location.append_location(FOLDERS.JDBC_RESOURCE)
-        location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
+        add_default_token_value(location, self.aliases)
         location.append_location(FOLDERS.JDBC_DRIVER_PARAMS)
-        location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
+        add_default_token_value(location, self.aliases)
 
         result = aliases.get_wlst_attributes_path(location)
         self.assertEqual(result, attr_expected)
@@ -625,7 +627,7 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(result, create_expected)
 
         attr_expected = '/Partition/MyPartition/ResourceGroup/MyResourceGroup/JDBCSystemResource' \
-                        '/my-datasource/JdbcResource/my-datasource/JDBCDriverParams/my-datasource'
+                        '/my-datasource/JdbcResource/my-datasource/JDBCDriverParams/NO_NAME_0'
         folder_expected = attr_expected
         list_expected = '/Partition/MyPartition/ResourceGroup/MyResourceGroup/JDBCSystemResource' \
                         '/my-datasource/JdbcResource/my-datasource/JDBCDriverParams'
@@ -646,9 +648,9 @@ class AliasesTestCase(unittest.TestCase):
         location.append_location(FOLDERS.JDBC_SYSTEM_RESOURCE)
         location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
         location.append_location(FOLDERS.JDBC_RESOURCE)
-        location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
+        add_default_token_value(location, self.aliases)
         location.append_location(FOLDERS.JDBC_DRIVER_PARAMS)
-        location.add_name_token(self.aliases.get_name_token(location), 'my-datasource')
+        add_default_token_value(location, self.aliases)
 
         result = aliases.get_wlst_attributes_path(location)
         self.assertEqual(result, attr_expected)
@@ -709,7 +711,7 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testFlattenedFolders(self):
-        location = self._get_jdbc_params_properties_location('my-datasource')
+        location = get_jdbc_params_properties_location('my-datasource', self.aliases)
         flattened_info = self.aliases.get_wlst_flattened_folder_info(location)
         online_flattened_info = self.online_aliases.get_wlst_flattened_folder_info(location)
         self.assertNotEqual(flattened_info, None)
@@ -720,18 +722,17 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(online_name, 'my-datasource')
         self.assertEqual(type, 'Properties')
 
-        expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams/my-datasource' \
-                   + '/Properties'
+        expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams/NO_NAME_0/Properties'
         result = self.aliases.get_wlst_flattened_folder_list_path(location)
         self.assertEqual(result, expected)
 
-        expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams/my-datasource'
+        expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams/NO_NAME_0'
         result = self.aliases.get_wlst_flattened_folder_create_path(location)
         self.assertEqual(result, expected)
         return
 
     def testModelFolderPath(self):
-        location = self._get_jdbc_params_properties_location('my-datasource')
+        location = get_jdbc_params_properties_location('my-datasource', self.aliases)
 
         expected = 'resources:/JDBCSystemResource/my-datasource/JdbcResource/JDBCDriverParams/Properties'
         path = self.aliases.get_model_folder_path(location)
@@ -1188,7 +1189,7 @@ class AliasesTestCase(unittest.TestCase):
         location=LocationContext().append_location(FOLDERS.JMS_SYSTEM_RESOURCE)
         location.add_name_token(self.aliases.get_name_token(location), 'TheModule')
         location.append_location(FOLDERS.JMS_RESOURCE)
-        location.add_name_token(self.aliases.get_name_token(location), 'TheModule')
+        add_default_token_value(location, self.aliases)
         location.append_location(FOLDERS.DISTRIBUTED_TOPIC)
         location.add_name_token(self.aliases.get_name_token(location), 'TheTopic')
 
@@ -1273,38 +1274,49 @@ class AliasesTestCase(unittest.TestCase):
             self.online_aliases.get_wlst_attribute_name_and_value(location, FOLDERS.DOMAIN_VERSION, '12.2.1.3.0')
         self.assertEquals(None, wlst_value)
 
-    def _get_jdbc_ds_params_location(self, name):
-        location = self._get_jdbc_resource_location(name)
-        location.append_location(FOLDERS.JDBC_DATASOURCE_PARAMS)
-        location.add_name_token(self.aliases.get_name_token(location), name)
-        return location
 
-    def _get_jdbc_params_properties_location(self, name):
-        location = self._get_jdbc_params_location(name)
-        self._add_jdbc_params_properties(location, name)
-        return location
+def get_jdbc_ds_params_location(name, aliases):
+    location = get_jdbc_resource_location(name, aliases)
+    location.append_location(FOLDERS.JDBC_DATASOURCE_PARAMS)
+    add_default_token_value(location, aliases)
+    return location
 
-    def _add_jdbc_params_properties(self, location, name):
-        location.append_location(FOLDERS.JDBC_DRIVER_PARAMS_PROPERTIES)
-        # don't add the token for property name
 
-        # token for flattened Properties folder
-        flat_token = self.aliases.get_wlst_flattened_folder_info(location).get_path_token()
-        location.add_name_token(flat_token, name)
+def get_jdbc_params_properties_location(name, aliases):
+    location = get_jdbc_driver_params_location(name, aliases)
+    add_jdbc_params_properties(location, aliases)
+    return location
 
-    def _get_jdbc_params_location(self, name):
-        location = self._get_jdbc_resource_location(name)
-        location.append_location(FOLDERS.JDBC_DRIVER_PARAMS)
-        location.add_name_token(self.aliases.get_name_token(location), name)
-        return location
 
-    def _get_jdbc_resource_location(self, name):
-        location = LocationContext()
-        location.append_location(FOLDERS.JDBC_SYSTEM_RESOURCE)
-        location.add_name_token(self.aliases.get_name_token(location), name)
-        location.append_location(FOLDERS.JDBC_RESOURCE)
-        location.add_name_token(self.aliases.get_name_token(location), name)
-        return location
+def add_jdbc_params_properties(location, aliases):
+    location.append_location(FOLDERS.JDBC_DRIVER_PARAMS_PROPERTIES)
+    # don't add the token for property name
+
+    # token for flattened Properties folder
+    flat_info = aliases.get_wlst_flattened_folder_info(location)
+    location.add_name_token(flat_info.get_path_token(), flat_info.get_mbean_name())
+
+
+def get_jdbc_driver_params_location(name, aliases):
+    location = get_jdbc_resource_location(name, aliases)
+    location.append_location(FOLDERS.JDBC_DRIVER_PARAMS)
+    add_default_token_value(location, aliases)
+    return location
+
+
+def get_jdbc_resource_location(name, aliases):
+    location = LocationContext()
+    location.append_location(FOLDERS.JDBC_SYSTEM_RESOURCE)
+    location.add_name_token(aliases.get_name_token(location), name)
+    location.append_location(FOLDERS.JDBC_RESOURCE)
+    add_default_token_value(location, aliases)
+    return location
+
+
+def add_default_token_value(location, aliases):
+    token = aliases.get_name_token(location)
+    name = aliases.get_wlst_mbean_name(location)
+    location.add_name_token(token, name)
 
 
 if __name__ == '__main__':

@@ -7,7 +7,7 @@
     "folders": {
         "JdbcResource" : {
             "wlst_type": "${Jdbc:JDBC}Resource",
-            "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
+            "default_name_value": "%DATASOURCE%",
             "folders": {
                 "JDBCConnectionPoolParams": {
                     "wlst_type": "JDBCConnectionPoolParams",
