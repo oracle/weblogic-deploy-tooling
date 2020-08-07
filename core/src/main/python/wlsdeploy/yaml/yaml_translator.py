@@ -261,6 +261,9 @@ class PythonToYaml(object):
         :param text: the input string
         :return: the quoted string, or the original string if no quoting was required
         """
+        if text.startswith('#'):
+            # this is a comment so don't quote
+            return text
         if bool(re.search(self._requires_quotes_chars_regex, text)):
             result = '\'' + _quote_embedded_quotes(text) + '\''
         elif len(text) == 0:

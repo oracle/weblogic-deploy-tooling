@@ -24,6 +24,7 @@ import java.io.PrintWriter as JPrintWriter
 import oracle.weblogic.deploy.util.TranslateException as TranslateException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
+from oracle.weblogic.deploy.util import PyOrderedDict
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.compare import CompareException
 from oracle.weblogic.deploy.exception import ExceptionHelper
@@ -86,7 +87,7 @@ def __process_args(args):
 class ModelDiffer:
 
     def __init__(self, current_dict, past_dict):
-        self.final_changed_model=dict()
+        self.final_changed_model = PyOrderedDict()
         self.current_dict = current_dict
         self.past_dict = past_dict
         self.set_current = sets.Set()
@@ -182,7 +183,7 @@ class ModelDiffer:
         :param key: key of the dictionary
         :return: true if it is a dictionary otherwise false
         """
-        if self.current_dict.has_key(key) and isinstance(self.current_dict[key],dict):
+        if self.current_dict.has_key(key) and isinstance(self.current_dict[key], PyOrderedDict):
             return 1
         else:
             return 0
@@ -274,7 +275,7 @@ class ModelDiffer:
 
         return found
 
-    def _add_results(self, ar_changes, is_delete=False):
+    def _add_results(self, ar_changes, is_delete=False, is_change=False):
         """
         Update the differences in the final model dictionary with the changes
         :param ar_changes:   Array of changes in delimited format
@@ -290,40 +291,47 @@ class ModelDiffer:
                 if not found_in_allowable_delete:
                     compare_msgs.add(('WLSDPLY-05701',item))
                     continue
-
-            splitted=item.split(PATH_TOKEN,1)
-            n=len(splitted)
-            result=dict()
-            walked=[]
+            splitted = item.split(PATH_TOKEN,1)
+            n = len(splitted)
+            result = PyOrderedDict()
+            walked = []
 
             while n > 1:
-                tmp=dict()
-                tmp[splitted[0]]=dict()
+                tmp = PyOrderedDict()
+                tmp[splitted[0]] = PyOrderedDict()
                 if len(result) > 0:
                     # traverse to the leaf
-                    leaf=result
+                    leaf = result
                     for k in walked:
                         leaf = leaf[k]
-                    leaf[splitted[0]]=dict()
+                    leaf[splitted[0]] = PyOrderedDict()
                     walked.append(splitted[0])
                 else:
-                    result=tmp
+                    result = tmp
                     walked.append(splitted[0])
-                splitted=splitted[1].split(PATH_TOKEN,1)
-                n=len(splitted)
+                splitted = splitted[1].split(PATH_TOKEN,1)
+                n = len(splitted)
             #
             # result is the dictionary format
             #
             leaf=result
-            value_tree=self.current_dict
+            if is_change:
+                value_tree = self.past_dict
+            else:
+                value_tree = self.current_dict
             for k in walked:
                 leaf = leaf[k]
-                value_tree=value_tree[k]
+                value_tree = value_tree[k]
             #
             # walk the current dictionary and set the value
             #
             if value_tree:
-                leaf[splitted[0]] = value_tree[splitted[0]]
+                if is_change:
+                    leaf['# - ' + splitted[0]] = value_tree[splitted[0]]
+                else:
+                    if value_tree[splitted[0]] is not None and not isinstance(value_tree[splitted[0]], PyOrderedDict):
+                        self._add_results(ar_changes, is_delete, is_change=True)
+                    leaf[splitted[0]] = value_tree[splitted[0]]
             else:
                 leaf[splitted[0]] = None
 
@@ -348,12 +356,12 @@ class ModelDiffer:
                     del pointer_dict[parent_key][app_key]
                     # Special handling for deleting all resources in high level
                     if split_delete_length == 2 and app_key != 'WebAppContainer':
-                        pointer_dict[parent_key][app_key] = dict()
+                        pointer_dict[parent_key][app_key] = PyOrderedDict()
                         old_keys = self.past_dict[parent_key][app_key].keys()
                         for old_key in old_keys:
-                            pointer_dict[parent_key][app_key]['!' + old_key] = dict()
+                            pointer_dict[parent_key][app_key]['!' + old_key] = PyOrderedDict()
                     else:
-                        pointer_dict[parent_key]['!' + app_key] = dict()
+                        pointer_dict[parent_key]['!' + app_key] = PyOrderedDict()
 
     def merge_dictionaries(self, dictionary, new_dictionary):
         """
@@ -367,7 +375,7 @@ class ModelDiffer:
                 dictionary[key] = new_value
             else:
                 value = dictionary[key]
-                if isinstance(value, dict) and isinstance(new_value, dict):
+                if isinstance(value, PyOrderedDict) and isinstance(new_value, PyOrderedDict):
                     self.merge_dictionaries(value, new_value)
                 else:
                     dictionary[key] = new_value
@@ -542,6 +550,7 @@ class ModelFileDiffer:
         """
         return compare_msgs
 
+
 def debug(format_string, *arguments):
     """
     Generic debug code.
@@ -552,6 +561,7 @@ def debug(format_string, *arguments):
         print format_string % (arguments)
     else:
         _logger.finest(format_string, arguments)
+
 
 def main():
     """
@@ -657,6 +667,7 @@ def main():
         _logger.severe('WLSDPLY-05704', eeString)
         System.exit(2)
 
+
 def format_message(key, *args):
     """
     Get message using the bundle.
@@ -665,6 +676,7 @@ def format_message(key, *args):
     :return:
     """
     return ExceptionHelper.getMessage(key, list(args))
+
 
 if __name__ == "__main__":
     main()
