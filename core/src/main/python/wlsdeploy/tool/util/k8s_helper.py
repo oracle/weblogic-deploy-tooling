@@ -5,6 +5,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 Methods and constants for building Kubernetes resource files,
 including domain resource configuration for WebLogic Kubernetes Operator.
 """
+import re
+
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SIZE
@@ -17,10 +19,14 @@ from wlsdeploy.util import dictionary_utils
 def get_domain_uid(domain_name):
     """
     Determine the domain UID based on domain name.
+    The domain UID must be DNS-1123 compatible, with the pattern ^[a-z0-9-.]{1,253}$
     :param domain_name: the domain name to be checked
     :return: the domain UID
     """
-    return domain_name.lower()
+    result = domain_name.lower()
+    # replace any disallowed character with hyphen
+    result = re.sub('[^a-z0-9-.]', '-', result)
+    return result
 
 
 def get_server_count(cluster_name, cluster_values, model_dictionary):
