@@ -38,9 +38,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPE
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_kEYSTORE_PROPERTY
-from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
-from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import LOG_FILTER
 from wlsdeploy.aliases.model_constants import MACHINE
@@ -939,13 +937,7 @@ class DomainCreator(Creator):
                 ds_names = self.wlst_helper.lsc()
 
                 for ds_name in ds_names:
-                    location = LocationContext()
-                    location.append_location(JDBC_SYSTEM_RESOURCE)
-                    token_name = self.aliases.get_name_token(location)
-                    location.add_name_token(token_name, ds_name)
-
-                    location.append_location(JDBC_RESOURCE)
-                    location.append_location(JDBC_DRIVER_PARAMS)
+                    location = deployer_utils.get_jdbc_driver_params_location(ds_name, self.aliases)
                     wlst_path = self.aliases.get_wlst_attributes_path(location)
                     self.wlst_helper.cd(wlst_path)
 
@@ -959,6 +951,7 @@ class DomainCreator(Creator):
                     self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
                     location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+                    deployer_utils.set_flattened_folder_token(location, self.aliases)
                     token_name = self.aliases.get_name_token(location)
                     if token_name is not None:
                         location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
@@ -1008,15 +1001,8 @@ class DomainCreator(Creator):
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
             self.logger.fine('WLSDPLY-12221', fmw_database, class_name=self.__class_name, method_name=_method_name)
 
-            location = LocationContext()
-            location.append_location(JDBC_SYSTEM_RESOURCE)
-            token_name = self.aliases.get_name_token(location)
             svc_table_ds_name = self.wls_helper.get_jrf_service_table_datasource_name()
-            if token_name is not None:
-                location.add_name_token(token_name, svc_table_ds_name)
-
-            location.append_location(JDBC_RESOURCE)
-            location.append_location(JDBC_DRIVER_PARAMS)
+            location = deployer_utils.get_jdbc_driver_params_location(svc_table_ds_name, self.aliases)
             wlst_path = self.aliases.get_wlst_attributes_path(location)
             self.wlst_helper.cd(wlst_path)
 
@@ -1035,6 +1021,7 @@ class DomainCreator(Creator):
             self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
             location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+            deployer_utils.set_flattened_folder_token(location, self.aliases)
             token_name = self.aliases.get_name_token(location)
 
             if token_name is not None:

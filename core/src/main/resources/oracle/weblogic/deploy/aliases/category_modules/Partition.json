@@ -73,7 +73,6 @@
         "DataSourcePartition": {
             "wlst_type": "DataSourcePartition",
             "version": "[12.2.1,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
             "attributes": {
@@ -82,7 +81,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Partition${:s}/%PARTITION%/DataSourcePartition/%DSPARTITION%"
+                "WP001": "/Partition${:s}/%PARTITION%/DataSourcePartition/%DATASOURCEPARTITION%"
             }
         },
         "ForeignJndiProviderOverride": {
@@ -236,7 +235,6 @@
         "JtaPartition": {
             "wlst_type": "${JtaPartition:JTAPartition}",
             "version": "[12.2.1,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
             "attributes": {
@@ -269,7 +267,6 @@
         "PartitionLog": {
             "wlst_type": "PartitionLog",
             "version": "[12.2.1,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "%PARTITION%",
             "folders": {},
             "attributes": {
@@ -285,7 +282,6 @@
         "SystemFileSystem": {
             "wlst_type": "SystemFileSystem",
             "version": "[12.2.1,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
             "attributes": {
@@ -302,7 +298,6 @@
         "UserFileSystem": {
             "wlst_type": "UserFileSystem",
             "version": "[12.2.1,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
             "attributes": {
@@ -319,19 +314,16 @@
         "WebService": {
             "wlst_type": "WebService",
             "version": "[12.2.1,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {
                 "WebServiceBuffering": {
                     "wlst_type": "WebServiceBuffering",
                     "version": "[12.2.1,)",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:%PARTITION%}",
                     "folders": {
                         "WebServiceRequestBufferingQueue": {
                             "wlst_type": "WebServiceRequestBufferingQueue",
                             "version": "[12.2.1,)",
-                            "child_folders_type": "single_unpredictable",
                             "default_name_value": "${NO_NAME_0:%PARTITION%}",
                             "folders": {},
                             "attributes": {
@@ -342,13 +334,12 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WSBUFFERING%/WebServiceRequestBufferingQueue/%WSREQUESTQUEUE%"
+                                "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WEBSERVICEBUFFERING%/WebServiceRequestBufferingQueue/%WEBSERVICEREQUESTBUFFERINGQUEUE%"
                             }
                         },
                         "WebServiceResponseBufferingQueue": {
                             "wlst_type": "WebServiceResponseBufferingQueue",
                             "version": "[12.2.1,)",
-                            "child_folders_type": "single_unpredictable",
                             "default_name_value": "${NO_NAME_0:%PARTITION%}",
                             "folders": {},
                             "attributes": {
@@ -359,7 +350,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WSBUFFERING%/WebServiceResponseBufferingQueue/%WSRESPONSEQUEUE%"
+                                "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WEBSERVICEBUFFERING%/WebServiceResponseBufferingQueue/%WEBSERVICERESPONSEBUFFERINGQUEUE%"
                             }
                         }
                     },
@@ -370,7 +361,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WSBUFFERING%"
+                        "WP001": "/Partition${:s}/%PARTITION%/WebService/%WEBSERVICE%/WebServiceBuffering/%WEBSERVICEBUFFERING%"
                     }
                 }
             },
@@ -395,13 +386,11 @@
                 "CpuUtilization": {
                     "wlst_type": "CpuUtilization",
                     "version": "[12.2.1,)",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:CpuTimeResource}",
                     "folders": {
                         "FairShareConstraint": {
                             "wlst_type": "FairShareConstraint",
                             "version": "[12.2.1,)",
-                            "child_folders_type": "single_unpredictable",
                             "default_name_value": "${NO_NAME_0:CpuUtilizationFairShareConstraint}",
                             "folders": { },
                             "attributes": {
@@ -410,7 +399,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%/FairShareConstraint/%FAIRSHARE%"
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTILIZATION%/FairShareConstraint/%FAIRSHARECONSTRAINT%"
                             }
                         },
                         "Trigger": {
@@ -427,7 +416,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%/Trigger${:s}/%TRIGGER%"
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTILIZATION%/Trigger${:s}/%TRIGGER%"
                             }
                         }
                     },
@@ -436,13 +425,12 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTIL%"
+                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/CpuUtilization/%CPUUTILIZATION%"
                     }
                 },
                 "FileOpen": {
                     "wlst_type": "FileOpen",
                     "version": "[12.2.1,)",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:FileOpenResource}",
                     "folders": {
                         "Trigger": {
@@ -474,13 +462,11 @@
                 "HeapRetained": {
                     "wlst_type": "HeapRetained",
                     "version": "[12.2.1,)",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:HeapRetainedResource}",
                     "folders": {
                         "FairShareConstraint": {
                             "wlst_type": "FairShareConstraint",
                             "version": "[12.2.1,)",
-                            "child_folders_type": "single_unpredictable",
                             "default_name_value": "${NO_NAME_0:HeapRetainedFairShareConstraint}",
                             "folders": { },
                             "attributes": {
@@ -490,7 +476,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%/FairShareConstraint/%FAIRSHARE%"
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAINED%/FairShareConstraint/%FAIRSHARECONSTRAINT%"
                             }
                         },
                         "Trigger": {
@@ -507,7 +493,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%/Trigger${:s}/%TRIGGER%"
+                                "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAINED%/Trigger${:s}/%TRIGGER%"
                             }
                         }
                     },
@@ -516,13 +502,12 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAIN%"
+                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/HeapRetained/%HEAPRETAINED%"
                     }
                 },
                 "RestartLoopProtection": {
                     "wlst_type": "RestartLoopProtection",
                     "version": "[12.2.1,)",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:%RESOURCEMANAGER%}",
                     "folders": { },
                     "attributes": {
@@ -534,7 +519,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/RestartLoopProtection/%RESTARTLOOP%"
+                        "WP001": "/Partition${:s}/%PARTITION%/ResourceManager/%RESOURCEMANAGER%/RestartLoopProtection/%RESTARTLOOPPROTECTION%"
                     }
                 }
             },

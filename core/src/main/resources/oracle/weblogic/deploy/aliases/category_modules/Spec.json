@@ -39,7 +39,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/NO_ADMIN_FOLDER"
+                "WP001": "/NO_FOLDER"
             },
             "contains": [
                 "serverPod"

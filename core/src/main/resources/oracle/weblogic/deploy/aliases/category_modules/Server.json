@@ -7,6 +7,7 @@
     "folders": {
         "CoherenceMemberConfig": {
             "wlst_type": "CoherenceMemberConfig",
+            "default_name_value": "${NO_NAME_0:%SERVER%}",
             "version": "[12.1.2,)",
             "folders": {},
             "attributes": {
@@ -27,12 +28,11 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/CoherenceMemberConfig/${NO_NAME_0:%SERVER%}"
+                "WP001": "/Server${:s}/%SERVER%/CoherenceMemberConfig/%COHERENCEMEMBERCONFIG%"
             }
         },
         "COM": {
             "wlst_type": "COM",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {},
             "attributes": {
@@ -46,7 +46,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/COM/%SERVER_COM%"
+                "WP001": "/Server${:s}/%SERVER%/COM/%COM%"
             }
         },
         "ConfigurationProperty" : {
@@ -69,6 +69,7 @@
         },
         "DataSource": {
             "wlst_type": "DataSource",
+            "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {},
             "attributes": {
                 "DefaultDatasource": [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "DefaultDatasource", "wlst_path": "WP001", "value": {"default": "None"                }, "wlst_type": "string",          "restart_required": "true" } ],
@@ -81,13 +82,12 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/DataSource/${NO_NAME_0:%SERVER%}",
-                "WP002": "/Server${:s}/%SERVER%/DataSource/${NO_NAME_0:%SERVER%}/Targets"
+                "WP001": "/Server${:s}/%SERVER%/DataSource/%DATASOURCE%",
+                "WP002": "/Server${:s}/%SERVER%/DataSource/%DATASOURCE%/Targets"
             }
         },
         "DefaultFileStore": {
             "wlst_type": "DefaultFileStore",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {},
             "attributes": {
@@ -106,7 +106,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/DefaultFileStore/%SERVER_DEFAULTFILESTORE%"
+                "WP001": "/Server${:s}/%SERVER%/DefaultFileStore/%DEFAULTFILESTORE%"
             }
         },
         "ExecuteQueue": {
@@ -131,6 +131,7 @@
         },
         "FederationServices" : {
             "wlst_type" : "FederationServices",
+            "default_name_value": "${NO_NAME_0:%SERVER%}",
             "version" : "[12.2.1,)",
             "folders" : {},
             "attributes" : {
@@ -163,12 +164,11 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/FederationServices/${NO_NAME_0:%SERVER%}"
+                "WP001": "/Server${:s}/%SERVER%/FederationServices/%FEDERATIONSERVICES%"
             }
         },
         "IIOP": {
             "wlst_type": "IIOP",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {},
             "attributes": {
@@ -191,12 +191,11 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/IIOP/%SERVE_IIOP%"
+                "WP001": "/Server${:s}/%SERVER%/IIOP/%IIOP%"
             }
         },
         "JTAMigratableTarget": {
             "wlst_type": "JTAMigratableTarget",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "%SERVER%",
             "folders": {},
             "attributes": {
@@ -229,7 +228,6 @@
         },
         "Log": {
             "wlst_type": "Log",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "%SERVER%",
             "folders": {},
             "attributes": {
@@ -278,7 +276,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/Log/%SERVER_LOG%"
+                "WP001": "/Server${:s}/%SERVER%/Log/%LOG%"
             }
         },
         "NetworkAccessPoint": {
@@ -353,9 +351,11 @@
         },
         "OverloadProtection": {
             "wlst_type": "OverloadProtection",
+            "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {
                 "ServerFailureTrigger": {
                     "wlst_type": "ServerFailureTrigger",
+                    "default_name_value": "${NO_NAME_0:%SERVER%}",
                     "folders": {},
                     "attributes": {
                         "MaxStuckThreadTime": [ {"version": "[10,)",           "wlst_mode": "both",     "wlst_name": "MaxStuckThreadTime", "wlst_path": "WP001", "value": {"default": 600    }, "wlst_type": "integer"} ],
@@ -364,7 +364,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Server${:s}/%SERVER%/OverloadProtection/${NO_NAME_0:%SERVER%}/ServerFailureTrigger/${NO_NAME_0:%SERVER%}"
+                        "WP001": "/Server${:s}/%SERVER%/OverloadProtection/%OVERLOADPROTECTION%/ServerFailureTrigger/%SERVERFAILURETRIGGER%"
                     }
                 }
             },
@@ -379,12 +379,11 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/OverloadProtection/${NO_NAME_0:%SERVER%}"
+                "WP001": "/Server${:s}/%SERVER%/OverloadProtection/%OVERLOADPROTECTION%"
             }
         },
         "ServerDebug": {
             "wlst_type": "ServerDebug",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {},
             "attributes": {
@@ -883,11 +882,12 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/ServerDebug/%SERVER_DEBUG%"
+                "WP001": "/Server${:s}/%SERVER%/ServerDebug/%SERVERDEBUG%"
             }
         },
         "ServerDiagnosticConfig": {
             "wlst_type": "ServerDiagnosticConfig",
+            "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {},
             "attributes": {
                 "DataRetirementEnabled":                 [ {"version": "[10,)"       ,  "wlst_mode": "both",    "wlst_name": "DataRetirementEnabled",                "wlst_path": "WP001", "value": {"default": "true"                  }, "wlst_type": "boolean"} ],
@@ -925,12 +925,11 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/ServerDiagnosticConfig/${NO_NAME_0:%SERVER%}"
+                "WP001": "/Server${:s}/%SERVER%/ServerDiagnosticConfig/%SERVERDIAGNOSTICCONFIG%"
             }
         },
         "ServerStart": {
             "wlst_type": "ServerStart",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {},
             "attributes": {
@@ -951,12 +950,13 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/ServerStart/%SERVER_START%"
+                "WP001": "/Server${:s}/%SERVER%/ServerStart/%SERVERSTART%"
             }
         },
         "SingleSignOnServices" : {
             "wlst_type" : "SingleSignOnServices",
             "version" : "[12.2.1,)",
+            "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders" : {},
             "attributes" : {
                 "AllowedTargetHost":                                     [ {"version": "[12.2.1.4,)",  "wlst_mode": "both", "wlst_name": "AllowedTargetHost${:s}",                              "wlst_path": "WP001", "value": {"default": "None"             }, "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string", "preferred_model_type": "list", "get_method": "LSA" } ],
@@ -1013,12 +1013,11 @@
                 "WantTransportLayerSecurityClientAuthentication":        [ {"version": "[12.2.1,)",    "wlst_mode": "both", "wlst_name": "WantTransportLayerSecurityClientAuthentication",      "wlst_path": "WP001", "value": {"default": "false"            }, "wlst_type": "boolean"         } ]            },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/SingleSignOnServices/${NO_NAME_0:%SERVER%}"
+                "WP001": "/Server${:s}/%SERVER%/SingleSignOnServices/%SINGLESIGNONSERVICES%"
             }
         },
         "SSL": {
             "wlst_type": "SSL",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
             "short_name": "SSL",
             "folders": {},
@@ -1079,11 +1078,12 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/SSL/%SERVER_SSL%"
+                "WP001": "/Server${:s}/%SERVER%/SSL/%SSL%"
             }
         },
         "TransactionLogJDBCStore": {
             "wlst_type": "TransactionLogJDBCStore",
+            "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {},
             "attributes": {
                 "ConnectionCachingPolicy":             [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "ConnectionCachingPolicy",             "wlst_path": "WP001", "value": {"default": "${None:DEFAULT}"      }, "wlst_type": "string",          "restart_required": "true" } ],
@@ -1126,18 +1126,16 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/TransactionLogJDBCStore/${NO_NAME_0:%SERVER%}",
-                "WP002": "/Server${:s}/%SERVER%/TransactionLogJDBCStore/${NO_NAME_0:%SERVER%}/Targets"
+                "WP001": "/Server${:s}/%SERVER%/TransactionLogJDBCStore/%TRANSACTIONLOGJDBCSTORE%",
+                "WP002": "/Server${:s}/%SERVER%/TransactionLogJDBCStore/%TRANSACTIONLOGJDBCSTORE%/Targets"
             }
         },
         "WebServer": {
             "wlst_type": "WebServer",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {
                 "WebServerLog": {
                     "wlst_type": "WebServerLog",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "%SERVER%",
                     "folders": {},
                     "attributes": {
@@ -1166,7 +1164,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Server${:s}/%SERVER%/WebServer/%SERVER_WEBSERVER%/WebServerLog/%WEBSERVERLOG%"
+                        "WP001": "/Server${:s}/%SERVER%/WebServer/%WEBSERVER%/WebServerLog/%WEBSERVERLOG%"
                     }
                 }
             },
@@ -1205,17 +1203,17 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/WebServer/%SERVER_WEBSERVER%",
-                "WP002": "/Server${:s}/%SERVER%/WebServer/%SERVER_WEBSERVER%/Targets"
+                "WP001": "/Server${:s}/%SERVER%/WebServer/%WEBSERVER%",
+                "WP002": "/Server${:s}/%SERVER%/WebServer/%WEBSERVER%/Targets"
             }
         },
         "WebService": {
             "wlst_type": "WebService",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
             "folders": {
                 "WebServiceReliability": {
                     "wlst_type": "WebServiceReliability",
+                    "default_name_value": "${NO_NAME_0:%SERVER%}",
                     "folders": {},
                     "attributes": {
                         "AcknowledgementInterval":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AcknowledgementInterval",          "wlst_path": "WP001", "value": {"default": "P0DT0.2S"}, "wlst_type": "string"   } ],
@@ -1229,11 +1227,12 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Server${:s}/%SERVER%/WebService/%SERVER_WEBSERVICE%/WebServiceReliability/${NO_NAME_0:%SERVER%}"
+                        "WP001": "/Server${:s}/%SERVER%/WebService/%WEBSERVICE%/WebServiceReliability/%WEBSERVICERELIABILITY%"
                     }
                 },
                 "WebServicePersistence": {
                     "wlst_type": "WebServicePersistence",
+                    "default_name_value": "${NO_NAME_0:%SERVER%}",
                     "folders": {
                         "WebServiceLogicalStore": {
                             "wlst_type": "WebServiceLogicalStore${:s}",
@@ -1250,7 +1249,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Server${:s}/%SERVER%/WebService/%SERVER_WEBSERVICE%/WebServicePersistence/${NO_NAME_0:%SERVER%}/WebServiceLogicalStore${:s}/%STORE%"
+                                "WP001": "/Server${:s}/%SERVER%/WebService/%WEBSERVICE%/WebServicePersistence/%WEBSERVICEPERSISTENCE%/WebServiceLogicalStore${:s}/%STORE%"
                             }
                         },
                         "WebServicePhysicalStore": {
@@ -1266,7 +1265,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Server${:s}/%SERVER%/WebService/%SERVER_WEBSERVICE%/WebServicePersistence/${NO_NAME_0:%SERVER%}/WebServicePhysicalStore${:s}/%STORE%"
+                                "WP001": "/Server${:s}/%SERVER%/WebService/%WEBSERVICE%/WebServicePersistence/%WEBSERVICEPERSISTENCE%/WebServicePhysicalStore${:s}/%STORE%"
                             }
                         }
                     },
@@ -1276,14 +1275,16 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Server${:s}/%SERVER%/WebService/%SERVER_WEBSERVICE%/WebServicePersistence/${NO_NAME_0:%SERVER%}"
+                        "WP001": "/Server${:s}/%SERVER%/WebService/%WEBSERVICE%/WebServicePersistence/%WEBSERVICEPERSISTENCE%"
                     }
                 },
                 "WebServiceBuffering": {
                     "wlst_type": "WebServiceBuffering",
+                    "default_name_value": "${NO_NAME_0:%SERVER%}",
                     "folders": {
                         "WebServiceRequestBufferingQueue": {
                             "wlst_type": "WebServiceRequestBufferingQueue",
+                            "default_name_value": "${NO_NAME_0:%SERVER%}",
                             "folders": {},
                             "attributes": {
                                 "ConnectionFactoryJndiName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConnectionFactoryJndiName", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
@@ -1293,11 +1294,12 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Server${:s}/%SERVER%/WebService/%SERVER_WEBSERVICE%/WebServiceBuffering/${NO_NAME_0:%SERVER%}/WebServiceRequestBufferingQueue/${NO_NAME_0:%SERVER%}"
+                                "WP001": "/Server${:s}/%SERVER%/WebService/%WEBSERVICE%/WebServiceBuffering/%WEBSERVICEBUFFERING%/WebServiceRequestBufferingQueue/%WEBSERVICEREQUESTBUFFERINGQUEUE%"
                             }
                         },
                         "WebServiceResponseBufferingQueue": {
                             "wlst_type": "WebServiceResponseBufferingQueue",
+                            "default_name_value": "${NO_NAME_0:%SERVER%}",
                             "folders": {},
                             "attributes": {
                                 "ConnectionFactoryJndiName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ConnectionFactoryJndiName", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
@@ -1307,7 +1309,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/Server${:s}/%SERVER%/WebService/%SERVER_WEBSERVICE%/WebServiceBuffering/${NO_NAME_0:%SERVER%}/WebServiceResponseBufferingQueue/${NO_NAME_0:%SERVER%}"
+                                "WP001": "/Server${:s}/%SERVER%/WebService/%WEBSERVICE%/WebServiceBuffering/%WEBSERVICEBUFFERING%/WebServiceResponseBufferingQueue/%WEBSERVICERESPONSEBUFFERINGQUEUE%"
                             }
                         }
                     },
@@ -1318,12 +1320,11 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Server${:s}/%SERVER%/WebService/%SERVER_WEBSERVICE%/WebServiceBuffering/${NO_NAME_0:%SERVER%}"
+                        "WP001": "/Server${:s}/%SERVER%/WebService/%WEBSERVICE%/WebServiceBuffering/%WEBSERVICEBUFFERING%"
                     }
                 },
                 "WebServiceResiliency": {
                     "wlst_type": "WebServiceResiliency",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:%SERVER%}",
                     "version": "[12.2.1.4,)",
                     "folders": {},
@@ -1334,7 +1335,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Server${:s}/%SERVER%/WebService/%SERVER_WEBSERVICE%/WebServiceResiliency/%SERVER_WEBSERVICERESILIENCY%"
+                        "WP001": "/Server${:s}/%SERVER%/WebService/%WEBSERVICE%/WebServiceResiliency/%WEBSERVICERESILIENCY%"
                     }
                 }
             },
@@ -1348,7 +1349,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Server${:s}/%SERVER%/WebService/%SERVER_WEBSERVICE%"
+                "WP001": "/Server${:s}/%SERVER%/WebService/%WEBSERVICE%"
             }
         }
     },

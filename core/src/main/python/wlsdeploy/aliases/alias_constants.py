@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 These constants are internal to the aliases module and should not be used, as they are not part of the public API.
@@ -21,6 +21,7 @@ MERGE = 'merge'
 MODEL_NAME = 'model_name'
 NAME_VALUE = 'name_value'
 PASSWORD_TOKEN = "--FIX ME--"
+PATH_TOKEN = 'path_token'
 PREFERRED_MODEL_TYPE = 'preferred_model_type'
 RESTART_REQUIRED = 'restart_required'
 SET_MBEAN_TYPE = 'set_mbean_type'
@@ -52,9 +53,8 @@ MULTIPLE = 'multiple'
 MULTIPLE_WITH_TYPE_SUBFOLDER = 'multiple_with_type_subfolder'
 NONE_CHILD_FOLDERS_TYPE = 'none'
 SINGLE = 'single'
-SINGLE_UNPREDICTABLE = 'single_unpredictable'
 
-ChildFoldersTypes = Enum(['MULTIPLE', 'MULTIPLE_WITH_TYPE_SUBFOLDER', 'NONE', 'SINGLE', 'SINGLE_UNPREDICTABLE'])
+ChildFoldersTypes = Enum(['MULTIPLE', 'MULTIPLE_WITH_TYPE_SUBFOLDER', 'NONE', 'SINGLE'])
 
 # get_method values
 GET = 'GET'

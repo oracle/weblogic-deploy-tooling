@@ -2,7 +2,6 @@
   "copyright": "Copyright (c) 2020, Oracle Corporation and/or its affiliates.",
   "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
   "wlst_type": "JPA",
-  "child_folders_type": "single_unpredictable",
   "default_name_value": "${NO_NAME_0:%DOMAIN%}",
   "folder_params": [{
     "version": "[10,12.1.3)",

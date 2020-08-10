@@ -7,7 +7,6 @@
     "folders": {
         "NodeManager" : {
             "wlst_type": "NodeManager",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "%MACHINE%",
             "folders" : {},
             "attributes": {
@@ -45,9 +44,7 @@
         "PostBindUIDEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PostBindUIDEnabled", "wlst_path": "WP001", "value": {"default": "false"  }, "wlst_type": "boolean"          } ]
     },
     "wlst_attributes_path": "WP001",
-    "wlst_list_path": "WP002",
     "wlst_paths": {
-        "WP001": "/${Machine:Machines}/%MACHINE%",
-        "WP002": "/${UnixMachine:Machines}"
+        "WP001": "/${UnixMachine:Machines}/%MACHINE%"
     }
 }

@@ -1,14 +1,11 @@
 """
-Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
 
+import aliases_test
 from wlsdeploy.aliases.aliases import Aliases
-from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
-from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
-from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -33,11 +30,7 @@ class AliasPasswordTestCase(unittest.TestCase):
         self.aliases = Aliases(model_context, wlst_mode=WlstModes.OFFLINE, wls_version=self._wls_version)
         self.online_aliases = Aliases(model_context, wlst_mode=WlstModes.ONLINE, wls_version=self._wls_version)
 
-        self.location = LocationContext()
-        self.location.append_location(JDBC_SYSTEM_RESOURCE)
-        self.location.add_name_token(self.aliases.get_name_token(self.location), "Mine")
-        self.location.append_location(JDBC_RESOURCE)
-        self.location.append_location(JDBC_DRIVER_PARAMS)
+        self.location = aliases_test.get_jdbc_driver_params_location("Mine", self.aliases)
 
     def testOfflineModelNames(self):
         # Using offline WLST, only PasswordEncrypted is an attribute, and its value is encrypted.

@@ -2,13 +2,11 @@
     "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SecurityConfiguration",
-    "child_folders_type": "single_unpredictable",
     "default_name_value": "%DOMAIN%",
     "short_name": "SecurityConfig",
     "folders": {
         "CertRevoc" : {
             "wlst_type": "CertRevoc",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders" : {
                     "CertRevocCa" : {
@@ -39,7 +37,7 @@
                         },
                         "wlst_attributes_path": "WP001",
                         "wlst_paths": {
-                            "WP001": "/SecurityConfiguration/%SEC_CONFIG%/CertRevoc/%CERTREVOC%/CertRevocCa${:s}/%CERTREVOCCA%"
+                            "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/CertRevoc/%CERTREVOC%/CertRevocCa${:s}/%CERTREVOCCA%"
                         }
                     }
                 },
@@ -66,7 +64,7 @@
                 },
                 "wlst_attributes_path": "WP001",
                 "wlst_paths": {
-                    "WP001": "/SecurityConfiguration/%SEC_CONFIG%/CertRevoc/%CERTREVOC%"
+                    "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/CertRevoc/%CERTREVOC%"
                 }
         },
         "Realm" : {
@@ -90,14 +88,14 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/Adjudicator/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/Adjudicator/%PROVIDER%"
                             }
                         }
                     },
                     "attributes" : { },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/Adjudicator/%PROVIDER%"
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/Adjudicator/%PROVIDER%"
                     }
                 },
                 "Auditor" : {
@@ -126,7 +124,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/Auditor/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/Auditor/%PROVIDER%"
                             }
 
                         }
@@ -134,7 +132,7 @@
                     "attributes" : { },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/Auditor/%PROVIDER%"
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/Auditor/%PROVIDER%"
                     }
                 },
                 "AuthenticationProvider" : {
@@ -203,7 +201,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "CustomDBMSAuthenticator": {
@@ -226,7 +224,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "DefaultAuthenticator": {
@@ -260,7 +258,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "DefaultIdentityAsserter": {
@@ -289,7 +287,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "IPlanetAuthenticator": {
@@ -351,7 +349,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "LDAPAuthenticator": {
@@ -411,7 +409,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "LDAPX509IdentityAsserter": {
@@ -445,7 +443,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "NegotiateIdentityAsserter": {
@@ -461,7 +459,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "NovellAuthenticator": {
@@ -521,7 +519,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "OpenLDAPAuthenticator": {
@@ -581,7 +579,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "OracleInternetDirectoryAuthenticator": {
@@ -642,7 +640,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "OracleUnifiedDirectoryAuthenticator": {
@@ -704,7 +702,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "OracleVirtualDirectoryAuthenticator": {
@@ -764,7 +762,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "ReadOnlySQLAuthenticator": {
@@ -795,7 +793,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "SAML2IdentityAsserter": {
@@ -813,7 +811,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "SAMLAuthenticator": {
@@ -827,7 +825,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "SAMLIdentityAsserterV2": {
@@ -844,7 +842,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "SQLAuthenticator": {
@@ -890,7 +888,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "TrustServiceIdentityAsserter": {
@@ -911,7 +909,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
                         "VirtualUserAuthenticator": {
@@ -926,14 +924,14 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         }
                     },
                     "attributes": {},
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                     }
                 },
                 "Authorizer" : {
@@ -950,7 +948,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/Authorizer${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/Authorizer${:s}/%PROVIDER%"
                             }
                         },
                         "XACMLAuthorizer": {
@@ -970,14 +968,14 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/Authorizer${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/Authorizer${:s}/%PROVIDER%"
                             }
                         }
                     },
                     "attributes" : { },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/Authorizer${:s}/%PROVIDER%"
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/Authorizer${:s}/%PROVIDER%"
                     }
                 },
                 "CertPathProvider" : {
@@ -993,7 +991,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CertPathProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/CertPathProvider${:s}/%PROVIDER%"
                             }
                         },
                         "WebLogicCertPathProvider": {
@@ -1008,14 +1006,14 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CertPathProvider${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/CertPathProvider${:s}/%PROVIDER%"
                             }
                         }
                     },
                     "attributes" : { },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CertPathProvider${:s}/%PROVIDER%"
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/CertPathProvider${:s}/%PROVIDER%"
                     }
                 },
                 "CredentialMapper" : {
@@ -1040,7 +1038,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CredentialMapper${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/CredentialMapper${:s}/%PROVIDER%"
                             }
                         },
                         "PKICredentialMapper": {
@@ -1058,7 +1056,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CredentialMapper${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/CredentialMapper${:s}/%PROVIDER%"
                             }
                         },
                         "SAML2CredentialMapper": {
@@ -1080,7 +1078,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CredentialMapper${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/CredentialMapper${:s}/%PROVIDER%"
                             }
                         },
                         "SAMLCredentialMapperV2": {
@@ -1102,14 +1100,14 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CredentialMapper${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/CredentialMapper${:s}/%PROVIDER%"
                             }
                         }
                     },
                     "attributes" : { },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/CredentialMapper${:s}/%PROVIDER%"
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/CredentialMapper${:s}/%PROVIDER%"
                     }
                 },
                 "PasswordValidator" : {
@@ -1140,19 +1138,18 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/PasswordValidator${:s}/%PASSWORDVALIDATOR%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/PasswordValidator${:s}/%PASSWORDVALIDATOR%"
                             }
                         }
                     },
                     "attributes" : { },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/PasswordValidator${:s}/%PASSWORDVALIDATOR%"
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/PasswordValidator${:s}/%PASSWORDVALIDATOR%"
                     }
                 },
                 "RDBMSSecurityStore" : {
                     "wlst_type" : "RDBMSSecurityStore",
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:RDBMSSecurityStore}",
                     "folders" : {},
                     "attributes" : {
@@ -1171,7 +1168,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/RDBMSSecurityStore/%RDBMSSECURITYSTORE%"
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/RDBMSSecurityStore/%RDBMSSECURITYSTORE%"
                     }
                 },
                 "RoleMapper" : {
@@ -1188,7 +1185,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/RoleMapper${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/RoleMapper${:s}/%PROVIDER%"
                             }
                         },
                         "XACMLRoleMapper": {
@@ -1208,20 +1205,19 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/RoleMapper${:s}/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/RoleMapper${:s}/%PROVIDER%"
                             }
                         }
                     },
                     "attributes" : { },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/RoleMapper${:s}/%PROVIDER%"
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/RoleMapper${:s}/%PROVIDER%"
                     }
                 },
                 "UserLockoutManager" : {
                     "wlst_type" : "UserLockoutManager",
                     "folders" : {},
-                    "child_folders_type": "single_unpredictable",
                     "default_name_value": "${NO_NAME_0:UserLockoutManager}",
                     "attributes" : {
                         "CompatibilityObjectName":            [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "CompatibilityObjectName",            "wlst_path": "WP001", "value": {"default": "None" },    "wlst_type": "string", "access": "RO"  } ],
@@ -1240,7 +1236,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%/UserLockoutManager/%USERLOCKOUTMANAGER%"
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/UserLockoutManager/%USERLOCKOUTMANAGER%"
                     }
                 }
             },
@@ -1280,13 +1276,12 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/Realm${:s}/%REALM%"
+                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%"
             }
         },
         "SecureMode" : {
             "wlst_type" : "SecureMode",
             "version": "[12.2.1.1,)",
-            "child_folders_type": "single_unpredictable",
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders" : {},
             "attributes" : {
@@ -1302,7 +1297,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/SecurityConfiguration/%SEC_CONFIG%/SecureMode/%SECUREMODE%"
+                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/SecureMode/%SECUREMODE%"
             }
         }
     },
@@ -1347,6 +1342,6 @@
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
-        "WP001": "/SecurityConfiguration/%SEC_CONFIG%"
+        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%"
     }
 }

@@ -24,7 +24,8 @@
                   }
             },
             "JmsResource": {
-            "wlst_type": "${Jms:JMS}Resource",
+                  "wlst_type": "${Jms:JMS}Resource",
+                  "default_name_value": "${NO_NAME_0:%JMSSYSTEMRESOURCE%}",
                   "folders": {
                         "ConnectionFactory": {
                               "wlst_type": "ConnectionFactor${y:ies}",
@@ -32,6 +33,7 @@
                               "folders": {
                                     "ClientParams": {
                                           "wlst_type": "ClientParams",
+                                          "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
                                                 "AcknowledgePolicy":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AcknowledgePolicy",          "wlst_path": "WP001", "value": {"default": "${None:All}"       }, "wlst_type": "string"  } ],
@@ -48,11 +50,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/ClientParams/${NO_NAME_0:%CONNECTIONFACTORY%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/ClientParams/%CLIENTPARAMS%"
                                           }
                                     },
                                     "DefaultDeliveryParams": {
                                           "wlst_type": "DefaultDeliveryParams",
+                                          "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
                                                 "DefaultCompressionThreshold": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DefaultCompressionThreshold", "wlst_path": "WP001", "value": {"default": "${0:2147483647}"       }, "wlst_type": "integer" } ],
@@ -66,11 +69,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/DefaultDeliveryParams/${NO_NAME_0:%CONNECTIONFACTORY%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/DefaultDeliveryParams/%DEFAULTDELIVERYPARAMS%"
                                           }
                                     },
                                     "FlowControlParams": {
                                           "wlst_type": "FlowControlParams",
+                                          "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
                                                 "FlowControlEnabled":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "FlowControlEnabled",   "wlst_path": "WP001", "value": {"default": "true"               }, "wlst_type": "boolean"} ],
@@ -83,11 +87,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/FlowControlParams/${NO_NAME_0:%CONNECTIONFACTORY%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/FlowControlParams/%FLOWCONTROLPARAMS%"
                                           }
                                     },
                                     "LoadBalancingParams": {
                                           "wlst_type": "LoadBalancingParams",
+                                          "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
                                                 "LoadBalancingEnabled":         [ {"version": "[10,)",         "wlst_mode": "both", "wlst_name": "LoadBalancingEnabled",          "wlst_path": "WP001", "value": {"default": "true"},               "wlst_type": "boolean"} ],
@@ -96,11 +101,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/LoadBalancingParams/${NO_NAME_0:%CONNECTIONFACTORY%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/LoadBalancingParams/%LOADBALANCINGPARAMS%"
                                           }
                                     },
                                     "SecurityParams": {
                                           "wlst_type": "SecurityParams",
+                                          "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
                                                 "AttachJMSXUserId": [ {"version": "[10,)",          "wlst_mode": "both",  "wlst_name": "AttachJMSXUserId", "wlst_path": "WP001", "value": {"default": "false"                 }, "wlst_type": "boolean", "get_method": "${LSA:GET}" } ],
@@ -108,11 +114,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/SecurityParams/${NO_NAME_0:%CONNECTIONFACTORY%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/SecurityParams/%SECURITYPARAMS%"
                                           }
                                     },
                                     "TransactionParams": {
                                           "wlst_type": "TransactionParams",
+                                          "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
                                                 "TransactionTimeout":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TransactionTimeout",         "wlst_path": "WP001", "value": {"default": "${0:3600}"   }, "wlst_type": "long"   } ],
@@ -120,7 +127,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/TransactionParams/${NO_NAME_0:%CONNECTIONFACTORY%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%/TransactionParams/%TRANSACTIONPARAMS%"
                                           }
                                     }
                               },
@@ -133,7 +140,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/ConnectionFactor${y:ies}/%CONNECTIONFACTORY%"
                               }
                         },
                         "DestinationKey": {
@@ -148,7 +155,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/DestinationKey${:s}/%DESTINATIONKEY%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/DestinationKey${:s}/%DESTINATIONKEY%"
                               }
                         },
                         "DistributedQueue": {
@@ -166,7 +173,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/DistributedQueue${:s}/%DISTRIBUTEDQUEUE%/DistributedQueueMember${:s}/%DISTRIBUTEDQUEUEMEMBER%"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/DistributedQueue${:s}/%DISTRIBUTEDQUEUE%/DistributedQueueMember${:s}/%DISTRIBUTEDQUEUEMEMBER%"
                                           }
                                     }
                               },
@@ -183,7 +190,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/DistributedQueue${:s}/%DISTRIBUTEDQUEUE%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/DistributedQueue${:s}/%DISTRIBUTEDQUEUE%"
                               }
                         },
                         "DistributedTopic": {
@@ -201,7 +208,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/DistributedTopic${:s}/%DISTRIBUTEDTOPIC%/DistributedTopicMember${:s}/%DISTRIBUTEDTOPICMEMBER%"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/DistributedTopic${:s}/%DISTRIBUTEDTOPIC%/DistributedTopicMember${:s}/%DISTRIBUTEDTOPICMEMBER%"
                                           }
                                     }
                               },
@@ -216,7 +223,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/DistributedTopic${:s}/%DISTRIBUTEDTOPIC%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/DistributedTopic${:s}/%DISTRIBUTEDTOPIC%"
                               }
                         },
                         "ForeignServer": {
@@ -238,7 +245,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/ForeignServer${:s}/%FOREIGNSERVER%/ForeignConnectionFactor${y:ies}/%FOREIGNCONNECTIONFACTORY%"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/ForeignServer${:s}/%FOREIGNSERVER%/ForeignConnectionFactor${y:ies}/%FOREIGNCONNECTIONFACTORY%"
                                           }
                                     },
                                     "ForeignDestination": {
@@ -253,7 +260,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/ForeignServer${:s}/%FOREIGNSERVER%/ForeignDestination${:s}/%FOREIGNDESTINATION%"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/ForeignServer${:s}/%FOREIGNSERVER%/ForeignDestination${:s}/%FOREIGNDESTINATION%"
                                           }
                                     },
                                     "JNDIProperty": {
@@ -266,7 +273,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/ForeignServer${:s}/%FOREIGNSERVER%/JNDIPropert${y:ies}/%FOLDERNAME%"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/ForeignServer${:s}/%FOREIGNSERVER%/JNDIPropert${y:ies}/%FOLDERNAME%"
                                           }
                                     }
                               },
@@ -281,7 +288,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/ForeignServer${:s}/%FOREIGNSERVER%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/ForeignServer${:s}/%FOREIGNSERVER%"
                               }
                         },
                         "Queue": {
@@ -290,6 +297,7 @@
                               "folders": {
                                     "DeliveryFailureParams": {
                                           "wlst_type": "DeliveryFailureParams",
+                                          "default_name_value": "${NO_NAME_0:%QUEUE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "value": {"default": "None"             }, "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
@@ -299,11 +307,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Queue${:s}/%QUEUE%/DeliveryFailureParams/${NO_NAME_0:%QUEUE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Queue${:s}/%QUEUE%/DeliveryFailureParams/%DELIVERYFAILUREPARAMS%"
                                           }
                                     },
                                     "DeliveryParamsOverrides": {
                                           "wlst_type": "DeliveryParamsOverrides",
+                                          "default_name_value": "${NO_NAME_0:%QUEUE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "DeliveryMode":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DeliveryMode",    "wlst_path": "WP001", "value": {"default": "${None:No-Delivery}" }, "wlst_type": "string" } ],
@@ -314,11 +323,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Queue${:s}/%QUEUE%/DeliveryParamsOverrides/${NO_NAME_0:%QUEUE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Queue${:s}/%QUEUE%/DeliveryParamsOverrides/%DELIVERYPARAMSOVERRIDES%"
                                           }
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "default_name_value": "${NO_NAME_0:%QUEUE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ],
@@ -326,11 +336,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Queue${:s}/%QUEUE%/MessageLoggingParams/${NO_NAME_0:%QUEUE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Queue${:s}/%QUEUE%/MessageLoggingParams/%MESSAGELOGGINGPARAMS%"
                                           }
                                     },
                                     "Thresholds": {
                                           "wlst_type": "Thresholds",
+                                          "default_name_value": "${NO_NAME_0:%QUEUE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "BytesHigh":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesHigh",    "wlst_path": "WP001", "value": {"default": "${0:9223372036854775807}"}, "wlst_type": "long" } ],
@@ -340,7 +351,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Queue${:s}/%QUEUE%/Thresholds/${NO_NAME_0:%QUEUE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Queue${:s}/%QUEUE%/Thresholds/%THRESHOLDS%"
                                           }
                                     }
                               },
@@ -372,7 +383,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Queue${:s}/%QUEUE%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Queue${:s}/%QUEUE%"
                               }
                         },
                         "Quota": {
@@ -388,7 +399,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Quota${:s}/%QUOTA%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Quota${:s}/%QUOTA%"
                               }
                         },
                         "SAFErrorHandling": {
@@ -403,7 +414,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFErrorHandling${:s}/%SAFERRORHANDLING%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/SAFErrorHandling${:s}/%SAFERRORHANDLING%"
                               }
                         },
                         "SAFImportedDestinations": {
@@ -416,7 +427,6 @@
                                           "folders": {
                                                 "MessageLoggingParams": {
                                                       "wlst_type": "MessageLoggingParams",
-                                                      "child_folders_type": "single_unpredictable",
                                                       "default_name_value": "${NO_NAME_0:%SAFQUEUE%}",
                                                       "folders": {},
                                                       "attributes": {
@@ -425,7 +435,7 @@
                                                       },
                                                       "wlst_attributes_path": "WP001",
                                                       "wlst_paths": {
-                                                            "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFQueue${:s}/%SAFQUEUE%/MessageLoggingParams/%MESSAGELOGGINGPARAMS%"
+                                                            "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFQueue${:s}/%SAFQUEUE%/MessageLoggingParams/%MESSAGELOGGINGPARAMS%"
                                                       }
                                                 }
                                           },
@@ -443,7 +453,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFQueue${:s}/%SAFQUEUE%"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFQueue${:s}/%SAFQUEUE%"
                                           }
                                     },
                                     "SAFTopic": {
@@ -452,7 +462,6 @@
                                           "folders": {
                                                 "MessageLoggingParams": {
                                                       "wlst_type": "MessageLoggingParams",
-                                                      "child_folders_type": "single_unpredictable",
                                                       "default_name_value": "${NO_NAME_0:%SAFTOPIC%}",
                                                       "folders": {},
                                                       "attributes": {
@@ -461,7 +470,7 @@
                                                       },
                                                       "wlst_attributes_path": "WP001",
                                                       "wlst_paths": {
-                                                            "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFTopic${:s}/%SAFTOPIC%/MessageLoggingParams/%MESSAGELOGGINGPARAMS%"
+                                                            "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFTopic${:s}/%SAFTOPIC%/MessageLoggingParams/%MESSAGELOGGINGPARAMS%"
                                                       }
                                                 }
                                           },
@@ -479,11 +488,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFTopic${:s}/%SAFTOPIC%"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/SAFTopic${:s}/%SAFTOPIC%"
                                           }
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "default_name_value": "${NO_NAME_0:%SAFIMPORTEDDESTINATION%}",
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "boolean"} ],
@@ -491,7 +501,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/MessageLoggingParams/${NO_NAME_0:%SAFIMPORTEDDESTINATION%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%/MessageLoggingParams/%MESSAGELOGGINGPARAMS%"
                                           }
                                     }
                               },
@@ -510,7 +520,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/SAFImportedDestinations/%SAFIMPORTEDDESTINATION%"
                               }
                         },
                         "SAFRemoteContext": {
@@ -519,6 +529,7 @@
                               "folders": {
                                     "SAFLoginContext": {
                                           "wlst_type": "SAFLoginContext",
+                                          "default_name_value": "${NO_NAME_0:%SAFREMOTECONTEXT%}",
                                           "folders": {},
                                           "attributes": {
                                                 "LoginURL":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LoginURL",              "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"      } ],
@@ -527,7 +538,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFRemoteContext${:s}/%SAFREMOTECONTEXT%/SAFLoginContext/${NO_NAME_0:%SAFREMOTECONTEXT%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/SAFRemoteContext${:s}/%SAFREMOTECONTEXT%/SAFLoginContext/%SAFLOGINCONTEXT%"
                                           }
                                     }
                               },
@@ -538,7 +549,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/SAFRemoteContext${:s}/%SAFREMOTECONTEXT%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/SAFRemoteContext${:s}/%SAFREMOTECONTEXT%"
                               }
                         },
                         "Template": {
@@ -547,6 +558,7 @@
                               "folders": {
                                     "DeliveryFailureParams": {
                                           "wlst_type": "DeliveryFailureParams",
+                                          "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "value": {"default": "None"             }, "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean",  "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
@@ -556,11 +568,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Template${:s}/%TEMPLATE%/DeliveryFailureParams/${NO_NAME_0:%TEMPLATE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Template${:s}/%TEMPLATE%/DeliveryFailureParams/%DELIVERYFAILUREPARAMS%"
                                           }
                                     },
                                     "DeliveryParamsOverrides": {
                                           "wlst_type": "DeliveryParamsOverrides",
+                                          "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "DeliveryMode":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DeliveryMode",    "wlst_path": "WP001", "value": {"default": "${None:No-Delivery}"  }, "wlst_type": "string"  } ],
@@ -571,7 +584,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Template${:s}/%TEMPLATE%/DeliveryParamsOverrides/${NO_NAME_0:%TEMPLATE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Template${:s}/%TEMPLATE%/DeliveryParamsOverrides/%DELIVERYPARAMSOVERRIDES%"
                                           }
                                     },
                                     "GroupParams": {
@@ -584,11 +597,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Template${:s}/%TEMPLATE%/GroupParams/%FOLDERNAME%"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Template${:s}/%TEMPLATE%/GroupParams/%FOLDERNAME%"
                                           }
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ],
@@ -596,11 +610,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Template${:s}/%TEMPLATE%/MessageLoggingParams/${NO_NAME_0:%TEMPLATE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Template${:s}/%TEMPLATE%/MessageLoggingParams/%MESSAGELOGGINGPARAMS%"
                                           }
                                     },
                                     "Multicast": {
                                           "wlst_type": "Multicast",
+                                          "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "MulticastAddress":    [ {"version": "[10,)",          "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "value": {"default": "None"       }, "wlst_type": "string",  "get_method": "GET", "restart_required": "true" } ],
@@ -611,11 +626,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Template${:s}/%TEMPLATE%/Multicast/${NO_NAME_0:%TEMPLATE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Template${:s}/%TEMPLATE%/Multicast/%MULTICAST%"
                                           }
                                     },
                                     "Thresholds": {
                                           "wlst_type": "Thresholds",
+                                          "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "BytesHigh":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesHigh",    "wlst_path": "WP001", "value": {"default": "${0:9223372036854775807}" }, "wlst_type": "long"  } ],
@@ -625,7 +641,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Template${:s}/%TEMPLATE%/Thresholds/${NO_NAME_0:%TEMPLATE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Template${:s}/%TEMPLATE%/Thresholds/%THRESHOLDS%"
                                           }
                                     }
                               },
@@ -647,7 +663,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Template${:s}/%TEMPLATE%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Template${:s}/%TEMPLATE%"
                               }
                         },
                         "Topic": {
@@ -656,6 +672,7 @@
                               "folders": {
                                     "DeliveryFailureParams": {
                                           "wlst_type": "DeliveryFailureParams",
+                                          "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folders": {},
                                           "attributes": {
                                                 "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "value": {"default": "None"             }, "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
@@ -665,11 +682,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Topic${:s}/%TOPIC%/DeliveryFailureParams/${NO_NAME_0:%TOPIC%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Topic${:s}/%TOPIC%/DeliveryFailureParams/%DELIVERYFAILUREPARAMS%"
                                           }
                                     },
                                     "DeliveryParamsOverrides": {
                                           "wlst_type": "DeliveryParamsOverrides",
+                                          "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folders": {},
                                           "attributes": {
                                                 "DeliveryMode":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DeliveryMode",    "wlst_path": "WP001", "value": {"default": "${None:No-Delivery}"  }, "wlst_type": "string"  } ],
@@ -680,11 +698,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Topic${:s}/%TOPIC%/DeliveryParamsOverrides/${NO_NAME_0:%TOPIC%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Topic${:s}/%TOPIC%/DeliveryParamsOverrides/%DELIVERYPARAMSOVERRIDES%"
                                           }
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean" } ],
@@ -692,11 +711,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Topic${:s}/%TOPIC%/MessageLoggingParams/${NO_NAME_0:%TOPIC%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Topic${:s}/%TOPIC%/MessageLoggingParams/%MESSAGELOGGINGPARAMS%"
                                           }
                                     },
                                     "Multicast": {
                                           "wlst_type": "Multicast",
+                                          "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folders": {},
                                           "attributes": {
                                                 "MulticastAddress":    [ {"version": "[10,)",         "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "value": {"default": "None"       }, "wlst_type": "string",  "get_method": "GET", "restart_required": "true"  } ],
@@ -707,11 +727,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Topic${:s}/%TOPIC%/Multicast/${NO_NAME_0:%TOPIC%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Topic${:s}/%TOPIC%/Multicast/%MULTICAST%"
                                           }
                                     },
                                     "Thresholds": {
                                           "wlst_type": "Thresholds",
+                                          "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folders": {},
                                           "attributes": {
                                                 "BytesHigh":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesHigh",    "wlst_path": "WP001", "value": {"default": "${0:9223372036854775807}"}, "wlst_type": "long"} ],
@@ -721,7 +742,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Topic${:s}/%TOPIC%/Thresholds/${NO_NAME_0:%TOPIC%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Topic${:s}/%TOPIC%/Thresholds/%THRESHOLDS%"
                                           }
                                     }
                               },
@@ -752,7 +773,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/Topic${:s}/%TOPIC%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/Topic${:s}/%TOPIC%"
                               }
                         },
                         "UniformDistributedQueue": {
@@ -761,6 +782,7 @@
                               "folders": {
                                     "DeliveryFailureParams": {
                                           "wlst_type": "DeliveryFailureParams",
+                                          "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "value": {"default": "None"             }, "wlst_type": "string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
@@ -770,11 +792,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%/DeliveryFailureParams/${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%/DeliveryFailureParams/%DELIVERYFAILUREPARAMS%"
                                           }
                                     },
                                     "DeliveryParamsOverrides": {
                                           "wlst_type": "DeliveryParamsOverrides",
+                                          "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "DeliveryMode":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DeliveryMode",    "wlst_path": "WP001", "value": {"default": "${None:No-Delivery}"  }, "wlst_type": "string" } ],
@@ -785,11 +808,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%/DeliveryParamsOverrides/${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%/DeliveryParamsOverrides/%DELIVERYPARAMSOVERRIDES%"
                                           }
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ],
@@ -797,11 +821,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%/MessageLoggingParams/${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%/MessageLoggingParams/%MESSAGELOGGINGPARAMS%"
                                           }
                                     },
                                     "Thresholds": {
                                           "wlst_type": "Thresholds",
+                                          "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}",
                                           "folders": {},
                                           "attributes": {
                                                 "BytesHigh":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesHigh",    "wlst_path": "WP001", "value": {"default": "${0:9223372036854775807}"}, "wlst_type": "long"   } ],
@@ -811,7 +836,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%/Thresholds/${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%/Thresholds/%THRESHOLDS%"
                                           }
                                     }
                               },
@@ -844,7 +869,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%"
                               }
                         },
                         "UniformDistributedTopic": {
@@ -853,6 +878,7 @@
                               "folders": {
                                     "DeliveryFailureParams": {
                                           "wlst_type": "DeliveryFailureParams",
+                                          "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folders": {},
                                           "attributes": {
                                                 "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "value": {"default": "None"             }, "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
@@ -862,11 +888,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/DeliveryFailureParams/${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/DeliveryFailureParams/%DELIVERYFAILUREPARAMS%"
                                           }
                                     },
                                     "DeliveryParamsOverrides": {
                                           "wlst_type": "DeliveryParamsOverrides",
+                                          "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folders": {},
                                           "attributes": {
                                                 "DeliveryMode":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DeliveryMode",    "wlst_path": "WP001", "value": {"default": "${None:No-Delivery}" }, "wlst_type": "string" } ],
@@ -877,11 +904,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/DeliveryParamsOverrides/${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/DeliveryParamsOverrides/%DELIVERYPARAMSOVERRIDES%"
                                           }
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ],
@@ -889,11 +917,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/MessageLoggingParams/${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/MessageLoggingParams/%MESSAGELOGGINGPARAMS%"
                                           }
                                     },
                                     "Multicast": {
                                           "wlst_type": "Multicast",
+                                          "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folders": {},
                                           "attributes": {
                                                 "MulticastAddress":    [ {"version": "[10,)",            "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "value": {"default": "None"         }, "wlst_type": "string",       "get_method": "GET", "restart_required": "true" } ],
@@ -904,11 +933,12 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/Multicast/${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/Multicast/%MULTICAST%"
                                           }
                                     },
                                     "Thresholds": {
                                           "wlst_type": "Thresholds",
+                                          "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folders": {},
                                           "attributes": {
                                                 "BytesHigh":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesHigh",    "wlst_path": "WP001", "value": {"default": "${0:9223372036854775807}"}, "wlst_type": "long" } ],
@@ -918,7 +948,7 @@
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/Thresholds/${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}"
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/Thresholds/%THRESHOLDS%"
                                           }
                                     }
                               },
@@ -950,7 +980,7 @@
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
-                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%"
+                                    "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%"
                               }
                         }
                   },
@@ -960,7 +990,7 @@
                   },
                   "wlst_attributes_path": "WP001",
                   "wlst_paths": {
-                        "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/${NO_NAME_0:%JMSSYSTEMRESOURCE%}"
+                        "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%"
                   }
             }
       },

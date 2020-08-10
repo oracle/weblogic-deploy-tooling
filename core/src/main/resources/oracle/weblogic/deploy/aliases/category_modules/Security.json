@@ -1,7 +1,8 @@
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Security",
+    "default_name_value": "%DOMAIN%",
     "folders": {
         "Group": {
             "wlst_type": "Group",
@@ -13,7 +14,7 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Security/%DOMAIN%/Group/%GROUP%"
+                "WP001": "/Security/%SECURITY%/Group/%GROUP%"
             }
         },
         "User": {
@@ -29,13 +30,13 @@
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/Security/%DOMAIN%/User/%USER%"
+                "WP001": "/Security/%SECURITY%/User/%USER%"
             }
         }
     },
     "attributes" : { },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
-        "WP001": "/Security/%DOMAIN%"
+        "WP001": "/Security/%SECURITY%"
     }
 }

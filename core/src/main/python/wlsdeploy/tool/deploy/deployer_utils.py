@@ -12,7 +12,11 @@ from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
+from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import FILE_URI
+from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
+from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
+from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -106,6 +110,35 @@ def get_mbean_name(location, existing_names, aliases):
     return mbean_name
 
 
+def set_single_folder_token(location, aliases):
+    """
+    Determine the name of the MBean at the specified WLST location, and set the corresponding token.
+    :param location: the single-folder location to be updated
+    :param aliases: the aliases object to use for name and path resolution
+    """
+    exception_type = aliases.get_exception_type()
+    wlst_helper = WlstHelper(exception_type)
+    list_path = aliases.get_wlst_list_path(location)
+    existing_names = wlst_helper.get_existing_object_list(list_path)
+    if len(existing_names) > 0:
+        mbean_name = existing_names[0]
+        token = aliases.get_name_token(location)
+        location.add_name_token(token, mbean_name)
+
+
+def set_flattened_folder_token(location, aliases):
+    """
+    If the specified model location contains a flattened folder,
+    add the corresponding token to the location with the MBean name.
+    :param location: the location to be checked
+    """
+    flattened_folder_info = aliases.get_wlst_flattened_folder_info(location)
+    if flattened_folder_info is not None:
+        path_token = flattened_folder_info.get_path_token()
+        mbean_name = flattened_folder_info.get_mbean_name()
+        location.add_name_token(path_token, mbean_name)
+
+
 def check_flattened_folder(location, aliases):
     """
     The paths for a location may contain a flattened folder - a type/name level that is not reflected in the model.
@@ -113,16 +146,39 @@ def check_flattened_folder(location, aliases):
     :param location: the location to examine
     :param aliases: the alias helper to use for name and path resolution
     """
-    if aliases.is_flattened_folder(location):
+    flattened_folder_info = aliases.get_wlst_flattened_folder_info(location)
+    if flattened_folder_info is not None:
         create_path = aliases.get_wlst_flattened_folder_create_path(location)
         existing_types = _wlst_helper.get_existing_object_list(create_path)
 
-        mbean_type = aliases.get_wlst_flattened_mbean_type(location)
+        mbean_type = flattened_folder_info.get_mbean_type()
+        mbean_name = flattened_folder_info.get_mbean_name()
         if mbean_type not in existing_types:
-            mbean_name = aliases.get_wlst_flattened_mbean_name(location)
             _wlst_helper.cd(create_path)
             create_if_not_exist(mbean_name, mbean_type, [])
+
+        path_token = flattened_folder_info.get_path_token()
+        location.add_name_token(path_token, mbean_name)
     return
+
+
+def get_jdbc_driver_params_location(ds_name, aliases):
+    """
+    Return the JDBC_DRIVER_PARAMS location for the specified datasource name.
+    :param ds_name: the name of the datasource
+    :param aliases: the alias helper to use for name and token resolution
+    :return: the resulting location
+    """
+    location = LocationContext()
+    location.append_location(JDBC_SYSTEM_RESOURCE)
+    token_name = aliases.get_name_token(location)
+    location.add_name_token(token_name, ds_name)
+
+    location.append_location(JDBC_RESOURCE)
+    set_single_folder_token(location, aliases)
+    location.append_location(JDBC_DRIVER_PARAMS)
+    set_single_folder_token(location, aliases)
+    return location
 
 
 def get_domain_token(aliases):
