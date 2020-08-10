@@ -17,7 +17,9 @@ spec:
   ingressBindings:
     - name: "{{{domainPrefix}}}-ingress"
       dnsName: "todo.vz.oracledx.com"
+{{#hasDatabases}}
   databaseBindings:
+{{/hasDatabases}}
 {{#databases}}
     - name: "{{{databasePrefix}}}-db"
       url: "{{{url}}}"
