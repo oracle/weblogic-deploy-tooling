@@ -26,6 +26,10 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 __class_name = 'target_configuration_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
+# secret name for runtime encryption
+RUNTIME_ENCRYPTION_SECRET_NAME = 'runtime-encryption'
+RUNTIME_ENCRYPTION_SECRET_SUFFIX = '-' + RUNTIME_ENCRYPTION_SECRET_NAME
+
 # Kubernetes secret for admin name and password is <domainUid>-weblogic-credentials
 WEBLOGIC_CREDENTIALS_SECRET_NAME = 'weblogic-credentials'
 WEBLOGIC_CREDENTIALS_SECRET_SUFFIX = '-' + WEBLOGIC_CREDENTIALS_SECRET_NAME
@@ -147,6 +151,15 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
             command_string = "create_paired_k8s_secret %s %s %s " \
                              % (secret_name, user_name, PASSWORD_TAG)
 
+        k8s_script.write(nl)
+        k8s_script.write("# " + message + nl)
+        k8s_script.write(command_string + nl)
+
+    # for vz additional output type, add the runtime encryption secret
+    output_types = model_context.get_target_configuration().get_additional_output_types()
+    if VZ_EXTRA_CONFIG in output_types:
+        message = exception_helper.get_message("WLSDPLY-01663", PASSWORD_TAG, RUNTIME_ENCRYPTION_SECRET_NAME)
+        command_string = "create_k8s_secret %s %s " % (RUNTIME_ENCRYPTION_SECRET_NAME, PASSWORD_TAG)
         k8s_script.write(nl)
         k8s_script.write("# " + message + nl)
         k8s_script.write(command_string + nl)
