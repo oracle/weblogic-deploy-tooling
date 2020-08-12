@@ -40,7 +40,6 @@ DS_URL = 'url'
 HAS_CLUSTERS = 'hasClusters'
 HAS_DATABASES = 'hasDatabases'
 REPLICAS = 'replicas'
-RUNTIME_ENCRYPTION_SECRET = 'runtimeEncryptionSecret'
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 
 
@@ -115,8 +114,6 @@ def _build_template_hash(model, model_context, aliases):
 
     # configuration / model
     template_hash[DOMAIN_TYPE] = model_context.get_domain_type()
-    template_hash[RUNTIME_ENCRYPTION_SECRET] = domain_uid +\
-                                               target_configuration_helper.RUNTIME_ENCRYPTION_SECRET_SUFFIX
 
     # clusters
 
