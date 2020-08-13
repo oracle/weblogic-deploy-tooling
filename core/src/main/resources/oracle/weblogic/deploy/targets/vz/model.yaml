@@ -33,7 +33,6 @@ spec:
         configuration:
           model:
             domainType: {{{domainType}}}
-            runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
       connections:
         - ingress:
             - name: {{{domainPrefix}}}-ingress
