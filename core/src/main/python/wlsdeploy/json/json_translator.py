@@ -238,9 +238,10 @@ def _format_json_value(value):
 
 def _escape_text(text):
     """
-    Quote all embedded double quotes in a string with a backslash.
-    :param text: the text to quote
-    :return: the quotes result
+    Escape the specified text for use in a double-quoted string.
+    Escape embedded double quotes with a backslash.
+    :param text: the text to escape
+    :return: the escaped text
     """
     result = text
     if isinstance(text, types.StringTypes):
