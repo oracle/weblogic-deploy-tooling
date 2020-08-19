@@ -9,8 +9,8 @@ from java.io import FileOutputStream
 from java.lang import IllegalArgumentException
 from java.util import Properties
 from oracle.weblogic.deploy.create import RCURunner
-from oracle.weblogic.deploy.util import WLSDeployArchive, FileUtils
-from wlsdeploy.util import string_utils
+from oracle.weblogic.deploy.util import FileUtils
+
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
@@ -23,6 +23,7 @@ from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_CREDENTIAL_MAPPING
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DRIVER_NAME
@@ -84,6 +85,7 @@ from wlsdeploy.tool.create.wlsroles_helper import WLSRoles
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.util.credential_map_helper import CredentialMapHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
@@ -91,6 +93,7 @@ from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model as model_helper
+from wlsdeploy.util import string_utils
 
 
 class DomainCreator(Creator):
@@ -177,6 +180,7 @@ class DomainCreator(Creator):
         self.__deploy()
         self.__deploy_after_update()
         self.__create_boot_dot_properties()
+        self.__create_credential_mappings()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -1241,6 +1245,15 @@ class DomainCreator(Creator):
             ostream.close()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    def __create_credential_mappings(self):
+        """
+        Create credential mappings from model elements.
+        """
+        default_nodes = dictionary_utils.get_dictionary_element(self._domain_info, DEFAULT_CREDENTIAL_MAPPING)
+        if default_nodes:
+            credential_map_helper = CredentialMapHelper(self.model_context, ExceptionType.CREATE)
+            credential_map_helper.create_default_init_file(default_nodes)
 
     def __configure_opss_secrets(self):
         _method_name = '__configure_opss_secrets'

@@ -49,6 +49,7 @@ from wlsdeploy.aliases.flattened_folder import FlattenedFolder
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import DEFAULT_CREDENTIAL_MAPPING
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import KUBERNETES_ALIAS
@@ -153,6 +154,7 @@ class AliasEntries(object):
     ]
 
     __domain_info_top_level_folders = [
+        DEFAULT_CREDENTIAL_MAPPING,
         RCU_DB_INFO,
         WLS_ROLES
     ]
