@@ -23,7 +23,6 @@ from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
-from wlsdeploy.aliases.model_constants import DEFAULT_CREDENTIAL_MAPPING
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DRIVER_NAME
@@ -72,6 +71,7 @@ from wlsdeploy.aliases.model_constants import UNIX_MACHINE
 from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
+from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
@@ -1250,7 +1250,7 @@ class DomainCreator(Creator):
         """
         Create credential mappings from model elements.
         """
-        default_nodes = dictionary_utils.get_dictionary_element(self._domain_info, DEFAULT_CREDENTIAL_MAPPING)
+        default_nodes = dictionary_utils.get_dictionary_element(self._domain_info, WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS)
         if default_nodes:
             credential_map_helper = CredentialMapHelper(self.model_context, ExceptionType.CREATE)
             credential_map_helper.create_default_init_file(default_nodes)
