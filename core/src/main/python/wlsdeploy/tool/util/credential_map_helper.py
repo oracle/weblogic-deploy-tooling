@@ -2,12 +2,14 @@
 Copyright (c) 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-# import com.bea.common.security.utils.encoders.BASE64Encoder as BASE64Encoder
+import com.bea.common.security.utils.encoders.BASE64Encoder as BASE64Encoder
 import com.bea.security.xacml.cache.resource.ResourcePolicyIdUtil as ResourcePolicyIdUtil
 from java.io import File
-
+from java.lang import String
 from oracle.weblogic.deploy.aliases import TypeUtils
-from wlsdeploy.aliases.model_constants import METHOD, CROSS_DOMAIN, USER
+
+from wlsdeploy.aliases.model_constants import CROSS_DOMAIN
+from wlsdeploy.aliases.model_constants import METHOD
 from wlsdeploy.aliases.model_constants import PATH
 from wlsdeploy.aliases.model_constants import PROTOCOL
 from wlsdeploy.aliases.model_constants import REMOTE_DOMAIN
@@ -15,10 +17,12 @@ from wlsdeploy.aliases.model_constants import REMOTE_HOST
 from wlsdeploy.aliases.model_constants import REMOTE_PASSWORD
 from wlsdeploy.aliases.model_constants import REMOTE_PORT
 from wlsdeploy.aliases.model_constants import REMOTE_USER
+from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 DEFAULT_MAPPER_INIT_FILE = 'DefaultCredentialMapperInit.ldift'
 SECURITY_SUBDIR = 'security'
@@ -34,7 +38,7 @@ NULL = 'null'
 # template hash constants
 HASH_CREDENTIAL_CN = 'credentialCn'
 HASH_LOCAL_USER = 'localUser'
-HASH_PASSWORD_ESCAPED = 'passwordEscaped'
+HASH_PASSWORD_ENCODED = 'passwordEncoded'
 HASH_REMOTE_USER = 'remoteUser'
 HASH_RESOURCE_CN = 'resourceCn'
 HASH_RESOURCE_NAME = 'resourceName'
@@ -71,6 +75,9 @@ class CredentialMapHelper(object):
         self._model_context = model_context
         self._exception_type = exception_type
         self._logger = PlatformLogger('wlsdeploy.tool.util')
+        self._weblogic_helper = WebLogicHelper(self._logger)
+        self._resource_escaper = ResourcePolicyIdUtil.getEscaper()
+        self._b64_encoder = BASE64Encoder()
 
     def create_default_init_file(self, default_mapping_nodes):
         """
@@ -117,7 +124,7 @@ class CredentialMapHelper(object):
                 for local_user in local_users:
                     resource_hash = dict(mapping_hash)
                     resource_hash[HASH_LOCAL_USER] = local_user
-                    resource_hash[HASH_RESOURCE_CN] = _create_cn(resource_name, local_user)
+                    resource_hash[HASH_RESOURCE_CN] = self._create_cn(resource_name, local_user)
                     resource_mappings.append(resource_hash)
 
         template_hash[CREDENTIAL_MAPPINGS] = credential_mappings
@@ -135,17 +142,18 @@ class CredentialMapHelper(object):
         resource_name = self._build_resource_name(mapping_type, mapping_name, mapping)
 
         remote_user = self._get_required_attribute(mapping, REMOTE_USER, mapping_type, mapping_name)
-        credential_cn = _create_cn(resource_name, remote_user)
+        credential_cn = self._create_cn(resource_name, remote_user)
 
+        # the password needs to be encrypted, then base64 encoded
         password = self._get_required_attribute(mapping, REMOTE_PASSWORD, mapping_type, mapping_name)
-        password_escaped = '[%s]' % password
-        # password_escaped = 'e0FFU31LMkJWejk0dmV3RjUza2d4M21nT0ZZU3ZXb3BSN0VVbEcxQnIzTFNAVWZxVUBF'
+        encrypted = self._weblogic_helper.encrypt(password, self._model_context.get_domain_home())
+        password_encoded = self._b64_encoder.encodeBuffer(String(encrypted).getBytes("UTF-8"))
 
         # the local user and resource CN will be updated later for each user
         return {
             HASH_CREDENTIAL_CN: credential_cn,
             HASH_LOCAL_USER: NULL,
-            HASH_PASSWORD_ESCAPED: password_escaped,
+            HASH_PASSWORD_ENCODED: password_encoded,
             HASH_REMOTE_USER: remote_user,
             HASH_RESOURCE_CN: NULL,
             HASH_RESOURCE_NAME: resource_name
@@ -222,14 +230,13 @@ class CredentialMapHelper(object):
             raise pwe
         return result
 
-
-def _create_cn(resource_name, user):
-    """
-    Create a CN string from the specified resource name and user name.
-    The result should be escaped for use as a CN.
-    :param resource_name: the name of the resource
-    :param user: the user name
-    :return: the CN string
-    """
-    name = resource_name + "." + user
-    return ResourcePolicyIdUtil.getEscaper().escapeString(name)
+    def _create_cn(self, resource_name, user):
+        """
+        Create a CN string from the specified resource name and user name.
+        The result should be escaped for use as a CN.
+        :param resource_name: the name of the resource
+        :param user: the user name
+        :return: the CN string
+        """
+        name = resource_name + "." + user
+        return self._resource_escaper.escapeString(name)
