@@ -34,6 +34,7 @@ DATABASES = 'databases'
 DATASOURCE_NAME = 'datasourceName'
 DOMAIN_NAME = 'domainName'
 DOMAIN_PREFIX = 'domainPrefix'
+DOMAIN_TYPE = 'domainType'
 DOMAIN_UID = 'domainUid'
 DS_URL = 'url'
 HAS_CLUSTERS = 'hasClusters'
@@ -54,7 +55,7 @@ def create_vz_configuration(model, model_context, aliases, exception_type):
     # -output_dir argument was previously verified
     output_dir = model_context.get_kubernetes_output_dir()
 
-    template_hash = _build_template_hash(model, aliases)
+    template_hash = _build_template_hash(model, model_context, aliases)
 
     _create_file('model.yaml', template_hash, output_dir, exception_type)
 
@@ -80,10 +81,11 @@ def _create_file(template_name, template_hash, output_dir, exception_type):
     file_template_helper.create_file(template_path, template_hash, output_file, exception_type)
 
 
-def _build_template_hash(model, aliases):
+def _build_template_hash(model, model_context, aliases):
     """
     Create a dictionary of substitution values to apply to the templates.
     :param model: Model object used to derive values
+    :param model_context: used to determine domain type
     :param aliases: used to derive folder names
     :return: the hash dictionary
     """
@@ -109,6 +111,9 @@ def _build_template_hash(model, aliases):
 
     admin_secret = domain_uid + target_configuration_helper.WEBLOGIC_CREDENTIALS_SECRET_SUFFIX
     template_hash[WEBLOGIC_CREDENTIALS_SECRET] = admin_secret
+
+    # configuration / model
+    template_hash[DOMAIN_TYPE] = model_context.get_domain_type()
 
     # clusters
 

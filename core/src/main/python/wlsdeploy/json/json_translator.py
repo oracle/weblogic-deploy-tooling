@@ -169,7 +169,7 @@ class PythonToJson(object):
         for key, value in dictionary.iteritems():
             writer.println(end_line)
             end_line = ','
-            writer.write(indent + '"' + _quote_embedded_quotes(key) + '" : ')
+            writer.write(indent + '"' + _escape_text(key) + '" : ')
             if isinstance(value, dict):
                 self._write_dictionary_to_json_file(value, writer, indent)
             elif isinstance(value, list):
@@ -230,19 +230,23 @@ def _format_json_value(value):
     if type(value) == bool or (isinstance(value, types.StringTypes) and (value == 'true' or value == 'false')):
         builder.append(JBoolean.toString(value))
     elif isinstance(value, types.StringTypes):
-        builder.append('"').append(_quote_embedded_quotes(value.strip())).append('"')
+        builder.append('"').append(_escape_text(value.strip())).append('"')
     else:
         builder.append(value)
     return builder.toString()
 
 
-def _quote_embedded_quotes(text):
+def _escape_text(text):
     """
-    Quote all embedded double quotes in a string with a backslash.
-    :param text: the text to quote
-    :return: the quotes result
+    Escape the specified text for use in a double-quoted string.
+    Escape embedded double quotes with a backslash.
+    :param text: the text to escape
+    :return: the escaped text
     """
     result = text
-    if isinstance(text, types.StringTypes) and '"' in text:
-        result = text.replace('"', '\\"')
+    if isinstance(text, types.StringTypes):
+        if '\\' in text:
+            result = text.replace('\\', '\\\\')
+        if '"' in text:
+            result = text.replace('"', '\\"')
     return result
