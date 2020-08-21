@@ -78,9 +78,9 @@ These target environment configurations are included in the WebLogic Deploy Tool
 
 #### The Oracle Weblogic Server Kubernetes Operator Target
 
-This target environment can be applied by providing the command-line argument `-target k8s`. It will provide this additional processing:
+This target environment can be applied by providing the command-line argument `-target wko`. It will provide this additional processing:
 
-- The `k8s_operator_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
+- The `wko_operator_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
 - Variables will be injected into the model for port, host, and URL attributes
 - `lax` validation will be applied for the resulting model
 - Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
@@ -93,3 +93,12 @@ This target environment can be applied by providing the command-line argument `-
 - `lax` validation will be applied for the resulting model
 - Credentials in the model will be replaced with placeholder values, and a script to create corresponding secrets will be produced
 - Two additional Kubernetes resource files, `model.yaml` and `binding.yaml`, will be produced, with cluster and data source information derived from the model
+
+#### Generic Kubernetes Target
+
+This target environment can be applied by providing the command-line argument `-target k8s`. It will provide this additional processing:
+
+- The `k8s_operator_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
+- Variables will be injected into the model for port, host, and URL attributes
+- `lax` validation will be applied for the resulting model
+- Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced

@@ -4,8 +4,9 @@
 # Shared methods for using target environments (-target abc).
 # Used by discoverDomain and prepareModel.
 import re
-
 import os
+
+from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
@@ -152,9 +153,9 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
         k8s_script.write(command_string + nl)
 
     k8s_script.close()
+    FileUtils.chmod(k8s_file, 0750)
 
-
-def format_as_secret_token(variable_name):
+def format_as_secret_token(variable_name, target_config):
     """
     Format the variable as a secret name token for use in a model.
     :param variable_name: variable name in dot separated format
@@ -164,24 +165,14 @@ def format_as_secret_token(variable_name):
     if len(name_lower_tokens) == 1:
         admin_lower_token = name_lower_tokens[0]
         if admin_lower_token in ['adminusername', 'adminpassword']:
-            # these should just be 'username' and 'password', to match secrets script
+            # substring removes "admin" and keeps just 'username' or 'password', to match secrets script
             admin_token = admin_lower_token[5:]
-            return get_secret_model_token(WEBLOGIC_CREDENTIALS_SECRET_NAME, admin_token)
+            secret_name = target_config.get_wls_credentials_name() or WEBLOGIC_CREDENTIALS_SECRET_NAME
+            return '@@SECRET:%s:%s@@' % (secret_name, admin_token)
 
     # for paired and single secrets, password key is always named "password"
     secret_name = "password"
-
-    return get_secret_model_token('-'.join(name_lower_tokens[:-1]), secret_name)
-
-
-def get_secret_model_token(name, key):
-    """
-    Returns the substitution string to be put in the model for a secret value.
-    :param name: the name of the secret
-    :param key: the key of the secret
-    :return: the substitution string
-    """
-    return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % (name, key)
+    return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ('-'.join(name_lower_tokens[:-1]), secret_name)
 
 
 def get_secret_name_for_location(location, domain_uid, aliases):

@@ -7,7 +7,10 @@ package oracle.weblogic.deploy.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.attribute.PosixFilePermission;
 import java.text.MessageFormat;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -173,5 +176,17 @@ public class FileUtilsTest {
     private void assertMatch(String name, String got, String expected) {
         Assert.assertTrue(MessageFormat.format(FILE_ERR_FORMAT, name, got, expected),
             got.equals(expected));
+    }
+
+    @Test
+    public void posixPermissions() throws IOException {
+        Set<PosixFilePermission> perms = FileUtils.getPermissions(0700);
+        Assert.assertTrue(perms.contains(PosixFilePermission.OWNER_READ));
+        Assert.assertTrue(perms.contains(PosixFilePermission.OWNER_WRITE));
+        Assert.assertTrue(perms.contains(PosixFilePermission.OWNER_EXECUTE));
+
+        Set<PosixFilePermission> perms2 = FileUtils.getPermissions(0006);
+        Assert.assertTrue(perms2.contains(PosixFilePermission.OTHERS_READ));
+        Assert.assertTrue(perms2.contains(PosixFilePermission.OTHERS_WRITE));
     }
 }

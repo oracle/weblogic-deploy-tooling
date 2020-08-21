@@ -1,0 +1,11 @@
+{
+  "model_filters" : {
+        "discover": [
+          { "name": "wko_prep", "path": "@@TARGET_CONFIG_DIR@@/wko_operator_filter.py" }
+        ]
+      },
+  "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
+  "validation_method" : "lax",
+  "credentials_method" : "secrets",
+  "wls_credentials_name" : "__weblogic-credentials__"
+}

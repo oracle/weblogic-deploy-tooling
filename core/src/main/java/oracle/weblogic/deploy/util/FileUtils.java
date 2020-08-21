@@ -12,13 +12,19 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -783,4 +789,51 @@ public final class FileUtils {
     }
 
 
+    /**
+     * Convert an octal number into Posix File Permisions.
+     * @param octals 3 octal digits representing posix file permissions rwxrwxrwx
+     * @return a set of Posix file permissions
+     */
+    static Set<PosixFilePermission> getPermissions(int octals) {
+        Set<PosixFilePermission> result = new HashSet<>();
+        if ( (0400 & octals) > 0) {
+            result.add(PosixFilePermission.OWNER_READ);
+        }
+        if ( (0200 & octals) > 0) {
+            result.add(PosixFilePermission.OWNER_WRITE);
+        }
+        if ( (0100 & octals) > 0) {
+            result.add(PosixFilePermission.OWNER_EXECUTE);
+        }
+        if ( (0040 & octals) > 0) {
+            result.add(PosixFilePermission.GROUP_READ);
+        }
+        if ( (0020 & octals) > 0) {
+            result.add(PosixFilePermission.GROUP_WRITE);
+        }
+        if ( (0010 & octals) > 0) {
+            result.add(PosixFilePermission.GROUP_EXECUTE);
+        }
+        if ( (0004 & octals) > 0) {
+            result.add(PosixFilePermission.OTHERS_READ);
+        }
+        if ( (0002 & octals) > 0) {
+            result.add(PosixFilePermission.OTHERS_WRITE);
+        }
+        if ( (0001 & octals) > 0) {
+            result.add(PosixFilePermission.OTHERS_EXECUTE);
+        }
+        return result;
+    }
+
+    /**
+     * Set OS file permissions given an Octal permission set.
+     * Needed due to Jython 2.2 did not offer a os.chmod function.
+     * @param path file name to be changed
+     * @param octals octal number set like OS chmod permissions
+     * @throws IOException if permissions update fails
+     */
+    public static void chmod(String path, int octals) throws IOException {
+        Files.setPosixFilePermissions(Paths.get(path), getPermissions(octals));
+    }
 }
