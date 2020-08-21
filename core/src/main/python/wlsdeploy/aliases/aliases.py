@@ -1179,14 +1179,19 @@ class Aliases(object):
         :param location: current location context
         :param model_attribute_name: name of the attribute to look up in model representation
         :return: alias attribute preferred model type or None if not present or attribute not found
+        :raises: Tool Exception if an AliasException encountered
         """
         _method_name = 'get_preferred_model_type'
         self._logger.entering(str(location), model_attribute_name,
                               class_name=self._class_name, method_name=_method_name)
         result = None
-        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
-        if attribute_info is not None and PREFERRED_MODEL_TYPE in attribute_info:
-            result = attribute_info[PREFERRED_MODEL_TYPE]
+        try:
+            attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
+            if attribute_info is not None and PREFERRED_MODEL_TYPE in attribute_info:
+                result = attribute_info[PREFERRED_MODEL_TYPE]
+        except AliasException, ae:
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19042', model_attribute_name, location.get_folder_path(),
+                                  ae.getLocalizedMessage())
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
 
@@ -1196,14 +1201,19 @@ class Aliases(object):
         :param location: The context for the current location in WLST
         :param model_attribute_name: the model name for the WLST attribute
         :return: WLST_READ_TYPE or None if not defined for the attribute in the alias definitions
+        :raises: Tool Exception when AliasException occurs retrieving read type
         """
         _method_name = 'get_wlst_read_type'
         self._logger.entering(str(location), model_attribute_name,
                               class_name=self._class_name, method_name=_method_name)
         result = None
-        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
-        if attribute_info is not None and WLST_READ_TYPE in attribute_info:
-            result = attribute_info[WLST_READ_TYPE]
+        try:
+            attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
+            if attribute_info is not None and WLST_READ_TYPE in attribute_info:
+                result = attribute_info[WLST_READ_TYPE]
+        except AliasException, ae:
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19043', model_attribute_name, location.get_folder_path(),
+                                  ae.getLocalizedMessage())
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
 
