@@ -3,6 +3,7 @@ Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
+from java.lang import Boolean
 from java.lang import IllegalArgumentException
 
 from oracle.weblogic.deploy.discover import DiscoverException
@@ -83,6 +84,7 @@ class TopologyDiscoverer(Discoverer):
         model_top_folder_name, machines = self.get_machines(unix_machines)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, machines)
 
+        # make sure this is after discovery of machines / node managers as we will do some massaging
         model_top_folder_name, security_configuration = self.discover_security_configuration()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, security_configuration)
 
@@ -318,6 +320,7 @@ class TopologyDiscoverer(Discoverer):
             _logger.info('WLSDPLY-06622', class_name=_class_name, method_name=_method_name)
             location.add_name_token(self._aliases.get_name_token(location), security_configuration)
             self._populate_model_parameters(result, location)
+            self._massage_security_credential(result)
             try:
                 self._discover_subfolders(result, location)
             except DiscoverException, de:
@@ -473,6 +476,25 @@ class TopologyDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
+
+    def _massage_security_credential(self, result):
+        _method_name = 'massage_security_credential'
+        # Determine if the SecurityConfiguration/CredentialEncrypted can be removed
+        if model_constants.SECURITY_CONFIGURATION_PASSWORD in result:
+            # default is false
+            if model_constants.SECURITY_CONFIGURATION_CD_ENABLED in result and \
+                    Boolean.valueOf(result[model_constants.SECURITY_CONFIGURATION_CD_ENABLED]) == Boolean.TRUE:
+                _logger.finer('WLSDPLY-06615', class_name=_class_name, method_name=_method_name)
+            else:
+                del result[model_constants.SECURITY_CONFIGURATION_PASSWORD]
+                _logger.fine('WLSDPLY-06616', class_name=_class_name, method_name=_method_name)
+        # Determine if the SecurityConfiguration/NodeManagerEncryptedPassword can be removed
+        if model_constants.SECURITY_CONFIGURATION_NM_PASSWORD in result:
+            if model_constants.MACHINE in self._dictionary or model_constants.UNIX_MACHINE in self._dictionary:
+                _logger.finer('WLSDPLY-06645', class_name=_class_name, method_name=_method_name)
+            else:
+                del result[model_constants.SECURITY_CONFIGURATION_NM_PASSWORD]
+                _logger.finer('WLSDPLY-06646', class_name=_class_name, method_name=_method_name)
 
     def _has_machines_folder(self, base_folder):
         """
