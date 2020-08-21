@@ -336,7 +336,7 @@ class Validator(object):
         """
         Validate a root-level section, such as topology, domainInfo
         :param model_section_key: the key for the section
-        :param model_dict: the dictionary under the section
+        :param model_dict: the top-level model dictionary
         :param valid_section_folders: folders that are valid for this section
         """
         _method_name = '__validate_model_section'
@@ -365,13 +365,16 @@ class Validator(object):
             self._logger.finer('WLSDPLY-05013', str(attribute_location), str(path_tokens_attr_keys),
                                class_name=_class_name, method_name=_method_name)
 
+        model_folder_path = model_section_key + ":/"
         model_section_dict = model_dict[model_section_key]
+        if not isinstance(model_section_dict, dict):
+            self._logger.severe('WLSDPLY-05038', model_folder_path, class_name=_class_name, method_name=_method_name)
+            return
+
         for section_dict_key, section_dict_value in model_section_dict.iteritems():
             # section_dict_key is either the name of a folder in the
             # section, or the name of an attribute in the section.
             validation_location = LocationContext()
-
-            model_folder_path = model_section_key + ":/"
 
             if variables.has_variables(section_dict_key):
                 self._report_unsupported_variable_usage(section_dict_key, model_folder_path)
@@ -452,6 +455,10 @@ class Validator(object):
         model_folder_path = self._aliases.get_model_folder_path(validation_location)
         self._logger.finest('1 model_folder_path={0}', model_folder_path,
                             class_name=_class_name, method_name=_method_name)
+
+        if not isinstance(model_node, dict):
+            self._logger.severe('WLSDPLY-05038', model_folder_path, class_name=_class_name, method_name=_method_name)
+            return
 
         if self._aliases.supports_multiple_mbean_instances(validation_location):
             self._logger.finer('2 model_node_type={0}',
@@ -537,9 +544,14 @@ class Validator(object):
     def __process_model_node(self, model_node, validation_location):
         _method_name = '__process_model_node'
 
+        model_folder_path = self._aliases.get_model_folder_path(validation_location)
+
+        if not isinstance(model_node, dict):
+            self._logger.severe('WLSDPLY-05038', model_folder_path, class_name=_class_name, method_name=_method_name)
+            return
+
         valid_folder_keys = self._aliases.get_model_subfolder_names(validation_location)
         valid_attr_infos = self._aliases.get_model_attribute_names_and_types(validation_location)
-        model_folder_path = self._aliases.get_model_folder_path(validation_location)
 
         self._logger.finest('5 model_node={0}', str(model_node), class_name=_class_name, method_name=_method_name)
         self._logger.finest('5 aliases.get_model_subfolder_names(validation_location) returned: {0}',
