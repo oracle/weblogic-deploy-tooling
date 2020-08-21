@@ -790,6 +790,7 @@ public final class FileUtils {
      * @param octals 3 octal digits representing posix file permissions rwxrwxrwx
      * @return a set of Posix file permissions
      */
+    @SuppressWarnings("OctalInteger")
     static Set<PosixFilePermission> getPermissions(int octals) {
         Set<PosixFilePermission> result = new HashSet<>();
         if ( (0400 & octals) > 0) {
