@@ -8,6 +8,9 @@ from wlsdeploy.util import dictionary_utils
 # types for credential method
 CREDENTIALS_METHOD = "credentials_method"
 
+# Overrides the Kubernetes secret name for the WebLogic admin user credential
+WLS_CREDENTIALS_NAME = "wls_credentials_name"
+
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
 
@@ -42,6 +45,13 @@ class TargetConfiguration(object):
         :return: the method for handling credentials
         """
         return dictionary_utils.get_element(self.config_dictionary, CREDENTIALS_METHOD)
+
+    def get_wls_credentials_name(self):
+        """
+        Returns the method for handling credentials in the model.
+        :return: the method for handling credentials
+        """
+        return dictionary_utils.get_element(self.config_dictionary, WLS_CREDENTIALS_NAME)
 
     def get_additional_output_types(self):
         """
