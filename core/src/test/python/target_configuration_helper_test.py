@@ -26,9 +26,9 @@ class TargetConfigurationTests(unittest.TestCase):
         config[CONFIG.WLS_CREDENTIALS_NAME] = '__weblogic-credentials__'
         self.target_with_cred_name = TargetConfiguration(config)
 
-        config = dict()
-        config[CONFIG.CREDENTIALS_METHOD] = 'secrets'
-        self.target_without_cred_name = TargetConfiguration(config)
+        config2 = dict()
+        config2[CONFIG.CREDENTIALS_METHOD] = 'secrets'
+        self.target_without_cred_name = TargetConfiguration(config2)
 
 
     def testSecretWithWlsCredName(self):
