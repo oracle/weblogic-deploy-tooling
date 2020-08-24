@@ -136,8 +136,7 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
             continue
 
         user_name = find_user_name(property_name, model_dictionary)
-        secret_names = property_name.lower().split('.')
-        secret_name = '-'.join(secret_names[:-1])
+        secret_name = _create_secret_name(property_name)
 
         if user_name is None:
             message = exception_helper.get_message("WLSDPLY-01663", PASSWORD_TAG, secret_name)
@@ -154,6 +153,7 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
 
     k8s_script.close()
     FileUtils.chmod(k8s_file, 0750)
+
 
 def format_as_secret_token(variable_name, target_config):
     """
@@ -176,8 +176,9 @@ def format_as_secret_token(variable_name, target_config):
                 return '@@SECRET:%s:%s@@' % (secret_name, admin_token)
 
     # for paired and single secrets, password key is always named "password"
-    secret_name = "password"
-    return normal_secret_format % ('-'.join(name_lower_tokens[:-1]), secret_name)
+    secret_key = "password"
+    secret_name = _create_secret_name(variable_name)
+    return normal_secret_format % (secret_name, secret_key)
 
 
 def get_secret_name_for_location(location, domain_uid, aliases):
@@ -190,8 +191,8 @@ def get_secret_name_for_location(location, domain_uid, aliases):
     :return: the secret name
     """
     variable_name = variable_injector_functions.format_variable_name(location, '(none)', aliases)
-    name_lower_tokens = variable_name.lower().split('.')
-    return domain_uid + '-' + '-'.join(name_lower_tokens[:-1])
+    secret_name = _create_secret_name(variable_name)
+    return domain_uid + '-' + secret_name
 
 
 def create_additional_output(model, model_context, aliases, exception_type):
@@ -241,6 +242,27 @@ def find_user_name(property_name, model_dictionary):
             return value
 
     return None
+
+
+def _create_secret_name(variable_name):
+    """
+    Return the secret name derived from the specified property variable name.
+    Skip the last element of the variable name, which corresponds to the attribute.
+    Follow limitations for secret names: only alphanumeric and "-", must start and end with alphanumeric.
+    For example, "JDBC.Generic1.PasswordEncrypted" becomes "jdbc-generic1".
+    :param variable_name: the variable name to be converted
+    :return: the derived secret name
+    """
+    variable_keys = variable_name.lower().split('.')
+    secret_keys = []
+    for variable_key in variable_keys[:-1]:
+        secret_key = re.sub('[^a-z0-9-]', '-', variable_key)
+        secret_keys.append(secret_key)
+
+    # rejoin with hyphens, remove leading and trailing hyphens from final name.
+    # if empty, just return "x".
+    secret = '-'.join(secret_keys).strip('-')
+    return secret or 'x'
 
 
 def _is_paired_secret(property_name):
