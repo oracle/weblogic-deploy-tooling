@@ -11,12 +11,12 @@ spec:
   placement:
     - name: local
       namespaces:
-        - name: default
+        - name: "{{{domainUid}}}-ns"
           components:
             - name: {{{domainName}}}
   ingressBindings:
     - name: "{{{domainPrefix}}}-ingress"
-      dnsName: "todo.vz.oracledx.com"
+      dnsName: "*"
 {{#hasDatabases}}
   databaseBindings:
 {{/hasDatabases}}

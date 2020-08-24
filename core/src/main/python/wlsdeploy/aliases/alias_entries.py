@@ -51,10 +51,10 @@ from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
-from wlsdeploy.aliases.model_constants import KUBERNETES_ALIAS
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import JPA
 from wlsdeploy.aliases.model_constants import KUBERNETES
+from wlsdeploy.aliases.model_constants import KUBERNETES_ALIAS
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import OHS
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
@@ -64,6 +64,7 @@ from wlsdeploy.aliases.model_constants import SERVER_POD
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WLS_ROLES
+from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.aliases.model_constants import WTC_SERVER
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -154,7 +155,8 @@ class AliasEntries(object):
 
     __domain_info_top_level_folders = [
         RCU_DB_INFO,
-        WLS_ROLES
+        WLS_ROLES,
+        WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
     ]
 
     __kubernetes_top_level_folders = [

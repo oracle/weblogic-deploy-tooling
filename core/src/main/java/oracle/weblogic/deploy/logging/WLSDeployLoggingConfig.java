@@ -344,8 +344,8 @@ public class WLSDeployLoggingConfig {
 
         if (!found && tmpDir.canWrite()) {
             try {
-                File parentDir = tmpDir.getCanonicalFile().getParentFile();
-                logDir = FileUtils.createTempDirectory(parentDir, "jcslcm-logs");
+                File parentDir = tmpDir.getCanonicalFile();
+                logDir = FileUtils.createTempDirectory(parentDir, "wdt-logs");
                 found = true;
             } catch (IOException ioe) {
                 String message = MessageFormat.format("{0} failed to create temporary logs directory in {1}: {2}",

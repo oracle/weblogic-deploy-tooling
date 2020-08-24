@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import String
@@ -40,6 +40,7 @@ from wlsdeploy.aliases.alias_constants import STRING
 from wlsdeploy.aliases.alias_constants import USES_PATH_TOKENS
 from wlsdeploy.aliases.alias_constants import VALUE
 from wlsdeploy.aliases.alias_constants import WLST_NAME
+from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_entries import AliasEntries
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
@@ -503,8 +504,8 @@ class Aliases(object):
                                                                     delimiter=MODEL_LIST_DELIMITER)
 
                             _read_type, read_delimiter = \
-                                alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(attribute_info,
-                                                                                                     existing_wlst_value)
+                                alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(
+                                    attribute_info, existing_wlst_value)
                             existing_val = alias_utils.convert_to_type(LIST, existing_wlst_value,
                                                                        delimiter=read_delimiter)
                             merged_value = alias_utils.merge_model_and_existing_lists(model_val, existing_val)
@@ -1112,6 +1113,25 @@ class Aliases(object):
             self._raise_exception(ae, _method_name, 'WLSDPLY-19031', model_attribute_name, location.get_folder_path(),
                                   ae.getLocalizedMessage())
 
+    def get_model_attribute_type(self, location, model_attribute_name):
+        """
+        Get the wlst_type for the model attribute name at the specified location
+        :param location:
+        :param model_attribute_name:
+        :return: WLST attribute type
+        """
+        _method_name = 'get_model_attribute_type'
+        wlst_type = None
+        try:
+            attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
+            if attribute_info is not None:
+                wlst_type = attribute_info[WLST_TYPE]
+        except AliasException, ae:
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19015', model_attribute_name, location.get_folder_path(),
+                                  ae.getLocalizedMessage())
+
+        return wlst_type
+
     def get_model_attribute_default_value(self, location, model_attribute_name):
         """
         Get the default value for the specified attribute
@@ -1132,7 +1152,8 @@ class Aliases(object):
                     default_value = None
                 else:
                     data_type, delimiter = \
-                        alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(attribute_info, default_value)
+                        alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(
+                            attribute_info, default_value)
 
                     default_value = alias_utils.convert_to_type(data_type, default_value, delimiter=delimiter)
             self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=default_value)
@@ -1151,6 +1172,50 @@ class Aliases(object):
         names = self._alias_entries.IGNORE_FOR_MODEL_LIST
         self._logger.finest('WLSDPLY-19038', names, class_name=self._class_name, method_name=_method_name)
         return names
+
+    def get_preferred_model_type(self, location, model_attribute_name):
+        """
+        Return the preferred model type, if present, for the alias attribute definition.
+        :param location: current location context
+        :param model_attribute_name: name of the attribute to look up in model representation
+        :return: alias attribute preferred model type or None if not present or attribute not found
+        :raises: Tool Exception if an AliasException encountered
+        """
+        _method_name = 'get_preferred_model_type'
+        self._logger.entering(str(location), model_attribute_name,
+                              class_name=self._class_name, method_name=_method_name)
+        result = None
+        try:
+            attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
+            if attribute_info is not None and PREFERRED_MODEL_TYPE in attribute_info:
+                result = attribute_info[PREFERRED_MODEL_TYPE]
+        except AliasException, ae:
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19042', model_attribute_name, location.get_folder_path(),
+                                  ae.getLocalizedMessage())
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+    def get_wlst_read_type(self, location, model_attribute_name):
+        """
+        Return the aliases attribute WLST_READ_TYPE, which overrides the WLST_TYPE when retrieving the attribute value.
+        :param location: The context for the current location in WLST
+        :param model_attribute_name: the model name for the WLST attribute
+        :return: WLST_READ_TYPE or None if not defined for the attribute in the alias definitions
+        :raises: Tool Exception when AliasException occurs retrieving read type
+        """
+        _method_name = 'get_wlst_read_type'
+        self._logger.entering(str(location), model_attribute_name,
+                              class_name=self._class_name, method_name=_method_name)
+        result = None
+        try:
+            attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
+            if attribute_info is not None and WLST_READ_TYPE in attribute_info:
+                result = attribute_info[WLST_READ_TYPE]
+        except AliasException, ae:
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19043', model_attribute_name, location.get_folder_path(),
+                                  ae.getLocalizedMessage())
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
 
     def decrypt_password(self, text):
         """

@@ -310,7 +310,8 @@ class PrepareModel:
 
             # for normal secrets, assign the secret name to the attribute
             if credentials_method == SECRETS_METHOD:
-                model_value = target_configuration_helper.format_as_secret_token(cache_key)
+                model_value = target_configuration_helper.format_as_secret_token(cache_key,
+                                                                        self.model_context.get_target_configuration())
                 self.cache[cache_key] = ''
 
             # for config override secrets, assign a placeholder password to the attribute.
