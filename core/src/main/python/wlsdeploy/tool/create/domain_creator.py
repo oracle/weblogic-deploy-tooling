@@ -335,8 +335,10 @@ class DomainCreator(Creator):
             rcu_sys_pass = self.model_context.get_rcu_sys_pass()
             rcu_schema_pass = self.model_context.get_rcu_schema_pass()
             rcu_db_user = self.model_context.get_rcu_db_user()
+            rcu_extra_args = dict()
 
-            runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas, None)
+            runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas, None,
+                               rcu_extra_args)
             runner.setRCUAdminUser(rcu_db_user)
             runner.runRcu(rcu_sys_pass, rcu_schema_pass)
 
