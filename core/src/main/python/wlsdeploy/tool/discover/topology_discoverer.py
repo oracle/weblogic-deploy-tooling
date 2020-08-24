@@ -22,9 +22,11 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.tool.util.variable_injector import VARIABLE_SEP
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import string_utils
 from wlsdeploy.util import variables
+
 
 _class_name = 'TopologyDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -320,7 +322,7 @@ class TopologyDiscoverer(Discoverer):
             _logger.info('WLSDPLY-06622', class_name=_class_name, method_name=_method_name)
             location.add_name_token(self._aliases.get_name_token(location), security_configuration)
             self._populate_model_parameters(result, location)
-            self._massage_security_credential(result)
+            self._massage_security_credential(result, location)
             try:
                 self._discover_subfolders(result, location)
             except DiscoverException, de:
@@ -477,19 +479,22 @@ class TopologyDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
 
-    def _massage_security_credential(self, result):
+    def _massage_security_credential(self, result, location):
         _method_name = 'massage_security_credential'
         # Determine if the SecurityConfiguration/CredentialEncrypted can be removed
         pass_cache = OrderedDict()
+        short_name = ''
         if self._variable_injector is not None:
             pass_cache = self._variable_injector.get_variable_cache()
+            short_name = self._variable_injector.get_folder_short_name(location)
         if model_constants.SECURITY_CONFIGURATION_PASSWORD in result:
             # default is false
             if model_constants.SECURITY_CONFIGURATION_CD_ENABLED not in result or \
                     Boolean.valueOf(result[model_constants.SECURITY_CONFIGURATION_CD_ENABLED]) == Boolean.FALSE:
-                var = variables.get_variable_names(result[model_constants.SECURITY_CONFIGURATION_PASSWORD])
-                if len(var) == 1 and var[0] in pass_cache:
-                    del pass_cache[var[0]]
+                # Hard code it here or hard code it later. The target code will bypass tokenize of variable
+                cache_name = short_name + VARIABLE_SEP + model_constants.SECURITY_CONFIGURATION_PASSWORD
+                if cache_name in pass_cache:
+                    del pass_cache[cache_name]
                 del result[model_constants.SECURITY_CONFIGURATION_PASSWORD]
                 _logger.fine('WLSDPLY-06616', class_name=_class_name, method_name=_method_name)
             else:
@@ -499,9 +504,9 @@ class TopologyDiscoverer(Discoverer):
             if model_constants.MACHINE in self._dictionary or model_constants.UNIX_MACHINE in self._dictionary:
                 _logger.finer('WLSDPLY-06645', class_name=_class_name, method_name=_method_name)
             else:
-                var = variables.get_variable_names(result[model_constants.SECURITY_CONFIGURATION_NM_PASSWORD])
-                if len(var) == 1 and var[0] in pass_cache:
-                    del pass_cache[var[0]]
+                cache_name = short_name + VARIABLE_SEP + model_constants.SECURITY_CONFIGURATION_NM_PASSWORD
+                if cache_name in pass_cache:
+                    del pass_cache[cache_name]
                 del result[model_constants.SECURITY_CONFIGURATION_NM_PASSWORD]
                 _logger.finer('WLSDPLY-06646', class_name=_class_name, method_name=_method_name)
 
