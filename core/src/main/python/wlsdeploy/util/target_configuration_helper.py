@@ -161,18 +161,23 @@ def format_as_secret_token(variable_name, target_config):
     :param variable_name: variable name in dot separated format
     :return: formatted name
     """
+    normal_secret_format = '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@'
     name_lower_tokens = variable_name.lower().split('.')
     if len(name_lower_tokens) == 1:
         admin_lower_token = name_lower_tokens[0]
         if admin_lower_token in ['adminusername', 'adminpassword']:
             # substring removes "admin" and keeps just 'username' or 'password', to match secrets script
             admin_token = admin_lower_token[5:]
-            secret_name = target_config.get_wls_credentials_name() or WEBLOGIC_CREDENTIALS_SECRET_NAME
-            return '@@SECRET:%s:%s@@' % (secret_name, admin_token)
+            secret_name = target_config.get_wls_credentials_name()
+            if secret_name == None:
+                return normal_secret_format % (WEBLOGIC_CREDENTIALS_SECRET_NAME, admin_token)
+            else:
+                # if the target configuration declares a special name for the WebLogic credential secret
+                return '@@SECRET:%s:%s@@' % (secret_name, admin_token)
 
     # for paired and single secrets, password key is always named "password"
     secret_name = "password"
-    return '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@' % ('-'.join(name_lower_tokens[:-1]), secret_name)
+    return normal_secret_format % ('-'.join(name_lower_tokens[:-1]), secret_name)
 
 
 def get_secret_name_for_location(location, domain_uid, aliases):
