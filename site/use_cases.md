@@ -412,7 +412,7 @@
 
  ### Modeling WebLogic User Password Credential Mapping
  
- The Create Domain tool can be used to create user password credential mappings. Information in the model will be used to create a credential mapping file that will be imported the first time the Administration Server is started. This example shows how mappings are represented in the model:
+ The Create Domain Tool can be used to create user password credential mappings. Information in the model will be used to create a credential mapping file that will be imported the first time the Administration Server is started. This example shows how mappings are represented in the model:
  ```yaml
 domainInfo:
     WLSUserPasswordCredentialMappings:
@@ -445,7 +445,7 @@ domainInfo:
  
  The mapping `map2` creates a remote resource credential mapping that will give the local user `user1` access to a single remote resource on `remote.host` as the user `remoteUser` with the configured password. The mapping `map3` is similar, but provides access to a different remote resource for two local users, `user1` and `user2`.
  
- The names of the mapping sections in the model, such as `map1` and `map2`, are used to group the attributes for each mapping in the model, and are not part of the resulting credential mappings. These names should be unique for each mapping of a particular type.
+ The names of the mapping sections in the model, such as `map1` and `map2`, are used to group the attributes for each mapping in the model and are not part of the resulting credential mappings. These names should be unique for each mapping of a particular type.
  
  ### ODL Configuration
 
