@@ -412,7 +412,7 @@
 
  ### Modeling WebLogic User Password Credential Mapping
  
- The Create Domain Tool can be used to create user password credential mappings. Information in the model will be used to create a credential mapping file that will be imported the first time the Administration Server is started. This example shows how mappings are represented in the model:
+ The Create Domain Tool can be used to create user password credential mappings for use with the `DefaultCredentialMapper` security provider. Information in the model will be used to create a credential mapping file that will be imported the first time the Administration Server is started. This example shows how mappings are represented in the model:
  ```yaml
 domainInfo:
     WLSUserPasswordCredentialMappings:
