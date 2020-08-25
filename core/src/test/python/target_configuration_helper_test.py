@@ -52,5 +52,19 @@ class TargetConfigurationTests(unittest.TestCase):
         self.assertEqual('@@SECRET:@@ENV:DOMAIN_UID@@-something:password@@',
                          HELPER.format_as_secret_token('something.else', self.target_with_cred_name))
 
+
+    def testCreateSecretName(self):
+        self.assertEqual('jdbc-generic1', HELPER._create_secret_name('JDBC.Generic1.PasswordEncrypted'))
+
+        self.assertEqual('jdbc--weblogic--credentials',
+                         HELPER._create_secret_name('JDBC.(WebLogic)-credentials.PasswordEncrypted'))
+
+        self.assertEqual('jdbc--why', HELPER._create_secret_name('JDBC.-why?-.PasswordEncrypted'))
+
+        self.assertEqual('jdbc-abc', HELPER._create_secret_name('-JDBC.abc-.PasswordEncrypted'))
+
+        self.assertEqual('x', HELPER._create_secret_name('--??!!'))
+
+
 if __name__ == '__main__':
     unittest.main()

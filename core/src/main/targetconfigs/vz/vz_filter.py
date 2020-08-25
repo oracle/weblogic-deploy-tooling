@@ -42,7 +42,7 @@ def __cleanup_topology(model):
         if topology.has_key('Server'):
             servers = topology['Server']
             for server in servers:
-                for delthis in ['Machine', 'CandidateMachine', 'AutoMigrationEnabled']:
+                for delthis in ['Machine', 'CandidateMachine', 'AutoMigrationEnabled', 'ServerStart']:
                     if servers[server].has_key(delthis):
                         del servers[server][delthis]
 
@@ -57,6 +57,9 @@ def __cleanup_topology(model):
             server_templates = topology['ServerTemplate']
             for server_template in server_templates:
                 server_templates[server_template]['AutoMigrationEnabled'] = False
+                for delthis in ['ServerStart']:
+                    if server_templates[server_template].has_key(delthis):
+                        del server_templates[server_template][delthis]
         else:
             topology['ServerTemplate'] = {}
             server_templates = topology['ServerTemplate']
