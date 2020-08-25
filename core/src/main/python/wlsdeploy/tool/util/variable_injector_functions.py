@@ -79,12 +79,20 @@ def format_variable_name(location, attribute, aliases):
         if node is not None and len(node) > 0:
             short_name += node + '.'
     short_name += attribute
+    return clean_property_name(short_name)
 
-    short_name = short_name.replace('/', '.')
-    short_name = _white_space_replacement.sub('-', short_name)
-    short_name = _bad_chars_replacement.sub('-', short_name)
-    short_name = _fake_name_replacement.sub('', short_name)
-    return short_name
+
+def clean_property_name(name):
+    """
+    Remove or replace invalid characters in the variable name for use as a property name.
+    :param name: the name to be cleaned
+    :return: the revised name
+    """
+    name = name.replace('/', '.')
+    name = _white_space_replacement.sub('-', name)
+    name = _bad_chars_replacement.sub('-', name)
+    name = _fake_name_replacement.sub('', name)
+    return name
 
 
 def __traverse_location(iterate_location, attribute, name_list, aliases, last_folder=None, last_folder_short=None):
