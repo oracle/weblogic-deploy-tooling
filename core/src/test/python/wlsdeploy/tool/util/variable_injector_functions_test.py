@@ -56,7 +56,7 @@ class VariableInjectorFunctionsTests(unittest.TestCase):
         # verify that a property built with this value will parse correctly
         property_text = '@@PROP:%s@@' % variable_name
         matches = variables._property_pattern.findall(property_text)
-        self.assertEqual(1, matches, "Property %s should parse correctly" % property_text)
+        self.assertEqual(1, len(matches), "Property %s should parse correctly" % property_text)
 
         expected_name = "%s.%s.%s" % (self.short_name, expected_key, self.attribute_name)
         self.assertEqual(expected_name, variable_name)
