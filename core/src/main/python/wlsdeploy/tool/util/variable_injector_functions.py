@@ -17,6 +17,9 @@ _fake_name_marker = 'fakename'
 _fake_name_replacement = re.compile('.' + _fake_name_marker)
 _white_space_replacement = re.compile('\s')
 
+# bad characters for a property name - anything that isn't a good character
+_bad_chars_replacement = re.compile('[^\\w.-]')
+
 
 def managed_server_list(model):
     """
@@ -79,6 +82,7 @@ def format_variable_name(location, attribute, aliases):
 
     short_name = short_name.replace('/', '.')
     short_name = _white_space_replacement.sub('-', short_name)
+    short_name = _bad_chars_replacement.sub('-', short_name)
     short_name = _fake_name_replacement.sub('', short_name)
     return short_name
 
