@@ -25,13 +25,13 @@ class GlobalResourcesDiscoverer(Discoverer):
     TYPE_domain = "Domain"
 
     def __init__(self, model_context, resource_dictionary, base_location,
-                 wlst_mode=WlstModes.OFFLINE, aliases=None, variable_injector=None):
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None):
         """
 
         :param model_context: context about the model for this instance of the discover domain
         :param resource_dictionary: to populate with global resources. Uses the initialized resources if none passed
         """
-        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, variable_injector)
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, credential_injector)
         self._dictionary = resource_dictionary
 
     def discover(self):

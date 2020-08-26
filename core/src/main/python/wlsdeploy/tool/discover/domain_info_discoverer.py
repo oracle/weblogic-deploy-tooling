@@ -31,8 +31,8 @@ class DomainInfoDiscoverer(Discoverer):
     """
 
     def __init__(self, model_context, domain_info_dictionary, base_location,
-                 wlst_mode=WlstModes.OFFLINE, aliases=None, variable_injector=None):
-        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, variable_injector)
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None):
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, credential_injector)
         self._dictionary = domain_info_dictionary
 
     def discover(self):
@@ -52,7 +52,7 @@ class DomainInfoDiscoverer(Discoverer):
         return self._dictionary
 
     def add_admin_credentials(self):
-        injector = self._get_variable_injector()
+        injector = self._get_credential_injector()
         self._dictionary[model_constants.ADMIN_USERNAME] = alias_constants.PASSWORD_TOKEN
         self._dictionary[model_constants.ADMIN_PASSWORD] = alias_constants.PASSWORD_TOKEN
         if injector is not None:

@@ -88,6 +88,7 @@ class VariableInjector(object):
         :param model: to be updated with variables
         :param model_context: context with command line information
         :param version: of model if model context is not provided
+        :param variable_dictionary: optional, a pre-populated map of variables
         """
         self.__program_name = program_name
         self.__original = copy.deepcopy(model)

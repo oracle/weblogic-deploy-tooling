@@ -19,13 +19,13 @@ class ResourcesDiscoverer(object):
     """
 
     def __init__(self, model_context, resource_dictionary, base_location, wlst_mode=WlstModes.OFFLINE,
-                 aliases=None, variable_injector=None):
+                 aliases=None, credential_injector=None):
         self._base_location = base_location
         self._aliases = aliases
         self._model_context = model_context
         self._dictionary = resource_dictionary
         self._wlst_mode = wlst_mode
-        self._variable_injector = variable_injector
+        self._credential_injector = credential_injector
 
     def discover(self):
         """
@@ -36,8 +36,8 @@ class ResourcesDiscoverer(object):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         _logger.info('WLSDPLY-06300', class_name=_class_name, method_name=_method_name)
         GlobalResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, self._wlst_mode,
-                                  self._aliases, self._variable_injector).discover()
+                                  self._aliases, self._credential_injector).discover()
         CommonResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, self._wlst_mode,
-                                  self._aliases, self._variable_injector).discover()
+                                  self._aliases, self._credential_injector).discover()
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary

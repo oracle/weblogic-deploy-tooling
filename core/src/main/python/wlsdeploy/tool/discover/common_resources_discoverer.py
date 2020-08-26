@@ -33,14 +33,14 @@ class CommonResourcesDiscoverer(Discoverer):
     """
 
     def __init__(self, model_context, resource_dictionary, base_location,
-                 wlst_mode=WlstModes.OFFLINE, aliases=None, variable_injector=None):
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None):
         """
 
         :param model_context: context about the model for this instance of discover domain
         :param resource_dictionary: to populate the common resources. By default, populates the initialized resources
         :param base_location: to look for common weblogic resources. By default this is the global path or '/'
         """
-        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, variable_injector)
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, credential_injector)
         self._dictionary = resource_dictionary
         self._add_att_handler(model_constants.PATH_TO_SCRIPT, self._add_wldf_script)
 
@@ -64,7 +64,7 @@ class CommonResourcesDiscoverer(Discoverer):
         model_folder_name, folder_result = self.get_path_services()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         JmsResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, wlst_mode=self._wlst_mode,
-                               aliases=self._aliases, variable_injector=self._get_variable_injector()).discover()
+                               aliases=self._aliases, credential_injector=self._get_credential_injector()).discover()
         model_folder_name, folder_result = self.get_wldf_system_resources()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_system_component_resources()
@@ -73,7 +73,7 @@ class CommonResourcesDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         CoherenceResourcesDiscoverer(self._model_context, self._dictionary, self._base_location,
                                      wlst_mode=self._wlst_mode, aliases=self._aliases,
-                                     variable_injector=self._get_variable_injector()).discover()
+                                     credential_injector=self._get_credential_injector()).discover()
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary

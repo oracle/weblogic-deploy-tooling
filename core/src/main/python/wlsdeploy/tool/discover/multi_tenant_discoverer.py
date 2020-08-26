@@ -27,8 +27,8 @@ class MultiTenantDiscoverer(Discoverer):
     """
 
     def __init__(self, model, model_context, base_location,
-                 wlst_mode=WlstModes.OFFLINE, aliases=None, variable_injector=None):
-        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, variable_injector)
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None):
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, credential_injector)
         self._model = model
 
     def discover(self):
@@ -37,10 +37,10 @@ class MultiTenantDiscoverer(Discoverer):
         _logger.info('WLSDPLY-06700', class_name=_class_name, method_name=_method_name)
         MultiTenantTopologyDiscoverer(self._model_context, self._model.get_model_topology(), self._base_location,
                                       wlst_mode=self._wlst_mode, aliases=self._aliases,
-                                      variable_injector=self._get_variable_injector()).discover()
+                                      credential_injector=self._get_credential_injector()).discover()
         MultiTenantResourcesDiscoverer(self._model_context, self._model.get_model_resources(), self._base_location,
                                        wlst_mode=self._wlst_mode, aliases=self._aliases,
-                                       variable_injector=self._get_variable_injector).discover()
+                                       credential_injector=self._get_credential_injector).discover()
         dictionary = self._model.get_model_resources()
         model_folder_name, result = self.get_resource_group_templates()
         discoverer.add_to_model_if_not_empty(dictionary, model_folder_name, result)

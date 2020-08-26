@@ -181,13 +181,13 @@ def __discover(model_context, aliases, injector, helper):
     try:
         _add_domain_name(base_location, aliases, helper)
         DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
-                             aliases=aliases, variable_injector=injector).discover()
+                             aliases=aliases, credential_injector=injector).discover()
         TopologyDiscoverer(model_context, model.get_model_topology(), base_location, wlst_mode=__wlst_mode,
-                           aliases=aliases, variable_injector=injector).discover()
+                           aliases=aliases, credential_injector=injector).discover()
         ResourcesDiscoverer(model_context, model.get_model_resources(), base_location, wlst_mode=__wlst_mode,
-                            aliases=aliases, variable_injector=injector).discover()
+                            aliases=aliases, credential_injector=injector).discover()
         DeploymentsDiscoverer(model_context, model.get_model_app_deployments(), base_location, wlst_mode=__wlst_mode,
-                              aliases=aliases, variable_injector=injector).discover()
+                              aliases=aliases, credential_injector=injector).discover()
         __discover_multi_tenant(model, model_context, base_location, aliases, injector)
     except AliasException, ae:
         wls_version = WebLogicHelper(__logger).get_actual_weblogic_version()
@@ -228,7 +228,7 @@ def __discover_multi_tenant(model, model_context, base_location, aliases, inject
     :raises DiscoverException: if an error occurs during discovery
     """
     MultiTenantDiscoverer(model, model_context, base_location,
-                          wlst_mode=__wlst_mode, aliases=aliases, variable_injector=injector).discover()
+                          wlst_mode=__wlst_mode, aliases=aliases, credential_injector=injector).discover()
     return
 
 
@@ -391,14 +391,14 @@ def __persist_model(model, model_context):
     return
 
 
-def __check_and_customize_model(model, model_context, aliases, password_injector):
+def __check_and_customize_model(model, model_context, aliases, credential_injector):
     """
     Customize the model dictionary before persisting. Validate the model after customization for informational
     purposes. Any validation errors will not stop the discovered model to be persisted.
     :param model: completely discovered model, before any tokenization
     :param model_context: configuration from command-line
     :param aliases: used for validation if model changes are made
-    :param password_injector: injector created to collect and tokenize passwords, possibly None
+    :param credential_injector: injector created to collect and tokenize credentials, possibly None
     """
     _method_name = '__check_and_customize_model'
     __logger.entering(class_name=_class_name, method_name=_method_name)
@@ -406,23 +406,24 @@ def __check_and_customize_model(model, model_context, aliases, password_injector
     if filter_helper.apply_filters(model.get_model(), "discover", model_context):
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
-    cache = None
-    if password_injector is not None:
-        cache = password_injector.get_variable_cache()
+    credential_cache = None
+    if credential_injector is not None:
+        credential_cache = credential_injector.get_variable_cache()
 
         # Generate k8s create secret script, possibly using lax validation method
         if model_context.is_targetted_config():
             validation_method = model_context.get_target_configuration().get_validation_method()
             model_context.set_validation_method(validation_method)
-            target_configuration_helper.generate_k8s_script(model_context, cache, model.get_model())
+            target_configuration_helper.generate_k8s_script(model_context, credential_cache, model.get_model())
 
             # if target handles password substitution, clear property cache to keep out of variables file.
             if model_context.get_target_configuration().manages_credentials():
-                cache.clear()
+                credential_cache.clear()
 
-    # Apply the injectors specified in model_variable_injector.json, or in the target configuration
+    # Apply the injectors specified in model_variable_injector.json, or in the target configuration.
+    # Include the variable mappings that were collected in credential_cache.
     variable_injector = VariableInjector(_program_name, model.get_model(), model_context,
-                                         WebLogicHelper(__logger).get_actual_weblogic_version(), cache)
+                                         WebLogicHelper(__logger).get_actual_weblogic_version(), credential_cache)
 
     inserted, variable_model, variable_file_name = variable_injector.inject_variables_keyword_file()
 

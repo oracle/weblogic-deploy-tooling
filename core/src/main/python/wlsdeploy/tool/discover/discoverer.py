@@ -40,11 +40,13 @@ class Discoverer(object):
     Discoverer contains the private methods used to facilitate discovery of the domain information by its subclasses.
     """
 
-    def __init__(self, model_context, base_location, wlst_mode, aliases=None, variable_injector=None):
+    def __init__(self, model_context, base_location, wlst_mode, aliases=None, credential_injector=None):
         """
-
         :param model_context: context about the model for this instance of discover domain
         :param base_location: to look for common weblogic resources. By default this is the global path or '/'
+        :param wlst_mode: offline or online
+        :param aliases: optional, aliases object to use
+        :param credential_injector: optional, injector to collect credentials
         """
         self._model_context = model_context
         self._base_location = base_location
@@ -54,10 +56,10 @@ class Discoverer(object):
         else:
             self._aliases = Aliases(self._model_context, wlst_mode=self._wlst_mode,
                                     exception_type=ExceptionType.DISCOVER)
-        self._variable_injector = variable_injector
+        self._credential_injector = credential_injector
         self._att_handler_map = OrderedDict()
-        self._custom_folder = CustomFolderHelper(self._aliases, _logger,
-                                                 self._model_context, ExceptionType.DISCOVER, self._variable_injector)
+        self._custom_folder = CustomFolderHelper(self._aliases, _logger, self._model_context, ExceptionType.DISCOVER,
+                                                 self._credential_injector)
         self._weblogic_helper = WebLogicHelper(_logger)
         self._wlst_helper = WlstHelper(ExceptionType.DISCOVER)
         self._mbean_utils = MBeanUtils(self._model_context, self._aliases, ExceptionType.DISCOVER)
@@ -724,14 +726,19 @@ class Discoverer(object):
                          class_name=_class_name, method_name=_method_name)
         # if not working with injector, do nothing. If attribute is not in model_section, not working with
         # correct information.
-        if self._variable_injector is not None:
-            self._variable_injector.custom_injection(model_section, attribute, location, injector_commands)
+        if self._credential_injector is not None:
+            self._credential_injector.custom_injection(model_section, attribute, location, injector_commands)
             _logger.fine('WLSDPLY-06155', attribute, location.get_folder_path(), model_section[attribute],
                          class_name=_class_name, method_name=_method_name)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    def _get_variable_injector(self):
-        return self._variable_injector
+    def _get_credential_injector(self):
+        """
+        The credential injector is a specialized injector that collects credentials during the discovery process.
+        It is later used to create the properties file, or Kubernetes secrets.
+        :return: the credential injector
+        """
+        return self._credential_injector
 
     def _massage_online_folders(self, lsc_folders):
         _method_name = '_massage_online_folders'
