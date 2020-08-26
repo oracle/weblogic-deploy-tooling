@@ -386,7 +386,7 @@ class Discoverer(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return result
 
-    def _discover_artificial_folder(self, model_subfolder_type, location, name_token):
+    def _discover_artificial_folder(self, model_subfolder_type, location, name_token, check_order=False):
         """
         Discover the subfolder that has an artificial connection; the subfolder contains multiple different types
         under one MBean. The model must contain the subfolder type, the artificial type that specifies which it is,
@@ -395,6 +395,7 @@ class Discoverer(object):
         :param model_subfolder_type: type of the model subfolder
         :param location: context containing the current location information
         :param name_token: for use in the location to contain the folder name
+        :param check_order: if true, check the subfolders for order
         :return: dictionary containing the discovered folder attributes
         """
         _method_name = '_discover_artifical_folder'
@@ -402,6 +403,9 @@ class Discoverer(object):
                          method_name=_method_name)
         subfolder_result = OrderedDict()
         names = self._find_names_in_folder(location)
+        required_order = self._aliases.get_subfolders_in_order(location)
+        attr_map = dict()
+        default_list = list()
         if names is not None:
             for name in names:
                 massaged = self._inspect_artificial_folder_name(name, location)
@@ -411,6 +415,9 @@ class Discoverer(object):
                     if self._aliases.is_custom_folder_allowed(location):
                         _logger.fine('WLSDPLY-06148', model_subfolder_type, massaged, location.get_folder_path(),
                                      class_name=_class_name, method_name=_method_name)
+                        # doesn't matter how many parameters, it is automatically a non-default name
+                        default_list.append(massaged)
+                        attr_map[massaged] = 0
                         subfolder_result.update(
                             self._custom_folder.discover_custom_mbean(location, model_subfolder_type, massaged))
                     else:
@@ -423,8 +430,23 @@ class Discoverer(object):
                     subfolder_result[massaged] = OrderedDict()
                     subfolder_result[massaged][artificial] = OrderedDict()
                     self._populate_model_parameters(subfolder_result[massaged][artificial], location)
+                    default_list.append(artificial)
+                    attr_map[artificial] = len(subfolder_result[massaged][artificial])
                     location.pop_location()
                 location.remove_name_token(name_token)
+
+        # check to see if the order and number of the subfolder list is same as required order
+        is_default = False
+        if check_order and len(required_order) == len(default_list):
+            is_default = True
+            idx = 0
+            while idx < len(required_order):
+                if  required_order[idx] != default_list[idx] or attr_map[default_list[idx]] > 0:
+                    is_default = False
+                    break
+                idx += 1
+        if is_default:
+            subfolder_result = None
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=subfolder_result)
         return subfolder_result
 
@@ -458,12 +480,13 @@ class Discoverer(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return subfolder_result
 
-    def _discover_subfolder(self, model_subfolder_name, location, result=None):
+    def _discover_subfolder(self, model_subfolder_name, location, result=None, check_order=False):
         """
         Discover the subfolder indicated by the model subfolder name. Append the model subfolder to the
         current location context, and pop that location before return
         :param model_subfolder_name: Name of the model subfolder
         :param location: context containing the current subfolder information
+        :param check_order: does the folder need to be checked for order
         :return: discovered dictionary
         """
         _method_name = '_discover_subfolder'
@@ -485,22 +508,29 @@ class Discoverer(object):
                 subfolder_result = self._discover_subfolder_with_single_name(model_subfolder_name, location,
                                                                              name_token)
             elif self._aliases.requires_artificial_type_subfolder_handling(location):
-                subfolder_result = self._discover_artificial_folder(model_subfolder_name, location, name_token)
+                subfolder_result = self._discover_artificial_folder(
+                    model_subfolder_name, location, name_token, check_order)
             else:
                 subfolder_result = self._discover_subfolder_with_names(model_subfolder_name, location,
                                                                        name_token)
         else:
             subfolder_result = self._discover_subfolder_singleton(model_subfolder_name, location)
-        add_to_model_if_not_empty(result, model_subfolder_name, subfolder_result)
+        # this is a really special case. Empty means not-default it is empty
+        if self._aliases.requires_artificial_type_subfolder_handling(location):
+            if subfolder_result is not None:
+                add_to_model(result, model_subfolder_name, subfolder_result)
+        else:
+            add_to_model_if_not_empty(result, model_subfolder_name, subfolder_result)
         location.pop_location()
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
 
-    def _discover_subfolders(self, result, location):
+    def _discover_subfolders(self, result, location, check_order=False):
         """
         Discover the rest of the mbean hierarchy at the current location.
         :param result: dictionary where to store the discovered subfolders
         :param location: context containing current location information
+        :param check_order: True if artificial folder has an order to check
         :return: populated dictionary
         """
         _method_name = '_discover_subfolders'
@@ -511,7 +541,7 @@ class Discoverer(object):
                 model_subfolder_name = self._get_model_name(location, wlst_subfolder)
                 # will return a None if subfolder not in current wls version
                 if model_subfolder_name is not None:
-                    result = self._discover_subfolder(model_subfolder_name, location, result)
+                    result = self._discover_subfolder(model_subfolder_name, location, result, check_order)
         _logger.finest('WLSDPLY-06114', str(location), class_name=_class_name, method_name=_method_name)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
@@ -789,6 +819,15 @@ def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
         return True
     return False
 
+
+def add_to_model(dictionary, entry_name, entry_value):
+    """
+    Add this to the model even if empty
+    :param dictionary: to add the value
+    :param entry_name: name of the key
+    :param entry_value: dictionary to add
+    """
+    dictionary[entry_name] = entry_value
 
 def convert_to_absolute_path(relative_to, file_name):
     """

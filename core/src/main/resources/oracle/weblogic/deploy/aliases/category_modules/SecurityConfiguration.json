@@ -78,6 +78,7 @@
                         "DefaultAdjudicator": {
                             "wlst_type": "${DefaultAdjudicator:weblogic.security.providers.authorization.DefaultAdjudicator}",
                             "child_folders_type": "none",
+                            "folder_order": 1,
                             "folders": {},
                             "attributes" : {
                                 "CompatibilityObjectName": [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "CompatibilityObjectName", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"  } ],
@@ -230,6 +231,7 @@
                         "DefaultAuthenticator": {
                             "wlst_type": "${DefaultAuthenticator:weblogic.security.providers.authentication.DefaultAuthenticator}",
                             "child_folders_type": "none",
+                            "folder_order": 1,
                             "folders": {},
                             "attributes" : {
                                 "CompatibilityObjectName":                     [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "CompatibilityObjectName",                     "wlst_path": "WP001", "value": {"default": "None"     },    "wlst_type": "string"           } ],
@@ -264,9 +266,10 @@
                         "DefaultIdentityAsserter": {
                             "wlst_type": "${DefaultIdentityAsserter:weblogic.security.providers.authentication.DefaultIdentityAsserter}",
                             "child_folders_type": "none",
+                            "folder_order": 2,
                             "folders": {},
                             "attributes" : {
-                                "ActiveType":                              [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "ActiveType${:s}",                         "wlst_path": "WP001", "value": {"default": "None"                                     }, "wlst_type": "${list:jarray}",              "wlst_read_type": "delimited_string[semicolon]", "preferred_model_type": "list", "get_method": "LSA" } ],
+                                "ActiveType":                              [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "ActiveType${:s}",                         "wlst_path": "WP001", "value": {"default": ["AuthenticatedUser", "weblogic-jwt-token"]}, "wlst_type": "${list:jarray}",              "wlst_read_type": "delimited_string[semicolon]", "preferred_model_type": "list", "get_method": "LSA" } ],
                                 "Base64DecodingRequired":                  [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "Base64DecodingRequired",                  "wlst_path": "WP001", "value": {"default": true                                       }, "wlst_type": "boolean"                      } ],
                                 "Base64EncodingException":                 [ {"version": "[12.2.1,)",   "wlst_mode": "both", "wlst_name": "Base64EncodingException${:s}",            "wlst_path": "WP001", "value": {"default": "None"                                     }, "wlst_type": "${list:jarray}",              "wlst_read_type": "delimited_string[semicolon]", "preferred_model_type": "list", "get_method": "LSA" } ],
                                 "CompatibilityObjectName":                 [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "CompatibilityObjectName",                 "wlst_path": "WP001", "value": {"default": "None"                                     }, "wlst_type": "string"                       } ],
@@ -954,11 +957,12 @@
                         "XACMLAuthorizer": {
                             "wlst_type": "${XACMLAuthorizer:weblogic.security.providers.xacml.authorization.XACMLAuthorizer}",
                             "child_folders_type": "none",
+                            "folder_order": 1,
                             "folders": {},
                             "attributes" : {
                                 "CompatibilityObjectName":     [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "CompatibilityObjectName",     "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string"  } ],
                                 "Description":                 [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "Description",                 "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string", "access": "RO" } ],
-                                "PolicyDeploymentEnabled":     [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "PolicyDeploymentEnabled",     "wlst_path": "WP001", "value": {"default": 1     }, "wlst_type": "boolean"} ],
+                                "PolicyDeploymentEnabled":     [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "PolicyDeploymentEnabled",     "wlst_path": "WP001", "value": {"default": true}, "wlst_type": "boolean"} ],
                                 "ProviderClassName":           [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "ProviderClassName",           "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "string", "access": "RO"} ],
                                 "SupportedExportConstraints":  [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "SupportedExportConstraints",  "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "jarray", "access": "RO"} ],
                                 "SupportedExportFormats":      [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "SupportedExportFormats",      "wlst_path": "WP001", "value": {"default": "None"}, "wlst_type": "jarray", "access": "RO"} ],
@@ -997,6 +1001,7 @@
                         "WebLogicCertPathProvider": {
                             "wlst_type": "${WebLogicCertPathProvider:weblogic.security.providers.pk.WebLogicCertPathProvider}",
                             "child_folders_type": "none",
+                            "folder_order": 1,
                             "folders": { },
                             "attributes" : {
                                 "CompatibilityObjectName": [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "CompatibilityObjectName", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"  } ],
@@ -1023,6 +1028,7 @@
                         "DefaultCredentialMapper": {
                             "wlst_type": "${DefaultCredentialMapper:weblogic.security.providers.credentials.DefaultCredentialMapper}",
                             "child_folders_type": "none",
+                            "folder_order": 1,
                             "folders": { },
                             "attributes" : {
                                 "CompatibilityObjectName":            [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "CompatibilityObjectName",            "wlst_path": "WP001", "value": {"default": "None" },    "wlst_type": "string"  } ],
@@ -1117,6 +1123,7 @@
                         "SystemPasswordValidator": {
                             "wlst_type" : "${SystemPasswordValidator:com.bea.security.providers.authentication.passwordvalidator.SystemPasswordValidator}",
                             "child_folders_type": "none",
+                            "folder_order": 1,
                             "folders" : { },
                             "attributes" : {
                                 "CompatibilityObjectName":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "CompatibilityObjectName",             "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"  } ],
@@ -1191,6 +1198,7 @@
                         "XACMLRoleMapper": {
                             "wlst_type" : "${XACMLRoleMapper:weblogic.security.providers.xacml.authorization.XACMLRoleMapper}",
                             "child_folders_type": "none",
+                            "folder_order": 1,
                             "folders" : { },
                             "attributes" : {
                                 "CompatibilityObjectName":    [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "CompatibilityObjectName",     "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string"  } ],

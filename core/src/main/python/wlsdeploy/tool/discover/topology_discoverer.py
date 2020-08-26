@@ -24,6 +24,7 @@ from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.tool.util.variable_injector import VARIABLE_SEP
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import string_utils
 from wlsdeploy.util import variables
 
@@ -323,14 +324,43 @@ class TopologyDiscoverer(Discoverer):
             location.add_name_token(self._aliases.get_name_token(location), security_configuration)
             self._populate_model_parameters(result, location)
             self._massage_security_credential(result, location)
-            try:
-                self._discover_subfolders(result, location)
-            except DiscoverException, de:
-                _logger.warning('WLSDPLY-06200', self._wls_version, de.getLocalizedMessage(),
-                                class_name=_class_name, method_name=_method_name)
-                result = OrderedDict()
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return model_top_folder_name, result
+            location.append_location(model_constants.REALM)
+            result[model_constants.REALM] = OrderedDict()
+            realms = self._find_names_in_folder(location)
+            for realm in realms:
+                name_token = self._aliases.get_name_token(location)
+                location.add_name_token(name_token, realm)
+                result[model_constants.REALM][realm] = OrderedDict()
+                self._populate_model_parameters(result[model_constants.REALM][realm], location)
+                if realm == 'myrealm':
+                    check_order=True
+                else:
+                    check_order=False
+                try:
+                    self._discover_subfolders(result[model_constants.REALM][realm], location, check_order)
+                    location.remove_name_token(name_token)
+                except DiscoverException, de:
+                    _logger.warning('WLSDPLY-06200', self._wls_version, de.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name)
+                    result = OrderedDict()
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, self._slim_security_config(result)
+
+    def _slim_security_config(self, sc_dict):
+        """
+        Check the default realm 'myrealm' for any customization. Remove the parts of the SecurityConfiguration that
+        are defaulted to the way installed by the WLS template. If the entire SecurityConfiguration is the default,
+        remove the SecurityConfiguration section.
+        :param sc_dict: SecurityConfiguration section of model
+        :return: converted_dictionary with defaults removed
+        """
+        realm_dict = dictionary_utils.get_dictionary_element(sc_dict, model_constants.REALM)
+        if 'myrealm' in realm_dict and dictionary_utils.is_empty_dictionary_element(realm_dict, 'myrealm'):
+            del sc_dict[model_constants.REALM]['myrealm']
+        if dictionary_utils.is_empty_dictionary_element(sc_dict, model_constants.REALM):
+            del sc_dict[model_constants.REALM]
+        return sc_dict
 
     def get_embedded_ldap_configuration(self):
         """

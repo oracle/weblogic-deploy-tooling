@@ -18,6 +18,7 @@ from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.alias_constants import CONTAINS
 from wlsdeploy.aliases.alias_constants import DEFAULT_NAME_VALUE
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
+from wlsdeploy.aliases.alias_constants import FOLDER_ORDER
 from wlsdeploy.aliases.alias_constants import FOLDER_PARAMS
 from wlsdeploy.aliases.alias_constants import FOLDERS
 from wlsdeploy.aliases.alias_constants import GET_MBEAN_TYPE
@@ -903,6 +904,47 @@ class AliasEntries(object):
                 return False
         return True
 
+    def get_folders_in_order_for_location(self, location):
+        """
+        Find the folders that are ordered (greater than zero) at the specified location and
+        return the list in order of the 
+        :param location:
+        :return:
+        """
+        _method_name = 'get_folders_in_order_for_location'
+        holder = dict()
+        for subfolder in self.get_model_subfolder_names_for_location(location):
+            result = self.get_folder_order_for_location(location, subfolder)
+            if result > 0:
+                if result in holder:
+                    ex = exception_helper.create_alias_exception('WLSDPLY-08137', subfolder, holder[result])
+                    _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                    raise ex
+                holder[result] = subfolder
+
+        result = list()
+        keys = holder.keys()
+        keys.sort()
+        for key in keys:
+            result.append(holder[key])
+
+        return result
+
+    def get_folder_order_for_location(self, parent_location, subfolder_name):
+        """
+        Get the order for the subfolder named under the provided location.
+        :param parent_location: location of the subfolder
+        :param subfolder_name: name of the subfolder
+        :return: folder order of the subfolder or 0 if not ordered
+        """
+        location = LocationContext(parent_location)
+        location.append_location(subfolder_name)
+        folder_dict = self.__get_dictionary_for_location(location, False)
+        result = 0
+        if FOLDER_ORDER in folder_dict:
+            result = int(folder_dict[FOLDER_ORDER])
+        return result
+
     def get_folder_short_name_for_location(self, location):
         """
         Retrieve the shortened name for the model folder at the provided location.
@@ -1175,6 +1217,9 @@ class AliasEntries(object):
 
         if SHORT_NAME in alias_dict:
             result[SHORT_NAME] = alias_dict[SHORT_NAME]
+
+        if FOLDER_ORDER in alias_dict:
+            result[FOLDER_ORDER] = alias_dict[FOLDER_ORDER]
 
         if WLST_PATHS in alias_dict:
             wlst_paths = alias_dict[WLST_PATHS]
