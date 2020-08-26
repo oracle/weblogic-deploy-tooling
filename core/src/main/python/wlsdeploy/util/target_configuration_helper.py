@@ -230,7 +230,14 @@ def find_user_name(property_name, model_dictionary):
         name = matches[0]
         resources = dictionary_utils.get_dictionary_element(model_dictionary, RESOURCES)
         system_resources = dictionary_utils.get_dictionary_element(resources, JDBC_SYSTEM_RESOURCE)
-        datasource = dictionary_utils.get_dictionary_element(system_resources, name)
+
+        # the property name has already been "cleaned", so clean resource name to find a match
+        datasource = {}
+        for resource_name in system_resources:
+            resource_property_name = variable_injector_functions.clean_property_name(resource_name)
+            if name == resource_property_name:
+                datasource = dictionary_utils.get_dictionary_element(system_resources, resource_name)
+
         jdbc_resources = dictionary_utils.get_dictionary_element(datasource, JDBC_RESOURCE)
         driver_params = dictionary_utils.get_dictionary_element(jdbc_resources, JDBC_DRIVER_PARAMS)
         properties = dictionary_utils.get_dictionary_element(driver_params, PROPERTIES)
