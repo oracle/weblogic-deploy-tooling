@@ -20,7 +20,6 @@ from wlsdeploy.tool.discover.coherence_resources_discoverer import CoherenceReso
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.tool.discover.jms_resources_discoverer import JmsResourcesDiscoverer
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import variables
 
 _class_name = 'CommonResourcesDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -448,7 +447,7 @@ def _fix_passwords_in_mail_session_properties(dictionary):
                 key = iterator.next()
                 new_key = str(key).strip()
                 value = str(properties.getProperty(key))
-                tokenized = variables.has_variables(value)
+                tokenized = value.startswith('@@')
                 if StringUtils.matches(match_pattern, new_key) and not tokenized:
                     value = replacement
                 new_properties[new_key] = value
