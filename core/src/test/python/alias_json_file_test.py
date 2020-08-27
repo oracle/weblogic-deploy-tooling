@@ -26,6 +26,7 @@ from wlsdeploy.aliases.alias_constants import CONTAINS
 from wlsdeploy.aliases.alias_constants import DEFAULT
 from wlsdeploy.aliases.alias_constants import DEFAULT_NAME_VALUE
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
+from wlsdeploy.aliases.alias_constants import FOLDER_ORDER
 from wlsdeploy.aliases.alias_constants import FOLDER_PARAMS
 from wlsdeploy.aliases.alias_constants import FOLDERS
 from wlsdeploy.aliases.alias_constants import GET
@@ -84,6 +85,7 @@ class ListTestCase(unittest.TestCase):
         CONTAINS,
         DEFAULT_NAME_VALUE,
         FLATTENED_FOLDER_DATA,
+        FOLDER_ORDER,
         FOLDER_PARAMS,
         SHORT_NAME,
         VERSION,
@@ -343,6 +345,13 @@ class ListTestCase(unittest.TestCase):
         result = []
         if type(attribute_value) is not str:
             result.append(self._get_invalid_string_type_message(folder_name, SHORT_NAME, attribute_value))
+        return result
+
+    def _verify_folder_folder_order_attribute_value(self, folder_name, attribute_value):
+        result = []
+        if (type(attribute_value) is not long and type(attribute_value) is not int) or \
+                attribute_value < 0:
+            result.append(self._get_invalid_attribute_value_message(folder_name, FOLDER_ORDER, attribute_value))
         return result
 
     def _verify_folder_wlst_attributes_path_attribute_type(self, folder_name, attribute_value):

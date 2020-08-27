@@ -1274,6 +1274,19 @@ class AliasesTestCase(unittest.TestCase):
             self.online_aliases.get_wlst_attribute_name_and_value(location, FOLDERS.DOMAIN_VERSION, '12.2.1.3.0')
         self.assertEquals(None, wlst_value)
 
+    def testFolderOrder(self):
+        expected_list = ['DefaultAuthenticator', 'DefaultIdentityAsserter']
+        location = LocationContext()
+        location.append_location(FOLDERS.SECURITY_CONFIGURATION)
+        location.add_name_token(self.aliases.get_name_token(location), 'mydomain')
+        location.append_location(FOLDERS.REALM)
+        location.add_name_token(self.aliases.get_name_token(location), 'myrealm')
+        location.append_location(FOLDERS.AUTHENTICATION_PROVIDER)
+        actual_list = self.aliases.get_subfolders_in_order(location)
+        self.assertEquals(len(expected_list), len(actual_list))
+        self.assertEquals(expected_list[0], actual_list[0])
+        self.assertEquals(expected_list[1], actual_list[1])
+
 
 def get_jdbc_ds_params_location(name, aliases):
     location = get_jdbc_resource_location(name, aliases)
