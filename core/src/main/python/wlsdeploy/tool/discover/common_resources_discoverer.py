@@ -13,7 +13,6 @@ from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.discover import discoverer
@@ -21,6 +20,7 @@ from wlsdeploy.tool.discover.coherence_resources_discoverer import CoherenceReso
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.tool.discover.jms_resources_discoverer import JmsResourcesDiscoverer
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import variables
 
 _class_name = 'CommonResourcesDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -440,15 +440,16 @@ def _fix_passwords_in_mail_session_properties(dictionary):
         string_properties = dictionary[model_constants.MAIL_SESSION_PROPERTIES]
         if string_properties:
             properties = string_properties
-            if isinstance(string_properties, str):
+            if isinstance(string_properties, basestring):
                 properties = StringUtils.formatPropertiesFromString(string_properties)
             new_properties = OrderedDict()
             iterator = properties.stringPropertyNames().iterator()
             while iterator.hasNext():
                 key = iterator.next()
                 new_key = str(key).strip()
-                value = properties.getProperty(key)
-                if StringUtils.matches(match_pattern, new_key):
+                value = str(properties.getProperty(key))
+                tokenized = variables.has_variables(value)
+                if StringUtils.matches(match_pattern, new_key) and not tokenized:
                     value = replacement
                 new_properties[new_key] = value
         dictionary[model_constants.MAIL_SESSION_PROPERTIES] = new_properties

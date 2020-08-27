@@ -119,6 +119,13 @@ class VariableInjector(object):
             self.__variable_dictionary = OrderedDict()
         return self.__variable_dictionary
 
+    def get_aliases(self):
+        """
+        Get the aliases object
+        :return: the aliases object
+        """
+        return self.__aliases
+
     def add_to_cache(self, dictionary=None, token_name=None, token_value=None):
         """
         Must pass either a dictionary containing token names and token values or a single token name and token
