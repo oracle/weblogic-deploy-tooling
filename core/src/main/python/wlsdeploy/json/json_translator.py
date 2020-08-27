@@ -170,7 +170,7 @@ class PythonToJson(object):
 
         indent += self._indent_unit
         for key, value in dictionary.iteritems():
-            if isinstance(key, str) and key.startswith(COMMENT_MATCH):
+            if isinstance(key, basestring) and key.startswith(COMMENT_MATCH):
                 self._logger.finer('WLSDPLY-01714', key, class_name=self._class_name, method_name=_method_name)
             else:
                 writer.println(end_line)
