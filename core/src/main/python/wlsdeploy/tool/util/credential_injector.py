@@ -2,6 +2,7 @@
 Copyright (c) 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import re
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 from wlsdeploy.aliases.alias_constants import CREDENTIAL
@@ -20,6 +21,9 @@ from wlsdeploy.tool.util.variable_injector import REGEXP_SUFFIX
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.variable_injector import VARIABLE_VALUE
 from wlsdeploy.tool.util.variable_injector import VariableInjector
+from wlsdeploy.util import target_configuration_helper
+from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
+from wlsdeploy.util.target_configuration import SECRETS_METHOD
 
 _class_name = 'CredentialInjector'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -63,6 +67,7 @@ class CredentialInjector(VariableInjector):
         """
         VariableInjector.__init__(self, program_name, model, model_context, version=version,
                                   variable_dictionary=variable_dictionary)
+        self._model_context = model_context
 
     def check_and_tokenize(self, dictionary, location, model_param, model_value):
         """
@@ -116,3 +121,52 @@ class CredentialInjector(VariableInjector):
                 for key in properties:
                     assigns.append('%s=%s' % (key, properties[key]))
                 dictionary[model_param] = ';'.join(assigns)
+
+    def get_variable_name(self, location, attribute, suffix=None):
+        """
+        Override method to possibly create secret token names instead of property names.
+        :param location: the location to be used
+        :param attribute: the attribute to be examined
+        :param suffix: optional suffix for name
+        :return: the derived name, such as jdbc-generic1.password
+        """
+        target_config = self._model_context.get_target_configuration()
+        credentials_method = target_config.get_credentials_method()
+        if credentials_method in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]:
+            aliases = self.get_aliases()
+            attribute_type = aliases.get_model_attribute_type(location, attribute)
+            variable_name = VariableInjector.get_variable_name(self, location, attribute)
+
+            # JDBC user ends with ".user.Value", needs to be .user-value to match with password
+            variable_name = re.sub('.user.Value$', '.user-value', variable_name)
+
+            secret_key = "username"
+            if attribute_type == PASSWORD:
+                secret_key = "password"
+            if suffix:
+                variable_name = '%s-%s' % (variable_name, suffix)
+                # credentials in properties (MailSession) can't use attribute_type
+                if suffix.endswith(".password"):
+                    secret_key = "password"
+
+            secret_name = target_configuration_helper.create_secret_name(variable_name)
+            return '%s:%s' % (secret_name, secret_key)
+
+        return VariableInjector.get_variable_name(self, location, attribute, suffix=suffix)
+
+    def get_variable_token(self, attribute, variable_name):
+        """
+        Override method to possibly create secret tokens instead of property token.
+        :param attribute: the attribute to be examined
+        :param variable_name: the variable name, such as JDBC.Generic1.PasswordEncrypted
+        :return: the complete token name, such as @@SECRET:jdbc-generic1.password@@
+        """
+        target_config = self._model_context.get_target_configuration()
+        credentials_method = target_config.get_credentials_method()
+
+        if credentials_method in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]:
+            # return '@@SECRET:%s:%s@@'' %
+            return '@@SECRET:@@ENV:DOMAIN_UID@@-%s@@' % variable_name
+
+        else:
+            return VariableInjector.get_variable_token(self, attribute, variable_name)

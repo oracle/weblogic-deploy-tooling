@@ -9,11 +9,6 @@ import os
 from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
-from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
-from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
-from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
-from wlsdeploy.aliases.model_constants import PROPERTIES
-from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.exception import exception_helper
@@ -41,8 +36,6 @@ PASSWORD_TAG = "<password>"
 # placeholders for config override secrets
 ADMINUSER_PLACEHOLDER = "weblogic"
 PASSWORD_PLACEHOLDER = "password1"
-
-_jdbc_pattern = re.compile("^JDBC\\.([ \\w.-]+)\\.PasswordEncrypted$")
 
 
 def process_target_arguments(argument_map):
@@ -129,14 +122,30 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     k8s_script.write("# " + message + nl)
     k8s_script.write(command_string + nl)
 
+    # build a map of secret names (jdbc-generic1) to keys (username, password)
+    secret_map = {}
     for property_name in token_dictionary:
+        halves = property_name.split(':', 1)
+        value = token_dictionary[property_name]
+        if len(halves) == 2:
+            secret_name = halves[0]
+            secret_key = halves[1]
+            if secret_name not in secret_map:
+                secret_map[secret_name] = {}
+            secret_keys = secret_map[secret_name]
+            secret_keys[secret_key] = value
+
+    secret_names = secret_map.keys()
+    secret_names.sort()
+
+    for secret_name in secret_names:
         # AdminPassword, AdminUser are created separately,
         # and SecurityConfig.NodeManagerPasswordEncrypted is the short name which filters out
         if property_name in ['AdminPassword', 'AdminUserName', 'SecurityConfig.NodeManagerPasswordEncrypted']:
             continue
 
-        user_name = find_user_name(property_name, model_dictionary)
-        secret_name = _create_secret_name(property_name)
+        secret_keys = secret_map[secret_name]
+        user_name = dictionary_utils.get_element(secret_keys, 'username')
 
         if user_name is None:
             message = exception_helper.get_message("WLSDPLY-01663", PASSWORD_TAG, secret_name)
@@ -177,7 +186,7 @@ def format_as_secret_token(variable_name, target_config):
 
     # for paired and single secrets, password key is always named "password"
     secret_key = "password"
-    secret_name = _create_secret_name(variable_name)
+    secret_name = create_secret_name(variable_name)
     return normal_secret_format % (secret_name, secret_key)
 
 
@@ -191,7 +200,7 @@ def get_secret_name_for_location(location, domain_uid, aliases):
     :return: the secret name
     """
     variable_name = variable_injector_functions.format_variable_name(location, '(none)', aliases)
-    secret_name = _create_secret_name(variable_name)
+    secret_name = create_secret_name(variable_name)
     return domain_uid + '-' + secret_name
 
 
@@ -214,44 +223,7 @@ def create_additional_output(model, model_context, aliases, exception_type):
                              method_name=_method_name)
 
 
-def find_user_name(property_name, model_dictionary):
-    """
-    Determine the user name associated with the specified property name.
-    Return None if the property name is not part of a paired secret with .username and .password .
-    Return <user> if the property name is paired, but user is not found.
-    Currently only supports user for JDBC.[name].PasswordEncrypted
-    Needs a much better implementation for future expansion.
-    :param property_name: the property name, such as JDBC.Generic2.PasswordEncrypted
-    :param model_dictionary: for looking up the user name
-    :return: the matching user name, a substitution string, or None
-    """
-    matches = _jdbc_pattern.findall(property_name)
-    if matches:
-        name = matches[0]
-        resources = dictionary_utils.get_dictionary_element(model_dictionary, RESOURCES)
-        system_resources = dictionary_utils.get_dictionary_element(resources, JDBC_SYSTEM_RESOURCE)
-
-        # the property name has already been "cleaned", so clean resource name to find a match
-        datasource = {}
-        for resource_name in system_resources:
-            resource_property_name = variable_injector_functions.clean_property_name(resource_name)
-            if name == resource_property_name:
-                datasource = dictionary_utils.get_dictionary_element(system_resources, resource_name)
-
-        jdbc_resources = dictionary_utils.get_dictionary_element(datasource, JDBC_RESOURCE)
-        driver_params = dictionary_utils.get_dictionary_element(jdbc_resources, JDBC_DRIVER_PARAMS)
-        properties = dictionary_utils.get_dictionary_element(driver_params, PROPERTIES)
-        user = dictionary_utils.get_dictionary_element(properties, "user")
-        value = dictionary_utils.get_element(user, "Value")
-        if value is None:
-            return "<user>"
-        else:
-            return value
-
-    return None
-
-
-def _create_secret_name(variable_name):
+def create_secret_name(variable_name):
     """
     Return the secret name derived from the specified property variable name.
     Skip the last element of the variable name, which corresponds to the attribute.
@@ -270,16 +242,3 @@ def _create_secret_name(variable_name):
     # if empty, just return "x".
     secret = '-'.join(secret_keys).strip('-')
     return secret or 'x'
-
-
-def _is_paired_secret(property_name):
-    """
-    Determine if the property name is part of a paired secret with .username and .password .
-    Currently only supports user for JDBC.[name].PasswordEncrypted
-    Needs a much better implementation for future expansion.
-    :param property_name: the property name, such as JDBC.Generic2.PasswordEncrypted
-    :return: True if the property is part of a paired secret
-    """
-    if _jdbc_pattern.findall(property_name):
-        return True
-    return False

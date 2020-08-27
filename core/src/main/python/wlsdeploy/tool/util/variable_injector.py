@@ -18,6 +18,8 @@ import wlsdeploy.util.model as model_sections
 import wlsdeploy.util.target_configuration_helper as target_configuration_helper
 import wlsdeploy.util.variables as variables
 from wlsdeploy.aliases import alias_constants
+from wlsdeploy.aliases.alias_constants import CREDENTIAL
+from wlsdeploy.aliases.alias_constants import PASSWORD
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
@@ -155,7 +157,7 @@ class VariableInjector(object):
         _logger.entering(attribute_name, class_name=_class_name, method_name=_method_name)
         cache = self.get_variable_cache()
         if len(cache) > 0:
-            property_name = variable_injector_functions.format_variable_name(location, attribute_name, self.__aliases)
+            property_name = self.get_variable_name(location, attribute_name)
             if property_name in cache:
                 _logger.fine('WLSDPLY-19545', property_name, class_name=_class_name, method_name=_method_name)
                 del cache[property_name]
@@ -386,12 +388,6 @@ class VariableInjector(object):
         else:
             return self._process_attribute(model, attribute, location, injector_values)
 
-    def __format_variable_name_segment(self, location, attribute, suffix):
-        path = variable_injector_functions.format_variable_name(location, attribute, self.__aliases)
-        if suffix:
-            return path + SUFFIX_SEP + suffix
-        return path
-
     def _process_attribute(self, model, attribute, location, injector_values):
         _method_name = '_process_attribute'
         _logger.entering(attribute, location.get_folder_path(), class_name=_class_name,
@@ -401,37 +397,48 @@ class VariableInjector(object):
         variable_value = None
         attribute_value = model[attribute]
         if not _already_property(attribute_value):
-            variable_name = variable_injector_functions.format_variable_name(location, attribute, self.__aliases)
+            variable_name = self.get_variable_name(location, attribute)
             variable_value = _format_variable_value(attribute_value)
-            credentials_method = self.__model_context.get_target_configuration().get_credentials_method()
 
-            # for credentials_method: secrets, assign a secret token to the attribute
-            if credentials_method == SECRETS_METHOD \
-                    and variable_value == alias_constants.PASSWORD_TOKEN:
-                model[attribute] = target_configuration_helper.format_as_secret_token(variable_name,
-                                                                        self.__model_context.get_target_configuration())
-
-            # for config_override_secrets, assign a placeholder value to the attribute
-            elif credentials_method == CONFIG_OVERRIDES_SECRETS_METHOD \
-                    and variable_value == alias_constants.PASSWORD_TOKEN:
-                if attribute == ADMIN_USERNAME:
-                    model[attribute] = target_configuration_helper.ADMINUSER_PLACEHOLDER
-                else:
-                    model[attribute] = target_configuration_helper.PASSWORD_PLACEHOLDER
-
-            else:
-                model[attribute] = _format_as_property(variable_name)
+            model[attribute] = self.get_variable_token(attribute, variable_name)
 
             _logger.fine('WLSDPLY-19525', variable_name, attribute_value, attribute, variable_value,
                          class_name=_class_name, method_name=_method_name)
         else:
             _logger.finer('WLSDPLY-19526', attribute_value, attribute, str(location), class_name=_class_name,
                           method_name=_method_name)
+
         if variable_value is not None:
             variable_dict[variable_name] = self._check_replace_variable_value(location, attribute,
                                                                               variable_value, injector_values)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_value)
         return variable_dict
+
+    def get_variable_name(self, location, attribute, suffix=None):
+        """
+        Return the variable name for use in the cache, and in the variable token.
+        The default behavior is to return the concatenated location paths, with invalid characters cleared.
+        Sub-classes may extend this for other types of tokens, such as @@SECRET.
+        :param location: the location to be used
+        :param attribute: the attribute to be examined
+        :param suffix: optional suffix for name
+        :return: the derived name, such as JDBC.Generic1.PasswordEncrypted
+        """
+        path = variable_injector_functions.format_variable_name(location, attribute, self.__aliases)
+        if suffix:
+            return path + SUFFIX_SEP + suffix
+        return path
+
+    def get_variable_token(self, attribute, variable_name):
+        """
+        Return the correct token for the specified attribute, based on the variable name.
+        The default behavior is to return a property token with a corrected name.
+        Sub-classes may extend this for other types of tokens, such as @@SECRET.
+        :param attribute: the attribute to be examined (used by sub-classes)
+        :param variable_name: the variable name, such as JDBC.Generic1.PasswordEncrypted
+        :return: the complete token name, such as @@PROP:JDBC.Generic1.PasswordEncrypted@@
+        """
+        return '@@PROP:%s@@' % variable_name
 
     def _process_regexp(self, model, attribute, location, injector_values):
         if isinstance(model[attribute], dict):
@@ -487,9 +494,9 @@ class VariableInjector(object):
         variable_name = None
         variable_value = None
         if not _already_property(attribute_value):
-            variable_name = self.__format_variable_name_segment(location, attribute, suffix)
+            variable_name = self.get_variable_name(location, attribute, suffix=suffix)
             attribute_value, variable_value = _replace_segment(pattern, _format_variable_value(attribute_value),
-                                                               _format_as_property(variable_name))
+                                                               self.get_variable_token(attribute, variable_name))
         return attribute_value, variable_name, variable_value
 
     def _process_patterns_list(self, attribute, attribute_value, location, injector_values):
@@ -552,11 +559,11 @@ class VariableInjector(object):
         _method_name = '_process_regexp_dictionary'
         _logger.entering(attribute_name, attribute_dict, location.get_folder_path(), regexp, suffix,
                          class_name=_class_name, method_name=_method_name)
-        variable_name = self.__format_variable_name_segment(location, attribute_name, suffix)
+        variable_name = self.get_variable_name(location, attribute_name, suffix=suffix)
         variable_value = None
         pattern = _compile_pattern(regexp)
         if pattern:
-            replacement = _format_as_property(variable_name)
+            replacement = self.get_variable_token(attribute_name, variable_name)
             for entry in attribute_dict:
                 if not _already_property(attribute_dict[entry]):
                     matcher = pattern.search(entry)
@@ -805,10 +812,6 @@ def _compile_pattern(pattern):
 
 def _already_property(check_string):
     return isinstance(check_string, basestring) and check_string.startswith('@@PROP:')
-
-
-def _format_as_property(prop_name):
-    return '@@PROP:%s@@' % prop_name
 
 def _split_injector(injector_path):
     """

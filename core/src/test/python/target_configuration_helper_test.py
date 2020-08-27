@@ -54,16 +54,16 @@ class TargetConfigurationTests(unittest.TestCase):
 
 
     def testCreateSecretName(self):
-        self.assertEqual('jdbc-generic1', HELPER._create_secret_name('JDBC.Generic1.PasswordEncrypted'))
+        self.assertEqual('jdbc-generic1', HELPER.create_secret_name('JDBC.Generic1.PasswordEncrypted'))
 
         self.assertEqual('jdbc--weblogic--credentials',
-                         HELPER._create_secret_name('JDBC.(WebLogic)-credentials.PasswordEncrypted'))
+                         HELPER.create_secret_name('JDBC.(WebLogic)-credentials.PasswordEncrypted'))
 
-        self.assertEqual('jdbc--why', HELPER._create_secret_name('JDBC.-why?-.PasswordEncrypted'))
+        self.assertEqual('jdbc--why', HELPER.create_secret_name('JDBC.-why?-.PasswordEncrypted'))
 
-        self.assertEqual('jdbc-abc', HELPER._create_secret_name('-JDBC.abc-.PasswordEncrypted'))
+        self.assertEqual('jdbc-abc', HELPER.create_secret_name('-JDBC.abc-.PasswordEncrypted'))
 
-        self.assertEqual('x', HELPER._create_secret_name('--??!!'))
+        self.assertEqual('x', HELPER.create_secret_name('--??!!'))
 
 
 if __name__ == '__main__':
