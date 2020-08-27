@@ -94,7 +94,7 @@ class CredentialInjector(VariableInjector):
                 injector_commands.update({VARIABLE_VALUE: model_value})
                 self.custom_injection(dictionary, model_param, location, injector_commands)
 
-        elif (folder_path == MAIL_SESSION) and (model_param == PROPERTIES):
+        elif folder_path.endswith(MAIL_SESSION) and (model_param == PROPERTIES):
             # users and passwords are property assignments
             value = dictionary[model_param]
             is_string = isinstance(value, str)
