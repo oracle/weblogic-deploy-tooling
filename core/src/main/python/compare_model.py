@@ -35,6 +35,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import variables
+from wlsdeploy.json.json_translator import COMMENT_MATCH
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 from wlsdeploy.json.json_translator import PythonToJson
@@ -327,7 +328,7 @@ class ModelDiffer:
             #
             if value_tree:
                 if is_change:
-                    leaf['# - ' + splitted[0]] = value_tree[splitted[0]]
+                    leaf[COMMENT_MATCH + splitted[0]] = value_tree[splitted[0]]
                 else:
                     if value_tree[splitted[0]] is not None and not isinstance(value_tree[splitted[0]], PyOrderedDict):
                         self._add_results(ar_changes, is_delete, is_change=True)
