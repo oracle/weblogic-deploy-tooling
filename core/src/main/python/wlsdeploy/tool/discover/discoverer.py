@@ -168,7 +168,7 @@ class Discoverer(object):
 
             # tokenize the attribute if needed
             if self._credential_injector is not None:
-                self._credential_injector.check_and_tokenize(dictionary, location, model_param, model_value)
+                self._credential_injector.check_and_tokenize(dictionary, model_param, location)
 
         elif model_param is None:
             _logger.finest('WLSDPLY-06108', model_param, class_name=_class_name, method_name=_method_name)

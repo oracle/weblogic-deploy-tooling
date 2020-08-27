@@ -49,9 +49,9 @@ from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 
-VALIDATION_FAIL=2
-PATH_TOKEN='|'
-BLANK_LINE=""
+VALIDATION_FAIL = 2
+PATH_TOKEN = '|'
+BLANK_LINE = ""
 
 _program_name = 'prepareModel'
 _class_name = 'prepare_model'
@@ -74,7 +74,7 @@ all_removed = []
 compare_msgs = sets.Set()
 
 
-def __process_args(args, logger):
+def __process_args(args):
     """
     Process the command-line arguments.
     :param args: the command-line arguments list
@@ -104,11 +104,11 @@ class PrepareModel:
         self._name_tokens_location = LocationContext()
         self._name_tokens_location.add_name_token('DOMAIN', "testdomain")
         self.current_dict = None
-        self.cache =  OrderedDict()
+        self.cache = OrderedDict()
         self.credential_injector = CredentialInjector(_program_name, None, model_context)
 
     def __walk_model_section(self, model_section_key, model_dict, valid_section_folders):
-        _method_name = '__validate_model_section'
+        _method_name = '__walk_model_section'
 
         if model_section_key not in model_dict.keys():
             return
@@ -117,37 +117,31 @@ class PrepareModel:
         attribute_location = self._aliases.get_model_section_attribute_location(model_section_key)
 
         valid_attr_infos = []
-        path_tokens_attr_keys = []
 
         if attribute_location is not None:
             valid_attr_infos = self._aliases.get_model_attribute_names_and_types(attribute_location)
-            path_tokens_attr_keys = self._aliases.get_model_uses_path_tokens_attribute_names(attribute_location)
 
         model_section_dict = model_dict[model_section_key]
         for section_dict_key, section_dict_value in model_section_dict.iteritems():
             # section_dict_key is either the name of a folder in the
             # section, or the name of an attribute in the section.
-            validation_location = LocationContext()
+            model_location = LocationContext()
 
-            model_folder_path = model_section_key + ":/"
             if section_dict_key in valid_attr_infos:
                 # section_dict_key is the name of an attribute in the section
-                self.__walk_attribute(section_dict_key, section_dict_value, valid_attr_infos,
-                                      path_tokens_attr_keys, model_folder_path, attribute_location)
+                self.__walk_attribute(model_section_dict, section_dict_key, attribute_location)
 
             elif section_dict_key in valid_section_folders:
                 # section_dict_key is a folder under the model section
 
                 # Append section_dict_key to location context
-                validation_location.append_location(section_dict_key)
+                model_location.append_location(section_dict_key)
 
                 # Call self.__validate_section_folder() passing in section_dict_value as the model_node to process
-                self.__walk_section_folder(section_dict_value, validation_location)
+                self.__walk_section_folder(section_dict_value, model_location)
 
     def __walk_section_folder(self, model_node, validation_location):
-        _method_name = '__validate_section_folder'
-
-        model_folder_path = self._aliases.get_model_folder_path(validation_location)
+        _method_name = '__walk_section_folder'
 
         if self._aliases.supports_multiple_mbean_instances(validation_location):
 
@@ -195,11 +189,10 @@ class PrepareModel:
             self.__walk_model_node(model_node, validation_location)
 
     def __walk_model_node(self, model_node, validation_location):
-        _method_name = '__process_model_node'
+        _method_name = '__walk_model_node'
 
         valid_folder_keys = self._aliases.get_model_subfolder_names(validation_location)
         valid_attr_infos = self._aliases.get_model_attribute_names_and_types(validation_location)
-        model_folder_path = self._aliases.get_model_folder_path(validation_location)
 
         for key, value in model_node.iteritems():
 
@@ -218,40 +211,19 @@ class PrepareModel:
                 # aliases.get_model_attribute_names_and_types(location) filters out
                 # attributes that ARE NOT valid in the wlst_version being used, so if
                 # we're in this section of code we know key is a bonafide "valid" attribute
-                path_tokens_attr_keys = \
-                    self._aliases.get_model_uses_path_tokens_attribute_names(validation_location)
-
-                self.__walk_attribute(key, value, valid_attr_infos, path_tokens_attr_keys, model_folder_path,
-                                      validation_location)
+                self.__walk_attribute(model_node, key, validation_location)
 
     def __walk_attributes(self, attributes_dict, valid_attr_infos, validation_location):
-        _method_name = '__validate_attributes'
-
-        path_tokens_attr_keys = self._aliases.get_model_uses_path_tokens_attribute_names(validation_location)
-
-        model_folder_path = self._aliases.get_model_folder_path(validation_location)
+        _method_name = '__walk_attributes'
 
         for attribute_name, attribute_value in attributes_dict.iteritems():
-            self.__walk_attribute(attribute_name, attribute_value, valid_attr_infos, path_tokens_attr_keys,
-                                  model_folder_path, validation_location)
+            if attribute_name in valid_attr_infos:
+                self.__walk_attribute(attributes_dict, attribute_name, validation_location)
 
-    def __walk_attribute(self, attribute_name, attribute_value, valid_attr_infos, path_tokens_attr_keys,
-                         model_folder_path, validation_location):
+    def __walk_attribute(self, model_dict, attribute_name, attribute_location):
         _method_name = '__walk_attribute'
 
-        if attribute_name in valid_attr_infos:
-            p_dict = self.current_dict
-            model_path_tokens = model_folder_path.split('/')
-            for index in range(0, len(model_path_tokens)):
-                token = model_path_tokens[index]
-                if token == '':
-                    break
-                if token[-1] == ':':
-                    token=token[:-1]
-                p_dict = p_dict[token]
-
-            self.credential_injector.check_and_tokenize(p_dict, validation_location, attribute_name,
-                                                        attribute_value)
+        self.credential_injector.check_and_tokenize(model_dict, attribute_name, attribute_location)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -406,7 +378,7 @@ def main():
     _outputdir = None
 
     try:
-        model_context = __process_args(sys.argv, __logger)
+        model_context = __process_args(sys.argv)
         _outputdir = model_context.get_kubernetes_output_dir()
         model1 = model_context.get_model_file()
         # for f in [ model1 ]:

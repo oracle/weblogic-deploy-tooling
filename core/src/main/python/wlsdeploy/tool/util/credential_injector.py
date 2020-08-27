@@ -69,27 +69,27 @@ class CredentialInjector(VariableInjector):
                                   variable_dictionary=variable_dictionary)
         self._model_context = model_context
 
-    def check_and_tokenize(self, dictionary, location, model_param, model_value):
+    def check_and_tokenize(self, model_dict, model_param, location):
         """
         If the specified attribute is a security credential, add it to the injector,
         and replace the value in the model dictionary with the token.
-        :param dictionary: the model dictionary containing the attribute
-        :param location: the location of the attribute
+        :param model_dict: the model dictionary containing the attribute
         :param model_param: the name of the attribute
-        :param model_value: the value of the attribute
+        :param location: the location of the attribute
         """
         aliases = self.get_aliases()
         attribute_type = aliases.get_model_attribute_type(location, model_param)
         folder_path = '.'.join(location.get_model_folders())
+        model_value = model_dict[model_param]
 
         if attribute_type == CREDENTIAL:
             injector_commands = OrderedDict()
             injector_commands.update({VARIABLE_VALUE: model_value})
-            self.custom_injection(dictionary, model_param, location, injector_commands)
+            self.custom_injection(model_dict, model_param, location, injector_commands)
 
         elif attribute_type == PASSWORD:
             # STANDARD_PASSWORD_INJECTOR provides an empty value for the mapping
-            self.custom_injection(dictionary, model_param, location, STANDARD_PASSWORD_INJECTOR)
+            self.custom_injection(model_dict, model_param, location, STANDARD_PASSWORD_INJECTOR)
 
         elif folder_path.endswith(self.JDBC_PROPERTIES_PATH):
             token = aliases.get_name_token(location)
@@ -97,30 +97,30 @@ class CredentialInjector(VariableInjector):
             if (property_name == DRIVER_PARAMS_USER_PROPERTY) and (model_param == DRIVER_PARAMS_PROPERTY_VALUE):
                 injector_commands = OrderedDict()
                 injector_commands.update({VARIABLE_VALUE: model_value})
-                self.custom_injection(dictionary, model_param, location, injector_commands)
+                self.custom_injection(model_dict, model_param, location, injector_commands)
 
         elif folder_path.endswith(MAIL_SESSION) and (model_param == PROPERTIES):
             # users and passwords are property assignments
-            value = dictionary[model_param]
+            value = model_dict[model_param]
             is_string = isinstance(value, str)
 
             # for discover, value is a string at this point
             if is_string:
-                dictionary[model_param] = OrderedDict()
+                model_dict[model_param] = OrderedDict()
                 split = value.split(';')
                 for assign in split:
                     halves = assign.split('=')
-                    dictionary[model_param][halves[0]] = halves[1]
+                    model_dict[model_param][halves[0]] = halves[1]
 
-            self.custom_injection(dictionary, model_param, location, self.USER_COMMANDS)
-            self.custom_injection(dictionary, model_param, location, self.PASSWORD_COMMANDS)
+            self.custom_injection(model_dict, model_param, location, self.USER_COMMANDS)
+            self.custom_injection(model_dict, model_param, location, self.PASSWORD_COMMANDS)
 
             if is_string:
-                properties = dictionary[model_param]
+                properties = model_dict[model_param]
                 assigns = []
                 for key in properties:
                     assigns.append('%s=%s' % (key, properties[key]))
-                dictionary[model_param] = ';'.join(assigns)
+                model_dict[model_param] = ';'.join(assigns)
 
     def get_variable_name(self, location, attribute, suffix=None):
         """
