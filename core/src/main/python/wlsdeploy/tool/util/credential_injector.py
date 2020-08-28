@@ -2,14 +2,11 @@
 Copyright (c) 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import re
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 from wlsdeploy.aliases.alias_constants import CREDENTIAL
 from wlsdeploy.aliases.alias_constants import PASSWORD
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
-from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
@@ -26,9 +23,6 @@ from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.variable_injector import VARIABLE_VALUE
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util import target_configuration_helper
-from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
-from wlsdeploy.util.target_configuration import SECRETS_METHOD
-from wlsdeploy.util.target_configuration_helper import WEBLOGIC_CREDENTIALS_SECRET_NAME
 
 _class_name = 'CredentialInjector'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -37,6 +31,7 @@ _logger = PlatformLogger('wlsdeploy.tool.util')
 class CredentialInjector(VariableInjector):
     """
     A specialized variable injector for use with the tokenizing of credential attributes.
+    Credential values are stored in the map with secret names like jdbc-generic1.password .
     """
 
     # used for user token search
@@ -137,39 +132,27 @@ class CredentialInjector(VariableInjector):
         """
         aliases = self.get_aliases()
         target_config = self._model_context.get_target_configuration()
-        credentials_method = target_config.get_credentials_method()
 
         # domainInfo attributes have separate model and attribute locations
         model_location = attribute_location
         if model_location.get_current_model_folder() == DOMAIN_INFO_ALIAS:
             model_location = LocationContext()
 
-        if credentials_method in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]:
-            # secret name is modified variable name, with the last element
-            # replaced with "username" or "password".
+        if target_config.uses_credential_secrets():
+            # use the secret token name as variable name in the cache, such as jdbc-generic1.password .
+            # secret name is the adjusted variable name, with the last element replaced with "username" or "password".
 
-            aliases = self.get_aliases()
             attribute_type = aliases.get_model_attribute_type(attribute_location, attribute)
             variable_name = VariableInjector.get_variable_name(self, model_location, attribute)
-
-            # JDBC user ends with ".user.Value", needs to be .user-value to match with password
-            variable_name = re.sub('.user.Value$', '.user-value', variable_name)
+            secret_name = target_configuration_helper.create_secret_name(variable_name, suffix)
 
             secret_key = "username"
             if attribute_type == PASSWORD:
                 secret_key = "password"
 
-            if suffix:
-                # suffix such as map3.password in MailSession properties
-                variable_name = '%s-%s' % (variable_name, suffix)
-                # credentials in properties (MailSession) can't use attribute_type
-                if suffix.endswith(".password"):
-                    secret_key = "password"
-
-            if attribute in [ADMIN_USERNAME, ADMIN_PASSWORD]:
-                secret_name = WEBLOGIC_CREDENTIALS_SECRET_NAME
-            else:
-                secret_name = target_configuration_helper.create_secret_name(variable_name)
+            # suffix such as map3.password in MailSession properties
+            if suffix and suffix.endswith(".password"):
+                secret_key = "password"
 
             return '%s:%s' % (secret_name, secret_key)
 
@@ -183,11 +166,8 @@ class CredentialInjector(VariableInjector):
         :return: the complete token name, such as @@SECRET:jdbc-generic1.password@@
         """
         target_config = self._model_context.get_target_configuration()
-        credentials_method = target_config.get_credentials_method()
 
-        if credentials_method in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]:
-            # return '@@SECRET:%s:%s@@'' %
-            return '@@SECRET:@@ENV:DOMAIN_UID@@-%s@@' % variable_name
-
+        if target_config.uses_credential_secrets():
+            return target_configuration_helper.format_as_secret_token(variable_name, target_config)
         else:
             return VariableInjector.get_variable_token(self, attribute, variable_name)

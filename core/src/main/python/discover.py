@@ -407,19 +407,25 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     if filter_helper.apply_filters(model.get_model(), "discover", model_context):
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
+    # target config always present in model context, default config if not declared
+    target_configuration = model_context.get_target_configuration()
+
+    # if target config declared, use the validation method it contains (lax, etc.)
+    if model_context.is_targetted_config():
+        validation_method = target_configuration.get_validation_method()
+        model_context.set_validation_method(validation_method)
+
     credential_cache = None
     if credential_injector is not None:
         credential_cache = credential_injector.get_variable_cache()
 
-        # Generate k8s create secret script, possibly using lax validation method
-        if model_context.is_targetted_config():
-            validation_method = model_context.get_target_configuration().get_validation_method()
-            model_context.set_validation_method(validation_method)
+        # Generate k8s create secret script
+        if target_configuration.uses_credential_secrets():
             target_configuration_helper.generate_k8s_script(model_context, credential_cache, model.get_model())
 
-            # if target handles password substitution, clear property cache to keep out of variables file.
-            if model_context.get_target_configuration().manages_credentials():
-                credential_cache.clear()
+        # if target handles credential configuration, clear property cache to keep out of variables file.
+        if model_context.get_target_configuration().manages_credentials():
+            credential_cache.clear()
 
     # Apply the injectors specified in model_variable_injector.json, or in the target configuration.
     # Include the variable mappings that were collected in credential_cache.

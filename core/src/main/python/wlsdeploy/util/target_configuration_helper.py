@@ -8,6 +8,8 @@ import os
 
 from oracle.weblogic.deploy.util import FileUtils
 
+from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
+from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import TOPOLOGY
@@ -34,8 +36,16 @@ USER_TAG = "<user>"
 PASSWORD_TAG = "<password>"
 
 # placeholders for config override secrets
+ADMIN_USERNAME_KEY = ADMIN_USERNAME.lower()
+ADMIN_PASSWORD_KEY = ADMIN_PASSWORD.lower()
+
+# placeholders for config override secrets
 ADMINUSER_PLACEHOLDER = "weblogic"
 PASSWORD_PLACEHOLDER = "password1"
+
+# for matching and refining credential secret names
+JDBC_USER_PATTERN = re.compile('.user.Value$')
+JDBC_USER_REPLACEMENT = '.user-value'
 
 
 def process_target_arguments(argument_map):
@@ -70,9 +80,6 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     :param token_dictionary: contains every token
     :param model_dictionary: used to determine domain UID
     """
-    target_config = model_context.get_target_configuration()
-    if not target_config.requires_secrets_script():
-        return
 
     # determine the domain name and UID
     topology = dictionary_utils.get_dictionary_element(model_dictionary, TOPOLOGY)
@@ -164,30 +171,22 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     FileUtils.chmod(k8s_file, 0750)
 
 
-def format_as_secret_token(variable_name, target_config):
+def format_as_secret_token(secret_id, target_config):
     """
-    Format the variable as a secret name token for use in a model.
-    :param variable_name: variable name in dot separated format
-    :return: formatted name
+    Format the secret identifier as an @@SECRET token for use in a model.
+    :param secret_id: secret name, such as "jdbc-mydatasource:password"
+    :param target_config: target configuration
+    :return: secret token, such as "@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-mydatasource:password"
     """
-    normal_secret_format = '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@'
-    name_lower_tokens = variable_name.lower().split('.')
-    if len(name_lower_tokens) == 1:
-        admin_lower_token = name_lower_tokens[0]
-        if admin_lower_token in ['adminusername', 'adminpassword']:
-            # substring removes "admin" and keeps just 'username' or 'password', to match secrets script
-            admin_token = admin_lower_token[5:]
-            secret_name = target_config.get_wls_credentials_name()
-            if secret_name == None:
-                return normal_secret_format % (WEBLOGIC_CREDENTIALS_SECRET_NAME, admin_token)
-            else:
-                # if the target configuration declares a special name for the WebLogic credential secret
-                return '@@SECRET:%s:%s@@' % (secret_name, admin_token)
 
-    # for paired and single secrets, password key is always named "password"
-    secret_key = "password"
-    secret_name = create_secret_name(variable_name)
-    return normal_secret_format % (secret_name, secret_key)
+    # check special case when target config specifies a WLS credential name, such as  "__weblogic-credentials__"
+    wls_credentials_name = target_config.get_wls_credentials_name()
+    parts = secret_id.split(':')
+    if (wls_credentials_name is not None) and (len(parts) == 2):
+        if parts[0] == WEBLOGIC_CREDENTIALS_SECRET_NAME:
+            return '@@SECRET:%s:%s@@' % (wls_credentials_name, parts[1])
+
+    return '@@SECRET:@@ENV:DOMAIN_UID@@-%s@@' % (secret_id)
 
 
 def get_secret_name_for_location(location, domain_uid, aliases):
@@ -223,18 +222,32 @@ def create_additional_output(model, model_context, aliases, exception_type):
                              method_name=_method_name)
 
 
-def create_secret_name(variable_name):
+def create_secret_name(variable_name, suffix=None):
     """
     Return the secret name derived from the specified property variable name.
-    Skip the last element of the variable name, which corresponds to the attribute.
+    Some corrections are made for known attributes to associate user names with passwords.
+    Remove the last element of the variable name, which corresponds to the attribute name.
     Follow limitations for secret names: only alphanumeric and "-", must start and end with alphanumeric.
     For example, "JDBC.Generic1.PasswordEncrypted" becomes "jdbc-generic1".
     :param variable_name: the variable name to be converted
+    :param suffix: optional suffix for the name, such as "pop3.user"
     :return: the derived secret name
     """
+
+    # JDBC user ends with ".user.Value", needs to be .user-value to match with password
+    variable_name = JDBC_USER_PATTERN.sub(JDBC_USER_REPLACEMENT, variable_name)
+
+    # append the suffix ir present, such as mail-mymailsession-properties-pop3.user
+    if suffix:
+        variable_name = '%s-%s' % (variable_name, suffix)
+
     variable_keys = variable_name.lower().split('.')
 
-    # if the attribute was not in a folder, append an extra key to be skipped
+    # admin user and password have a special secret name
+    if variable_keys[-1] in [ADMIN_USERNAME_KEY, ADMIN_PASSWORD_KEY]:
+        return WEBLOGIC_CREDENTIALS_SECRET_NAME
+
+    # if the attribute was not in a folder, append an extra key to be skipped, such as opsssecrets.x
     if len(variable_keys) == 1:
         variable_keys.append('x')
 

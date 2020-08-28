@@ -289,9 +289,11 @@ class PrepareModel:
             full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._aliases,
                                                           "discover", WlstModes.OFFLINE)
 
-            target_configuration_helper.generate_k8s_script(self.model_context,
-                                                            self.credential_injector.get_variable_cache(),
-                                                            full_model_dictionary)
+            target_config = self.model_context.get_target_configuration()
+            if target_config.uses_credential_secrets():
+                target_configuration_helper.generate_k8s_script(self.model_context,
+                                                                self.credential_injector.get_variable_cache(),
+                                                                full_model_dictionary)
 
             # create any additional outputs from full model dictionary
             target_configuration_helper.create_additional_output(Model(full_model_dictionary), self.model_context,

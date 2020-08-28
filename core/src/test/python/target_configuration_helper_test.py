@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2020, Oracle Corporation and/or its affiliates.
 The Universal Permissive License (UPL), Version 1.0
 """
 
@@ -33,24 +33,28 @@ class TargetConfigurationTests(unittest.TestCase):
 
     def testSecretWithWlsCredName(self):
         self.assertEqual('@@SECRET:__weblogic-credentials__:username@@',
-                         HELPER.format_as_secret_token('AdminUsername', self.target_with_cred_name))
+                         HELPER.format_as_secret_token(HELPER.WEBLOGIC_CREDENTIALS_SECRET_NAME + ':username',
+                                                       self.target_with_cred_name))
 
         self.assertEqual('@@SECRET:__weblogic-credentials__:password@@',
-                         HELPER.format_as_secret_token('AdminPassword', self.target_with_cred_name))
+                         HELPER.format_as_secret_token(HELPER.WEBLOGIC_CREDENTIALS_SECRET_NAME + ':password',
+                                                       self.target_with_cred_name))
 
-        self.assertEqual('@@SECRET:@@ENV:DOMAIN_UID@@-something:password@@',
-                         HELPER.format_as_secret_token('something.else', self.target_with_cred_name))
+        self.assertEqual('@@SECRET:@@ENV:DOMAIN_UID@@-something-else:password@@',
+                         HELPER.format_as_secret_token('something-else:password', self.target_with_cred_name))
 
 
     def testSecretWithoutWlsCredName(self):
         self.assertEqual('@@SECRET:@@ENV:DOMAIN_UID@@-weblogic-credentials:username@@',
-                         HELPER.format_as_secret_token('AdminUsername', self.target_without_cred_name))
+                         HELPER.format_as_secret_token(HELPER.WEBLOGIC_CREDENTIALS_SECRET_NAME + ':username',
+                                                       self.target_without_cred_name))
 
         self.assertEqual('@@SECRET:@@ENV:DOMAIN_UID@@-weblogic-credentials:password@@',
-                         HELPER.format_as_secret_token('AdminPassword', self.target_without_cred_name))
+                         HELPER.format_as_secret_token(HELPER.WEBLOGIC_CREDENTIALS_SECRET_NAME + ':password',
+                                                       self.target_without_cred_name))
 
-        self.assertEqual('@@SECRET:@@ENV:DOMAIN_UID@@-something:password@@',
-                         HELPER.format_as_secret_token('something.else', self.target_with_cred_name))
+        self.assertEqual('@@SECRET:@@ENV:DOMAIN_UID@@-something-else:password@@',
+                         HELPER.format_as_secret_token('something-else:password', self.target_without_cred_name))
 
 
     def testCreateSecretName(self):
