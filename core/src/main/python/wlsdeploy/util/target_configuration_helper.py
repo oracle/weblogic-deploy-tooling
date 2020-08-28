@@ -136,6 +136,11 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
         value = token_dictionary[property_name]
         if len(halves) == 2:
             secret_name = halves[0]
+
+            # admin credentials are hard-coded in the script, to be first in the list
+            if secret_name == WEBLOGIC_CREDENTIALS_SECRET_NAME:
+                continue
+
             secret_key = halves[1]
             if secret_name not in secret_map:
                 secret_map[secret_name] = {}
@@ -146,11 +151,6 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     secret_names.sort()
 
     for secret_name in secret_names:
-        # AdminPassword, AdminUser are created separately,
-        # and SecurityConfig.NodeManagerPasswordEncrypted is the short name which filters out
-        if property_name in ['AdminPassword', 'AdminUserName', 'SecurityConfig.NodeManagerPasswordEncrypted']:
-            continue
-
         secret_keys = secret_map[secret_name]
         user_name = dictionary_utils.get_element(secret_keys, 'username')
 
@@ -178,8 +178,7 @@ def format_as_secret_token(secret_id, target_config):
     :param target_config: target configuration
     :return: secret token, such as "@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-mydatasource:password"
     """
-
-    # check special case when target config specifies a WLS credential name, such as  "__weblogic-credentials__"
+    # check special case where target config has a WLS credential name, such as  "__weblogic-credentials__"
     wls_credentials_name = target_config.get_wls_credentials_name()
     parts = secret_id.split(':')
     if (wls_credentials_name is not None) and (len(parts) == 2):
