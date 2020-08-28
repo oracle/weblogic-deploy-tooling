@@ -233,6 +233,11 @@ def create_secret_name(variable_name):
     :return: the derived secret name
     """
     variable_keys = variable_name.lower().split('.')
+
+    # if the attribute was not in a folder, append an extra key to be skipped
+    if len(variable_keys) == 1:
+        variable_keys.append('x')
+
     secret_keys = []
     for variable_key in variable_keys[:-1]:
         secret_key = re.sub('[^a-z0-9-]', '-', variable_key)

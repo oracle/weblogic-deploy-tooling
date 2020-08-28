@@ -12,7 +12,7 @@ from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases import model_constants
-from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -56,7 +56,7 @@ class DomainInfoDiscoverer(Discoverer):
         self._dictionary[model_constants.ADMIN_USERNAME] = alias_constants.PASSWORD_TOKEN
         self._dictionary[model_constants.ADMIN_PASSWORD] = alias_constants.PASSWORD_TOKEN
         if injector is not None:
-            location = LocationContext()
+            location = self._aliases.get_model_section_attribute_location(DOMAIN_INFO)
             injector.custom_injection(self._dictionary, model_constants.ADMIN_USERNAME, location,
                                       STANDARD_PASSWORD_INJECTOR)
             injector.custom_injection(self._dictionary, model_constants.ADMIN_PASSWORD, location,
