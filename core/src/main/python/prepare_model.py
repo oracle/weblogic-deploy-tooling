@@ -83,6 +83,7 @@ def __process_args(args):
     _method_name = '__process_args'
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
+    cla_util.set_allow_multiple_models(True)
     argument_map = cla_util.process_args(args)
 
     target_configuration_helper.process_target_arguments(argument_map)
