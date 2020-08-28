@@ -24,7 +24,6 @@ from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
-import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 import oracle.weblogic.deploy.util.TranslateException as TranslateException
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
@@ -36,6 +35,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.credential_injector import CredentialInjector
+from wlsdeploy.tool.util.variable_injector import VARIABLE_FILE_UPDATE
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
@@ -105,7 +105,6 @@ class PrepareModel:
         self._name_tokens_location = LocationContext()
         self._name_tokens_location.add_name_token('DOMAIN', "testdomain")
         self.current_dict = None
-        self.cache = OrderedDict()
         self.credential_injector = CredentialInjector(_program_name, None, model_context)
 
     def __walk_model_section(self, model_section_key, model_dict, valid_section_folders):
@@ -241,7 +240,6 @@ class PrepareModel:
         try:
             model_file_list = self.model_files.split(',')
             for model_file in model_file_list:
-                self.cache.clear()
                 if os.path.splitext(model_file)[1].lower() == ".yaml":
                     model_file_name = model_file
                     FileToPython(model_file_name, True).parse()
@@ -255,11 +253,11 @@ class PrepareModel:
 
                 variable_file = self.model_context.get_variable_file()
                 if not os.path.exists(variable_file):
-                    variable_file=None
+                    variable_file = None
 
                 return_code = validator.validate_in_tool_mode(model_dictionary,
-                                                          variables_file_name=variable_file,
-                                                          archive_file_name=None)
+                                                              variables_file_name=variable_file,
+                                                              archive_file_name=None)
 
                 if return_code == Validator.ReturnCode.STOP:
                     self._logger.severe('WLSDPLY-05705', model_file_name)
@@ -274,10 +272,9 @@ class PrepareModel:
                                           aliases.get_model_topology_top_level_folder_names())
 
                 self.__walk_model_section(model.get_model_resources_key(), self.current_dict,
-                                              aliases.get_model_resources_top_level_folder_names())
+                                          aliases.get_model_resources_top_level_folder_names())
 
-                self.current_dict = self._apply_filter_and_inject_variable(self.current_dict, self.model_context,
-                                                                           validator)
+                self.current_dict = self._apply_filter_and_inject_variable(self.current_dict, self.model_context)
 
                 file_name = os.path.join(self.output_dir, os.path.basename(model_file_name))
                 fos = JFileOutputStream(file_name, False)
@@ -321,10 +318,9 @@ class PrepareModel:
 
         return 0
 
-    def _apply_filter_and_inject_variable(self, model, model_context, validator):
+    def _apply_filter_and_inject_variable(self, model, model_context):
         """
         Applying filter
-        Generate k8s create script
         Inject variable for tokens
         :param model: updated model
         """
@@ -334,20 +330,21 @@ class PrepareModel:
         if filter_helper.apply_filters(model, "discover", model_context):
             self._logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
-        variable_injector = VariableInjector(_program_name, model, model_context,
-                                             WebLogicHelper(self._logger).get_actual_weblogic_version(), self.cache)
-        if self.cache is not None:
-            # Generate k8s create secret script, after that clear the dictionary to avoid showing up in the variable file
-            if model_context.is_targetted_config():
-                self.cache.clear()
-                # This is in case the user has specify -variable_file in command line
-                # clearing the cache will remove the original entries and the final variable file will miss the original
-                # contents
-                if os.path.exists(self.model_context.get_variable_file()):
-                    variable_map = validator.load_variables(self.model_context.get_variable_file())
-                    self.cache.update(variable_map)
+        # include credential properties in the injector map, unless target uses credential secrets
+        target_config = model_context.get_target_configuration()
+        if target_config.uses_credential_secrets():
+            credential_properties = {}
+        else:
+            credential_properties = self.credential_injector.get_variable_cache()
 
-        inserted, variable_model, variable_file_name = variable_injector.inject_variables_keyword_file()
+        variable_injector = VariableInjector(_program_name, model, model_context,
+                                             WebLogicHelper(self._logger).get_actual_weblogic_version(),
+                                             credential_properties)
+
+        # update the variable file with any new values
+        inserted, variable_model, variable_file_name = \
+            variable_injector.inject_variables_keyword_file(VARIABLE_FILE_UPDATE)
+
         # return variable_model - if writing the variables file failed, this will be the original model.
         # a warning is issued in inject_variables_keyword_file() if that was the case.
         return variable_model
@@ -360,7 +357,7 @@ def debug(format_string, *arguments):
     :param arguments: arguments for the formatted string
     """
     if os.environ.has_key('DEBUG_COMPARE_MODEL_TOOL'):
-        print format_string % (arguments)
+        print format_string % arguments
     else:
         __logger.finest(format_string, arguments)
 
