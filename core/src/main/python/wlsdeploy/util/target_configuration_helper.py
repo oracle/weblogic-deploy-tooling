@@ -46,6 +46,8 @@ PASSWORD_PLACEHOLDER = "password1"
 # for matching and refining credential secret names
 JDBC_USER_PATTERN = re.compile('.user.Value$')
 JDBC_USER_REPLACEMENT = '.user-value'
+SECURITY_NM_PATTERN = re.compile('^SecurityConfig.NodeManager')
+SECURITY_NM_REPLACEMENT = 'SecurityConfig.NodeManager.'
 
 
 def process_target_arguments(argument_map):
@@ -235,6 +237,9 @@ def create_secret_name(variable_name, suffix=None):
 
     # JDBC user ends with ".user.Value", needs to be .user-value to match with password
     variable_name = JDBC_USER_PATTERN.sub(JDBC_USER_REPLACEMENT, variable_name)
+
+    # associate the two SecurityConfiguration.NodeManager* credentials, distinct from CredentialEncrypted
+    variable_name = SECURITY_NM_PATTERN.sub(SECURITY_NM_REPLACEMENT, variable_name)
 
     # append the suffix ir present, such as mail-mymailsession-properties-pop3.user
     if suffix:
