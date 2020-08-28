@@ -307,6 +307,19 @@ class Aliases(object):
         except AliasException, ae:
             self._raise_exception(ae, _method_name, 'WLSDPLY-19008', str(location), ae.getLocalizedMessage())
 
+    def get_subfolders_in_order(self, location):
+        """
+        Return the sub-folder names that have an order in the order defined.
+        :param location: location of the ordered sub-folders
+        :return: list of sub-folder names in order
+        """
+        _method_name = 'get_subfolders_in_order'
+        try:
+            return self._alias_entries.get_folders_in_order_for_location(location)
+        except AliasException, ae:
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19044',
+                                  location.get_folder_path(), ae.getLocalizedMessage())
+
     def requires_artificial_type_subfolder_handling(self, location):
         """
         Does the location folder specified both support multiple MBean instances of the parent node type
