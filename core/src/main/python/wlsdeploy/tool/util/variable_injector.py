@@ -3,11 +3,11 @@ Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
-import os
 import re
 
 import java.lang.Boolean as Boolean
 import java.lang.IllegalArgumentException as IllegalArgumentException
+import os
 
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
 import oracle.weblogic.deploy.json.JsonException as JsonException
@@ -15,22 +15,14 @@ import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 import oracle.weblogic.deploy.util.VariableException as VariableException
 import wlsdeploy.tool.util.variable_injector_functions as variable_injector_functions
 import wlsdeploy.util.model as model_sections
-import wlsdeploy.util.target_configuration_helper as target_configuration_helper
 import wlsdeploy.util.variables as variables
-from wlsdeploy.aliases import alias_constants
-from wlsdeploy.aliases.alias_constants import CREDENTIAL
-from wlsdeploy.aliases.alias_constants import PASSWORD
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
-from wlsdeploy.util.path_utils import WLSDEPLOY_HOME_VARIABLE
-from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
-from wlsdeploy.util.target_configuration import SECRETS_METHOD
 
 WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
 
@@ -583,7 +575,7 @@ class VariableInjector(object):
     def _replace_tokens(self, path_string):
         result = path_string
         if path_string.startswith(WEBLOGIC_DEPLOY_HOME_TOKEN):
-            wlsdeploy_location = os.environ.get(WLSDEPLOY_HOME_VARIABLE)
+            wlsdeploy_location = path_utils.get_wls_deploy_path()
             result = path_string.replace(WEBLOGIC_DEPLOY_HOME_TOKEN, wlsdeploy_location)
         elif path_string and self.__model_context:
             result = self.__model_context.replace_token_string(path_string)
