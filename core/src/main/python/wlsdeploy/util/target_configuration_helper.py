@@ -274,9 +274,9 @@ def _create_secret_name(variable_name, secret_length=SECRET_NAME_LENGTH):
     # if empty, just return "x".
     secret = '-'.join(secret_keys).strip('-')
     if len(secret) > secret_length:
-        __logger.warning('WLSDPLY-07000', secret_length, secret, class_name=__class_name, method_name=_method_name)
         secret = secret[:secret_length] + '%05d' % __long_key
         __long_key += 1
+        __logger.warning('WLSDPLY-07000', secret_length, secret, class_name=__class_name, method_name=_method_name)
 
     return secret or 'x'
 
