@@ -65,6 +65,13 @@ class TargetConfigurationTests(unittest.TestCase):
 
         self.assertEqual('x', HELPER._create_secret_name('--??!!'))
 
+    def testCreateLongSecretName(self):
+        long_name = 'JMS.pretend this is a very very very very long jms resource name.PasswordEncrypted'
+        expected_name = 'jms-pretend-this-is-a-very-very-very-very-long-jms-res00001'
+        expected_name2 = 'jms-pretend-this-is-a-very-very-very-very-long-jms-res00002'
+        self.assertEqual(expected_name, HELPER._create_secret_name(long_name, len(expected_name)-5))
+        self.assertEqual(expected_name2, HELPER._create_secret_name(long_name, len(expected_name)-5))
+
 
 if __name__ == '__main__':
     unittest.main()

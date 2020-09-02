@@ -44,6 +44,8 @@ PASSWORD_PLACEHOLDER = "password1"
 
 _jdbc_pattern = re.compile("^JDBC\\.([ \\w.-]+)\\.PasswordEncrypted$")
 
+SECRET_NAME_LENGTH = 63
+__long_key = 1
 
 def process_target_arguments(argument_map):
     """
@@ -210,8 +212,8 @@ def create_additional_output(model, model_context, aliases, exception_type):
         if output_type == VZ_EXTRA_CONFIG:
             vz_config_helper.create_vz_configuration(model, model_context, aliases, exception_type)
         else:
-            __logger.warning('WLSDPLY-01660', output_type, model_context.get_target(), class_name=__class_name,
-                             method_name=_method_name)
+            __logger.warning('WLSDPLY-01660', output_type, model_context.get_target(), 
+                             class_name=__class_name, method_name=_method_name)
 
 
 def find_user_name(property_name, model_dictionary):
@@ -251,7 +253,7 @@ def find_user_name(property_name, model_dictionary):
     return None
 
 
-def _create_secret_name(variable_name):
+def _create_secret_name(variable_name, secret_length=SECRET_NAME_LENGTH):
     """
     Return the secret name derived from the specified property variable name.
     Skip the last element of the variable name, which corresponds to the attribute.
@@ -260,6 +262,8 @@ def _create_secret_name(variable_name):
     :param variable_name: the variable name to be converted
     :return: the derived secret name
     """
+    global __long_key
+    _method_name = '_create_secret_name'
     variable_keys = variable_name.lower().split('.')
     secret_keys = []
     for variable_key in variable_keys[:-1]:
@@ -269,6 +273,11 @@ def _create_secret_name(variable_name):
     # rejoin with hyphens, remove leading and trailing hyphens from final name.
     # if empty, just return "x".
     secret = '-'.join(secret_keys).strip('-')
+    if len(secret) > secret_length:
+        __logger.warning('WLSDPLY-07000', secret_length, secret, class_name=__class_name, method_name=_method_name)
+        secret = secret[:secret_length] + '%05d' % __long_key
+        __long_key += 1
+
     return secret or 'x'
 
 
