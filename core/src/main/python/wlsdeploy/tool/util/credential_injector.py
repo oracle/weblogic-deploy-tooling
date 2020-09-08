@@ -23,6 +23,10 @@ from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.variable_injector import VARIABLE_VALUE
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util import target_configuration_helper
+from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
+from wlsdeploy.util.target_configuration import SECRETS_METHOD
+from wlsdeploy.util.target_configuration_helper import SECRET_PASSWORD_KEY
+from wlsdeploy.util.target_configuration_helper import SECRET_USERNAME_KEY
 
 _class_name = 'CredentialInjector'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -146,13 +150,13 @@ class CredentialInjector(VariableInjector):
             variable_name = VariableInjector.get_variable_name(self, model_location, attribute)
             secret_name = target_configuration_helper.create_secret_name(variable_name, suffix)
 
-            secret_key = "username"
+            secret_key = SECRET_USERNAME_KEY
             if attribute_type == PASSWORD:
-                secret_key = "password"
+                secret_key = SECRET_PASSWORD_KEY
 
             # suffix such as map3.password in MailSession properties
             if suffix and suffix.endswith(".password"):
-                secret_key = "password"
+                secret_key = SECRET_PASSWORD_KEY
 
             return '%s:%s' % (secret_name, secret_key)
 
@@ -166,8 +170,11 @@ class CredentialInjector(VariableInjector):
         :return: the complete token name, such as @@SECRET:jdbc-generic1.password@@
         """
         target_config = self._model_context.get_target_configuration()
+        credentials_method = target_config.get_credentials_method()
 
-        if target_config.uses_credential_secrets():
+        if credentials_method == SECRETS_METHOD:
             return target_configuration_helper.format_as_secret_token(variable_name, target_config)
+        elif credentials_method == CONFIG_OVERRIDES_SECRETS_METHOD:
+            return target_configuration_helper.format_as_overrides_secret(variable_name)
         else:
             return VariableInjector.get_variable_token(self, attribute, variable_name)

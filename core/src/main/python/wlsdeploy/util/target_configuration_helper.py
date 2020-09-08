@@ -28,6 +28,10 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 WEBLOGIC_CREDENTIALS_SECRET_NAME = 'weblogic-credentials'
 WEBLOGIC_CREDENTIALS_SECRET_SUFFIX = '-' + WEBLOGIC_CREDENTIALS_SECRET_NAME
 
+# keys for secrets, such as "password" in "jdbc-mydatasource:password"
+SECRET_USERNAME_KEY = "username"
+SECRET_PASSWORD_KEY = "password"
+
 VZ_EXTRA_CONFIG = 'vz'
 
 ADMIN_USER_TAG = "<admin-user>"
@@ -42,6 +46,13 @@ ADMIN_PASSWORD_KEY = ADMIN_PASSWORD.lower()
 # placeholders for config override secrets
 ADMINUSER_PLACEHOLDER = "weblogic"
 PASSWORD_PLACEHOLDER = "password1"
+USERNAME_PLACEHOLDER = "username"
+
+# recognize these to apply special override secret
+ADMIN_USER_SECRET_NAMES = [
+    ADMIN_USERNAME_KEY + ":" + SECRET_USERNAME_KEY,
+    WEBLOGIC_CREDENTIALS_SECRET_NAME + ":" + SECRET_USERNAME_KEY
+]
 
 # for matching and refining credential secret names
 JDBC_USER_PATTERN = re.compile('.user.Value$')
@@ -154,7 +165,7 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
 
     for secret_name in secret_names:
         secret_keys = secret_map[secret_name]
-        user_name = dictionary_utils.get_element(secret_keys, 'username')
+        user_name = dictionary_utils.get_element(secret_keys, SECRET_USERNAME_KEY)
 
         if user_name is None:
             message = exception_helper.get_message("WLSDPLY-01663", PASSWORD_TAG, secret_name)
@@ -188,6 +199,20 @@ def format_as_secret_token(secret_id, target_config):
             return '@@SECRET:%s:%s@@' % (wls_credentials_name, parts[1])
 
     return '@@SECRET:@@ENV:DOMAIN_UID@@-%s@@' % (secret_id)
+
+
+def format_as_overrides_secret(secret_id):
+    """
+    Format the secret identifier as a credential placeholder for use in a model.
+    This is done when the target's credentials method is config_override_secrets .
+    :param secret_id: secret name, such as "jdbc-mydatasource:password"
+    :return: placeholder value, such as "password1"
+    """
+    if secret_id in ADMIN_USER_SECRET_NAMES:
+        return ADMINUSER_PLACEHOLDER
+    elif secret_id.endswith(':' + SECRET_USERNAME_KEY):
+        return USERNAME_PLACEHOLDER
+    return PASSWORD_PLACEHOLDER
 
 
 def get_secret_name_for_location(location, domain_uid, aliases):
