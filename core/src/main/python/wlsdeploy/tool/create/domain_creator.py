@@ -551,8 +551,8 @@ class DomainCreator(Creator):
         self.wlst_helper.load_templates()
 
         self.__set_core_domain_params()
+        self.__set_app_dir()
         if len(extension_templates) > 0:
-            self.__set_app_dir()
             self.__configure_fmw_infra_database()
             self.__configure_opss_secrets()
         topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
