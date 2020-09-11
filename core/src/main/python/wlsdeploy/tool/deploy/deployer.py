@@ -393,7 +393,7 @@ class Deployer(object):
                         result = True
         elif self.archive_helper.contains_path(value):
             # contents should have been extracted elsewhere, such as for apps and shared libraries
-            result = self.__process_directory_entry(fullpath)
+            result = self.archive_helper.extract_directory(value)
         elif value.endswith('/'):
             # If the path is a directory in the wlsdeploy directory tree
             # but not in the archive, just create it to help the user.
