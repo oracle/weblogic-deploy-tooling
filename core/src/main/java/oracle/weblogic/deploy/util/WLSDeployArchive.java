@@ -986,7 +986,7 @@ public class WLSDeployArchive {
      * Add a Foreign Server binding file to the archive
      *
      * @param foreignServer the Foreign Server name used to segregate the directories
-     * @param configFile  the file to add
+     * @param configFile  the file or directory to add
      * @return the new location of the file to use in the model
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
      * @throws IllegalArgumentException    if the file does not exist or the foreignServer is empty or null
@@ -997,7 +997,7 @@ public class WLSDeployArchive {
         LOGGER.entering(CLASS, METHOD, foreignServer, configFile);
 
         validateNonEmptyString(foreignServer, "foreignServerName", METHOD);
-        validateExistingFile(configFile, "configFile", getArchiveFileName(), METHOD);
+        validateExistingFile(configFile, "configFile", getArchiveFileName(), METHOD, true);
         String newName = addItemToZip(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServer, configFile);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;

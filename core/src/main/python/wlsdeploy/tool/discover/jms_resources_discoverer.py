@@ -411,7 +411,8 @@ class JmsResourcesDiscoverer(Discoverer):
                     _logger.info('WLSDPLY-06492', server_name, file_name, new_name, class_name=_class_name,
                                  method_name=_method_name)
                 except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
-                    _logger.warning('WLSDPLY-06493', server_name, file_name, wioe.getLocalizedMessage())
+                    _logger.warning('WLSDPLY-06493', server_name, file_name, wioe.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name)
                     new_name = None
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
