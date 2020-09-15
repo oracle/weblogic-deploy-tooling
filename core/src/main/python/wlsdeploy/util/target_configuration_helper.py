@@ -8,12 +8,9 @@ import os
 
 from oracle.weblogic.deploy.util import FileUtils
 
+from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
+from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
-from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
-from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
-from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
-from wlsdeploy.aliases.model_constants import PROPERTIES
-from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.exception import exception_helper
@@ -31,6 +28,10 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 WEBLOGIC_CREDENTIALS_SECRET_NAME = 'weblogic-credentials'
 WEBLOGIC_CREDENTIALS_SECRET_SUFFIX = '-' + WEBLOGIC_CREDENTIALS_SECRET_NAME
 
+# keys for secrets, such as "password" in "jdbc-mydatasource:password"
+SECRET_USERNAME_KEY = "username"
+SECRET_PASSWORD_KEY = "password"
+
 VZ_EXTRA_CONFIG = 'vz'
 
 ADMIN_USER_TAG = "<admin-user>"
@@ -39,10 +40,25 @@ USER_TAG = "<user>"
 PASSWORD_TAG = "<password>"
 
 # placeholders for config override secrets
+ADMIN_USERNAME_KEY = ADMIN_USERNAME.lower()
+ADMIN_PASSWORD_KEY = ADMIN_PASSWORD.lower()
+
+# placeholders for config override secrets
 ADMINUSER_PLACEHOLDER = "weblogic"
 PASSWORD_PLACEHOLDER = "password1"
+USERNAME_PLACEHOLDER = "username"
 
-_jdbc_pattern = re.compile("^JDBC\\.([ \\w.-]+)\\.PasswordEncrypted$")
+# recognize these to apply special override secret
+ADMIN_USER_SECRET_NAMES = [
+    ADMIN_USERNAME_KEY + ":" + SECRET_USERNAME_KEY,
+    WEBLOGIC_CREDENTIALS_SECRET_NAME + ":" + SECRET_USERNAME_KEY
+]
+
+# for matching and refining credential secret names
+JDBC_USER_PATTERN = re.compile('.user.Value$')
+JDBC_USER_REPLACEMENT = '.user-value'
+SECURITY_NM_PATTERN = re.compile('^SecurityConfig.NodeManager')
+SECURITY_NM_REPLACEMENT = 'SecurityConfig.NodeManager.'
 
 
 def process_target_arguments(argument_map):
@@ -77,9 +93,6 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     :param token_dictionary: contains every token
     :param model_dictionary: used to determine domain UID
     """
-    target_config = model_context.get_target_configuration()
-    if not target_config.requires_secrets_script():
-        return
 
     # determine the domain name and UID
     topology = dictionary_utils.get_dictionary_element(model_dictionary, TOPOLOGY)
@@ -129,14 +142,30 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     k8s_script.write("# " + message + nl)
     k8s_script.write(command_string + nl)
 
+    # build a map of secret names (jdbc-generic1) to keys (username, password)
+    secret_map = {}
     for property_name in token_dictionary:
-        # AdminPassword, AdminUser are created separately,
-        # and SecurityConfig.NodeManagerPasswordEncrypted is the short name which filters out
-        if property_name in ['AdminPassword', 'AdminUserName', 'SecurityConfig.NodeManagerPasswordEncrypted']:
-            continue
+        halves = property_name.split(':', 1)
+        value = token_dictionary[property_name]
+        if len(halves) == 2:
+            secret_name = halves[0]
 
-        user_name = find_user_name(property_name, model_dictionary)
-        secret_name = _create_secret_name(property_name)
+            # admin credentials are hard-coded in the script, to be first in the list
+            if secret_name == WEBLOGIC_CREDENTIALS_SECRET_NAME:
+                continue
+
+            secret_key = halves[1]
+            if secret_name not in secret_map:
+                secret_map[secret_name] = {}
+            secret_keys = secret_map[secret_name]
+            secret_keys[secret_key] = value
+
+    secret_names = secret_map.keys()
+    secret_names.sort()
+
+    for secret_name in secret_names:
+        secret_keys = secret_map[secret_name]
+        user_name = dictionary_utils.get_element(secret_keys, SECRET_USERNAME_KEY)
 
         if user_name is None:
             message = exception_helper.get_message("WLSDPLY-01663", PASSWORD_TAG, secret_name)
@@ -155,30 +184,35 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     FileUtils.chmod(k8s_file, 0750)
 
 
-def format_as_secret_token(variable_name, target_config):
+def format_as_secret_token(secret_id, target_config):
     """
-    Format the variable as a secret name token for use in a model.
-    :param variable_name: variable name in dot separated format
-    :return: formatted name
+    Format the secret identifier as an @@SECRET token for use in a model.
+    :param secret_id: secret name, such as "jdbc-mydatasource:password"
+    :param target_config: target configuration
+    :return: secret token, such as "@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-mydatasource:password"
     """
-    normal_secret_format = '@@SECRET:@@ENV:DOMAIN_UID@@-%s:%s@@'
-    name_lower_tokens = variable_name.lower().split('.')
-    if len(name_lower_tokens) == 1:
-        admin_lower_token = name_lower_tokens[0]
-        if admin_lower_token in ['adminusername', 'adminpassword']:
-            # substring removes "admin" and keeps just 'username' or 'password', to match secrets script
-            admin_token = admin_lower_token[5:]
-            secret_name = target_config.get_wls_credentials_name()
-            if secret_name == None:
-                return normal_secret_format % (WEBLOGIC_CREDENTIALS_SECRET_NAME, admin_token)
-            else:
-                # if the target configuration declares a special name for the WebLogic credential secret
-                return '@@SECRET:%s:%s@@' % (secret_name, admin_token)
+    # check special case where target config has a WLS credential name, such as  "__weblogic-credentials__"
+    wls_credentials_name = target_config.get_wls_credentials_name()
+    parts = secret_id.split(':')
+    if (wls_credentials_name is not None) and (len(parts) == 2):
+        if parts[0] == WEBLOGIC_CREDENTIALS_SECRET_NAME:
+            return '@@SECRET:%s:%s@@' % (wls_credentials_name, parts[1])
 
-    # for paired and single secrets, password key is always named "password"
-    secret_key = "password"
-    secret_name = _create_secret_name(variable_name)
-    return normal_secret_format % (secret_name, secret_key)
+    return '@@SECRET:@@ENV:DOMAIN_UID@@-%s@@' % (secret_id)
+
+
+def format_as_overrides_secret(secret_id):
+    """
+    Format the secret identifier as a credential placeholder for use in a model.
+    This is done when the target's credentials method is config_override_secrets .
+    :param secret_id: secret name, such as "jdbc-mydatasource:password"
+    :return: placeholder value, such as "password1"
+    """
+    if secret_id in ADMIN_USER_SECRET_NAMES:
+        return ADMINUSER_PLACEHOLDER
+    elif secret_id.endswith(':' + SECRET_USERNAME_KEY):
+        return USERNAME_PLACEHOLDER
+    return PASSWORD_PLACEHOLDER
 
 
 def get_secret_name_for_location(location, domain_uid, aliases):
@@ -191,7 +225,7 @@ def get_secret_name_for_location(location, domain_uid, aliases):
     :return: the secret name
     """
     variable_name = variable_injector_functions.format_variable_name(location, '(none)', aliases)
-    secret_name = _create_secret_name(variable_name)
+    secret_name = create_secret_name(variable_name)
     return domain_uid + '-' + secret_name
 
 
@@ -214,53 +248,38 @@ def create_additional_output(model, model_context, aliases, exception_type):
                              method_name=_method_name)
 
 
-def find_user_name(property_name, model_dictionary):
-    """
-    Determine the user name associated with the specified property name.
-    Return None if the property name is not part of a paired secret with .username and .password .
-    Return <user> if the property name is paired, but user is not found.
-    Currently only supports user for JDBC.[name].PasswordEncrypted
-    Needs a much better implementation for future expansion.
-    :param property_name: the property name, such as JDBC.Generic2.PasswordEncrypted
-    :param model_dictionary: for looking up the user name
-    :return: the matching user name, a substitution string, or None
-    """
-    matches = _jdbc_pattern.findall(property_name)
-    if matches:
-        name = matches[0]
-        resources = dictionary_utils.get_dictionary_element(model_dictionary, RESOURCES)
-        system_resources = dictionary_utils.get_dictionary_element(resources, JDBC_SYSTEM_RESOURCE)
-
-        # the property name has already been "cleaned", so clean resource name to find a match
-        datasource = {}
-        for resource_name in system_resources:
-            resource_property_name = variable_injector_functions.clean_property_name(resource_name)
-            if name == resource_property_name:
-                datasource = dictionary_utils.get_dictionary_element(system_resources, resource_name)
-
-        jdbc_resources = dictionary_utils.get_dictionary_element(datasource, JDBC_RESOURCE)
-        driver_params = dictionary_utils.get_dictionary_element(jdbc_resources, JDBC_DRIVER_PARAMS)
-        properties = dictionary_utils.get_dictionary_element(driver_params, PROPERTIES)
-        user = dictionary_utils.get_dictionary_element(properties, "user")
-        value = dictionary_utils.get_element(user, "Value")
-        if value is None:
-            return "<user>"
-        else:
-            return value
-
-    return None
-
-
-def _create_secret_name(variable_name):
+def create_secret_name(variable_name, suffix=None):
     """
     Return the secret name derived from the specified property variable name.
-    Skip the last element of the variable name, which corresponds to the attribute.
+    Some corrections are made for known attributes to associate user names with passwords.
+    Remove the last element of the variable name, which corresponds to the attribute name.
     Follow limitations for secret names: only alphanumeric and "-", must start and end with alphanumeric.
     For example, "JDBC.Generic1.PasswordEncrypted" becomes "jdbc-generic1".
     :param variable_name: the variable name to be converted
+    :param suffix: optional suffix for the name, such as "pop3.user"
     :return: the derived secret name
     """
+
+    # JDBC user ends with ".user.Value", needs to be .user-value to match with password
+    variable_name = JDBC_USER_PATTERN.sub(JDBC_USER_REPLACEMENT, variable_name)
+
+    # associate the two SecurityConfiguration.NodeManager* credentials, distinct from CredentialEncrypted
+    variable_name = SECURITY_NM_PATTERN.sub(SECURITY_NM_REPLACEMENT, variable_name)
+
+    # append the suffix ir present, such as mail-mymailsession-properties-pop3.user
+    if suffix:
+        variable_name = '%s-%s' % (variable_name, suffix)
+
     variable_keys = variable_name.lower().split('.')
+
+    # admin user and password have a special secret name
+    if variable_keys[-1] in [ADMIN_USERNAME_KEY, ADMIN_PASSWORD_KEY]:
+        return WEBLOGIC_CREDENTIALS_SECRET_NAME
+
+    # if the attribute was not in a folder, append an extra key to be skipped, such as opsssecrets.x
+    if len(variable_keys) == 1:
+        variable_keys.append('x')
+
     secret_keys = []
     for variable_key in variable_keys[:-1]:
         secret_key = re.sub('[^a-z0-9-]', '-', variable_key)
@@ -270,16 +289,3 @@ def _create_secret_name(variable_name):
     # if empty, just return "x".
     secret = '-'.join(secret_keys).strip('-')
     return secret or 'x'
-
-
-def _is_paired_secret(property_name):
-    """
-    Determine if the property name is part of a paired secret with .username and .password .
-    Currently only supports user for JDBC.[name].PasswordEncrypted
-    Needs a much better implementation for future expansion.
-    :param property_name: the property name, such as JDBC.Generic2.PasswordEncrypted
-    :return: True if the property is part of a paired secret
-    """
-    if _jdbc_pattern.findall(property_name):
-        return True
-    return False

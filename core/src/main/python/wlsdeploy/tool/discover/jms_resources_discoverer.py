@@ -29,8 +29,8 @@ class JmsResourcesDiscoverer(Discoverer):
     """
 
     def __init__(self, model_context, resource_dictionary, base_location,
-                 wlst_mode=WlstModes.OFFLINE, aliases=None, variable_injector=None):
-        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, variable_injector)
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None):
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, credential_injector)
         self._dictionary = resource_dictionary
 
     def discover(self):

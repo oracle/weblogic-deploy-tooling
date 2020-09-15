@@ -5,7 +5,7 @@
     "folders": { },
     "attributes": {
         "AdminPassword":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AdminPassword",              "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "password"  } ],
-        "AdminUserName":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AdminUserName",              "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string" } ],
+        "AdminUserName":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AdminUserName",              "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "credential" } ],
         "AppDir":                     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AppDir",                     "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string", "uses_path_tokens": "true" } ],
         "OPSSSecrets":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "OPSSSecrets",                "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "password" } ],
         "ServerGroupTargetingLimits": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ServerGroupTargetingLimits", "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "dict" } ],

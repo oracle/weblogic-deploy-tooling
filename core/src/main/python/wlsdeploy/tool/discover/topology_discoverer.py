@@ -40,7 +40,7 @@ class TopologyDiscoverer(Discoverer):
     """
 
     def __init__(self, model_context, topology_dictionary, base_location,
-                 wlst_mode=WlstModes.OFFLINE, aliases=None, variable_injector=None):
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None):
         """
         Instantiate an instance of the TopologyDiscoverer class with the runtime information provided by
         the init parameters.
@@ -48,7 +48,7 @@ class TopologyDiscoverer(Discoverer):
         :param topology_dictionary: dictionary in which to add discovered topology information
         :param wlst_mode: indicates whether this discover is run in online or offline mode
         """
-        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, variable_injector)
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, credential_injector)
         self._dictionary = topology_dictionary
         self._add_att_handler(model_constants.CLASSPATH, self._add_classpath_libraries_to_archive)
         self._add_att_handler(model_constants.CUSTOM_IDENTITY_KEYSTORE_FILE, self._add_keystore_file_to_archive)
@@ -380,7 +380,7 @@ class TopologyDiscoverer(Discoverer):
             self._populate_model_parameters(result, location)
             # IFF credential is the only attribute, skip adding the Embedded LDAP server configuration
             if len(result) == 1 and model_constants.CREDENTIAL_ENCRYPTED in result:
-                injector = self._get_variable_injector()
+                injector = self._get_credential_injector()
                 if injector is not None:
                     injector.remove_from_cache(location, model_constants.CREDENTIAL_ENCRYPTED)
                 result = OrderedDict()
@@ -514,9 +514,9 @@ class TopologyDiscoverer(Discoverer):
         # Determine if the SecurityConfiguration/CredentialEncrypted can be removed
         pass_cache = OrderedDict()
         short_name = ''
-        if self._variable_injector is not None:
-            pass_cache = self._variable_injector.get_variable_cache()
-            short_name = self._variable_injector.get_folder_short_name(location)
+        if self._credential_injector is not None:
+            pass_cache = self._credential_injector.get_variable_cache()
+            short_name = self._credential_injector.get_folder_short_name(location)
         if model_constants.SECURITY_CONFIGURATION_PASSWORD in result:
             # default is false
             if model_constants.SECURITY_CONFIGURATION_CD_ENABLED not in result or \

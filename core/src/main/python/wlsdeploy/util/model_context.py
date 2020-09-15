@@ -587,6 +587,7 @@ class ModelContext(object):
         """
         Return the target configuration object, based on the target name.
         Lazy-load this the first time it is requested.
+        Return a default target configuration if none was specified.
         :return: target configuration object
         """
         if self._target_configuration is None:

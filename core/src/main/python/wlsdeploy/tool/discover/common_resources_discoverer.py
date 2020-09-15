@@ -13,7 +13,6 @@ from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.discover import discoverer
@@ -33,14 +32,14 @@ class CommonResourcesDiscoverer(Discoverer):
     """
 
     def __init__(self, model_context, resource_dictionary, base_location,
-                 wlst_mode=WlstModes.OFFLINE, aliases=None, variable_injector=None):
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None):
         """
 
         :param model_context: context about the model for this instance of discover domain
         :param resource_dictionary: to populate the common resources. By default, populates the initialized resources
         :param base_location: to look for common weblogic resources. By default this is the global path or '/'
         """
-        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, variable_injector)
+        Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, credential_injector)
         self._dictionary = resource_dictionary
         self._add_att_handler(model_constants.PATH_TO_SCRIPT, self._add_wldf_script)
 
@@ -64,7 +63,7 @@ class CommonResourcesDiscoverer(Discoverer):
         model_folder_name, folder_result = self.get_path_services()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         JmsResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, wlst_mode=self._wlst_mode,
-                               aliases=self._aliases, variable_injector=self._get_variable_injector()).discover()
+                               aliases=self._aliases, credential_injector=self._get_credential_injector()).discover()
         model_folder_name, folder_result = self.get_wldf_system_resources()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_system_component_resources()
@@ -73,7 +72,7 @@ class CommonResourcesDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         CoherenceResourcesDiscoverer(self._model_context, self._dictionary, self._base_location,
                                      wlst_mode=self._wlst_mode, aliases=self._aliases,
-                                     variable_injector=self._get_variable_injector()).discover()
+                                     credential_injector=self._get_credential_injector()).discover()
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
@@ -440,15 +439,16 @@ def _fix_passwords_in_mail_session_properties(dictionary):
         string_properties = dictionary[model_constants.MAIL_SESSION_PROPERTIES]
         if string_properties:
             properties = string_properties
-            if isinstance(string_properties, str):
+            if isinstance(string_properties, basestring):
                 properties = StringUtils.formatPropertiesFromString(string_properties)
             new_properties = OrderedDict()
             iterator = properties.stringPropertyNames().iterator()
             while iterator.hasNext():
                 key = iterator.next()
                 new_key = str(key).strip()
-                value = properties.getProperty(key)
-                if StringUtils.matches(match_pattern, new_key):
+                value = str(properties.getProperty(key))
+                tokenized = value.startswith('@@')
+                if StringUtils.matches(match_pattern, new_key) and not tokenized:
                     value = replacement
                 new_properties[new_key] = value
         dictionary[model_constants.MAIL_SESSION_PROPERTIES] = new_properties

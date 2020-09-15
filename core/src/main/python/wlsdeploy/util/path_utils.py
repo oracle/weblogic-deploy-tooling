@@ -162,6 +162,10 @@ def is_jar_file(file_path):
     return os.path.isfile(file_path) and get_file_ext_from_path(file_path) == '.jar'
 
 
+def get_wls_deploy_path():
+    return os.environ.get(WLSDEPLOY_HOME_VARIABLE, None)
+
+
 def find_config_path(file_path):
     """
     Find the config file path for the relative file path.

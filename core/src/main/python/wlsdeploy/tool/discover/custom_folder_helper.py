@@ -40,7 +40,7 @@ class CustomFolderHelper(object):
     wrapper class.
     """
 
-    def __init__(self, aliases, logger, model_context, exception_type, variable_injector=None):
+    def __init__(self, aliases, logger, model_context, exception_type, credential_injector=None):
         global _logger
         self._exception_type = exception_type
         self._model_context = model_context
@@ -49,7 +49,7 @@ class CustomFolderHelper(object):
         self._weblogic_helper = WebLogicHelper(_logger)
         self._wlst_helper = WlstHelper(self._exception_type)
         self._info_helper = MBeanUtils(self._model_context, aliases, self._exception_type)
-        self._variable_injector = variable_injector
+        self._credential_injector = credential_injector
 
     def discover_custom_mbean(self, base_location, model_type, mbean_name):
         """
@@ -299,10 +299,10 @@ class CustomFolderHelper(object):
         return False
 
     def __inject_token(self, location, model_section, attribute_name):
-        if self._variable_injector is not None:
+        if self._credential_injector is not None:
             if model_section[attribute_name] == alias_constants.PASSWORD_TOKEN:
-                self._variable_injector.custom_injection(model_section, attribute_name, location,
-                                                         STANDARD_PASSWORD_INJECTOR)
+                self._credential_injector.custom_injection(model_section, attribute_name, location,
+                                                           STANDARD_PASSWORD_INJECTOR)
 
 
 def equal_dictionary(dict1, dict2):

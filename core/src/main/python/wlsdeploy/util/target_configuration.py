@@ -84,16 +84,17 @@ class TargetConfiguration(object):
         """
         return dictionary_utils.get_dictionary_element(self.config_dictionary, 'variable_injectors')
 
-    def requires_secrets_script(self):
+    def uses_credential_secrets(self):
         """
-        Determine if this configuration requires the generation of secrets scripts.
-        :return: True if scripts should be generated, False otherwise
+        Determine if this configuration uses secrets to manage credentials.
+        :return: True if secrets are used, False otherwise
         """
         return self.get_credentials_method() in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]
 
     def manages_credentials(self):
         """
         Determine if this configuration manages credential values in the model.
+        If this is True, credentials will not go into the properties file.
         :return: True if credential values are managed, False otherwise
         """
         return self.get_credentials_method() in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]
