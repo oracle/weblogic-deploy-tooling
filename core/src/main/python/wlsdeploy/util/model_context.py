@@ -87,6 +87,7 @@ class ModelContext(object):
         self._variable_keywords_file = None
         self._variable_properties_file = None
         self._rcu_db_user = 'SYS'
+        self._undo_current_edit = False
 
         self._trailing_args = []
 
@@ -132,6 +133,9 @@ class ModelContext(object):
 
         if CommandLineArgUtil.MODEL_FILE_SWITCH in arg_map:
             self._model_file = arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
+
+        if CommandLineArgUtil.UNDO_CURRENT_EDIT_SWITCH in arg_map:
+            self._undo_current_edit = arg_map[CommandLineArgUtil.UNDO_CURRENT_EDIT_SWITCH]
 
         if CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH in arg_map:
             self._previous_model_file = arg_map[CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH]
@@ -267,6 +271,8 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = self._variable_file_name
         if self._run_rcu is not None:
             arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]= self._run_rcu
+        if self._undo_current_edit is not None:
+            arg_map[CommandLineArgUtil.UNDO_CURRENT_EDIT_SWITCH]= self._undo_current_edit
         if self._rcu_database is not None:
             arg_map[CommandLineArgUtil.RCU_DB_SWITCH] = self._rcu_database
         if self._rcu_prefix is not None:
@@ -434,6 +440,13 @@ class ModelContext(object):
         :return: true or false
         """
         return self._rollback_if_restart_required
+
+    def is_undo_current_edit(self):
+        """
+        Get the undo current edit value.
+        :return: true or false
+        """
+        return self._undo_current_edit
 
     def get_opss_wallet(self):
         """

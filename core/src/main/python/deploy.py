@@ -62,6 +62,7 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
+    CommandLineArgUtil.UNDO_CURRENT_EDIT_SWITCH,
     CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH
 ]
 
@@ -121,7 +122,7 @@ def __deploy_online(model, model_context, aliases):
 
     try:
         __wlst_helper.connect(admin_user, admin_pwd, admin_url)
-        deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions()
+        deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(model_context.is_undo_current_edit())
         __wlst_helper.edit()
         __wlst_helper.start_edit()
     except BundleAwareException, ex:
