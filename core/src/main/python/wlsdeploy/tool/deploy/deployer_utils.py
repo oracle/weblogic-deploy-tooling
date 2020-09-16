@@ -306,6 +306,7 @@ def undo_current_edit():
         unactivated_changes = _wlst_helper.have_unactivated_changes(cmgr)
 
         if unactivated_changes:
+            _logger.info("WLSDPLY-09016")
             cmgr.undoUnactivatedChanges()
 
     except PyWLSTException, e:
