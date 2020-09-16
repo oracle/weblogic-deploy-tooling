@@ -101,12 +101,12 @@ class ApplicationsDeployer(Deployer):
 
             if model_helper.is_delete_name(shared_library_name):
 
-                self.__verify_delete_versioned_app(shared_library_name, existing_shared_libraries, type='lib')
+                if self.__verify_delete_versioned_app(shared_library_name, existing_shared_libraries, type='lib'):
 
-                location = LocationContext()
-                location.append_location(model_constants.LIBRARY)
-                existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
-                deployer_utils.delete_named_element(location, shared_library_name, existing_names, self.aliases)
+                    location = LocationContext()
+                    location.append_location(model_constants.LIBRARY)
+                    existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
+                    deployer_utils.delete_named_element(location, shared_library_name, existing_names, self.aliases)
                 continue
 
             #
@@ -173,12 +173,12 @@ class ApplicationsDeployer(Deployer):
 
             if model_helper.is_delete_name(application_name):
 
-                self.__verify_delete_versioned_app(application_name, existing_applications, type='app')
+                if self.__verify_delete_versioned_app(application_name, existing_applications, type='app'):
 
-                location = LocationContext()
-                location.append_location(model_constants.APPLICATION)
-                existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
-                deployer_utils.delete_named_element(location, application_name, existing_names, self.aliases)
+                    location = LocationContext()
+                    location.append_location(model_constants.APPLICATION)
+                    existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
+                    deployer_utils.delete_named_element(location, application_name, existing_names, self.aliases)
                 continue
 
             application = \
@@ -535,15 +535,15 @@ class ApplicationsDeployer(Deployer):
 
                 if model_helper.is_delete_name(lib):
 
-                    self.__verify_delete_versioned_app(lib, existing_libs, 'lib')
+                    if self.__verify_delete_versioned_app(lib, existing_libs, 'lib'):
 
-                    if lib[1:] in existing_libs:
-                        model_libs.pop(lib)
-                        _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib[1:])
-                        stop_and_undeploy_app_list.append(lib[1:])
-                    else:
-                        model_libs.pop(lib)
-                        stop_and_undeploy_app_list.append(lib[1:])
+                        if lib[1:] in existing_libs:
+                            model_libs.pop(lib)
+                            _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib[1:])
+                            stop_and_undeploy_app_list.append(lib[1:])
+                        else:
+                            model_libs.pop(lib)
+                            stop_and_undeploy_app_list.append(lib[1:])
                     continue
 
                 if lib in existing_libs:
@@ -612,12 +612,12 @@ class ApplicationsDeployer(Deployer):
 
                 if model_helper.is_delete_name(app):
 
-                    self.__verify_delete_versioned_app(app, existing_apps, 'app')
+                    if self.__verify_delete_versioned_app(app, existing_apps, 'app'):
 
-                    # remove the !app from the model
-                    self.__remove_app_from_deployment(model_apps, app)
-                    # undeploy the app (without !)
-                    stop_and_undeploy_app_list.append(app[1:])
+                        # remove the !app from the model
+                        self.__remove_app_from_deployment(model_apps, app)
+                        # undeploy the app (without !)
+                        stop_and_undeploy_app_list.append(app[1:])
                     continue
 
                 if app in existing_apps:
@@ -679,17 +679,18 @@ class ApplicationsDeployer(Deployer):
             err_key_list = 'WLSDPLY-09331'
             err_key = 'WLSDPLY-09333'
 
+        found_app = True
         if not app[1:] in existing_apps:
+            found_app = False
             tokens = re.split(r'[\#*\@*]', app[1:])
             re_expr = tokens[0] + '[\#*\@*]'
             r = re.compile(re_expr)
             matched_list = filter(r.match, existing_apps)
             if len(matched_list) > 0:
-                ex = exception_helper.create_deploy_exception(err_key_list, app[1:], matched_list)
+                self.logger.warning(err_key_list, app[1:], matched_list, self._class_name, method_name=_method_name)
             else:
-                ex = exception_helper.create_deploy_exception(err_key, app[1:])
-            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
+                self.logger.warning(err_key, app[1:],self._class_name, method_name=_method_name)
+        return found_app
 
     def __get_uses_path_tokens_attribute_names(self, app_location):
         location = LocationContext(app_location)
@@ -808,22 +809,23 @@ class ApplicationsDeployer(Deployer):
             location = LocationContext(lib_location)
             token_name = self.aliases.get_name_token(location)
             for lib_name in deploy_ordered_keys:
-                lib_dict = model_libs[lib_name]
-                src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
-                plan_file = dictionary_utils.get_element(lib_dict, PLAN_PATH)
-                targets = dictionary_utils.get_element(lib_dict, TARGET)
-                options = _get_deploy_options(model_libs, lib_name, library_module='true')
-                for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
-                    if uses_path_tokens_attribute_name in lib_dict:
-                        self.__extract_file_from_archive(lib_dict[uses_path_tokens_attribute_name])
+                if not model_helper.is_delete_name(lib_name):
+                    lib_dict = model_libs[lib_name]
+                    src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
+                    plan_file = dictionary_utils.get_element(lib_dict, PLAN_PATH)
+                    targets = dictionary_utils.get_element(lib_dict, TARGET)
+                    options = _get_deploy_options(model_libs, lib_name, library_module='true')
+                    for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
+                        if uses_path_tokens_attribute_name in lib_dict:
+                            self.__extract_file_from_archive(lib_dict[uses_path_tokens_attribute_name])
 
-                location.add_name_token(token_name, lib_name)
-                resource_group_template_name, resource_group_name, partition_name = \
-                    self.__get_mt_names_from_location(location)
-                self.__deploy_app_online(lib_name, src_path, targets, plan=plan_file,
-                                         partition=partition_name, resource_group=resource_group_name,
-                                         resource_group_template=resource_group_template_name, options=options)
-                location.remove_name_token(token_name)
+                    location.add_name_token(token_name, lib_name)
+                    resource_group_template_name, resource_group_name, partition_name = \
+                        self.__get_mt_names_from_location(location)
+                    self.__deploy_app_online(lib_name, src_path, targets, plan=plan_file,
+                                             partition=partition_name, resource_group=resource_group_name,
+                                             resource_group_template=resource_group_template_name, options=options)
+                    location.remove_name_token(token_name)
         return
 
     def __deploy_model_applications(self, model_apps, app_location, deployed_applist):
@@ -833,29 +835,30 @@ class ApplicationsDeployer(Deployer):
             location = LocationContext(app_location)
             token_name = self.aliases.get_name_token(location)
             for app_name in deploy_ordered_keys:
-                app_dict = model_apps[app_name]
-                src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
-                plan_file = dictionary_utils.get_element(app_dict, PLAN_PATH)
-                targets = dictionary_utils.get_element(app_dict, TARGET)
-                options = _get_deploy_options(model_apps, app_name, library_module='false')
+                if not model_helper.is_delete_name(app_name):
+                    app_dict = model_apps[app_name]
+                    src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
+                    plan_file = dictionary_utils.get_element(app_dict, PLAN_PATH)
+                    targets = dictionary_utils.get_element(app_dict, TARGET)
+                    options = _get_deploy_options(model_apps, app_name, library_module='false')
 
-                # any attribute with 'uses_path_tokens' may be in the archive (such as SourcePath)
-                for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
-                    if uses_path_tokens_attribute_name in app_dict:
-                        path = app_dict[uses_path_tokens_attribute_name]
-                        if deployer_utils.is_path_into_archive(path):
-                            self.__extract_source_path_from_archive(path, APPLICATION, app_name)
+                    # any attribute with 'uses_path_tokens' may be in the archive (such as SourcePath)
+                    for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
+                        if uses_path_tokens_attribute_name in app_dict:
+                            path = app_dict[uses_path_tokens_attribute_name]
+                            if deployer_utils.is_path_into_archive(path):
+                                self.__extract_source_path_from_archive(path, APPLICATION, app_name)
 
-                location.add_name_token(token_name, app_name)
-                resource_group_template_name, resource_group_name, partition_name = \
-                    self.__get_mt_names_from_location(location)
+                    location.add_name_token(token_name, app_name)
+                    resource_group_template_name, resource_group_name, partition_name = \
+                        self.__get_mt_names_from_location(location)
 
-                new_app_name = self.__deploy_app_online(app_name, src_path, targets, plan=plan_file,
-                                                        partition=partition_name, resource_group=resource_group_name,
-                                                        resource_group_template=resource_group_template_name,
-                                                        options=options)
-                location.remove_name_token(token_name)
-                deployed_applist.append(new_app_name)
+                    new_app_name = self.__deploy_app_online(app_name, src_path, targets, plan=plan_file,
+                                                            partition=partition_name, resource_group=resource_group_name,
+                                                            resource_group_template=resource_group_template_name,
+                                                            options=options)
+                    location.remove_name_token(token_name)
+                    deployed_applist.append(new_app_name)
         return
 
     def __get_mt_names_from_location(self, app_location):
