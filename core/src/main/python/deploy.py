@@ -125,6 +125,8 @@ def __deploy_online(model, model_context, aliases):
         deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(model_context.is_undo_current_edit())
         __wlst_helper.edit()
         __wlst_helper.start_edit()
+        if model_context.is_undo_current_edit():
+            deployer_utils.undo_current_edit()
     except BundleAwareException, ex:
         raise ex
 
