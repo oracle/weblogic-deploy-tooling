@@ -1,11 +1,10 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
 from org.python.modules import jarray
 import re
-from sets import Set
 from array import array
 
 from java.io import File
@@ -24,6 +23,7 @@ from oracle.weblogic.deploy.aliases import VersionException
 from oracle.weblogic.deploy.aliases import VersionUtils
 
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
@@ -51,39 +51,50 @@ from wlsdeploy.aliases.alias_constants import WLST_PATHS
 from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
+from wlsdeploy.util import model_helper
 
 _class_name = 'alias_utils'
 _logger = PlatformLogger('wlsdeploy.aliases')
 _windows_path_regex = re.compile(r'^[a-zA-Z]:[\\/].*')
 
 
-def merge_model_and_existing_lists(model_list, existing_list, string_list_separator_char=','):
+def merge_model_and_existing_lists(model_list, existing_list, location_path="(unknown)", attribute_name="(unknown)"):
     """
     Merge the two lists so that the resulting list contains all of the elements in both lists one time.
-    :param model_list: the list to merge
-    :param existing_list: the existing list
-    :param string_list_separator_char: the character separator to use to split the lists if either list is a string
+    :param model_list: the list to merge, possibly a string or None
+    :param existing_list: the existing list, possibly a string or None
+    :param location_path: optional, the path of the attribute location, for logging
+    :param attribute_name: optional, the attribute name, for logging
     :return: the merged list as a list or a string, depending on the type of the model_list
     :raises: DeployException: if either list is not either a string or a list
     """
     _method_name = 'merge_model_and_existing_lists'
 
-    _logger.entering(model_list, existing_list, string_list_separator_char,
-                     class_name=_class_name, method_name=_method_name)
-    if existing_list is None or len(existing_list) == 0:
-        result = model_list
-    elif model_list is None or len(model_list) == 0:
-        result = existing_list
-        if isinstance(model_list, basestring) and not isinstance(existing_list, basestring):
-            result = string_list_separator_char.join(existing_list)
-    else:
-        model_list_is_string = isinstance(model_list, basestring)
-        model_set = _create_set(model_list, string_list_separator_char, 'WLSDPLY-08000')
-        existing_set = _create_set(existing_list, string_list_separator_char, 'WLSDPLY-08001')
+    _logger.entering(model_list, existing_list, location_path, attribute_name, class_name=_class_name,
+                     method_name=_method_name)
 
-        result = list(existing_set.union(model_set))
-        if model_list_is_string:
-            result = string_list_separator_char.join(result)
+    if model_list is None:
+        result_is_string = isinstance(existing_list, basestring)
+    else:
+        result_is_string = isinstance(model_list, basestring)
+
+    result = _create_list(existing_list, 'WLSDPLY-08001')
+    model_iterator = _create_list(model_list, 'WLSDPLY-08000')
+
+    for item in model_iterator:
+        if model_helper.is_delete_name(item):
+            item_name = model_helper.get_delete_item_name(item)
+            if item_name in result:
+                result.remove(item_name)
+            else:
+                _logger.warning('WLSDPLY-08022', item_name, attribute_name, location_path, class_name=_class_name,
+                                method_name=_method_name)
+
+        elif item not in result:
+            result.append(item)
+
+    if result_is_string:
+        result = MODEL_LIST_DELIMITER.join(result)
 
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
@@ -1106,25 +1117,26 @@ def _create_mbean_array(iterable, subtype):
     return myarray
 
 
-def _create_set(list_item, string_list_separator_char, message_key):
+def _create_list(list_value, message_key):
     """
-    Create a set object from the specified list item.
-    :param list_item: the item to be examined, should be a string, list, or array
-    :param string_list_separator_char: the character separator to use to split the lists if either list is a string
+    Create a list from the specified list value.
+    :param list_value: the model value to be examined, should be a string, list, or array
     :param message_key: the key of the message to display if list item type is invalid
-    :return: a set containing the list item's elements
+    :return: a list containing the list value's elements
     :raises: DeployException: if either list is not either a string or a list
     """
-    _method_name = '_create_set'
+    _method_name = '_create_list'
 
-    item_type = type(list_item)
-    if item_type in [str, unicode]:
-        item_set = Set([x.strip() for x in list_item.split(string_list_separator_char)])
+    item_type = type(list_value)
+    if (list_value is None) or (len(list_value) == 0):
+        item_list = []
+    elif isinstance(list_value, basestring):
+        item_list = [x.strip() for x in list_value.split(MODEL_LIST_DELIMITER)]
     elif item_type is list or item_type is array:
-        item_set = Set(list_item)
+        item_list = list(list_value)
     else:
         ex = exception_helper.create_deploy_exception(message_key, str(item_type))
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 
-    return item_set
+    return item_list
