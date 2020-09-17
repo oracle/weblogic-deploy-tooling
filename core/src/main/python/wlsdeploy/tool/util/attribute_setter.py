@@ -33,6 +33,7 @@ from wlsdeploy.aliases.model_constants import MASKED_PASSWORD
 from wlsdeploy.aliases.model_constants import MAX_THREADS_CONSTRAINT
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import MIN_THREADS_CONSTRAINT
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PARTITION_WORK_MANAGER
 from wlsdeploy.aliases.model_constants import PERSISTENT_STORE
@@ -164,7 +165,8 @@ class AttributeSetter(object):
 
     def set_target_mbeans(self, location, key, value, wlst_value, include_jms=False):
         """
-        Set the target MBeans.
+        Set the target attribute. For online, use a list of MBeans. For offline, use a comma-separated list of names,
+        or set to None for an empty list.
         :param location: the location
         :param key: the attribute name
         :param value: the string value
@@ -172,8 +174,17 @@ class AttributeSetter(object):
         :param include_jms: whether or not to include JMS resources
         :raises BundleAwareException of the specified type: if target is not found
         """
-        targets_value = self.__build_target_mbean_list(value, wlst_value, location, key, include_jms=include_jms)
-        self.set_attribute(location, key, targets_value, wlst_merge_value=wlst_value, use_raw_value=True)
+        if self.__wlst_mode == WlstModes.ONLINE:
+            targets_value = self.__build_target_mbean_list(value, wlst_value, location, key, include_jms=include_jms)
+            self.set_attribute(location, key, targets_value, wlst_merge_value=wlst_value, use_raw_value=True)
+        else:
+            items = self.__merge_existing_items(value, wlst_value, location, key)
+            if not items:
+                mbean = self.__wlst_helper.get_mbean(None)
+                mbean.setTargets(None)
+            else:
+                targets_value = MODEL_LIST_DELIMITER.join(items)
+                self.set_attribute(location, key, targets_value, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
     def set_jms_error_destination_mbean(self, location, key, value, wlst_value):
