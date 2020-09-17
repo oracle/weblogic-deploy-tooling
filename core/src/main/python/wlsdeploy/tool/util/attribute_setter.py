@@ -2,22 +2,12 @@
 Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-from sets import Set
-
+from javax.management import ObjectName
 from org.python.modules import jarray
 
-from java.util import List
-
-from javax.management import ObjectName
-
-from oracle.weblogic.deploy.aliases import TypeUtils
-
+from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_jvmargs import JVMArguments
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception import exception_helper
-from wlsdeploy.tool.util.wlst_helper import WlstHelper
-
 from wlsdeploy.aliases.model_constants import CAPACITY
 from wlsdeploy.aliases.model_constants import CERT_PATH_PROVIDER
 from wlsdeploy.aliases.model_constants import CLUSTER
@@ -59,8 +49,8 @@ from wlsdeploy.aliases.model_constants import SAF_AGENT
 from wlsdeploy.aliases.model_constants import SAF_ERROR_HANDLING
 from wlsdeploy.aliases.model_constants import SAF_IMPORTED_DESTINATION
 from wlsdeploy.aliases.model_constants import SAF_QUEUE
-from wlsdeploy.aliases.model_constants import SAF_TOPIC
 from wlsdeploy.aliases.model_constants import SAF_REMOTE_CONTEXT
+from wlsdeploy.aliases.model_constants import SAF_TOPIC
 from wlsdeploy.aliases.model_constants import SCRIPT_ACTION
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SELF_TUNING
@@ -78,6 +68,10 @@ from wlsdeploy.aliases.model_constants import WATCH_NOTIFICATION
 from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
+from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
+from wlsdeploy.tool.util.wlst_helper import WlstHelper
+from wlsdeploy.util import model_helper
 
 
 class AttributeSetter(object):
@@ -178,7 +172,7 @@ class AttributeSetter(object):
         :param include_jms: whether or not to include JMS resources
         :raises BundleAwareException of the specified type: if target is not found
         """
-        targets_value = self.__build_target_mbean_list(value, wlst_value, location, include_jms=include_jms)
+        targets_value = self.__build_target_mbean_list(value, wlst_value, location, key, include_jms=include_jms)
         self.set_attribute(location, key, targets_value, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
@@ -298,7 +292,7 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if a server is not found
         """
-        mbeans = self.__build_server_mbean_list(value, wlst_value)
+        mbeans = self.__build_server_mbean_list(value, wlst_value, location, key)
         self.set_attribute(location, key, mbeans, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
@@ -406,8 +400,7 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if the WLDF Action/Notification is not found
         """
         watch_location = self.__get_parent_location(location, WATCH_NOTIFICATION)
-        action_names = TypeUtils.convertToType(List, value)  # type: list of str
-        action_names = self.__merge_existing_items(action_names, wlst_value)
+        action_names = self.__merge_existing_items(value, wlst_value, location, key)
 
         action_mbeans = []
         for action_name in action_names:
@@ -511,7 +504,7 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if target is not found
         """
-        targets_value = self.__build_virtual_target_mbean_list(value, wlst_value)
+        targets_value = self.__build_virtual_target_mbean_list(value, wlst_value, location, key)
         self.set_attribute(location, key, targets_value, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
@@ -695,17 +688,18 @@ class AttributeSetter(object):
     # internal lookup methods
     #
 
-    def __build_target_mbean_list(self, target_value, wlst_value, location, include_jms=False):
+    def __build_target_mbean_list(self, target_value, wlst_value, location, key, include_jms=False):
         """
         Construct the target MBean list.
         :param target_value: the target value
         :param wlst_value: the existing value from WLST
+        :param location: location of the attribute
+        :param key: the attribute name
         :param include_jms: whether or not to include JMS targets, the default is False
         :return: the Java array of MBeans ObjectNames
         :raises BundleAwareException of the specified type: if an error occurs
         """
-        target_names = TypeUtils.convertToType(List, target_value)  # type: list of str
-        target_names = self.__merge_existing_items(target_names, wlst_value)
+        target_names = self.__merge_existing_items(target_value, wlst_value, location, key)
 
         name_list = []
         for target_name in target_names:
@@ -714,16 +708,17 @@ class AttributeSetter(object):
 
         return jarray.array(name_list, ObjectName)
 
-    def __build_server_mbean_list(self, value, wlst_value):
+    def __build_server_mbean_list(self, value, wlst_value, location, key):
         """
         Construct the server MBean list.
         :param value: the value
         :param wlst_value: the existing value from WLST
+        :param location: location of the attribute
+        :param key: the attribute name
         :return: the Java array of MBeans ObjectNames
         :raises BundleAwareException of the specified type: if an error occurs
         """
-        server_names = TypeUtils.convertToType(List, value)  # type: list of str
-        server_names = self.__merge_existing_items(server_names, wlst_value)
+        server_names = self.__merge_existing_items(value, wlst_value, location, key)
 
         name_list = []
         for server_name in server_names:
@@ -732,16 +727,17 @@ class AttributeSetter(object):
 
         return jarray.array(name_list, ObjectName)
 
-    def __build_virtual_target_mbean_list(self, target_value, wlst_value):
+    def __build_virtual_target_mbean_list(self, target_value, wlst_value, location, key):
         """
         Construct the virtual target MBean list.
         :param target_value: the target value
         :param wlst_value: the existing value from WLST
+        :param location: location of the attribute
+        :param key: the attribute name
         :return: for offline, a list of MBeans; for online, a jarray of MBean ObjectNames
         :raises BundleAwareException of the specified type: if an error occurs
         """
-        target_names = TypeUtils.convertToType(List, target_value)  # type: list of str
-        target_names = self.__merge_existing_items(target_names, wlst_value)
+        target_names = self.__merge_existing_items(target_value, wlst_value, location, key)
 
         if self.__wlst_mode == WlstModes.ONLINE:
             name_list = []
@@ -983,21 +979,33 @@ class AttributeSetter(object):
     # methods for merging existing values
     #
 
-    def __merge_existing_items(self, items, existing_value):
+    def __merge_existing_items(self, items, existing_value, location, key):
         """
         Merge the specified items with the items represented by existing value, and return the result.
-        :param items: the attribute name
+        :param items: the attribute value (may be a string or list)
         :param existing_value: the value representing the existing items (may be a string or list)
+        :param location: the location of the attribute, for logging
+        :param key: the name of the attribute, for logging
         :return: the merged list of items
         :raises BundleAwareException of the specified type: if the WLDF Action/Notification is not found
         """
         _method_name = '__merge_existing_items'
         self.__logger.entering(str(items), str(existing_value), class_name=self._class_name, method_name=_method_name)
 
-        existing_items = TypeUtils.convertToType(List, existing_value)  # type: list of str
-        no_existing_items = (existing_items is None) or (len(existing_items) == 0)
-        if no_existing_items:
-            result = items
-        else:
-            result = list(Set(items).union(Set(existing_items)))
+        result = alias_utils.create_list(existing_value, 'WLSDPLY-08001')
+        items_iterator = alias_utils.create_list(items, 'WLSDPLY-08000')
+
+        for item in items_iterator:
+            if model_helper.is_delete_name(item):
+                item_name = model_helper.get_delete_item_name(item)
+                if item_name in result:
+                    result.remove(item_name)
+                else:
+                    location_path = self.__aliases.get_model_folder_path(location)
+                    self.__logger.warning('WLSDPLY-08022', item_name, key, location_path,
+                                          class_name=self._class_name, method_name=_method_name)
+
+            elif item not in result:
+                result.append(item)
+
         return result

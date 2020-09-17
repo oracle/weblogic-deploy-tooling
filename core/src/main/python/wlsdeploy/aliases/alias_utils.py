@@ -78,8 +78,8 @@ def merge_model_and_existing_lists(model_list, existing_list, location_path="(un
     else:
         result_is_string = isinstance(model_list, basestring)
 
-    result = _create_list(existing_list, 'WLSDPLY-08001')
-    model_iterator = _create_list(model_list, 'WLSDPLY-08000')
+    result = create_list(existing_list, 'WLSDPLY-08001')
+    model_iterator = create_list(model_list, 'WLSDPLY-08000')
 
     for item in model_iterator:
         if model_helper.is_delete_name(item):
@@ -795,6 +795,31 @@ def get_dictionary_mode(alias_dict):
         return alias_dict[WLST_MODE]
     return None
 
+
+def create_list(list_value, message_key):
+    """
+    Create a list from the specified list value.
+    :param list_value: the model value to be examined, should be a string, list, or array
+    :param message_key: the key of the message to display if list item type is invalid
+    :return: a list containing the list value's elements
+    :raises: DeployException: if either list is not either a string or a list
+    """
+    _method_name = '_create_list'
+
+    item_type = type(list_value)
+    if (list_value is None) or (len(list_value) == 0):
+        item_list = []
+    elif isinstance(list_value, basestring):
+        item_list = [x.strip() for x in list_value.split(MODEL_LIST_DELIMITER)]
+    elif item_type is list or item_type is array:
+        item_list = list(list_value)
+    else:
+        ex = exception_helper.create_deploy_exception(message_key, str(item_type))
+        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+
+    return item_list
+
 ###############################################################################
 #                              Private functions                              #
 ###############################################################################
@@ -1115,28 +1140,3 @@ def _create_mbean_array(iterable, subtype):
         myarray[idx] = element
         idx += 1
     return myarray
-
-
-def _create_list(list_value, message_key):
-    """
-    Create a list from the specified list value.
-    :param list_value: the model value to be examined, should be a string, list, or array
-    :param message_key: the key of the message to display if list item type is invalid
-    :return: a list containing the list value's elements
-    :raises: DeployException: if either list is not either a string or a list
-    """
-    _method_name = '_create_list'
-
-    item_type = type(list_value)
-    if (list_value is None) or (len(list_value) == 0):
-        item_list = []
-    elif isinstance(list_value, basestring):
-        item_list = [x.strip() for x in list_value.split(MODEL_LIST_DELIMITER)]
-    elif item_type is list or item_type is array:
-        item_list = list(list_value)
-    else:
-        ex = exception_helper.create_deploy_exception(message_key, str(item_type))
-        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
-
-    return item_list
