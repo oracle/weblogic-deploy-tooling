@@ -242,13 +242,13 @@ class ApplicationsDeployer(Deployer):
         existing_app_refs = self.__get_existing_apps(self._base_location)
         existing_lib_refs = self.__get_library_references(self._base_location)
         existing_libs = existing_lib_refs.keys()
-        existing_apps = existing_app_refs.keys()
 
         # stop the app if the referenced shared library is newer or
         # if the source path changes
         stop_app_list = list()
         stop_and_undeploy_app_list = list()
         update_library_list = list()
+        app_delete_targets = dict()
 
         lib_location = LocationContext(base_location).append_location(LIBRARY)
         # Go through the model libraries and find existing libraries that are referenced
@@ -258,8 +258,8 @@ class ApplicationsDeployer(Deployer):
 
         # Go through the model applications and compute the processing strategy for each application.
         app_location = LocationContext(base_location).append_location(APPLICATION)
-        self.__build_app_deploy_strategy(app_location, model_applications, existing_apps,
-                                         existing_app_refs, stop_and_undeploy_app_list)
+        self.__build_app_deploy_strategy(app_location, model_applications, existing_app_refs,
+                                         stop_and_undeploy_app_list, app_delete_targets)
 
         # deployed_app_list is list of apps that has been deployed and stareted again
         # redeploy_app_list is list of apps that needs to be redeplyed
@@ -278,6 +278,11 @@ class ApplicationsDeployer(Deployer):
         for app in stop_and_undeploy_app_list:
             self.__stop_app(app)
             self.__undeploy_app(app)
+
+        # targets were deleted from an app, so undeploy for those specific targets
+        for app in app_delete_targets:
+            delete_targets = app_delete_targets[app]
+            self.__undeploy_app(app, targets=delete_targets)
 
         # library is updated, it must be undeployed first
         for lib in update_library_list:
@@ -599,9 +604,20 @@ class ApplicationsDeployer(Deployer):
                             lib_dict['Target'] = adjusted_targets
         return
 
-    def __build_app_deploy_strategy(self, location, model_apps, existing_apps, existing_app_refs,
-                                    stop_and_undeploy_app_list):
+    def __build_app_deploy_strategy(self, location, model_apps, existing_app_refs, stop_and_undeploy_app_list,
+                                    app_delete_targets):
+        """
+        Update maps and lists to control re-deployment processing.
+        :param location: the location of the Application
+        :param model_apps: a copy of applications from the model, attributes may be revised
+        :param existing_app_refs: map of information about each existing app
+        :param stop_and_undeploy_app_list: a list to update with apps to be stopped and undeployed
+        :param app_delete_targets: a map to update with delete targets for applications
+        """
+        _method_name = '__build_app_deploy_strategy'
+
         if model_apps is not None:
+            existing_apps = existing_app_refs.keys()
             uses_path_tokens_model_attribute_names = self.__get_uses_path_tokens_attribute_names(location)
 
             # use items(), not iteritems(), to avoid ConcurrentModificationException if an app is removed
@@ -631,6 +647,7 @@ class ApplicationsDeployer(Deployer):
 
                     model_src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
 
+                    # check for exploded app in archive
                     if (model_src_path is not None) and deployer_utils.is_path_into_archive(model_src_path) \
                             and self.archive_helper.contains_path(model_src_path):
                         model_src_hash = -1  # don't calculate hash, just ensure that hashes will not match
@@ -641,30 +658,44 @@ class ApplicationsDeployer(Deployer):
 
                     existing_src_hash = self.__get_file_hash(src_path)
                     existing_plan_hash = self.__get_file_hash(plan_path)
-                    if model_src_hash == existing_src_hash:
-                        if model_plan_hash == existing_plan_hash:
-                            # If model hashes match existing hashes, the application did not change.
-                            # Unless targets were added, there's no need to redeploy.
-                            model_targets = dictionary_utils.get_element(app_dict, TARGET)
-                            model_targets_list = TypeUtils.convertToType(list, model_targets)
-                            model_targets_set = Set(model_targets_list)
+                    if (model_src_hash == existing_src_hash) and (model_plan_hash == existing_plan_hash):
+                        # If model hashes match existing hashes, the application did not change.
+                        # Unless targets were added, there's no need to redeploy.
+                        model_targets = dictionary_utils.get_element(app_dict, TARGET)
+                        model_targets_list = TypeUtils.convertToType(list, model_targets)
+                        model_targets_set = Set(model_targets_list)
 
-                            existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
-                            existing_app_targets_set = Set(existing_app_targets)
+                        existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
+                        existing_app_targets_set = Set(existing_app_targets)
 
-                            if existing_app_targets_set.issuperset(model_targets_set):
-                                self.__remove_app_from_deployment(model_apps, app)
-                            else:
-                                # Adjust the targets to only the new targets so that existing apps on
-                                # already targeted servers are not impacted.
-                                adjusted_set = model_targets_set.difference(existing_app_targets_set)
-                                adjusted_targets = ','.join(adjusted_set)
-                                app_dict['Target'] = adjusted_targets
+                        # assign all the target delete names to app_delete_targets map.
+                        # remove them from model and existing target lists.
+                        delete_targets = []
+                        for model_target in model_targets_list:
+                            if model_helper.is_delete_name(model_target):
+                                model_targets_set.remove(model_target)
+                                target_name = model_helper.get_delete_item_name(model_target)
+                                if target_name in existing_app_targets_set:
+                                    existing_app_targets_set.remove(target_name)
+                                    delete_targets.append(target_name)
+                                else:
+                                    location.add_name_token(self.aliases.get_name_token(location), app)
+                                    location_path = self.aliases.get_model_folder_path(location)
+                                    self.logger.warning('WLSDPLY-08022', model_target, TARGET, location_path,
+                                                        class_name=self._class_name, method_name=_method_name)
+                        if delete_targets:
+                            app_delete_targets[app] = ",".join(delete_targets)
+
+                        if existing_app_targets_set.issuperset(model_targets_set):
+                            self.__remove_app_from_deployment(model_apps, app)
                         else:
-                            # updated deployment plan
-                            stop_and_undeploy_app_list.append(app)
+                            # Adjust the targets to only the new targets so that existing apps on
+                            # already targeted servers are not impacted.
+                            adjusted_set = model_targets_set.difference(existing_app_targets_set)
+                            adjusted_targets = ','.join(adjusted_set)
+                            app_dict['Target'] = adjusted_targets
                     else:
-                        # updated app
+                        # updated app or deployment plan
                         stop_and_undeploy_app_list.append(app)
         return
 
@@ -786,12 +817,19 @@ class ApplicationsDeployer(Deployer):
         return
 
     def __undeploy_app(self, application_name, library_module='false', partition_name=None,
-                       resource_group_template=None, timeout=None):
+                       resource_group_template=None, timeout=None, targets=None):
         _method_name = '__undeploy_app'
 
-        self.logger.info('WLSDPLY-09314', application_name, class_name=self._class_name, method_name=_method_name)
+        if targets is not None:
+            self.logger.info('WLSDPLY-09335', application_name, targets, class_name=self._class_name,
+                             method_name=_method_name)
+        else:
+            self.logger.info('WLSDPLY-09314', application_name, class_name=self._class_name,
+                             method_name=_method_name)
+
         self.wlst_helper.undeploy_application(application_name, libraryModule=library_module, partition=partition_name,
-                                              resourceGroupTemplate=resource_group_template, timeout=timeout)
+                                              resourceGroupTemplate=resource_group_template, timeout=timeout,
+                                              targets=targets)
         return
 
     def __redeploy_app(self, application_name):
