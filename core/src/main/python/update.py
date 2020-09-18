@@ -66,7 +66,7 @@ __optional_arguments = [
     CommandLineArgUtil.PASSPHRASE_SWITCH,
     CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH,
     CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH,
-    CommandLineArgUtil.UNDO_CURRENT_EDIT_SWITCH
+    CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH
 ]
 
 
@@ -126,11 +126,11 @@ def __update_online(model, model_context, aliases):
 
     try:
         __wlst_helper.connect(admin_user, admin_pwd, admin_url)
-        deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(model_context.is_undo_current_edit())
+        deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(model_context.is_discard_current_edit())
         __wlst_helper.edit()
         __wlst_helper.start_edit()
-        if model_context.is_undo_current_edit():
-            deployer_utils.undo_current_edit()
+        if model_context.is_discard_current_edit():
+            deployer_utils.discard_current_edit()
     except BundleAwareException, ex:
         raise ex
 

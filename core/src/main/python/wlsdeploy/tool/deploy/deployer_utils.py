@@ -293,12 +293,12 @@ def ensure_no_uncommitted_changes_or_edit_sessions(ignoreEditSessionCheck=False)
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
 
-def undo_current_edit():
+def discard_current_edit():
     """
     Undo any current edit that may have left.
     :raises: DeployException: if there are any wlst errors
     """
-    _method_name = 'undo_current_edit'
+    _method_name = 'discard_current_edit'
 
     _logger.entering(class_name=_class_name, method_name=_method_name)
     try:

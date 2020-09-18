@@ -47,7 +47,7 @@ class CommandLineArgUtil(object):
     ADMIN_PASS_SWITCH          = '-admin_pass'
     ARCHIVE_FILE_SWITCH        = '-archive_file'
     MODEL_FILE_SWITCH          = '-model_file'
-    UNDO_CURRENT_EDIT_SWITCH   = '-undo_current_edit'
+    DISCARD_CURRENT_EDIT_SWITCH   = '-discard_current_edit'
     OPSS_WALLET_SWITCH         = '-opss_wallet'
     OPSS_WALLET_PASSPHRASE     = '-opss_wallet_passphrase'
     PREVIOUS_MODEL_FILE_SWITCH = '-prev_model_file'
@@ -98,7 +98,7 @@ class CommandLineArgUtil(object):
         ROLLBACK_IF_RESTART_REQ_SWITCH,
         RUN_RCU_SWITCH,
         UPDATE_RCU_SCHEMA_PASS_SWITCH,
-        UNDO_CURRENT_EDIT_SWITCH,
+        DISCARD_CURRENT_EDIT_SWITCH,
         USE_ENCRYPTION_SWITCH
     ]
 
