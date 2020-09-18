@@ -78,6 +78,7 @@ ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO              [-rollback_if_require_restart]
+ECHO              [-discard_current_edit]
 ECHO              [-admin_url ^<admin_url^>
 ECHO               -admin_user ^<admin_user^>
 ECHO              ]
@@ -114,6 +115,8 @@ ECHO.
 ECHO         admin_user      - the admin username (used for online deploy)
 ECHO.
 ECHO         rollback_if_require_restart      - rollback the changes if the update requires domain restart
+ECHO.
+ECHO         discard_current_edit      - discard all existing changes before starting update
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will
