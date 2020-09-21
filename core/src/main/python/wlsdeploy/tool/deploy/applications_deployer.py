@@ -72,7 +72,7 @@ class ApplicationsDeployer(Deployer):
             self.__add_shared_libraries()
             self.__add_applications()
         else:
-            deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions()
+            deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(self.model_context.is_discard_current_edit())
             self.__online_deploy_apps_and_libs(self._base_location)
         return
 
@@ -101,13 +101,11 @@ class ApplicationsDeployer(Deployer):
                              class_name=self._class_name, method_name=_method_name)
 
             if model_helper.is_delete_name(shared_library_name):
-
-                self.__verify_delete_versioned_app(shared_library_name, existing_shared_libraries, type='lib')
-
-                location = LocationContext()
-                location.append_location(model_constants.LIBRARY)
-                existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
-                deployer_utils.delete_named_element(location, shared_library_name, existing_names, self.aliases)
+                if self.__verify_delete_versioned_app(shared_library_name, existing_shared_libraries, type='lib'):
+                    location = LocationContext()
+                    location.append_location(model_constants.LIBRARY)
+                    existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
+                    deployer_utils.delete_named_element(location, shared_library_name, existing_names, self.aliases)
                 continue
 
             #
@@ -173,13 +171,11 @@ class ApplicationsDeployer(Deployer):
                              class_name=self._class_name, method_name=_method_name)
 
             if model_helper.is_delete_name(application_name):
-
-                self.__verify_delete_versioned_app(application_name, existing_applications, type='app')
-
-                location = LocationContext()
-                location.append_location(model_constants.APPLICATION)
-                existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
-                deployer_utils.delete_named_element(location, application_name, existing_names, self.aliases)
+                if self.__verify_delete_versioned_app(application_name, existing_applications, type='app'):
+                    location = LocationContext()
+                    location.append_location(model_constants.APPLICATION)
+                    existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
+                    deployer_utils.delete_named_element(location, application_name, existing_names, self.aliases)
                 continue
 
             application = \
@@ -565,15 +561,15 @@ class ApplicationsDeployer(Deployer):
                         self.model_context.replace_tokens(LIBRARY, lib, param, lib_dict)
 
                 if model_helper.is_delete_name(lib):
-                    self.__verify_delete_versioned_app(lib, existing_libs, 'lib')
-                    lib_name = model_helper.get_delete_item_name(lib)
-                    if lib_name in existing_libs:
-                        model_libs.pop(lib)
-                        _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib_name)
-                        stop_and_undeploy_app_list.append(lib_name)
-                    else:
-                        model_libs.pop(lib)
-                        stop_and_undeploy_app_list.append(lib_name)
+                    if self.__verify_delete_versioned_app(lib, existing_libs, 'lib'):
+                        lib_name = model_helper.get_delete_item_name(lib)
+                        if lib_name in existing_libs:
+                            model_libs.pop(lib)
+                            _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib_name)
+                            stop_and_undeploy_app_list.append(lib_name)
+                        else:
+                            model_libs.pop(lib)
+                            stop_and_undeploy_app_list.append(lib_name)
                     continue
 
                 existing_lib_ref = dictionary_utils.get_dictionary_element(existing_lib_refs, lib)
@@ -656,12 +652,11 @@ class ApplicationsDeployer(Deployer):
                         self.model_context.replace_tokens(APPLICATION, app, param, app_dict)
 
                 if model_helper.is_delete_name(app):
-                    self.__verify_delete_versioned_app(app, existing_apps, 'app')
-
-                    # remove the !app from the model
-                    self.__remove_app_from_deployment(model_apps, app)
-                    # undeploy the app (without !)
-                    stop_and_undeploy_app_list.append(model_helper.get_delete_item_name(app))
+                    if self.__verify_delete_versioned_app(app, existing_apps, 'app'):
+                        # remove the !app from the model
+                        self.__remove_app_from_deployment(model_apps, app)
+                        # undeploy the app (without !)
+                        stop_and_undeploy_app_list.append(model_helper.get_delete_item_name(app))
                     continue
 
                 existing_app_ref = dictionary_utils.get_dictionary_element(existing_app_refs, app)
@@ -771,18 +766,19 @@ class ApplicationsDeployer(Deployer):
             err_key_list = 'WLSDPLY-09331'
             err_key = 'WLSDPLY-09333'
 
+        found_app = True
         app_name = model_helper.get_delete_item_name(app)
         if not app_name in existing_apps:
+            found_app = False
             tokens = re.split(r'[\#*\@*]', app_name)
             re_expr = tokens[0] + '[\#*\@*]'
             r = re.compile(re_expr)
             matched_list = filter(r.match, existing_apps)
             if len(matched_list) > 0:
-                ex = exception_helper.create_deploy_exception(err_key_list, app_name, matched_list)
+                self.logger.warning(err_key_list, app_name, matched_list, self._class_name, method_name=_method_name)
             else:
-                ex = exception_helper.create_deploy_exception(err_key, app_name)
-            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
+                self.logger.warning(err_key, app_name,self._class_name, method_name=_method_name)
+        return found_app
 
     def __get_uses_path_tokens_attribute_names(self, app_location):
         location = LocationContext(app_location)

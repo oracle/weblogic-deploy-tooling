@@ -258,7 +258,7 @@ def delete_named_element(location, delete_name, existing_names, aliases):
         _wlst_helper.delete(name, type_name)
 
 
-def ensure_no_uncommitted_changes_or_edit_sessions():
+def ensure_no_uncommitted_changes_or_edit_sessions(ignoreEditSessionCheck=False):
     """
     Ensure that the domain does not contain any uncommitted changes and there is no existing edit session.
     :raises: DeployException: if there are any uncommitted changes, existing edit sessions, or a WLST error occurs
@@ -277,12 +277,12 @@ def ensure_no_uncommitted_changes_or_edit_sessions():
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        if unactivated_changes:
+        if unactivated_changes and not ignoreEditSessionCheck:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09103')
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        if current_editor is not None:
+        if current_editor is not None and not ignoreEditSessionCheck:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09104', str(current_editor))
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -293,6 +293,28 @@ def ensure_no_uncommitted_changes_or_edit_sessions():
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
 
+def discard_current_edit():
+    """
+    Undo any current edit that may have left.
+    :raises: DeployException: if there are any wlst errors
+    """
+    _method_name = 'discard_current_edit'
+
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+    try:
+        cmgr = _wlst_helper.get_config_manager()
+        unactivated_changes = _wlst_helper.have_unactivated_changes(cmgr)
+
+        if unactivated_changes:
+            _logger.info("WLSDPLY-09016")
+            cmgr.undoUnactivatedChanges()
+
+    except PyWLSTException, e:
+        ex = exception_helper.create_deploy_exception('WLSDPLY-09112', e.getLocalizedMessage(), error=e)
+        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+    return
 
 def extract_from_uri(model_context, path_value):
     """
