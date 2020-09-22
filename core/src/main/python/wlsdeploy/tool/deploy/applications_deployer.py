@@ -273,7 +273,7 @@ class ApplicationsDeployer(Deployer):
 
         # shared library updated, app referenced must be stopped, redeployed, and started so stop the app first
         for app in stop_app_list:
-            self.__stop_app(app, timeout=self.model_context.get_stop_app_timeout())
+            self.__stop_app(app, timeout=self.model_context.get_model_config().get_stop_app_timeout())
             # add the referenced app to the redeploy list
             redeploy_app_list.append(app)
             # add the referenced app to the start list
@@ -281,7 +281,7 @@ class ApplicationsDeployer(Deployer):
 
         # app is updated, it must be stopped and undeployed first
         for app in stop_and_undeploy_app_list:
-            self.__stop_app(app, timeout=self.model_context.get_stop_app_timeout())
+            self.__stop_app(app, timeout=self.model_context.get_model_config().get_stop_app_timeout())
             self.__undeploy_app(app)
 
         # targets were deleted from an app, so undeploy for those specific targets
@@ -873,7 +873,7 @@ class ApplicationsDeployer(Deployer):
 
         self.logger.info('WLSDPLY-09313', application_name, class_name=self._class_name, method_name=_method_name)
         self.wlst_helper.start_application(application_name, partition=partition_name,
-                                           timeout=self.model_context.get_start_app_timeout())
+                                           timeout=self.model_context.get_model_config().get_start_app_timeout())
         return
 
     def __undeploy_app(self, application_name, library_module='false', partition_name=None,
@@ -893,14 +893,16 @@ class ApplicationsDeployer(Deployer):
 
         self.wlst_helper.undeploy_application(application_name, libraryModule=library_module, partition=partition_name,
                                               resourceGroupTemplate=resource_group_template,
-                                              timeout=self.model_context.get_undeploy_timeout(), targets=targets)
+                                              timeout=self.model_context.get_model_config().get_undeploy_timeout(),
+                                              targets=targets)
         return
 
     def __redeploy_app(self, application_name):
         _method_name = '__redeploy_app'
 
         self.logger.info('WLSDPLY-09315', application_name, class_name=self._class_name, method_name=_method_name)
-        self.wlst_helper.redeploy_application(application_name, timeout=self.model_context.get_redeploy_timeout())
+        self.wlst_helper.redeploy_application(application_name,
+                                              timeout=self.model_context.get_model_config().get_redeploy_timeout())
         return
 
     def __deploy_model_libraries(self, model_libs, lib_location):
@@ -1027,7 +1029,7 @@ class ApplicationsDeployer(Deployer):
         if options is not None:
             for key, value in options.iteritems():
                 kwargs[key] = value
-        kwargs['timeout'] = self.model_context.get_deploy_timeout()
+        kwargs['timeout'] = self.model_context.get_model_config().get_deploy_timeout()
 
         self.logger.fine('WLSDPLY-09320', application_name, kwargs,
                          class_name=self._class_name, method_name=_method_name)

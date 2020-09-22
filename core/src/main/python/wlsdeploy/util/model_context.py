@@ -15,6 +15,7 @@ from wlsdeploy.logging import platform_logger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
+from wlsdeploy.util.model_config import ModelConfiguration
 from wlsdeploy.util.target_configuration import TargetConfiguration
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -89,14 +90,7 @@ class ModelContext(object):
         self._variable_properties_file = None
         self._rcu_db_user = 'SYS'
         self._discard_current_edit = False
-        self._connect_timeout = CommandLineArgUtil.CONNECT_TIMEOUT_DEFAULT
-        self._activate_timeout = CommandLineArgUtil.ACTIVATE_TIMEOUT_DEFAULT
-        self._deploy_timeout = CommandLineArgUtil.DEPLOY_TIMEOUT_DEFAULT
-        self._redeploy_timeout = CommandLineArgUtil.REDEPLOY_TIMEOUT_DEFAULT
-        self._undeploy_timeout = CommandLineArgUtil.UNDEPLOY_TIMEOUT_DEFAULT
-        self._start_app_timeout = CommandLineArgUtil.START_APP_TIMEOUT_DEFAULT
-        self._stop_app_timeout = CommandLineArgUtil.STOP_APP_TIMEOUT_DEFAULT
-        self._set_server_grps_timeout = CommandLineArgUtil.SET_SERVER_GRPS_TIMEOUT_DEFAULT
+        self._model_config = None
 
         self._trailing_args = []
 
@@ -246,31 +240,6 @@ class ModelContext(object):
         if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in arg_map:
             self._variable_properties_file = arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH]
 
-        # Now process the tool properties loaded into the arg map from the tool properties file.
-        if CommandLineArgUtil.CONNECT_TIMEOUT_PROP in arg_map:
-            self._connect_timeout = Long(arg_map[CommandLineArgUtil.CONNECT_TIMEOUT_PROP]).longValue()
-
-        if CommandLineArgUtil.ACTIVATE_TIMEOUT_PROP in arg_map:
-            self._activate_timeout = Long(arg_map[CommandLineArgUtil.ACTIVATE_TIMEOUT_PROP]).longValue()
-
-        if CommandLineArgUtil.DEPLOY_TIMEOUT_PROP in arg_map:
-            self._deploy_timeout = Long(arg_map[CommandLineArgUtil.DEPLOY_TIMEOUT_PROP]).longValue()
-
-        if CommandLineArgUtil.UNDEPLOY_TIMEOUT_PROP in arg_map:
-            self._undeploy_timeout = Long(arg_map[CommandLineArgUtil.UNDEPLOY_TIMEOUT_PROP]).longValue()
-
-        if CommandLineArgUtil.REDEPLOY_TIMEOUT_PROP in arg_map:
-            self._redeploy_timeout = Long(arg_map[CommandLineArgUtil.REDEPLOY_TIMEOUT_PROP]).longValue()
-
-        if CommandLineArgUtil.START_APP_TIMEOUT_PROP in arg_map:
-            self._start_app_timeout = Long(arg_map[CommandLineArgUtil.START_APP_TIMEOUT_PROP]).longValue()
-
-        if CommandLineArgUtil.STOP_APP_TIMEOUT_PROP in arg_map:
-            self._stop_app_timeout = Long(arg_map[CommandLineArgUtil.STOP_APP_TIMEOUT_PROP]).longValue()
-
-        if CommandLineArgUtil.SET_SERVER_GRPS_TIMEOUT_PROP in arg_map:
-            self._set_server_grps_timeout = Long(arg_map[CommandLineArgUtil.SET_SERVER_GRPS_TIMEOUT_PROP]).longValue()
-
     def __copy__(self):
         arg_map = dict()
         if self._oracle_home is not None:
@@ -357,24 +326,17 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH] = self._variable_keywords_file
         if self._variable_properties_file is not None:
             arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH] = self._variable_properties_file
-        if self._connect_timeout is not None:
-            arg_map[CommandLineArgUtil.CONNECT_TIMEOUT_PROP] = self._connect_timeout
-        if self._activate_timeout is not None:
-            arg_map[CommandLineArgUtil.ACTIVATE_TIMEOUT_PROP] = self._activate_timeout
-        if self._deploy_timeout is not None:
-            arg_map[CommandLineArgUtil.DEPLOY_TIMEOUT_PROP] = self._deploy_timeout
-        if self._redeploy_timeout is not None:
-            arg_map[CommandLineArgUtil.REDEPLOY_TIMEOUT_PROP] = self._redeploy_timeout
-        if self._undeploy_timeout is not None:
-            arg_map[CommandLineArgUtil.UNDEPLOY_TIMEOUT_PROP] = self._undeploy_timeout
-        if self._start_app_timeout is not None:
-            arg_map[CommandLineArgUtil.START_APP_TIMEOUT_PROP] = self._start_app_timeout
-        if self._stop_app_timeout is not None:
-            arg_map[CommandLineArgUtil.STOP_APP_TIMEOUT_PROP] = self._stop_app_timeout
-        if self._set_server_grps_timeout is not None:
-            arg_map[CommandLineArgUtil.SET_SERVER_GRPS_TIMEOUT_PROP] = self._set_server_grps_timeout
-
         return ModelContext(self._program_name, arg_map)
+
+    def get_model_config(self):
+        """
+        Return the encapsulated tool properties configuration instance.
+        This will load the ModelConfiguration from the tool properties on the first request
+        :return: model configuration instance
+        """
+        if self._model_config is None:
+            self._model_config = ModelConfiguration()
+        return self._model_config
 
     def get_program_name(self):
         """

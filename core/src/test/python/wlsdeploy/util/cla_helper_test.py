@@ -136,22 +136,6 @@ class ClaHelperTest(unittest.TestCase):
         server = self._check_single_server(dictionary, 'm1')
         self.assertEquals(2, len(server), "server should have two attributes")
 
-    def testLoadPropertiesFile(self):
-        args_dict = { 'oracle_home': 'my/oracle/home'}
-        result = cla_helper.load_properties_file_at_path(args_dict, self.properties_file)
-        self.assertEquals('oracle_home' in result, True)
-        self.assertEqual('prop2' in result and result['prop2'] == '30', True)
-
-    def testLoadPropertiesNoCurrentArgs(self):
-        args_dict = {}
-        result = cla_helper.load_properties_file_at_path(args_dict, self.properties_file)
-        self.assertEqual('prop2' in result and result['prop2'] == '30', True)
-
-    def testLoadPropertiesNoFileFound(self):
-        args_dict = { 'oracle_home': 'my/oracle/home'}
-        result = cla_helper.load_properties_file_at_path(args_dict, '../../testclasses/notfound.properties')
-        self.assertEquals('oracle_home' in result, True)
-
         # check that a single server exists in the result, and its attributes were merged correctly
     def _check_merged_server(self, dictionary, key):
         server = self._check_single_server(dictionary, key)

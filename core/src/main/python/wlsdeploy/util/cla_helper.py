@@ -27,13 +27,12 @@ from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import model_translator, path_utils
 from wlsdeploy.util import path_utils
-from wlsdeploy.util import string_utils
+
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_translator import FileToPython
 
-TOOL_PROPERTIES_FILE_NAME='tool.properties'
 
 __logger = PlatformLogger('wlsdeploy.util')
 _class_name = 'cla_helper'
@@ -424,31 +423,6 @@ def persist_model(model_context, model_dictionary):
 
         model_file = FileUtils.getCanonicalFile(File(file_path))
         model_translator.PythonToFile(model_dictionary).write_to_file(model_file.getAbsolutePath())
-
-
-def load_properties_file(current_arg_dict, exception_type=None):
-    wls_deploy_path = os.path.join(os.environ.get(path_utils.WLSDEPLOY_HOME_VARIABLE, ''), 'lib', TOOL_PROPERTIES_FILE_NAME)
-    load_properties_file_at_path(current_arg_dict, wls_deploy_path, exception_type)
-
-
-def load_properties_file_at_path(current_arg_dict, wlsdeploy_path, exception_type=None):
-    """
-    Load the properties from the WLSDEPLOY properties file and current arguments.
-
-    :param current_arg_dict: cla argument map
-    :param wlsdeploy_path: path to properties file in WLSDEPLOY
-    :param exception_type: type of exception to throw
-    :return: current_arg_dict with merged properties
-    """
-    _method_name = 'load_properties_file'
-    try:
-        result = string_utils.load_properties(wlsdeploy_path, exception_type)
-        # args take precedence if duplicates
-        result.update(current_arg_dict)
-    except IOException, ioe:
-        __logger.warning('WLSDPLY-01651', wlsdeploy_path, ioe.getMessage(), class_name=_class_name, method_name=_method_name)
-        result = current_arg_dict
-    return result
 
 
 def check_persist_model():

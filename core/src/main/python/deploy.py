@@ -78,7 +78,6 @@ def __process_args(args):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
     argument_map = cla_util.process_args(args)
-    cla_helper.load_properties_file(argument_map)
 
     cla_helper.validate_optional_archive(_program_name, argument_map)
     cla_helper.validate_model_present(_program_name, argument_map)
@@ -118,7 +117,7 @@ def __deploy_online(model, model_context, aliases):
     admin_url = model_context.get_admin_url()
     admin_user = model_context.get_admin_user()
     admin_pwd = model_context.get_admin_password()
-    timeout = model_context.get_connect_timeout()
+    timeout = model_context.get_model_config().get_connect_timeout()
 
     __logger.info("WLSDPLY-09005", admin_url, timeout, method_name=_method_name, class_name=_class_name)
 
@@ -158,7 +157,7 @@ def __deploy_online(model, model_context, aliases):
             exit_code = CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE
         else:
             __wlst_helper.save()
-            __wlst_helper.activate(model_context.get_activate_timeout())
+            __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
             if restart_required:
                 exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
     except BundleAwareException, ex:

@@ -90,7 +90,6 @@ def __process_args(args):
     argument_map = cla_util.process_args(args, TOOL_TYPE_CREATE)
     __process_java_home_arg(argument_map)
     __process_domain_location_args(argument_map)
-    cla_helper.load_properties_file(argument_map)
 
     # don't verify that the archive is valid until it is needed.
     # this requirement is specific to create, other tools will verify it.
