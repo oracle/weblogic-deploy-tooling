@@ -7,7 +7,6 @@ import copy
 import os
 import tempfile
 
-import java.lang.Long as Long
 import java.net.URI as URI
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
