@@ -86,6 +86,7 @@ def __process_args(args):
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
+    cla_helper.load_properties_file(argument_map)
     cla_helper.process_encryption_args(argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map)
@@ -120,11 +121,12 @@ def __update_online(model, model_context, aliases):
     admin_url = model_context.get_admin_url()
     admin_user = model_context.get_admin_user()
     admin_pwd = model_context.get_admin_password()
+    timeout = model_context.get_connect_timeout()
 
-    __logger.info("WLSDPLY-09005", admin_url, method_name=_method_name, class_name=_class_name)
+    __logger.info("WLSDPLY-09005", admin_url, timeout, method_name=_method_name, class_name=_class_name)
 
     try:
-        __wlst_helper.connect(admin_user, admin_pwd, admin_url)
+        __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
         deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions()
         __wlst_helper.edit()
         __wlst_helper.start_edit()
@@ -190,7 +192,7 @@ def __check_update_require_domain_restart(model_context):
             exit_code = CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE
         else:
             __wlst_helper.save()
-            __wlst_helper.activate()
+            __wlst_helper.activate(model_context.get_activate_timeout())
             if restart_required:
                 exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
     except BundleAwareException, ex:

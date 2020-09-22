@@ -369,19 +369,20 @@ class WlstHelper(object):
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def set_server_groups(self, server, server_groups):
+    def set_server_groups(self, server, server_groups, timeout):
         """
         Targets the list of server groups to the managed server.
 
         :param server: the name of the managed server
         :param server_groups: the list of template-defined server groups to target to the server
+        :param timeout: the timeout for the setServerGroups command
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'set_server_groups'
-        self.__logger.entering(server_groups, server, class_name=self.__class_name, method_name=_method_name)
+        self.__logger.entering(server_groups, server, timeout, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            self.__load_global('setServerGroups')(server, server_groups)
+            self.__load_global('setServerGroups')(server, server_groups, timeout)
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00023', server_groups, server,
                                                     _format_exception(e), error=e)
@@ -763,19 +764,20 @@ class WlstHelper(object):
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def connect(self, username, password, url):
+    def connect(self, username, password, url, timeout):
         """
         Connect WLST to a WebLogic Server instance at the provided url with the provided credentials.
         :param username: WebLogic user name
         :param password: WebLogic password
         :param url: WebLogic Server URL
+        :param timeout: Connect timeout
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'connect'
-        self.__logger.entering(username, url, class_name=self.__class_name, method_name=_method_name)
+        self.__logger.entering(username, url, timeout, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            self.__load_global('connect')(username=username, password=password, url=url)
+            self.__load_global('connect')(username=username, password=password, url=url, timeout=timeout)
         except self.__load_global('WLSTException'), e:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00047', username, url,
                                                     self.__get_exception_mode(e), _format_exception(e), error=e)
@@ -886,15 +888,16 @@ class WlstHelper(object):
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def activate(self):
+    def activate(self, timeout):
         """
         Activate changes saved during the current edit session but not yet deployed.
+        :param timeout: Timeout for the activate command
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'activate'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        self.__logger.entering(timeout, class_name=self.__class_name, method_name=_method_name)
         try:
-            self.__load_global('activate')()
+            self.__load_global('activate')(timeout)
         except self.__load_global('WLSTException'), e:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00053',
                                                     _format_exception(e), error=e)

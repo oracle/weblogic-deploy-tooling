@@ -227,7 +227,8 @@ class TargetHelper(object):
             server_name = self.wlst_helper.get_quoted_name_for_wlst(server)
             self.logger.info('WLSDPLY-12224', str(server_groups), server_name,
                              class_name=self.__class_name, method_name=_method_name)
-            self.wlst_helper.set_server_groups(server_name, server_groups)
+            self.wlst_helper.set_server_groups(server_name, server_groups,
+                                               self.model_context.get_set_server_grps_timeout())
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 

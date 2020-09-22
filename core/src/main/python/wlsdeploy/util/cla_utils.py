@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module that handles command-line argument parsing and common validation.
@@ -86,6 +86,24 @@ class CommandLineArgUtil(object):
     OUTPUT_DIR_SWITCH = "-output_dir"
 
     TARGET_SWITCH = '-target'
+
+    # Tool Properties for configuration
+    CONNECT_TIMEOUT_PROP = 'connect.timeout'
+    CONNECT_TIMEOUT_DEFAULT = 120000
+    ACTIVATE_TIMEOUT_PROP = 'activate.timeout'
+    ACTIVATE_TIMEOUT_DEFAULT = 180000
+    DEPLOY_TIMEOUT_PROP = 'deploy.timeout'
+    DEPLOY_TIMEOUT_DEFAULT = 180000
+    REDEPLOY_TIMEOUT_PROP = 'redeploy.timeout'
+    REDEPLOY_TIMEOUT_DEFAULT = 180000
+    UNDEPLOY_TIMEOUT_PROP = 'undeploy.timeout'
+    UNDEPLOY_TIMEOUT_DEFAULT = 180000
+    START_APP_TIMEOUT_PROP = 'start.application.timeout'
+    START_APP_TIMEOUT_DEFAULT = 180000
+    STOP_APP_TIMEOUT_PROP = 'stop.application.timeout'
+    STOP_APP_TIMEOUT_DEFAULT = 180000
+    SET_SERVER_GRPS_TIMEOUT_PROP = 'set.server.groups.timeout'
+    SET_SERVER_GRPS_TIMEOUT_DEFAULT = 30000
 
     # arguments that are true if specified, false if not
     BOOLEAN_SWITCHES = [

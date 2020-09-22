@@ -7,6 +7,7 @@ import copy
 import os
 import tempfile
 
+import java.lang.Long as Long
 import java.net.URI as URI
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -87,6 +88,14 @@ class ModelContext(object):
         self._variable_keywords_file = None
         self._variable_properties_file = None
         self._rcu_db_user = 'SYS'
+        self._connect_timeout = CommandLineArgUtil.CONNECT_TIMEOUT_DEFAULT
+        self._activate_timeout = CommandLineArgUtil.ACTIVATE_TIMEOUT_DEFAULT
+        self._deploy_timeout = CommandLineArgUtil.DEPLOY_TIMEOUT_DEFAULT
+        self._redeploy_timeout = CommandLineArgUtil.REDEPLOY_TIMEOUT_DEFAULT
+        self._undeploy_timeout = CommandLineArgUtil.UNDEPLOY_TIMEOUT_DEFAULT
+        self._start_app_timeout = CommandLineArgUtil.START_APP_TIMEOUT_DEFAULT
+        self._stop_app_timeout = CommandLineArgUtil.STOP_APP_TIMEOUT_DEFAULT
+        self._set_server_grps_timeout = CommandLineArgUtil.SET_SERVER_GRPS_TIMEOUT_DEFAULT
 
         self._trailing_args = []
 
@@ -233,6 +242,31 @@ class ModelContext(object):
         if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in arg_map:
             self._variable_properties_file = arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH]
 
+        # Now process the tool properties loaded into the arg map from the tool properties file.
+        if CommandLineArgUtil.CONNECT_TIMEOUT_PROP in arg_map:
+            self._connect_timeout = Long(arg_map[CommandLineArgUtil.CONNECT_TIMEOUT_PROP]).longValue()
+
+        if CommandLineArgUtil.ACTIVATE_TIMEOUT_PROP in arg_map:
+            self._activate_timeout = Long(arg_map[CommandLineArgUtil.ACTIVATE_TIMEOUT_PROP]).longValue()
+
+        if CommandLineArgUtil.DEPLOY_TIMEOUT_PROP in arg_map:
+            self._deploy_timeout = Long(arg_map[CommandLineArgUtil.DEPLOY_TIMEOUT_PROP]).longValue()
+
+        if CommandLineArgUtil.UNDEPLOY_TIMEOUT_PROP in arg_map:
+            self._undeploy_timeout = Long(arg_map[CommandLineArgUtil.UNDEPLOY_TIMEOUT_PROP]).longValue()
+
+        if CommandLineArgUtil.REDEPLOY_TIMEOUT_PROP in arg_map:
+            self._redeploy_timeout = Long(arg_map[CommandLineArgUtil.REDEPLOY_TIMEOUT_PROP]).longValue()
+
+        if CommandLineArgUtil.START_APP_TIMEOUT_PROP in arg_map:
+            self._start_app_timeout = Long(arg_map[CommandLineArgUtil.START_APP_TIMEOUT_PROP]).longValue()
+
+        if CommandLineArgUtil.STOP_APP_TIMEOUT_PROP in arg_map:
+            self._stop_app_timeout = Long(arg_map[CommandLineArgUtil.STOP_APP_TIMEOUT_PROP]).longValue()
+
+        if CommandLineArgUtil.SET_SERVER_GRPS_TIMEOUT_PROP in arg_map:
+            self._set_server_grps_timeout = Long(arg_map[CommandLineArgUtil.SET_SERVER_GRPS_TIMEOUT_PROP]).longValue()
+
     def __copy__(self):
         arg_map = dict()
         if self._oracle_home is not None:
@@ -317,6 +351,23 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH] = self._variable_keywords_file
         if self._variable_properties_file is not None:
             arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH] = self._variable_properties_file
+        if self._connect_timeout is not None:
+            arg_map[CommandLineArgUtil.CONNECT_TIMEOUT_PROP] = self._connect_timeout
+        if self._activate_timeout is not None:
+            arg_map[CommandLineArgUtil.ACTIVATE_TIMEOUT_PROP] = self._activate_timeout
+        if self._deploy_timeout is not None:
+            arg_map[CommandLineArgUtil.DEPLOY_TIMEOUT_PROP] = self._deploy_timeout
+        if self._redeploy_timeout is not None:
+            arg_map[CommandLineArgUtil.REDEPLOY_TIMEOUT_PROP] = self._redeploy_timeout
+        if self._undeploy_timeout is not None:
+            arg_map[CommandLineArgUtil.UNDEPLOY_TIMEOUT_PROP] = self._undeploy_timeout
+        if self._start_app_timeout is not None:
+            arg_map[CommandLineArgUtil.START_APP_TIMEOUT_PROP] = self._start_app_timeout
+        if self._stop_app_timeout is not None:
+            arg_map[CommandLineArgUtil.STOP_APP_TIMEOUT_PROP] = self._stop_app_timeout
+        if self._set_server_grps_timeout is not None:
+            arg_map[CommandLineArgUtil.SET_SERVER_GRPS_TIMEOUT_PROP] = self._set_server_grps_timeout
+
         return ModelContext(self._program_name, arg_map)
 
     def get_program_name(self):
@@ -669,6 +720,62 @@ class ModelContext(object):
         :return: the variable properties file
         """
         return self._variable_properties_file
+
+    def get_connect_timeout(self):
+        """
+        Get the configuration timeout property for connect.
+        :return: connect timeout setting
+        """
+        return self._connect_timeout
+
+    def get_activate_timeout(self):
+        """
+        Get the configuration timeout for activate.
+        :return: activate timeout setting
+        """
+        return self._activate_timeout
+
+    def get_deploy_timeout(self):
+        """
+        Get the configuration timeout for deploy application.
+        :return: deploy application timeout settig
+        """
+        return self._deploy_timeout
+
+    def get_redeploy_timeout(self):
+        """
+        Get the configuration timeout for redeploy application.
+        :return: redeploy application timeout setting
+        """
+        return self._redeploy_timeout
+
+    def get_undeploy_timeout(self):
+        """
+        Get the configuration timeout for undeploy of application.
+        :return: undeploy application timeout setting
+        """
+        return self._undeploy_timeout
+
+    def get_stop_app_timeout(self):
+        """
+        Get the configuration timeout for stop application.
+        :return: stop application timeout setting
+        """
+        return self._stop_app_timeout
+
+    def get_start_app_timeout(self):
+        """
+        Get the configuration timeout for start application.
+        :return: start application timeout setting
+        """
+        return self._start_app_timeout
+
+    def get_set_server_groups_timeout(self):
+        """
+        Get the set server groups timeout value
+        :return: set server groups timeout setting
+        """
+        return self._set_server_grps_timeout
 
     def get_trailing_argument(self, index):
         """
