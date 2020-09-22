@@ -696,62 +696,6 @@ class ModelContext(object):
         """
         return self._variable_properties_file
 
-    def get_connect_timeout(self):
-        """
-        Get the configuration timeout property for connect.
-        :return: connect timeout setting
-        """
-        return self._connect_timeout
-
-    def get_activate_timeout(self):
-        """
-        Get the configuration timeout for activate.
-        :return: activate timeout setting
-        """
-        return self._activate_timeout
-
-    def get_deploy_timeout(self):
-        """
-        Get the configuration timeout for deploy application.
-        :return: deploy application timeout settig
-        """
-        return self._deploy_timeout
-
-    def get_redeploy_timeout(self):
-        """
-        Get the configuration timeout for redeploy application.
-        :return: redeploy application timeout setting
-        """
-        return self._redeploy_timeout
-
-    def get_undeploy_timeout(self):
-        """
-        Get the configuration timeout for undeploy of application.
-        :return: undeploy application timeout setting
-        """
-        return self._undeploy_timeout
-
-    def get_stop_app_timeout(self):
-        """
-        Get the configuration timeout for stop application.
-        :return: stop application timeout setting
-        """
-        return self._stop_app_timeout
-
-    def get_start_app_timeout(self):
-        """
-        Get the configuration timeout for start application.
-        :return: start application timeout setting
-        """
-        return self._start_app_timeout
-
-    def get_set_server_groups_timeout(self):
-        """
-        Get the set server groups timeout value
-        :return: set server groups timeout setting
-        """
-        return self._set_server_grps_timeout
-
     def get_trailing_argument(self, index):
         """
         Get the trailing argument at index.
