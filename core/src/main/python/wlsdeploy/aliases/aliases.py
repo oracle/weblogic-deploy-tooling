@@ -512,16 +512,21 @@ class Aliases(object):
                             model_val = TypeUtils.convertToType(PROPERTIES, model_attribute_value)
                             existing_val = TypeUtils.convertToType(PROPERTIES, existing_wlst_value)
                             merged_value = alias_utils.merge_model_and_existing_properties(model_val, existing_val)
-                        elif merge and existing_wlst_value is not None and len(existing_wlst_value) > 0:
+                        elif merge:
                             model_val = alias_utils.convert_to_type(LIST, model_attribute_value,
                                                                     delimiter=MODEL_LIST_DELIMITER)
 
                             _read_type, read_delimiter = \
                                 alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(
                                     attribute_info, existing_wlst_value)
+
                             existing_val = alias_utils.convert_to_type(LIST, existing_wlst_value,
                                                                        delimiter=read_delimiter)
-                            merged_value = alias_utils.merge_model_and_existing_lists(model_val, existing_val)
+                            location_path = self.get_model_folder_path(location)
+                            merged_value = \
+                                alias_utils.merge_model_and_existing_lists(model_val, existing_val,
+                                                                           location_path=location_path,
+                                                                           attribute_name=model_attribute_name)
                         else:
                             merged_value = model_attribute_value
 

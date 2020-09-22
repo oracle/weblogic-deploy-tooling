@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
@@ -99,6 +99,26 @@ class ListTestCase(unittest.TestCase):
         self.assertEqual(type(result), str, 'expected resulting list to come back as a string')
         lists_equal, message = self.__lists_are_equal(self.__string_to_list(result), self.__string_to_list(expected))
         self.assertEqual(lists_equal, True, message)
+        return
+
+    def testMergeWithDelete(self):
+        existing = 'a,b,c'
+        model = '!b,c,d'
+        expected = 'a,c,d'
+
+        result = alias_utils.merge_model_and_existing_lists(model, existing)
+        self.assertEqual(type(result), str, 'expected resulting list to come back as a string')
+        self.assertEqual(self.__string_to_list(result), self.__string_to_list(expected))
+        return
+
+    def testMergeWithDeleteNotPresent(self):
+        existing = 'a,b,c'
+        model = '!q,c,d'
+        expected = 'a,b,c,d'
+
+        result = alias_utils.merge_model_and_existing_lists(model, existing)
+        self.assertEqual(type(result), str, 'expected resulting list to come back as a string')
+        self.assertEqual(self.__string_to_list(result), self.__string_to_list(expected))
         return
 
     def testWindowsPathSeparators(self):
