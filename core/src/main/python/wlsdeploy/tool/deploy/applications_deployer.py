@@ -3,7 +3,10 @@ Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
-import os, re
+import re
+from sets import Set
+
+import os
 from java.io import File
 from java.io import FileInputStream
 from java.io import FileNotFoundException
@@ -13,9 +16,12 @@ from java.security import NoSuchAlgorithmException
 from java.util.jar import JarFile
 from java.util.jar import Manifest
 from java.util.zip import ZipException
-from sets import Set
-
 from oracle.weblogic.deploy.aliases import TypeUtils
+
+import oracle.weblogic.deploy.util.FileUtils as FileUtils
+import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ABSOLUTE_SOURCE_PATH
 from wlsdeploy.aliases.model_constants import APPLICATION
@@ -37,13 +43,8 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import string_utils
 from wlsdeploy.util import model_helper
-from wlsdeploy.aliases import model_constants
-
-
-import oracle.weblogic.deploy.util.FileUtils as FileUtils
-import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+from wlsdeploy.util import string_utils
 
 
 class ApplicationsDeployer(Deployer):
@@ -100,9 +101,7 @@ class ApplicationsDeployer(Deployer):
                              class_name=self._class_name, method_name=_method_name)
 
             if model_helper.is_delete_name(shared_library_name):
-
                 if self.__verify_delete_versioned_app(shared_library_name, existing_shared_libraries, type='lib'):
-
                     location = LocationContext()
                     location.append_location(model_constants.LIBRARY)
                     existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
@@ -172,9 +171,7 @@ class ApplicationsDeployer(Deployer):
                              class_name=self._class_name, method_name=_method_name)
 
             if model_helper.is_delete_name(application_name):
-
                 if self.__verify_delete_versioned_app(application_name, existing_applications, type='app'):
-
                     location = LocationContext()
                     location.append_location(model_constants.APPLICATION)
                     existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
@@ -241,25 +238,33 @@ class ApplicationsDeployer(Deployer):
 
         existing_app_refs = self.__get_existing_apps(self._base_location)
         existing_lib_refs = self.__get_library_references(self._base_location)
-        existing_libs = existing_lib_refs.keys()
-        existing_apps = existing_app_refs.keys()
 
-        # stop the app if the referenced shared library is newer or
-        # if the source path changes
+        # stop the app if the referenced shared library is newer or if the source path changes
         stop_app_list = list()
+
+        # applications and libraries (?) to be stopped and undeployed
         stop_and_undeploy_app_list = list()
+
+        # libraries to be undeployed
         update_library_list = list()
+
+        # app targets to be deleted
+        app_delete_targets = dict()
+
+        # library targets to be deleted
+        lib_delete_targets = dict()
 
         lib_location = LocationContext(base_location).append_location(LIBRARY)
         # Go through the model libraries and find existing libraries that are referenced
         # by applications and compute a processing strategy for each library.
-        self.__build_library_deploy_strategy(lib_location, model_shared_libraries, existing_libs, existing_lib_refs,
-                                             stop_app_list, update_library_list, stop_and_undeploy_app_list)
+        self.__build_library_deploy_strategy(lib_location, model_shared_libraries, existing_lib_refs,
+                                             stop_app_list, update_library_list, stop_and_undeploy_app_list,
+                                             lib_delete_targets)
 
         # Go through the model applications and compute the processing strategy for each application.
         app_location = LocationContext(base_location).append_location(APPLICATION)
-        self.__build_app_deploy_strategy(app_location, model_applications, existing_apps,
-                                         existing_app_refs, stop_and_undeploy_app_list)
+        self.__build_app_deploy_strategy(app_location, model_applications, existing_app_refs,
+                                         stop_and_undeploy_app_list, app_delete_targets)
 
         # deployed_app_list is list of apps that has been deployed and stareted again
         # redeploy_app_list is list of apps that needs to be redeplyed
@@ -278,6 +283,18 @@ class ApplicationsDeployer(Deployer):
         for app in stop_and_undeploy_app_list:
             self.__stop_app(app)
             self.__undeploy_app(app)
+
+        # targets were deleted from an app, so undeploy for those specific targets
+        for app in app_delete_targets:
+            delete_targets = app_delete_targets[app]
+            if delete_targets:
+                self.__undeploy_app(app, targets=delete_targets)
+
+        # targets were deleted from a library, so undeploy for those specific targets
+        for lib in lib_delete_targets:
+            delete_targets = lib_delete_targets[lib]
+            if delete_targets:
+                self.__undeploy_app(lib, library_module='true', targets=delete_targets)
 
         # library is updated, it must be undeployed first
         for lib in update_library_list:
@@ -519,12 +536,22 @@ class ApplicationsDeployer(Deployer):
                     _update_ref_dictionary(existing_libraries, lib, absolute_source_path, lib_hash, config_targets)
         return existing_libraries
 
-    def __build_library_deploy_strategy(self, location, model_libs, existing_libs, existing_lib_refs,
-                                        stop_app_list, update_library_list, stop_and_undeploy_app_list):
-
+    def __build_library_deploy_strategy(self, location, model_libs, existing_lib_refs, stop_app_list,
+                                        update_library_list, stop_and_undeploy_app_list, lib_delete_targets):
+        """
+        Update maps and lists to control re-deployment processing.
+        :param location: the location of the libraries
+        :param model_libs: a copy of libraries from the model, attributes may be revised
+        :param existing_lib_refs: map of information about each existing library
+        :param stop_app_list: a list to update with dependent apps to be stopped and undeployed
+        :param update_library_list: a list to update with libraries to be stopped before deploying
+        :param stop_and_undeploy_app_list: a list to update with libraries to be stopped and undeployed
+        :param lib_delete_targets: a map to update with delete targets for libraries
+        """
         _method_name = '__build_library_deploy_strategy'
 
         if model_libs is not None:
+            existing_libs = existing_lib_refs.keys()
             uses_path_tokens_model_attribute_names = self.__get_uses_path_tokens_attribute_names(location)
 
             # use items(), not iteritems(), to avoid ConcurrentModificationException if a lib is removed
@@ -534,21 +561,24 @@ class ApplicationsDeployer(Deployer):
                         self.model_context.replace_tokens(LIBRARY, lib, param, lib_dict)
 
                 if model_helper.is_delete_name(lib):
-
                     if self.__verify_delete_versioned_app(lib, existing_libs, 'lib'):
-
-                        if lib[1:] in existing_libs:
+                        lib_name = model_helper.get_delete_item_name(lib)
+                        if lib_name in existing_libs:
                             model_libs.pop(lib)
-                            _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib[1:])
-                            stop_and_undeploy_app_list.append(lib[1:])
+                            _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib_name)
+                            stop_and_undeploy_app_list.append(lib_name)
                         else:
                             model_libs.pop(lib)
-                            stop_and_undeploy_app_list.append(lib[1:])
+                            stop_and_undeploy_app_list.append(lib_name)
                     continue
 
-                if lib in existing_libs:
-                    existing_lib_ref = dictionary_utils.get_dictionary_element(existing_lib_refs, lib)
+                existing_lib_ref = dictionary_utils.get_dictionary_element(existing_lib_refs, lib)
 
+                # collect the delete targets, and remove them from the model and existing targets
+                lib_delete_targets[lib] = \
+                    self.__extract_delete_targets(lib_dict, existing_lib_ref, location, lib)
+
+                if lib in existing_libs:
                     # skipping absolute path libraries if they are the same
                     model_src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
                     model_targets = dictionary_utils.get_element(lib_dict, TARGET)
@@ -599,9 +629,20 @@ class ApplicationsDeployer(Deployer):
                             lib_dict['Target'] = adjusted_targets
         return
 
-    def __build_app_deploy_strategy(self, location, model_apps, existing_apps, existing_app_refs,
-                                    stop_and_undeploy_app_list):
+    def __build_app_deploy_strategy(self, location, model_apps, existing_app_refs, stop_and_undeploy_app_list,
+                                    app_delete_targets):
+        """
+        Update maps and lists to control re-deployment processing.
+        :param location: the location of the applications
+        :param model_apps: a copy of applications from the model, attributes may be revised
+        :param existing_app_refs: map of information about each existing app
+        :param stop_and_undeploy_app_list: a list to update with apps to be stopped and undeployed
+        :param app_delete_targets: a map to update with delete targets for applications
+        """
+        _method_name = '__build_app_deploy_strategy'
+
         if model_apps is not None:
+            existing_apps = existing_app_refs.keys()
             uses_path_tokens_model_attribute_names = self.__get_uses_path_tokens_attribute_names(location)
 
             # use items(), not iteritems(), to avoid ConcurrentModificationException if an app is removed
@@ -611,26 +652,30 @@ class ApplicationsDeployer(Deployer):
                         self.model_context.replace_tokens(APPLICATION, app, param, app_dict)
 
                 if model_helper.is_delete_name(app):
-
                     if self.__verify_delete_versioned_app(app, existing_apps, 'app'):
-
                         # remove the !app from the model
                         self.__remove_app_from_deployment(model_apps, app)
                         # undeploy the app (without !)
-                        stop_and_undeploy_app_list.append(app[1:])
+                        stop_and_undeploy_app_list.append(model_helper.get_delete_item_name(app))
                     continue
+
+                existing_app_ref = dictionary_utils.get_dictionary_element(existing_app_refs, app)
+
+                # collect the delete targets, and remove them from the model and existing targets
+                app_delete_targets[app] = \
+                    self.__extract_delete_targets(app_dict, existing_app_ref, location, app)
 
                 if app in existing_apps:
                     # Compare the hashes of the domain's existing apps to the model's apps.
                     # If they match, remove them from the list to be deployed.
                     # If they are different, stop and un-deploy the app, and leave it in the list.
 
-                    existing_app_ref = dictionary_utils.get_dictionary_element(existing_app_refs, app)
                     plan_path = dictionary_utils.get_element(existing_app_ref, 'planPath')
                     src_path = dictionary_utils.get_element(existing_app_ref, 'sourcePath')
 
                     model_src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
 
+                    # check for exploded app in archive
                     if (model_src_path is not None) and deployer_utils.is_path_into_archive(model_src_path) \
                             and self.archive_helper.contains_path(model_src_path):
                         model_src_hash = -1  # don't calculate hash, just ensure that hashes will not match
@@ -668,8 +713,51 @@ class ApplicationsDeployer(Deployer):
                         stop_and_undeploy_app_list.append(app)
         return
 
-    def __verify_delete_versioned_app(self, app, existing_apps, type='app'):
+    def __extract_delete_targets(self, model_dict, existing_ref, location, name):
+        """
+        Create a comma-separated list of targets to be deleted for an app or library.
+        Remove those targets from the model and existing target dictionaries.
+        :param model_dict: the model dictionary for the app or library, may be modified
+        :param existing_ref: the existing dictionary for the app or library, may be modified
+        :param location: the location of the app or library, for logging
+        :param name: the name of the app or library, for logging
+        :return: a comma-separated list of targets to be removed, empty string for no targets
+        """
+        _method_name = '__extract_delete_targets'
 
+        model_targets = dictionary_utils.get_element(model_dict, TARGET)
+        model_targets = alias_utils.create_list(model_targets, 'WLSDPLY-08000')
+
+        existing_targets = dictionary_utils.get_element(existing_ref, 'target')
+        if not existing_targets:
+            existing_targets = list()
+
+        delete_targets = []
+        model_targets_iterator = list(model_targets)
+        for model_target in model_targets_iterator:
+            if model_helper.is_delete_name(model_target):
+                model_targets.remove(model_target)
+                target_name = model_helper.get_delete_item_name(model_target)
+                if target_name in existing_targets:
+                    existing_targets.remove(target_name)
+                    delete_targets.append(target_name)
+                else:
+                    location.add_name_token(self.aliases.get_name_token(location), name)
+                    location_path = self.aliases.get_model_folder_path(location)
+                    self.logger.warning('WLSDPLY-08022', model_target, TARGET, location_path,
+                                        class_name=self._class_name, method_name=_method_name)
+
+        model_dict[TARGET] = ",".join(model_targets)
+        return ",".join(delete_targets)
+
+    def __verify_delete_versioned_app(self, app, existing_apps, type='app'):
+        """
+        Verify that the specified app or library is in the existing list.
+        :param app: the app or library name to be checked, with '!' still prepended
+        :param existing_apps: the list of existing apps
+        :param type: the type for logging, 'app' for app, library otherwise
+        :return: True if the item is in the list, False otherwise
+        """
         _method_name = '__verify_delete_versioned_app'
 
         if type == 'app':
@@ -680,16 +768,17 @@ class ApplicationsDeployer(Deployer):
             err_key = 'WLSDPLY-09333'
 
         found_app = True
-        if not app[1:] in existing_apps:
+        app_name = model_helper.get_delete_item_name(app)
+        if not app_name in existing_apps:
             found_app = False
-            tokens = re.split(r'[\#*\@*]', app[1:])
+            tokens = re.split(r'[\#*\@*]', app_name)
             re_expr = tokens[0] + '[\#*\@*]'
             r = re.compile(re_expr)
             matched_list = filter(r.match, existing_apps)
             if len(matched_list) > 0:
-                self.logger.warning(err_key_list, app[1:], matched_list, self._class_name, method_name=_method_name)
+                self.logger.warning(err_key_list, app_name, matched_list, self._class_name, method_name=_method_name)
             else:
-                self.logger.warning(err_key, app[1:],self._class_name, method_name=_method_name)
+                self.logger.warning(err_key, app_name,self._class_name, method_name=_method_name)
         return found_app
 
     def __get_uses_path_tokens_attribute_names(self, app_location):
@@ -787,12 +876,23 @@ class ApplicationsDeployer(Deployer):
         return
 
     def __undeploy_app(self, application_name, library_module='false', partition_name=None,
-                       resource_group_template=None, timeout=None):
+                       resource_group_template=None, timeout=None, targets=None):
         _method_name = '__undeploy_app'
 
-        self.logger.info('WLSDPLY-09314', application_name, class_name=self._class_name, method_name=_method_name)
+        type_name = APPLICATION
+        if library_module == 'true':
+            type_name = LIBRARY
+
+        if targets is not None:
+            self.logger.info('WLSDPLY-09335', type_name, application_name, targets, class_name=self._class_name,
+                             method_name=_method_name)
+        else:
+            self.logger.info('WLSDPLY-09314', type_name, application_name, class_name=self._class_name,
+                             method_name=_method_name)
+
         self.wlst_helper.undeploy_application(application_name, libraryModule=library_module, partition=partition_name,
-                                              resourceGroupTemplate=resource_group_template, timeout=timeout)
+                                              resourceGroupTemplate=resource_group_template, timeout=timeout,
+                                              targets=targets)
         return
 
     def __redeploy_app(self, application_name):
