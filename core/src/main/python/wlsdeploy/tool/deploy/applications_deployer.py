@@ -877,7 +877,7 @@ class ApplicationsDeployer(Deployer):
         return
 
     def __undeploy_app(self, application_name, library_module='false', partition_name=None,
-                       resource_group_template=None, timeout=None, targets=None):
+                       resource_group_template=None, targets=None):
         _method_name = '__undeploy_app'
 
         type_name = APPLICATION
@@ -892,15 +892,15 @@ class ApplicationsDeployer(Deployer):
                              method_name=_method_name)
 
         self.wlst_helper.undeploy_application(application_name, libraryModule=library_module, partition=partition_name,
-                                              resourceGroupTemplate=resource_group_template, timeout=timeout,
-                                              targets=targets)
+                                              resourceGroupTemplate=resource_group_template,
+                                              timeout=self.model_context.get_undeploy_timeout(), targets=targets)
         return
 
     def __redeploy_app(self, application_name):
         _method_name = '__redeploy_app'
 
         self.logger.info('WLSDPLY-09315', application_name, class_name=self._class_name, method_name=_method_name)
-        self.wlst_helper.redeploy_application(application_name, timeout=self.model_context.get_redploy_timeout())
+        self.wlst_helper.redeploy_application(application_name, timeout=self.model_context.get_redeploy_timeout())
         return
 
     def __deploy_model_libraries(self, model_libs, lib_location):
@@ -1027,6 +1027,7 @@ class ApplicationsDeployer(Deployer):
         if options is not None:
             for key, value in options.iteritems():
                 kwargs[key] = value
+        kwargs['timeout'] = self.model_context.get_deploy_timeout()
 
         self.logger.fine('WLSDPLY-09320', application_name, kwargs,
                          class_name=self._class_name, method_name=_method_name)
