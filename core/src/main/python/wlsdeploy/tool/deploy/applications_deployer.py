@@ -273,7 +273,7 @@ class ApplicationsDeployer(Deployer):
 
         # shared library updated, app referenced must be stopped, redeployed, and started so stop the app first
         for app in stop_app_list:
-            self.__stop_app(app, timeout=self.model_context.get_model_config().get_stop_app_timeout())
+            self.__stop_app(app)
             # add the referenced app to the redeploy list
             redeploy_app_list.append(app)
             # add the referenced app to the start list
@@ -281,7 +281,7 @@ class ApplicationsDeployer(Deployer):
 
         # app is updated, it must be stopped and undeployed first
         for app in stop_and_undeploy_app_list:
-            self.__stop_app(app, timeout=self.model_context.get_model_config().get_stop_app_timeout())
+            self.__stop_app(app)
             self.__undeploy_app(app)
 
         # targets were deleted from an app, so undeploy for those specific targets
@@ -855,11 +855,13 @@ class ApplicationsDeployer(Deployer):
         model_dict.pop(lib_name)
         return
 
-    def __stop_app(self, application_name, partition_name=None, timeout=None):
+    def __stop_app(self, application_name, partition_name=None):
         _method_name = '__stop_app'
 
         self.logger.info('WLSDPLY-09312', application_name, class_name=self._class_name, method_name=_method_name)
-        progress = self.wlst_helper.stop_application(application_name, partition=partition_name, timeout=timeout)
+        progress = self.wlst_helper.stop_application(
+            application_name, partition=partition_name,
+            timeout=self.model_context.get_model_config().get_stop_app_timeout())
         while progress.isRunning():
             continue
         if progress.isFailed():

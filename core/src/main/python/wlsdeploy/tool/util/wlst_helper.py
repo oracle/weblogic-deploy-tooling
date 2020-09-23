@@ -779,7 +779,7 @@ class WlstHelper(object):
         try:
             self.__load_global('connect')(username=username, password=password, url=url, timeout=timeout)
         except self.__load_global('WLSTException'), e:
-            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00047', username, url,
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00047', username, url, timeout,
                                                     self.__get_exception_mode(e), _format_exception(e), error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe

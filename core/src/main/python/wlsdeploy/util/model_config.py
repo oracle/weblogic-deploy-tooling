@@ -5,7 +5,9 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 from java.io import IOException
 from java.lang import Long
+from java.lang import NumberFormatException
 
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
@@ -41,11 +43,12 @@ class ModelConfiguration(object):
     This class encapsulates the tool properties used in configuring and tuning
     """
 
-    def __init__(self):
+    def __init__(self, program_name):
         """
         Load the properties from the tools.properties file and save the resulting dictionary
         :return:
         """
+        self._program_name = program_name
         self.__config_dict = _load_properties_file()
 
     def get_connect_timeout(self):
@@ -97,14 +100,32 @@ class ModelConfiguration(object):
         """
         return self._get_from_dict_as_long(START_APP_TIMEOUT_PROP, START_APP_TIMEOUT_DEFAULT)
 
+    def get_set_server_grps_timeout(self):
+        """
+        Return timeout value for setServerGroups from tool properties
+        :return: set server groups timeout
+        """
+        return self._get_from_dict_as_long(SET_SERVER_GRPS_TIMEOUT_PROP, SET_SERVER_GRPS_TIMEOUT_DEFAULT)
+
     def _get_from_dict(self, name, default_value=None):
+        _method_name = '_get_from_dict'
+        _logger.entering(name, default_value, class_name=_class_name, method_name=_method_name)
         result = default_value
         if name in self.__config_dict:
             result = self.__config_dict[name]
+        _logger.exiting(result=result, class_name=_class_name, method_name=_method_name)
         return result
 
     def _get_from_dict_as_long(self, name, default_value=None):
-        return Long(self._get_from_dict(name, default_value)).longValue()
+        _method_name = '_get_from_dict_as_long'
+        result = self._get_from_dict(name, default_value)
+        try:
+            result = Long(result).longValue()
+        except NumberFormatException, nfe:
+            _logger.warning('WLSDPLY-01571', result, name, self._program_name, default_value, nfe.getLocalizedMessage(),
+                            class_name=_class_name, method_name=_method_name)
+            result = Long(default_value).longValue()
+        return result
 
 
 def _load_properties_file():
@@ -119,7 +140,7 @@ def _load_properties_file():
     try:
         result = string_utils.load_properties(wlsdeploy_path)
     except IOException, ioe:
-        _logger.warning('WLSDPLY-01651', wlsdeploy_path, ioe.getMessage(),
+        _logger.warning('WLSDPLY-01570', wlsdeploy_path, ioe.getMessage(),
                         class_name=_class_name, method_name=_method_name)
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return result

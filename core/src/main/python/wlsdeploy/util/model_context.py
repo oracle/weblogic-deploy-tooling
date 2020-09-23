@@ -334,7 +334,7 @@ class ModelContext(object):
         :return: model configuration instance
         """
         if self._model_config is None:
-            self._model_config = ModelConfiguration()
+            self._model_config = ModelConfiguration(self._program_name)
         return self._model_config
 
     def get_program_name(self):
