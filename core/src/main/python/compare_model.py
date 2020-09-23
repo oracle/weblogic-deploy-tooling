@@ -11,17 +11,15 @@
 #
 #   If the flag is not provided then all output is written to the standard out.
 #
-#
-
+import os
 import sets
+import sys
 import traceback
 
 import java.io.File as JFile
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.IOException as JIOException
 import java.io.PrintWriter as JPrintWriter
-import os
-import sys
 from java.lang import System
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.compare import CompareException
