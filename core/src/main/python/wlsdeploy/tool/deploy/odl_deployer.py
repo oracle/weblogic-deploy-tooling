@@ -35,6 +35,8 @@ _PROPERTIES = "Properties"
 _SERVERS = "Servers"
 _USE_PARENT_HANDLERS = "UseParentHandlers"
 
+LOGGING_TEMPLATE_FILE = "logging-template.xml"
+
 
 class OdlDeployer(object):
     """
@@ -100,10 +102,24 @@ class OdlDeployer(object):
         config_dir = File(self.model_context.get_domain_home(), CONFIG_DIR)
         server_dir = File(config_dir, name)
         config_file = File(server_dir, CONFIG_FILE)
+        log_template_dir = config_dir.getParentFile()
 
         try:
-            FileUtils.validateWritableFile(config_file.getPath())
-            document = LoggingConfigurationDocument(FileInputStream(config_file))
+            if config_file.exists():
+                source_file = config_file
+                FileUtils.validateWritableFile(config_file.getPath())
+            else:
+                # for dynamic servers, the logging config does not exist until the server is started.
+                # read the from template file, verify that the server directory is present and writable.
+                source_file = File(log_template_dir, LOGGING_TEMPLATE_FILE)
+                FileUtils.validateExistingFile(source_file)
+                if not server_dir.exists() and not server_dir.mkdirs():
+                    self.logger.severe('WLSDPLY-19707', server_dir, class_name=self.__class_name,
+                                       method_name=_method_name)
+                    return
+                FileUtils.validateWritableDirectory(server_dir.getPath())
+
+            document = LoggingConfigurationDocument(FileInputStream(source_file))
 
             # configure AddJvmNumber
             add_jvm_number = dictionary_utils.get_element(dictionary, _ADD_JVM_NUMBER)
