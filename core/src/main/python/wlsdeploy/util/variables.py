@@ -18,6 +18,7 @@ from java.util import Properties
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
 from wlsdeploy.util import path_utils
+from wlsdeploy.util import string_utils
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import dictionary_utils
@@ -58,23 +59,13 @@ def load_variables(file_path, allow_multiple_files=False):
     variable_map = {}
 
     for path in paths:
-        props = Properties()
-        input_stream = None
         try:
-            input_stream = FileInputStream(path)
-            props.load(input_stream)
-            input_stream.close()
+            variable_map.update(string_utils.load_properties(path))
         except IOException, ioe:
             ex = exception_helper.create_variable_exception('WLSDPLY-01730', path, ioe.getLocalizedMessage(),
                                                             error=ioe)
             _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-            if input_stream is not None:
-                input_stream.close()
             raise ex
-
-        for key in props.keySet():
-            value = props.getProperty(key)
-            variable_map[key] = value
 
     return variable_map
 

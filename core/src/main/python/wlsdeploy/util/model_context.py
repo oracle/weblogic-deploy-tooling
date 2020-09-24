@@ -14,6 +14,7 @@ from wlsdeploy.logging import platform_logger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
+from wlsdeploy.util.model_config import ModelConfiguration
 from wlsdeploy.util.target_configuration import TargetConfiguration
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -88,6 +89,7 @@ class ModelContext(object):
         self._variable_properties_file = None
         self._rcu_db_user = 'SYS'
         self._discard_current_edit = False
+        self._model_config = None
 
         self._trailing_args = []
 
@@ -270,9 +272,9 @@ class ModelContext(object):
         if self._variable_file_name is not None:
             arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = self._variable_file_name
         if self._run_rcu is not None:
-            arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]= self._run_rcu
+            arg_map[CommandLineArgUtil.RUN_RCU_SWITCH] = self._run_rcu
         if self._discard_current_edit is not None:
-            arg_map[CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH]= self._discard_current_edit
+            arg_map[CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH] = self._discard_current_edit
         if self._rcu_database is not None:
             arg_map[CommandLineArgUtil.RCU_DB_SWITCH] = self._rcu_database
         if self._rcu_prefix is not None:
@@ -324,6 +326,16 @@ class ModelContext(object):
         if self._variable_properties_file is not None:
             arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH] = self._variable_properties_file
         return ModelContext(self._program_name, arg_map)
+
+    def get_model_config(self):
+        """
+        Return the encapsulated tool properties configuration instance.
+        This will load the ModelConfiguration from the tool properties on the first request
+        :return: model configuration instance
+        """
+        if self._model_config is None:
+            self._model_config = ModelConfiguration(self._program_name)
+        return self._model_config
 
     def get_program_name(self):
         """

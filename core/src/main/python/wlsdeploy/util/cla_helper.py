@@ -26,10 +26,13 @@ from wlsdeploy.util import cla_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import model_translator, path_utils
+from wlsdeploy.util import path_utils
+
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_translator import FileToPython
+
 
 __logger = PlatformLogger('wlsdeploy.util')
 _class_name = 'cla_helper'

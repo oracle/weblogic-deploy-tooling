@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2019, 2020, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 import unittest
@@ -9,6 +9,7 @@ from wlsdeploy.util import cla_helper
 
 class ClaHelperTest(unittest.TestCase):
 
+    properties_file = '../../test-classes/test.properties'
     # merging should combine elements with the same name (m1), add any elements only in the second model (m3),
     # and leave existing elements (m2) in place.
     def testMergeModels(self):
@@ -135,7 +136,7 @@ class ClaHelperTest(unittest.TestCase):
         server = self._check_single_server(dictionary, 'm1')
         self.assertEquals(2, len(server), "server should have two attributes")
 
-    # check that a single server exists in the result, and its attributes were merged correctly
+        # check that a single server exists in the result, and its attributes were merged correctly
     def _check_merged_server(self, dictionary, key):
         server = self._check_single_server(dictionary, key)
         self.assertEquals(9001, server['ListenPort'], "m1 should have listen port 9001")

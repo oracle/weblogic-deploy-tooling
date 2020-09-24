@@ -117,11 +117,12 @@ def __deploy_online(model, model_context, aliases):
     admin_url = model_context.get_admin_url()
     admin_user = model_context.get_admin_user()
     admin_pwd = model_context.get_admin_password()
+    timeout = model_context.get_model_config().get_connect_timeout()
 
-    __logger.info("WLSDPLY-09005", admin_url, method_name=_method_name, class_name=_class_name)
+    __logger.info("WLSDPLY-09005", admin_url, timeout, method_name=_method_name, class_name=_class_name)
 
     try:
-        __wlst_helper.connect(admin_user, admin_pwd, admin_url)
+        __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
         deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(model_context.is_discard_current_edit())
         __wlst_helper.edit()
         __wlst_helper.start_edit()
@@ -156,7 +157,7 @@ def __deploy_online(model, model_context, aliases):
             exit_code = CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE
         else:
             __wlst_helper.save()
-            __wlst_helper.activate()
+            __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
             if restart_required:
                 exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
     except BundleAwareException, ex:

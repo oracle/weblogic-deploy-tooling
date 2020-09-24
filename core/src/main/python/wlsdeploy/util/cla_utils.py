@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module that handles command-line argument parsing and common validation.
@@ -87,6 +87,7 @@ class CommandLineArgUtil(object):
     OUTPUT_DIR_SWITCH = "-output_dir"
 
     TARGET_SWITCH = '-target'
+
 
     # arguments that are true if specified, false if not
     BOOLEAN_SWITCHES = [

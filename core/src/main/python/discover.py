@@ -246,7 +246,7 @@ def __connect_to_domain(model_context, helper):
     if __wlst_mode == WlstModes.ONLINE:
         try:
             helper.connect(model_context.get_admin_user(), model_context.get_admin_password(),
-                           model_context.get_admin_url())
+                           model_context.get_admin_url(), model_context.get_model_config().get_connect_timeout())
         except PyWLSTException, wlst_ex:
             ex = exception_helper.create_discover_exception('WLSDPLY-06001', model_context.get_admin_url(),
                                                             model_context.get_admin_user(),
