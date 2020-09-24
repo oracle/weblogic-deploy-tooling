@@ -11,42 +11,42 @@
 #
 #   If the flag is not provided then all output is written to the standard out.
 #
-#
-
+import os
 import sets
-import sys, os, traceback
+import sys
+import traceback
 
-from java.lang import System
 import java.io.File as JFile
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.IOException as JIOException
 import java.io.PrintWriter as JPrintWriter
-import oracle.weblogic.deploy.util.TranslateException as TranslateException
+from java.lang import System
+from oracle.weblogic.deploy.aliases import AliasException
+from oracle.weblogic.deploy.compare import CompareException
+from oracle.weblogic.deploy.exception import ExceptionHelper
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict
-from oracle.weblogic.deploy.util import VariableException
-from oracle.weblogic.deploy.compare import CompareException
-from oracle.weblogic.deploy.exception import ExceptionHelper
-from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.util import PyWLSTException
-from wlsdeploy.exception import exception_helper
+from oracle.weblogic.deploy.util import VariableException
+from oracle.weblogic.deploy.validate import ValidateException
 
+import oracle.weblogic.deploy.util.TranslateException as TranslateException
+from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.json.json_translator import COMMENT_MATCH
+from wlsdeploy.json.json_translator import PythonToJson
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import variables
-from wlsdeploy.json.json_translator import COMMENT_MATCH
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
-from wlsdeploy.json.json_translator import PythonToJson
-from wlsdeploy.util.cla_utils import CommandLineArgUtil
-from wlsdeploy.aliases.aliases import Aliases
-from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.util.model_context import ModelContext
-from wlsdeploy.tool.validate.validator import Validator
-from oracle.weblogic.deploy.validate import ValidateException
-from wlsdeploy.exception.expection_types import ExceptionType
 
 VALIDATION_FAIL = 2
 PATH_TOKEN = '|'
@@ -136,49 +136,49 @@ class ModelDiffer:
         """
         debug("DEBUG: Entering recursive_changed_detail key=%s token=%s root=%s", key, token, root)
 
-        a=ModelDiffer(self.current_dict[key], self.past_dict[key])
-        diff=a.changed()
-        added=a.added()
-        removed=a.removed()
-        saved_token=token
+        a = ModelDiffer(self.current_dict[key], self.past_dict[key])
+        diff = a.changed()
+        added = a.added()
+        removed = a.removed()
+        saved_token = token
 
         debug('DEBUG: In recursive changed detail %s', diff)
         debug('DEBUG: In recursive added detail %s', added)
         if len(diff) > 0:
             for o in diff:
-                token=saved_token
+                token = saved_token
                 # The token is a | separated string that is used to parse and rebuilt the structure later
                 debug('DEBUG: in recursive changed detail walking down 1 %s', o)
-                token=token+PATH_TOKEN+o
+                token = token + PATH_TOKEN + o
                 if a.is_dict(o):
                     debug('DEBUG: in recursive changed detail walking down 2 %s', token)
-                    a.recursive_changed_detail(o,token, root)
-                    last=token.rfind(PATH_TOKEN)
-                    token=root
+                    a.recursive_changed_detail(o, token, root)
+                    last = token.rfind(PATH_TOKEN)
+                    token = root
                 else:
                     all_changes.append(token)
-                    last=token.rfind(PATH_TOKEN)
-                    token=root
+                    last = token.rfind(PATH_TOKEN)
+                    token = root
 
         # already out of recursive calls, add all entries from current dictionary
         # resources.JDBCSubsystemResources.* (note it may not have the lower level nodes
-        added_token=token
-        debug('DEBUG: current added token %s' , added_token)
+        added_token = token
+        debug('DEBUG: current added token %s', added_token)
         if len(added) > 0:
             for item in added:
-                token=saved_token
+                token = saved_token
                 debug('DEBUG: recursive added token %s item %s ', token, item)
                 all_added.append(token + PATH_TOKEN + item)
 
         # We don't really care about this, just put something here is enough
         if len(removed) > 0:
             for item in removed:
-                token=saved_token
+                token = saved_token
                 debug('DEBUG: removed %s', item)
                 all_removed.append(token + PATH_TOKEN + item)
         debug('DEBUG: Exiting recursive_changed_detail')
 
-    def is_dict(self,key):
+    def is_dict(self, key):
         """
         Check to see if the ke in the current dictionary is a dictionary.
         :param key: key of the dictionary
@@ -238,7 +238,7 @@ class ModelDiffer:
             raise ex
         except AliasException, ae:
             _logger.severe('WLSDPLY-05709', ae.getLocalizedMessage(),
-                            error=ae, class_name=_class_name, method_name=_method_name)
+                           error=ae, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(ae.getLocalizedMessage(), error=ae)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -251,7 +251,7 @@ class ModelDiffer:
         """
         debug("DEBUG: Entering is_alias_folder %s", path)
         path_tokens = path.split(PATH_TOKEN)
-        model_context = ModelContext("test", { })
+        model_context = ModelContext("test", {})
         location = LocationContext()
         last_token = path_tokens[-1]
         aliases = Aliases(model_context, wlst_mode=WlstModes.OFFLINE, exception_type=ExceptionType.COMPARE)
@@ -290,9 +290,9 @@ class ModelDiffer:
                 # Skipp adding if it is a delete of an attribute
                 found_in_allowable_delete = self._is_alias_folder(item)
                 if not found_in_allowable_delete:
-                    compare_msgs.add(('WLSDPLY-05701',item))
+                    compare_msgs.add(('WLSDPLY-05701', item))
                     continue
-            splitted = item.split(PATH_TOKEN,1)
+            splitted = item.split(PATH_TOKEN, 1)
             n = len(splitted)
             result = PyOrderedDict()
             walked = []
@@ -310,12 +310,12 @@ class ModelDiffer:
                 else:
                     result = tmp
                     walked.append(splitted[0])
-                splitted = splitted[1].split(PATH_TOKEN,1)
+                splitted = splitted[1].split(PATH_TOKEN, 1)
                 n = len(splitted)
             #
             # result is the dictionary format
             #
-            leaf=result
+            leaf = result
             if is_change:
                 value_tree = self.past_dict
             else:
@@ -343,7 +343,7 @@ class ModelDiffer:
             if is_delete:
                 is_folder_path = self._is_alias_folder(item)
                 split_delete = item.split(PATH_TOKEN)
-                #allowable_delete_length = len(allowable_delete.split(PATH_TOKEN))
+                # allowable_delete_length = len(allowable_delete.split(PATH_TOKEN))
                 split_delete_length = len(split_delete)
                 if is_folder_path:
                     app_key = split_delete[split_delete_length - 1]
@@ -453,8 +453,10 @@ class ModelFileDiffer:
             arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
             model_context_copy = self.model_context.copy(arg_map)
             val_copy = Validator(model_context_copy, aliases, wlst_mode=WlstModes.OFFLINE)
-            return_code = val_copy.validate_in_standalone_mode(model_dictionary,
-                                                               None,
+
+            # any variables should have been substituted at this point
+            validate_variables = {}
+            return_code = val_copy.validate_in_standalone_mode(model_dictionary, validate_variables,
                                                                archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
@@ -470,8 +472,7 @@ class ModelFileDiffer:
             arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
             model_context_copy = self.model_context.copy(arg_map)
             val_copy = Validator(model_context_copy, aliases, wlst_mode=WlstModes.OFFLINE)
-            return_code = val_copy.validate_in_standalone_mode(model_dictionary,
-                                                               None,
+            return_code = val_copy.validate_in_standalone_mode(model_dictionary, validate_variables,
                                                                archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
@@ -480,19 +481,19 @@ class ModelFileDiffer:
             past_dict = model_dictionary
         except ValidateException, te:
             _logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
-                            error=te, class_name=_class_name, method_name=_method_name)
+                           error=te, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(te.getLocalizedMessage(), error=te)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
         except VariableException, ve:
             _logger.severe('WLSDPLY-20009', _program_name, model_file_name, ve.getLocalizedMessage(),
-                            error=ve, class_name=_class_name, method_name=_method_name)
+                           error=ve, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(ve.getLocalizedMessage(), error=ve)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
         except TranslateException, pe:
             _logger.severe('WLSDPLY-20009', _program_name, model_file_name, pe.getLocalizedMessage(),
-                            error=pe, class_name=_class_name, method_name=_method_name)
+                           error=pe, class_name=_class_name, method_name=_method_name)
             ex = exception_helper.create_compare_exception(pe.getLocalizedMessage(), error=pe)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
@@ -534,7 +535,7 @@ class ModelFileDiffer:
                 if writer:
                     writer.close()
                 _logger.severe('WLSDPLY-05708', file_name, ioe.getLocalizedMessage(),
-                                error=ioe, class_name=_class_name, method_name=_method_name)
+                               error=ioe, class_name=_class_name, method_name=_method_name)
                 return 2
         else:
             print format_message('WLSDPLY-05707')
@@ -583,7 +584,7 @@ def main():
         model1 = model_context.get_trailing_argument(0)
         model2 = model_context.get_trailing_argument(1)
 
-        for f in [ model1, model2 ]:
+        for f in [model1, model2]:
             if not os.path.exists(f):
                 raise CLAException("Model %s does not exists" % f)
             if os.path.isdir(f):
@@ -596,7 +597,7 @@ def main():
             raise CLAException("Model extension must be either yaml or json")
 
         if not (FileUtils.isYamlFile(model1_file) and FileUtils.isYamlFile(model2_file)
-            or FileUtils.isJsonFile(model1_file) and FileUtils.isJsonFile(model2_file)):
+                or FileUtils.isJsonFile(model1_file) and FileUtils.isJsonFile(model2_file)):
             ext = os.path.splitext(model1)[1]
             raise CLAException("Model %s is not a %s file " % (model2, ext))
 
@@ -620,7 +621,7 @@ def main():
                     for line in compare_msgs:
                         msg_key = line[0]
                         msg_value = line[1]
-                        writer.println( "%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->"))))
+                        writer.println("%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->"))))
                         index = index + 1
                         writer.println(BLANK_LINE)
                     fos.close()
@@ -631,7 +632,7 @@ def main():
                     if writer:
                         writer.close()
                     _logger.severe('WLSDPLY-05708', file_name, ioe.getLocalizedMessage(),
-                                    error=ioe, class_name=_class_name, method_name=_method_name)
+                                   error=ioe, class_name=_class_name, method_name=_method_name)
         else:
             if len(compare_msgs) > 0:
                 print BLANK_LINE
@@ -650,7 +651,7 @@ def main():
         exit_code = 2
         if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
             _logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
-                            class_name=_class_name, method_name=_method_name)
+                           class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
         sys.exit(exit_code)
     except CompareException, ce:
@@ -681,5 +682,3 @@ def format_message(key, *args):
 
 if __name__ == "__main__":
     main()
-
-
