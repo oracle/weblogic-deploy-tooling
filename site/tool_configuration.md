@@ -1,13 +1,13 @@
 ## Tools Configuration
- - [Tool Property File](#tool-properties)
+ - [Tool Property File](#tool-property-file)
  - [Model Filters](#model-filters)
  - [Target Environments](config/target_env.md)
  - [Type Definitions](#domain-type-definitions)
  - [Variable Injection](variable_injection.md)
  - [Custom Configuration](#custom-configuration)
 
- ### Tool Properties
- The WebLogic Deploy Tooling tools can be configured or tuned from the tool property file. This property file is installed as `<weblogic-deploy>/lib/tool.properties`. You may tune any of the properties in this file or override the file completely by providing your own tool.properties file. Reference the directory where the tool.properties resides using the  `CUSTOM_CONFIG_VARIABLE` Environment variable.
+ ### Tool Property File
+ The WebLogic Deploy Tooling tools can be configured or tuned from the tool property file. This property file is installed as `<weblogic-deploy>/lib/tool.properties`. You may change any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the tool.properties file in the $WDT_CUSTOM_CONFIG directory.
  
  If a property is removed from the file, or a property value is incorrectly formatted, a `WARNING` message is logged and an internal default value used instead of the bad value.
  
@@ -255,6 +255,7 @@ def filter_model(model):
      variable_keywords.json
  ```
  This is a full set of files that can be configured. You will need only to add the files you have created or extended. Details for each configuration type are found at:
+ - [Tool Property File](#tool-property-file)
  - [Model Filters](#model-filters)
  - [Type Definitions](#domain-type-definitions) (See the [example](#example-extending-a-type-definition) below.)
  - [Variable Injection](variable_injection.md)
