@@ -17,6 +17,7 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
 
@@ -114,9 +115,9 @@ class OdlDeployer(object):
                 source_file = File(log_template_dir, LOGGING_TEMPLATE_FILE)
                 FileUtils.validateExistingFile(source_file)
                 if not server_dir.exists() and not server_dir.mkdirs():
-                    self.logger.severe('WLSDPLY-19707', server_dir, class_name=self.__class_name,
-                                       method_name=_method_name)
-                    return
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-19710', server_dir)
+                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                    raise ex
                 FileUtils.validateWritableDirectory(server_dir.getPath())
 
             document = LoggingConfigurationDocument(FileInputStream(source_file))
