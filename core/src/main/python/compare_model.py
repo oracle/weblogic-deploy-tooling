@@ -87,7 +87,8 @@ def __process_args(args):
 
 class ModelDiffer:
 
-    def __init__(self, current_dict, past_dict):
+    def __init__(self, current_dict, past_dict, aliases):
+        self.aliases = aliases
         self.final_changed_model = PyOrderedDict()
         self.current_dict = current_dict
         self.past_dict = past_dict
@@ -136,7 +137,7 @@ class ModelDiffer:
         """
         debug("DEBUG: Entering recursive_changed_detail key=%s token=%s root=%s", key, token, root)
 
-        a = ModelDiffer(self.current_dict[key], self.past_dict[key])
+        a = ModelDiffer(self.current_dict[key], self.past_dict[key], self.aliases)
         diff = a.changed()
         added = a.added()
         removed = a.removed()
@@ -243,38 +244,49 @@ class ModelDiffer:
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-    def _is_alias_folder(self, path):
+    def _parse_change_path(self, path):
         """
-        Check if the delimited path is a folder or attribute
-        :param path: '|' delimited path
-        :return: true if it is a folder otherwise false
+        Determine the location and attribute name (if specified) for the specified change path
+        :param path: delimited change path, such as "resources|JDBCSystemResource|Generic2|JdbcResource"
+        :return: tuple - location for path, attribute name from path or None
         """
-        debug("DEBUG: Entering is_alias_folder %s", path)
-        path_tokens = path.split(PATH_TOKEN)
-        model_context = ModelContext("test", {})
-        location = LocationContext()
-        last_token = path_tokens[-1]
-        aliases = Aliases(model_context, wlst_mode=WlstModes.OFFLINE, exception_type=ExceptionType.COMPARE)
+        _method_name = '_parse_change_path'
 
-        found = True
+        location = LocationContext()
+        attribute_name = None
         name_token_next = False
+
+        path_tokens = path.split(PATH_TOKEN)
+        folder_names = self.aliases.get_model_section_top_level_folder_names(path_tokens[0])
+
         for path_token in path_tokens[1:]:
+            attribute_names = self.aliases.get_model_attribute_names(location)
+
             if name_token_next:
-                token_name = aliases.get_name_token(location)
+                token_name = self.aliases.get_name_token(location)
                 location.add_name_token(token_name, path_token)
                 name_token_next = False
-            else:
+            elif path_token in folder_names:
                 location.append_location(path_token)
-                if last_token == path_token:
-                    break
-                name_token_next = aliases.supports_multiple_mbean_instances(location)
-            attrib_names = aliases.get_model_attribute_names(location)
-            if last_token in attrib_names:
-                found = False
+                folder_names = self.aliases.get_model_subfolder_names(location)
+                regular_type = not self.aliases.is_artificial_type_folder(location)
+                security_type = regular_type and self.aliases.is_security_provider_type(location)
+                multiple_type = regular_type and self.aliases.supports_multiple_mbean_instances(location)
+                if multiple_type or security_type:
+                    name_token_next = True
+                else:
+                    token_name = self.aliases.get_name_token(location)
+                    if not location.get_name_for_token(token_name):
+                        location.add_name_token(token_name, "TOKEN")
+            elif path_token in attribute_names:
+                attribute_name = path_token
+                name_token_next = False
+            else:
+                ex = exception_helper.create_compare_exception('WLSDPLY-05712', path_token, path)
+                _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
 
-        debug("DEBUG: is_alias_folder %s %s", path, found)
-
-        return found
+        return location, attribute_name
 
     def _add_results(self, ar_changes, is_delete=False, is_change=False):
         """
@@ -286,10 +298,12 @@ class ModelDiffer:
         #
         parent_index = -2
         for item in ar_changes:
+            location, attribute_name = self._parse_change_path(item)
+            is_folder_path = attribute_name is None
+
             if is_delete:
                 # Skipp adding if it is a delete of an attribute
-                found_in_allowable_delete = self._is_alias_folder(item)
-                if not found_in_allowable_delete:
+                if not is_folder_path:
                     compare_msgs.add(('WLSDPLY-05701', item))
                     continue
             splitted = item.split(PATH_TOKEN, 1)
@@ -326,22 +340,23 @@ class ModelDiffer:
             #
             # walk the current dictionary and set the value
             #
+            key = splitted[0]
             if value_tree:
+                value = value_tree[key]
                 if is_change:
-                    leaf[COMMENT_MATCH + splitted[0]] = value_tree[splitted[0]]
+                    leaf[COMMENT_MATCH + key] = value
                 else:
-                    if value_tree[splitted[0]] is not None and not isinstance(value_tree[splitted[0]], PyOrderedDict):
+                    if value is not None and not isinstance(value, PyOrderedDict):
                         self._add_results(ar_changes, is_delete, is_change=True)
-                    leaf[splitted[0]] = value_tree[splitted[0]]
+                    leaf[key] = value
             else:
-                leaf[splitted[0]] = None
+                leaf[key] = None
 
             self.merge_dictionaries(self.final_changed_model, result)
 
             # if it is a deletion then go back and update with '!'
 
             if is_delete:
-                is_folder_path = self._is_alias_folder(item)
                 split_delete = item.split(PATH_TOKEN)
                 # allowable_delete_length = len(allowable_delete.split(PATH_TOKEN))
                 split_delete_length = len(split_delete)
@@ -432,7 +447,8 @@ class ModelFileDiffer:
 
             self.model_context.set_validation_method('lax')
 
-            aliases = Aliases(model_context=self.model_context, wlst_mode=WlstModes.OFFLINE)
+            aliases = Aliases(model_context=self.model_context, wlst_mode=WlstModes.OFFLINE,
+                              exception_type=ExceptionType.COMPARE)
 
             validator = Validator(self.model_context, aliases, wlst_mode=WlstModes.OFFLINE)
 
@@ -498,7 +514,7 @@ class ModelFileDiffer:
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
 
-        obj = ModelDiffer(current_dict, past_dict)
+        obj = ModelDiffer(current_dict, past_dict, aliases)
         obj.calculate_changed_model()
         net_diff = obj.get_final_changed_model()
 
