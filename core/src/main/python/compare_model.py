@@ -32,6 +32,8 @@ from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.validate import ValidateException
 
 import oracle.weblogic.deploy.util.TranslateException as TranslateException
+from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases.alias_constants import ALIAS_LIST_TYPES
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -42,6 +44,8 @@ from wlsdeploy.json.json_translator import PythonToJson
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import model_helper
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
@@ -288,82 +292,86 @@ class ModelDiffer:
 
         return location, attribute_name
 
-    def _add_results(self, ar_changes, is_delete=False, is_change=False):
+    def _add_results(self, change_paths, is_delete=False):
         """
         Update the differences in the final model dictionary with the changes
-        :param ar_changes:   Array of changes in delimited format
+        :param change_paths: Array of changes in delimited format
+        :param is_delete: flag indicating to delete paths
         """
-        # The ar_changes is the keys of changes in the piped format
-        #  'resources|JDBCSystemResource|Generic2|JdbcResource|JDBCConnectionPoolParams|TestConnectionsOnReserve
-        #
         parent_index = -2
-        for item in ar_changes:
-            location, attribute_name = self._parse_change_path(item)
+        for change_path in change_paths:
+            # change_path is the keys of changes in the piped format, such as:
+            # resources|JDBCSystemResource|Generic2|JdbcResource|JDBCConnectionPoolParams|TestConnectionsOnReserve
+            location, attribute_name = self._parse_change_path(change_path)
             is_folder_path = attribute_name is None
 
-            if is_delete:
-                # Skipp adding if it is a delete of an attribute
-                if not is_folder_path:
-                    compare_msgs.add(('WLSDPLY-05701', item))
-                    continue
-            splitted = item.split(PATH_TOKEN, 1)
-            n = len(splitted)
-            result = PyOrderedDict()
-            walked = []
+            if is_delete and not is_folder_path:
+                # Skip adding if it is a delete of an attribute
+                compare_msgs.add(('WLSDPLY-05701', change_path))
+                continue
 
-            while n > 1:
-                tmp = PyOrderedDict()
-                tmp[splitted[0]] = PyOrderedDict()
-                if len(result) > 0:
-                    # traverse to the leaf
-                    leaf = result
-                    for k in walked:
-                        leaf = leaf[k]
-                    leaf[splitted[0]] = PyOrderedDict()
-                    walked.append(splitted[0])
+            # splitted is a tuple containing the next token, and a delimited string of remaining tokens
+            splitted = change_path.split(PATH_TOKEN, 1)
+
+            # change_tree will be a nested dictionary containing the change path parent elements.
+            # change_tokens is a list of parent tokens in change_tree.
+            change_tree = PyOrderedDict()
+            change_tokens = []
+
+            while len(splitted) > 1:
+                tmp_folder = PyOrderedDict()
+                tmp_folder[splitted[0]] = PyOrderedDict()
+                if len(change_tree) > 0:
+                    # traverse to the leaf folder
+                    change_folder = change_tree
+                    for token in change_tokens:
+                        change_folder = change_folder[token]
+                    change_folder[splitted[0]] = PyOrderedDict()
+                    change_tokens.append(splitted[0])
                 else:
-                    result = tmp
-                    walked.append(splitted[0])
+                    change_tree = tmp_folder
+                    change_tokens.append(splitted[0])
                 splitted = splitted[1].split(PATH_TOKEN, 1)
-                n = len(splitted)
-            #
-            # result is the dictionary format
-            #
-            leaf = result
-            if is_change:
-                value_tree = self.past_dict
-            else:
-                value_tree = self.current_dict
-            for k in walked:
-                leaf = leaf[k]
-                value_tree = value_tree[k]
-            #
-            # walk the current dictionary and set the value
-            #
-            key = splitted[0]
-            if value_tree:
-                value = value_tree[key]
-                if is_change:
-                    leaf[COMMENT_MATCH + key] = value
-                else:
-                    if value is not None and not isinstance(value, PyOrderedDict):
-                        self._add_results(ar_changes, is_delete, is_change=True)
-                    leaf[key] = value
-            else:
-                leaf[key] = None
 
-            self.merge_dictionaries(self.final_changed_model, result)
+            # key is the last name in the change path
+            key = splitted[0]
+
+            # find the specified folder in the change tree and in the current and previous models
+            change_folder = change_tree
+            current_folder = self.current_dict
+            previous_folder = self.past_dict
+            for token in change_tokens:
+                change_folder = change_folder[token]
+                current_folder = current_folder[token]
+                previous_folder = dictionary_utils.get_dictionary_element(previous_folder, token)
+
+            # set the value in the change folder if present.
+            # merge new and previous values if relevant.
+            # add a comment if the previous value was found.
+            if current_folder:
+                current_value = current_folder[key]
+                previous_value = dictionary_utils.get_element(previous_folder, key)
+                change_value, comment = self._get_change_info(current_value, previous_value, location, attribute_name)
+
+                if comment:
+                    change_folder[COMMENT_MATCH] = comment
+                change_folder[key] = change_value
+            else:
+                change_folder[key] = None
+
+            # merge the change tree into the final model
+            self.merge_dictionaries(self.final_changed_model, change_tree)
 
             # if it is a deletion then go back and update with '!'
 
             if is_delete:
-                split_delete = item.split(PATH_TOKEN)
+                split_delete = change_path.split(PATH_TOKEN)
                 # allowable_delete_length = len(allowable_delete.split(PATH_TOKEN))
                 split_delete_length = len(split_delete)
                 if is_folder_path:
                     app_key = split_delete[split_delete_length - 1]
                     parent_key = split_delete[parent_index]
-                    debug("DEBUG: deleting folder %s from the model: key %s ", item, app_key)
+                    debug("DEBUG: deleting folder %s from the model: key %s ", change_path, app_key)
                     pointer_dict = self.final_changed_model
                     for k_item in split_delete:
                         if k_item == parent_key:
@@ -378,6 +386,44 @@ class ModelDiffer:
                             pointer_dict[parent_key][app_key]['!' + old_key] = PyOrderedDict()
                     else:
                         pointer_dict[parent_key]['!' + app_key] = PyOrderedDict()
+
+    def _get_change_info(self, current_value, previous_value, location, attribute_name):
+        """
+        Determine the value and comment to put in the change model based on the supplied arguments.
+        :param current_value: the current value from the new model
+        :param previous_value: the previous value from the old model
+        :param location: the location of the value in the model
+        :param attribute_name: the name of the attribute, or None if this is a folder path
+        :return: a tuple with the change value and comment, either can be None
+        """
+        change_value = current_value
+        comment = None
+
+        if attribute_name and (previous_value is not None):
+            attribute_type = self.aliases.get_model_attribute_type(location, attribute_name)
+            if attribute_type in ALIAS_LIST_TYPES:
+                current_list = alias_utils.create_list(current_value, 'WLSDPLY-08001')
+                previous_list = alias_utils.create_list(previous_value, 'WLSDPLY-08000')
+
+                change_list = list(previous_list)
+                for item in current_list:
+                    if item in previous_list:
+                        change_list.remove(item)
+                    else:
+                        change_list.append(item)
+                for item in previous_list:
+                    if item not in current_list:
+                        change_list.remove(item)
+                        change_list.append(model_helper.get_delete_name(item))
+                change_value = ','.join(change_list)
+
+                current_text = ','.join(current_list)
+                previous_text = ','.join(previous_list)
+                comment = attribute_name + ": '" + previous_text + "' -> '" + current_text + "'"
+            elif not isinstance(previous_value, dict):
+                comment = attribute_name + ": '" + previous_value + "'"
+
+        return change_value, comment
 
     def merge_dictionaries(self, dictionary, new_dictionary):
         """

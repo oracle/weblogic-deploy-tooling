@@ -36,3 +36,14 @@ def get_delete_item_name(name):
     ex = exception_helper.create_deploy_exception('WLSDPLY-09111', name)
     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
     raise ex
+
+
+def get_delete_name(name):
+    """
+    Returns the delete name for the specified name by adding a "!" prefix.
+    :param name: the name be adjusted
+    :return: the delete name for the name
+    """
+    _method_name = 'get_delete_name'
+
+    return "!" + name
