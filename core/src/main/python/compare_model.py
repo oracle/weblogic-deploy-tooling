@@ -421,7 +421,7 @@ class ModelDiffer:
                 previous_text = ','.join(previous_list)
                 comment = attribute_name + ": '" + previous_text + "' -> '" + current_text + "'"
             elif not isinstance(previous_value, dict):
-                comment = attribute_name + ": '" + previous_value + "'"
+                comment = attribute_name + ": '" + str(previous_value) + "'"
 
         return change_value, comment
 
