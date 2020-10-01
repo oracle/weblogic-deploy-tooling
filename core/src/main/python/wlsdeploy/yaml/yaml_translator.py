@@ -17,6 +17,7 @@ import oracle.weblogic.deploy.yaml.YamlStreamTranslator as JYamlStreamTranslator
 import oracle.weblogic.deploy.yaml.YamlTranslator as JYamlTranslator
 
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.json.json_translator import COMMENT_MATCH
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.yaml.dictionary_list import DictionaryList
 
@@ -166,7 +167,9 @@ class PythonToYaml(object):
 
         for key, value in dictionary.iteritems():
             quoted_key = self._quotify_string(key)
-            if isinstance(value, DictionaryList):
+            if key.startswith(COMMENT_MATCH):
+                writer.println(indent + "# " + str(value))
+            elif isinstance(value, DictionaryList):
                 writer.println(indent + quoted_key + ':')
                 self._write_dictionary_list_to_yaml_file(value, writer, indent)
             elif isinstance(value, dict):
