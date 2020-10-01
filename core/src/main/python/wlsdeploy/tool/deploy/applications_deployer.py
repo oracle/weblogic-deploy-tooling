@@ -592,6 +592,11 @@ class ApplicationsDeployer(Deployer):
 
                     targets_not_changed = existing_lib_targets_set == model_targets_set
                     existing_src_path = dictionary_utils.get_element(existing_lib_ref, 'sourcePath')
+                    # For update case, the sparse model may be just changing targets, therefore without sourcepath
+
+                    if model_src_path is None and existing_src_path is not None:
+                        model_src_path = existing_src_path
+
                     #
                     # If the library is a WebLogic-distributed shared library and
                     # the targets are the same then no need to deploy.
@@ -613,6 +618,9 @@ class ApplicationsDeployer(Deployer):
                         #
                         union_targets_set = existing_lib_targets_set.union(model_targets_set)
                         lib_dict['Target'] = ','.join(union_targets_set)
+                        # For update case, the sparse model may be just changing targets, therefore without sourcepath
+                        if lib_dict['SourcePath'] is None and existing_src_path is not None:
+                            lib_dict['SourcePath'] = existing_src_path
 
                         _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib)
                         update_library_list.append(lib)
@@ -627,6 +635,9 @@ class ApplicationsDeployer(Deployer):
                             adjusted_set = model_targets_set.difference(existing_lib_targets_set)
                             adjusted_targets = ','.join(adjusted_set)
                             lib_dict['Target'] = adjusted_targets
+                            # For update case, the sparse model may be just changing targets, therefore without sourcepath
+                            if lib_dict['SourcePath'] is None and existing_src_path is not None:
+                                lib_dict['SourcePath'] = existing_src_path
         return
 
     def __build_app_deploy_strategy(self, location, model_apps, existing_app_refs, stop_and_undeploy_app_list,
@@ -675,6 +686,11 @@ class ApplicationsDeployer(Deployer):
 
                     model_src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
 
+                    # For update case, the sparse model may be just changing targets, therefore without sourcepath
+
+                    if model_src_path is None and src_path is not None:
+                        model_src_path = src_path
+
                     # check for exploded app in archive
                     if (model_src_path is not None) and deployer_utils.is_path_into_archive(model_src_path) \
                             and self.archive_helper.contains_path(model_src_path):
@@ -705,6 +721,11 @@ class ApplicationsDeployer(Deployer):
                                 adjusted_set = model_targets_set.difference(existing_app_targets_set)
                                 adjusted_targets = ','.join(adjusted_set)
                                 app_dict['Target'] = adjusted_targets
+
+                                # For update case, the sparse model may be just changing targets, therefore without sourcepath
+
+                                if app_dict['SourcePath'] is None and src_path is not None:
+                                    app_dict['SourcePath'] = src_path
                         else:
                             # updated deployment plan
                             stop_and_undeploy_app_list.append(app)
