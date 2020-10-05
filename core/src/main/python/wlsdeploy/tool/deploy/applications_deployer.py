@@ -1010,12 +1010,32 @@ class ApplicationsDeployer(Deployer):
 
     def __deploy_app_online(self, application_name, source_path, targets, plan=None, partition=None,
                             resource_group=None, resource_group_template=None, options=None):
+        """
+        Deploy an application or shared library in online mode.
+        :param application_name: the name of the app or library from the model
+        :param source_path: the source path of the app or library
+        :param targets: the intended targets
+        :param plan: optional, the path to the plan
+        :param partition: optional, the partition
+        :param resource_group: optional, the resource group
+        :param resource_group_template: optional, the resource group template
+        :param options: optional, extra options for the WLST deploy() call
+        """
         _method_name = '__deploy_app_online'
 
-        self.logger.info('WLSDPLY-09316', application_name, class_name=self._class_name, method_name=_method_name)
+        is_library = False
+        if options is not None:
+            is_library = dictionary_utils.get_element(options, 'libraryModule') == 'true'
+
+        type_name = APPLICATION
+        if is_library:
+            type_name = LIBRARY
+
+        self.logger.info('WLSDPLY-09316', type_name, application_name, class_name=self._class_name,
+                         method_name=_method_name)
 
         if string_utils.is_empty(source_path):
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09317', application_name, SOURCE_PATH)
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09317', type_name, application_name, SOURCE_PATH)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -1023,12 +1043,16 @@ class ApplicationsDeployer(Deployer):
             source_path = self.model_context.get_domain_home() + '/' + source_path
 
         if not os.path.exists(source_path):
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09318', application_name, str(source_path))
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09318', type_name, application_name,
+                                                          str(source_path))
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-        # if options is not None and 'libraryModule' in options and string_utils.to_boolean(options['libraryModule']):
-        computed_name = self.__get_deployable_application_versioned_name(source_path, application_name)
+        if is_library:
+            computed_name = self.__get_deployable_library_versioned_name(source_path, application_name)
+        else:
+            computed_name = self.__get_deployable_application_versioned_name(source_path, application_name)
+
         application_name = computed_name
 
         # build the dictionary of named arguments to pass to the deploy_application method
@@ -1039,7 +1063,7 @@ class ApplicationsDeployer(Deployer):
                 plan = self.model_context.get_domain_home() + '/' + plan
 
             if not os.path.exists(plan):
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09319', application_name, plan)
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09319', type_name, application_name, plan)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
             kwargs['planPath'] = str(plan)
@@ -1054,7 +1078,7 @@ class ApplicationsDeployer(Deployer):
                 kwargs[key] = value
         kwargs['timeout'] = self.model_context.get_model_config().get_deploy_timeout()
 
-        self.logger.fine('WLSDPLY-09320', application_name, kwargs,
+        self.logger.fine('WLSDPLY-09320', type_name, application_name, kwargs,
                          class_name=self._class_name, method_name=_method_name)
         self.wlst_helper.deploy_application(application_name, *args, **kwargs)
         return application_name
