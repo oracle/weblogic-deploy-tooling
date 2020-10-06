@@ -400,6 +400,18 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=wallet_path)
         return wallet_path
 
+    def get_manifest(self, source_path):
+        """
+        Return the manifest for the specified source path, if available.
+        Source path may refer to a file (nested jar) or path (exploded directory) within the archive.
+        :param source_path: the source path to be checked
+        :return: the manifest for the source path, or None
+        """
+        archive = self._find_archive_for_path(source_path)
+        if archive is not None:
+            return archive.getManifest(source_path)
+        return None
+
     def _find_archive_for_path(self, path, required=False):
         """
         Find the archive file containing the specified path.
