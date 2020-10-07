@@ -271,9 +271,9 @@ class VariableFileHelperTest(unittest.TestCase):
     def testForceAttribute(self):
         expected = dict()
         short_name = self._helper.get_folder_short_name(LocationContext().append_location('Server'))
-        expected[short_name + '.AdminServer.SSL.HostnameVerificationIgnored'] = 'false'
-        expected[short_name + '.m1.SSL.HostnameVerificationIgnored'] = 'false'
-        expected[short_name + '.m2.SSL.HostnameVerificationIgnored'] = 'false'
+        expected[short_name + '.AdminServer.SSL.HostnameVerificationIgnored'] = str(False)
+        expected[short_name + '.m1.SSL.HostnameVerificationIgnored'] = str(False)
+        expected[short_name + '.m2.SSL.HostnameVerificationIgnored'] = str(False)
         replacement_dict = dict()
         replacement_dict['Server.SSL.HostnameVerificationIgnored'] = dict()
         replacement_dict['Server.SSL.HostnameVerificationIgnored'][variable_injector.FORCE] = True

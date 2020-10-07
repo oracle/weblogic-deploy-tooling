@@ -59,7 +59,7 @@ class AliasesTestCase(unittest.TestCase):
 
         location.append_location(FOLDERS.JMX)
         location.add_name_token("JMX", 'mydomain')
-        string_value = ['true', 'true']
+        string_value = ['true', True]
         model_attribute_name = 'EditMBeanServerEnabled'
         model_attribute_value = string_value[0]
         wlst_attribute_name, wlst_attribute_value = \
@@ -254,7 +254,7 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(wlst_attribute_value, string_value[1])
         self.assertEqual(wlst_attribute_value.getClass().getName(), 'java.lang.Long')
 
-        string_value = [1, 'true']
+        string_value = [1, True]
         model_attribute_name = 'RowPrefetch'
         model_attribute_value = string_value[0]
         wlst_attribute_name, wlst_attribute_value = \
@@ -807,7 +807,7 @@ class AliasesTestCase(unittest.TestCase):
         name, value = self.aliases.get_wlst_attribute_name_and_value(location, 'UseRetrievedUserNameAsPrincipal',
                                                                      'true')
         self.assertEqual(name, 'UseRetrievedUserNameAsPrincipal')
-        self.assertEqual(value, Boolean('true'))
+        self.assertEqual(value, True)
         return
 
     def testGetWlstAttributeJavaBooleanNewIssue157(self):
@@ -820,7 +820,7 @@ class AliasesTestCase(unittest.TestCase):
         name, value = self.aliases.get_wlst_attribute_name_and_value(location, 'UseTokenGroupsForGroupMembershipLookup',
                                                                      'true')
         self.assertEqual(name, 'UseTokenGroupsForGroupMembershipLookup')
-        self.assertEqual(value, Boolean('true'))
+        self.assertEqual(value, True)
         return
 
     def testSecurityProviderTypeHandling(self):
@@ -1154,7 +1154,7 @@ class AliasesTestCase(unittest.TestCase):
         token = self.aliases.get_name_token(location)
         location.add_name_token(token, 'DemoDomain')
 
-        expected = 'true'
+        expected = True
         default_value = self.online_aliases.get_model_attribute_default_value(location, 'RotateLogOnStartup')
         self.assertEqual(default_value, expected)
 
