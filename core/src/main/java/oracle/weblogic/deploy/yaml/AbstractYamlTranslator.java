@@ -305,10 +305,8 @@ public abstract class AbstractYamlTranslator extends YamlBaseListener {
         String booleanValue = "False";
         if (!StringUtils.isEmpty(text)) {
             text = StringUtils.stripQuotes(text.trim());
-            // don't adjust case, these may not be intended as boolean
-            if ("true".equalsIgnoreCase(text)) {
-                booleanValue = text;
-            } else if ("false".equalsIgnoreCase(text)) {
+            // don't adjust value, it may not be intended as boolean
+            if ("true".equalsIgnoreCase(text) || "false".equalsIgnoreCase(text)) {
                 booleanValue = text;
             } else {
                 getLogger().warning("WLSDPLY-18000", name, text);
