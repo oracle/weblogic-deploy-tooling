@@ -8,6 +8,7 @@ import os
 import sys
 
 from java.io import PrintStream
+from java.lang import StringBuilder
 from java.lang import System
 
 from oracle.weblogic.deploy.deploy import DeployException
@@ -16,6 +17,8 @@ from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
+
+from weblogic.management.mbeanservers.edit.ActivationTaskMBean import STATE_PENDING as STATE_PENDING
 
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases
@@ -159,7 +162,7 @@ def __update_online(model, model_context, aliases):
     except BundleAwareException, ex:
         raise ex
 
-    exit_code = __check_update_require_domain_restart(model_context)
+    exit_code = __check_update_require_domain_restart(model_context, aliases)
     # if user requested rollback if restart required stops
 
     if exit_code != CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE:
@@ -175,7 +178,8 @@ def __update_online(model, model_context, aliases):
     return exit_code
 
 
-def __check_update_require_domain_restart(model_context):
+def __check_update_require_domain_restart(model_context, aliases):
+    _method_name = '__check_update_require_domain_restart'
     exit_code = 0
     try:
         # First we enable the stdout again and then redirect the stdoout to a string output stream
@@ -194,9 +198,36 @@ def __check_update_require_domain_restart(model_context):
             exit_code = CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE
         else:
             __wlst_helper.save()
-            __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
+            activate_status = __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
             if restart_required:
                 exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
+                dyn_cluster = list()
+                cluster_servers = dict()
+                for server_status in activate_status.getStatusByServer():
+                    print 'SERVER ', server_status.getServerName(), ' : ', server_status.getServerState()
+                    if server_status.getServerState() == STATE_PENDING:
+                        server_name = server_status.getServerName()
+                        cluster = deployer_utils.get_cluster_for_server(server_name, aliases)
+                        __logger.fine("Server {0} is in state {1}", server_name, server_status.getServerState(),
+                                      class_name=_class_name, method_name=_method_name)
+                        is_dynamic_cluster = False
+                        cluster_name = None
+                        if cluster is not None:
+                            print 'cluster ', cluster, ' type is ', cluster.getClass()
+                            cluster_name = cluster.getKeyProperty('Name')
+                            is_dynamic_cluster = \
+                                deployer_utils.check_if_dynamic_cluster(server_name, cluster_name, aliases)
+                        if is_dynamic_cluster:
+                            __logger.warning('Dynamic server {0} in cluster {1} must be restarted',
+                                             server_name, cluster_name,
+                                             class_name=_class_name, method_name=_method_name)
+                        else:
+                            __logger.warning('Server {0} in cluster {1} must be restarted',
+                                             server_name, cluster_name,
+                                             class_name=_class_name, method_name=_method_name)
+
+
+
     except BundleAwareException, ex:
         __release_edit_session_and_disconnect()
         raise ex

@@ -892,18 +892,20 @@ class WlstHelper(object):
         """
         Activate changes saved during the current edit session but not yet deployed.
         :param timeout: Timeout for the activate command
+        :return ActivationTaskMBean: with the state of the changes, and the server status for the activated changes
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'activate'
         self.__logger.entering(timeout, class_name=self.__class_name, method_name=_method_name)
         try:
-            self.__load_global('activate')(timeout)
+            activate_status = self.__load_global('activate')(timeout)
         except self.__load_global('WLSTException'), e:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00053',
                                                     _format_exception(e), error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return activate_status
 
     def get_existing_object_list(self, wlst_objects_path):
         """

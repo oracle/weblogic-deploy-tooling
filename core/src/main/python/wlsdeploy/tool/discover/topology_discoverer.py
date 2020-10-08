@@ -16,6 +16,7 @@ from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import KSS_KEYSTORE_FILE_INDICATOR
+from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -771,8 +772,8 @@ class TopologyDiscoverer(Discoverer):
                     prefix = self._wlst_helper.get(attr_name)
                     starting = 1
                     present, __ = self._aliases.is_valid_model_attribute_name(location,
-                                                                              model_constants.SERVER_NAME_PREFIX)
-                    if present:
+                                                                              model_constants.SERVER_NAME_START_IDX)
+                    if present == ValidationCodes.VALID:
                         attr_name = self._aliases.get_model_attribute_name(cluster_location,
                                                                            model_constants.SERVER_NAME_START_IDX)
                         starting = self._wlst_helper.get(attr_name)
