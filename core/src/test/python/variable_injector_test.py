@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
@@ -215,8 +215,8 @@ class VariableFileHelperTest(unittest.TestCase):
     def testWithListMBeanName(self):
         expected = dict()
         short_name = self._helper.get_folder_short_name(LocationContext().append_location('Server'))
-        expected[short_name + '.m1.SSL.Enabled'] = 'True'
-        expected[short_name + '.m2.SSL.Enabled'] = 'True'
+        expected[short_name + '.m1.SSL.Enabled'] = 'true'
+        expected[short_name + '.m2.SSL.Enabled'] = 'true'
         replacement_dict = dict()
         replacement_dict['Server[m1,m2].SSL.Enabled'] = dict()
         actual = self._helper.inject_variables(replacement_dict)
@@ -225,8 +225,8 @@ class VariableFileHelperTest(unittest.TestCase):
     def testWithManagedServerKeyword(self):
         short_name = self._helper.get_folder_short_name(LocationContext().append_location('Server'))
         expected = dict()
-        expected[short_name + '.m1.SSL.Enabled'] = 'True'
-        expected[short_name + '.m2.SSL.Enabled'] = 'True'
+        expected[short_name + '.m1.SSL.Enabled'] = 'true'
+        expected[short_name + '.m2.SSL.Enabled'] = 'true'
         replacement_dict = dict()
         replacement_dict['Server[MANAGED_SERVERS].SSL.Enabled'] = dict()
         actual = self._helper.inject_variables(replacement_dict)
@@ -234,9 +234,9 @@ class VariableFileHelperTest(unittest.TestCase):
 
     def testWithMultiKeyword(self):
         expected = dict()
-        expected['Server.AdminServer.SSL.Enabled'] = 'True'
-        expected['Server.m1.SSL.Enabled'] = 'True'
-        expected['Server.m2.SSL.Enabled'] = 'True'
+        expected['Server.AdminServer.SSL.Enabled'] = 'true'
+        expected['Server.m1.SSL.Enabled'] = 'true'
+        expected['Server.m2.SSL.Enabled'] = 'true'
         replacement_dict = dict()
         replacement_dict['Server[MANAGED_SERVERS,ADMIN_SERVER].SSL.Enabled'] = dict()
         actual = self._helper.inject_variables(replacement_dict)
