@@ -127,6 +127,5 @@ class RcuDbInfo(object):
         """
         if USE_ATP in self.rcu_properties_map:
             model_value = self.rcu_properties_map[USE_ATP]
-            value = alias_utils.convert_to_type('boolean', model_value)
-            return value == 'true'
+            return alias_utils.convert_to_type('boolean', model_value)
         return False
