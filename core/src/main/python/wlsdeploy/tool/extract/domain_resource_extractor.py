@@ -251,6 +251,7 @@ class DomainResourceExtractor:
 def _get_target_value(model_value, type_name):
     """
     Return the value for the specified attribute value, to be used in the domain resource file.
+    Boolean values should be changed to "true" or "false".
     :param model_value: the value to be checked
     :param type_name: the alias type name of the value
     :return: the formatted value
@@ -258,6 +259,8 @@ def _get_target_value(model_value, type_name):
     if type_name == BOOLEAN:
         # the model values can be true, false, 1, 0, etc.
         # target boolean values must be 'true' or 'false'
-        return alias_utils.convert_to_type('boolean', model_value)
+        if alias_utils.convert_to_type('boolean', model_value):
+            return "true"
+        return "false"
 
     return model_value
