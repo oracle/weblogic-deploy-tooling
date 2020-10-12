@@ -29,7 +29,6 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 from wlsdeploy.aliases.alias_constants import ALIAS_DELIMITED_TYPES
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
-from wlsdeploy.aliases.alias_constants import BOOLEAN
 from wlsdeploy.aliases.alias_constants import COMMA_DELIMITED_STRING
 from wlsdeploy.aliases.alias_constants import DELIMITED_STRING
 from wlsdeploy.aliases.alias_constants import JARRAY
@@ -690,11 +689,7 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
             try:
                 if data_type == LONG:
                     new_value = Long(new_value)
-                elif data_type == BOOLEAN:
-                    # for 'boolean', convertToType returned a String
-                    new_value = new_value == 'true'
                 elif data_type == JAVA_LANG_BOOLEAN:
-                    # for 'java.lang.Boolean', convertToType returned a String
                     new_value = Boolean(new_value)
                 elif data_type == JARRAY:
                     if subtype is None or subtype == 'java.lang.String':
