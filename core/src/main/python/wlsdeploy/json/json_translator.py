@@ -233,10 +233,8 @@ def _format_json_value(value):
     """
     import java.lang.StringBuilder as StringBuilder
     builder = StringBuilder()
-    if type(value) == bool:
+    if type(value) == bool or (isinstance(value, types.StringTypes) and (value == 'true' or value == 'false')):
         builder.append(JBoolean.toString(value))
-    elif isinstance(value, types.StringTypes) and (value == 'true' or value == 'false'):
-        builder.append(value)
     elif isinstance(value, types.StringTypes):
         builder.append('"').append(_escape_text(value.strip())).append('"')
     else:
