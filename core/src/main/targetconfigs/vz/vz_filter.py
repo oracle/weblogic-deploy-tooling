@@ -27,7 +27,7 @@ def __cleanup_resources(model):
 def __cleanup_topology(model):
     if model and 'topology' in model:
         topology = model['topology']
-        for delthis in ['NMProperties', 'VirtualTarget', 'Machine']:
+        for delthis in ['NMProperties', 'VirtualTarget', 'Machine', 'UnixMachine']:
             if topology.has_key(delthis):
                 del topology[delthis]
 
