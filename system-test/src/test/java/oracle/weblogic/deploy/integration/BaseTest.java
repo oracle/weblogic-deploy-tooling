@@ -197,6 +197,10 @@ public class BaseTest {
         return getProjectRoot() + FS + "src" + FS + "test" + FS + "resources";
     }
 
+    protected static String getGeneratedResourcePath() {
+        return getTargetDir() + FS + "resources";
+    }
+
     protected static ExecResult buildSampleArchive() throws Exception {
         logger.info("Building WDT archive ...");
         String command = "sh " + getResourcePath() + FS + "build-archive.sh";
@@ -204,7 +208,7 @@ public class BaseTest {
     }
 
     protected static String getSampleArchiveFile() throws Exception {
-        return getResourcePath() + FS + SAMPLE_ARCHIVE_FILE;
+        return getGeneratedResourcePath() + FS + SAMPLE_ARCHIVE_FILE;
     }
 
     protected static String getSampleModelFile(String suffix) throws Exception {
