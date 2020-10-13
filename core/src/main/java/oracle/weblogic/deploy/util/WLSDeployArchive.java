@@ -14,6 +14,10 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import oracle.weblogic.deploy.exception.ExceptionHelper;
 import oracle.weblogic.deploy.logging.PlatformLogger;
@@ -1081,6 +1085,48 @@ public class WLSDeployArchive {
         String newName = addItemToZip(ARCHIVE_NODE_MANAGER_TARGET_DIR, keystoreFile);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Return the manifest for the specified path in the archive, if present.
+     * The path may refer to a packaged EAR/JAR/WAR, or an exploded entry.
+     * @param sourcePath the path to be checked
+     * @return the Manifest object, or null
+     * @throws WLSDeployArchiveIOException if there is a problem reading the archive, or the manifest
+     */
+    public Manifest getManifest(String sourcePath) throws WLSDeployArchiveIOException {
+        try {
+            if(containsFile(sourcePath)) {
+                // a jarred app or library in the archive.
+                try(ZipInputStream zipStream = new ZipInputStream(getZipFile().getZipEntry(sourcePath))) {
+                    // JarInputStream.getManifest() has problems if MANIFEST.MF is not the first entry,
+                    // so use ZipInputStream and search for the specific entry.
+                    ZipEntry zipEntry;
+                    while((zipEntry = zipStream.getNextEntry()) != null) {
+                        if(JarFile.MANIFEST_NAME.equals(zipEntry.getName())) {
+                            Manifest manifest = new Manifest(zipStream);
+                            zipStream.closeEntry();
+                            return manifest;
+                        }
+                        zipStream.closeEntry();
+                    }
+                }
+            } else if(containsPath(sourcePath)) {
+                // an exploded app or library in the archive.
+                String manifestPath = sourcePath + "/" + JarFile.MANIFEST_NAME;
+                if (containsFile(manifestPath)) {
+                    try (InputStream inStream = getZipFile().getZipEntry(manifestPath)) {
+                        return new Manifest(inStream);
+                    }
+                }
+            }
+        } catch(IOException e) {
+            WLSDeployArchiveIOException aioe = new WLSDeployArchiveIOException("WLSDPLY-01426", sourcePath,
+                    getArchiveFileName(), e.getLocalizedMessage());
+            LOGGER.throwing(aioe);
+            throw aioe;
+        }
+        return null;
     }
 
     /**

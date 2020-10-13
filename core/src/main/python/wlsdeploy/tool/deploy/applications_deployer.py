@@ -8,14 +8,8 @@ from sets import Set
 
 import os
 from java.io import File
-from java.io import FileInputStream
-from java.io import FileNotFoundException
 from java.io import IOException
-from java.lang import IllegalStateException
 from java.security import NoSuchAlgorithmException
-from java.util.jar import JarFile
-from java.util.jar import Manifest
-from java.util.zip import ZipException
 from oracle.weblogic.deploy.aliases import TypeUtils
 
 import oracle.weblogic.deploy.util.FileUtils as FileUtils
@@ -41,6 +35,7 @@ from wlsdeploy.aliases.model_constants import TARGETS
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.deploy import deployer_utils
+from wlsdeploy.tool.deploy.applications_version_helper import ApplicationsVersionHelper
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
@@ -51,17 +46,13 @@ class ApplicationsDeployer(Deployer):
     """
     class docstring
     """
-    _EXTENSION_INDEX = 0
-    _SPEC_INDEX = 1
-    _IMPL_INDEX = 2
-
-    _APP_VERSION_MANIFEST_KEY = 'Weblogic-Application-Version'
 
     def __init__(self, model, model_context, aliases, wlst_mode=WlstModes.OFFLINE, base_location=LocationContext()):
         Deployer.__init__(self, model, model_context, aliases, wlst_mode)
         self._class_name = 'ApplicationDeployer'
         self._base_location = base_location
         self._parent_dict, self._parent_name, self._parent_type = self.__get_parent_by_location(self._base_location)
+        self.version_helper = ApplicationsVersionHelper(model_context, self.archive_helper)
 
     def deploy(self):
         """
@@ -125,17 +116,14 @@ class ApplicationsDeployer(Deployer):
 
             if deployer_utils.is_path_into_archive(shlib_source_path):
                 if self.archive_helper is not None:
-                    self.archive_helper.extract_file(shlib_source_path)
+                    self.__extract_source_path_from_archive(shlib_source_path, LIBRARY, shared_library_name)
                 else:
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09303', shared_library_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
-                full_source_path = File(File(self.model_context.get_domain_home()), shlib_source_path).getAbsolutePath()
-            else:
-                full_source_path = File(self.model_context.replace_token_string(shlib_source_path)).getAbsolutePath()
 
             library_name = \
-                self.__get_deployable_library_versioned_name(full_source_path, shared_library_name)
+                self.version_helper.get_library_versioned_name(shlib_source_path, shared_library_name)
             quoted_library_name = self.wlst_helper.get_quoted_name_for_wlst(library_name)
             shared_library_location.add_name_token(shared_library_token, quoted_library_name)
 
@@ -194,12 +182,9 @@ class ApplicationsDeployer(Deployer):
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09303', application_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
-                full_source_path = File(File(self.model_context.get_domain_home()), app_source_path).getAbsolutePath()
-            else:
-                full_source_path = File(self.model_context.replace_token_string(app_source_path)).getAbsolutePath()
 
             application_name = \
-                self.__get_deployable_application_versioned_name(full_source_path, application_name)
+                self.version_helper.get_application_versioned_name(app_source_path, application_name)
 
             quoted_application_name = self.wlst_helper.get_quoted_name_for_wlst(application_name)
             application_location.add_name_token(application_token, quoted_application_name)
@@ -572,22 +557,26 @@ class ApplicationsDeployer(Deployer):
                             stop_and_undeploy_app_list.append(lib_name)
                     continue
 
-                existing_lib_ref = dictionary_utils.get_dictionary_element(existing_lib_refs, lib)
+                # determine the versioned name of the library from the library's MANIFEST
+                model_src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
+                versioned_name = self.version_helper.get_library_versioned_name(model_src_path, lib,
+                                                                                from_archive=True)
+
+                existing_lib_ref = dictionary_utils.get_dictionary_element(existing_lib_refs, versioned_name)
 
                 # collect the delete targets, and remove them from the model and existing targets
-                lib_delete_targets[lib] = \
+                lib_delete_targets[versioned_name] = \
                     self.__extract_delete_targets(lib_dict, existing_lib_ref, location, lib)
 
-                if lib in existing_libs:
+                if versioned_name in existing_libs:
                     # skipping absolute path libraries if they are the same
-                    model_src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
                     model_targets = dictionary_utils.get_element(lib_dict, TARGET)
-                    # Model Target could be a comma-delimited string or a list...
-                    if type(model_targets) in [str, unicode]:
-                        model_targets = model_targets.split(',')
+                    model_targets = alias_utils.create_list(model_targets, 'WLSDPLY-08000')
+                    model_targets_set = Set(model_targets)
 
                     existing_lib_targets = dictionary_utils.get_element(existing_lib_ref, 'target')
-                    model_targets_set = Set(model_targets)
+                    if existing_lib_targets is None:
+                        existing_lib_targets = list()
                     existing_lib_targets_set = Set(existing_lib_targets)
 
                     targets_not_changed = existing_lib_targets_set == model_targets_set
@@ -622,8 +611,8 @@ class ApplicationsDeployer(Deployer):
                         if lib_dict['SourcePath'] is None and existing_src_path is not None:
                             lib_dict['SourcePath'] = existing_src_path
 
-                        _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib)
-                        update_library_list.append(lib)
+                        _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, versioned_name)
+                        update_library_list.append(versioned_name)
                     else:
                         # If the hashes match, assume that the library did not change so there is no need
                         # to redeploy them ot the referencing applications unless the targets are different.
@@ -670,13 +659,18 @@ class ApplicationsDeployer(Deployer):
                         stop_and_undeploy_app_list.append(model_helper.get_delete_item_name(app))
                     continue
 
-                existing_app_ref = dictionary_utils.get_dictionary_element(existing_app_refs, app)
+                # determine the versioned name of the library from the application's MANIFEST
+                model_src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
+                versioned_name = self.version_helper.get_application_versioned_name(model_src_path, app,
+                                                                                    from_archive=True)
+
+                existing_app_ref = dictionary_utils.get_dictionary_element(existing_app_refs, versioned_name)
 
                 # collect the delete targets, and remove them from the model and existing targets
-                app_delete_targets[app] = \
+                app_delete_targets[versioned_name] = \
                     self.__extract_delete_targets(app_dict, existing_app_ref, location, app)
 
-                if app in existing_apps:
+                if versioned_name in existing_apps:
                     # Compare the hashes of the domain's existing apps to the model's apps.
                     # If they match, remove them from the list to be deployed.
                     # If they are different, stop and un-deploy the app, and leave it in the list.
@@ -684,20 +678,12 @@ class ApplicationsDeployer(Deployer):
                     plan_path = dictionary_utils.get_element(existing_app_ref, 'planPath')
                     src_path = dictionary_utils.get_element(existing_app_ref, 'sourcePath')
 
-                    model_src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
-
                     # For update case, the sparse model may be just changing targets, therefore without sourcepath
 
                     if model_src_path is None and src_path is not None:
                         model_src_path = src_path
 
-                    # check for exploded app in archive
-                    if (model_src_path is not None) and deployer_utils.is_path_into_archive(model_src_path) \
-                            and self.archive_helper.contains_path(model_src_path):
-                        model_src_hash = -1  # don't calculate hash, just ensure that hashes will not match
-                    else:
-                        model_src_hash = self.__get_hash(model_src_path)
-
+                    model_src_hash = self.__get_hash(model_src_path)
                     model_plan_hash = self.__get_hash(dictionary_utils.get_element(app_dict, PLAN_PATH))
 
                     existing_src_hash = self.__get_file_hash(src_path)
@@ -728,10 +714,10 @@ class ApplicationsDeployer(Deployer):
                                     app_dict['SourcePath'] = src_path
                         else:
                             # updated deployment plan
-                            stop_and_undeploy_app_list.append(app)
+                            stop_and_undeploy_app_list.append(versioned_name)
                     else:
                         # updated app
-                        stop_and_undeploy_app_list.append(app)
+                        stop_and_undeploy_app_list.append(versioned_name)
         return
 
     def __extract_delete_targets(self, model_dict, existing_ref, location, name):
@@ -835,7 +821,12 @@ class ApplicationsDeployer(Deployer):
         elif os.path.isabs(path):
             hash_value = self.__get_file_hash(path)
         elif deployer_utils.is_path_into_archive(path):
-            hash_value = self.archive_helper.get_file_hash(path)
+            if self.archive_helper.contains_path(path):
+                # if path is a directory in the archive, it is an exploded entry.
+                # hash can't be calculated, return -1 to ensure this will not match existing hash.
+                hash_value = -1
+            else:
+                hash_value = self.archive_helper.get_file_hash(path)
         else:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09310', path)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
@@ -943,7 +934,8 @@ class ApplicationsDeployer(Deployer):
                     options = _get_deploy_options(model_libs, lib_name, library_module='true')
                     for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
                         if uses_path_tokens_attribute_name in lib_dict:
-                            self.__extract_file_from_archive(lib_dict[uses_path_tokens_attribute_name])
+                            path = lib_dict[uses_path_tokens_attribute_name]
+                            self.__extract_source_path_from_archive(path, LIBRARY, lib_name)
 
                     location.add_name_token(token_name, lib_name)
                     resource_group_template_name, resource_group_name, partition_name = \
@@ -1039,25 +1031,26 @@ class ApplicationsDeployer(Deployer):
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-        if not os.path.isabs(source_path):
-            source_path = self.model_context.get_domain_home() + '/' + source_path
+        full_source_path = source_path
+        if not os.path.isabs(full_source_path):
+            full_source_path = self.model_context.get_domain_home() + '/' + source_path
 
-        if not os.path.exists(source_path):
+        if not os.path.exists(full_source_path):
             ex = exception_helper.create_deploy_exception('WLSDPLY-09318', type_name, application_name,
-                                                          str(source_path))
+                                                          str(full_source_path))
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
         if is_library:
-            computed_name = self.__get_deployable_library_versioned_name(source_path, application_name)
+            computed_name = self.version_helper.get_library_versioned_name(source_path, application_name)
         else:
-            computed_name = self.__get_deployable_application_versioned_name(source_path, application_name)
+            computed_name = self.version_helper.get_application_versioned_name(source_path, application_name)
 
         application_name = computed_name
 
         # build the dictionary of named arguments to pass to the deploy_application method
         args = list()
-        kwargs = {'path': str(source_path), 'targets': str(targets)}
+        kwargs = {'path': str(full_source_path), 'targets': str(targets)}
         if plan is not None:
             if not os.path.isabs(plan):
                 plan = self.model_context.get_domain_home() + '/' + plan
@@ -1112,123 +1105,6 @@ class ApplicationsDeployer(Deployer):
             raise ex
 
         return
-
-    def __get_deployable_library_versioned_name(self, source_path, model_name):
-        """
-        Get the proper name of the deployable library that WLST requires in the target domain.  This method is
-        primarily needed for shared libraries in the Oracle Home where the implementation version may have
-        changed.  Rather than requiring the modeller to have to know/adjust the shared library name, we extract
-        the information from the target domain's archive file (e.g., war file) and compute the correct name.
-        :param source_path: the SourcePath value of the shared library
-        :param model_name: the model name of the library
-        :return: the updated shared library name for the target environment
-        :raises: DeployException: if an error occurs
-        """
-        _method_name = '__get_deployable_library_versioned_name'
-
-        self.logger.entering(source_path, model_name, class_name=self._class_name, method_name=_method_name)
-
-        old_name_tuple = deployer_utils.get_library_name_components(model_name, self.wlst_mode)
-        try:
-            versioned_name = old_name_tuple[self._EXTENSION_INDEX]
-            source_path = self.model_context.replace_token_string(source_path)
-            manifest = self.__get_manifest(source_path)
-            if manifest is not None:
-                attributes = manifest.getMainAttributes()
-
-                extension_name = attributes.getValue("Extension-Name")
-                if not string_utils.is_empty(extension_name):
-                    versioned_name = extension_name
-
-                specification_version = attributes.getValue("Specification-Version")
-                if not string_utils.is_empty(specification_version):
-                    versioned_name += '#' + specification_version
-
-                    # Cannot specify an impl version without a spec version
-                    implementation_version = attributes.getValue("Implementation-Version")
-                    if not string_utils.is_empty(implementation_version):
-                        versioned_name += '@' + implementation_version
-
-                self.logger.info('WLSDPLY-09324', model_name, versioned_name,
-                                 class_name=self._class_name, method_name=_method_name)
-
-        except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09325', model_name, source_path, str(e), error=e)
-            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
-
-        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=versioned_name)
-        return versioned_name
-
-    def __get_deployable_application_versioned_name(self, source_path, model_name):
-        """
-        Get the proper name of the deployable application that WLST requires in the target domain.
-        This method is needed for the case where the application is explicitly versioned in its ear/war manifest.
-        Rather than requiring the modeller to have to know/adjust the application name, we extract
-        the information from the application's archive file (e.g., war file) and compute the correct name.
-        :param source_path: the SourcePath value of the application
-        :param model_name: the model name of the application
-        :return: the updated application name for the target environment
-        :raises: DeployException: if an error occurs
-        """
-        _method_name = '__get_deployable_application_versioned_name'
-
-        self.logger.entering(source_path, model_name, class_name=self._class_name, method_name=_method_name)
-
-        # discard any version information in the model name
-        model_name_tuple = deployer_utils.get_library_name_components(model_name, self.wlst_mode)
-        versioned_name = model_name_tuple[self._EXTENSION_INDEX]
-
-        try:
-            source_path = self.model_context.replace_token_string(source_path)
-            manifest = self.__get_manifest(source_path)
-
-            if manifest is not None:
-                attributes = manifest.getMainAttributes()
-                application_version = attributes.getValue(self._APP_VERSION_MANIFEST_KEY)
-                if application_version is not None:
-                    versioned_name = model_name + '#' + application_version
-                    self.logger.info('WLSDPLY-09328', model_name, versioned_name, class_name=self._class_name,
-                                     method_name=_method_name)
-
-        except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09329', model_name, source_path, str(e), error=e)
-            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
-
-        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=versioned_name)
-        return versioned_name
-
-    def __get_manifest(self, source_path):
-        """
-        Returns the manifest object for the specified path.
-        The source path may be a jar, or an exploded path.
-        :param source_path: the source path to be checked
-        :return: the manifest, or None if it is not present
-        :raises: IOException: if there are problems reading an existing manifest
-        """
-        source_path_file = File(source_path)
-        manifest = None
-
-        if source_path_file.isDirectory():
-            manifest_file = File(source_path_file, "META-INF/MANIFEST.MF")
-            if manifest_file.exists():
-                stream = None
-                try:
-                    stream = FileInputStream(manifest_file)
-                    manifest = Manifest(stream)
-                finally:
-                    if stream is not None:
-                        try:
-                            stream.close()
-                        except IOException:
-                            # nothing to report
-                            pass
-        else:
-            archive = JarFile(source_path)
-            manifest = archive.getManifest()
-
-        return manifest
 
     def __get_deployment_ordering(self, apps):
         _method_name = '__get_deployment_ordering'
