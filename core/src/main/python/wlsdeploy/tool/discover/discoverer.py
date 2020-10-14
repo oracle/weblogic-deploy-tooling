@@ -279,11 +279,13 @@ class Discoverer(object):
                          class_name=_class_name, method_name=_method_name)
         else:
             folder_path = self._aliases.get_wlst_list_path(location)
-            _logger.finest('WLSDPLY-06111', folder_path, class_name=_class_name, method_name=_method_name)
+            _logger.fine('WLSDPLY-06111', folder_path, class_name=_class_name, method_name=_method_name)
             if self._wlst_helper.path_exists(folder_path):
                 self.wlst_cd(folder_path, location)
                 names = self._wlst_helper.lsc()
-                _logger.finest('WLSDPLY-06146', names, location, class_name=_class_name, method_name=_method_name)
+                _logger.fine('WLSDPLY-06146', names, location, class_name=_class_name, method_name=_method_name)
+            else:
+                _logger.fine('Path {0} does not exist', folder_path, class_name=_class_name, method_name=_method_name)
         return names
 
     def _find_singleton_name_in_folder(self, location):
@@ -404,7 +406,9 @@ class Discoverer(object):
                          method_name=_method_name)
         subfolder_result = OrderedDict()
         names = self._find_names_in_folder(location)
+        _logger.fine('Names {0} at location {1}', names, location.get_folder_path(), class_name=_class_name, method_name=_method_name)
         required_order = self._aliases.get_subfolders_in_order(location)
+        _logger.fine('Required order {0}', required_order, class_name=_class_name, method_name=_method_name)
         attr_map = dict()
         default_list = list()
         if names is not None:

@@ -201,30 +201,7 @@ def __check_update_require_domain_restart(model_context, aliases):
             activate_status = __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
             if restart_required:
                 exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
-                dyn_cluster = list()
-                cluster_servers = dict()
-                for server_status in activate_status.getStatusByServer():
-                    print 'SERVER ', server_status.getServerName(), ' : ', server_status.getServerState()
-                    if server_status.getServerState() == STATE_PENDING:
-                        server_name = server_status.getServerName()
-                        cluster = deployer_utils.get_cluster_for_server(server_name, aliases)
-                        __logger.fine("Server {0} is in state {1}", server_name, server_status.getServerState(),
-                                      class_name=_class_name, method_name=_method_name)
-                        is_dynamic_cluster = False
-                        cluster_name = None
-                        if cluster is not None:
-                            print 'cluster ', cluster, ' type is ', cluster.getClass()
-                            cluster_name = cluster.getKeyProperty('Name')
-                            is_dynamic_cluster = \
-                                deployer_utils.check_if_dynamic_cluster(server_name, cluster_name, aliases)
-                        if is_dynamic_cluster:
-                            __logger.warning('Dynamic server {0} in cluster {1} must be restarted',
-                                             server_name, cluster_name,
-                                             class_name=_class_name, method_name=_method_name)
-                        else:
-                            __logger.warning('Server {0} in cluster {1} must be restarted',
-                                             server_name, cluster_name,
-                                             class_name=_class_name, method_name=_method_name)
+                restart_list = deployer_utils.get_list_of_restarts(aliases)
 
 
 

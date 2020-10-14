@@ -1,10 +1,11 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from sets import Set
 
 from java.io import IOException
+from java.lang import StringBuilder
 from java.net import URI
 from java.security import NoSuchAlgorithmException
 
@@ -451,6 +452,43 @@ def get_cluster_for_server(server_name, aliases):
     return cluster_name
 
 
+def get_list_of_restarts(aliases):
+    """
+    Return the restart checklist from the online domain instance. Log each instance of the restart checklist
+    :return: String buffer of restart information
+    """
+    _method_name = 'get_list_of_restarts'
+    restart_list = []
+    for server in _wlst_helper.get_server_runtimes():
+        resources = server.getPendingRestartSystemResources()
+        is_restart = server.isRestartRequired()
+        if len(resources) > 0 or is_restart:
+            server_name = server.getName()
+            cluster = server.getClusterRuntime()
+            cluster_name = None
+            if cluster is not None:
+                cluster_name = cluster.getName()
+            prt_cluster = cluster_name
+            if cluster_name is None:
+                prt_cluster = 'standalone'
+            for resource in server.getPendingRestartSystemResources():
+                line = list()
+                line.append(cluster_name)
+                line.append(server_name)
+                line.append(resource)
+                restart_list.append(line)
+                _logger.warning('WLSDPLY-09207', resource, server_name, prt_cluster,
+                                class_name=_class_name, method_name=_method_name)
+            if is_restart:
+                line = list()
+                line.append(cluster_name)
+                line.append(server_name)
+                restart_list.append(line)
+                _logger.warning('WLSDPLY-09206', server_name, prt_cluster,
+                               class_name=_class_name, method_name=_method_name)
+    return restart_list
+
+
 def check_if_dynamic_cluster(server_name, cluster_name, aliases):
     """
     Determine if the server is part of a dynamic cluster.
@@ -492,6 +530,16 @@ def check_if_dynamic_cluster(server_name, cluster_name, aliases):
         split_it = server_name.split(prefix)
         if len(split_it) == 2:
             number = StringUtils.stringToInteger(split_it[1].strip())
-            if number is not None and starting <= number.intValue() < (dynamic_size + starting):
+            if number is not None and starting <= number < (dynamic_size + starting):
                 return True
     return False
+
+
+def __server_text(server_name, cluster_name, aliases):
+    is_dynamic = False
+    server_text = 'Server '
+    if cluster_name is not None:
+        is_dynamic = check_if_dynamic_cluster(server_name, cluster_name, aliases)
+    if is_dynamic:
+        server_text = 'Dynamic ' + server_text
+    return server_text + server_name

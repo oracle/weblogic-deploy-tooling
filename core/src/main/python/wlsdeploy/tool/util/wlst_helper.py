@@ -1434,6 +1434,30 @@ class WlstHelper(object):
         self.__logger.finest('WLSDPLY-0098', class_name=self.__class_name, method_name=_method_name)
         return result
 
+    def get_server_runtimes(self):
+        """
+        Return the ServerRuntimeMBeans instances for the domain
+        :return: list of server runtimes
+        """
+        return self.get_domain_runtime_service().getServerRuntimes()
+
+    def get_domain_runtime_service(self):
+        """
+        Return the DomainRuntimeServiceMBean instance.
+        :return: DomainRuntimeServiceMBean for the domain
+        """
+        _method_name = 'get_domain_runtime_service'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            drs = self.__load_global('domainRuntimeService')
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00127',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=drs)
+        return drs
+
     def __ls(self, method_name, ls_type, path=None, log_throwing=True):
         """
         Private helper method shared by various API methods
