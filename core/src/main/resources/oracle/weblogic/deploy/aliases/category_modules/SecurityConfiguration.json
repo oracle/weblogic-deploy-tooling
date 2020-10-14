@@ -100,7 +100,7 @@
                     }
                 },
                 "Auditor" : {
-                    "wlst_type" : "Auditor",
+                    "wlst_type" : "Auditor${:s}",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
                         "DefaultAuditor": {
@@ -125,7 +125,7 @@
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
-                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/Auditor/%PROVIDER%"
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/Auditor${:s}/%PROVIDER%"
                             }
 
                         }
@@ -133,7 +133,7 @@
                     "attributes" : { },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/Auditor/%PROVIDER%"
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/Auditor${:s}/%PROVIDER%"
                     }
                 },
                 "AuthenticationProvider" : {
