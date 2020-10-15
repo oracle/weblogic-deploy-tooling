@@ -7,7 +7,9 @@ Methods for template substitution.
 import re
 
 from java.io import BufferedReader
+from java.io import IOException
 from java.io import InputStreamReader
+from java.lang import IllegalArgumentException
 from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.exception import exception_helper
@@ -53,13 +55,14 @@ def create_file_from_file(file_path, template_hash, output_file, exception_type)
     """
     _method_name = 'create_file_from_file'
 
-    template_stream = FileUtils.getFileAsStream(file_path)
-    if template_stream is None:
-        ex = exception_helper.create_exception(exception_type, 'WLSDPLY-01661', file_path)
+    try:
+        template_stream = FileUtils.getFileAsStream(file_path)
+        if template_stream is not None:
+            _create_file_from_stream(template_stream, template_hash, output_file, exception_type)
+    except (IOException, IllegalArgumentException), ie:
+        ex = exception_helper.create_exception(exception_type, 'WLSDPLY-01666', file_path, ie)
         __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
         raise ex
-
-    _create_file_from_stream(template_stream, template_hash, output_file, exception_type)
 
 
 def _create_file_from_stream(template_stream, template_hash, output_file, exception_type):
