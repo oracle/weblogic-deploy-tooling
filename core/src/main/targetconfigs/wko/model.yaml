@@ -20,8 +20,7 @@ spec:
   imagePullSecrets:
     - name: ocir
 
-  # Identify which Secret contains the WebLogic Admin credentials (note that there is an example of
-  # how to create that Secret at the end of this file)
+  # Identify which Secret contains the WebLogic Admin credentials
   webLogicCredentialsSecret:
     name: {{{webLogicCredentialsSecret}}}
 
