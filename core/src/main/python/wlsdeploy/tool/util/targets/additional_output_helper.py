@@ -52,7 +52,7 @@ def create_additional_output(model, model_context, aliases, exception_type):
     """
 
     # -output_dir argument was previously verified
-    output_dir = model_context.get_kubernetes_output_dir()
+    output_dir = model_context.get_output_dir()
 
     # all current output types use this hash, and process a set of template files
     template_hash = _build_template_hash(model, model_context, aliases)

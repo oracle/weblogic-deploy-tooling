@@ -642,7 +642,7 @@ def main():
 
     try:
         model_context = __process_args(sys.argv)
-        _outputdir = model_context.get_compare_model_output_dir()
+        _outputdir = model_context.get_output_dir()
         model1 = model_context.get_trailing_argument(0)
         model2 = model_context.get_trailing_argument(1)
 

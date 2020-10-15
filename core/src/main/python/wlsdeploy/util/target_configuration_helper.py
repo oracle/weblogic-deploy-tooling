@@ -103,7 +103,7 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
     domain_uid = k8s_helper.get_domain_uid(domain_name)
 
     nl = '\n'
-    file_location = model_context.get_kubernetes_output_dir()
+    file_location = model_context.get_output_dir()
     k8s_file = os.path.join(file_location, "create_k8s_secrets.sh")
     k8s_script = open(k8s_file, 'w')
 
