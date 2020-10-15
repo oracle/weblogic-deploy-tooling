@@ -6,6 +6,7 @@ from javax.management import ObjectName
 from org.python.modules import jarray
 
 from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases.alias_constants import BOOLEAN
 from wlsdeploy.aliases.alias_jvmargs import JVMArguments
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CAPACITY
@@ -631,6 +632,22 @@ class AttributeSetter(object):
             merged_args.merge_jvm_arguments(new_args)
             result = merged_args.get_arguments_string()
 
+        self.set_attribute(location, key, result, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_boolean(self, location, key, value, wlst_value):
+        """
+        Set the specified attribute with a Jython boolean primitive value.
+        By default in WDT, boolean attributes are converted to string values for assignment.
+        Some attributes can only be assigned consistently using a boolean primitive, using this attribute setter.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if target is not found
+        """
+        result = alias_utils.convert_to_type(BOOLEAN, value)
+        result = result == 'true'
         self.set_attribute(location, key, result, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 

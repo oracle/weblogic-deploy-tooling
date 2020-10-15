@@ -359,7 +359,8 @@ class TopologyDiscoverer(Discoverer):
         realm_dict = dictionary_utils.get_dictionary_element(sc_dict, model_constants.REALM)
         if 'myrealm' in realm_dict and dictionary_utils.is_empty_dictionary_element(realm_dict, 'myrealm'):
             del sc_dict[model_constants.REALM]['myrealm']
-        if dictionary_utils.is_empty_dictionary_element(sc_dict, model_constants.REALM):
+        if model_constants.REALM in sc_dict and \
+                dictionary_utils.is_empty_dictionary_element(sc_dict, model_constants.REALM):
             del sc_dict[model_constants.REALM]
         return sc_dict
 
