@@ -54,5 +54,7 @@ spec:
                       values:
                         - $(CLUSTER_NAME)
                 topologyKey: "kubernetes.io/hostname"
+
+    # The number of cluster member Managed Server instances to start for this WebLogic cluster
     replicas: {{{replicas}}}
 {{/clusters}}

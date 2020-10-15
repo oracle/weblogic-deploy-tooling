@@ -33,6 +33,8 @@ spec:
 {{/hasClusters}}
 {{#clusters}}
           - clusterName: {{{clusterName}}}
+
+            # The number of cluster member Managed Server instances to start for this WebLogic cluster
             replicas: {{{replicas}}}
 {{/clusters}}
         serverPod:
