@@ -22,7 +22,7 @@ _block_start_pattern = re.compile("({{#(.*)}})")
 _block_end_pattern = re.compile("({{/(.*)}})")
 
 
-def create_file(resource_path, template_hash, output_file, exception_type):
+def create_file_from_resource(resource_path, template_hash, output_file, exception_type):
     """
     Read the template from the resource stream, perform any substitutions,
     and write it to the output file.
@@ -31,17 +31,40 @@ def create_file(resource_path, template_hash, output_file, exception_type):
     :param output_file: the file to write
     :param exception_type: the type of exception to throw if needed
     """
-    _method_name = 'create_file'
+    _method_name = 'create_file_from_resource'
 
-    file_writer = open(output_file.getPath(), "w")
-
-    template_stream = FileUtils.getResourceAsStream(resource_path)
+    template_stream = FileUtils.getFileAsStream(resource_path)
     if template_stream is None:
         ex = exception_helper.create_exception(exception_type, 'WLSDPLY-01661', resource_path)
         __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
         raise ex
 
-    template_reader = BufferedReader(InputStreamReader(FileUtils.getResourceAsStream(resource_path)))
+    _create_file_from_stream(template_stream, template_hash, output_file, exception_type)
+
+
+def create_file_from_file(file_path, template_hash, output_file, exception_type):
+    """
+    Read the template from the template file, perform any substitutions,
+    and write it to the output file.
+    :param file_path: the absolute file path of the source template
+    :param template_hash: a dictionary of substitution values
+    :param output_file: the file to write
+    :param exception_type: the type of exception to throw if needed
+    """
+    _method_name = 'create_file_from_file'
+
+    template_stream = FileUtils.getFileAsStream(file_path)
+    if template_stream is None:
+        ex = exception_helper.create_exception(exception_type, 'WLSDPLY-01661', file_path)
+        __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
+        raise ex
+
+    _create_file_from_stream(template_stream, template_hash, output_file, exception_type)
+
+
+def _create_file_from_stream(template_stream, template_hash, output_file, exception_type):
+    template_reader = BufferedReader(InputStreamReader(template_stream))
+    file_writer = open(output_file.getPath(), "w")
 
     current_block_key = None
     block_lines = []

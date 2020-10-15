@@ -18,12 +18,11 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import path_utils
 from wlsdeploy.util import target_configuration_helper
 
 __class_name = 'vz_config_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
-
-TEMPLATE_PATH = 'oracle/weblogic/deploy/targets/vz'
 
 # substitution keys used in the templates
 CLUSTER_NAME = 'clusterName'
@@ -43,11 +42,11 @@ REPLICAS = 'replicas'
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 
 
-def create_vz_configuration(model, model_context, aliases, exception_type):
+def create_additional_output(model, model_context, aliases, exception_type):
     """
-    Create and write the Kubernetes resource configuration files for Verrazzano.
-    :param model: Model object, used to derive some values in the configurations
-    :param model_context: used to determine location and content for the configurations
+    Create and write additional output for the configured target type.
+    :param model: Model object, used to derive some values in the output
+    :param model_context: used to determine location and content for the output
     :param aliases: used to derive secret names
     :param exception_type: the type of exception to throw if needed
     """
@@ -55,30 +54,34 @@ def create_vz_configuration(model, model_context, aliases, exception_type):
     # -output_dir argument was previously verified
     output_dir = model_context.get_kubernetes_output_dir()
 
+    # all current output types use this hash, and process a set of template files
     template_hash = _build_template_hash(model, model_context, aliases)
 
-    _create_file('model.yaml', template_hash, output_dir, exception_type)
+    file_names = model_context.get_target_configuration().get_additional_output_types()
+    for file_name in file_names:
+        _create_file(file_name, template_hash, model_context, output_dir, exception_type)
 
-    _create_file('binding.yaml', template_hash, output_dir, exception_type)
 
-
-def _create_file(template_name, template_hash, output_dir, exception_type):
+def _create_file(template_name, template_hash, model_context, output_dir, exception_type):
     """
     Read the template from the resource stream, perform any substitutions,
     and write it to a file with the same name in the output directory.
     :param template_name: the name of the template file, and the output file
     :param template_hash: a dictionary of substitution values
+    :param model_context: used to determine location and content for the output
     :param output_dir: the directory to write the output file
     :param exception_type: the type of exception to throw if needed
     """
     _method_name = '_create_file'
 
-    template_path = TEMPLATE_PATH + '/' + template_name
+    target_key = model_context.get_target()
+    template_subdir = "targets/" + target_key + "/" + template_name
+    template_path = path_utils.find_config_path(template_subdir)
     output_file = File(output_dir, template_name)
 
     __logger.info('WLSDPLY-01662', output_file, class_name=__class_name, method_name=_method_name)
 
-    file_template_helper.create_file(template_path, template_hash, output_file, exception_type)
+    file_template_helper.create_file_from_file(template_path, template_hash, output_file, exception_type)
 
 
 def _build_template_hash(model, model_context, aliases):

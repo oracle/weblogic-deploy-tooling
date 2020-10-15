@@ -17,7 +17,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util import variable_injector_functions
-from wlsdeploy.tool.util.targets import vz_config_helper
+from wlsdeploy.tool.util.targets import additional_output_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
@@ -239,13 +239,7 @@ def create_additional_output(model, model_context, aliases, exception_type):
     """
     _method_name = 'create_additional_output'
 
-    output_types = model_context.get_target_configuration().get_additional_output_types()
-    for output_type in output_types:
-        if output_type == VZ_EXTRA_CONFIG:
-            vz_config_helper.create_vz_configuration(model, model_context, aliases, exception_type)
-        else:
-            __logger.warning('WLSDPLY-01660', output_type, model_context.get_target(), class_name=__class_name,
-                             method_name=_method_name)
+    additional_output_helper.create_additional_output(model, model_context, aliases, exception_type)
 
 
 def create_secret_name(variable_name, suffix=None):
