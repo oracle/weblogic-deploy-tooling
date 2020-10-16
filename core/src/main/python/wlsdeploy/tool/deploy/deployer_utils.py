@@ -566,12 +566,3 @@ def check_if_dynamic_cluster(server_name, cluster_name, aliases):
                 return True
     return False
 
-
-def __server_text(server_name, cluster_name, aliases):
-    is_dynamic = False
-    server_text = 'Server '
-    if cluster_name is not None:
-        is_dynamic = check_if_dynamic_cluster(server_name, cluster_name, aliases)
-    if is_dynamic:
-        server_text = 'Dynamic ' + server_text
-    return server_text + server_name

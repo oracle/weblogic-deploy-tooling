@@ -8,7 +8,6 @@ import os
 import sys
 
 from java.io import PrintStream
-from java.lang import StringBuilder
 from java.lang import System
 
 from oracle.weblogic.deploy.deploy import DeployException
@@ -17,8 +16,6 @@ from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
-
-from weblogic.management.mbeanservers.edit.ActivationTaskMBean import STATE_PENDING as STATE_PENDING
 
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases
@@ -163,7 +160,7 @@ def __update_online(model, model_context, aliases):
     except BundleAwareException, ex:
         raise ex
 
-    exit_code = __check_update_require_domain_restart(model_context, aliases)
+    exit_code = __check_update_require_domain_restart(model_context)
     # if user requested rollback if restart required stops
 
     if exit_code != CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE:
@@ -179,7 +176,7 @@ def __update_online(model, model_context, aliases):
     return exit_code
 
 
-def __check_update_require_domain_restart(model_context, aliases):
+def __check_update_require_domain_restart(model_context):
     _method_name = '__check_update_require_domain_restart'
     exit_code = 0
     try:

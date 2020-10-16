@@ -406,9 +406,7 @@ class Discoverer(object):
                          method_name=_method_name)
         subfolder_result = OrderedDict()
         names = self._find_names_in_folder(location)
-        _logger.fine('Names {0} at location {1}', names, location.get_folder_path(), class_name=_class_name, method_name=_method_name)
         required_order = self._aliases.get_subfolders_in_order(location)
-        _logger.fine('Required order {0}', required_order, class_name=_class_name, method_name=_method_name)
         attr_map = dict()
         default_list = list()
         if names is not None:
