@@ -96,7 +96,7 @@ class CredentialMapHelper(object):
 
         self._logger.info('WLSDPLY-01790', output_file, class_name=self._class_name, method_name=_method_name)
 
-        file_template_helper.create_file(template_path, template_hash, output_file, self._exception_type)
+        file_template_helper.create_file_from_resource(template_path, template_hash, output_file, self._exception_type)
 
     def _build_default_template_hash(self, mapping_section_nodes):
         """

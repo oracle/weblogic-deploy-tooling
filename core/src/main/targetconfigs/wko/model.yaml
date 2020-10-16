@@ -1,0 +1,60 @@
+apiVersion: "weblogic.oracle/v8"
+kind: Domain
+metadata:
+  name: {{{domainUid}}}
+  namespace: default
+  labels:
+    weblogic.domainUID: {{{domainUid}}}
+spec:
+  # The WebLogic Domain Home
+  domainHome: {{{domainHome}}}
+
+  # The domain home source type
+  # Set to PersistentVolume for domain-in-pv, Image for domain-in-image, or FromModel for model-in-image
+  domainHomeSourceType: {{{domainHomeSourceType}}}
+
+  # The WebLogic Server Docker image that the Operator uses to start the domain
+  image: {{{imageName}}}
+
+  # Identify which Secret contains the credentials for pulling an image
+  imagePullSecrets:
+    - name: ocir
+
+  # Identify which Secret contains the WebLogic Admin credentials
+  webLogicCredentialsSecret:
+    name: {{{webLogicCredentialsSecret}}}
+
+  serverPod:
+    # an (optional) list of environment variable to be set on the servers
+    env:
+    - name: JAVA_OPTIONS
+      value: "-Dweblogic.StdoutDebugEnabled=false"
+    - name: USER_MEM_ARGS
+      value: "-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m "
+
+  # clusters is used to configure the desired behavior for starting member servers of a cluster.  
+  # If you use this entry, then the rules will be applied to ALL servers that are members of the named clusters.
+{{#hasClusters}}
+  clusters:
+{{/hasClusters}}
+{{#clusters}}
+  - clusterName: {{{clusterName}}}
+    serverPod:
+      # Instructs Kubernetes scheduler to prefer nodes for new cluster members where there are not
+      # already members of the same cluster.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: "weblogic.clusterName"
+                      operator: In
+                      values:
+                        - $(CLUSTER_NAME)
+                topologyKey: "kubernetes.io/hostname"
+
+    # The number of cluster member Managed Server instances to start for this WebLogic cluster
+    replicas: {{{replicas}}}
+{{/clusters}}

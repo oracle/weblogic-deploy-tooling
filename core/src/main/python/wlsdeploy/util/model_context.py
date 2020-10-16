@@ -594,16 +594,9 @@ class ModelContext(object):
         """
         return self._encryption_passphrase
 
-    def get_compare_model_output_dir(self):
+    def get_output_dir(self):
         """
-        Return the compare model output dir
-        :return: output dir for compare models tool
-        """
-        return self._output_dir
-
-    def get_kubernetes_output_dir(self):
-        """
-        Return the output directory for generated k8s target.
+        Return the output directory.
         :return: output directory
         """
         return self._output_dir
