@@ -2,10 +2,11 @@
 Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os
+
 from sets import Set
 
 from java.io import IOException
-from java.lang import StringBuilder
 from java.net import URI
 from java.security import NoSuchAlgorithmException
 
@@ -447,45 +448,76 @@ def get_cluster_for_server(server_name, aliases):
         cluster_name = _wlst_helper.get(CLUSTER)
     except DeployException, de:
         _logger.fine('WLSDPLY-09205', server_name, str(location), de.getLocalizedMessage,
-                        SERVER, class_name=_class_name, method_name=_method_name)
+                     SERVER, class_name=_class_name, method_name=_method_name)
     _logger.exiting(result=cluster_name, class_name=_class_name, method_name=_method_name)
     return cluster_name
 
 
-def get_list_of_restarts(aliases):
+def list_restarts(model_context):
+    """
+    Get the list of restarts and save this list in format to restart.file
+    in the -output_dirs location. If the output_dirs is not included, bypass
+    writing to the restart file.
+    :param model_context: instance of the tool model context
+    """
+    _method_name = 'produce_restart_file'
+    _logger.entering(model_context.get_output_dir(), class_name=_class_name, method_name=_method_name)
+    restart_list = get_list_of_restarts()
+    output_dirs = model_context.get_output_dir()
+    if output_dirs is not None:
+        file_name = os.path.join(output_dirs, 'restart.file')
+        pw = FileUtils.getPrintWriter(file_name)
+        for entry in restart_list:
+            line = '%s:%s:%s:%s' % (entry[0], entry[1], entry[2], entry[3])
+            _logger.finer('WLSDPLY-09208', line, class_name=_class_name, method_name=_method_name)
+            pw.println(line)
+        pw.close()
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def get_list_of_restarts():
     """
     Return the restart checklist from the online domain instance. Log each instance of the restart checklist
     :return: String buffer of restart information
     """
     _method_name = 'get_list_of_restarts'
     restart_list = []
+    _wlst_helper.cd('/')
+    cmo = _wlst_helper.get_cmo()
     for server in _wlst_helper.get_server_runtimes():
         resources = server.getPendingRestartSystemResources()
         is_restart = server.isRestartRequired()
         if len(resources) > 0 or is_restart:
             server_name = server.getName()
             cluster = server.getClusterRuntime()
-            cluster_name = None
+            cluster_name = ''
             if cluster is not None:
                 cluster_name = cluster.getName()
             prt_cluster = cluster_name
-            if cluster_name is None:
+            if cluster_name == '':
                 prt_cluster = 'standalone'
             for resource in server.getPendingRestartSystemResources():
                 line = list()
                 line.append(cluster_name)
                 line.append(server_name)
                 line.append(resource)
+                value = cmo.lookupSystemResource(resource)
+                res_type = ''
+                if value is not None:
+                    res_type = value.getType()
+                line.append(res_type)
                 restart_list.append(line)
-                _logger.warning('WLSDPLY-09207', resource, server_name, prt_cluster,
+                _logger.warning('WLSDPLY-09207', resource, res_type, server_name, prt_cluster,
                                 class_name=_class_name, method_name=_method_name)
             if is_restart:
                 line = list()
                 line.append(cluster_name)
                 line.append(server_name)
+                line.append('')
+                line.append('')
                 restart_list.append(line)
                 _logger.warning('WLSDPLY-09206', server_name, prt_cluster,
-                               class_name=_class_name, method_name=_method_name)
+                                class_name=_class_name, method_name=_method_name)
     return restart_list
 
 
@@ -508,7 +540,7 @@ def check_if_dynamic_cluster(server_name, cluster_name, aliases):
         _wlst_helper.cd(attr_path)
     except DeployException, de:
         _logger.fine('WLSDPLY-09205', cluster_name, str(location), de.getLocalizedMessage,
-                        CLUSTER, class_name=_class_name, method_name=_method_name)
+                     CLUSTER, class_name=_class_name, method_name=_method_name)
         return True
     location.append_location(DYNAMIC_SERVERS)
     location.add_name_token(aliases.get_name_token(location), cluster_name)

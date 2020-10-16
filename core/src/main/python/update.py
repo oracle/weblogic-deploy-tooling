@@ -68,6 +68,7 @@ __optional_arguments = [
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
     CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH,
+    CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH
 ]
@@ -198,12 +199,10 @@ def __check_update_require_domain_restart(model_context, aliases):
             exit_code = CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE
         else:
             __wlst_helper.save()
-            activate_status = __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
+            __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
             if restart_required:
                 exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
-                restart_list = deployer_utils.get_list_of_restarts(aliases)
-
-
+                deployer_utils.list_restarts(model_context)
 
     except BundleAwareException, ex:
         __release_edit_session_and_disconnect()
