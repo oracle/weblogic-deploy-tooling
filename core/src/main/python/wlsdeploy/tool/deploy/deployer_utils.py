@@ -460,7 +460,7 @@ def list_restarts(model_context):
     writing to the restart file.
     :param model_context: instance of the tool model context
     """
-    _method_name = 'produce_restart_file'
+    _method_name = 'list_restarts'
     _logger.entering(model_context.get_output_dir(), class_name=_class_name, method_name=_method_name)
     restart_list = get_list_of_restarts()
     output_dirs = model_context.get_output_dir()
