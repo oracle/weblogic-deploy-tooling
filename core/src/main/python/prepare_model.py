@@ -379,7 +379,7 @@ def main():
 
     try:
         model_context = __process_args(sys.argv)
-        _outputdir = model_context.get_kubernetes_output_dir()
+        _outputdir = model_context.get_output_dir()
         model1 = model_context.get_model_file()
         # for f in [ model1 ]:
         #     if not os.path.exists(f):
