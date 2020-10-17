@@ -29,3 +29,9 @@ Run the WLS `rcu` command before executing `createDomain` for JRF domains
 java.lang.IllegalArgumentException: In production mode, it's not allowed to set a clear text value to the property: CredentialEncrypted of SecurityConfigurationMBean
 ```
 **ACTION**: Contact Oracle Support to obtain the patch for bug number 30874677 for your WebLogic Server version before running the tool.
+
+### Assigning Security Groups to Users
+
+**ISSUE**: For WLS versions prior to 14.1.1, there is a problem setting the `GroupMemberOf` attribute in the `topology/Security/User` folder. The value is not persisted correctly, and the assignment will not be present when the domain is started.
+
+**ACTION**: Contact Oracle Support to obtain the patch for bug number 30319071 for your WebLogic Server version before running the tool.
