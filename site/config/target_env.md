@@ -41,7 +41,8 @@ Here is an example of a target environment file:
   "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
   "validation_method" : "lax",
   "credentials_method" : "secrets",
-  "additional_output" : "vz"
+  "wls_credentials_name" : "__weblogic-credentials__",
+  "additional_output" : "binding.yaml,model.yaml"
 }
 ```
 Each of the fields in this example is optional, and can be customized.
@@ -68,15 +69,21 @@ This field specifies how credentials in the model should be handled. There are t
 
 In both these cases, the script to create the Kubernetes secrets is written to `<output-directory>/create_k8s_secrets.sh`. You will need to update this script with credential values before executing
 
+#### `wls_credentials_name`
+
+This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the `<directory>/<name>/<key>` convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see [Model Tokens](../model.md#model-tokens).
+
 #### `additional_output`
 
-This field can be used to create additional output for use in the target environment. The key `vz` is currently the only valid value for this field. It indicates that the tool should create additional Kubernetes resource files for use with the Verrazzano product.
+This field can be used to create additional output for use in the target environment. The value is a comma-separated list of template files in the `$WLSDEPLOY_HOME/lib/target/<target-name>` directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.
+
+Template files can be customized for specific environments. The recommended method is to copy the original template to a custom configuration directory as described above, such as `$WDT_CUSTOM_CONFIG/target/<target-name>/model.yaml`. The copied file can then be edited as needed, while maintaining the original for reference.
 
 ### Pre-configured Target Environments
 
 These target environment configurations are included in the WebLogic Deploy Tooling installation.
 
-#### The Oracle Weblogic Server Kubernetes Operator Target
+#### The Oracle WebLogic Server Kubernetes Operator Target
 
 This target environment can be applied by providing the command-line argument `-target wko`. It will provide this additional processing:
 
@@ -84,6 +91,7 @@ This target environment can be applied by providing the command-line argument `-
 - Variables will be injected into the model for port, host, and URL attributes
 - `lax` validation will be applied for the resulting model
 - Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
+- An additional Kubernetes resource file, `model.yaml`, will be produced, with cluster and naming information derived from the model
 
 #### The Verrazzano Target
 This target environment can be applied by providing the command-line argument `-target vz`. It will provide this additional processing:
