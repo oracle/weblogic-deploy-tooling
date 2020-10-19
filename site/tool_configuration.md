@@ -1,10 +1,26 @@
 ## Tools Configuration
+ - [Tool Property File](#tool-property-file)
  - [Model Filters](#model-filters)
  - [Target Environments](config/target_env.md)
  - [Type Definitions](#domain-type-definitions)
  - [Variable Injection](variable_injection.md)
  - [Custom Configuration](#custom-configuration)
 
+ ### Tool Property File
+ You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as `<weblogic-deploy>/lib/tool.properties`. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the `tool.properties` file in the $WDT_CUSTOM_CONFIG directory.
+ 
+ If a property is removed from the file, or a property value is incorrectly formatted, a `WARNING` message is logged and an internal default value used instead of the missing or bad value.
+ 
+ | Property | Description |
+ | -------- | ----- |
+ | `connect.timeout` | The number of milliseconds that WLST waits for the online `connect` command to complete. A value of 0 means the operation will not timeout. |        
+ | `activate.timeout` | The number of milliseconds that WLST waits for the activation of configuration changes to complete. A value of -1 means the operation will not timeout. |
+ | `deploy.timeout` | The number of milliseconds that WLST waits for the undeployment process to complete. A value of 0 means the operation will not timeout. | 
+ | `redeploy.timeout` | The number of milliseconds that WLST waits for the redeployment process to complete. A value of 0 means the operation will not timeout. |
+ | `start.application.timeout` | The number of milliseconds that WLST waits for the start application process to complete. A value of 0 means the operation will not timeout. |
+ | `stop.application.timeout` | The number of milliseconds that WLST waits for the stop application process to complete. A value of 0 means the operation will not timeout. |
+ | `set.server.groups.timeout` | Specifies the amount of time the set server groups connection can be inactive before the connection times out. |
+ 
  ### Model Filters
 
  WebLogic Deploy Tooling supports the use of model filters to manipulate the domain model. The Create Domain, Update Domain, and Deploy Applications Tools apply filters to the model after it is read, before it is validated and applied to the domain. The Discover Domain Tool applies filters to the model after it has been discovered, before the model is validated and written.
@@ -239,6 +255,7 @@ def filter_model(model):
      variable_keywords.json
  ```
  This is a full set of files that can be configured. You will need only to add the files you have created or extended. Details for each configuration type are found at:
+ - [Tool Property File](#tool-property-file)
  - [Model Filters](#model-filters)
  - [Type Definitions](#domain-type-definitions) (See the [example](#example-extending-a-type-definition) below.)
  - [Variable Injection](variable_injection.md)
