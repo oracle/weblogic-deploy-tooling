@@ -279,11 +279,13 @@ class Discoverer(object):
                          class_name=_class_name, method_name=_method_name)
         else:
             folder_path = self._aliases.get_wlst_list_path(location)
-            _logger.finest('WLSDPLY-06111', folder_path, class_name=_class_name, method_name=_method_name)
+            _logger.fine('WLSDPLY-06111', folder_path, class_name=_class_name, method_name=_method_name)
             if self._wlst_helper.path_exists(folder_path):
                 self.wlst_cd(folder_path, location)
                 names = self._wlst_helper.lsc()
-                _logger.finest('WLSDPLY-06146', names, location, class_name=_class_name, method_name=_method_name)
+                _logger.fine('WLSDPLY-06146', names, location, class_name=_class_name, method_name=_method_name)
+            else:
+                _logger.fine('Path {0} does not exist', folder_path, class_name=_class_name, method_name=_method_name)
         return names
 
     def _find_singleton_name_in_folder(self, location):

@@ -79,6 +79,7 @@ ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO              [-rollback_if_require_restart]
 ECHO              [-discard_current_edit]
+ECHO              [-output_dir]
 ECHO              [-admin_url ^<admin_url^>
 ECHO               -admin_user ^<admin_user^>
 ECHO              ]
@@ -117,6 +118,8 @@ ECHO.
 ECHO         rollback_if_require_restart      - rollback the changes if the update requires domain restart
 ECHO.
 ECHO         discard_current_edit      - discard all existing changes before starting update
+ECHO.
+ECHO         output_dir      - if present, write restart information to this directory as restart.file
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will

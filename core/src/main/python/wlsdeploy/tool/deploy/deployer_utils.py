@@ -1,22 +1,33 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os
+
 from sets import Set
 
 from java.io import IOException
 from java.net import URI
 from java.security import NoSuchAlgorithmException
 
+from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.util import FileUtils
+from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SIZE
+from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import FILE_URI
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import SERVER
+from wlsdeploy.aliases.model_constants import SERVER_NAME_PREFIX
+from wlsdeploy.aliases.model_constants import SERVER_NAME_START_IDX
+from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -415,3 +426,143 @@ def get_file_hash(file_name):
         raise ex
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
+
+
+def get_cluster_for_server(server_name, aliases):
+    """
+    Get the Cluster name for the existing server name for additional information to mine for the update action.
+    :param server_name: name of the server
+    :param aliases: alias context instance
+    :return: cluster name: name of the cluster the server belongs to, or None if stand-alone or server does not exist
+    """
+    _method_name = 'get_cluster_for_server'
+    _logger.entering(server_name, class_name=_class_name, method_name=_method_name)
+    location = LocationContext()
+    location.append_location(SERVER)
+    name_token = aliases.get_name_token(location)
+    location.add_name_token(name_token, server_name)
+    attr_path = aliases.get_wlst_attributes_path(location)
+    cluster_name = None
+    try:
+        _wlst_helper.cd(attr_path)
+        cluster_name = _wlst_helper.get(CLUSTER)
+    except DeployException, de:
+        _logger.fine('WLSDPLY-09205', server_name, str(location), de.getLocalizedMessage,
+                     SERVER, class_name=_class_name, method_name=_method_name)
+    _logger.exiting(result=cluster_name, class_name=_class_name, method_name=_method_name)
+    return cluster_name
+
+
+def list_restarts(model_context):
+    """
+    Get the list of restarts and save this list in format to restart.file
+    in the -output_dirs location. If the output_dirs is not included, bypass
+    writing to the restart file.
+    :param model_context: instance of the tool model context
+    """
+    _method_name = 'list_restarts'
+    _logger.entering(model_context.get_output_dir(), class_name=_class_name, method_name=_method_name)
+    restart_list = get_list_of_restarts()
+    output_dirs = model_context.get_output_dir()
+    if output_dirs is not None:
+        file_name = os.path.join(output_dirs, 'restart.file')
+        pw = FileUtils.getPrintWriter(file_name)
+        for entry in restart_list:
+            line = '%s:%s:%s:%s' % (entry[0], entry[1], entry[2], entry[3])
+            _logger.finer('WLSDPLY-09208', line, class_name=_class_name, method_name=_method_name)
+            pw.println(line)
+        pw.close()
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+
+def get_list_of_restarts():
+    """
+    Return the restart checklist from the online domain instance. Log each instance of the restart checklist
+    :return: String buffer of restart information
+    """
+    _method_name = 'get_list_of_restarts'
+    restart_list = []
+    _wlst_helper.cd('/')
+    cmo = _wlst_helper.get_cmo()
+    for server in _wlst_helper.get_server_runtimes():
+        resources = server.getPendingRestartSystemResources()
+        is_restart = server.isRestartRequired()
+        if len(resources) > 0 or is_restart:
+            server_name = server.getName()
+            cluster = server.getClusterRuntime()
+            cluster_name = ''
+            if cluster is not None:
+                cluster_name = cluster.getName()
+            prt_cluster = cluster_name
+            if cluster_name == '':
+                prt_cluster = 'standalone'
+            for resource in server.getPendingRestartSystemResources():
+                line = list()
+                line.append(cluster_name)
+                line.append(server_name)
+                line.append(resource)
+                value = cmo.lookupSystemResource(resource)
+                res_type = ''
+                if value is not None:
+                    res_type = value.getType()
+                line.append(res_type)
+                restart_list.append(line)
+                _logger.warning('WLSDPLY-09207', resource, res_type, server_name, prt_cluster,
+                                class_name=_class_name, method_name=_method_name)
+            if is_restart:
+                line = list()
+                line.append(cluster_name)
+                line.append(server_name)
+                line.append('')
+                line.append('')
+                restart_list.append(line)
+                _logger.warning('WLSDPLY-09206', server_name, prt_cluster,
+                                class_name=_class_name, method_name=_method_name)
+    return restart_list
+
+
+def check_if_dynamic_cluster(server_name, cluster_name, aliases):
+    """
+    Determine if the server is part of a dynamic cluster.
+    :param server_name: Name of the server to check
+    :param cluster_name: Name of the cluster the server belongs to, or None if stand-alone
+    :param aliases: aliases context instance
+    :return: True if part of a dynamic cluster
+    """
+    _method_name = 'check_if_dynamic_cluster'
+    # check wls version first either here or before caller. preferably here
+    location = LocationContext()
+    location.append_location(CLUSTER)
+    location.add_name_token(aliases.get_name_token(location), cluster_name)
+    attr_path = aliases.get_wlst_attributes_path(location)
+
+    try:
+        _wlst_helper.cd(attr_path)
+    except DeployException, de:
+        _logger.fine('WLSDPLY-09205', cluster_name, str(location), de.getLocalizedMessage,
+                     CLUSTER, class_name=_class_name, method_name=_method_name)
+        return True
+    location.append_location(DYNAMIC_SERVERS)
+    location.add_name_token(aliases.get_name_token(location), cluster_name)
+    attr_path = aliases.get_wlst_attributes_path(location)
+    try:
+        _wlst_helper.cd(attr_path)
+    except DeployException:
+        return False
+    attr_name = aliases.get_wlst_attribute_name(location, DYNAMIC_CLUSTER_SIZE)
+    dynamic_size = _wlst_helper.get(attr_name)
+    attr_name = aliases.get_wlst_attribute_name(location, SERVER_NAME_PREFIX)
+    prefix = _wlst_helper.get(attr_name)
+    starting = 1
+    present, __ = aliases.is_valid_model_attribute_name(location, SERVER_NAME_START_IDX)
+    if present == ValidationCodes.VALID:
+        attr_name = aliases.get_model_attribute_name(location, SERVER_NAME_START_IDX)
+        starting = _wlst_helper.get(attr_name)
+    if dynamic_size > 0 and prefix is not None and server_name.startswith(prefix):
+        split_it = server_name.split(prefix)
+        if len(split_it) == 2:
+            number = StringUtils.stringToInteger(split_it[1].strip())
+            if number is not None and starting <= number < (dynamic_size + starting):
+                return True
+    return False
+

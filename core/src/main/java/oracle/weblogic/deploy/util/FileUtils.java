@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -7,10 +7,12 @@ package oracle.weblogic.deploy.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
@@ -697,6 +699,26 @@ public final class FileUtils {
         }
 
     }
+
+    /**
+     * Return a PrintWriter instance for the provided file name.
+     * @param fileName Name of output file
+     * @return PrintWriter instance which is automatically closed
+     * @throws IllegalArgumentException if the file is not writable
+     */
+    public static PrintWriter getPrintWriter(String fileName)  {
+        String METHOD = "getPrintWriter";
+        validateWritableFile(fileName);
+        try {
+            return new PrintWriter(new File(fileName));
+        } catch (FileNotFoundException ioe) {
+            String message = ExceptionHelper.getMessage("WLSDPLY-01103", fileName);
+            IllegalArgumentException iae  = new IllegalArgumentException(message);
+            LOGGER.throwing(CLASS, METHOD, iae);
+            throw iae;
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Private helper methods                                                //
     ///////////////////////////////////////////////////////////////////////////
