@@ -88,7 +88,9 @@ def __process_args(args):
 
     target_configuration_helper.process_target_arguments(argument_map)
 
-    return ModelContext(_program_name, argument_map)
+    model_context = ModelContext(_program_name, argument_map)
+    model_context.set_ignore_missing_archive_entries(True)
+    return model_context
 
 
 class PrepareModel:

@@ -66,7 +66,9 @@ def __process_args(args):
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
     cla_helper.process_encryption_args(argument_map)
 
-    return model_context_helper.create_context(_program_name, argument_map)
+    model_context = model_context_helper.create_context(_program_name, argument_map)
+    model_context.set_ignore_missing_archive_entries(True)
+    return model_context
 
 
 def __extract_resource(model, model_context, aliases):
