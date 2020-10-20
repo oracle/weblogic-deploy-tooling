@@ -102,13 +102,13 @@ def _build_template_hash(model, model_context, aliases):
 
     template_hash[DOMAIN_NAME] = domain_name
 
-    # should change spaces to hyphens?
-    template_hash[DOMAIN_PREFIX] = domain_name.lower()
-
     # domain UID
 
     domain_uid = k8s_helper.get_domain_uid(domain_name)
     template_hash[DOMAIN_UID] = domain_uid
+
+    # domain prefix follows same rules as UID
+    template_hash[DOMAIN_PREFIX] = domain_uid
 
     # admin credential
 
