@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import random
@@ -27,7 +27,6 @@ import java.util.logging.FileHandler as FileHandler
 import java.util.logging.Level as Level
 import java.util.IllegalFormatException as IllegalFormatException
 
-import weblogic.management.provider.ManagementServiceClient as ManagementServiceClient
 import weblogic.version as WebLogicVersionClass
 
 from oracle.weblogic.deploy.json import JsonException

@@ -1,3 +1,7 @@
+"""
+Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+"""
 import os
 import sys
 
@@ -15,11 +19,11 @@ print sys.path
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.aliases.wlst_modes import WlstModes
 
-import systemtest.aliases.all_utils as all_utils
-import systemtest.aliases.generator_wlst as generator_wlst
-import systemtest.aliases.generator_wlst2 as generator_wlst2
-import systemtest.aliases.generator_helper as generator_helper
-from systemtest.aliases.generator_online import OnlineGenerator
+import wlsdeploy.aliastest.generate.generator_wlst as generator_wlst
+import wlsdeploy.aliastest.generate.generator_wlst2 as generator_wlst2
+import wlsdeploy.aliastest.generate.generator_helper as generator_helper
+import wlsdeploy.aliastest.util.all_utils as all_utils
+from wlsdeploy.aliastest.generate.generator_online import OnlineGenerator
 
 
 __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='systemtest_rb')

@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2020, Oracle and/or its affiliates.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 import java.io.IOException as IOException
@@ -17,8 +17,8 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.aliases.alias_constants as alias_constants
 
-import systemtest.aliases.all_utils as all_utils
-from systemtest.aliases.helper import TestHelper
+import wlsdeploy.aliastest.util.all_utils as all_utils
+from wlsdeploy.aliastest.util.helper import TestHelper
 
 NUMBER_TYPES = [alias_constants.INTEGER, alias_constants.LONG, alias_constants.DOUBLE]
 LIST_TYPES = [alias_constants.LIST, alias_constants.JARRAY]

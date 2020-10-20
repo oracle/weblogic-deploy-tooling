@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import types
 
@@ -15,9 +15,9 @@ import org.python.core.PyInstance as PyInstance
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.aliases.alias_constants as alias_constants
 
-import systemtest.aliases.all_utils as all_utils
-import systemtest.aliases.generator_wlst as generator_wlst
-from systemtest.aliases.helper import TestHelper
+import wlsdeploy.aliastest.generate.generator_wlst as generator_wlst
+import wlsdeploy.aliastest.util.all_utils as all_utils
+from wlsdeploy.aliastest.util.helper import TestHelper
 
 VARIATIONS = {'ies': 'y', 'es': '', 's': ''}
 

@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2020, Oracle and/or its affiliates.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.util.logging.Level as Level
 from oracle.weblogic.deploy.aliases import AliasException
@@ -9,7 +9,7 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-import systemtest.aliases.all_utils as all_utils
+import wlsdeploy.aliastest.util.all_utils as all_utils
 
 
 # Change this to store stuff here and not in model_context

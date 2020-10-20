@@ -1,19 +1,19 @@
 """
-Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 import java.lang.Boolean as Boolean
 import java.util.logging.Level as Level
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-import systemtest.aliases.all_utils as all_utils
-import systemtest.aliases.generator_wlst as generator_wlst
+import wlsdeploy.aliastest.util.all_utils as all_utils
+import wlsdeploy.aliastest.generate.generator_wlst as generator_wlst
 
-from systemtest.aliases.generator_helper import GeneratorHelper
-from systemtest.aliases.mbean_info_helper import MBeanInfoHelper
-from systemtest.aliases.mbean_method_helper import MBeanMethodHelper
-from systemtest.aliases.mbi_helper import MBIHelper
+from wlsdeploy.aliastest.generate.generator_helper import GeneratorHelper
+from wlsdeploy.aliastest.generate.mbean_info_helper import MBeanInfoHelper
+from wlsdeploy.aliastest.generate.mbean_method_helper import MBeanMethodHelper
+from wlsdeploy.aliastest.generate.mbi_helper import MBIHelper
 
 
 class OnlineGenerator(GeneratorHelper):

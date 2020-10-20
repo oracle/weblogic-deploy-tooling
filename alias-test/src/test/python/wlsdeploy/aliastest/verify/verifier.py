@@ -1,12 +1,12 @@
 """
-Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
-The Universal Permissive License (UPL), Version 1.0
+Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.util.logging.Level as Level
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-from systemtest.aliases.verifier_helper import VerifierHelper
-import systemtest.aliases.all_utils as all_utils
+import wlsdeploy.aliastest.util.all_utils as all_utils
+from wlsdeploy.aliastest.verify.verifier_helper import VerifierHelper
 
 _logger = PlatformLogger('test.aliases.verify', resource_bundle_name='systemtest_rb')
 _logger.set_level(Level.FINEST)

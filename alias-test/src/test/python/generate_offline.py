@@ -1,3 +1,7 @@
+"""
+Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+"""
 import copy
 import os
 import sys
@@ -16,10 +20,10 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.aliases.wlst_modes import WlstModes
 
-import systemtest.aliases.all_utils as all_utils
-import systemtest.aliases.generator_wlst as generator_wlst
-import systemtest.aliases.generator_helper as generator_helper
-from systemtest.aliases.generator_offline import OfflineGenerator
+import wlsdeploy.aliastest.generate.generator_wlst as generator_wlst
+import wlsdeploy.aliastest.generate.generator_helper as generator_helper
+import wlsdeploy.aliastest.util.all_utils as all_utils
+from wlsdeploy.aliastest.generate.generator_offline import OfflineGenerator
 
 # __logger = Logger.getLogger('test.aliases.generate.offline', 'systemtest_rb')
 # __handlers = __logger.getHandlers()
@@ -32,12 +36,12 @@ generator_wlst.wlst_functions = globals()
 generator_wlst.wlst_silence()
 
 
-
 def get_dictionary():
     _method_name = 'get_dictionary'
     __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
-    dictionary = all_utils.get_dictionary_from_json_file(
-    all_utils.filename(generator_helper.filename(), WlstModes.from_value(WlstModes.ONLINE)))
+    dictionary = \
+        all_utils.get_dictionary_from_json_file(all_utils.filename(generator_helper.filename(),
+                                                                   WlstModes.from_value(WlstModes.ONLINE)))
     __logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=len(dictionary))
     return dictionary
 
@@ -57,7 +61,6 @@ def generate_offline(model_context, online_dictionary):
     _method_name = 'generate_offline'
     __logger.entering(model_context, class_name=CLASS_NAME, method_name=_method_name)
     online_dictionary_copy = copy.deepcopy(online_dictionary)
-    print 'THE SIZE OF ONLINE DICT IS ', len(online_dictionary_copy)
     __logger.info('WLSDPLYST-01000', all_utils.str_mode(model_context), class_name=CLASS_NAME, method_name=_method_name)
     offline_dictionary = OfflineGenerator(model_context, online_dictionary_copy).generate()
     persist_file(model_context, offline_dictionary)

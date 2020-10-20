@@ -1,3 +1,7 @@
+"""
+Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+"""
 import os
 import sys
 import java.lang.StackOverflowError as StackOverflowError
@@ -10,10 +14,10 @@ sys.path.append(pathname)
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.aliases.wlst_modes import WlstModes
 
-import systemtest.aliases.all_utils as all_utils
-import systemtest.aliases.generator_wlst as generate_wlst
-import systemtest.aliases.generator_helper as generator_helper
-from systemtest.aliases.verifier import Verifier
+import wlsdeploy.aliastest.generate.generator_wlst as generate_wlst
+import wlsdeploy.aliastest.generate.generator_helper as generator_helper
+import wlsdeploy.aliastest.util.all_utils as all_utils
+from wlsdeploy.aliastest.verify.verifier import Verifier
 
 
 __logger = PlatformLogger('test.aliases.verify', resource_bundle_name='systemtest_rb')
