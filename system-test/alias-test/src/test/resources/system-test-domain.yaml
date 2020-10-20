@@ -1,0 +1,18 @@
+domainInfo:
+    AdminUserName: weblogic
+    AdminPassword: welcome1
+topology:
+    Name: 'system_test_domain'
+    AdminServerName: 'AdminServer'
+    Server:
+        AdminServer:
+            ListenPort: 7001
+appDeployments:
+    Library:
+        'jstl#1.2@1.2.0.1':
+            SourcePath: 'wlsdeploy/sharedLibraries/jstl-1.2.war'
+            ModuleType: war
+    Application:
+        'get-listen-address-app':
+            SourcePath: 'wlsdeploy/applications/get-listen-address-app.war'
+            ModuleType: war
