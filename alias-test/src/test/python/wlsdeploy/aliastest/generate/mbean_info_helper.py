@@ -9,8 +9,8 @@ import weblogic.management.provider.ManagementServiceClient as ManagementService
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-import systemtest.aliases.all_utils as all_utils
-import systemtest.aliases.generator_wlst as generate_wlst
+import wlsdeploy.aliastest.util.all_utils as all_utils
+import wlsdeploy.aliastest.generate.generator_wlst as generate_wlst
 
 
 class MBeanInfoHelper(object):

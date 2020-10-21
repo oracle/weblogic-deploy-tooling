@@ -8,8 +8,8 @@ import java.lang.Boolean as Boolean
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-import systemtest.aliases.all_utils as all_utils
-import systemtest.aliases.generator_wlst as generate_wlst
+import wlsdeploy.aliastest.generate.generator_wlst as generate_wlst
+import wlsdeploy.aliastest.util.all_utils as all_utils
 
 
 class MBIHelper(object):
