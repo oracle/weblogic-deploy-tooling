@@ -25,6 +25,8 @@ __class_name = 'vz_config_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
 # substitution keys used in the templates
+ADDITIONAL_SECRET_NAME = 'additionalSecretName'
+ADDITIONAL_SECRETS = 'additionalSecrets'
 CLUSTER_NAME = 'clusterName'
 CLUSTERS = 'clusters'
 DATABASE_CREDENTIALS = 'databaseCredentials'
@@ -36,18 +38,20 @@ DOMAIN_PREFIX = 'domainPrefix'
 DOMAIN_TYPE = 'domainType'
 DOMAIN_UID = 'domainUid'
 DS_URL = 'url'
+HAS_ADDITIONAL_SECRETS = 'hasAdditionalSecrets'
 HAS_CLUSTERS = 'hasClusters'
 HAS_DATABASES = 'hasDatabases'
 REPLICAS = 'replicas'
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 
 
-def create_additional_output(model, model_context, aliases, exception_type):
+def create_additional_output(model, model_context, aliases, credential_injector, exception_type):
     """
     Create and write additional output for the configured target type.
     :param model: Model object, used to derive some values in the output
     :param model_context: used to determine location and content for the output
     :param aliases: used to derive secret names
+    :param credential_injector: used to identify secrets
     :param exception_type: the type of exception to throw if needed
     """
 
@@ -55,7 +59,7 @@ def create_additional_output(model, model_context, aliases, exception_type):
     output_dir = model_context.get_output_dir()
 
     # all current output types use this hash, and process a set of template files
-    template_hash = _build_template_hash(model, model_context, aliases)
+    template_hash = _build_template_hash(model, model_context, aliases, credential_injector)
 
     file_names = model_context.get_target_configuration().get_additional_output_types()
     for file_name in file_names:
@@ -84,12 +88,13 @@ def _create_file(template_name, template_hash, model_context, output_dir, except
     file_template_helper.create_file_from_file(template_path, template_hash, output_file, exception_type)
 
 
-def _build_template_hash(model, model_context, aliases):
+def _build_template_hash(model, model_context, aliases, credential_injector):
     """
     Create a dictionary of substitution values to apply to the templates.
     :param model: Model object used to derive values
     :param model_context: used to determine domain type
     :param aliases: used to derive folder names
+    :param credential_injector: used to identify secrets
     :return: the hash dictionary
     """
     template_hash = dict()
@@ -107,9 +112,13 @@ def _build_template_hash(model, model_context, aliases):
     template_hash[DOMAIN_NAME] = domain_uid
     template_hash[DOMAIN_PREFIX] = domain_uid
 
+    # secrets that should not be included in secrets section
+    declared_secrets = []
+
     # admin credential
 
     admin_secret = domain_uid + target_configuration_helper.WEBLOGIC_CREDENTIALS_SECRET_SUFFIX
+    declared_secrets.append(admin_secret)
     template_hash[WEBLOGIC_CREDENTIALS_SECRET] = admin_secret
 
     # configuration / model
@@ -164,5 +173,27 @@ def _build_template_hash(model, model_context, aliases):
 
     template_hash[DATABASES] = databases
     template_hash[HAS_DATABASES] = len(databases) != 0
+
+    # additional secrets - exclude admin
+
+    additional_secrets = []
+
+    # combine user/password properties to get a single list
+    secrets = []
+    for property_name in credential_injector.get_variable_cache():
+        halves = property_name.split(':', 1)
+        name = halves[0]
+        if name not in secrets:
+            secrets.append(name)
+
+    for secret in secrets:
+        secrets_hash = dict()
+        qualified_name = domain_uid + "-" + secret
+        if qualified_name not in declared_secrets:
+            secrets_hash[ADDITIONAL_SECRET_NAME] = qualified_name
+            additional_secrets.append(secrets_hash)
+
+    template_hash[ADDITIONAL_SECRETS] = additional_secrets
+    template_hash[HAS_ADDITIONAL_SECRETS] = len(additional_secrets) != 0
 
     return template_hash
