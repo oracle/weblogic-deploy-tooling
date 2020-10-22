@@ -512,7 +512,8 @@ def main(args):
 
         if model_context.is_targetted_config():
             # do this before variables have been inserted into model
-            target_configuration_helper.create_additional_output(model, model_context, aliases, ExceptionType.DISCOVER)
+            target_configuration_helper.create_additional_output(model, model_context, aliases, credential_injector,
+                                                                 ExceptionType.DISCOVER)
 
         model = __check_and_customize_model(model, model_context, aliases, credential_injector)
 

@@ -229,17 +229,19 @@ def get_secret_name_for_location(location, domain_uid, aliases):
     return domain_uid + '-' + secret_name
 
 
-def create_additional_output(model, model_context, aliases, exception_type):
+def create_additional_output(model, model_context, aliases, credential_injector, exception_type):
     """
     Create any additional output specified in the target configuration.
     :param model: used to create additional content
     :param model_context: provides access to the target configuration
     :param aliases: used for template fields
+    :param credential_injector: used to identify secrets
     :param exception_type: type of exception to throw
     """
     _method_name = 'create_additional_output'
 
-    additional_output_helper.create_additional_output(model, model_context, aliases, exception_type)
+    additional_output_helper.create_additional_output(model, model_context, aliases, credential_injector,
+                                                      exception_type)
 
 
 def create_secret_name(variable_name, suffix=None):
