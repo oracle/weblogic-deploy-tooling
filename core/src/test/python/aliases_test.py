@@ -1233,15 +1233,16 @@ class AliasesTestCase(unittest.TestCase):
         location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
         location = location.append_location(FOLDERS.SSL)
         location.add_name_token(self.aliases.get_name_token(location), 'AdminServer')
-        wlst_list = "TLS,WITH_AES_256_CBC"
+        wlst_list = "TLS;WITH_AES_256_CBC"
         expected_wlst_list = ['TLS', 'WITH_AES_256_CBC']
+        expected_wlst_set_list = ['TLS', 'WITH_AES_256_CBC']
         attribute = 'Ciphersuite'
 
         actual_attr, actual_value = self.aliases.get_model_attribute_name_and_value(location, attribute, wlst_list)
         self.assertEqual(expected_wlst_list, actual_value)
 
         actual_attr, actual_value = self.aliases.get_wlst_attribute_name_and_value(location, actual_attr, actual_value)
-        self.assertEqual(wlst_list, actual_value)
+        self.assertEqual(expected_wlst_set_list, actual_value)
 
     def testGetJTA(self):
         location = LocationContext()
