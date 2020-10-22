@@ -2,6 +2,8 @@
 Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import re
+
 from java.io import File
 from oracle.weblogic.deploy.util import PyOrderedDict
 
@@ -12,27 +14,33 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import KUBERNETES
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_translator import PythonToFile
 from wlsdeploy.yaml.dictionary_list import DictionaryList
+from wlsdeploy.yaml.hyphen_list import HyphenList
 
 API_VERSION = 'apiVersion'
 CHANNELS = 'channels'
 CLUSTERS = 'clusters'
 CLUSTER_NAME = 'clusterName'
+CONFIGURATION = 'configuration'
 DOMAIN_HOME = 'domainHome'
+DOMAIN_TYPE = 'domainType'
 IMAGE = 'image'
 IMAGE_PULL_POLICY = 'imagePullPolicy'
 IMAGE_PULL_SECRETS = 'imagePullSecrets'
 K_NAME = 'name'
 KIND = 'kind'
 METADATA = 'metadata'
+MODEL = 'model'
 NAMESPACE = 'namespace'
 NEVER = 'Never'
 REPLICAS = 'replicas'
+SECRETS = 'secrets'
 SPEC = 'spec'
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 
@@ -41,6 +49,8 @@ DEFAULT_KIND = 'Domain'
 DEFAULT_WEBLOGIC_CREDENTIALS_SECRET = PASSWORD_TOKEN
 DEFAULT_IMAGE = PASSWORD_TOKEN
 DEFAULT_IMAGE_PULL_SECRETS = PASSWORD_TOKEN
+
+_secret_pattern = re.compile("@@SECRET:([\\w.-]+):[\\w.-]+@@")
 
 
 class DomainResourceExtractor:
@@ -198,7 +208,9 @@ class DomainResourceExtractor:
             domain_name = dictionary_utils.get_element(self._model.get_model_topology(), NAME)
             if domain_name is None:
                 domain_name = DEFAULT_WLS_DOMAIN_NAME
+            domain_name = k8s_helper.get_domain_uid(domain_name)
             metadata_section[K_NAME] = domain_name
+        domain_uid = metadata_section[K_NAME]
 
         # add a spec section if not present, since we'll at least add domain home
         if SPEC not in resource_dict:
@@ -245,6 +257,35 @@ class DomainResourceExtractor:
                     self._logger.info("WLSDPLY-10002", cluster_name, server_count, method_name=_method_name,
                                       class_name=self._class_name)
                     cluster_list.append(cluster_dict)
+
+        # create a configuration section in spec if needed
+        if CONFIGURATION not in spec_section:
+            spec_section[CONFIGURATION] = PyOrderedDict()
+        configuration_section = spec_section[CONFIGURATION]
+
+        # create a model section in configuration if needed
+        if MODEL not in configuration_section:
+            configuration_section[MODEL] = PyOrderedDict()
+        model_section = configuration_section[MODEL]
+
+        # set domainType if not specified
+        if DOMAIN_TYPE not in model_section:
+            model_section[DOMAIN_TYPE] = self._model_context.get_domain_type()
+
+        if SECRETS in configuration_section:
+            # if secrets specified, convert them to a hyphen list
+            secrets = alias_utils.convert_to_model_type("list", configuration_section[SECRETS], MODEL_LIST_DELIMITER)
+            secrets_list = HyphenList()
+            secrets_list.extend(secrets)
+
+        else:
+            # pull the secrets from the model
+            secrets_list = HyphenList()
+            _add_secrets(self._model.get_model(), secrets_list, domain_uid)
+
+        if secrets_list:
+            configuration_section[SECRETS] = secrets_list
+
         return
 
 
@@ -261,3 +302,26 @@ def _get_target_value(model_value, type_name):
         return alias_utils.convert_to_type('boolean', model_value)
 
     return model_value
+
+
+def _add_secrets(folder, secrets, domain_uid):
+    """
+    Recursively add any secrets found in the specified folder.
+    :param folder: the folder to be checked
+    :param secrets: the list to be appended
+    """
+    for name in folder:
+        value = folder[name]
+        if isinstance(value, dict):
+            _add_secrets(value, secrets, domain_uid)
+        else:
+            text = str(value)
+
+            # secrets created by discover or prepareModel use this environment variable.
+            # if it wasn't resolved from the environment, replace with model's domain UID.
+            text = text.replace("@@ENV:DOMAIN_UID@@", domain_uid)
+
+            matches = _secret_pattern.findall(text)
+            for name in matches:
+                if name not in secrets:
+                    secrets.append(name)
