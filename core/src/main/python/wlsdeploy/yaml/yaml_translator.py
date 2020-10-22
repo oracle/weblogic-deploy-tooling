@@ -20,6 +20,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import COMMENT_MATCH
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.yaml.dictionary_list import DictionaryList
+from wlsdeploy.yaml.hyphen_list import HyphenList
 
 
 class YamlToPython(object):
@@ -172,6 +173,9 @@ class PythonToYaml(object):
             elif isinstance(value, DictionaryList):
                 writer.println(indent + quoted_key + ':')
                 self._write_dictionary_list_to_yaml_file(value, writer, indent)
+            elif isinstance(value, HyphenList):
+                writer.println(indent + quoted_key + ':')
+                self._write_hyphen_list_to_yaml_file(value, writer, indent)
             elif isinstance(value, dict):
                 writer.println(indent + quoted_key + ':')
                 self._write_dictionary_to_yaml_file(value, writer, indent + self._indent_unit)
@@ -215,6 +219,27 @@ class PythonToYaml(object):
 
                 first = False
         return
+
+    def _write_hyphen_list_to_yaml_file(self, item_list, writer, indent=''):
+        """
+        Hyphen list is a special case for YAML. The result should look like:
+
+        items:
+        -   value1
+        -   value2
+        -   value3
+
+        :param item_list: the list to convert
+        :param writer: the java.io.PrintWriter for the output file
+        :param indent: the amount of indent to use (based on the level of recursion)
+        :raises: IOException: if an error occurs while writing the output
+        """
+        if item_list is None:
+            return
+
+        for item in item_list:
+            this_indent = indent + "-   "
+            writer.println(this_indent + self._get_value_string(item))
 
     def _get_value_string(self, value):
         """
