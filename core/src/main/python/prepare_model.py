@@ -295,7 +295,8 @@ class PrepareModel:
 
             # create any additional outputs from full model dictionary
             target_configuration_helper.create_additional_output(Model(full_model_dictionary), self.model_context,
-                                                                 self._aliases, ExceptionType.VALIDATE)
+                                                                 self._aliases, self.credential_injector,
+                                                                 ExceptionType.VALIDATE)
 
         except ValidateException, te:
             self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
