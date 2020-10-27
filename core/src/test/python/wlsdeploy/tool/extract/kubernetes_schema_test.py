@@ -12,7 +12,7 @@ from wlsdeploy.tool.extract import wko_schema_helper
 from wlsdeploy.util import dictionary_utils
 
 
-class KubernetesAliasTest(unittest.TestCase):
+class KubernetesSchemaTest(unittest.TestCase):
     _model_dir = '../../unit-tests/wko'
     _model_path = _model_dir + '/model.yaml'
 
@@ -26,8 +26,9 @@ class KubernetesAliasTest(unittest.TestCase):
     def tearDown(self):
         self.out_file.close()
 
-    def testKubernetesAliases(self):
-        # create a model with every element
+    def testKubernetesSchema(self):
+        # create a model with every element.
+        # verify that there are no unknown types or structures.
         self._write_folder(self.schema_map, "", False, "", "")
 
     def _write_folder(self, folder, name, is_multiple, path, indent):
