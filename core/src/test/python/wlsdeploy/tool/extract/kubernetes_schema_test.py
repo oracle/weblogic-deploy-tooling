@@ -106,7 +106,8 @@ class KubernetesSchemaTest(unittest.TestCase):
                     self._write_line(indent + str(property_name) + ": " + value)
 
             else:
-                self.fail('Unknown property type ' + property_type + ' for ' + path + ' ' + property_name)
+                self.fail('Unknown property type ' + str(property_type) + ' for ' + str(path) + ' '
+                          + str(property_name))
 
         # process sub-folders after attributes for clarity
         for property_name in sub_folders:

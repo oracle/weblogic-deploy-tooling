@@ -27,6 +27,8 @@ MULTI_KEYS = {
 
 UNSUPPORTED_FOLDERS = [
     'status',
+    'metadata/initializers',
+    'metadata/ownerReferences'
 ]
 
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy')
