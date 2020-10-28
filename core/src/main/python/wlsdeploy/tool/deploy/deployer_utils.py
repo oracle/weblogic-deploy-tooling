@@ -453,18 +453,22 @@ def get_cluster_for_server(server_name, aliases):
     return cluster_name
 
 
-def list_restarts(model_context):
+def list_restarts(model_context, exit_code):
     """
     Get the list of restarts and save this list in format to restart.file
     in the -output_dirs location. If the output_dirs is not included, bypass
     writing to the restart file.
     :param model_context: instance of the tool model context
+    :param exit_code: current exit code for online restarts
     """
     _method_name = 'list_restarts'
     _logger.entering(model_context.get_output_dir(), class_name=_class_name, method_name=_method_name)
     restart_list = get_list_of_restarts()
     output_dirs = model_context.get_output_dir()
-    if output_dirs is not None:
+    result = exit_code
+    if len(restart_list) == 0:
+        result = 0
+    elif output_dirs is not None:
         file_name = os.path.join(output_dirs, 'restart.file')
         pw = FileUtils.getPrintWriter(file_name)
         for entry in restart_list:
@@ -472,7 +476,8 @@ def list_restarts(model_context):
             _logger.finer('WLSDPLY-09208', line, class_name=_class_name, method_name=_method_name)
             pw.println(line)
         pw.close()
-    _logger.exiting(class_name=_class_name, method_name=_method_name)
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+    return result
 
 
 def get_list_of_restarts():
