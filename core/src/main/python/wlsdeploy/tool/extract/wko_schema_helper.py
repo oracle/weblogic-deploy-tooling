@@ -20,11 +20,6 @@ SIMPLE_TYPES = [
     'boolean'
 ]
 
-MULTI_KEYS = {
-    'spec/adminServer/adminService/channels': 'channelName',
-    'spec/clusters': 'clusterName'
-}
-
 UNSUPPORTED_FOLDERS = [
     'status',
     'metadata/initializers',
@@ -59,18 +54,3 @@ def get_domain_resource_schema(exception_type=ExceptionType.DEPLOY):
             template_stream.close()
 
     return schema
-
-
-def get_mapped_key(path):
-    """
-    Because the WDT model does not support hyphenated lists, the name of each item in an object array must
-    sometimes corresponds to one of its attributes, usually "name".
-    If a different attribute name is used for the path, return that name.
-    If the default 'name' is returned, caller should verify that it is an available attribute.
-    :param path: the slash-delimited path of the elements
-    :return: the attribute key to be used
-    """
-    mapped_key = dictionary_utils.get_element(MULTI_KEYS, path)
-    if mapped_key is not None:
-        return mapped_key
-    return 'name'

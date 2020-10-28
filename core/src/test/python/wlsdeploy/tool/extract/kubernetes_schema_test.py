@@ -8,6 +8,7 @@ import unittest
 from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.aliases.model_constants import KUBERNETES
+from wlsdeploy.tool.extract import domain_resource_extractor
 from wlsdeploy.tool.extract import wko_schema_helper
 from wlsdeploy.util import dictionary_utils
 
@@ -49,7 +50,7 @@ class KubernetesSchemaTest(unittest.TestCase):
 
         multi_key = None
         if is_multiple:
-            mapped_key = wko_schema_helper.get_mapped_key(path)
+            mapped_key = domain_resource_extractor.get_mapped_key(path)
             multi_property = dictionary_utils.get_element(properties, mapped_key)
             if multi_property:
                 multi_key = mapped_key

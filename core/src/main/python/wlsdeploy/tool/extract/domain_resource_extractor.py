@@ -8,20 +8,17 @@ from java.io import File
 from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.aliases import alias_utils
-from wlsdeploy.aliases.alias_constants import BOOLEAN
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
-from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
-from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.tool.extract import wko_schema_helper
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_translator import PythonToFile
-from wlsdeploy.yaml.dictionary_list import DictionaryList
-from wlsdeploy.yaml.hyphen_list import HyphenList
 
 API_VERSION = 'apiVersion'
 CHANNELS = 'channels'
@@ -50,6 +47,11 @@ DEFAULT_WEBLOGIC_CREDENTIALS_SECRET = PASSWORD_TOKEN
 DEFAULT_IMAGE = PASSWORD_TOKEN
 DEFAULT_IMAGE_PULL_SECRETS = PASSWORD_TOKEN
 
+MULTI_KEYS = {
+    'spec/adminServer/adminService/channels': 'channelName',
+    'spec/clusters': 'clusterName'
+}
+
 _secret_pattern = re.compile("@@SECRET:([\\w.-]+):[\\w.-]+@@")
 
 
@@ -58,12 +60,6 @@ class DomainResourceExtractor:
     Create a domain resource file for use with Kubernetes deployment.
     """
     _class_name = "DomainResourceExtractor"
-
-    # the name field keys corresponding to named model elements
-    NAME_KEY_MAP = {
-        CHANNELS: 'channelName',
-        CLUSTERS: CLUSTER_NAME
-    }
 
     def __init__(self, model, model_context, aliases, logger):
         self._model = model
@@ -95,7 +91,7 @@ class DomainResourceExtractor:
 
         # write the resource file structure to the output file
         writer = PythonToFile(resource_dict)
-
+        writer.set_yaml_hypenate_yaml_lists(True)
         writer.write_to_file(resource_file)
         return
 
@@ -108,80 +104,76 @@ class DomainResourceExtractor:
 
         resource_dict = PyOrderedDict()
 
-        attribute_location = self._aliases.get_model_section_attribute_location(KUBERNETES)
-        top_attributes_map = self._aliases.get_model_attribute_names_and_types(attribute_location)
-        top_folders = self._aliases.get_model_section_top_level_folder_names(KUBERNETES)
+        schema = wko_schema_helper.get_domain_resource_schema(ExceptionType.DEPLOY)
 
-        self._process_fields(kubernetes_map, top_folders, top_attributes_map, LocationContext(), resource_dict)
+        self._process_folder(kubernetes_map, schema, resource_dict, None)
         return resource_dict
 
-    def _process_fields(self, model_dict, folder_names, attributes_map, location, target_dict):
+    def _process_folder(self, model_dict, schema_folder, target_dict, path):
         """
         Transfer folders and attributes from the model dictionary to the target domain resource dictionary.
-        For the top level, the folders and attributes are not derived directly from the location.
         :param model_dict: the source model dictionary
-        :param folder_names: the names of the folders at this location
-        :param attributes_map: the map of attribute names to types for this location
-        :param location: the location used for alias processing
+        :param schema_folder: the schema for this folder
         :param target_dict: the target dictionary for the domain resource file.
-       """
+        """
+        if path in wko_schema_helper.UNSUPPORTED_FOLDERS:
+            # ignore this folder, validate already logged it
+            return
+
+        properties = schema_folder["properties"]
+
         for key, model_value in model_dict.items():
-            if key in attributes_map.keys():
-                type_name = attributes_map[key]
-                target_dict[key] = _get_target_value(model_value, type_name)
+            property_map = properties[key]
+            property_type = dictionary_utils.get_element(property_map, "type")
 
-            elif key in folder_names:
-                child_location = LocationContext(location).append_location(key)
-
-                if self._aliases.supports_multiple_mbean_instances(child_location):
-                    target_dict[key] = self._build_dictionary_list(key, model_value, child_location)
+            if property_type == "object":
+                additional = dictionary_utils.get_dictionary_element(property_map, "additionalProperties")
+                additional_type = dictionary_utils.get_element(additional, "type")
+                if additional_type:
+                    # map of key / value pairs
+                    target_dict[key] = model_value
                 else:
-                    if key not in target_dict:
-                        target_dict[key] = PyOrderedDict()
-                    target_child_dict = target_dict[key]
-                    self._process_location_fields(model_value, child_location, target_child_dict)
-        return
+                    # single object instance
+                    next_target_dict = PyOrderedDict()
+                    target_dict[key] = next_target_dict
+                    next_path = _get_next_path(path, key)
+                    self._process_folder(model_value, property_map, next_target_dict, next_path)
 
-    def _process_location_fields(self, model_dict, location, target_dict):
-        """
-        Transfer folders and attributes from the model dictionary to the target domain resource dictionary.
-        Below the top level, the folders and attributes can be derived from the location.
-        :param model_dict: the source model dictionary
-        :param location: the location used for alias processing
-        :param target_dict: the target dictionary for the domain resource file.
-       """
-        attributes_map = self._aliases.get_model_attribute_names_and_types(location)
-        folder_names = self._aliases.get_model_subfolder_names(location)
-        self._process_fields(model_dict, folder_names, attributes_map, location, target_dict)
-        return
+            elif property_type == "array":
+                array_items = dictionary_utils.get_dictionary_element(property_map, "items")
+                array_type = dictionary_utils.get_dictionary_element(array_items, "type")
+                if array_type == "object":
+                    # multiple object instances
+                    next_path = _get_next_path(path, key)
+                    target_dict[key] = self._process_multiple_folder(model_value, array_items, next_path)
+                else:
+                    # array of simple type
+                    target_dict[key] = _get_target_value(model_value, property_type)
 
-    def _build_dictionary_list(self, model_key, name_dictionary, location):
-        """
-        Build a dictionary list object based on the name dictionary and location.
-        :param name_dictionary: a dictionary containing named levels
-        :param location: the location used for alias resolution
-        :return:
-        """
-        child_list = DictionaryList()
-        for name in name_dictionary:
-            model_named_dict = name_dictionary[name]
-            name_key = self._get_name_key(model_key)
-            target_list_dict = PyOrderedDict()
-            target_list_dict[name_key] = name
-            self._process_location_fields(model_named_dict, location, target_list_dict)
-            child_list.append(target_list_dict)
+            else:
+                # simple type such as number, string
+                target_dict[key] = _get_target_value(model_value, property_type)
+
+    def _process_multiple_folder(self, model_value, property_map, path):
+        if not isinstance(model_value, dict):
+            self._logger.severe("expecting dict at " + path)
+
+        child_list = list()
+        for name in model_value:
+            name_map = model_value[name]
+            next_target_dict = PyOrderedDict()
+            next_path = _get_next_path(path, name)
+            self._process_folder(name_map, property_map, next_target_dict, next_path)
+
+            # see if the model name should become an attribute in the target dict
+            mapped_name = get_mapped_key(path)
+            properties = property_map['properties']
+            if (mapped_name in properties.keys()) and (mapped_name not in next_target_dict.keys()):
+                _add_to_top(next_target_dict, mapped_name, name)
+
+            child_list.append(next_target_dict)
+
         return child_list
-
-    def _get_name_key(self, key):
-        """
-        Return the key to be used for the name in a dictionary list element.
-        :param key: the folder key in the model
-        :return: the name key
-        """
-        key = dictionary_utils.get_element(self.NAME_KEY_MAP, key)
-        if key is not None:
-            return key
-        return 'name'
 
     def _update_resource_dictionary(self, resource_dict):
         """
@@ -190,18 +182,18 @@ class DomainResourceExtractor:
         """
         _method_name = '_update_resource_dictionary'
 
-        # add API version if not present
-        if API_VERSION not in resource_dict:
-            resource_dict[API_VERSION] = DEFAULT_API_VERSION
+        # add a metadata section if not present, since we'll at least add name
+        if METADATA not in resource_dict:
+            _add_to_top(resource_dict, METADATA, PyOrderedDict())
+        metadata_section = resource_dict[METADATA]
 
         # add kind if not present
         if KIND not in resource_dict:
-            resource_dict[KIND] = DEFAULT_KIND
+            _add_to_top(resource_dict, KIND, DEFAULT_KIND)
 
-        # add a metadata section if not present, since we'll at least add name
-        if METADATA not in resource_dict:
-            resource_dict[METADATA] = PyOrderedDict()
-        metadata_section = resource_dict[METADATA]
+        # add API version if not present
+        if API_VERSION not in resource_dict:
+            _add_to_top(resource_dict, API_VERSION, DEFAULT_API_VERSION)
 
         # if metadata name not present, use the domain name from the model, or default
         if K_NAME not in metadata_section:
@@ -233,7 +225,7 @@ class DomainResourceExtractor:
 
         # if imagePullSecrets required and not present, add a list with one FIX ME value
         if pull_secrets_required and (IMAGE_PULL_SECRETS not in spec_section):
-            secrets_list = DictionaryList()
+            secrets_list = list()
             secrets_list.append({'name': DEFAULT_IMAGE_PULL_SECRETS})
             spec_section[IMAGE_PULL_SECRETS] = secrets_list
 
@@ -246,7 +238,7 @@ class DomainResourceExtractor:
             topology = self._model.get_model_topology()
             model_clusters = dictionary_utils.get_dictionary_element(topology, CLUSTER)
             if len(model_clusters) > 0:
-                cluster_list = DictionaryList()
+                cluster_list = list()
                 spec_section[CLUSTERS] = cluster_list
                 for cluster_name, cluster_values in model_clusters.items():
                     server_count = k8s_helper.get_server_count(cluster_name, cluster_values, self._model.get_model())
@@ -275,12 +267,12 @@ class DomainResourceExtractor:
         if SECRETS in configuration_section:
             # if secrets specified, convert them to a hyphen list
             secrets = alias_utils.convert_to_model_type("list", configuration_section[SECRETS], MODEL_LIST_DELIMITER)
-            secrets_list = HyphenList()
+            secrets_list = list()
             secrets_list.extend(secrets)
 
         else:
             # pull the secrets from the model
-            secrets_list = HyphenList()
+            secrets_list = list()
             _add_secrets(self._model.get_model(), secrets_list, domain_uid)
 
         if secrets_list:
@@ -293,13 +285,18 @@ def _get_target_value(model_value, type_name):
     """
     Return the value for the specified attribute value, to be used in the domain resource file.
     :param model_value: the value to be checked
-    :param type_name: the alias type name of the value
+    :param type_name: the schema type name of the value
     :return: the formatted value
     """
-    if type_name == BOOLEAN:
+    if type_name == 'boolean':
         # the model values can be true, false, 1, 0, etc.
         # target boolean values must be 'true' or 'false'
         return alias_utils.convert_to_type('boolean', model_value)
+
+    if type_name == 'array':
+        # the model values can be 'abc,123'.
+        # target values must be a list object.
+        return alias_utils.convert_to_type('list', model_value, delimiter=MODEL_LIST_DELIMITER)
 
     return model_value
 
@@ -325,3 +322,40 @@ def _add_secrets(folder, secrets, domain_uid):
             for name in matches:
                 if name not in secrets:
                     secrets.append(name)
+
+
+def get_mapped_key(path):
+    """
+    Because the WDT model does not support hyphenated lists, the name of each item in a
+    multiple folder sometimes corresponds to one of its attributes, usually "name".
+    If a different attribute name is used for the path, return that name.
+    If the default 'name' is returned, caller should verify that it is an available attribute.
+    :param path: the slash-delimited path of the elements
+    :return: the attribute key to be used
+    """
+    mapped_key = dictionary_utils.get_element(MULTI_KEYS, path)
+    if mapped_key is not None:
+        return mapped_key
+    return 'name'
+
+
+def _add_to_top(dictionary, key, item):
+    """
+    Add an item to the beginning of an ordered dictionary.
+    :param dictionary: the dictionary
+    :param key: the key of the item to be added
+    :param item: the item to be added
+    """
+    temp_dict = PyOrderedDict()
+    for each_key in dictionary:
+        temp_dict[each_key] = dictionary[each_key]
+    dictionary.clear()
+    dictionary[key] = item
+    for each_key in temp_dict:
+        dictionary[each_key] = temp_dict[each_key]
+
+
+def _get_next_path(path, key):
+    if path is None:
+        return key
+    return path + '/' + key
