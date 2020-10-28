@@ -11,7 +11,7 @@ from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import dictionary_utils
 
 DOMAIN_RESOURCE_SCHEMA_ROOT = "openAPIV3Schema"
-DOMAIN_RESOURCE_SCHEMA_FILE = 'domain-crd-schemav7-260.json'
+DOMAIN_RESOURCE_SCHEMA_FILE = 'domain-crd-schema-v8.json'
 DOMAIN_RESOURCE_SCHEMA_PATH = 'oracle/weblogic/deploy/wko/' + DOMAIN_RESOURCE_SCHEMA_FILE
 
 SIMPLE_TYPES = [
