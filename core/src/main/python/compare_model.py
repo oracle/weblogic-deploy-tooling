@@ -36,6 +36,7 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_constants import ALIAS_LIST_TYPES
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -262,6 +263,9 @@ class ModelDiffer:
 
         path_tokens = path.split(PATH_TOKEN)
         folder_names = self.aliases.get_model_section_top_level_folder_names(path_tokens[0])
+
+        if path_tokens[0] == KUBERNETES:
+            return None, None
 
         for path_token in path_tokens[1:]:
             attribute_names = self.aliases.get_model_attribute_names(location)
@@ -718,11 +722,11 @@ def main():
         sys.exit(exit_code)
     except CompareException, ce:
         cla_helper.clean_up_temp_files()
-        _logger.severe('WLSDPLY-05704', ce.getLocalizedMessage())
+        _logger.severe('WLSDPLY-05704', ce.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
         System.exit(2)
     except PyWLSTException, pe:
         cla_helper.clean_up_temp_files()
-        _logger.severe('WLSDPLY-05704', pe.getLocalizedMessage())
+        _logger.severe('WLSDPLY-05704', pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
         System.exit(2)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
