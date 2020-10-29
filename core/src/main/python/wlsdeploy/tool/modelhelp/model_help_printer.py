@@ -7,8 +7,10 @@ import re
 from oracle.weblogic.deploy.exception import ExceptionHelper
 
 from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
+from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
+from wlsdeploy.tool.modelhelp.model_kubernetes_printer import ModelKubernetesPrinter
 from wlsdeploy.tool.modelhelp.model_sample_printer import ModelSamplePrinter
 from wlsdeploy.util import model
 
@@ -62,8 +64,12 @@ class ModelHelpPrinter(object):
         else:
             print _format_message('WLSDPLY-10105', model_path)
 
-        sample_printer = ModelSamplePrinter(self._aliases, self._logger)
-        sample_printer.print_model_sample(model_path_tokens, control_option)
+        if model_path_tokens[0] == KUBERNETES:
+            sample_printer = ModelKubernetesPrinter()
+            sample_printer.print_model_sample(model_path_tokens, control_option)
+        else:
+            sample_printer = ModelSamplePrinter(self._aliases, self._logger)
+            sample_printer.print_model_sample(model_path_tokens, control_option)
 
     def _parse_model_path(self, model_path):
         """

@@ -54,3 +54,31 @@ def get_domain_resource_schema(exception_type=ExceptionType.DEPLOY):
             template_stream.close()
 
     return schema
+
+
+def is_single_folder(schema_map):
+    """
+    Return True if the schema map describes a single folder.
+    :param schema_map: the schema map to be examined
+    :return: True if the map identifies a single folder
+    """
+    property_type = dictionary_utils.get_element(schema_map, "type")
+    if property_type == "object":
+        additional = dictionary_utils.get_dictionary_element(schema_map, "additionalProperties")
+        additional_type = dictionary_utils.get_element(additional, "type")
+        return not additional_type
+    return False
+
+
+def is_multiple_folder(schema_map):
+    """
+    Return True if the schema map identifies a multiple folder.
+    :param schema_map: the schema map to be examined
+    :return: True if the map identifies a multiple folder
+    """
+    property_type = dictionary_utils.get_element(schema_map, "type")
+    if property_type == "array":
+        array_items = dictionary_utils.get_dictionary_element(schema_map, "items")
+        array_type = dictionary_utils.get_dictionary_element(array_items, "type")
+        return array_type == "object"
+    return False
