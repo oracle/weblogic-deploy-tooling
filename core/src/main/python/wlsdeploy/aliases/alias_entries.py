@@ -54,14 +54,11 @@ from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import JPA
-from wlsdeploy.aliases.model_constants import KUBERNETES
-from wlsdeploy.aliases.model_constants import KUBERNETES_ALIAS
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import OHS
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
-from wlsdeploy.aliases.model_constants import SERVER_POD
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WLS_ROLES
@@ -160,25 +157,16 @@ class AliasEntries(object):
         WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
     ]
 
-    __kubernetes_top_level_folders = [
-        'metadata',
-        'spec'
-    ]
-
     __section_top_folders_map = {
         DOMAIN_INFO: __domain_info_top_level_folders,
         TOPOLOGY: __topology_top_level_folders,
         RESOURCES: __resources_top_level_folders,
-        APP_DEPLOYMENTS: __app_deployments_top_level_folders,
-        KUBERNETES: __kubernetes_top_level_folders
+        APP_DEPLOYMENTS: __app_deployments_top_level_folders
     }
 
     # in rare cases, the alias file name does not match the folder name
     __alternate_alias_file_name_map = {
-        APPLICATION: 'AppDeployment',
-        'metadata': 'Metadata',
-        'spec': 'Spec',
-        'serverPod': 'ServerPod'
+        APPLICATION: 'AppDeployment'
     }
 
     # all the categories that appear at the top of model sections
@@ -187,7 +175,6 @@ class AliasEntries(object):
     __top_model_categories.extend(__resources_top_level_folders)
     __top_model_categories.extend(__app_deployments_top_level_folders)
     __top_model_categories.extend(__domain_info_top_level_folders)
-    __top_model_categories.extend(__kubernetes_top_level_folders)
 
     # all the categories, including section-attribute and contained categories
     __all_model_categories = []
@@ -195,11 +182,9 @@ class AliasEntries(object):
 
     # include contained categories
     __all_model_categories.append(RESOURCE_MANAGER)
-    __all_model_categories.append(SERVER_POD)
 
     # include section attribute categories
     __all_model_categories.append(DOMAIN_INFO_ALIAS)
-    __all_model_categories.append(KUBERNETES_ALIAS)
 
     __domain_name_token = 'DOMAIN'
 
@@ -308,9 +293,6 @@ class AliasEntries(object):
 
         if section_name == DOMAIN_INFO:
             return LocationContext().append_location(DOMAIN_INFO_ALIAS)
-
-        if section_name == KUBERNETES:
-            return LocationContext().append_location(KUBERNETES_ALIAS)
 
         return None
 
