@@ -120,52 +120,45 @@ class DomainResourceExtractor:
         :param schema_path: the path of schema elements (no multi-element names), used for supported check
         :param model_path: the path of model elements (including multi-element names), used for logging
         """
-        properties = schema_folder["properties"]
+        folder_properties = schema_folder["properties"]
 
         for key, model_value in model_dict.items():
-            property_map = properties[key]
-            property_type = dictionary_utils.get_element(property_map, "type")
+            properties = folder_properties[key]
 
-            if property_type == "object":
-                additional = dictionary_utils.get_dictionary_element(property_map, "additionalProperties")
-                additional_type = dictionary_utils.get_element(additional, "type")
-                if additional_type:
-                    # map of key / value pairs
-                    target_dict[key] = model_value
-                else:
-                    # single object instance
-                    next_schema_path = wko_schema_helper.append_path(schema_path, key)
-                    next_model_path = model_path + "/" + key
-                    if not wko_schema_helper.is_unsupported_folder(next_schema_path):
-                        next_target_dict = PyOrderedDict()
-                        target_dict[key] = next_target_dict
-                        self._process_folder(model_value, property_map, next_target_dict, next_schema_path,
-                                             next_model_path)
+            if wko_schema_helper.is_single_folder(properties):
+                # single object instance
+                next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                next_model_path = model_path + "/" + key
+                if not wko_schema_helper.is_unsupported_folder(next_schema_path):
+                    next_target_dict = PyOrderedDict()
+                    target_dict[key] = next_target_dict
+                    self._process_folder(model_value, properties, next_target_dict, next_schema_path,
+                                         next_model_path)
 
-            elif property_type == "array":
-                array_items = dictionary_utils.get_dictionary_element(property_map, "items")
-                array_type = dictionary_utils.get_dictionary_element(array_items, "type")
-                if array_type == "object":
-                    # multiple object instances
-                    next_schema_path = wko_schema_helper.append_path(schema_path, key)
-                    next_model_path = model_path + "/" + key
-                    if not wko_schema_helper.is_unsupported_folder(next_schema_path):
-                        target_dict[key] = \
-                            self._process_multiple_folder(model_value, array_items, next_schema_path, next_model_path)
-                else:
-                    # array of simple type
-                    target_dict[key] = _get_target_value(model_value, property_type)
+            elif wko_schema_helper.is_multiple_folder(properties):
+                # multiple object instances
+                next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                next_model_path = model_path + "/" + key
+                if not wko_schema_helper.is_unsupported_folder(next_schema_path):
+                    item_info = wko_schema_helper.get_array_item_info(properties)
+                    target_dict[key] = \
+                        self._process_multiple_folder(model_value, item_info, next_schema_path, next_model_path)
+
+            elif wko_schema_helper.is_simple_map(properties):
+                # map of key / value pairs
+                target_dict[key] = model_value
 
             else:
-                # simple type such as number, string
+                # simple type or array of simple type, such as number, string
+                property_type = wko_schema_helper.get_type(properties)
                 target_dict[key] = _get_target_value(model_value, property_type)
 
-    def _process_multiple_folder(self, model_value, property_map, schema_path, model_path):
+    def _process_multiple_folder(self, model_value, item_info, schema_path, model_path):
         """
         Process a multiple-element model section.
         There should be a dictionary of names, each containing a sub-folder.
         :param model_value: the model contents for a folder
-        :param property_map: describes the contents of the sub-folder for each element
+        :param item_info: describes the contents of the sub-folder for each element
         :param schema_path: the path of schema elements (no multi-element names), used for supported check
         :param model_path: the path of model elements (including multi-element names), used for logging
         """
@@ -174,11 +167,11 @@ class DomainResourceExtractor:
             name_map = model_value[name]
             next_target_dict = PyOrderedDict()
             next_model_path = model_path + "/" + name
-            self._process_folder(name_map, property_map, next_target_dict, schema_path, next_model_path)
+            self._process_folder(name_map, item_info, next_target_dict, schema_path, next_model_path)
 
             # see if the model name should become an attribute in the target dict
             mapped_name = get_mapped_key(schema_path)
-            properties = property_map['properties']
+            properties = wko_schema_helper.get_properties(item_info)
             if (mapped_name in properties.keys()) and (mapped_name not in next_target_dict.keys()):
                 _add_to_top(next_target_dict, mapped_name, name)
 
