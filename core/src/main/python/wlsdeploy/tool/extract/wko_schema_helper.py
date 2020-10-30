@@ -80,6 +80,10 @@ def is_multiple_folder(schema_map):
     return False
 
 
+def is_folder(schema_map):
+    return is_single_folder(schema_map) or is_multiple_folder(schema_map)
+
+
 def is_simple_map(schema_map):
     """
     Return True if the schema map describes a simple map.

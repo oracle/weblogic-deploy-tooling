@@ -7,7 +7,6 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract import wko_schema_helper
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
-from wlsdeploy.util import dictionary_utils
 
 
 class ModelKubernetesPrinter(object):
@@ -63,43 +62,45 @@ class ModelKubernetesPrinter(object):
 
         print("")
 
-        # write the parent folders, with indention and any name folders included
+        # write the parent folders leading up to the specified folder.
+        # include any name folders.
 
         indent = 0
-        path = section_name + ":"
-        is_multiple_folder = False
-        schema_folder = self._schema
-        for token in model_path_tokens:
-            if indent > 0:
-                properties = _get_properties(schema_folder)
+        _print_indent(section_name + ":", indent)
+        indent += 1
 
-                valid_subfolder_keys = _get_folder_names(properties)
-                if token not in valid_subfolder_keys:
-                    ex = exception_helper.create_cla_exception("WLSDPLY-10111", path, token,
-                                                               ', '.join(valid_subfolder_keys))
-                    self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                    raise ex
+        model_path = section_name + ":"
+        current_folder = self._schema
+        for token in model_path_tokens[1:]:
+            properties = _get_properties(current_folder)
 
-                schema_folder = properties[token]
-                is_multiple_folder = wko_schema_helper.is_multiple_folder(schema_folder)
-                path = path + "/" + token
+            valid_subfolder_keys = _get_folder_names(properties)
+            if token not in valid_subfolder_keys:
+                ex = exception_helper.create_cla_exception("WLSDPLY-10111", model_path, token,
+                                                           ', '.join(valid_subfolder_keys))
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+            current_folder = properties[token]
 
             _print_indent(token + ":", indent)
             indent += 1
 
-            if is_multiple_folder:
+            if wko_schema_helper.is_multiple_folder(current_folder):
                 name = token + '-1'
                 _print_indent(name + ":", indent)
                 indent += 1
+
+            model_path = model_path + "/" + token
 
         # list the attributes and folders, as specified
 
         if model_help_utils.show_attributes(control_option):
             # Print the attributes associated with schema folder
-            self._print_attributes_sample(schema_folder, indent)
+            self._print_attributes_sample(current_folder, indent)
 
         if model_help_utils.show_folders(control_option):
-            self._print_subfolders_sample(schema_folder, control_option, indent, path)
+            self._print_subfolders_sample(current_folder, control_option, indent, model_path)
 
     def _print_subfolders_sample(self, schema_folder, control_option, indent_level, path):
         """
@@ -122,7 +123,7 @@ class ModelKubernetesPrinter(object):
                     folder_map[key] = property_map
 
                 elif wko_schema_helper.is_multiple_folder(property_map):
-                    folder_map[key] = dictionary_utils.get_dictionary_element(property_map, "items")
+                    folder_map[key] = wko_schema_helper.get_array_item_info(property_map)
                     multi_folders.append(key)
 
         folder_keys = list(folder_map.keys())
@@ -163,26 +164,17 @@ class ModelKubernetesPrinter(object):
 
         for key in properties:
             property_map = properties[key]
-
             if property_map is not None:
-                property_type = dictionary_utils.get_element(property_map, "type")
+                if wko_schema_helper.is_simple_map(property_map):
+                    # map of key / value pairs
+                    attribute_map[key] = 'properties'
 
-                if property_type == "object":
-                    additional = dictionary_utils.get_dictionary_element(property_map, "additionalProperties")
-                    additional_type = dictionary_utils.get_element(additional, "type")
-                    if additional_type:
-                        # map of key / value pairs
-                        attribute_map[key] = 'properties'
+                elif wko_schema_helper.is_simple_array(property_map):
+                    # array of simple type
+                    attribute_map[key] = 'list of ' + wko_schema_helper.get_array_element_type(property_map)
 
-                elif property_type == "array":
-                    array_items = dictionary_utils.get_dictionary_element(property_map, "items")
-                    array_type = dictionary_utils.get_dictionary_element(array_items, "type")
-                    if array_type != "object":
-                        # array of simple type
-                        attribute_map[key] = 'list of ' + array_type
-
-                else:
-                    attribute_map[key] = property_type
+                elif not wko_schema_helper.is_folder(property_map):
+                    attribute_map[key] = wko_schema_helper.get_type(property_map)
 
         if attribute_map:
             attr_list = attribute_map.keys()
