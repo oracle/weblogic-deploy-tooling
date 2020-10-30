@@ -62,11 +62,9 @@ def is_single_folder(schema_map):
     :param schema_map: the schema map to be examined
     :return: True if the map identifies a single folder
     """
-    property_type = dictionary_utils.get_element(schema_map, "type")
+    property_type = get_type(schema_map)
     if property_type == "object":
-        additional = dictionary_utils.get_dictionary_element(schema_map, "additionalProperties")
-        additional_type = dictionary_utils.get_element(additional, "type")
-        return not additional_type
+        return get_map_element_type(schema_map) is None
     return False
 
 
@@ -76,12 +74,56 @@ def is_multiple_folder(schema_map):
     :param schema_map: the schema map to be examined
     :return: True if the map identifies a multiple folder
     """
-    property_type = dictionary_utils.get_element(schema_map, "type")
+    property_type = get_type(schema_map)
     if property_type == "array":
-        array_items = dictionary_utils.get_dictionary_element(schema_map, "items")
-        array_type = dictionary_utils.get_dictionary_element(array_items, "type")
-        return array_type == "object"
+        return get_array_element_type(schema_map) == "object"
     return False
+
+
+def is_simple_map(schema_map):
+    """
+    Return True if the schema map describes a simple map.
+    :param schema_map: the schema map to be examined
+    :return: True if the map identifies a simple map
+    """
+    property_type = get_type(schema_map)
+    if property_type == "object":
+        return get_map_element_type(schema_map) is not None
+    return False
+
+
+def is_simple_array(schema_map):
+    """
+    Return True if the schema map describes a simple array.
+    :param schema_map: the schema map to be examined
+    :return: True if the map identifies a simple array
+    """
+    property_type = get_type(schema_map)
+    if property_type == "array":
+        return get_array_element_type(schema_map) != "object"
+    return False
+
+
+def get_array_element_type(schema_map):
+    item_info = get_array_item_info(schema_map)
+    return get_type(item_info)
+
+
+def get_map_element_type(schema_map):
+    additional = dictionary_utils.get_dictionary_element(schema_map, "additionalProperties")
+    return get_type(additional)
+
+
+def get_array_item_info(schema_map):
+    return dictionary_utils.get_dictionary_element(schema_map, "items")
+
+
+def get_properties(schema_map):
+    return dictionary_utils.get_element(schema_map, "properties")
+
+
+def get_type(schema_map):
+    return dictionary_utils.get_element(schema_map, "type")
 
 
 def is_unsupported_folder(path):

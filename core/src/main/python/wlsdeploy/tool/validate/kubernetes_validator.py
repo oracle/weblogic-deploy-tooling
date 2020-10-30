@@ -53,51 +53,51 @@ class KubernetesValidator(object):
             self._logger.severe("WLSDPLY-05038", model_path, class_name=self._class_name, method_name=_method_name)
             return
 
-        properties = dictionary_utils.get_dictionary_element(schema_folder, "properties")
+        schema_properties = wko_schema_helper.get_properties(schema_folder)
 
         for key in model_folder:
-            property_map = dictionary_utils.get_element(properties, key)
+            properties = dictionary_utils.get_element(schema_properties, key)
             model_value = model_folder[key]
 
-            if property_map is not None:
-                property_type = dictionary_utils.get_element(property_map, "type")
+            if properties is not None:
 
-                if property_type == "object":
-                    additional = dictionary_utils.get_dictionary_element(property_map, "additionalProperties")
-                    additional_type = dictionary_utils.get_element(additional, "type")
-                    if additional_type:
-                        # map of key / value pairs
-                        self._log_debug('  ' + key + ': map of ' + additional_type)
-                        self._validate_simple_map(model_value, key, model_path)
-                    else:
-                        # single object instance
-                        self._log_debug('  ' + key + ': folder')
-                        next_schema_path = wko_schema_helper.append_path(schema_path, key)
-                        next_model_path = model_path + "/" + key
-                        if self._check_folder_path(next_schema_path, next_model_path):
-                            self.validate_folder(model_value, property_map, next_schema_path, next_model_path)
+                if wko_schema_helper.is_single_folder(properties):
+                    # single object instance
+                    self._log_debug('  ' + key + ': folder')
+                    next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                    next_model_path = model_path + "/" + key
+                    if self._check_folder_path(next_schema_path, next_model_path):
+                        self.validate_folder(model_value, properties, next_schema_path, next_model_path)
 
-                elif property_type == "array":
-                    array_items = dictionary_utils.get_dictionary_element(property_map, "items")
-                    array_type = dictionary_utils.get_dictionary_element(array_items, "type")
-                    if array_type == "object":
-                        # multiple object instances
-                        self._log_debug('  ' + key + ': multiple folder')
-                        next_schema_path = wko_schema_helper.append_path(schema_path, key)
-                        next_model_path = model_path + "/" + key
-                        if self._check_folder_path(next_schema_path, next_model_path):
-                            self._validate_multiple_folder(model_value, array_items, next_schema_path, next_model_path)
-                    else:
-                        # array of simple type
-                        self._log_debug('  ' + key + ': array of ' + array_type)
-                        self._validate_simple_array(model_value, key, model_path)
+                elif wko_schema_helper.is_multiple_folder(properties):
+                    # multiple object instances
+                    self._log_debug('  ' + key + ': multiple folder')
+                    next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                    next_model_path = model_path + "/" + key
+                    if self._check_folder_path(next_schema_path, next_model_path):
+                        item_info = wko_schema_helper.get_array_item_info(properties)
+                        self._validate_multiple_folder(model_value, item_info, next_schema_path, next_model_path)
+
+                elif wko_schema_helper.is_simple_map(properties):
+                    # map of key / value pairs
+                    element_type = wko_schema_helper.get_map_element_type(properties)
+                    self._log_debug('  ' + key + ': map of ' + element_type)
+                    self._validate_simple_map(model_value, key, model_path)
+
+                elif wko_schema_helper.is_simple_array(properties):
+                    # array of simple type
+                    element_type = wko_schema_helper.get_array_element_type(properties)
+                    self._log_debug('  ' + key + ': array of ' + element_type)
+                    self._validate_simple_array(model_value, key, model_path)
 
                 else:
+                    # simple type
+                    property_type = wko_schema_helper.get_type(properties)
                     self._log_debug('  ' + key + ': ' + property_type)
                     self._validate_simple_type(model_value, property_type, key, model_path)
 
             else:
-                self._logger.severe("WLSDPLY-05026", key, len(properties), model_path, class_name=self._class_name,
+                self._logger.severe("WLSDPLY-05026", key, len(schema_properties), model_path, class_name=self._class_name,
                                     method_name=_method_name)
 
     def _validate_multiple_folder(self, model_value, property_map, schema_path, model_path):
