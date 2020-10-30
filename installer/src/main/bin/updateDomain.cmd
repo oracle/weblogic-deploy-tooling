@@ -119,7 +119,8 @@ ECHO         rollback_if_require_restart      - rollback the changes if the upda
 ECHO.
 ECHO         discard_current_edit      - discard all existing changes before starting update
 ECHO.
-ECHO         output_dir      - if present, write restart information to this directory as restart.file
+ECHO         output_dir      - if present, write restart information to this directory as restart.file, or
+ECHO                           if rollback_if_require_restart used, write rollback information to rollback.file
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will
