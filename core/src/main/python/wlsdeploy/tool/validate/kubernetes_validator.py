@@ -35,24 +35,22 @@ class KubernetesValidator(object):
 
         schema = wko_schema_helper.get_domain_resource_schema(exception_type=ExceptionType.VALIDATE)
 
-        # validate top-level attributes
+        model_path = KUBERNETES + ":"
+        self.validate_folder(kubernetes_section, schema, None, model_path)
 
-        self.validate_folder(kubernetes_section, schema, None)
-
-    def validate_folder(self, model_folder, schema_folder, path):
+    def validate_folder(self, model_folder, schema_folder, schema_path, model_path):
         """
         Validate the specified model folder against the specified schema folder
         :param model_folder: the model folder to validate
         :param schema_folder: the schema folder to validate against
-        :param path: the path of model elements, used for logging
+        :param schema_path: the path of schema elements (no multi-element names), used for supported check
+        :param model_path: the path of model elements (including multi-element names), used for logging
         """
         _method_name = 'validate_folder'
-        self._log_debug(str(path))
-
-        log_path = _get_log_path(path)
+        self._log_debug(str(model_path))
 
         if not isinstance(model_folder, dict):
-            self._logger.severe("WLSDPLY-05038", log_path, class_name=self._class_name, method_name=_method_name)
+            self._logger.severe("WLSDPLY-05038", model_path, class_name=self._class_name, method_name=_method_name)
             return
 
         properties = dictionary_utils.get_dictionary_element(schema_folder, "properties")
@@ -70,12 +68,14 @@ class KubernetesValidator(object):
                     if additional_type:
                         # map of key / value pairs
                         self._log_debug('  ' + key + ': map of ' + additional_type)
-                        self._validate_simple_map(model_value, key, log_path)
+                        self._validate_simple_map(model_value, key, model_path)
                     else:
                         # single object instance
                         self._log_debug('  ' + key + ': folder')
-                        next_path = _get_next_path(path, key)
-                        self.validate_folder(model_value, property_map, next_path)
+                        next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                        next_model_path = model_path + "/" + key
+                        if self._check_folder_path(next_schema_path, next_model_path):
+                            self.validate_folder(model_value, property_map, next_schema_path, next_model_path)
 
                 elif property_type == "array":
                     array_items = dictionary_utils.get_dictionary_element(property_map, "items")
@@ -83,63 +83,72 @@ class KubernetesValidator(object):
                     if array_type == "object":
                         # multiple object instances
                         self._log_debug('  ' + key + ': multiple folder')
-                        next_path = _get_next_path(path, key)
-                        self._validate_multiple_folder(model_value, array_items, next_path)
+                        next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                        next_model_path = model_path + "/" + key
+                        if self._check_folder_path(next_schema_path, next_model_path):
+                            self._validate_multiple_folder(model_value, array_items, next_schema_path, next_model_path)
                     else:
                         # array of simple type
                         self._log_debug('  ' + key + ': array of ' + array_type)
-                        self._validate_simple_array(model_value, key, log_path)
+                        self._validate_simple_array(model_value, key, model_path)
 
                 else:
                     self._log_debug('  ' + key + ': ' + property_type)
-                    self._validate_simple_type(model_value, property_type, key, log_path)
+                    self._validate_simple_type(model_value, property_type, key, model_path)
 
             else:
-                self._logger.severe("WLSDPLY-05026", key, len(properties), log_path, class_name=self._class_name,
+                self._logger.severe("WLSDPLY-05026", key, len(properties), model_path, class_name=self._class_name,
                                     method_name=_method_name)
 
-    def _validate_simple_map(self, model_value, property_name, log_path):
-        _method_name = '_validate_simple_map'
-        if not isinstance(model_value, dict):
-            self._logger.severe("WLSDPLY-05032", property_name, log_path, str(type(model_value)),
-                                class_name=self._class_name, method_name=_method_name)
-
-    def _validate_multiple_folder(self, model_value, property_map, path):
+    def _validate_multiple_folder(self, model_value, property_map, schema_path, model_path):
+        """
+        Validate the contents of this multiple-element model section.
+        There should be a dictionary of names, each containing a sub-folder.
+        :param model_value: the model contents for a folder
+        :param property_map: describes the contents of the sub-folder for each element
+        :param schema_path: the path of schema elements (no multi-element names), used for supported check
+        :param model_path: the path of model elements (including multi-element names), used for logging
+        """
         _method_name = '_validate_multiple_folder'
         if not isinstance(model_value, dict):
-            self._logger.severe("WLSDPLY-05039", _get_log_path(path), class_name=self._class_name,
-                                method_name=_method_name)
+            self._logger.severe("WLSDPLY-05039", model_path, class_name=self._class_name, method_name=_method_name)
             return
 
         for name in model_value:
             name_map = model_value[name]
-            next_path = _get_next_path(path, name)
-            self.validate_folder(name_map, property_map, next_path)
+            next_model_path = model_path + "/" + name
+            self.validate_folder(name_map, property_map, schema_path, next_model_path)
 
-    def _validate_simple_array(self, model_value, property_name, log_path):
+    def _validate_simple_map(self, model_value, property_name, model_path):
+        _method_name = '_validate_simple_map'
+        if not isinstance(model_value, dict):
+            self._logger.severe("WLSDPLY-05032", property_name, model_path, str(type(model_value)),
+                                class_name=self._class_name, method_name=_method_name)
+
+    def _validate_simple_array(self, model_value, property_name, model_path):
         _method_name = '_validate_simple_array'
         if isinstance(model_value, dict):
-            self._logger.severe("WLSDPLY-05017", property_name, log_path, "list", str(type(model_value)),
+            self._logger.severe("WLSDPLY-05017", property_name, model_path, "list", str(type(model_value)),
                                 class_name=self._class_name, method_name=_method_name)
 
-    def _validate_simple_type(self, model_value, property_type, property_name, log_path):
+    def _validate_simple_type(self, model_value, property_type, property_name, model_path):
         _method_name = '_validate_simple_type'
         if isinstance(model_value, list) or isinstance(model_value, dict):
-            self._logger.severe("WLSDPLY-05017", property_name, log_path, property_type, str(type(model_value)),
+            self._logger.severe("WLSDPLY-05017", property_name, model_path, property_type, str(type(model_value)),
                                 class_name=self._class_name, method_name=_method_name)
+
+    def _check_folder_path(self, schema_path, model_path):
+        """
+        Log a warning if the specified path is unsupported in the schema.
+        :param schema_path: the schema path to be checked
+        :param model_path: the model path used for logging
+        :return: True if the path is supported, False otherwise
+        """
+        _method_name = '_check_folder_path'
+        if wko_schema_helper.is_unsupported_folder(schema_path):
+            self._logger.warning("WLSDPLY-05090", model_path, class_name=self._class_name, method_name=_method_name)
+            return False
+        return True
 
     def _log_debug(self, message):
         self._logger.finest(message)
-
-
-def _get_next_path(path, key):
-    if path is None:
-        return key
-    return path + '/' + key
-
-
-def _get_log_path(path):
-    log_path = KUBERNETES + ':/'
-    if path:
-        log_path = log_path + path
-    return log_path

@@ -82,3 +82,13 @@ def is_multiple_folder(schema_map):
         array_type = dictionary_utils.get_dictionary_element(array_items, "type")
         return array_type == "object"
     return False
+
+
+def is_unsupported_folder(path):
+    return path in UNSUPPORTED_FOLDERS
+
+
+def append_path(path, element):
+    if path:
+        return path + "/" + element
+    return element

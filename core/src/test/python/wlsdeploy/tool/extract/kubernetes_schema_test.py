@@ -37,7 +37,7 @@ class KubernetesSchemaTest(unittest.TestCase):
         if not label:
             label = KUBERNETES
 
-        if path in wko_schema_helper.UNSUPPORTED_FOLDERS:
+        if wko_schema_helper.is_unsupported_folder(path):
             self._write_line("\n" + indent + "# " + label + ": (unsupported folder)")
             return
 
@@ -114,12 +114,7 @@ class KubernetesSchemaTest(unittest.TestCase):
         for property_name in sub_folders:
             subfolder = sub_folders[property_name]
             is_multiple = property_name in multi_sub_folders
-
-            if path:
-                next_path = path + "/" + property_name
-            else:
-                next_path = property_name
-
+            next_path = wko_schema_helper.append_path(path, property_name)
             self._write_folder(subfolder, property_name, is_multiple, next_path, indent)
 
     def _write_line(self, text):

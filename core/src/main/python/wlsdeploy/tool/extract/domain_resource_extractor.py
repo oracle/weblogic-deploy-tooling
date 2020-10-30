@@ -11,6 +11,7 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.exception import exception_helper
@@ -106,20 +107,19 @@ class DomainResourceExtractor:
 
         schema = wko_schema_helper.get_domain_resource_schema(ExceptionType.DEPLOY)
 
-        self._process_folder(kubernetes_map, schema, resource_dict, None)
+        model_path = KUBERNETES + ":"
+        self._process_folder(kubernetes_map, schema, resource_dict, None, model_path)
         return resource_dict
 
-    def _process_folder(self, model_dict, schema_folder, target_dict, path):
+    def _process_folder(self, model_dict, schema_folder, target_dict, schema_path, model_path):
         """
         Transfer folders and attributes from the model dictionary to the target domain resource dictionary.
         :param model_dict: the source model dictionary
         :param schema_folder: the schema for this folder
         :param target_dict: the target dictionary for the domain resource file.
+        :param schema_path: the path of schema elements (no multi-element names), used for supported check
+        :param model_path: the path of model elements (including multi-element names), used for logging
         """
-        if path in wko_schema_helper.UNSUPPORTED_FOLDERS:
-            # ignore this folder, validate already logged it
-            return
-
         properties = schema_folder["properties"]
 
         for key, model_value in model_dict.items():
@@ -134,18 +134,24 @@ class DomainResourceExtractor:
                     target_dict[key] = model_value
                 else:
                     # single object instance
-                    next_target_dict = PyOrderedDict()
-                    target_dict[key] = next_target_dict
-                    next_path = _get_next_path(path, key)
-                    self._process_folder(model_value, property_map, next_target_dict, next_path)
+                    next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                    next_model_path = model_path + "/" + key
+                    if not wko_schema_helper.is_unsupported_folder(next_schema_path):
+                        next_target_dict = PyOrderedDict()
+                        target_dict[key] = next_target_dict
+                        self._process_folder(model_value, property_map, next_target_dict, next_schema_path,
+                                             next_model_path)
 
             elif property_type == "array":
                 array_items = dictionary_utils.get_dictionary_element(property_map, "items")
                 array_type = dictionary_utils.get_dictionary_element(array_items, "type")
                 if array_type == "object":
                     # multiple object instances
-                    next_path = _get_next_path(path, key)
-                    target_dict[key] = self._process_multiple_folder(model_value, array_items, next_path)
+                    next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                    next_model_path = model_path + "/" + key
+                    if not wko_schema_helper.is_unsupported_folder(next_schema_path):
+                        target_dict[key] = \
+                            self._process_multiple_folder(model_value, array_items, next_schema_path, next_model_path)
                 else:
                     # array of simple type
                     target_dict[key] = _get_target_value(model_value, property_type)
@@ -154,19 +160,24 @@ class DomainResourceExtractor:
                 # simple type such as number, string
                 target_dict[key] = _get_target_value(model_value, property_type)
 
-    def _process_multiple_folder(self, model_value, property_map, path):
-        if not isinstance(model_value, dict):
-            self._logger.severe("expecting dict at " + path)
-
+    def _process_multiple_folder(self, model_value, property_map, schema_path, model_path):
+        """
+        Process a multiple-element model section.
+        There should be a dictionary of names, each containing a sub-folder.
+        :param model_value: the model contents for a folder
+        :param property_map: describes the contents of the sub-folder for each element
+        :param schema_path: the path of schema elements (no multi-element names), used for supported check
+        :param model_path: the path of model elements (including multi-element names), used for logging
+        """
         child_list = list()
         for name in model_value:
             name_map = model_value[name]
             next_target_dict = PyOrderedDict()
-            next_path = _get_next_path(path, name)
-            self._process_folder(name_map, property_map, next_target_dict, next_path)
+            next_model_path = model_path + "/" + name
+            self._process_folder(name_map, property_map, next_target_dict, schema_path, next_model_path)
 
             # see if the model name should become an attribute in the target dict
-            mapped_name = get_mapped_key(path)
+            mapped_name = get_mapped_key(schema_path)
             properties = property_map['properties']
             if (mapped_name in properties.keys()) and (mapped_name not in next_target_dict.keys()):
                 _add_to_top(next_target_dict, mapped_name, name)
@@ -319,21 +330,21 @@ def _add_secrets(folder, secrets, domain_uid):
             text = text.replace("@@ENV:DOMAIN_UID@@", domain_uid)
 
             matches = _secret_pattern.findall(text)
-            for name in matches:
-                if name not in secrets:
-                    secrets.append(name)
+            for secret_name in matches:
+                if secret_name not in secrets:
+                    secrets.append(secret_name)
 
 
-def get_mapped_key(path):
+def get_mapped_key(schema_path):
     """
     Because the WDT model does not support hyphenated lists, the name of each item in a
     multiple folder sometimes corresponds to one of its attributes, usually "name".
     If a different attribute name is used for the path, return that name.
     If the default 'name' is returned, caller should verify that it is an available attribute.
-    :param path: the slash-delimited path of the elements
+    :param schema_path: the slash-delimited path of the elements (no multi-element names)
     :return: the attribute key to be used
     """
-    mapped_key = dictionary_utils.get_element(MULTI_KEYS, path)
+    mapped_key = dictionary_utils.get_element(MULTI_KEYS, schema_path)
     if mapped_key is not None:
         return mapped_key
     return 'name'
@@ -353,9 +364,3 @@ def _add_to_top(dictionary, key, item):
     dictionary[key] = item
     for each_key in temp_dict:
         dictionary[each_key] = temp_dict[each_key]
-
-
-def _get_next_path(path, key):
-    if path is None:
-        return key
-    return path + '/' + key
