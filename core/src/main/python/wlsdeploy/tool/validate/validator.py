@@ -825,10 +825,12 @@ class Validator(object):
                     self._logger.severe('WLSDPLY-05024', attribute_name, model_folder_path, path,
                                         self._archive_file_name, class_name=_class_name, method_name=_method_name)
             else:
-                # If running in standalone mode, and the archive was not supplied, simply
-                # alert the user to the references but don't fail validation because of
-                # the dangling references.  In TOOL mode, this is an error.
-                if self._validation_mode == _ValidationModes.STANDALONE:
+                # If running in STANDALONE mode, or configured to ignore missing archive entries,
+                # log an INFO message identifying missing entries, and allow validation to succeed.
+                # In TOOL mode, unless the ignore flag is set, log a SEVERE message that will cause
+                # validation to fail.
+                ignore_missing_entries = self._model_context.get_ignore_missing_archive_entries()
+                if self._validation_mode == _ValidationModes.STANDALONE or ignore_missing_entries:
                     self._logger.info('WLSDPLY-05025', attribute_name, model_folder_path, path,
                                       class_name=_class_name, method_name=_method_name)
                 elif self._validation_mode == _ValidationModes.TOOL:

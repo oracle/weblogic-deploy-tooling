@@ -88,7 +88,9 @@ def __process_args(args):
 
     target_configuration_helper.process_target_arguments(argument_map)
 
-    return ModelContext(_program_name, argument_map)
+    model_context = ModelContext(_program_name, argument_map)
+    model_context.set_ignore_missing_archive_entries(True)
+    return model_context
 
 
 class PrepareModel:
@@ -295,7 +297,8 @@ class PrepareModel:
 
             # create any additional outputs from full model dictionary
             target_configuration_helper.create_additional_output(Model(full_model_dictionary), self.model_context,
-                                                                 self._aliases, ExceptionType.VALIDATE)
+                                                                 self._aliases, self.credential_injector,
+                                                                 ExceptionType.VALIDATE)
 
         except ValidateException, te:
             self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),

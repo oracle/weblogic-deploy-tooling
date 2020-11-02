@@ -47,6 +47,15 @@ spec:
         configuration:
           model:
             domainType: {{{domainType}}}
+{{#hasAdditionalSecrets}}
+
+          # Secrets that are referenced by model yaml macros
+          # (the model yaml in the optional configMap or in the image)
+          secrets:
+{{/hasAdditionalSecrets}}
+{{#additionalSecrets}}
+          - {{{additionalSecretName}}}
+{{/additionalSecrets}}
       connections:
         - ingress:
             - name: {{{domainPrefix}}}-ingress

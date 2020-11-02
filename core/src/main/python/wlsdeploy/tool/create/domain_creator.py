@@ -5,6 +5,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import os
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
 import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
+from java.io import File
 from java.io import FileOutputStream
 from java.lang import IllegalArgumentException
 from java.util import Properties
@@ -234,6 +235,11 @@ class DomainCreator(Creator):
         if path is not None:
             resolved_path = self.model_context.replace_token_string(path)
             if self.archive_helper is not None and self.archive_helper.contains_file(resolved_path):
+                dir = File(self._domain_home)
+                if (not dir.isDirectory()) and (not dir.mkdirs()):
+                    ex = exception_helper.create_create_exception('WLSDPLY-12259', self._domain_home, xml_type, path)
+                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                    raise ex
                 resolved_path = self.archive_helper.extract_file(resolved_path)
             try:
                 resolved_file = FileUtils.validateFileName(resolved_path)
@@ -241,7 +247,7 @@ class DomainCreator(Creator):
             except IllegalArgumentException, iae:
                 ex = exception_helper.create_create_exception('WLSDPLY-12258', xml_type, path,
                                                               iae.getLocalizedMessage(), error=iae)
-                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
