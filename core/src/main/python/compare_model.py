@@ -86,7 +86,9 @@ def __process_args(args):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     argument_map = cla_util.process_args(args, trailing_arg_count=2)
 
-    return ModelContext(_program_name, argument_map)
+    model_context = ModelContext(_program_name, argument_map)
+    model_context.set_ignore_missing_archive_entries(True)
+    return model_context
 
 
 class ModelDiffer:
@@ -505,21 +507,14 @@ class ModelFileDiffer:
 
             variables.substitute(model_dictionary, variable_map, self.model_context)
 
-            # Run this utility in stand-alone mode instead of tool mode,
-            # which has stricter checks for the tools.
-            # An archive is not used with the compare models and if the model
-            # references a file in an archive, the compareModel will fail if
-            # running in the stricter tool mode (even with lax).
-            #
             arg_map = dict()
             arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
             model_context_copy = self.model_context.copy(arg_map)
             val_copy = Validator(model_context_copy, aliases, wlst_mode=WlstModes.OFFLINE)
 
             # any variables should have been substituted at this point
-            validate_variables = {}
-            return_code = val_copy.validate_in_standalone_mode(model_dictionary, validate_variables,
-                                                               archive_file_name=None)
+            return_code = val_copy.validate_in_tool_mode(model_dictionary, variables_file_name=None,
+                                                         archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
                 _logger.severe('WLSDPLY-05705', model_file_name)
@@ -534,8 +529,8 @@ class ModelFileDiffer:
             arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
             model_context_copy = self.model_context.copy(arg_map)
             val_copy = Validator(model_context_copy, aliases, wlst_mode=WlstModes.OFFLINE)
-            return_code = val_copy.validate_in_standalone_mode(model_dictionary, validate_variables,
-                                                               archive_file_name=None)
+            return_code = val_copy.validate_in_tool_mode(model_dictionary, variables_file_name=None,
+                                                         archive_file_name=None)
 
             if return_code == Validator.ReturnCode.STOP:
                 _logger.severe('WLSDPLY-05705', model_file_name)
