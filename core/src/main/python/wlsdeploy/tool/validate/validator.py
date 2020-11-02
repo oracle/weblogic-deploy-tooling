@@ -21,6 +21,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
+from wlsdeploy.tool.validate.kubernetes_validator import KubernetesValidator
 from wlsdeploy.tool.validate.validator_logger import ValidatorLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
@@ -30,7 +31,6 @@ from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS
-from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import MASKED_PASSWORD
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import NAME
@@ -246,8 +246,8 @@ class Validator(object):
         self.__validate_model_section(model.get_model_deployments_key(), model_dict,
                                       self._aliases.get_model_app_deployments_top_level_folder_names())
 
-        self.__validate_model_section(model.get_model_kubernetes_key(), model_dict,
-                                      self._aliases.get_model_section_top_level_folder_names(KUBERNETES))
+        k8s_validator = KubernetesValidator(self._model_context)
+        k8s_validator.validate_model(model_dict)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
         return
