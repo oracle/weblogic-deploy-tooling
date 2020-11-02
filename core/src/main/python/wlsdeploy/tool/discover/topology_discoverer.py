@@ -341,7 +341,9 @@ class TopologyDiscoverer(Discoverer):
                     self._discover_subfolders(result[model_constants.REALM][realm], location, check_order)
                     location.remove_name_token(name_token)
                 except DiscoverException, de:
-                    _logger.warning('WLSDPLY-06200', self._wls_version, de.getLocalizedMessage(),
+                    wlst_path = self._aliases.get_wlst_attributes_path(location)
+                    _logger.warning('WLSDPLY-06200', wlst_path,
+                                    self._wls_version, de.getLocalizedMessage(),
                                     class_name=_class_name, method_name=_method_name)
                     result = OrderedDict()
 
