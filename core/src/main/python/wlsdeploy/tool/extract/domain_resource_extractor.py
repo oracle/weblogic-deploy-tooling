@@ -92,7 +92,7 @@ class DomainResourceExtractor:
 
         # write the resource file structure to the output file
         writer = PythonToFile(resource_dict)
-        writer.set_yaml_hypenate_yaml_lists(True)
+        writer.set_yaml_hyphenate_yaml_lists(True)
         writer.write_to_file(resource_file)
         return
 

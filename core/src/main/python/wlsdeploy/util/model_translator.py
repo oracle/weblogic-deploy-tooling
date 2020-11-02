@@ -114,7 +114,7 @@ class PythonToFile(object):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
         return return_file
 
-    def set_yaml_hypenate_yaml_lists(self, hyphenate):
+    def set_yaml_hyphenate_yaml_lists(self, hyphenate):
         self._hyphenate_yaml_lists = hyphenate
 
     def _write_to_json_file(self, file_name):
