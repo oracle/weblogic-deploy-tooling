@@ -1,9 +1,32 @@
 @ECHO OFF
-
+@rem **************************************************************************
+@rem doGenerateOffline.cmd
+@rem
+@rem Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+@rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+@rem
+@rem     NAME
+@rem       doGenerateOnline.cmd - Alias integration test script to generate MBeam JSON
+@rem
+@rem     DESCRIPTION
+@rem       This script looks at the domain MBeans for a specific version of WebLogic server in
+@rem       online mode and generates a JSON file for the domain MBeans and attributes.
+@rem
+@rem This script uses the following variables:
+@rem
+@rem JAVA_HOME             - The location of the JDK to use.  The caller must set
+@rem                         this variable to a valid Java 7 (or later) JDK.
+@rem
+@rem TEST_HOME             - The location of the alias integration test.
+@rem
+@rem WLSDEPLOY_HOME        - The location of the WebLogic Deploy Tool Object.
+@rem
+@rem WLSDEPLOY_PROPERTIES  - Extra system properties to pass to WLST.  The caller
+@rem                         can use this environment variable to add additional
+@rem                         system properties to the WLST environment.
+@rem
 SETLOCAL
 
-SET MODE=online
-SET STEP=generate
 SET WLSDEPLOY_PROGRAM_NAME=aliases_test_generate_online
 
 SET SCRIPT_PATH=%~dp0
@@ -11,7 +34,9 @@ FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi
 IF %SCRIPT_PATH:~-1%==\ SET SCRIPT_PATH=%SCRIPT_PATH:~0,-1%
 
 IF NOT DEFINED WLSDEPLOY_HOME (
-  SET WLSDEPLOY_HOME=%SCRIPT_PATH%\..
+    ECHO Required WLSDEPLOY_HOME is not set >&2
+    SET RETURN_CODE=2
+    GOTO exit_script
 ) ELSE (
   IF NOT EXIST "%WLSDEPLOY_HOME%" (
     ECHO Specified WLSDEPLOY_HOME of "%WLSDEPLOY_HOME%" does not exist >&2

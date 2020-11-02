@@ -13,6 +13,7 @@ import java.util.logging.Logger as Logger
 pathname = os.path.join(os.environ['TEST_HOME'], 'python')
 sys.path.append(pathname)
 pathname = os.path.join(os.environ['WLSDEPLOY_HOME'], 'lib', 'python')
+print 'WLSDEPLOY_HOME=', pathname
 sys.path.append(pathname)
 
 sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))

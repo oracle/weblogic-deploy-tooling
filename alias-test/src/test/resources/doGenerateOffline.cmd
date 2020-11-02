@@ -1,9 +1,32 @@
 @ECHO OFF
-
+@rem **************************************************************************
+@rem doGenerateOffline.cmd
+@rem
+@rem Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+@rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+@rem
+@rem     NAME
+@rem       doGenerateOffline.cmd - Alias integration test script to generate MBeam JSON
+@rem
+@rem     DESCRIPTION
+@rem       This script looks at the domain MBeans for a specific version of WebLogic server in
+@rem       offline mode and generates a JSON file for the domain MBeans and attributes.
+@rem
+@rem This script uses the following variables:
+@rem
+@rem JAVA_HOME             - The location of the JDK to use.  The caller must set
+@rem                         this variable to a valid Java 7 (or later) JDK.
+@rem
+@rem TEST_HOME             - The location of the alias integration test.
+@rem
+@rem WLSDEPLOY_HOME        - The location of the WebLogic Deploy Tool Object.
+@rem
+@rem WLSDEPLOY_PROPERTIES  - Extra system properties to pass to WLST.  The caller
+@rem                         can use this environment variable to add additional
+@rem                         system properties to the WLST environment.
+@rem
 SETLOCAL
 
-SET MODE=online
-SET STEP=generate
 SET WLSDEPLOY_PROGRAM_NAME=aliases_test_generate_offline
 
 SET SCRIPT_PATH=%~dp0
@@ -11,7 +34,9 @@ FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi
 IF %SCRIPT_PATH:~-1%==\ SET SCRIPT_PATH=%SCRIPT_PATH:~0,-1%
 
 IF NOT DEFINED WLSDEPLOY_HOME (
-  SET WLSDEPLOY_HOME=%SCRIPT_PATH%\..
+    ECHO Required WLSDEPLOY_HOME is not set >&2
+    SET RETURN_CODE=2
+    GOTO exit_script
 ) ELSE (
   IF NOT EXIST "%WLSDEPLOY_HOME%" (
     ECHO Specified WLSDEPLOY_HOME of "%WLSDEPLOY_HOME%" does not exist >&2
@@ -178,55 +203,37 @@ IF "%ADMIN_URL%" == "" (
 @rem
 @rem Find the location for wlst.cmd
 @rem
-SET WLST=
-IF EXIST "%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd" (
-    SET WLST=%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd
-    SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources
-    GOTO found_wlst
-)
-IF EXIST "%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd" (
-    SET WLST=%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd
-    SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources
-    GOTO found_wlst
-)
-IF EXIST "%ORACLE_HOME%\wlserver\common\bin\wlst.cmd" (
-    IF EXIST "%ORACLE_HOME%\wlserver\.product.properties" (
-        @rem WLS 12.1.2 or WLS 12.1.3
-        SET WLST=%ORACLE_HOME%\wlserver\common\bin\wlst.cmd
-        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources
+    SET WLST=
+    IF EXIST "%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd" (
+        SET WLST=%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd
+        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
         GOTO found_wlst
     )
-)
-IF EXIST "%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd" (
-    SET WLST=%ORACLE_HOME%\wlserver\common\bin\wlst.cmd
-    SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources
-    SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources
-    GOTO found_wlst
-)
-IF DEFINED WLST_PATH_DIR (
-  FOR %%i IN ("%WLST_PATH_DIR%") DO SET WLST_PATH_DIR=%%~fsi
-  IF NOT EXIST "%WLST_PATH_DIR%" (
-    ECHO WLST_PATH_DIR specified does not exist: %WLST_PATH_DIR% >&2
-    SET RETURN_CODE=98
-    GOTO exit_script
-  )
-  set "WLST=%WLST_PATH_DIR%\common\bin\wlst.cmd"
-  IF NOT EXIST "%WLST%" (
-    ECHO WLST executable %WLST% not found under specified WLST_PATH_DIR %WLST_PATH_DIR% >&2
-    SET RETURN_CODE=98
-    GOTO exit_script
-  )
-  SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-  SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-  GOTO found_wlst
-)
-IF NOT EXIST "%WLST%" (
-  ECHO Unable to locate wlst.cmd script in ORACLE_HOME %ORACLE_HOME% >&2
-  SET RETURN_CODE=98
-  GOTO exit_script
-)
-:found_wlst
+    IF EXIST "%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd" (
+        SET WLST=%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd
+        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        GOTO found_wlst
+    )
+    IF EXIST "%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd" (
+        SET WLST=%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd
+        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        GOTO found_wlst
+    )
+    IF EXIST "%ORACLE_HOME%\wlserver\common\bin\wlst.cmd" (
+        IF EXIST "%ORACLE_HOME%\wlserver\.product.properties" (
+            @rem WLS 12.1.2 or WLS 12.1.3
+            SET WLST=%ORACLE_HOME%\wlserver\common\bin\wlst.cmd
+            SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        )
+        GOTO found_wlst
+    )
 
+    IF NOT EXIST "%WLST%" (
+      ECHO Unable to locate wlst.cmd script in ORACLE_HOME %ORACLE_HOME% >&2
+      EXIT /B 98
+    )
+    :found_wlst
 
 SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
 SET WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
@@ -259,19 +266,6 @@ ECHO ERRORLEVEL=%ERRORLEVEL%
 IF "%RETURN_CODE%" == "100" (
   GOTO usage
 )
-IF "%RETURN_CODE%" == "99" (
-  GOTO usage
-)
-IF "%RETURN_CODE%" == "98" (
-  ECHO.
-  ECHO doGenerateOffline.cmd failed due to a parameter validation error >&2
-  GOTO exit_script
-)
-IF "%RETURN_CODE%" == "2" (
-  ECHO.
-  ECHO doGenerateOffline.cmd failed ^(exit code = %RETURN_CODE%^)
-  GOTO exit_script
-)
 IF "%RETURN_CODE%" == "1" (
   ECHO.
   ECHO doGenerateOffline.cmd completed but with some issues ^(exit code = %RETURN_CODE%^) >&2
@@ -290,14 +284,16 @@ GOTO exit_script
 :usage
 ECHO.
 ECHO Usage: %~nx0 -oracle_home ^<oracle-home^>
+ECHO              -domain_home ^<domain-home^>
 ECHO              -testfiles_path ^<testfiles-path^>
 ECHO              -admin_user ^<admin_user^>
 ECHO              -admin_pass ^<admin_pass^>
 ECHO              -admin_url ^<admin_url^>
-ECHO              [-wlst_path <wlst-path>]
 ECHO.
 ECHO     where:
 ECHO         oracle-home    - the existing Oracle Home directory for the domain
+ECHO.
+ECHO         domain-home    - the existing Domain directory for the Oracle version
 ECHO.
 ECHO         testfiles_path  - the location to store the generated files and reports
 ECHO.
@@ -306,9 +302,6 @@ ECHO.
 ECHO         admin-user     - the system test admin username
 ECHO.
 ECHO         admin-pass     - the system test admin password
-ECHO.
-ECHO         wlst-path      - the Oracle Home subdirectory of the wlst.cmd
-ECHO                          script to use (e.g., ^<ORACLE_HOME^>\soa)
 ECHO.
 
 :exit_script
