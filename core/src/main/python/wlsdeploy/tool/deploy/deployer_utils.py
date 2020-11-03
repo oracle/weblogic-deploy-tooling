@@ -480,6 +480,22 @@ def list_restarts(model_context, exit_code):
     return result
 
 
+def list_rollback_changes(model_context, rollback_string):
+    """
+    If output dir is present in the model context, write the restart data to the output dir as rollback.file.
+    :param model_context: Current context with the run parameters.
+    :param rollback_string: java.lang.String of changes that were rolled back
+    """
+    _method_name = 'list_rollback_changes'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+    output_dir = model_context.get_output_dir()
+    if len(str(rollback_string)) > 0 and output_dir is not None:
+        file_name = os.path.join(output_dir, 'rollback.file')
+        pw = FileUtils.getPrintWriter(file_name)
+        pw.println(rollback_string)
+        pw.close()
+
+
 def get_list_of_restarts():
     """
     Return the restart checklist from the online domain instance. Log each instance of the restart checklist
@@ -501,7 +517,7 @@ def get_list_of_restarts():
             prt_cluster = cluster_name
             if cluster_name == '':
                 prt_cluster = 'standalone'
-            for resource in server.getPendingRestartSystemResources():
+            for resource in resources:
                 line = list()
                 line.append(cluster_name)
                 line.append(server_name)

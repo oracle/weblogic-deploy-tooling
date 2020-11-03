@@ -1390,6 +1390,30 @@ class WlstHelper(object):
         self.__logger.finest('WLSDPLY-00035', path, class_name=self.__class_name, method_name=_method_name)
         return path
 
+    def get_object_name_name(self, object_name):
+        """
+        Get the object name from the ObjectName instance using javax.management.ObjectName methods.
+        :param object_name: ObjectName instance
+        :return: ObjectName name value
+        """
+        _method_name = 'get_object_name_name'
+        self.__logger.entering(object_name, class_name=self.__class_name, method_name=_method_name)
+        name = object_name.getKeyProperty('Name')
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, resul=name)
+        return name
+
+    def get_object_name_type(self, object_name):
+        """
+        Get the type of the object from the ObjectName instance using javax.management.ObjectName methods.
+        :param object_name: ObjectName instance
+        :return: ObjectName Type value
+        """
+        _method_name = 'get_object_name_name'
+        self.__logger.entering(object_name, class_name=self.__class_name, method_name=_method_name)
+        name_type = object_name.getKeyProperty('Type')
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, resul=name)
+        return name_type
+
     def silence(self):
         """
         Silence the STDOUT chatter from WLST.

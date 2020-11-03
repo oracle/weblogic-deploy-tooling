@@ -154,8 +154,9 @@ def __deploy_online(model, model_context, aliases):
         __wlst_helper.silence()
         if model_context.is_rollback_if_restart_required() and restart_required:
             __wlst_helper.cancel_edit()
-            __logger.severe('WLSDPLY_09015', is_restartreq_output)
+            __logger.warning('WLSDPLY_09015', is_restartreq_output)
             exit_code = CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE
+            deployer_utils.list_rollback_changes(model_context, is_restartreq_output)
         else:
             __wlst_helper.save()
             __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
