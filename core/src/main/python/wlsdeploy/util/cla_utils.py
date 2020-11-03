@@ -64,7 +64,7 @@ class CommandLineArgUtil(object):
     ENCRYPT_MANUAL_SWITCH      = '-manual'
     # phony arg used as a key to store the password
     ONE_PASS_SWITCH            = '-password'
-    ROLLBACK_IF_RESTART_REQ_SWITCH = '-rollback_if_require_restart'
+    ROLLBACK_IF_RESTART_REQ_SWITCH = '-rollback_if_restart_required'
     USE_ENCRYPTION_SWITCH      = '-use_encryption'
     RUN_RCU_SWITCH             = '-run_rcu'
     TARGET_VERSION_SWITCH      = '-target_version'
