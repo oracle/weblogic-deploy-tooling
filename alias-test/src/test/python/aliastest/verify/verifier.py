@@ -5,8 +5,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import java.util.logging.Level as Level
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-import wlsdeploy.aliastest.util.all_utils as all_utils
-from wlsdeploy.aliastest.verify.verifier_helper import VerifierHelper
+import aliastest.util.all_utils as all_utils
+from aliastest.verify.verifier_helper import VerifierHelper
 
 _logger = PlatformLogger('test.aliases.verify', resource_bundle_name='systemtest_rb')
 _logger.set_level(Level.FINEST)

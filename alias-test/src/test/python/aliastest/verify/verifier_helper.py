@@ -17,8 +17,8 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.aliases.alias_constants as alias_constants
 
-import wlsdeploy.aliastest.util.all_utils as all_utils
-from wlsdeploy.aliastest.util.helper import TestHelper
+import aliastest.util.all_utils as all_utils
+from aliastest.util.helper import TestHelper
 
 NUMBER_TYPES = [alias_constants.INTEGER, alias_constants.LONG, alias_constants.DOUBLE]
 LIST_TYPES = [alias_constants.LIST, alias_constants.JARRAY]

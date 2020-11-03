@@ -14,10 +14,10 @@ sys.path.append(pathname)
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.aliases.wlst_modes import WlstModes
 
-import wlsdeploy.aliastest.util.all_utils as all_utils
-import wlsdeploy.aliastest.generate.generator_wlst as generate_wlst
-import wlsdeploy.aliastest.generate.generator_helper as generator_helper
-from wlsdeploy.aliastest.verify.verifier import Verifier
+import aliastest.util.all_utils as all_utils
+import aliastest.generate.generator_wlst as generate_wlst
+import aliastest.generate.generator_helper as generator_helper
+from aliastest.verify.verifier import Verifier
 
 
 __logger = PlatformLogger('test.aliases', resource_bundle_name='systemtest_rb')

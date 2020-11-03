@@ -19,11 +19,10 @@ print sys.path
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.aliases.wlst_modes import WlstModes
 
-import wlsdeploy.aliastest.generate.generator_wlst as generator_wlst
-import wlsdeploy.aliastest.generate.generator_wlst2 as generator_wlst2
-import wlsdeploy.aliastest.generate.generator_helper as generator_helper
-import wlsdeploy.aliastest.util.all_utils as all_utils
-from wlsdeploy.aliastest.generate.generator_online import OnlineGenerator
+import aliastest.generate.generator_wlst as generator_wlst
+import aliastest.generate.generator_helper as generator_helper
+import aliastest.util.all_utils as all_utils
+from aliastest.generate.generator_online import OnlineGenerator
 
 
 __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='systemtest_rb')
@@ -75,11 +74,10 @@ def main(args):
     _method_name = 'main'
 
     generator_wlst.wlst_functions = globals()
-    generator_wlst2.wlst_functions = globals()
-    generator_wlst2.connect('weblogic', 'welcome1', 't3://localhost:7001')
-    ls_list = generator_wlst2.lsc()
+    generator_wlst.connect('weblogic', 'welcome1', 't3://localhost:7001')
+    ls_list = generator_wlst.lsc()
     print ls_list
-    generator_wlst2.disconnect()
+    generator_wlst.disconnect()
     __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
     system_exit = 0
     kwargs = all_utils.kwargs_map(args)

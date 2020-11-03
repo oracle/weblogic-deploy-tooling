@@ -9,7 +9,7 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-import wlsdeploy.aliastest.util.all_utils as all_utils
+import aliastest.util.all_utils as all_utils
 
 
 # Change this to store stuff here and not in model_context

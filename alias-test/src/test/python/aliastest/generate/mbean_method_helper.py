@@ -10,8 +10,8 @@ import java.util.logging.Level as Level
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-import wlsdeploy.aliastest.util.all_utils as all_utils
-import wlsdeploy.aliastest.generate.generator_wlst as generator_wlst
+import aliastest.util.all_utils as all_utils
+import aliastest.generate.generator_wlst as generator_wlst
 
 
 class MBeanMethodHelper(object):

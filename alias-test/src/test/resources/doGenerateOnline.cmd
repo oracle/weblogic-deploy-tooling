@@ -230,23 +230,7 @@ IF EXIST "%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd" (
     SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources
     GOTO found_wlst
 )
-IF DEFINED WLST_PATH_DIR (
-  FOR %%i IN ("%WLST_PATH_DIR%") DO SET WLST_PATH_DIR=%%~fsi
-  IF NOT EXIST "%WLST_PATH_DIR%" (
-    ECHO WLST_PATH_DIR specified does not exist: %WLST_PATH_DIR% >&2
-    SET RETURN_CODE=98
-    GOTO exit_script
-  )
-  set "WLST=%WLST_PATH_DIR%\common\bin\wlst.cmd"
-  IF NOT EXIST "%WLST%" (
-    ECHO WLST executable %WLST% not found under specified WLST_PATH_DIR %WLST_PATH_DIR% >&2
-    SET RETURN_CODE=98
-    GOTO exit_script
-  )
-  SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-  SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-  GOTO found_wlst
-)
+
 IF NOT EXIST "%WLST%" (
   ECHO Unable to locate wlst.cmd script in ORACLE_HOME %ORACLE_HOME% >&2
   SET RETURN_CODE=98

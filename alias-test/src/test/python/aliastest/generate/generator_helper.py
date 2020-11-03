@@ -15,9 +15,9 @@ import org.python.core.PyInstance as PyInstance
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.aliases.alias_constants as alias_constants
 
-import wlsdeploy.aliastest.generate.generator_wlst as generator_wlst
-import wlsdeploy.aliastest.util.all_utils as all_utils
-from wlsdeploy.aliastest.util.helper import TestHelper
+import aliastest.generate.generator_wlst as generator_wlst
+import aliastest.util.all_utils as all_utils
+from aliastest.util.helper import TestHelper
 
 VARIATIONS = {'ies': 'y', 'es': '', 's': ''}
 

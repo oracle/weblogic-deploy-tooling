@@ -11,11 +11,11 @@ import java.util.logging.Level as Level
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-import wlsdeploy.aliastest.util.all_utils as all_utils
-import wlsdeploy.aliastest.generate.generator_wlst as generator_wlst
-from wlsdeploy.aliastest.generate.generator_helper import GeneratorHelper
-from wlsdeploy.aliastest.generate.mbean_info_helper import MBeanInfoHelper
-from wlsdeploy.aliastest.generate.mbean_method_helper import MBeanMethodHelper
+import aliastest.util.all_utils as all_utils
+import aliastest.generate.generator_wlst as generator_wlst
+from aliastest.generate.generator_helper import GeneratorHelper
+from aliastest.generate.mbean_info_helper import MBeanInfoHelper
+from aliastest.generate.mbean_method_helper import MBeanMethodHelper
 
 CLASS_NAME = 'OfflineGenerator'
 

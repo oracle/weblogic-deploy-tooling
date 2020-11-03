@@ -1,17 +1,18 @@
 #!/bin/sh
 # *****************************************************************************
-# discoverDomain.sh
+# doVerifyOffline.sh
 #
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2020, Oracle and/or its affiliates.
 # The Universal Permissive License (UPL), Version 1.0
 #
 #     NAME
-#       discoverDomain.sh - WLS Deploy tool to discover a domain.
+#       doVerifyOffline.sh - alias test to verify the domain MBeans and attributes
+#                            against WDT alias definitions
 #
 #     DESCRIPTION
-#       This script discovers the model of an existing domain and gathers
-#       the binaries needed to recreate the domain elsewhere with all of
-#       its applications and resources configured.
+#       This script verifies offline mode of a specific version of WebLogic Server alias definitions.
+#       It compares the offline WebLogic version JSON file created by the generate step against the
+#       definitions.
 #
 #
 # This script uses the following command-line arguments directly, the rest
@@ -82,15 +83,16 @@ usage() {
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
   echo ""
 }
-
+scriptName=`basename $0`
+scriptPath=$(dirname "$0")
+scriptArgs=$*
 umask 27
 
 WLSDEPLOY_PROGRAM_NAME="aliases_tests"; export WLSDEPLOY_PROGRAM_NAME
 
 if [ "${WLSDEPLOY_HOME}" = "" ]; then
-    BASEDIR="$( cd "$( dirname $0 )" && pwd )"
-    WLSDEPLOY_HOME=`cd "${BASEDIR}/.." ; pwd`
-    export WLSDEPLOY_HOME
+    echo "WLSDEPLOY_HOME environment variable must be set" >&2
+    exit 2
 elif [ ! -d ${WLSDEPLOY_HOME} ]; then
     echo "Specified WLSDEPLOY_HOME of ${WLSDEPLOY_HOME} does not exist" >&2
     exit 2
@@ -317,22 +319,22 @@ if [ ${RETURN_CODE} -eq 100 ]; then
 elif [ ${RETURN_CODE} -eq 99 ]; then
   usage `basename $0`
   echo ""
-  echo "doGenerateVerify.sh failed due to the usage error shown above" >&2
+  echo "doGenerateOffline.sh failed due to the usage error shown above" >&2
 elif [ ${RETURN_CODE} -eq 98 ]; then
   echo ""
-  echo "doGenerateVerify.sh failed due to a parameter validation error" >&2
+  echo "doGenerateOffline.sh failed due to a parameter validation error" >&2
 elif [ ${RETURN_CODE} -eq 2 ]; then
   echo ""
-  echo "doGenerateVerify.sh failed (exit code = ${RETURN_CODE})" >&2
+  echo "doGenerateOffline.sh failed (exit code = ${RETURN_CODE})" >&2
 elif [ ${RETURN_CODE} -eq 1 ]; then
   echo ""
-  echo "doGenerateVerify.sh completed but with some issues (exit code = ${RETURN_CODE})" >&2
+  echo "doGenerateOffline.sh completed but with some issues (exit code = ${RETURN_CODE})" >&2
 elif [ ${RETURN_CODE} -eq 0 ]; then
   echo ""
-  echo "doGenerateVerify.sh completed successfully (exit code = ${RETURN_CODE})"
+  echo "doGenerateOffline.sh completed successfully (exit code = ${RETURN_CODE})"
 else
   # Unexpected return code so just print the message and exit...
   echo ""
-  echo "doGenerateVerify.sh failed (exit code = ${RETURN_CODE})" >&2
+  echo "doGenerateOffline.sh failed (exit code = ${RETURN_CODE})" >&2
 fi
 exit ${RETURN_CODE}
