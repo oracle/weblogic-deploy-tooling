@@ -77,7 +77,7 @@ ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-wlst_path ^<wlst_path^>]
-ECHO              [-rollback_if_require_restart]
+ECHO              [-rollback_if_restart_required]
 ECHO              [-discard_current_edit]
 ECHO              [-output_dir]
 ECHO              [-admin_url ^<admin_url^>
