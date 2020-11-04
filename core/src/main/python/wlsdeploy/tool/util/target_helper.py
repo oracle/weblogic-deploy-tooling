@@ -12,6 +12,7 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS
+from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SIZE
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
@@ -248,9 +249,13 @@ class TargetHelper(object):
         if len(dynamic_cluster_assigns) > 0:
             # assign server group resources to cluster based on the version of WebLogic server version.
             if self.wls_helper.is_dynamic_cluster_server_groups_supported():
+                bug_map = self.save_dyn_size(dynamic_cluster_assigns)
                 self.target_server_groups(dynamic_cluster_assigns)
+                self.restore_dyn_size(bug_map)
             elif self.wls_helper.is_dynamic_cluster_server_group_supported():
+                bug_map = self.save_dyn_size(dynamic_cluster_assigns)
                 self.target_dynamic_clusters(dynamic_cluster_assigns)
+                self.restore_dyn_size(bug_map)
             else:
                 self.logger.warning('WLSDPLY-12238', domain_typedef.get_domain_type(),
                                     class_name=self.__class_name, method_name=_method_name)
@@ -571,3 +576,47 @@ class TargetHelper(object):
             self.logger.fine('WLSDPLY-12243', entity_name, result, class_name=self.__class_name,
                              method_name=_method_name)
         return result
+
+    def save_dyn_size(self, cluster_map):
+        """
+        Collect the before attribute of dynamic cluster size for each dynamic cluster. When
+        setting dynamic clusters to server groups, the parameter dynamic cluster size is reset
+        based on the parameters in the template server group WSM-CACHE-DYN-CLUSTER. A bug
+        was opened 32075458, but probably will be seen as not a bug.
+        :param cluster_map: cluster, server groups map
+        :return: map of cluster and attribute_value
+        """
+        _method_name = 'save_dyn_size'
+        bug_map = dict()
+        for cluster in cluster_map.iterkeys():
+            wlst_attribute = self.__locate_dynamic_attribute(cluster)
+            bug_map[cluster] = self.wlst_helper.get(wlst_attribute)
+            self.logger.finer('WLSDPLY-12559', cluster, bug_map[cluster],
+                              class_name=self.__class_name, method_name=_method_name)
+        return bug_map
+
+    def restore_dyn_size(self, bug_map):
+        """
+        The setServerGroups reset the dynamic cluster size. Reset to original value.
+        :param bug_map: map with cluster, dynamic cluster size
+        """
+        _method_name = 'restore_dyn_size'
+        for cluster, attribute_value in bug_map.iteritems():
+            if attribute_value is not None:
+                wlst_attribute = self.__locate_dynamic_attribute(cluster)
+                self.wlst_helper.set(wlst_attribute, attribute_value)
+                self.logger.finer('WLSDPLY-12560', cluster, wlst_attribute,
+                                  class_name=self.__class_name, method_name=_method_name)
+
+    def __locate_dynamic_attribute(self, cluster):
+        location = LocationContext()
+        location.append_location(CLUSTER)
+        location.add_name_token(self.aliases.get_name_token(location), cluster)
+        location.append_location(DYNAMIC_SERVERS)
+        list_path = self.aliases.get_wlst_list_path(location)
+        existing_names = self.wlst_helper.get_existing_object_list(list_path)
+        location.add_name_token(self.aliases.get_name_token(location), existing_names[0])
+        attributes_path = self.aliases.get_wlst_attributes_path(location)
+        self.wlst_helper.cd(attributes_path)
+        wlst_attribute = self.aliases.get_wlst_attribute_name(location, DYNAMIC_CLUSTER_SIZE)
+        return wlst_attribute
