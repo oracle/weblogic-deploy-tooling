@@ -6,6 +6,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import copy
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.exception import BundleAwareException
+
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 
 from wlsdeploy.aliases.location_context import LocationContext
@@ -601,6 +603,7 @@ class TargetHelper(object):
         :param bug_map: map with cluster, dynamic cluster size
         """
         _method_name = 'restore_dyn_size'
+        self.__put_back_in_edit()
         for cluster, attribute_value in bug_map.iteritems():
             if attribute_value is not None:
                 wlst_attribute = self.__locate_dynamic_attribute(cluster)
@@ -608,7 +611,19 @@ class TargetHelper(object):
                 self.logger.finer('WLSDPLY-12561', cluster, wlst_attribute,
                                   class_name=self.__class_name, method_name=_method_name)
 
+    def __put_back_in_edit(self):
+        """
+        setServerGroups throws you out of edit. Put it back in.
+        """
+        if self.model_context.is_wlst_online():
+            try:
+                self.wlst_helper.edit()
+                self.wlst_helper.start_edit()
+            except BundleAwareException, ex:
+                raise ex
+
     def __locate_dynamic_attribute(self, cluster):
+
         location = LocationContext()
         location.append_location(CLUSTER)
         location.add_name_token(self.aliases.get_name_token(location), cluster)
