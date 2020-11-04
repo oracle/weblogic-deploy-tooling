@@ -591,7 +591,7 @@ class TargetHelper(object):
         for cluster in cluster_map.iterkeys():
             wlst_attribute = self.__locate_dynamic_attribute(cluster)
             bug_map[cluster] = self.wlst_helper.get(wlst_attribute)
-            self.logger.finer('WLSDPLY-12559', cluster, bug_map[cluster],
+            self.logger.finer('WLSDPLY-12560', cluster, bug_map[cluster],
                               class_name=self.__class_name, method_name=_method_name)
         return bug_map
 
@@ -605,7 +605,7 @@ class TargetHelper(object):
             if attribute_value is not None:
                 wlst_attribute = self.__locate_dynamic_attribute(cluster)
                 self.wlst_helper.set(wlst_attribute, attribute_value)
-                self.logger.finer('WLSDPLY-12560', cluster, wlst_attribute,
+                self.logger.finer('WLSDPLY-12561', cluster, wlst_attribute,
                                   class_name=self.__class_name, method_name=_method_name)
 
     def __locate_dynamic_attribute(self, cluster):
