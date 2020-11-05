@@ -266,12 +266,15 @@ class ModelDiffer:
         path_tokens = path.split(PATH_TOKEN)
         folder_names = self.aliases.get_model_section_top_level_folder_names(path_tokens[0])
 
+        attribute_names = []
+        attributes_location = self.aliases.get_model_section_attribute_location(path_tokens[0])
+        if attributes_location:
+            attribute_names = self.aliases.get_model_attribute_names(attributes_location)
+
         if path_tokens[0] == KUBERNETES:
             return None, None
 
         for path_token in path_tokens[1:]:
-            attribute_names = self.aliases.get_model_attribute_names(location)
-
             if name_token_next:
                 token_name = self.aliases.get_name_token(location)
                 location.add_name_token(token_name, path_token)
@@ -279,6 +282,7 @@ class ModelDiffer:
             elif path_token in folder_names:
                 location.append_location(path_token)
                 folder_names = self.aliases.get_model_subfolder_names(location)
+                attribute_names = self.aliases.get_model_attribute_names(location)
                 regular_type = not self.aliases.is_artificial_type_folder(location)
                 security_type = regular_type and self.aliases.is_security_provider_type(location)
                 multiple_type = regular_type and self.aliases.supports_multiple_mbean_instances(location)
