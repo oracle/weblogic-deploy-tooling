@@ -27,6 +27,7 @@ from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
 from wlsdeploy.util.target_configuration import SECRETS_METHOD
 from wlsdeploy.util.target_configuration_helper import SECRET_PASSWORD_KEY
 from wlsdeploy.util.target_configuration_helper import SECRET_USERNAME_KEY
+from wlsdeploy.util.target_configuration_helper import WEBLOGIC_CREDENTIALS_SECRET_NAME
 
 _class_name = 'CredentialInjector'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -59,6 +60,13 @@ class CredentialInjector(VariableInjector):
             {REGEXP_PATTERN: "mail.smtp.user", REGEXP_SUFFIX: "smtp.user"}
         ]
     }
+
+    # keys that should not be filtered from cache, even if they are not in the model.
+    # the model may reference admin credentials indirectly if the target type uses wls_credentials_name.
+    NO_FILTER_KEYS = [
+        WEBLOGIC_CREDENTIALS_SECRET_NAME + ":" + SECRET_PASSWORD_KEY,
+        WEBLOGIC_CREDENTIALS_SECRET_NAME + ":" + SECRET_USERNAME_KEY
+    ]
 
     def __init__(self, program_name, model, model_context, version=None, variable_dictionary=None):
         """
@@ -178,3 +186,50 @@ class CredentialInjector(VariableInjector):
             return target_configuration_helper.format_as_overrides_secret(variable_name)
         else:
             return VariableInjector.get_variable_token(self, attribute, variable_name)
+
+    def filter_unused_credentials(self, model_dictionary):
+        """
+        Remove credentials from the cache that are no longer present in the model.
+        Check for variables or secrets, depending on target configuration.
+        :param model_dictionary: the model to be checked
+        """
+        _method_name = 'filter_unused_credentials'
+
+        target_config = self._model_context.get_target_configuration()
+        credentials_method = target_config.get_credentials_method()
+
+        if credentials_method == CONFIG_OVERRIDES_SECRETS_METHOD:
+            _logger.info("WLSDPLY-19650", credentials_method, class_name=_class_name, method_name=_method_name)
+            return
+
+        all_variables = []
+        self._add_model_variables(model_dictionary, all_variables)
+
+        cache_keys = self.get_variable_cache().keys()
+        for key in cache_keys:
+            if key in self.NO_FILTER_KEYS:
+                continue
+
+            if credentials_method == SECRETS_METHOD:
+                variable_name = '@@SECRET:@@ENV:DOMAIN_UID@@-%s@@' % key
+            else:
+                variable_name = '@@PROP:%s@@' % key
+
+            if variable_name not in all_variables:
+                _logger.info("WLSDPLY-19651", variable_name, class_name=_class_name, method_name=_method_name)
+                del self.get_variable_cache()[key]
+
+    def _add_model_variables(self, model_dictionary, variables):
+        """
+        Add any variable values found in the model dictionary to the variables list
+        :param model_dictionary: the dictionary to be examined
+        :param variables: the list to be appended
+        """
+        for key in model_dictionary:
+            value = model_dictionary[key]
+            if isinstance(value, dict):
+                self._add_model_variables(value, variables)
+            else:
+                text = str(value)
+                if text.startswith('@@'):
+                    variables.append(text)

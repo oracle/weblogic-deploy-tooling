@@ -417,11 +417,19 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
 
     credential_cache = None
     if credential_injector is not None:
+        # filter variables or secrets that are no longer in the model
+        credential_injector.filter_unused_credentials(model.get_model())
+
         credential_cache = credential_injector.get_variable_cache()
 
         # Generate k8s create secret script
         if target_configuration.uses_credential_secrets():
             target_configuration_helper.generate_k8s_script(model_context, credential_cache, model.get_model())
+
+        # create additional output after filtering, but before variables have been inserted
+        if model_context.is_targetted_config():
+            target_configuration_helper.create_additional_output(model, model_context, aliases, credential_injector,
+                                                                 ExceptionType.DISCOVER)
 
         # if target handles credential configuration, clear property cache to keep out of variables file.
         if model_context.get_target_configuration().manages_credentials():
@@ -509,11 +517,6 @@ def main(args):
 
     try:
         model = __discover(model_context, aliases, credential_injector, helper)
-
-        if model_context.is_targetted_config():
-            # do this before variables have been inserted into model
-            target_configuration_helper.create_additional_output(model, model_context, aliases, credential_injector,
-                                                                 ExceptionType.DISCOVER)
 
         model = __check_and_customize_model(model, model_context, aliases, credential_injector)
 
