@@ -5,6 +5,7 @@
 # Used by discoverDomain and prepareModel.
 import re
 import os
+from java.io import File
 
 from oracle.weblogic.deploy.util import FileUtils
 
@@ -18,6 +19,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util import variable_injector_functions
 from wlsdeploy.tool.util.targets import additional_output_helper
+from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
@@ -60,6 +62,9 @@ JDBC_USER_REPLACEMENT = '.user-value'
 SECURITY_NM_PATTERN = re.compile('^SecurityConfig.NodeManager')
 SECURITY_NM_REPLACEMENT = 'SecurityConfig.NodeManager.'
 
+K8S_SCRIPT_NAME = 'create_k8s_secrets.sh'
+K8S_SCRIPT_RESOURCE_PATH = 'oracle/weblogic/deploy/k8s/' + K8S_SCRIPT_NAME
+
 
 def process_target_arguments(argument_map):
     """
@@ -86,12 +91,13 @@ def process_target_arguments(argument_map):
             argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = path
 
 
-def generate_k8s_script(model_context, token_dictionary, model_dictionary):
+def generate_k8s_script(model_context, token_dictionary, model_dictionary, exception_type):
     """
     Generate a shell script for creating k8s secrets.
     :param model_context: used to determine output directory
     :param token_dictionary: contains every token
     :param model_dictionary: used to determine domain UID
+    :param exception_type: type of exception to throw
     """
 
     # determine the domain name and UID
@@ -101,46 +107,8 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
         domain_name = DEFAULT_WLS_DOMAIN_NAME
 
     domain_uid = k8s_helper.get_domain_uid(domain_name)
-
-    nl = '\n'
-    file_location = model_context.get_output_dir()
-    k8s_file = os.path.join(file_location, "create_k8s_secrets.sh")
-    k8s_script = open(k8s_file, 'w')
-
-    k8s_script.write('#!/bin/bash' + nl)
-
-    k8s_script.write(nl)
-    k8s_script.write('set -eu' + nl)
-
-    k8s_script.write(nl)
-    message = exception_helper.get_message("WLSDPLY-01665", ADMIN_USER_TAG, ADMIN_PASSWORD_TAG)
-    k8s_script.write("# " + message + nl)
-    k8s_script.write('NAMESPACE=default' + nl)
-    k8s_script.write('DOMAIN_UID=' + domain_uid + nl)
-
-    k8s_script.write(nl)
-    k8s_script.write('function create_k8s_secret {' + nl)
-    k8s_script.write('  kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-$1 --ignore-not-found' + nl)
-    k8s_script.write('  kubectl -n $NAMESPACE create secret generic ${DOMAIN_UID}-$1 --from-literal=password=$2' + nl)
-    k8s_script.write('  kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-$1 weblogic.domainUID=${DOMAIN_UID}' + nl)
-    k8s_script.write('}' + nl)
-
-    k8s_script.write(nl)
-    k8s_script.write('function create_paired_k8s_secret {' + nl)
-    k8s_script.write('  kubectl -n $NAMESPACE delete secret ${DOMAIN_UID}-$1 --ignore-not-found' + nl)
-    k8s_script.write('  kubectl -n $NAMESPACE create secret generic ${DOMAIN_UID}-$1' +
-                     ' --from-literal=username=$2 --from-literal=password=$3' + nl)
-    k8s_script.write('  kubectl -n $NAMESPACE label secret ${DOMAIN_UID}-$1 weblogic.domainUID=${DOMAIN_UID}' + nl)
-    k8s_script.write('}' + nl)
-
-    command_string = "create_paired_k8s_secret %s %s %s" \
-                     % (WEBLOGIC_CREDENTIALS_SECRET_NAME, ADMIN_USER_TAG, ADMIN_PASSWORD_TAG)
-
-    k8s_script.write(nl)
-    message = exception_helper.get_message("WLSDPLY-01664", ADMIN_USER_TAG, ADMIN_PASSWORD_TAG,
-                                           WEBLOGIC_CREDENTIALS_SECRET_NAME)
-    k8s_script.write("# " + message + nl)
-    k8s_script.write(command_string + nl)
+    comment = exception_helper.get_message("WLSDPLY-01665")
+    script_hash = {'domainUid': domain_uid, 'topComment': comment}
 
     # build a map of secret names (jdbc-generic1) to keys (username, password)
     secret_map = {}
@@ -150,7 +118,7 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
         if len(halves) == 2:
             secret_name = halves[0]
 
-            # admin credentials are hard-coded in the script, to be first in the list
+            # admin credentials are inserted later, at the top of the list
             if secret_name == WEBLOGIC_CREDENTIALS_SECRET_NAME:
                 continue
 
@@ -160,28 +128,35 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary):
             secret_keys = secret_map[secret_name]
             secret_keys[secret_key] = value
 
+    # update the hash with secrets and paired secrets
+    secrets = []
+    paired_secrets = [_build_secret_hash(WEBLOGIC_CREDENTIALS_SECRET_NAME, USER_TAG, PASSWORD_TAG)]
+
     secret_names = secret_map.keys()
     secret_names.sort()
-
     for secret_name in secret_names:
         secret_keys = secret_map[secret_name]
         user_name = dictionary_utils.get_element(secret_keys, SECRET_USERNAME_KEY)
-
         if user_name is None:
-            message = exception_helper.get_message("WLSDPLY-01663", PASSWORD_TAG, secret_name)
-            command_string = "create_k8s_secret %s %s " \
-                             % (secret_name, PASSWORD_TAG)
+            secrets.append(_build_secret_hash(secret_name, None, PASSWORD_TAG))
         else:
-            message = exception_helper.get_message("WLSDPLY-01664", USER_TAG, PASSWORD_TAG, secret_name)
-            command_string = "create_paired_k8s_secret %s %s %s " \
-                             % (secret_name, user_name, PASSWORD_TAG)
+            paired_secrets.append(_build_secret_hash(secret_name, user_name, PASSWORD_TAG))
 
-        k8s_script.write(nl)
-        k8s_script.write("# " + message + nl)
-        k8s_script.write(command_string + nl)
+    script_hash['secrets'] = secrets
+    script_hash['pairedSecrets'] = paired_secrets
+    script_hash['longMessage'] = exception_helper.get_message('WLSDPLY-01667', '${LONG_SECRETS_COUNT}')
 
-    k8s_script.close()
-    FileUtils.chmod(k8s_file, 0750)
+    long_messages = [
+        {'text': exception_helper.get_message('WLSDPLY-01668')},
+        {'text': exception_helper.get_message('WLSDPLY-01669')},
+        {'text': exception_helper.get_message('WLSDPLY-01670')}
+    ]
+    script_hash['longMessageDetails'] = long_messages
+
+    file_location = model_context.get_output_dir()
+    k8s_file = File(file_location, K8S_SCRIPT_NAME)
+    file_template_helper.create_file_from_resource(K8S_SCRIPT_RESOURCE_PATH, script_hash, k8s_file, exception_type)
+    FileUtils.chmod(k8s_file.getPath(), 0750)
 
 
 def format_as_secret_token(secret_id, target_config):
@@ -285,3 +260,19 @@ def create_secret_name(variable_name, suffix=None):
     # if empty, just return "x".
     secret = '-'.join(secret_keys).strip('-')
     return secret or 'x'
+
+
+def _build_secret_hash(secret_name, user, password):
+    """
+    Build a hash for a single secret, for use with the create secrets script template.
+    :param secret_name: the name of the secret
+    :param user: the associated user name, or None
+    :param password: the associated password
+    :return: a secret hash
+    """
+    if user:
+        message = exception_helper.get_message("WLSDPLY-01664", USER_TAG, PASSWORD_TAG, secret_name)
+        return {'secretName': secret_name, 'user': user, 'password': password, 'comment': message}
+    else:
+        message = exception_helper.get_message("WLSDPLY-01663", PASSWORD_TAG, secret_name)
+        return {'secretName': secret_name, 'password': password, 'comment': message}
