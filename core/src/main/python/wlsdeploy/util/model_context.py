@@ -33,6 +33,8 @@ class ModelContext(object):
     CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
     TEMP_DIRECTORY_TOKEN = '@@TMP@@'
 
+    DB_USER_DEFAULT = 'SYS'
+
     def __init__(self, program_name, arg_map):
         """
         Create a new model context instance.
@@ -87,7 +89,7 @@ class ModelContext(object):
         self._variable_injector_file = None
         self._variable_keywords_file = None
         self._variable_properties_file = None
-        self._rcu_db_user = 'SYS'
+        self._rcu_db_user = self.DB_USER_DEFAULT
         self._discard_current_edit = False
         self._model_config = None
         self._ignore_missing_archive_entries = False
