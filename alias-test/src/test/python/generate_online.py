@@ -39,7 +39,8 @@ def persist_file(model_context, dictionary):
     """
     _method_name = 'persist_file'
     __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
-    filename = all_utils.filename(generator_helper.filename(), all_utils.str_mode(model_context))
+    filename = all_utils.filename(generator_helper.filename(), all_utils.str_mode(model_context),
+                                  generator_wlst.wls_version().replace('.',''))
     __logger.info('WLSDPLYST-01001', all_utils.str_mode(model_context), filename, class_name=CLASS_NAME,
                   method_name=_method_name)
     all_utils.create_json_file(dictionary, filename)

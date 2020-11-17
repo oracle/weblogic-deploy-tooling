@@ -10,7 +10,7 @@
 @REM
 
 SETLOCAL
-SET VERSION=12214
+SET VERSION=1412
 SET RUN_HOME=C:\Users\crountre\temp\runscripts
 SET TEST_HOME=c:\Users\crountre\workspace
 SET TESTFILES=c:\Users\crountre\temp\testfiles-12.2.1.4
@@ -33,7 +33,7 @@ SET ADMIN_NAME=AdminServer
 SET ADMIN_USER=weblogic
 SET ADMIN_PASSWORD=welcome1
 SET ADMIN_URL=t3://localhost:7001
-SET WLSDEPLOY_HOME=%TESTFILES%\weblogic-deploy
+SET WLSDEPLOY_HOME=\users\crountre\temp\weblogic-deploy
 
 @REM rmdir /Q /S %TEST_HOME%\%INTEGRATION_PROJECT%
 @REM git clone git@orahub.oraclecorp.com:weblogic-cloud/wls-deploy-integration-test.git %TEST_HOME%\%INTEGRATION_PROJECT%

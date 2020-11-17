@@ -27,7 +27,6 @@ import java.util.logging.FileHandler as FileHandler
 import java.util.logging.Level as Level
 import java.util.IllegalFormatException as IllegalFormatException
 
-import weblogic.version as WebLogicVersionClass
 
 from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.json import JsonStreamTranslator
@@ -42,7 +41,6 @@ from wlsdeploy.util.model_context import ModelContext
 LOGGER_PROPERTIES_LOCATION = 'resources'
 LOGGER_PROPERTIES = 'logging.properties'
 
-STANDARD_VERSION_NUMBER_PLACES = 5
 _indent_unit = '    '
 LINE_SEPARATOR = JSystem.getProperty('line.separator')
 IGNORE_METHODS_LIST = ['Attribute', 'Attributes', 'CachingDisabled', 'Class', 'Comments',
@@ -136,27 +134,20 @@ def get_dictionary_from_json_file(json_file_name):
     return dictionary
 
 
-def filename(prefix, mode):
+def filename(prefix, mode, wls_version):
     """
     Generate a test file path and file to be stored at the test files location specified for this test instance.
     :param prefix: type of file
     :param mode: online or offline
+    :param wls_version: version of WebLogic server
     :return: Test file name with mode and version concatenated with the test files location path
     """
     new_filename = None
     if prefix and mode:
-        new_filename = prefix + mode.lower() + wls_version().replace('.', '')
+        new_filename = prefix + mode.lower() + wls_version
         if __test_files_location:
             new_filename = os.path.join(get_test_files_location(), new_filename)
     return new_filename
-
-
-def wls_version():
-    """
-    Return the version of the oracle home for the current wlst session.
-    :return: weblogic version
-    """
-    return str(WebLogicVersionClass.getReleaseBuildVersion())
 
 
 def get_missing_names(mbean_type, check_map, check_map_type, against_map, against_map_type):
@@ -604,53 +595,6 @@ def ignore_mbean(mbean_type):
 
     __logger.exiting(result=str_bool(ignore), class_name=CLASS_NAME, method_name=_method_name)
     return ignore
-
-
-def is_weblogic_version_or_above(str_version):
-    """
-    Is the provided version number equal to or greater than the version encapsualted by this version instance
-    :param str_version: the string representation of the version to be compared
-    :return: True if the provided version is equal or greater than the version represented by this helper instance
-    """
-    result = False
-    array_version = str_version.split('.')
-    array_wl_version = _get_wl_version_array()
-
-    len_compare = len(array_wl_version)
-    if len(array_version) < len_compare:
-        len_compare = len(array_version)
-
-    idx = 0
-    while idx < len_compare:
-        compare_value = String(array_version[idx]).compareTo(String(array_wl_version[idx]))
-        if compare_value < 0:
-            result = True
-            break
-        elif compare_value > 0:
-            result = False
-            break
-        elif idx + 1 == len_compare:
-            result = True
-
-        idx += 1
-
-    return result
-
-
-def _get_wl_version_array():
-    """
-    Get the WebLogic version number padded to the standard number of digits.
-    :return: the padded WebLogic version number
-    """
-    result = wls_version().split('.')
-
-    if len(result) < STANDARD_VERSION_NUMBER_PLACES:
-        index = len(result)
-        while index < STANDARD_VERSION_NUMBER_PLACES:
-            result.append('0')
-            index += 1
-
-    return result
 
 
 def _is_empty(value):

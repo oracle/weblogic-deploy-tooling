@@ -7,6 +7,7 @@ import java.util.logging.Level as Level
 import java.util.Map as Map
 
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
+import weblogic.version as WebLogicVersionClass
 
 import java.lang.ClassCastException as ClassCastException
 import java.lang.NoSuchMethodException as NoSuchMethodException
@@ -19,6 +20,7 @@ __class_name = 'generate_wlst'
 
 wlst_functions = None
 
+STANDARD_VERSION_NUMBER_PLACES = 5
 
 def wlst_silence():
     _method_name = 'wlst_silence'
@@ -420,6 +422,7 @@ def lsa_modified():
 
     return mbean_map
 
+
 def lsc():
     _method_name = 'lsc'
     online_wlst_exception = _load_global('WLSTException')
@@ -471,3 +474,58 @@ def _load_global(global_name):
     if member is None:
         raise AttributeError(global_name)
     return member
+
+
+def wls_version():
+    """
+    Return the version of the oracle home for the current wlst session.
+    :return: weblogic version
+    """
+    return str(WebLogicVersionClass.getReleaseBuildVersion())
+
+
+def _get_wl_version_array():
+    """
+    Get the WebLogic version number padded to the standard number of digits.
+    :return: the padded WebLogic version number
+    """
+    result = wls_version().split('.')
+
+    if len(result) < STANDARD_VERSION_NUMBER_PLACES:
+        index = len(result)
+        while index < STANDARD_VERSION_NUMBER_PLACES:
+            result.append('0')
+            index += 1
+
+    return result
+
+
+def is_weblogic_version_or_above(str_version):
+    """
+    Is the provided version number equal to or greater than the version encapsualted by this version instance
+    :param str_version: the string representation of the version to be compared
+    :return: True if the provided version is equal or greater than the version represented by this helper instance
+    """
+    result = False
+    array_version = str_version.split('.')
+    array_wl_version = _get_wl_version_array()
+
+    len_compare = len(array_wl_version)
+    if len(array_version) < len_compare:
+        len_compare = len(array_version)
+
+    idx = 0
+    while idx < len_compare:
+        compare_value = String(array_version[idx]).compareTo(String(array_wl_version[idx]))
+        if compare_value < 0:
+            result = True
+            break
+        elif compare_value > 0:
+            result = False
+            break
+        elif idx + 1 == len_compare:
+            result = True
+
+        idx += 1
+
+    return result

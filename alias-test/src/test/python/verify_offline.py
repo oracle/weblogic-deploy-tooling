@@ -24,9 +24,6 @@ __logger = PlatformLogger('test.aliases', resource_bundle_name='systemtest_rb')
 __logger.set_level(Level.FINEST)
 CLASS_NAME = 'verify_offline'
 
-generate_wlst.wlst_functions = globals()
-generate_wlst.wlst_silence()
-
 
 def get_dictionary(model_context):
     _method_name = 'get_dictionary'

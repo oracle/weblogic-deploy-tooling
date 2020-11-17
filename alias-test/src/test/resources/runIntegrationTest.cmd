@@ -1,4 +1,4 @@
-SET VERSION=1411
+SET VERSION=1412
 SET PORT=7001
 
 SET TEST_HOME=c:\Users\crountre\workspace\weblogic-deploy-tooling\alias-test\src\test
