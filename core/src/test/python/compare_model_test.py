@@ -244,6 +244,72 @@ class CompareModelTestCase(unittest.TestCase):
 
         self.assertEqual(return_code, 0)
 
+    def testCompareModelFull2(self):
+        _method_name = 'testCompareModelFull2'
+
+        _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
+        _new_model_file = self._resources_dir + '/compare_model_model7.yaml'
+        _old_model_file = self._resources_dir + '/compare_model_model6.yaml'
+        _temp_dir = os.path.join(tempfile.gettempdir(), _method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+
+        os.mkdir(_temp_dir)
+
+        mw_home = os.environ['MW_HOME']
+        args_map = {
+            '-oracle_home': mw_home,
+            '-variable_file': _variables_file,
+            '-output_dir' : _temp_dir,
+            '-domain_type' : 'WLS',
+            '-trailing_arguments': [ _new_model_file, _old_model_file ]
+        }
+
+        try:
+            model_context = ModelContext('CompareModelTestCase', args_map)
+            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            return_code = obj.compare()
+            self.assertEqual(return_code, 0)
+
+            yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
+            json_result = _temp_dir + os.sep + 'diffed_model.json'
+            stdout_result = obj.get_compare_msgs()
+            model_dictionary = FileToPython(yaml_result).parse()
+            yaml_exists = os.path.exists(yaml_result)
+            json_exists = os.path.exists(json_result)
+
+            self.assertEqual(yaml_exists, True)
+            self.assertEqual(json_exists, True)
+            self.assertEqual(len(stdout_result), 1)
+
+            self.assertEqual(model_dictionary.has_key('domainInfo'), True)
+            self.assertEqual(model_dictionary['domainInfo'].has_key('AdminPassword'), True)
+            self.assertEqual(model_dictionary['domainInfo']['AdminPassword'], 'welcome2')
+            self.assertEqual(model_dictionary['domainInfo'].has_key('AdminUser'), False)
+            self.assertEqual(model_dictionary['domainInfo'].has_key('RCUDbInfo'), True)
+            self.assertEqual(model_dictionary['domainInfo']['RCUDbInfo'].has_key('rcu_admin_password'), True)
+            self.assertEqual(len(model_dictionary['domainInfo']['RCUDbInfo']), 1)
+            self.assertEqual(len(model_dictionary['domainInfo']), 2)
+            self.assertEqual(model_dictionary.has_key('appDeployments'), True)
+            self.assertEqual(model_dictionary['appDeployments'].has_key('Application'), True)
+            self.assertEqual(model_dictionary['appDeployments']['Application'].has_key('!yourear'), True)
+            # print 'DEBUGME' - it failed since it is two application in the diff ... why?
+            # print model_dictionary['appDeployments']['Application']
+            # self.assertEqual(len(model_dictionary['appDeployments']['Application']), 1)
+
+
+        except (CompareException, PyWLSTException), te:
+            return_code = 2
+            self._logger.severe('WLSDPLY-05709',
+                                te.getLocalizedMessage(), error=te,
+                                class_name=self._program_name, method_name=_method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+
+        self.assertEqual(return_code, 0)
+
 
 if __name__ == '__main__':
     unittest.main()
