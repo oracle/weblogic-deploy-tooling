@@ -19,7 +19,7 @@ from wlsdeploy.util import dictionary_utils
 __class_name = 'file_template_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
-_substitution_pattern = re.compile("({{{(.*)}}})")
+_substitution_pattern = re.compile("({{{([.-}]*)}}})")
 _block_start_pattern = re.compile("({{#(.*)}})")
 _block_end_pattern = re.compile("({{/(.*)}})")
 

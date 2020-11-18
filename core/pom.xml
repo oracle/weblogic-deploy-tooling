@@ -86,6 +86,7 @@
                     <include>oracle/**/*.json</include>
                     <include>oracle/**/*.ldift</include>
                     <include>oracle/**/*.properties</include>
+                    <include>oracle/**/*.sh</include>
                     <include>oracle/**/*.yaml</include>
                 </includes>
                 <filtering>false</filtering>
