@@ -246,6 +246,10 @@ class CompareModelTestCase(unittest.TestCase):
 
     def testCompareModelFull2(self):
         _method_name = 'testCompareModelFull2'
+        # This test for
+        # 1. Changing weblogic password
+        # 2. Changing RCU password
+        # 3. Deleting an application
 
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
         _new_model_file = self._resources_dir + '/compare_model_model7.yaml'
@@ -296,6 +300,119 @@ class CompareModelTestCase(unittest.TestCase):
             self.assertEqual(model_dictionary['appDeployments']['Application'].has_key('!yourear'), True)
             self.assertEqual(len(model_dictionary['appDeployments']['Application']), 1)
 
+
+        except (CompareException, PyWLSTException), te:
+            return_code = 2
+            self._logger.severe('WLSDPLY-05709',
+                                te.getLocalizedMessage(), error=te,
+                                class_name=self._program_name, method_name=_method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+
+        self.assertEqual(return_code, 0)
+
+    def _testCompareModelFull3(self):
+        _method_name = 'testCompareModelFull3'
+        # This test for
+        # 1. Changing MailSessionProperty
+        # 2. Changing ODL HandlerDefaults
+        # 3. Changing ODL Handler property
+        # 4. Changing ODL Logger attributes
+
+        _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
+        _new_model_file = self._resources_dir + '/compare_model_model7.yaml'
+        _old_model_file = self._resources_dir + '/compare_model_model6.yaml'
+        _temp_dir = os.path.join(tempfile.gettempdir(), _method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+
+        os.mkdir(_temp_dir)
+
+        mw_home = os.environ['MW_HOME']
+        args_map = {
+            '-oracle_home': mw_home,
+            '-variable_file': _variables_file,
+            '-output_dir' : _temp_dir,
+            '-domain_type' : 'WLS',
+            '-trailing_arguments': [ _new_model_file, _old_model_file ]
+        }
+
+        try:
+            model_context = ModelContext('CompareModelTestCase', args_map)
+            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            return_code = obj.compare()
+            self.assertEqual(return_code, 0)
+
+            yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
+            json_result = _temp_dir + os.sep + 'diffed_model.json'
+            stdout_result = obj.get_compare_msgs()
+            model_dictionary = FileToPython(yaml_result).parse()
+            yaml_exists = os.path.exists(yaml_result)
+            json_exists = os.path.exists(json_result)
+
+            self.assertEqual(yaml_exists, True)
+            self.assertEqual(json_exists, True)
+            self.assertEqual(len(stdout_result), 0)
+
+            self.assertEqual(model_dictionary.has_key('resources'), True)
+            self.assertEqual(model_dictionary['resources'].has_key('MailSession'), True)
+            self.assertEqual(model_dictionary['resources']['MailSession'].has_key('MyMailSession'), True)
+            self.assertEqual(model_dictionary['resources']['MailSession']['MyMailSession'].has_key('mail.imap.port'),
+                             True)
+            self.assertEqual(model_dictionary['resources']['MailSession']['MyMailSession']['mail.imap.port'], 993)
+            self.assertEqual(len(model_dictionary['resources']['MailSession']['MyMailSession']['mail.imap.port']), 1)
+
+            self.assertEqual(model_dictionary['resources'].has_key('ODLConfiguration'), True)
+            self.assertEqual(model_dictionary['resources']['ODLConfiguration'].has_key('config'), True)
+            self.assertEqual(model_dictionary['resources']['ODLConfiguration']['config'].has_key('HandlerDefaults'),
+                             True)
+            self.assertEqual(
+                model_dictionary['resources']['ODLConfiguration']['config']['HandlerDefaults'].has_key('maxFileSize'),
+                             True)
+            self.assertEqual(
+                model_dictionary['resources']['ODLConfiguration']['config']['HandlerDefaults']['maxFileSize'],
+                14857620)
+
+            self.assertEqual(model_dictionary['resources']['ODLConfiguration']['config'].has_key('Handler'),
+                             True)
+            self.assertEqual(
+                model_dictionary['resources']['ODLConfiguration']['config']['Handler'].has_key('odl-handler'),
+                True)
+            self.assertEqual(
+                model_dictionary['resources']['ODLConfiguration']['config']['Handler']['odl-handler']
+                    .has_key('Properties'), True)
+            self.assertEqual(
+                model_dictionary['resources']['ODLConfiguration']['config']['Handler']['odl-handler']['Properties']
+                .has_key('maxFileSize'), True)
+            self.assertEqual(
+                model_dictionary['resources']['ODLConfiguration']['config']['Handler']['odl-handler']
+                ['Properties']['maxFileSize'], 14857620)
+
+
+            self.assertEqual(model_dictionary['resources']['ODLConfiguration']['config'].has_key('Logger'),
+                             True)
+            self.assertEqual(
+                model_dictionary['resources']['ODLConfiguration']['config']['Logger']
+                    .has_key('oracle.communications.ordermanagement.automation.plugin.AutomationPluginManager'),
+                    True)
+            self.assertEqual(
+                model_dictionary['resources']['ODLConfiguration']['config']['Logger']
+                ['oracle.communications.ordermanagement.automation.plugin.AutomationPluginManager']
+                    .has_key('Level'), True)
+            self.assertEqual(
+                model_dictionary['resources']['ODLConfiguration']['config']['Logger']
+                ['oracle.communications.ordermanagement.automation.plugin.AutomationPluginManager']['Level'],
+                'TRACE:16')
+            self.assertEqual(
+                len(model_dictionary['resources']['ODLConfiguration']['config']), 3)
+
+            self.assertEqual(
+                len(model_dictionary['resources']['ODLConfiguration']['config']['Logger']), 1)
+
+            self.assertEqual(
+                len(model_dictionary['resources']['ODLConfiguration']['config']['HandlerDefaults']), 1)
 
         except (CompareException, PyWLSTException), te:
             return_code = 2
