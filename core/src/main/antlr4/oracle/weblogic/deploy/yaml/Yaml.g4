@@ -288,6 +288,7 @@ fragment ID_START
     | [a-z]
     | [0-9]
     | '!'
+    | '$'
     ;
 
 fragment ID_CONTINUE
@@ -299,7 +300,6 @@ fragment ID_CONTINUE
 // to support variables in IDs that will need to be quoted because of the curly braces
 fragment QUOTED_ID_START
     : ID_START
-    | '$'
     | '@'
     ;
 
