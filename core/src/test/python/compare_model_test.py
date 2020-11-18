@@ -224,7 +224,7 @@ class CompareModelTestCase(unittest.TestCase):
             yaml_exists = os.path.exists(yaml_result)
 
             self.assertEqual(yaml_exists, True)
-            self.assertEqual(len(stdout_result), 1)
+            self.assertEqual(len(stdout_result), 0)
 
             self.assertEqual(model_dictionary.has_key('appDeployments'), True)
             self.assertEqual(model_dictionary['appDeployments'].has_key('Library'), True)
@@ -281,7 +281,7 @@ class CompareModelTestCase(unittest.TestCase):
 
             self.assertEqual(yaml_exists, True)
             self.assertEqual(json_exists, True)
-            self.assertEqual(len(stdout_result), 1)
+            self.assertEqual(len(stdout_result), 0)
 
             self.assertEqual(model_dictionary.has_key('domainInfo'), True)
             self.assertEqual(model_dictionary['domainInfo'].has_key('AdminPassword'), True)
@@ -294,9 +294,7 @@ class CompareModelTestCase(unittest.TestCase):
             self.assertEqual(model_dictionary.has_key('appDeployments'), True)
             self.assertEqual(model_dictionary['appDeployments'].has_key('Application'), True)
             self.assertEqual(model_dictionary['appDeployments']['Application'].has_key('!yourear'), True)
-            # print 'DEBUGME' - it failed since it is two application in the diff ... why?
-            # print model_dictionary['appDeployments']['Application']
-            # self.assertEqual(len(model_dictionary['appDeployments']['Application']), 1)
+            self.assertEqual(len(model_dictionary['appDeployments']['Application']), 1)
 
 
         except (CompareException, PyWLSTException), te:

@@ -53,6 +53,7 @@ appDeployments:
      Application:
          myear:
              SourcePath: /home/aime/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app.ear
+             ModuleType: ear
              Target: ['cluster-2','cluster-1']
          yourear:
              SourcePath: /home/aime/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app2.ear

@@ -70,12 +70,6 @@ __optional_arguments = [
     CommandLineArgUtil.VARIABLE_FILE_SWITCH
 ]
 
-all_changes = []
-all_added = []
-all_removed = []
-compare_msgs = sets.Set()
-
-
 def __process_args(args):
     """
     Process the command-line arguments.
@@ -468,6 +462,14 @@ class ModelFileDiffer:
         self.past_dict_file = past_dict
         self.output_dir = output_dir
         self.model_context = model_context
+        global all_changes
+        global all_added
+        global all_removed
+        global compare_msgs
+        all_changes = []
+        all_added = []
+        all_removed = []
+        compare_msgs = sets.Set()
 
     def get_dictionary(self, file):
         """
