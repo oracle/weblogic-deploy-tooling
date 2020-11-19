@@ -767,13 +767,9 @@ class TopologyDiscoverer(Discoverer):
                 if self._wlst_helper.path_exists(wlst_path):
                     _logger.fine('WLSDPLY-06613', server, class_name=_class_name, method_name=_method_name)
                     self._wlst_helper.cd(wlst_path)
-                    dynamic_size = 0
-                    present, __ =  self._aliases.is_valid_model_attribute_name(location,
-                                                                               model_constants.DYNAMIC_CLUSTER_SIZE)
-                    if present == ValidationCodes.VALID:
-                        attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
-                                                                          model_constants.DYNAMIC_CLUSTER_SIZE)
-                        dynamic_size = self._wlst_helper.get(attr_name)
+                    attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
+                                                                          model_constants.MAX_DYNAMIC_CLUSTER_SIZE)
+                    dynamic_size = self._wlst_helper.get(attr_name)
                     attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
                                                                       model_constants.SERVER_NAME_PREFIX)
                     prefix = self._wlst_helper.get(attr_name)
@@ -796,8 +792,6 @@ def check_against_server_list(server_name, dynamic_size, prefix, starting):
             number = StringUtils.stringToInteger(split_it[1].strip())
             if number is not None and starting <= number < (dynamic_size + starting):
                 return True
-    if prefix is not None and server_name.startswith(prefix) and dynamic_size == 0:
-        return True
     return False
 
 

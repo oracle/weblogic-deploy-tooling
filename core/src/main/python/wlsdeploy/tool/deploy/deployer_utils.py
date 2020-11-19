@@ -18,12 +18,12 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CLUSTER
-from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SIZE
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import FILE_URI
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import MAX_DYNAMIC_CLUSTER_SIZE
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_NAME_PREFIX
 from wlsdeploy.aliases.model_constants import SERVER_NAME_START_IDX
@@ -570,11 +570,8 @@ def check_if_dynamic_cluster(server_name, cluster_name, aliases):
         _wlst_helper.cd(attr_path)
     except DeployException:
         return False
-    dynamic_size = 0
-    present, __ = aliases.is_valid_model_attribute_name(location, DYNAMIC_CLUSTER_SIZE)
-    if present == ValidationCodes.VALID:
-        attr_name = aliases.get_wlst_attribute_name(location, DYNAMIC_CLUSTER_SIZE)
-        dynamic_size = _wlst_helper.get(attr_name)
+    attr_name = aliases.get_wlst_attribute_name(location, MAX_DYNAMIC_CLUSTER_SIZE)
+    dynamic_size = _wlst_helper.get(attr_name)
     attr_name = aliases.get_wlst_attribute_name(location, SERVER_NAME_PREFIX)
     prefix = _wlst_helper.get(attr_name)
     starting = 1
@@ -588,7 +585,5 @@ def check_if_dynamic_cluster(server_name, cluster_name, aliases):
             number = StringUtils.stringToInteger(split_it[1].strip())
             if number is not None and starting <= number < (dynamic_size + starting):
                 return True
-    if prefix is not None and server_name.startswith(prefix) and dynamic_size == 0:
-        return True
     return False
 
