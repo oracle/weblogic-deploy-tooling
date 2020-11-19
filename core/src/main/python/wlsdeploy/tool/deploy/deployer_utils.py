@@ -570,8 +570,11 @@ def check_if_dynamic_cluster(server_name, cluster_name, aliases):
         _wlst_helper.cd(attr_path)
     except DeployException:
         return False
-    attr_name = aliases.get_wlst_attribute_name(location, DYNAMIC_CLUSTER_SIZE)
-    dynamic_size = _wlst_helper.get(attr_name)
+    dynamic_size = 0
+    present, __ = aliases.is_valid_model_attribute_name(location, DYNAMIC_CLUSTER_SIZE)
+    if present == ValidationCodes.VALID:
+        attr_name = aliases.get_wlst_attribute_name(location, DYNAMIC_CLUSTER_SIZE)
+        dynamic_size = _wlst_helper.get(attr_name)
     attr_name = aliases.get_wlst_attribute_name(location, SERVER_NAME_PREFIX)
     prefix = _wlst_helper.get(attr_name)
     starting = 1
@@ -585,5 +588,7 @@ def check_if_dynamic_cluster(server_name, cluster_name, aliases):
             number = StringUtils.stringToInteger(split_it[1].strip())
             if number is not None and starting <= number < (dynamic_size + starting):
                 return True
+    if prefix is not None and server_name.startswith(prefix) and dynamic_size == 0:
+        return True
     return False
 
