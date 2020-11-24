@@ -767,9 +767,16 @@ class TopologyDiscoverer(Discoverer):
                 if self._wlst_helper.path_exists(wlst_path):
                     _logger.fine('WLSDPLY-06613', server, class_name=_class_name, method_name=_method_name)
                     self._wlst_helper.cd(wlst_path)
-                    attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
-                                                                      model_constants.DYNAMIC_CLUSTER_SIZE)
+                    present, __ = self._aliases.is_valid_model_attribute_name(location,
+                                                                              model_constants.DYNAMIC_CLUSTER_SIZE)
+                    if present == ValidationCodes.VALID:
+                        attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
+                                                                          model_constants.DYNAMIC_CLUSTER_SIZE)
+                    else:
+                        attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
+                                                                          model_constants.MAX_DYNAMIC_SERVER_COUNT)
                     dynamic_size = self._wlst_helper.get(attr_name)
+
                     attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
                                                                       model_constants.SERVER_NAME_PREFIX)
                     prefix = self._wlst_helper.get(attr_name)

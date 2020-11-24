@@ -245,7 +245,8 @@ class DomainResourceExtractor:
                 cluster_list = list()
                 spec_section[CLUSTERS] = cluster_list
                 for cluster_name, cluster_values in model_clusters.items():
-                    server_count = k8s_helper.get_server_count(cluster_name, cluster_values, self._model.get_model())
+                    server_count = k8s_helper.get_server_count(cluster_name, cluster_values, self._model.get_model(),
+                                                               self._aliases)
                     cluster_dict = PyOrderedDict()
                     cluster_dict[CLUSTER_NAME] = cluster_name
                     cluster_dict[REPLICAS] = server_count
