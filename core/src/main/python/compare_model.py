@@ -70,12 +70,6 @@ __optional_arguments = [
     CommandLineArgUtil.VARIABLE_FILE_SWITCH
 ]
 
-all_changes = []
-all_added = []
-all_removed = []
-compare_msgs = sets.Set()
-
-
 def __process_args(args):
     """
     Process the command-line arguments.
@@ -94,7 +88,7 @@ def __process_args(args):
 
 class ModelDiffer:
 
-    def __init__(self, current_dict, past_dict, aliases):
+    def __init__(self, current_dict, past_dict, aliases, all_changes, all_added, all_removed, compare_msgs):
         self.aliases = aliases
         self.final_changed_model = PyOrderedDict()
         self.current_dict = current_dict
@@ -108,6 +102,11 @@ class ModelDiffer:
             for item in self.past_dict.keys():
                 self.set_past.add(item)
         self.intersect = self.set_current.intersection(self.set_past)
+        self.all_changes = all_changes
+        self.all_added = all_added
+        self.all_removed = all_removed
+        self.compare_msgs = compare_msgs
+
 
     def added(self):
         return self.set_current - self.intersect
@@ -144,7 +143,8 @@ class ModelDiffer:
         """
         debug("DEBUG: Entering recursive_changed_detail key=%s token=%s root=%s", key, token, root)
 
-        a = ModelDiffer(self.current_dict[key], self.past_dict[key], self.aliases)
+        a = ModelDiffer(self.current_dict[key], self.past_dict[key], self.aliases, self.all_changes, self.all_added,
+                        self.all_removed, self.compare_msgs)
         diff = a.changed()
         added = a.added()
         removed = a.removed()
@@ -164,7 +164,7 @@ class ModelDiffer:
                     last = token.rfind(PATH_TOKEN)
                     token = root
                 else:
-                    all_changes.append(token)
+                    self.all_changes.append(token)
                     last = token.rfind(PATH_TOKEN)
                     token = root
 
@@ -176,14 +176,14 @@ class ModelDiffer:
             for item in added:
                 token = saved_token
                 debug('DEBUG: recursive added token %s item %s ', token, item)
-                all_added.append(token + PATH_TOKEN + item)
+                self.all_added.append(token + PATH_TOKEN + item)
 
         # We don't really care about this, just put something here is enough
         if len(removed) > 0:
             for item in removed:
                 token = saved_token
                 debug('DEBUG: removed %s', item)
-                all_removed.append(token + PATH_TOKEN + item)
+                self.all_removed.append(token + PATH_TOKEN + item)
         debug('DEBUG: Exiting recursive_changed_detail')
 
     def is_dict(self, key):
@@ -220,24 +220,24 @@ class ModelDiffer:
             #
             for s in changed:
                 self.recursive_changed_detail(s, s, s)
-                self._add_results(all_changes)
-                self._add_results(all_added)
-                self._add_results(all_removed, True)
+                self._add_results(self.all_changes)
+                self._add_results(self.all_added)
+                self._add_results(self.all_removed, True)
 
             for s in added:
                 self.recursive_changed_detail(s, s, s)
-                self._add_results(all_changes)
-                self._add_results(all_added)
+                self._add_results(self.all_changes)
+                self._add_results(self.all_added)
 
             # Clean up previous delete first
-            for x in all_removed:
-                all_removed.remove(x)
+            for x in self.all_removed:
+                self.all_removed.remove(x)
 
             # Top level:  e.g. delete all resources, all appDeployments
 
             for s in removed:
                 self.recursive_changed_detail(s, s, s)
-                self._add_results(all_removed, True)
+                self._add_results(self.all_removed, True)
 
         except (KeyError, IndexError), ke:
             _logger.severe('WLSDPLY-05709', str(ke)),
@@ -317,7 +317,7 @@ class ModelDiffer:
 
             if is_delete and not is_folder_path:
                 # Skip adding if it is a delete of an attribute
-                compare_msgs.add(('WLSDPLY-05701', change_path))
+                self.compare_msgs.add(('WLSDPLY-05701', change_path))
                 continue
 
             # splitted is a tuple containing the next token, and a delimited string of remaining tokens
@@ -468,6 +468,11 @@ class ModelFileDiffer:
         self.past_dict_file = past_dict
         self.output_dir = output_dir
         self.model_context = model_context
+        # For recursive calls
+        self.all_changes = []
+        self.all_added = []
+        self.all_removed = []
+        self.compare_msgs = sets.Set()
 
     def get_dictionary(self, file):
         """
@@ -563,7 +568,8 @@ class ModelFileDiffer:
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             return VALIDATION_FAIL
 
-        obj = ModelDiffer(current_dict, past_dict, aliases)
+        obj = ModelDiffer(current_dict, past_dict, aliases, self.all_changes, self.all_added,
+              self.all_removed, self.compare_msgs)
         obj.calculate_changed_model()
         net_diff = obj.get_final_changed_model()
 
@@ -615,7 +621,7 @@ class ModelFileDiffer:
         Return any warning or info messages.
         :return: Set of warning or info messages
         """
-        return compare_msgs
+        return self.compare_msgs
 
 
 def debug(format_string, *arguments):
@@ -675,7 +681,7 @@ def main():
             fos = None
             writer = None
             file_name = None
-            if len(compare_msgs) > 0:
+            if len(obj.get_compare_msgs()) > 0:
                 try:
                     file_name = _outputdir + '/compare_model_stdout'
                     fos = JFileOutputStream(file_name, False)
@@ -683,7 +689,7 @@ def main():
                     writer.println(BLANK_LINE)
                     writer.println(BLANK_LINE)
                     index = 1
-                    for line in compare_msgs:
+                    for line in obj.get_compare_msgs():
                         msg_key = line[0]
                         msg_value = line[1]
                         writer.println("%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->"))))
@@ -699,11 +705,11 @@ def main():
                     _logger.severe('WLSDPLY-05708', file_name, ioe.getLocalizedMessage(),
                                    error=ioe, class_name=_class_name, method_name=_method_name)
         else:
-            if len(compare_msgs) > 0:
+            if len(obj.get_compare_msgs()) > 0:
                 print BLANK_LINE
                 print BLANK_LINE
                 index = 1
-                for line in compare_msgs:
+                for line in obj.get_compare_msgs():
                     msg_key = line[0]
                     msg_value = line[1]
                     print "%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->")))
