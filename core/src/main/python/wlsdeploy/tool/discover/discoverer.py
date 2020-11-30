@@ -411,6 +411,7 @@ class Discoverer(object):
         default_list = list()
         if names is not None:
             for name in names:
+                location.add_name_token(name_token, name)
                 massaged = self._inspect_artificial_folder_name(name, location)
                 location.add_name_token(name_token, massaged)
                 artificial = self._get_artificial_type(location)
