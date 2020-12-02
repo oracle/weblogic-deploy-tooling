@@ -187,7 +187,7 @@ class DomainCreator(Creator):
         return
 
     # Override
-    def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False):
+    def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False, delete_now=True):
         """
         Override default behavior to create placeholders for referenced Coherence clusters.
         :param type_name: the model folder type
@@ -199,7 +199,7 @@ class DomainCreator(Creator):
         self.topology_helper.check_coherence_cluster_references(type_name, model_nodes)
         # continue with regular processing
 
-        Creator._create_named_mbeans(self, type_name, model_nodes, base_location, log_created=log_created)
+        Creator._create_named_mbeans(self, type_name, model_nodes, base_location, log_created=log_created, delete_now=delete_now)
 
     # Override
     def _create_mbean(self, type_name, model_nodes, base_location, log_created=False):
@@ -552,6 +552,16 @@ class DomainCreator(Creator):
         if len(dynamic_assigns) > 0:
             self.target_helper.target_dynamic_server_groups(dynamic_assigns)
 
+        location = LocationContext()
+        domain_name_token = self.aliases.get_name_token(location)
+        location.add_name_token(domain_name_token, self._domain_name)
+        server_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER)
+        if len(server_nodes) > 0:
+            self._create_named_mbeans(SERVER, server_nodes, location, log_created=True)
+        topology_folder_list.remove(SERVER)
+
+        self.__create_other_domain_artifacts(location, topology_folder_list)
+
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.write_domain(domain_home)
@@ -618,12 +628,12 @@ class DomainCreator(Creator):
         topology_folder_list.remove(CLUSTER)
         if SERVER_TEMPLATE in topology_folder_list:
             topology_folder_list.remove(SERVER_TEMPLATE)
-        topology_folder_list.remove(SERVER)
+        # topology_folder_list.remove(SERVER)
 
         self.__create_migratable_targets(location)
         topology_folder_list.remove(MIGRATABLE_TARGET)
-
-        self.__create_other_domain_artifacts(location, topology_folder_list)
+        #
+        # self.__create_other_domain_artifacts(location, topology_folder_list)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -804,7 +814,7 @@ class DomainCreator(Creator):
         # There may be a dependency to other servers when the server is in a cluster
         self.topology_helper.create_placeholder_servers_in_cluster(self._topology)
         if len(server_nodes) > 0:
-            self._create_named_mbeans(SERVER, server_nodes, location, log_created=True)
+            self._create_named_mbeans(SERVER, server_nodes, location, log_created=True, delete_now=False)
 
         # targets may have been inadvertently assigned when clusters were added
         self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
