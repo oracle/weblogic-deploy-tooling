@@ -70,8 +70,9 @@ class Creator(object):
         existing_folder_names = self._get_existing_folders(list_path)
         for model_name in model_nodes.keys():
             name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
-            if delete_now and model_helper.is_delete_name(name):
-                deployer_utils.delete_named_element(location, name, existing_folder_names, self.aliases)
+            if model_helper.is_delete_name(name):
+                if delete_now:
+                    deployer_utils.delete_named_element(location, name, existing_folder_names, self.aliases)
                 continue
 
             if token_name is not None:
