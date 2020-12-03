@@ -782,7 +782,7 @@ class ModelContext(object):
             return
         uri = URI(attribute_value)
         uri_scheme = uri.getScheme()
-        if uri_scheme is not None and uri_scheme.startsWith('file'):
+        if uri_scheme is not None and str(uri_scheme).startswith('file'):
             attribute_value = uri.getPath()
         if attribute_value.startswith(self.ORACLE_HOME_TOKEN):
             message = "Replacing {0} in {1} {2} {3} with {4}"
