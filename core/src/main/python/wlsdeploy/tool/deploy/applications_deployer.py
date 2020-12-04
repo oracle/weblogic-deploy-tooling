@@ -10,7 +10,6 @@ import os
 from java.io import File
 from java.io import IOException
 from java.security import NoSuchAlgorithmException
-from oracle.weblogic.deploy.aliases import TypeUtils
 
 import oracle.weblogic.deploy.util.FileUtils as FileUtils
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
@@ -693,7 +692,7 @@ class ApplicationsDeployer(Deployer):
                             # If model hashes match existing hashes, the application did not change.
                             # Unless targets were added, there's no need to redeploy.
                             model_targets = dictionary_utils.get_element(app_dict, TARGET)
-                            model_targets_list = TypeUtils.convertToType(list, model_targets)
+                            model_targets_list = alias_utils.create_list(model_targets, 'WLSDPLY-08000')
                             model_targets_set = Set(model_targets_list)
 
                             existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
