@@ -34,6 +34,7 @@ from oracle.weblogic.deploy.validate import ValidateException
 import oracle.weblogic.deploy.util.TranslateException as TranslateException
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_constants import ALIAS_LIST_TYPES
+from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import KUBERNETES
@@ -253,15 +254,18 @@ class ModelDiffer:
 
     def _parse_change_path(self, path):
         """
-        Determine the location and attribute name (if specified) for the specified change path
+        Determine the location and attribute name (if specified) for the specified change path.
+        Include a property key for property attribute paths.
         :param path: delimited change path, such as "resources|JDBCSystemResource|Generic2|JdbcResource"
-        :return: tuple - location for path, attribute name from path or None
+        :return: tuple - (location from path, attribute name from path, property key from path)
         """
         _method_name = '_parse_change_path'
 
         location = LocationContext()
         attribute_name = None
+        property_key = None
         name_token_next = False
+        property_key_next = False
 
         path_tokens = path.split(PATH_TOKEN)
         folder_names = self.aliases.get_model_section_top_level_folder_names(path_tokens[0])
@@ -279,6 +283,8 @@ class ModelDiffer:
                 token_name = self.aliases.get_name_token(location)
                 location.add_name_token(token_name, path_token)
                 name_token_next = False
+            elif property_key_next:
+                property_key = path_token
             elif path_token in folder_names:
                 location.append_location(path_token)
                 folder_names = self.aliases.get_model_subfolder_names(location)
@@ -294,13 +300,16 @@ class ModelDiffer:
                         location.add_name_token(token_name, "TOKEN")
             elif path_token in attribute_names:
                 attribute_name = path_token
+                attribute_type = self.aliases.get_model_attribute_type(location, attribute_name)
+                if attribute_type == PROPERTIES:
+                    property_key_next = True
                 name_token_next = False
             else:
                 ex = exception_helper.create_compare_exception('WLSDPLY-05712', path_token, path)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
-        return location, attribute_name
+        return location, attribute_name, property_key
 
     def _add_results(self, change_paths, is_delete=False):
         """
@@ -312,7 +321,7 @@ class ModelDiffer:
         for change_path in change_paths:
             # change_path is the keys of changes in the piped format, such as:
             # resources|JDBCSystemResource|Generic2|JdbcResource|JDBCConnectionPoolParams|TestConnectionsOnReserve
-            location, attribute_name = self._parse_change_path(change_path)
+            location, attribute_name, property_key = self._parse_change_path(change_path)
             is_folder_path = attribute_name is None
 
             if is_delete and not is_folder_path:
@@ -361,10 +370,13 @@ class ModelDiffer:
             if current_folder:
                 current_value = current_folder[key]
                 previous_value = dictionary_utils.get_element(previous_folder, key)
-                change_value, comment = self._get_change_info(current_value, previous_value, location, attribute_name)
+                change_value, comment = self._get_change_info(current_value, previous_value, location, attribute_name,
+                                                              property_key)
 
                 if comment:
-                    change_folder[COMMENT_MATCH] = comment
+                    # make comment key unique, key will not appear in output
+                    comment_key = COMMENT_MATCH + comment
+                    change_folder[comment_key] = comment
                 change_folder[key] = change_value
             else:
                 change_folder[key] = None
@@ -397,13 +409,14 @@ class ModelDiffer:
                     else:
                         pointer_dict[parent_key]['!' + app_key] = PyOrderedDict()
 
-    def _get_change_info(self, current_value, previous_value, location, attribute_name):
+    def _get_change_info(self, current_value, previous_value, location, attribute_name, property_key):
         """
         Determine the value and comment to put in the change model based on the supplied arguments.
         :param current_value: the current value from the new model
         :param previous_value: the previous value from the old model
         :param location: the location of the value in the model
         :param attribute_name: the name of the attribute, or None if this is a folder path
+        :param property_key: a key in a property value, or None if a different type
         :return: a tuple with the change value and comment, either can be None
         """
         change_value = current_value
@@ -430,6 +443,8 @@ class ModelDiffer:
                 current_text = ','.join(current_list)
                 previous_text = ','.join(previous_list)
                 comment = attribute_name + ": '" + previous_text + "' -> '" + current_text + "'"
+            elif attribute_type == PROPERTIES:
+                comment = property_key + ": '" + str(previous_value) + "'"
             elif not isinstance(previous_value, dict):
                 comment = attribute_name + ": '" + str(previous_value) + "'"
 
