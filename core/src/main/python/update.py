@@ -227,14 +227,13 @@ def __update_offline(model, model_context, aliases):
     topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.OFFLINE)
     topology_updater.update()
 
+    topology_updater.set_server_groups()
+
+    # Add resources after server groups are established to prevent auto-renaming
     model_deployer.deploy_model_offline(model, model_context, aliases, wlst_mode=__wlst_mode)
     if model_context.get_update_rcu_schema_pass() is True:
         rcu_helper = RCUHelper(model, model_context, aliases)
         rcu_helper.update_rcu_password()
-
-    __update_offline_domain()
-
-    topology_updater.set_server_groups()
 
     __update_offline_domain()
 
