@@ -312,7 +312,7 @@ class CompareModelTestCase(unittest.TestCase):
 
         self.assertEqual(return_code, 0)
 
-    def _testCompareModelFull3(self):
+    def testCompareModelFull3(self):
         _method_name = 'testCompareModelFull3'
         # This test for
         # 1. Changing MailSessionProperty
@@ -321,8 +321,8 @@ class CompareModelTestCase(unittest.TestCase):
         # 4. Changing ODL Logger attributes
 
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
-        _new_model_file = self._resources_dir + '/compare_model_model7.yaml'
-        _old_model_file = self._resources_dir + '/compare_model_model6.yaml'
+        _new_model_file = self._resources_dir + '/compare_model_model8.yaml'
+        _old_model_file = self._resources_dir + '/compare_model_model7.yaml'
         _temp_dir = os.path.join(tempfile.gettempdir(), _method_name)
 
         if os.path.exists(_temp_dir):
@@ -359,10 +359,11 @@ class CompareModelTestCase(unittest.TestCase):
             self.assertEqual(model_dictionary.has_key('resources'), True)
             self.assertEqual(model_dictionary['resources'].has_key('MailSession'), True)
             self.assertEqual(model_dictionary['resources']['MailSession'].has_key('MyMailSession'), True)
-            self.assertEqual(model_dictionary['resources']['MailSession']['MyMailSession'].has_key('mail.imap.port'),
-                             True)
-            self.assertEqual(model_dictionary['resources']['MailSession']['MyMailSession']['mail.imap.port'], 993)
-            self.assertEqual(len(model_dictionary['resources']['MailSession']['MyMailSession']['mail.imap.port']), 1)
+
+            mail_session = model_dictionary['resources']['MailSession']['MyMailSession']
+            self.assertEqual(mail_session.has_key('Properties'), True)
+            self.assertEqual(mail_session['Properties'].has_key('mail.imap.port'), True)
+            self.assertEqual(mail_session['Properties']['mail.imap.port'], 993)
 
             self.assertEqual(model_dictionary['resources'].has_key('ODLConfiguration'), True)
             self.assertEqual(model_dictionary['resources']['ODLConfiguration'].has_key('config'), True)
