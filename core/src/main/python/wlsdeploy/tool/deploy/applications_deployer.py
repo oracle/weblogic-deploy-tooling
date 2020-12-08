@@ -934,7 +934,8 @@ class ApplicationsDeployer(Deployer):
                     for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
                         if uses_path_tokens_attribute_name in lib_dict:
                             path = lib_dict[uses_path_tokens_attribute_name]
-                            self.__extract_source_path_from_archive(path, LIBRARY, lib_name)
+                            if deployer_utils.is_path_into_archive(path):
+                                self.__extract_source_path_from_archive(path, LIBRARY, lib_name)
 
                     location.add_name_token(token_name, lib_name)
                     resource_group_template_name, resource_group_name, partition_name = \
