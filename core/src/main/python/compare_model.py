@@ -268,7 +268,7 @@ class ModelDiffer:
 
         attribute_names = []
         attributes_location = self.aliases.get_model_section_attribute_location(path_tokens[0])
-        if attributes_location:
+        if attributes_location is not None:
             attribute_names = self.aliases.get_model_attribute_names(attributes_location)
 
         if path_tokens[0] == KUBERNETES:
