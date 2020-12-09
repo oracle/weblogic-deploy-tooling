@@ -269,6 +269,7 @@ def delete_named_element(location, delete_name, existing_names, aliases):
         type_path = aliases.get_wlst_create_path(location)
         _wlst_helper.cd(type_path)
         _wlst_helper.delete(name, type_name)
+        existing_names.remove(name)
 
 
 def ensure_no_uncommitted_changes_or_edit_sessions(ignoreEditSessionCheck=False):

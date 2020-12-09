@@ -469,7 +469,7 @@ class DomainCreator(Creator):
             self.wlst_helper.add_template(custom_template)
 
         topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
-        self.__apply_base_domain_config(topology_folder_list)
+        self.__create_machines_clusters_and_servers(delete_now=False)
         self.__configure_fmw_infra_database()
 
         if self.wls_helper.is_set_server_groups_supported():
@@ -485,6 +485,7 @@ class DomainCreator(Creator):
         self.logger.info('WLSDPLY-12209', self._domain_name,
                          class_name=self.__class_name, method_name=_method_name)
 
+        self.__apply_base_domain_config(topology_folder_list)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -538,7 +539,11 @@ class DomainCreator(Creator):
             self.__configure_fmw_infra_database()
             self.__configure_opss_secrets()
         topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
-        self.__apply_base_domain_config(topology_folder_list)
+
+        self.__create_security_folder()
+        topology_folder_list.remove(SECURITY)
+
+        self.__create_machines_clusters_and_servers(delete_now=False)
 
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
         dynamic_cluster_server_groups_to_target = self._domain_typedef.get_dynamic_cluster_server_groups()
@@ -552,15 +557,7 @@ class DomainCreator(Creator):
         if len(dynamic_assigns) > 0:
             self.target_helper.target_dynamic_server_groups(dynamic_assigns)
 
-        location = LocationContext()
-        domain_name_token = self.aliases.get_name_token(location)
-        location.add_name_token(domain_name_token, self._domain_name)
-        server_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER)
-        if len(server_nodes) > 0:
-            self._create_named_mbeans(SERVER, server_nodes, location, log_created=True)
-        topology_folder_list.remove(SERVER)
-
-        self.__create_other_domain_artifacts(location, topology_folder_list)
+        self.__apply_base_domain_config(topology_folder_list)
 
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
@@ -578,7 +575,8 @@ class DomainCreator(Creator):
         if self.wls_helper.is_set_server_groups_supported():
             # 12c versions set server groups directly
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-            server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+            server_assigns, dynamic_assigns = \
+                self.target_helper.target_server_groups_to_servers(server_groups_to_target)
             if len(server_assigns) > 0:
                 self.target_helper.target_server_groups(server_assigns)
 
@@ -613,27 +611,20 @@ class DomainCreator(Creator):
         domain_name_token = self.aliases.get_name_token(location)
         location.add_name_token(domain_name_token, self._domain_name)
 
-        self.__create_security_folder(location)
-        topology_folder_list.remove(SECURITY)
-
         topology_folder_list.remove(SECURITY_CONFIGURATION)
 
         self.__create_mbeans_used_by_topology_mbeans(location, topology_folder_list)
 
-        self.__create_machines(location)
+        self.__create_machines_clusters_and_servers()
         topology_folder_list.remove(MACHINE)
         topology_folder_list.remove(UNIX_MACHINE)
-
-        self.__create_clusters_and_servers(location)
         topology_folder_list.remove(CLUSTER)
         if SERVER_TEMPLATE in topology_folder_list:
             topology_folder_list.remove(SERVER_TEMPLATE)
-        # topology_folder_list.remove(SERVER)
-
-        self.__create_migratable_targets(location)
+        topology_folder_list.remove(SERVER)
         topology_folder_list.remove(MIGRATABLE_TARGET)
         #
-        # self.__create_other_domain_artifacts(location, topology_folder_list)
+        self.__create_other_domain_artifacts(location, topology_folder_list)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -677,14 +668,16 @@ class DomainCreator(Creator):
         self.__create_xml_registry(location)
         topology_folder_list.remove(XML_REGISTRY)
 
-    def __create_security_folder(self, location):
+    def __create_security_folder(self):
         """
         Create the /Security folder objects, if any.
-        :param location: the location to use
         :raises: CreateException: if an error occurs
         """
         _method_name = '__create_security_folder'
 
+        location = LocationContext()
+        domain_name_token = self.aliases.get_name_token(location)
+        location.add_name_token(domain_name_token, self._domain_name)
         self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
         security_nodes = dictionary_utils.get_dictionary_element(self._topology, SECURITY)
         if len(security_nodes) > 0:
@@ -775,16 +768,20 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __create_clusters_and_servers(self, location):
+    def __create_machines_clusters_and_servers(self, delete_now=True):
         """
         Create the /Cluster, /ServerTemplate, and /Server folder objects.
-        :param location: the location to use
+        :param delete_now: Flag determing whether the delete of the elements will be delayed
         :raises: CreateException: if an error occurs
         """
-        _method_name = '__create_clusters_and_servers'
+        _method_name = '__create_machines_clusters_and_servers'
 
+        location = LocationContext()
+        domain_name_token = self.aliases.get_name_token(location)
+        location.add_name_token(domain_name_token, self._domain_name)
         self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
 
+        self.__create_machines(location)
         #
         # In order for source domain provisioning to work with dynamic clusters, we have to provision
         # the ServerTemplates.  There is a cyclical dependency between Server Template and Clusters so we
@@ -798,14 +795,15 @@ class DomainCreator(Creator):
         jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
         cluster_nodes = dictionary_utils.get_dictionary_element(self._topology, CLUSTER)
         if len(cluster_nodes) > 0:
-            self._create_named_mbeans(CLUSTER, cluster_nodes, location, log_created=True)
+            self._create_named_mbeans(CLUSTER, cluster_nodes, location, log_created=True, delete_now=delete_now)
 
         #
         # Now, fully populate the ServerTemplates, if any.
         #
         server_template_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER_TEMPLATE)
         if len(server_template_nodes) > 0:
-            self._create_named_mbeans(SERVER_TEMPLATE, server_template_nodes, location, log_created=True)
+            self._create_named_mbeans(SERVER_TEMPLATE, server_template_nodes, location, log_created=True,
+                                      delete_now=delete_now)
 
         #
         # Finally, create/update the servers.
@@ -814,18 +812,19 @@ class DomainCreator(Creator):
         # There may be a dependency to other servers when the server is in a cluster
         self.topology_helper.create_placeholder_servers_in_cluster(self._topology)
         if len(server_nodes) > 0:
-            self._create_named_mbeans(SERVER, server_nodes, location, log_created=True, delete_now=False)
+            self._create_named_mbeans(SERVER, server_nodes, location, log_created=True, delete_now=delete_now)
 
         # targets may have been inadvertently assigned when clusters were added
         self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
-
+        self.__create_migratable_targets(location, delete_now=delete_now)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __create_migratable_targets(self, location):
+    def __create_migratable_targets(self, location, delete_now=True):
         """
         Create the /MigratableTarget folder objects, if any.
         :param location: the location to use
+        :param delete_now: Flag to determine if the delete of elements will be delayed
         :raises: CreateException: if an error occurs
         """
         _method_name = '__create_migratable_targets'
@@ -834,7 +833,8 @@ class DomainCreator(Creator):
         migratable_target_nodes = dictionary_utils.get_dictionary_element(self._topology, MIGRATABLE_TARGET)
 
         if len(migratable_target_nodes) > 0:
-            self._create_named_mbeans(MIGRATABLE_TARGET, migratable_target_nodes, location, log_created=True)
+            self._create_named_mbeans(MIGRATABLE_TARGET, migratable_target_nodes, location, log_created=True,
+                                      delete_now=delete_now)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -882,7 +882,7 @@ class DomainCreator(Creator):
 
         wlst_name, wlst_value = \
             self.aliases.get_wlst_attribute_name_and_value(root_location, DRIVER_PARAMS_PROPERTY_VALUE,
-                                                                property_value)
+                                                           property_value)
         self.wlst_helper.set(wlst_name, wlst_value)
 
         root_location.remove_name_token(property_name)
@@ -941,7 +941,7 @@ class DomainCreator(Creator):
 
                 wlst_name, wlst_value = \
                     self.aliases.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
-                                                                        rcu_schema_pwd, masked=True)
+                                                                   rcu_schema_pwd, masked=True)
                 self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
                 location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
@@ -956,7 +956,7 @@ class DomainCreator(Creator):
                 stb_user = orig_user.replace('DEV', rcu_prefix)
                 wlst_name, wlst_value = \
                     self.aliases.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE,
-                                                                        stb_user)
+                                                                   stb_user)
                 self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
                 # need to set other properties
@@ -1003,7 +1003,7 @@ class DomainCreator(Creator):
 
             wlst_name, wlst_value = \
                 self.aliases.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
-                                                                    rcu_schema_pwd, masked=True)
+                                                               rcu_schema_pwd, masked=True)
             self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
             location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
@@ -1232,7 +1232,8 @@ class DomainCreator(Creator):
         """
         Create credential mappings from model elements.
         """
-        default_nodes = dictionary_utils.get_dictionary_element(self._domain_info, WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS)
+        default_nodes = dictionary_utils.get_dictionary_element(self._domain_info,
+                                                                WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS)
         if default_nodes:
             credential_map_helper = CredentialMapHelper(self.model_context, ExceptionType.CREATE)
             credential_map_helper.create_default_init_file(default_nodes)
