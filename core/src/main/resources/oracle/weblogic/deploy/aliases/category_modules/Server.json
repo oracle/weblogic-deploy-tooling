@@ -385,7 +385,22 @@
         "ServerDebug": {
             "wlst_type": "ServerDebug",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
-            "folders": {},
+            "folders": {
+                "DebugScope": {
+                    "wlst_type": "DebugScope${:s}",
+                    "child_folders_type": "multiple",
+                    "wlst_mode": "offline",
+                    "folders": {},
+                    "attributes": {
+                        "Enabled":            [ {"version": "[10,)",       "wlst_mode": "offline",    "wlst_name": "Enabled",            "wlst_path": "WP001", "value": {"default": "false"    }, "wlst_type": "boolean"} ],
+                        "Notes":              [ {"version": "[10,)",       "wlst_mode": "offline",    "wlst_name": "Notes",              "wlst_path": "WP001", "value": {"default": "None"     }, "wlst_type": "string" } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/Server${:s}/%SERVER%/ServerDebug/%SERVERDEBUG%/DebugScope${:s}/%DEBUGSCOPE%"
+                    }
+                }
+            },
             "attributes": {
                 "ApplicationContainer":                         [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "ApplicationContainer",                         "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ],
                 "BugReportServiceWsdlUrl":                      [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "BugReportServiceWsdlUrl",                      "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string",  "get_method": "${LSA:GET}", "restart_required": "true" } ],
