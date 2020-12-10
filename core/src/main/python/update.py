@@ -140,7 +140,7 @@ def __update_online(model, model_context, aliases):
 
     topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.ONLINE)
     try:
-        topology_updater.update_clusters_and_servers(delete_now=False)
+        topology_updater.update_machines_clusters_and_servers(delete_now=False)
         topology_updater.warn_set_server_groups()
     except DeployException, de:
         __release_edit_session_and_disconnect()
@@ -233,15 +233,13 @@ def __update_offline(model, model_context, aliases):
 
     topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.OFFLINE)
     # deleting servers that are added by templates before set server groups causes mayhem
-    topology_updater.update_clusters_and_servers(delete_now=False)
+    topology_updater.update_machines_clusters_and_servers(delete_now=False)
 
     __update_offline_domain()
 
     topology_updater.set_server_groups()
 
     topology_updater.update()
-
-    topology_updater.set_server_groups()
 
     # Add resources after server groups are established to prevent auto-renaming
     model_deployer.deploy_model_offline(model, model_context, aliases, wlst_mode=__wlst_mode)
