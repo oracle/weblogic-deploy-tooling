@@ -45,7 +45,7 @@ class Creator(object):
         self.files_to_extract_from_archive = list()
         return
 
-    def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False):
+    def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False, delete_now=True):
         """
         Create the specified type of MBeans that support multiple instances in the specified location.
         :param type_name: the model folder type
@@ -71,7 +71,8 @@ class Creator(object):
         for model_name in model_nodes.keys():
             name = self.wlst_helper.get_quoted_name_for_wlst(model_name)
             if model_helper.is_delete_name(name):
-                deployer_utils.delete_named_element(location, name, existing_folder_names, self.aliases)
+                if delete_now:
+                    deployer_utils.delete_named_element(location, name, existing_folder_names, self.aliases)
                 continue
 
             if token_name is not None:

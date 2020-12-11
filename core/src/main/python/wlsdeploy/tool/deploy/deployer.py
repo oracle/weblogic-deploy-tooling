@@ -55,7 +55,7 @@ class Deployer(object):
                                                 exception_helper.ExceptionType.DEPLOY)
         return
 
-    def _add_named_elements(self, type_name, model_nodes, location):
+    def _add_named_elements(self, type_name, model_nodes, location, delete_now=True):
         """
         Add each named element from the specified nodes in WLST and set its attributes.
         Sub-folders are processed in a generic manner if present.
@@ -63,6 +63,7 @@ class Deployer(object):
         :param type_name: the type name of the child nodes
         :param model_nodes: the child nodes of a model element
         :param location: the location where elements should be added
+        :param delete_now: Flag to determine whether to delay delete of element
         """
         _method_name = '_add_named_elements'
 
@@ -80,7 +81,8 @@ class Deployer(object):
         token = self.aliases.get_name_token(location)
         for name in model_nodes:
             if model_helper.is_delete_name(name):
-                deployer_utils.delete_named_element(location, name, existing_names, self.aliases)
+                if delete_now:
+                    deployer_utils.delete_named_element(location, name, existing_names, self.aliases)
                 continue
 
             is_add = name not in existing_names

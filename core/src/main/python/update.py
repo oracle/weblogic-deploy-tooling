@@ -138,10 +138,10 @@ def __update_online(model, model_context, aliases):
 
     __logger.info("WLSDPLY-09007", admin_url, method_name=_method_name, class_name=_class_name)
 
+    topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.ONLINE)
     try:
-        topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.ONLINE)
-        topology_updater.update()
-        model_deployer.deploy_resources(model, model_context, aliases, wlst_mode=__wlst_mode)
+        topology_updater.update_machines_clusters_and_servers(delete_now=False)
+        topology_updater.warn_set_server_groups()
     except DeployException, de:
         __release_edit_session_and_disconnect()
         raise de
@@ -159,6 +159,13 @@ def __update_online(model, model_context, aliases):
         __wlst_helper.start_edit()
     except BundleAwareException, ex:
         raise ex
+
+    try:
+        topology_updater.update()
+        model_deployer.deploy_resources(model, model_context, aliases, wlst_mode=__wlst_mode)
+    except DeployException, de:
+        __release_edit_session_and_disconnect()
+        raise de
 
     exit_code = __check_update_require_domain_restart(model_context)
     # if user requested rollback if restart required stops
@@ -225,9 +232,14 @@ def __update_offline(model, model_context, aliases):
     __wlst_helper.read_domain(domain_home)
 
     topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.OFFLINE)
-    topology_updater.update()
+    # deleting servers that are added by templates before set server groups causes mayhem
+    topology_updater.update_machines_clusters_and_servers(delete_now=False)
+
+    __update_offline_domain()
 
     topology_updater.set_server_groups()
+
+    topology_updater.update()
 
     # Add resources after server groups are established to prevent auto-renaming
     model_deployer.deploy_model_offline(model, model_context, aliases, wlst_mode=__wlst_mode)
