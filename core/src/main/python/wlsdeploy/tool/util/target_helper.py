@@ -20,6 +20,7 @@ from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
+from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import string_utils
@@ -364,9 +365,16 @@ class TargetHelper(object):
             cluster_location.append_location(DYNAMIC_SERVERS)
             wlst_subfolder_name = self.aliases.get_wlst_mbean_type(cluster_location)
             if self.wlst_helper.subfolder_exists(wlst_subfolder_name):
-                if cluster_name not in cluster_map:
-                    cluster_map[cluster_name] = list()
-                cluster_map[cluster_name].append(DYNAMIC_SERVERS)
+                ds_list_path = self.aliases.get_wlst_list_path(cluster_location)
+                ds_names = self.wlst_helper.get_existing_object_list(ds_list_path)
+                if len(ds_names) > 0:
+                    cluster_location.add_name_token(self.aliases.get_name_token(cluster_location), ds_names[0])
+                    cluster_attributes_path = self.aliases.get_wlst_attributes_path(cluster_location)
+                    self.wlst_helper.cd(cluster_attributes_path)
+                    if self.wlst_helper.get(SERVER_TEMPLATE) is not None:
+                        if cluster_name not in cluster_map:
+                            cluster_map[cluster_name] = list()
+                        cluster_map[cluster_name].append(DYNAMIC_SERVERS)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=cluster_map)
         return cluster_map
@@ -529,7 +537,7 @@ class TargetHelper(object):
         _method_name = 'get_dc_to_server_groups_list'
 
         self.logger.entering(str(dynamic_cluster_names), str(server_groups), str(dc_sg_targeting_limits),
-                                 class_name=self.__class_name, method_name=_method_name)
+                             class_name=self.__class_name, method_name=_method_name)
         result = OrderedDict()
         revised_server_groups = self._revised_list_server_groups(server_groups, dc_sg_targeting_limits)
         for cluster_name in dynamic_cluster_names:
