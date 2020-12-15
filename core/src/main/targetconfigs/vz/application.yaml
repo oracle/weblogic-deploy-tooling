@@ -1,0 +1,25 @@
+apiVersion: core.oam.dev/v1alpha2
+kind: ApplicationConfiguration
+metadata:
+  name: {{{domainPrefix}}}-appconf
+  namespace: {{{domainUid}}}
+  annotations:
+    version: v1.0.0
+    description: "{{{domainName}}} application"
+spec:
+  components:
+    - componentName: {{{domainPrefix}}}-component
+      traits:
+        - trait:
+            apiVersion: oam.verrazzano.io/v1alpha1
+            kind: MetricsTrait
+        - trait:
+            apiVersion: oam.verrazzano.io/v1alpha1
+            kind: IngressTrait
+            spec:
+              rules:
+                - hosts:
+                    - "*"
+                  paths:
+                    - path: "/todo"
+                      pathType: Prefix
