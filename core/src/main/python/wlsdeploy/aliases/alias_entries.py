@@ -27,7 +27,6 @@ from wlsdeploy.aliases.alias_constants import MODEL_NAME
 from wlsdeploy.aliases.alias_constants import NAME_VALUE
 from wlsdeploy.aliases.alias_constants import NONE_CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import PATH_TOKEN
-from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_NAME_MAP
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import SHORT_NAME
@@ -349,7 +348,7 @@ class AliasEntries(object):
                 my_loc.append_location(location_folder)
 
                 # Have to check for security provider artificial folders that don't have a trailing name token
-                if location_folder not in SECURITY_PROVIDER_NAME_MAP:
+                if not self.is_location_child_folder_type(my_loc, ChildFoldersTypes.NONE):
                     name_token = self.get_name_token_for_location(my_loc)
                     if name_token is not None:
                         name = location.get_name_for_token(name_token)
