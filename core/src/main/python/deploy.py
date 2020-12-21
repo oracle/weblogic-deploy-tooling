@@ -64,7 +64,7 @@ __optional_arguments = [
     CommandLineArgUtil.PASSPHRASE_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH,
-    CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH
+    CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH
 ]
 
 
@@ -152,10 +152,10 @@ def __deploy_online(model, model_context, aliases):
         restart_required = __wlst_helper.is_restart_required()
         is_restartreq_output = sostream.get_string()
         __wlst_helper.silence()
-        if model_context.is_rollback_if_restart_required() and restart_required:
+        if model_context.is_cancel_changes_if_restart_required() and restart_required:
             __wlst_helper.cancel_edit()
             __logger.warning('WLSDPLY_09015', is_restartreq_output)
-            exit_code = CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE
+            exit_code = CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE
             deployer_utils.list_non_dynamic_changes(model_context, is_restartreq_output)
         else:
             __wlst_helper.save()

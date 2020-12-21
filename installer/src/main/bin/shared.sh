@@ -305,7 +305,7 @@ checkExitCode() {
 
     if [ $returnCode -eq 104 ]; then
       echo ""
-      echo "$scriptName completed successfully but the domain changes have been rolled back because -rollback_if_restart_required is specified (exit code = ${RETURN_CODE})"
+      echo "$scriptName completed successfully but the domain changes have been canceled back because -cancel_changes_if_restart_required is specified (exit code = ${RETURN_CODE})"
     elif [ $returnCode -eq 103 ]; then
       echo ""
       echo "$scriptName completed successfully but the domain requires a restart for the changes to take effect (exit code = ${RETURN_CODE})"
