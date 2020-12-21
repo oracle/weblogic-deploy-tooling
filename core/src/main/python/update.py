@@ -201,12 +201,13 @@ def __check_update_require_domain_restart(model_context):
             __wlst_helper.cancel_edit()
             __logger.warning('WLSDPLY_09015', is_restartreq_output)
             exit_code = CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE
-            deployer_utils.list_rollback_changes(model_context, is_restartreq_output)
+            deployer_utils.list_non_dynamic_changes(model_context, is_restartreq_output)
         else:
             __wlst_helper.save()
             __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
             if restart_required:
                 exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
+                deployer_utils.list_non_dynamic_changes(model_context, is_restartreq_output)
                 exit_code = deployer_utils.list_restarts(model_context, exit_code)
 
     except BundleAwareException, ex:
