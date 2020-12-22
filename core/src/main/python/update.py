@@ -64,7 +64,7 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
-    CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH,
+    CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH
@@ -168,9 +168,9 @@ def __update_online(model, model_context, aliases):
         raise de
 
     exit_code = __check_update_require_domain_restart(model_context)
-    # if user requested rollback if restart required stops
+    # if user requested cancel changes if restart required stops
 
-    if exit_code != CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE:
+    if exit_code != CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE:
         model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
 
     try:
@@ -197,16 +197,17 @@ def __check_update_require_domain_restart(model_context):
         restart_required = __wlst_helper.is_restart_required()
         is_restartreq_output = sostream.get_string()
         __wlst_helper.silence()
-        if model_context.is_rollback_if_restart_required() and restart_required:
+        if model_context.is_cancel_changes_if_restart_required() and restart_required:
             __wlst_helper.cancel_edit()
             __logger.warning('WLSDPLY_09015', is_restartreq_output)
-            exit_code = CommandLineArgUtil.PROG_ROLLBACK_IF_RESTART_EXIT_CODE
-            deployer_utils.list_rollback_changes(model_context, is_restartreq_output)
+            exit_code = CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE
+            deployer_utils.list_non_dynamic_changes(model_context, is_restartreq_output)
         else:
             __wlst_helper.save()
             __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
             if restart_required:
                 exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
+                deployer_utils.list_non_dynamic_changes(model_context, is_restartreq_output)
                 exit_code = deployer_utils.list_restarts(model_context, exit_code)
 
     except BundleAwareException, ex:

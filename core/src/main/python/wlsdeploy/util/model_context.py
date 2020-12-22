@@ -81,7 +81,7 @@ class ModelContext(object):
         self._opss_wallet = None
         self._update_rcu_schema_pass = False
         self._validation_method = None
-        self._rollback_if_restart_required = None
+        self._cancel_changes_if_restart_required = None
         self._domain_resource_file = None
         self._output_dir = None
         self._target = None
@@ -187,8 +187,8 @@ class ModelContext(object):
         if CommandLineArgUtil.ONE_PASS_SWITCH in arg_map:
             self._encrypt_one_pass = arg_map[CommandLineArgUtil.ONE_PASS_SWITCH]
 
-        if CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH in arg_map:
-            self._rollback_if_restart_required = arg_map[CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH]
+        if CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH in arg_map:
+            self._cancel_changes_if_restart_required = arg_map[CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH]
 
         if CommandLineArgUtil.USE_ENCRYPTION_SWITCH in arg_map:
             self._use_encryption = arg_map[CommandLineArgUtil.USE_ENCRYPTION_SWITCH]
@@ -296,8 +296,8 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH] = self._encrypt_manual
         if self._encrypt_one_pass is not None:
             arg_map[CommandLineArgUtil.ONE_PASS_SWITCH] = self._encrypt_one_pass
-        if self._rollback_if_restart_required is not None:
-            arg_map[CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH] = self._rollback_if_restart_required
+        if self._cancel_changes_if_restart_required is not None:
+            arg_map[CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH] = self._cancel_changes_if_restart_required
         if self._use_encryption is not None:
             arg_map[CommandLineArgUtil.USE_ENCRYPTION_SWITCH] = self._use_encryption
         if self._archive_file is not None:
@@ -452,12 +452,12 @@ class ModelContext(object):
         """
         return self._archive_file_name
 
-    def is_rollback_if_restart_required(self):
+    def is_cancel_changes_if_restart_required(self):
         """
-        Get the rollback if restart required
+        Get the cancel changes if restart required
         :return: true or false
         """
-        return self._rollback_if_restart_required
+        return self._cancel_changes_if_restart_required
 
     def is_discard_current_edit(self):
         """

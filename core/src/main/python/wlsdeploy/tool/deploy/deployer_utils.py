@@ -494,19 +494,19 @@ def list_restarts(model_context, exit_code):
     return result
 
 
-def list_rollback_changes(model_context, rollback_string):
+def list_non_dynamic_changes(model_context, non_dynamic_changes_string):
     """
-    If output dir is present in the model context, write the restart data to the output dir as rollback.file.
+    If output dir is present in the model context, write the restart data to the output dir as non_dynamic_changes.file.
     :param model_context: Current context with the run parameters.
-    :param rollback_string: java.lang.String of changes that were rolled back
+    :param non_dynamic_changes_string: java.lang.String of changes that were non dynamic
     """
-    _method_name = 'list_rollback_changes'
+    _method_name = 'list_non_dynamic_changes'
     _logger.entering(class_name=_class_name, method_name=_method_name)
     output_dir = model_context.get_output_dir()
-    if len(str(rollback_string)) > 0 and output_dir is not None:
-        file_name = os.path.join(output_dir, 'rollback.file')
+    if len(str(non_dynamic_changes_string)) > 0 and output_dir is not None:
+        file_name = os.path.join(output_dir, 'non_dynamic_changes.file')
         pw = FileUtils.getPrintWriter(file_name)
-        pw.println(rollback_string)
+        pw.println(non_dynamic_changes_string)
         pw.close()
 
 

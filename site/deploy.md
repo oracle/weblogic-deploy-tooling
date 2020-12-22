@@ -26,7 +26,7 @@ As usual, the tool will prompt for the password (it can also be supplied by pipi
 When running the tool in WLST online mode, the deploy operation may require server restarts or a domain restart to pick up the changes.  The deploy operation can also encounter situations where it cannot complete its operation until the domain is restarted.  To communicate these conditions to scripts that may be calling the Deploy Applications Tool, the shell scripts have three special, non-zero exit codes to communicate these states:
 
 - `103` - The entire domain needs to be restarted.
-- `104` - The domain changes have been rolled back because the changes in the model requires a domain restart and -rollback_if_restart_required is specified.
+- `104` - The domain changes have been canceled because the changes in the model requires a domain restart and -cancel_changes_if_restart_required is specified.
 
 ### Using an Encrypted Model
 
