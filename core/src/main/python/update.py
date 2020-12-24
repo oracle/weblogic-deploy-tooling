@@ -7,9 +7,6 @@ The entry point for the updateDomain tool.
 import os
 import sys
 
-from java.io import PrintStream
-from java.lang import System
-
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.util import CLAException
@@ -30,7 +27,6 @@ from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
-from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -143,7 +139,7 @@ def __update_online(model, model_context, aliases):
         topology_updater.update_machines_clusters_and_servers(delete_now=False)
         topology_updater.warn_set_server_groups()
     except DeployException, de:
-        __release_edit_session_and_disconnect()
+        deployer_utils.release_edit_session_and_disconnect()
         raise de
 
     # Server or Cluster may be added, this is to make sure they are targeted properly
@@ -163,11 +159,12 @@ def __update_online(model, model_context, aliases):
     try:
         topology_updater.update()
         model_deployer.deploy_resources(model, model_context, aliases, wlst_mode=__wlst_mode)
+        deployer_utils.delete_online_deployment_targets(model, aliases, __wlst_mode)
     except DeployException, de:
-        __release_edit_session_and_disconnect()
+        deployer_utils.release_edit_session_and_disconnect()
         raise de
 
-    exit_code = __check_update_require_domain_restart(model_context)
+    exit_code = deployer_utils.online_check_save_activate(model_context)
     # if user requested cancel changes if restart required stops
 
     if exit_code != CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE:
@@ -180,40 +177,6 @@ def __update_online(model, model_context, aliases):
         # to indicate a failure...just log the error since the process is going to exit anyway.
         __logger.warning('WLSDPLY-09009', _program_name, ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
-    return exit_code
-
-
-def __check_update_require_domain_restart(model_context):
-    _method_name = '__check_update_require_domain_restart'
-    exit_code = 0
-    try:
-        # First we enable the stdout again and then redirect the stdoout to a string output stream
-        # call isRestartRequired to get the output, capture the string and then silence wlst output again
-        #
-
-        __wlst_helper.enable_stdout()
-        sostream = StringOutputStream()
-        System.setOut(PrintStream(sostream))
-        restart_required = __wlst_helper.is_restart_required()
-        is_restartreq_output = sostream.get_string()
-        __wlst_helper.silence()
-        if model_context.is_cancel_changes_if_restart_required() and restart_required:
-            __wlst_helper.cancel_edit()
-            __logger.warning('WLSDPLY_09015', is_restartreq_output)
-            exit_code = CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE
-            deployer_utils.list_non_dynamic_changes(model_context, is_restartreq_output)
-        else:
-            __wlst_helper.save()
-            __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
-            if restart_required:
-                exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
-                deployer_utils.list_non_dynamic_changes(model_context, is_restartreq_output)
-                exit_code = deployer_utils.list_restarts(model_context, exit_code)
-
-    except BundleAwareException, ex:
-        __release_edit_session_and_disconnect()
-        raise ex
-
     return exit_code
 
 
@@ -269,23 +232,6 @@ def __update_offline_domain():
     except BundleAwareException, ex:
         __close_domain_on_error()
         raise ex
-
-
-def __release_edit_session_and_disconnect():
-    """
-    An online error recovery method.
-    """
-    _method_name = '__release_edit_session_and_disconnect'
-    try:
-        __wlst_helper.undo()
-        __wlst_helper.stop_edit()
-        __wlst_helper.disconnect()
-    except BundleAwareException, ex:
-        # This method is only used for cleanup after an error so don't mask
-        # the original problem by throwing yet another exception...
-        __logger.warning('WLSDPLY-09012', ex.getLocalizedMessage(), error=ex,
-                         class_name=_class_name, method_name=_method_name)
-    return
 
 
 def __close_domain_on_error():
