@@ -7,10 +7,6 @@ The entry point for the deployApps tool.
 import os
 import sys
 
-from java.io import PrintStream
-from java.lang import System
-
-
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.util import CLAException
@@ -26,7 +22,6 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util import model_context_helper
-from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import cla_helper
@@ -136,39 +131,15 @@ def __deploy_online(model, model_context, aliases):
 
     try:
         model_deployer.deploy_resources(model, model_context, aliases, wlst_mode=__wlst_mode)
+        deployer_utils.delete_online_deployment_targets(model, aliases, __wlst_mode)
     except DeployException, de:
-        __release_edit_session_and_disconnect()
+        deployer_utils.release_edit_session_and_disconnect()
         raise de
 
-    exit_code = 0
+    exit_code = deployer_utils.online_check_save_activate(model_context)
 
-    try:
-        # First we enable the stdout again and then redirect the stdoout to a string output stream
-        # call isRestartRequired to get the output, capture the string and then silence wlst output again
-        #
-        __wlst_helper.enable_stdout()
-        sostream = StringOutputStream()
-        System.setOut(PrintStream(sostream))
-        restart_required = __wlst_helper.is_restart_required()
-        is_restartreq_output = sostream.get_string()
-        __wlst_helper.silence()
-        if model_context.is_cancel_changes_if_restart_required() and restart_required:
-            __wlst_helper.cancel_edit()
-            __logger.warning('WLSDPLY_09015', is_restartreq_output)
-            exit_code = CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE
-            deployer_utils.list_non_dynamic_changes(model_context, is_restartreq_output)
-        else:
-            __wlst_helper.save()
-            __wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
-            if restart_required:
-                deployer_utils.list_non_dynamic_changes(model_context, is_restartreq_output)
-                exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
-                exit_code = deployer_utils.list_restarts(model_context, exit_code)
-    except BundleAwareException, ex:
-        __release_edit_session_and_disconnect()
-        raise ex
-
-    model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
+    if exit_code != CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE:
+        model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
 
     try:
         __wlst_helper.disconnect()
@@ -213,23 +184,6 @@ def __deploy_offline(model, model_context, aliases):
         __logger.warning('WLSDPLY-09011', _program_name, ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
     return 0
-
-
-def __release_edit_session_and_disconnect():
-    """
-    An online error recovery method.
-    """
-    _method_name = '__release_edit_session_and_disconnect'
-    try:
-        __wlst_helper.undo()
-        __wlst_helper.stop_edit()
-        __wlst_helper.disconnect()
-    except BundleAwareException, ex:
-        # This method is only used for cleanup after an error so don't mask
-        # the original problem by throwing yet another exception...
-        __logger.warning('WLSDPLY-09012', ex.getLocalizedMessage(), error=ex,
-                         class_name=_class_name, method_name=_method_name)
-    return
 
 
 def __close_domain_on_error():
