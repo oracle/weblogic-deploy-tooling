@@ -72,7 +72,7 @@ class CompareModelTestCase(unittest.TestCase):
 
             self.assertEqual(yaml_exists, True)
             self.assertEqual(json_exists, True)
-            self.assertEqual(len(stdout_result), 1)
+            self.assertEqual(len(stdout_result), 14)
 
             self.assertEqual(model_dictionary.has_key('resources'), True)
             self.assertEqual(model_dictionary.has_key('topology'), True)
@@ -85,12 +85,8 @@ class CompareModelTestCase(unittest.TestCase):
             self.assertEqual(model_dictionary['appDeployments'].has_key('Application'), True)
             self.assertEqual(model_dictionary['appDeployments']['Application'].has_key('myear'), True)
             self.assertEqual(model_dictionary['resources'].has_key('JMSSystemResource'), True)
-            self.assertEqual(model_dictionary['resources'].has_key('!WebAppContainer'), True)
             self.assertEqual(model_dictionary['resources']['JMSSystemResource'].has_key('MyJmsModule'), True)
-            self.assertEqual(model_dictionary['resources'].has_key('!WebAppContainer'), True)
             self.assertEqual(model_dictionary['resources'].has_key('SingletonService'), True)
-            self.assertEqual(model_dictionary['topology']['ServerTemplate']['cluster-1-template']
-                             .has_key('!ServerStart'), True)
             self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jax-rs#2.0@2.22.4.0'), True)
             self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jsf#1.2@1.2.9.0'), True)
             self.assertEqual(model_dictionary['appDeployments']['Application']['myear'].has_key('ModuleType'), False)
