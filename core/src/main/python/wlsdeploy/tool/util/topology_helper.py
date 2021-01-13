@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -13,6 +13,7 @@ from wlsdeploy.aliases.model_constants import COHERENCE_CLUSTER_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import CUSTOM_IDENTITY_KEYSTORE_FILE
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
@@ -172,6 +173,27 @@ class TopologyHelper(object):
             if self.wlst_helper.path_exists(wlst_path):
                 mbean = self.wlst_helper.get_mbean_for_wlst_path(wlst_path)
                 mbean.setTargets(None)
+
+    def remove_deleted_clusters_and_servers(self, domain_location, model_topology):
+        """
+        Remove clusters, servers, server templates, and migratable targets that were flagged for deletion
+        in the model. The deletions are intentionally skipped when these elements are first created.
+        :param domain_location: the location for the root of the domain
+        :param model_topology: the topology folder from the model
+        """
+        _method_name = 'remove_deleted_clusters_and_servers'
+        self.logger.entering(str(domain_location), class_name=self.__class_name, method_name=_method_name)
+
+        for folder_name in [CLUSTER, SERVER_TEMPLATE, SERVER, MIGRATABLE_TARGET]:
+            location = LocationContext(domain_location).append_location(folder_name)
+            existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
+            folder_nodes = dictionary_utils.get_dictionary_element(model_topology, folder_name)
+
+            for mbean_name in folder_nodes:
+                if model_helper.is_delete_name(mbean_name):
+                    deployer_utils.delete_named_element(location, mbean_name, existing_names, self.aliases)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def qualify_nm_properties(self, type_name, model_nodes, base_location, model_context, attribute_setter):
         """

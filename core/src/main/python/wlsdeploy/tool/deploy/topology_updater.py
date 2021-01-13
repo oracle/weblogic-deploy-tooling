@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -97,7 +97,8 @@ class TopologyUpdater(Deployer):
         self._process_section(self._topology, folder_list, ADMIN_CONSOLE, location)
         self._process_section(self._topology, folder_list, CDI_CONTAINER, location)
 
-        self.update_machines_clusters_and_servers()
+        # these deletions were intentionally skipped when these elements are first created.
+        self._topology_helper.remove_deleted_clusters_and_servers(location, self._topology)
         folder_list.remove(CLUSTER)
         folder_list.remove(SERVER)
         folder_list.remove(SERVER_TEMPLATE)
