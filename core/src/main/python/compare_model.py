@@ -281,6 +281,7 @@ def main():
             if len(obj.get_compare_msgs()) > 0:
                 try:
                     file_name = _outputdir + '/compare_model_stdout'
+                    print format_message('WLSDPLY-05715', len(obj.get_compare_msgs()), file_name)
                     fos = JFileOutputStream(file_name, False)
                     writer = JPrintWriter(fos, True)
                     writer.println(BLANK_LINE)
