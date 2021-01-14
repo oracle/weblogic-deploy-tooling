@@ -9,9 +9,14 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_constants import ALIAS_LIST_TYPES
 from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import KUBERNETES
+from wlsdeploy.aliases.model_constants import LIBRARY
+from wlsdeploy.aliases.model_constants import SOURCE_PATH
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import COMMENT_MATCH
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
 
 
@@ -21,6 +26,8 @@ class ModelComparer(object):
     """
     _class_name = "ModelComparer"
     _logger = PlatformLogger('wlsdeploy.compare_model')
+
+    SOURCE_PATH_FOLDERS = [APPLICATION, LIBRARY]
 
     def __init__(self, current_model_dict, past_model_dict, aliases, messages):
         """
@@ -48,7 +55,7 @@ class ModelComparer(object):
         """
         Compare folders after determining if the folder has named sub-folders.
         :param current_folder: a folder in the current model
-        :param past_folder: a folder in the past model
+        :param past_folder: corresponding folder in the past model
         :param location: the location for the specified folders
         :param attributes_location: the attribute location for the specified folders
         :return: a dictionary of differences between these folders
@@ -71,7 +78,7 @@ class ModelComparer(object):
         Compare current and past named folders using the specified locations.
         A named folder is a subfolder of a multiple-MBean folder, such as topology/Server/my-server
         :param current_folder: a folder in the current model
-        :param past_folder: a folder in the past model
+        :param past_folder: corresponding folder in the past model
         :param location: the location for the specified folders
         :param attributes_location: the attribute location for the specified folders
         :return: a dictionary of differences between these folders
@@ -109,7 +116,7 @@ class ModelComparer(object):
         """
         Compare the contents of current and past folders using the specified locations.
         :param current_folder: a folder in the current model
-        :param past_folder: a folder in the past model
+        :param past_folder: corresponding folder in the past model
         :param location: the location for the specified folders
         :param attributes_location: the attribute location for the specified folders
         :return: a dictionary of differences between these folders
@@ -168,6 +175,7 @@ class ModelComparer(object):
                     if next_change:
                         change_folder[key] = next_change
 
+        self._finalize_folder(current_folder, past_folder, change_folder, location)
         return change_folder
 
     def _get_next_location(self, location, key):
@@ -270,6 +278,30 @@ class ModelComparer(object):
             self._logger.info('WLSDPLY-05713', KUBERNETES, class_name=self._class_name, method_name=_method_name)
             return False
         return True
+
+    def _finalize_folder(self, current_folder, past_folder, change_folder, location):
+        """
+        Perform any adjustments after a folder has been evaluated.
+        :param current_folder: folder in the current model
+        :param past_folder: corresponding folder in the past model
+        :param change_folder: the folder with the changed attributes and sub-folders
+        :param location: the location for the specified folders
+        """
+        _method_name = '_finalize_folder'
+
+        folder_path = []
+        if location is not None:
+            folder_path = location.get_model_folders()
+
+        # Application and Library should include SourcePath if they have any other elements
+        if (len(folder_path) == 1) and (folder_path[0] in self.SOURCE_PATH_FOLDERS):
+            if change_folder and (SOURCE_PATH not in change_folder):
+                # if SourcePath not present, past and current folder had matching values
+                source_path = dictionary_utils.get_element(current_folder, SOURCE_PATH)
+                if source_path is not None:
+                    comment = exception_helper.get_message('WLSDPLY-05714', SOURCE_PATH)
+                    _add_comment(comment, change_folder)
+                    change_folder[SOURCE_PATH] = source_path
 
 
 def _add_comment(comment, dictionary):
