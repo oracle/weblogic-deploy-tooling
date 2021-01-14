@@ -1,0 +1,58 @@
+# Copyright (c) 2021, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+# test that Application and Library SourcePath are included when needed.
+# test that only named folders are deleted when a subtree is removed.
+# 2 attributes are erased in the change model, and will be flagged in the output.
+topology:
+    Server:
+        s1:
+            # SSL not in new model, should not appear in change model.
+            # it's the only diff, so Server will not appear at all.
+            SSL:
+                Notes: yes  # erased
+
+resources:
+    # SelfTuning is absent in the new model.
+    # the change model should have deleted elements newWM, SampleMinThreads, SampleMaxThreads.
+    SelfTuning:
+        WorkManager:
+            newWM:
+                Target: 'cluster-1'
+                MinThreadsConstraint: 'SampleMinThreads'
+                MaxThreadsConstraint: 'SampleMaxThreads'
+        MinThreadsConstraint:
+            SampleMinThreads:
+                Count: 2
+        MaxThreadsConstraint:
+            SampleMaxThreads:
+                Count: 20
+
+    # WebAppContainer is absent in the new model.
+    # it should not appear at all in the change model.
+    WebAppContainer:
+        GzipCompression:
+            Notes: WTH  # erased
+
+appDeployments:
+    Library:
+        # completely unchanged, should not appear in the change model.
+        'mylib':
+            SourcePath: '/libs/mylib.jar'
+            Target: 'cluster-1'
+
+        # unchanged except for targets, SourcePath should still appear in change model.
+        'retarget':
+            SourcePath: '/libs/retarget.jar'
+            Target: 'cluster-1'
+
+    Application:
+        # completely unchanged, should not appear in the change model.
+        myapp:
+            SourcePath: '/apps/myapp.ear'
+            Target: ['cluster-1']
+
+        # unchanged except for targets, SourcePath should still appear in change model.
+        retarget:
+            SourcePath: '/apps/retarget.ear'
+            Target: ['cluster-1']
