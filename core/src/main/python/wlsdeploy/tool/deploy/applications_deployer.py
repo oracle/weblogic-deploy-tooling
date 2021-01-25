@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -109,7 +109,8 @@ class ApplicationsDeployer(Deployer):
                 copy.deepcopy(dictionary_utils.get_dictionary_element(shared_libraries, shared_library_name))
             shlib_source_path = dictionary_utils.get_element(shared_library, SOURCE_PATH)
             if string_utils.is_empty(shlib_source_path):
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09302', shared_library_name, SOURCE_PATH)
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09302', LIBRARY, shared_library_name,
+                                                              SOURCE_PATH)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
@@ -117,7 +118,7 @@ class ApplicationsDeployer(Deployer):
                 if self.archive_helper is not None:
                     self.__extract_source_path_from_archive(shlib_source_path, LIBRARY, shared_library_name)
                 else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09303', shared_library_name)
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-09303', LIBRARY, shared_library_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
 
@@ -170,7 +171,8 @@ class ApplicationsDeployer(Deployer):
 
             app_source_path = dictionary_utils.get_element(application, SOURCE_PATH)
             if string_utils.is_empty(app_source_path):
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09302', application_name, SOURCE_PATH)
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09302', APPLICATION, application_name,
+                                                              SOURCE_PATH)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
@@ -178,7 +180,7 @@ class ApplicationsDeployer(Deployer):
                 if self.archive_helper is not None:
                     self.__extract_source_path_from_archive(app_source_path, APPLICATION, application_name)
                 else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09303', application_name)
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-09303', APPLICATION, application_name)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
 
