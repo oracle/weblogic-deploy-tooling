@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -112,6 +112,13 @@ class Discoverer(object):
                 else:
                     _logger.finer('WLSDPLY-06131', wlst_lsa_param, class_name=_class_name, method_name=_method_name)
                     wlst_value = wlst_lsa_params[wlst_lsa_param]
+
+                # if attribute was never set (online only), don't add to the model
+                if not self._wlst_helper.is_set(wlst_lsa_param):
+                    _logger.finest('WLSDPLY-06157', wlst_lsa_param, str(location), class_name=_class_name,
+                                   method_name=_method_name)
+                    continue
+
                 self._add_to_dictionary(dictionary, location, wlst_lsa_param, wlst_value, wlst_path)
 
         # These will come after the lsa / get params in the ordered dictionary
