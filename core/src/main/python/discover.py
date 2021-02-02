@@ -69,6 +69,7 @@ __optional_arguments = [
     # Used by shell script to locate WLST
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
+    CommandLineArgUtil.NO_ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.JAVA_HOME_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
@@ -108,23 +109,26 @@ def __process_model_archive_args(argument_map):
     :param argument_map: containing the CLA arguments
     """
     _method_name = '__process_model_archive_args'
-    if CommandLineArgUtil.ARCHIVE_FILE_SWITCH not in argument_map and \
-            CommandLineArgUtil.MODEL_FILE_SWITCH not in argument_map:
-        ex = exception_helper.create_cla_exception('WLSDPLY-06028')
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
+    if CommandLineArgUtil.ARCHIVE_FILE_SWITCH not in argument_map:
+        if CommandLineArgUtil.NO_ARCHIVE_FILE_SWITCH not in argument_map:
+            ex = exception_helper.create_cla_exception('WLSDPLY-06028')
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+        if CommandLineArgUtil.MODEL_FILE_SWITCH not in argument_map:
+            ex = exception_helper.create_cla_exception('WLSDPLY-06029')
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
-
-def __process_archive_filename_arg(optional_arg_map):
+def __process_archive_filename_arg(argument_map):
     """
     Validate the archive file name and load the archive file object.
-    :param optional_arg_map: the optional arguments map
+    :param argument_map: the optional arguments map
     :raises CLAException: if a validation error occurs while loading the archive file object
     """
     _method_name = '__process_archive_filename_arg'
 
-    if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in optional_arg_map:
-        archive_file_name = optional_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
+    if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in argument_map:
+        archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
         archive_dir_name = path_utils.get_parent_directory(archive_file_name)
         if os.path.exists(archive_dir_name) is False:
             ex = exception_helper.create_cla_exception('WLSDPLY-06026', archive_file_name)
@@ -139,7 +143,7 @@ def __process_archive_filename_arg(optional_arg_map):
             raise ex
     else:
         archive_file = WLSDeployArchive.noArchiveFile()
-    optional_arg_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
+    argument_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
     return
 
 

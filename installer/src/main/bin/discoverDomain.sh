@@ -2,7 +2,7 @@
 # *****************************************************************************
 # discoverDomain.sh
 #
-# Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -35,7 +35,8 @@ usage() {
   echo "Usage: $1 [-help]"
   echo "          [-oracle_home <oracle_home>]"
   echo "          -domain_home <domain_home>"
-  echo "          -archive_file <archive_file>"
+  echo "          [-archive_file <archive_file>]"
+  echo "          [-no_archive]"
   echo "          [-model_file <model_file>]"
   echo "          [-variable_file <variable_file>]"
   echo "          [-domain_type <domain_type>]"
@@ -56,6 +57,8 @@ usage() {
   echo "        domain_home     - the domain home directory"
   echo ""
   echo "        archive_file    - the path to the archive file to use"
+  echo ""
+  echo "        no_archive      - Do not generate the archive file. The archive file command will be ignored"
   echo ""
   echo "        model_file      - the location of the model file to use; "
   echo "                          the default is to get the model from the archive"
