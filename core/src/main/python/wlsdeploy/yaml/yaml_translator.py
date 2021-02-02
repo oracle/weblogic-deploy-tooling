@@ -102,7 +102,7 @@ class PythonToYaml(object):
     _class_name = 'PythonToYaml'
     # 4 spaces
     _indent_unit = '    '
-    _requires_quotes_chars_regex = '[:{}\[\],&*#?|<>=!%@`-]'
+    _requires_quotes_chars_regex = '[\r\n:{}\[\],&*#?|<>=!%@`-]'
 
     def __init__(self, dictionary):
         # Fix error handling for None

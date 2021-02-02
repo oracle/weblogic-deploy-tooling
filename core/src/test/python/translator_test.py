@@ -73,6 +73,7 @@ class TranslatorTestCase(unittest.TestCase):
         pythonDict['foo'] = 'test \'legal\' yaml'
         pythonDict['bar'] = 'test "legal" yaml'
         pythonDict['baz'] = 'test \'legal\' yaml'
+        pythonDict['newline'] = 'test embedded\nnewline yaml'
 
         translator = PythonToFile(pythonDict)
         translator.write_to_file(self._target_yaml_file)
@@ -83,6 +84,7 @@ class TranslatorTestCase(unittest.TestCase):
         self.assertEqual('foo' in newPythonDict, True)
         self.assertEqual('bar' in newPythonDict, True)
         self.assertEqual('baz' in newPythonDict, True)
+        self.assertEquals('newline' in newPythonDict, True)
 
         quotedValue = newPythonDict['foo']
         self.assertEqual(quotedValue, 'test \'legal\' yaml')
@@ -90,3 +92,5 @@ class TranslatorTestCase(unittest.TestCase):
         self.assertEqual(quotedValue, 'test "legal" yaml')
         quotedValue = newPythonDict['baz']
         self.assertEqual(quotedValue, 'test \'legal\' yaml')
+        quotedValue = newPythonDict['newline']
+        self.assertEqual(quotedValue, 'test embedded\nnewline yaml')
