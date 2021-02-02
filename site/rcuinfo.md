@@ -9,11 +9,11 @@ domainInfo:
     RCUDbInfo:
         useATP : true
         rcu_prefix : DEV
-        rcu_schema_password : xxxxx
+        rcu_schema_password : <rcu schema password>
         atp.admin.user : admin
         tns.alias : dbatp_tp
-        javax.net.ssl.keyStorePassword : xxxx
-        javax.net.ssl.trustStorePassword : xxxx
+        javax.net.ssl.keyStorePassword : <atp wallet password>
+        javax.net.ssl.trustStorePassword : <atp wallet password>
 ```           
 The database wallet can be included in the archive file under `atpwallet` zipentry structure
 
