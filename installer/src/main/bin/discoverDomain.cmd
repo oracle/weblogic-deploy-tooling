@@ -73,7 +73,7 @@ ECHO.
 ECHO Usage: %SCRIPT_NAME% [-oracle_home ^<oracle_home^>]
 ECHO              -domain_home ^<domain_home^>
 ECHO              [-archive_file ^<archive_file^>]
-ECHO              [-no_archive]
+ECHO              [-skip_archive]
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
@@ -95,7 +95,7 @@ ECHO         domain_home    - the domain home directory
 ECHO.
 ECHO         archive_file   - the path to the archive file
 ECHO.
-ECHO         no_archive     - do not generate an archive file. The archive_file option will be ignored.
+ECHO         skip_archive   - do not generate an archive file. The archive_file option will be ignored.
 ECHO.
 ECHO         model_file     - the location to write the model file,
 ECHO                          the default is to write it inside the archive

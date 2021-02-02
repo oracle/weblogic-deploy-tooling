@@ -46,7 +46,7 @@ class CommandLineArgUtil(object):
     # phony arg used as a key to store the password
     ADMIN_PASS_SWITCH          = '-admin_pass'
     ARCHIVE_FILE_SWITCH        = '-archive_file'
-    NO_ARCHIVE_FILE_SWITCH     = '-no_archive'
+    SKIP_ARCHIVE_FILE_SWITCH    = '-skip_archive'
     MODEL_FILE_SWITCH          = '-model_file'
     DISCARD_CURRENT_EDIT_SWITCH   = '-discard_current_edit'
     OPSS_WALLET_SWITCH         = '-opss_wallet'
@@ -96,7 +96,7 @@ class CommandLineArgUtil(object):
         ENCRYPT_MANUAL_SWITCH,
         FOLDERS_ONLY_SWITCH,
         MODEL_SAMPLE_SWITCH,
-        NO_ARCHIVE_FILE_SWITCH,
+        SKIP_ARCHIVE_FILE_SWITCH,
         RECURSIVE_SWITCH,
         CANCEL_CHANGES_IF_RESTART_REQ_SWITCH,
         RUN_RCU_SWITCH,

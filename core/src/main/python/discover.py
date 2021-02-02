@@ -69,7 +69,7 @@ __optional_arguments = [
     # Used by shell script to locate WLST
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
-    CommandLineArgUtil.NO_ARCHIVE_FILE_SWITCH,
+    CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.JAVA_HOME_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
@@ -110,7 +110,7 @@ def __process_model_archive_args(argument_map):
     """
     _method_name = '__process_model_archive_args'
     if CommandLineArgUtil.ARCHIVE_FILE_SWITCH not in argument_map:
-        if CommandLineArgUtil.NO_ARCHIVE_FILE_SWITCH not in argument_map:
+        if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH not in argument_map:
             ex = exception_helper.create_cla_exception('WLSDPLY-06028')
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -118,6 +118,7 @@ def __process_model_archive_args(argument_map):
             ex = exception_helper.create_cla_exception('WLSDPLY-06029')
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
+
 
 def __process_archive_filename_arg(argument_map):
     """
@@ -127,7 +128,9 @@ def __process_archive_filename_arg(argument_map):
     """
     _method_name = '__process_archive_filename_arg'
 
-    if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in argument_map:
+    if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map:
+        archive_file = WLSDeployArchive.noArchiveFile()
+    else:
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
         archive_dir_name = path_utils.get_parent_directory(archive_file_name)
         if os.path.exists(archive_dir_name) is False:
@@ -141,8 +144,6 @@ def __process_archive_filename_arg(argument_map):
                                                        ie.getLocalizedMessage(), error=ie)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-    else:
-        archive_file = WLSDeployArchive.noArchiveFile()
     argument_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
     return
 
