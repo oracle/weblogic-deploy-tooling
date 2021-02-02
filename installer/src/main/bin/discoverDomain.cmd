@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem discoverDomain.cmd
 @rem
-@rem Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -72,7 +72,8 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-oracle_home ^<oracle_home^>]
 ECHO              -domain_home ^<domain_home^>
-ECHO              -archive_file ^<archive_file^>
+ECHO              [-archive_file ^<archive_file^>]
+ECHO              [-skip_archive]
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
@@ -92,7 +93,9 @@ ECHO                          variable is set.
 ECHO.
 ECHO         domain_home    - the domain home directory
 ECHO.
-ECHO         archive_file   - the path to the archive file to create
+ECHO         archive_file   - the path to the archive file
+ECHO.
+ECHO         skip_archive   - do not generate an archive file. The archive_file option will be ignored.
 ECHO.
 ECHO         model_file     - the location to write the model file,
 ECHO                          the default is to write it inside the archive
