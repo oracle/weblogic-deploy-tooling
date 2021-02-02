@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module to handle translating between Yaml files and Python dictionaries.
@@ -102,7 +102,7 @@ class PythonToYaml(object):
     _class_name = 'PythonToYaml'
     # 4 spaces
     _indent_unit = '    '
-    _requires_quotes_chars_regex = '[:{}\[\],&*#?|<>=!%@`-]'
+    _requires_quotes_chars_regex = '[\r\n:{}\[\],&*#?|<>=!%@`-]'
 
     def __init__(self, dictionary):
         # Fix error handling for None
