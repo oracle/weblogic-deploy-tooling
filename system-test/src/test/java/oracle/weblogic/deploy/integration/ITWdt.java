@@ -774,6 +774,30 @@ public class ITWdt extends BaseTest {
     }
 
     /**
+     * test compareModel.sh with only attribute difference
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testCompareModelRemoveAttribute() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+        String tmpdir = Files.createTempDirectory("wdt_temp_output").toFile().getAbsolutePath();
+        tmpdir.toFile().deleteOnExit();
+        String cmd = compareModelScript + " -oracle_home " + mwhome_12213 + " -output_dir " + tmpdir
+            + " " + getSampleModelFile("1-lessattribute") + " " +  getSampleModelFile("1");
+        logger.info("Executing command: " + cmd);
+        ExecResult result = ExecCommand.exec(cmd);
+        verifyResult(result, "compareModel.sh completed successfully");
+
+        String diffedModelYaml = tmpdir + File.separator + "diffed_model.yaml";
+        String compareModelStdout = tmpdir + File.separator + "compare_model_stdout";
+        verifyFileExists(compareModelStdout);
+        verifyFileDoesNotExists(diffedModelYaml);
+
+        logTestEnd(testMethodName);
+    }
+
+    /**
      * test validateModel.sh with invalid model file
      * @throws Exception - if any error occurs
      */

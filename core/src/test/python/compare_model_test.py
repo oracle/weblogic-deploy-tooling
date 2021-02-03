@@ -523,6 +523,46 @@ class CompareModelTestCase(unittest.TestCase):
 
         self.assertEqual(return_code, 0)
 
+    def testCompareModel5(self):
+        _method_name = 'testCompareModel5'
+
+        _models_dir = self._resources_dir + '/compare'
+        _new_model_file = _models_dir + '/model-4-new.yaml'
+        _old_model_file = _models_dir + '/model-4-new.yaml'
+
+        _output_dir = os.path.join(self._results_dir, 'model-5')
+        if not os.path.isdir(_output_dir):
+            os.mkdir(_output_dir)
+
+        args_map = {
+            '-oracle_home': '/oracle',
+            '-output_dir': _output_dir,
+            '-trailing_arguments': [_new_model_file, _old_model_file]
+        }
+
+        try:
+            model_context = ModelContext('CompareModelTestCase', args_map)
+            differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _output_dir)
+            return_code = differ.compare()
+            self.assertEqual(return_code, 0)
+
+            yaml_result = _output_dir + os.sep + 'diffed_model.yaml'
+            self.assertEqual(os.path.exists(yaml_result), False, "YAML result should not exist: " + yaml_result)
+
+            json_result = _output_dir + os.sep + 'diffed_model.json'
+            self.assertEqual(os.path.exists(json_result), False, "JSON result should not exist: " + json_result)
+
+            json_result = _output_dir + os.sep + 'compare_model_stdout'
+            self.assertEqual(os.path.exists(json_result), False, "compare_model.stdout result should not exist: " +
+                             json_result)
+
+        except (CompareException, PyWLSTException), te:
+            return_code = 2
+            self._logger.severe('WLSDPLY-05709', te.getLocalizedMessage(), error=te,
+                                class_name=self._program_name, method_name=_method_name)
+
+        self.assertEqual(return_code, 0)
+
 
 if __name__ == '__main__':
     unittest.main()
