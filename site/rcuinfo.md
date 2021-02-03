@@ -9,7 +9,9 @@ domainInfo:
     RCUDbInfo:
         useATP : true
         rcu_prefix : DEV
-        rcu_schema_password : <rcu schema password>
+        rcu_admin_password: <database admin password is required only when you specify -run_rcu flag, will be prompted
+         if not specify>
+        rcu_schema_password : <rcu schema password, will be prompted if not specify>
         atp.admin.user : admin
         tns.alias : dbatp_tp
         javax.net.ssl.keyStorePassword : <atp wallet password>
@@ -32,8 +34,10 @@ domainInfo:
         # Optional rcu_db_user for creating RCU schema if -run_rcu flag is specified. Default user is SYS if not specified
         # This user must have SYSDBA privilege and this is the equivalent of -dbUser in the RCU utility
         rcu_db_user: superuser
-        rcu_schema_password : xxxxx
-        rcu_admin_password : xxxx
+        rcu_schema_password : <rcu schema password, will be prompted if not specify>
+        rcu_admin_password : <database admin password is required only when you specify -run_rcu flag, will be prompted
+         if 
+        not specify>
         rcu_db_conn_string : 'dbhost:1521/pdborcl'
 ```        
 RCU `-variables` option of the repository creation utility can now be included in the `RCUDbInfo` section with the key `rcu_variables`:
