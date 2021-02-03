@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -101,6 +101,15 @@ public class WLSDeployArchiveTest {
     }
 
     @Test
+    public void testAddDirectoryNoArchive() throws Exception {
+        WLSDeployArchive archive = WLSDeployArchive.noArchiveFile();
+        File file = new File(APP_DIR_TO_ADD);
+        String appName = archive.addApplication(file);
+        Assert.assertEquals("unexpected app name: " + appName, file.getPath(), appName);
+        archive.close();
+    }
+
+    @Test
     public void testIsAFile() throws Exception {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
         archive.addApplication(new File(APP1_TO_ADD));
@@ -135,5 +144,11 @@ public class WLSDeployArchiveTest {
         String appName = archive.addApplication(new File(APP1_TO_ADD));
         Assert.assertFalse("expected appName to be not empty", StringUtils.isEmpty(appName));
         archive.close();
+    }
+
+    @Test
+    public void testClearAllBinariesNoArchive() throws Exception {
+        WLSDeployArchive archive = WLSDeployArchive.noArchiveFile();
+        archive.removeAllBinaries();
     }
 }
