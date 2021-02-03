@@ -774,7 +774,7 @@ public class ITWdt extends BaseTest {
     }
 
     /**
-     * test compareModel.sh with only attribute difference
+     * test compareModel.sh with only attribute difference.  The files existences test whether it impacts WKO operation
      * @throws Exception - if any error occurs
      */
     @Test

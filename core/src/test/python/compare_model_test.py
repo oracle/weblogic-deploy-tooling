@@ -523,6 +523,7 @@ class CompareModelTestCase(unittest.TestCase):
 
         self.assertEqual(return_code, 0)
 
+    # This test is to ensure any behavior change does not impact WKO
     def testCompareModel5(self):
         _method_name = 'testCompareModel5'
 
