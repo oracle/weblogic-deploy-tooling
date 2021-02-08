@@ -33,6 +33,8 @@ class ModelContext(object):
     CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
     TEMP_DIRECTORY_TOKEN = '@@TMP@@'
 
+    DB_USER_DEFAULT = 'SYS'
+
     def __init__(self, program_name, arg_map):
         """
         Create a new model context instance.
@@ -79,7 +81,7 @@ class ModelContext(object):
         self._opss_wallet = None
         self._update_rcu_schema_pass = False
         self._validation_method = None
-        self._rollback_if_restart_required = None
+        self._cancel_changes_if_restart_required = None
         self._domain_resource_file = None
         self._output_dir = None
         self._target = None
@@ -87,9 +89,10 @@ class ModelContext(object):
         self._variable_injector_file = None
         self._variable_keywords_file = None
         self._variable_properties_file = None
-        self._rcu_db_user = 'SYS'
+        self._rcu_db_user = self.DB_USER_DEFAULT
         self._discard_current_edit = False
         self._model_config = None
+        self._ignore_missing_archive_entries = False
 
         self._trailing_args = []
 
@@ -184,8 +187,8 @@ class ModelContext(object):
         if CommandLineArgUtil.ONE_PASS_SWITCH in arg_map:
             self._encrypt_one_pass = arg_map[CommandLineArgUtil.ONE_PASS_SWITCH]
 
-        if CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH in arg_map:
-            self._rollback_if_restart_required = arg_map[CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH]
+        if CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH in arg_map:
+            self._cancel_changes_if_restart_required = arg_map[CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH]
 
         if CommandLineArgUtil.USE_ENCRYPTION_SWITCH in arg_map:
             self._use_encryption = arg_map[CommandLineArgUtil.USE_ENCRYPTION_SWITCH]
@@ -293,8 +296,8 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH] = self._encrypt_manual
         if self._encrypt_one_pass is not None:
             arg_map[CommandLineArgUtil.ONE_PASS_SWITCH] = self._encrypt_one_pass
-        if self._rollback_if_restart_required is not None:
-            arg_map[CommandLineArgUtil.ROLLBACK_IF_RESTART_REQ_SWITCH] = self._rollback_if_restart_required
+        if self._cancel_changes_if_restart_required is not None:
+            arg_map[CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH] = self._cancel_changes_if_restart_required
         if self._use_encryption is not None:
             arg_map[CommandLineArgUtil.USE_ENCRYPTION_SWITCH] = self._use_encryption
         if self._archive_file is not None:
@@ -325,7 +328,10 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH] = self._variable_keywords_file
         if self._variable_properties_file is not None:
             arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH] = self._variable_properties_file
-        return ModelContext(self._program_name, arg_map)
+
+        model_context = ModelContext(self._program_name, arg_map)
+        model_context._ignore_missing_archive_entries = self._ignore_missing_archive_entries
+        return model_context
 
     def get_model_config(self):
         """
@@ -446,12 +452,12 @@ class ModelContext(object):
         """
         return self._archive_file_name
 
-    def is_rollback_if_restart_required(self):
+    def is_cancel_changes_if_restart_required(self):
         """
-        Get the rollback if restart required
+        Get the cancel changes if restart required
         :return: true or false
         """
-        return self._rollback_if_restart_required
+        return self._cancel_changes_if_restart_required
 
     def is_discard_current_edit(self):
         """
@@ -696,6 +702,20 @@ class ModelContext(object):
         """
         return self._trailing_args[index]
 
+    def get_ignore_missing_archive_entries(self):
+        """
+        Determine if the tool should ignore missing archive entries during validation.
+        :return: True if the tool should ignore missing entries
+        """
+        return self._ignore_missing_archive_entries
+
+    def set_ignore_missing_archive_entries(self, ignore):
+        """
+        Configure the tool to ignore missing archive entries during validation.
+        :param ignore: True if the tool should ignore missing entries, False otherwise
+        """
+        self._ignore_missing_archive_entries = ignore
+
     def is_wlst_online(self):
         """
         Determine if the tool was started using WLST online mode
@@ -762,7 +782,7 @@ class ModelContext(object):
             return
         uri = URI(attribute_value)
         uri_scheme = uri.getScheme()
-        if uri_scheme is not None and uri_scheme.startsWith('file'):
+        if uri_scheme is not None and str(uri_scheme).startswith('file'):
             attribute_value = uri.getPath()
         if attribute_value.startswith(self.ORACLE_HOME_TOKEN):
             message = "Replacing {0} in {1} {2} {3} with {4}"

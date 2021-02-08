@@ -1,10 +1,11 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
 import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
+from java.io import File
 from java.io import FileOutputStream
 from java.lang import IllegalArgumentException
 from java.util import Properties
@@ -49,12 +50,8 @@ from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
-from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
-from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
-from wlsdeploy.aliases.model_constants import RCU_PREFIX
-from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
@@ -78,8 +75,8 @@ from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
+from wlsdeploy.tool.create import rcudbinfo_helper
 from wlsdeploy.tool.create.creator import Creator
-from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.create.wlsroles_helper import WLSRoles
 from wlsdeploy.tool.deploy import deployer_utils
@@ -186,7 +183,7 @@ class DomainCreator(Creator):
         return
 
     # Override
-    def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False):
+    def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False, delete_now=True):
         """
         Override default behavior to create placeholders for referenced Coherence clusters.
         :param type_name: the model folder type
@@ -198,7 +195,7 @@ class DomainCreator(Creator):
         self.topology_helper.check_coherence_cluster_references(type_name, model_nodes)
         # continue with regular processing
 
-        Creator._create_named_mbeans(self, type_name, model_nodes, base_location, log_created=log_created)
+        Creator._create_named_mbeans(self, type_name, model_nodes, base_location, log_created=log_created, delete_now=delete_now)
 
     # Override
     def _create_mbean(self, type_name, model_nodes, base_location, log_created=False):
@@ -234,6 +231,11 @@ class DomainCreator(Creator):
         if path is not None:
             resolved_path = self.model_context.replace_token_string(path)
             if self.archive_helper is not None and self.archive_helper.contains_file(resolved_path):
+                dir = File(self._domain_home)
+                if (not dir.isDirectory()) and (not dir.mkdirs()):
+                    ex = exception_helper.create_create_exception('WLSDPLY-12259', self._domain_home, xml_type, path)
+                    self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                    raise ex
                 resolved_path = self.archive_helper.extract_file(resolved_path)
             try:
                 resolved_file = FileUtils.validateFileName(resolved_path)
@@ -241,7 +243,7 @@ class DomainCreator(Creator):
             except IllegalArgumentException, iae:
                 ex = exception_helper.create_create_exception('WLSDPLY-12258', xml_type, path,
                                                               iae.getLocalizedMessage(), error=iae)
-                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
@@ -273,75 +275,51 @@ class DomainCreator(Creator):
         oracle_home = self.model_context.get_oracle_home()
         java_home = self.model_context.get_java_home()
 
-        if RCU_DB_INFO in self.model.get_model_domain_info():
+        # create RcuDbInfo, with optional data from the model
+        rcu_db_info = rcudbinfo_helper.create(self.model.get_model(), self.model_context, self.aliases)
 
+        # get these values from the command-line or RCUDbInfo in the model
+        rcu_prefix = rcu_db_info.get_preferred_prefix()
+        rcu_sys_pass = rcu_db_info.get_preferred_sys_pass()
+        rcu_schema_pass = rcu_db_info.get_preferred_schema_pass()
+
+        if rcu_db_info.is_use_atp():
+            # ATP database, build runner map from RCUDbInfo in the model.
+
+            # make a copy of model's map to pass to RCURunner, since we will modify some values
             rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
-            rcu_db_info = RcuDbInfo(self.model_context, self.aliases, rcu_properties_map)
-            rcu_extra_args = dict()
+            rcu_runner_map = dict(rcu_properties_map)
 
-            rcu_comp_info = self.__extract_rcu_xml_file(RCU_COMP_INFO, rcu_db_info.get_comp_info_location())
-            if rcu_comp_info is not None:
-                rcu_extra_args[RCU_COMP_INFO] = rcu_comp_info
-            rcu_stg_info = self.__extract_rcu_xml_file(RCU_STG_INFO, rcu_db_info.get_storage_location())
-            if rcu_stg_info is not None:
-                rcu_extra_args[RCU_STG_INFO] = rcu_stg_info
+            # update password fields with decrypted passwords
+            rcu_runner_map[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY] = rcu_db_info.get_keystore_password()
+            rcu_runner_map[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY] = rcu_db_info.get_truststore_password()
 
-            if rcu_db_info.has_atpdbinfo():
+            # reset these to pick up any defaults from rcu_db_info
+            rcu_runner_map[ATP_ADMIN_USER] = rcu_db_info.get_atp_admin_user()
+            rcu_runner_map[ATP_TEMPORARY_TABLESPACE] = rcu_db_info.get_atp_temporary_tablespace()
+            rcu_runner_map[ATP_DEFAULT_TABLESPACE] = rcu_db_info.get_atp_default_tablespace()
 
-                # Need to validate they are non null
-                rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
-                rcu_sys_pass = rcu_db_info.get_admin_password()
+            self.__validate_rcudbinfo_entries(rcu_runner_map, [ATP_TNS_ENTRY,
+                                                               DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY,
+                                                               DRIVER_PARAMS_KEYSTOREPWD_PROPERTY])
 
-                # make a copy of model's map to pass to RCURunner, since we will modify some values
-                rcu_runner_map = dict(rcu_properties_map)
+            runner = RCURunner.createAtpRunner(domain_type, oracle_home, java_home, rcu_prefix, rcu_schemas,
+                                               rcu_db_info.get_rcu_variables(), rcu_runner_map)
 
-                # update password fields with decrypted passwords
-                rcu_runner_map[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY] = rcu_db_info.get_keystore_password()
-                rcu_runner_map[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY] = rcu_db_info.get_truststore_password()
-
-                # Set it if it needs it
-                # The java RCURunner use it to construct the argument
-                # If we don't set it to non null then RCURunner will NPE
-                rcu_runner_map[ATP_ADMIN_USER] = rcu_db_info.get_atp_admin_user()
-                rcu_runner_map[ATP_TEMPORARY_TABLESPACE] = rcu_db_info.get_atp_temporary_tablespace()
-                rcu_runner_map[ATP_DEFAULT_TABLESPACE] = rcu_db_info.get_atp_default_tablespace()
-
-                self.__validate_rcudbinfo_entries(rcu_runner_map, [RCU_ADMIN_PASSWORD,
-                                                                   RCU_SCHEMA_PASSWORD,
-                                                                   ATP_TNS_ENTRY, RCU_PREFIX,
-                                                                   DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY,
-                                                                   DRIVER_PARAMS_KEYSTOREPWD_PROPERTY])
-
-                runner = RCURunner(domain_type, oracle_home, java_home, rcu_schemas, rcu_runner_map,
-                                   rcu_db_info.get_rcu_variables(), rcu_extra_args)
-                runner.runRcu(rcu_sys_pass, rcu_schema_pass)
-            else:
-                # Has RCUDbInfo in the model but non ATP case
-                rcu_db = rcu_db_info.get_rcu_regular_db_conn()
-                rcu_prefix = rcu_db_info.get_rcu_prefix()
-                rcu_sys_pass = rcu_db_info.get_admin_password()
-                rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
-                rcu_db_user = rcu_db_info.get_rcu_db_user()
-                self.__validate_rcudbinfo_entries(rcu_properties_map, [RCU_PREFIX, RCU_SCHEMA_PASSWORD,
-                                                                       RCU_ADMIN_PASSWORD, RCU_DB_CONN])
-                runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
-                                   rcu_db_info.get_rcu_variables(), rcu_extra_args)
-                runner.setRCUAdminUser(rcu_db_user)
-                runner.runRcu(rcu_sys_pass, rcu_schema_pass)
         else:
-            # No RCUDbInfo in the model. CLI case
-            rcu_db = self.model_context.get_rcu_database()
-            rcu_prefix = self.model_context.get_rcu_prefix()
-            rcu_sys_pass = self.model_context.get_rcu_sys_pass()
-            rcu_schema_pass = self.model_context.get_rcu_schema_pass()
-            rcu_db_user = self.model_context.get_rcu_db_user()
-            rcu_extra_args = dict()
+            # Non-ATP database, use DB config from the command line or RCUDbInfo in the model.
+            rcu_db = rcu_db_info.get_preferred_db()
+            rcu_db_user = rcu_db_info.get_preferred_db_user()
 
-            runner = RCURunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas, None,
-                               rcu_extra_args)
+            runner = RCURunner.createRunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
+                                            rcu_db_info.get_rcu_variables())
             runner.setRCUAdminUser(rcu_db_user)
-            runner.runRcu(rcu_sys_pass, rcu_schema_pass)
 
+        rcu_comp_info_location = self.__extract_rcu_xml_file(RCU_COMP_INFO, rcu_db_info.get_comp_info_location())
+        rcu_storage_location = self.__extract_rcu_xml_file(RCU_STG_INFO, rcu_db_info.get_storage_location())
+        runner.setXmlLocations(rcu_comp_info_location, rcu_storage_location)
+
+        runner.runRcu(rcu_sys_pass, rcu_schema_pass)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -487,7 +465,10 @@ class DomainCreator(Creator):
             self.wlst_helper.add_template(custom_template)
 
         topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
-        self.__apply_base_domain_config(topology_folder_list)
+
+        resources_dict = self.model.get_model_resources()
+        jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+        self.__create_machines_clusters_and_servers(delete_now=False)
         self.__configure_fmw_infra_database()
 
         if self.wls_helper.is_set_server_groups_supported():
@@ -503,6 +484,10 @@ class DomainCreator(Creator):
         self.logger.info('WLSDPLY-12209', self._domain_name,
                          class_name=self.__class_name, method_name=_method_name)
 
+        # targets may have been inadvertently assigned when clusters were added
+        self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
+
+        self.__apply_base_domain_config(topology_folder_list)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -556,7 +541,13 @@ class DomainCreator(Creator):
             self.__configure_fmw_infra_database()
             self.__configure_opss_secrets()
         topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
-        self.__apply_base_domain_config(topology_folder_list)
+
+        self.__create_security_folder()
+        topology_folder_list.remove(SECURITY)
+
+        resources_dict = self.model.get_model_resources()
+        jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+        self.__create_machines_clusters_and_servers(delete_now=False)
 
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
         dynamic_cluster_server_groups_to_target = self._domain_typedef.get_dynamic_cluster_server_groups()
@@ -569,6 +560,11 @@ class DomainCreator(Creator):
 
         if len(dynamic_assigns) > 0:
             self.target_helper.target_dynamic_server_groups(dynamic_assigns)
+
+        # targets may have been inadvertently assigned when clusters were added
+        self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
+
+        self.__apply_base_domain_config(topology_folder_list)
 
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
@@ -586,7 +582,8 @@ class DomainCreator(Creator):
         if self.wls_helper.is_set_server_groups_supported():
             # 12c versions set server groups directly
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-            server_assigns, dynamic_assigns = self.target_helper.target_server_groups_to_servers(server_groups_to_target)
+            server_assigns, dynamic_assigns = \
+                self.target_helper.target_server_groups_to_servers(server_groups_to_target)
             if len(server_assigns) > 0:
                 self.target_helper.target_server_groups(server_assigns)
 
@@ -621,26 +618,20 @@ class DomainCreator(Creator):
         domain_name_token = self.aliases.get_name_token(location)
         location.add_name_token(domain_name_token, self._domain_name)
 
-        self.__create_security_folder(location)
-        topology_folder_list.remove(SECURITY)
-
         topology_folder_list.remove(SECURITY_CONFIGURATION)
 
         self.__create_mbeans_used_by_topology_mbeans(location, topology_folder_list)
 
-        self.__create_machines(location)
+        # these deletions were intentionally skipped when these elements are first created.
+        self.topology_helper.remove_deleted_clusters_and_servers(location, self._topology)
         topology_folder_list.remove(MACHINE)
         topology_folder_list.remove(UNIX_MACHINE)
-
-        self.__create_clusters_and_servers(location)
         topology_folder_list.remove(CLUSTER)
         if SERVER_TEMPLATE in topology_folder_list:
             topology_folder_list.remove(SERVER_TEMPLATE)
         topology_folder_list.remove(SERVER)
-
-        self.__create_migratable_targets(location)
         topology_folder_list.remove(MIGRATABLE_TARGET)
-
+        #
         self.__create_other_domain_artifacts(location, topology_folder_list)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -685,14 +676,16 @@ class DomainCreator(Creator):
         self.__create_xml_registry(location)
         topology_folder_list.remove(XML_REGISTRY)
 
-    def __create_security_folder(self, location):
+    def __create_security_folder(self):
         """
         Create the /Security folder objects, if any.
-        :param location: the location to use
         :raises: CreateException: if an error occurs
         """
         _method_name = '__create_security_folder'
 
+        location = LocationContext()
+        domain_name_token = self.aliases.get_name_token(location)
+        location.add_name_token(domain_name_token, self._domain_name)
         self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
         security_nodes = dictionary_utils.get_dictionary_element(self._topology, SECURITY)
         if len(security_nodes) > 0:
@@ -783,16 +776,20 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __create_clusters_and_servers(self, location):
+    def __create_machines_clusters_and_servers(self, delete_now=True):
         """
         Create the /Cluster, /ServerTemplate, and /Server folder objects.
-        :param location: the location to use
+        :param delete_now: Flag determing whether the delete of the elements will be delayed
         :raises: CreateException: if an error occurs
         """
-        _method_name = '__create_clusters_and_servers'
+        _method_name = '__create_machines_clusters_and_servers'
 
+        location = LocationContext()
+        domain_name_token = self.aliases.get_name_token(location)
+        location.add_name_token(domain_name_token, self._domain_name)
         self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
 
+        self.__create_machines(location)
         #
         # In order for source domain provisioning to work with dynamic clusters, we have to provision
         # the ServerTemplates.  There is a cyclical dependency between Server Template and Clusters so we
@@ -802,18 +799,18 @@ class DomainCreator(Creator):
         self.topology_helper.create_placeholder_server_templates(self._topology)
 
         # create placeholders for JDBC resources that may be referenced in cluster definition.
-        resources_dict = self.model.get_model_resources()
-        jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+
         cluster_nodes = dictionary_utils.get_dictionary_element(self._topology, CLUSTER)
         if len(cluster_nodes) > 0:
-            self._create_named_mbeans(CLUSTER, cluster_nodes, location, log_created=True)
+            self._create_named_mbeans(CLUSTER, cluster_nodes, location, log_created=True, delete_now=delete_now)
 
         #
         # Now, fully populate the ServerTemplates, if any.
         #
         server_template_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER_TEMPLATE)
         if len(server_template_nodes) > 0:
-            self._create_named_mbeans(SERVER_TEMPLATE, server_template_nodes, location, log_created=True)
+            self._create_named_mbeans(SERVER_TEMPLATE, server_template_nodes, location, log_created=True,
+                                      delete_now=delete_now)
 
         #
         # Finally, create/update the servers.
@@ -822,18 +819,18 @@ class DomainCreator(Creator):
         # There may be a dependency to other servers when the server is in a cluster
         self.topology_helper.create_placeholder_servers_in_cluster(self._topology)
         if len(server_nodes) > 0:
-            self._create_named_mbeans(SERVER, server_nodes, location, log_created=True)
+            self._create_named_mbeans(SERVER, server_nodes, location, log_created=True, delete_now=delete_now)
 
-        # targets may have been inadvertently assigned when clusters were added
-        self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
+        self.__create_migratable_targets(location, delete_now=delete_now)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __create_migratable_targets(self, location):
+    def __create_migratable_targets(self, location, delete_now=True):
         """
         Create the /MigratableTarget folder objects, if any.
         :param location: the location to use
+        :param delete_now: Flag to determine if the delete of elements will be delayed
         :raises: CreateException: if an error occurs
         """
         _method_name = '__create_migratable_targets'
@@ -842,7 +839,8 @@ class DomainCreator(Creator):
         migratable_target_nodes = dictionary_utils.get_dictionary_element(self._topology, MIGRATABLE_TARGET)
 
         if len(migratable_target_nodes) > 0:
-            self._create_named_mbeans(MIGRATABLE_TARGET, migratable_target_nodes, location, log_created=True)
+            self._create_named_mbeans(MIGRATABLE_TARGET, migratable_target_nodes, location, log_created=True,
+                                      delete_now=delete_now)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -890,7 +888,7 @@ class DomainCreator(Creator):
 
         wlst_name, wlst_value = \
             self.aliases.get_wlst_attribute_name_and_value(root_location, DRIVER_PARAMS_PROPERTY_VALUE,
-                                                                property_value)
+                                                           property_value)
         self.wlst_helper.set(wlst_name, wlst_value)
 
         root_location.remove_name_token(property_name)
@@ -909,100 +907,88 @@ class DomainCreator(Creator):
             return
 
         has_atp = 0
+        rcu_db_info = rcudbinfo_helper.create(self.model.get_model(), self.model_context, self.aliases)
+        rcu_prefix = rcu_db_info.get_preferred_prefix()
+        rcu_schema_pwd = rcu_db_info.get_preferred_schema_pass()
+
         # For ATP databases :  we need to set all the property for each datasource
         # load atp connection properties from properties file
-        #
-        domain_info = self.model.get_model_domain_info()
+        # HANDLE ATP case
 
-        if RCU_DB_INFO in domain_info:
-            rcu_db_info = RcuDbInfo(self.model_context, self.aliases, domain_info[RCU_DB_INFO])
+        if rcu_db_info.has_atpdbinfo():
+            has_atp = 1
+            # parse the tnsnames.ora file and retrieve the connection string
+            tns_admin = rcu_db_info.get_atp_tns_admin()
+            rcu_database = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
+                                                             rcu_db_info.get_atp_entry())
 
-            # HANDLE ATP case
+            keystore_pwd = rcu_db_info.get_keystore_password()
+            truststore_pwd = rcu_db_info.get_truststore_password()
 
-            if rcu_db_info.has_atpdbinfo():
-                has_atp = 1
-                # parse the tnsnames.ora file and retrieve the connection string
-                tns_admin = rcu_db_info.get_atp_tns_admin()
-                rcu_database = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
-                                                                 rcu_db_info.get_atp_entry())
+            # Need to set for the connection property for each datasource
 
-                rcu_prefix = rcu_db_info.get_rcu_prefix()
-                rcu_schema_pwd = rcu_db_info.get_rcu_schema_password()
-                keystore_pwd = rcu_db_info.get_keystore_password()
-                truststore_pwd = rcu_db_info.get_truststore_password()
+            fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
 
-                # Need to set for the connection property for each datasource
+            location = LocationContext()
+            location.append_location(JDBC_SYSTEM_RESOURCE)
 
-                fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
+            folder_path = self.aliases.get_wlst_list_path(location)
+            self.wlst_helper.cd(folder_path)
+            ds_names = self.wlst_helper.lsc()
 
-                location = LocationContext()
-                location.append_location(JDBC_SYSTEM_RESOURCE)
+            for ds_name in ds_names:
+                location = deployer_utils.get_jdbc_driver_params_location(ds_name, self.aliases)
+                wlst_path = self.aliases.get_wlst_attributes_path(location)
+                self.wlst_helper.cd(wlst_path)
 
-                folder_path = self.aliases.get_wlst_list_path(location)
-                self.wlst_helper.cd(folder_path)
-                ds_names = self.wlst_helper.lsc()
+                wlst_name, wlst_value = \
+                    self.aliases.get_wlst_attribute_name_and_value(location, URL, fmw_database)
+                self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
-                for ds_name in ds_names:
-                    location = deployer_utils.get_jdbc_driver_params_location(ds_name, self.aliases)
-                    wlst_path = self.aliases.get_wlst_attributes_path(location)
-                    self.wlst_helper.cd(wlst_path)
+                wlst_name, wlst_value = \
+                    self.aliases.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
+                                                                   rcu_schema_pwd, masked=True)
+                self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
-                    wlst_name, wlst_value = \
-                        self.aliases.get_wlst_attribute_name_and_value(location, URL, fmw_database)
-                    self.wlst_helper.set_if_needed(wlst_name, wlst_value)
+                location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+                deployer_utils.set_flattened_folder_token(location, self.aliases)
+                token_name = self.aliases.get_name_token(location)
+                if token_name is not None:
+                    location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
 
-                    wlst_name, wlst_value = \
-                        self.aliases.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
-                                                                            rcu_schema_pwd, masked=True)
-                    self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
+                wlst_path = self.aliases.get_wlst_attributes_path(location)
+                self.wlst_helper.cd(wlst_path)
+                orig_user = self.wlst_helper.get('Value')
+                stb_user = orig_user.replace('DEV', rcu_prefix)
+                wlst_name, wlst_value = \
+                    self.aliases.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE,
+                                                                   stb_user)
+                self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
-                    location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
-                    deployer_utils.set_flattened_folder_token(location, self.aliases)
-                    token_name = self.aliases.get_name_token(location)
-                    if token_name is not None:
-                        location.add_name_token(token_name, DRIVER_PARAMS_USER_PROPERTY)
+                # need to set other properties
 
-                    wlst_path = self.aliases.get_wlst_attributes_path(location)
-                    self.wlst_helper.cd(wlst_path)
-                    orig_user = self.wlst_helper.get('Value')
-                    stb_user = orig_user.replace('DEV', rcu_prefix)
-                    wlst_name, wlst_value = \
-                        self.aliases.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE,
-                                                                            stb_user)
-                    self.wlst_helper.set_if_needed(wlst_name, wlst_value)
+                location.remove_name_token(DRIVER_PARAMS_USER_PROPERTY)
 
-                    # need to set other properties
+                self.__set_atp_connection_property(location, DRIVER_PARAMS_kEYSTORE_PROPERTY, tns_admin + os.sep
+                                                   + 'keystore.jks')
+                self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY,
+                                                   'JKS')
+                self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd)
+                self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, tns_admin + os.sep
+                                                   + 'truststore.jks')
+                self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
+                                                   'JKS')
+                self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
 
-                    location.remove_name_token(DRIVER_PARAMS_USER_PROPERTY)
-
-                    self.__set_atp_connection_property(location, DRIVER_PARAMS_kEYSTORE_PROPERTY, tns_admin + os.sep
-                                                       + 'keystore.jks')
-                    self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY,
-                                                       'JKS')
-                    self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd)
-                    self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, tns_admin + os.sep
-                                                       + 'truststore.jks')
-                    self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
-                                                       'JKS')
-                    self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
-
-                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_SSL_VERSION, '1.2')
-                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true')
-                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin)
-                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false')
+                self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_SSL_VERSION, '1.2')
+                self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true')
+                self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin)
+                self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false')
 
         if not has_atp:
-            if RCU_DB_INFO in domain_info:
-                rcu_db_info = RcuDbInfo(self.model_context, self.aliases, domain_info[RCU_DB_INFO])
-                rcu_prefix = rcu_db_info.get_rcu_prefix()
-                rcu_database = rcu_db_info.get_rcu_regular_db_conn()
-                rcu_schema_pwd = rcu_db_info.get_rcu_schema_password()
-            else:
-                rcu_database = self.model_context.get_rcu_database()
-                if rcu_database is None:
-                    return
-                rcu_prefix = self.model_context.get_rcu_prefix()
-                rcu_schema_pwd = self.model_context.get_rcu_schema_pass()
+            rcu_database = rcu_db_info.get_preferred_db()
+            if rcu_database is None:
+                return
 
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
             self.logger.fine('WLSDPLY-12221', fmw_database, class_name=self.__class_name, method_name=_method_name)
@@ -1023,7 +1009,7 @@ class DomainCreator(Creator):
 
             wlst_name, wlst_value = \
                 self.aliases.get_wlst_attribute_name_and_value(location, PASSWORD_ENCRYPTED,
-                                                                    rcu_schema_pwd, masked=True)
+                                                               rcu_schema_pwd, masked=True)
             self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
             location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
@@ -1252,7 +1238,8 @@ class DomainCreator(Creator):
         """
         Create credential mappings from model elements.
         """
-        default_nodes = dictionary_utils.get_dictionary_element(self._domain_info, WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS)
+        default_nodes = dictionary_utils.get_dictionary_element(self._domain_info,
+                                                                WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS)
         if default_nodes:
             credential_map_helper = CredentialMapHelper(self.model_context, ExceptionType.CREATE)
             credential_map_helper.create_default_init_file(default_nodes)

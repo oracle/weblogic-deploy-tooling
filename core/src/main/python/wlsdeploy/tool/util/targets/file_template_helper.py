@@ -19,7 +19,7 @@ from wlsdeploy.util import dictionary_utils
 __class_name = 'file_template_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
-_substitution_pattern = re.compile("({{{(.*)}}})")
+_substitution_pattern = re.compile("({{{([.-}]*)}}})")
 _block_start_pattern = re.compile("({{#(.*)}})")
 _block_end_pattern = re.compile("({{/(.*)}})")
 
@@ -35,7 +35,7 @@ def create_file_from_resource(resource_path, template_hash, output_file, excepti
     """
     _method_name = 'create_file_from_resource'
 
-    template_stream = FileUtils.getFileAsStream(resource_path)
+    template_stream = FileUtils.getResourceAsStream(resource_path)
     if template_stream is None:
         ex = exception_helper.create_exception(exception_type, 'WLSDPLY-01661', resource_path)
         __logger.throwing(ex, class_name=__class_name, method_name=_method_name)

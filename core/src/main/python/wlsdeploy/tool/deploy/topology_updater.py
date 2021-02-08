@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -50,18 +50,19 @@ class TopologyUpdater(Deployer):
                                           self.logger)
 
     # Override
-    def _add_named_elements(self, type_name, model_nodes, location):
+    def _add_named_elements(self, type_name, model_nodes, location, delete_now=True):
         """
         Override default behavior to create placeholders for referenced Coherence clusters.
         :param type_name: the model folder type
         :param model_nodes: the model dictionary of the specified model folder type
         :param location: the location object to use to create the MBeans
+        :param delete_now: Flag to determine if deletes are processed immediately or delayed
         :raises: DeployException: if an error occurs
         """
         self._topology_helper.check_coherence_cluster_references(type_name, model_nodes)
         # continue with regular processing
 
-        Deployer._add_named_elements(self, type_name, model_nodes, location)
+        Deployer._add_named_elements(self, type_name, model_nodes, location, delete_now)
 
     # Override
     def _add_model_elements(self, type_name, model_nodes, location):
@@ -75,9 +76,7 @@ class TopologyUpdater(Deployer):
         """
         Deploy resource model elements at the domain level, including multi-tenant elements.
         """
-        # For issue in setServerGroups in online mode (new configured clusters and stand-alone managed servers
-        # will not have extension template resources targeted)
-        existing_managed_servers, existing_configured_clusters = self._create_list_of_setservergroups_targets()
+
         domain_token = deployer_utils.get_domain_token(self.aliases)
 
         location = LocationContext()
@@ -97,33 +96,13 @@ class TopologyUpdater(Deployer):
 
         self._process_section(self._topology, folder_list, ADMIN_CONSOLE, location)
         self._process_section(self._topology, folder_list, CDI_CONTAINER, location)
-        self._process_section(self._topology, folder_list, MACHINE, location)
-        self._process_section(self._topology, folder_list, UNIX_MACHINE, location)
 
-        # avoid circular references between clusters and server templates
-        self._topology_helper.create_placeholder_server_templates(self._topology)
-
-        # create placeholders for JDBC resources that may be referenced in cluster definition.
-        jdbc_names = self._topology_helper.create_placeholder_jdbc_resources(self._resources)
-
-        self._process_section(self._topology, folder_list, CLUSTER, location)
-        self._process_section(self._topology, folder_list, SERVER_TEMPLATE, location)
-
-        # create placeholders for Servers that are in a cluster as /Server/JTAMigratableTarget
-        # can reference "other" servers
-        self._topology_helper.create_placeholder_servers_in_cluster(self._topology)
-
-        self._process_section(self._topology, folder_list, SERVER, location)
-
-        # targets may have been inadvertently assigned when clusters were added
-        self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
-
-        self._process_section(self._topology, folder_list, MIGRATABLE_TARGET, location)
-
-        new_managed_server_list, new_configured_cluster_list = self._create_list_of_setservergroups_targets()
-
-        self._check_for_online_setservergroups_issue(existing_managed_servers, new_managed_server_list)
-        self._check_for_online_setservergroups_issue(existing_configured_clusters, new_configured_cluster_list)
+        # these deletions were intentionally skipped when these elements are first created.
+        self._topology_helper.remove_deleted_clusters_and_servers(location, self._topology)
+        folder_list.remove(CLUSTER)
+        folder_list.remove(SERVER)
+        folder_list.remove(SERVER_TEMPLATE)
+        folder_list.remove(MIGRATABLE_TARGET)
 
         # process remaining top-level folders. copy list to avoid concurrent update in loop
         remaining = list(folder_list)
@@ -133,6 +112,54 @@ class TopologyUpdater(Deployer):
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
         self.library_helper.install_domain_scripts()
+
+    def update_machines_clusters_and_servers(self, delete_now=True):
+        """
+        Update the main topology components, the components that are used as targets
+        for other resources.
+        :param delete_now: Flag to determine whether to delay the delete.
+        """
+        domain_token = deployer_utils.get_domain_token(self.aliases)
+        location = LocationContext()
+        location.add_name_token(domain_token, self.model_context.get_domain_name())
+        folder_list = list()
+        folder_list.append(CLUSTER)
+        folder_list.append(SERVER)
+        folder_list.append(SERVER_TEMPLATE)
+        folder_list.append(MIGRATABLE_TARGET)
+        folder_list.append(MACHINE)
+        folder_list.append(UNIX_MACHINE)
+
+        self._process_section(self._topology, folder_list, MACHINE, location)
+        self._process_section(self._topology, folder_list, UNIX_MACHINE, location)
+        # avoid circular references between clusters and server templates
+        self._topology_helper.create_placeholder_server_templates(self._topology)
+
+        # create placeholders for JDBC resources that may be referenced in cluster definition.
+        jdbc_names = self._topology_helper.create_placeholder_jdbc_resources(self._resources)
+
+        self._process_section(self._topology, folder_list, CLUSTER, location, delete_now)
+        self._process_section(self._topology, folder_list, SERVER_TEMPLATE, location, delete_now)
+
+        # create placeholders for Servers that are in a cluster as /Server/JTAMigratableTarget
+        # can reference "other" servers
+        self._topology_helper.create_placeholder_servers_in_cluster(self._topology)
+
+        self._process_section(self._topology, folder_list, SERVER, location, delete_now)
+
+        self._process_section(self._topology, folder_list, MIGRATABLE_TARGET, location, delete_now)
+
+        # targets may have been inadvertently assigned when clusters were added
+        self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
+
+    def warn_set_server_groups(self):
+        # For issue in setServerGroups in online mode (new configured clusters and stand-alone managed servers
+        # will not have extension template resources targeted)
+        existing_managed_servers, existing_configured_clusters = self._create_list_of_setservergroups_targets()
+        new_managed_server_list, new_configured_cluster_list = self._create_list_of_setservergroups_targets()
+
+        self._check_for_online_setservergroups_issue(existing_managed_servers, new_managed_server_list)
+        self._check_for_online_setservergroups_issue(existing_configured_clusters, new_configured_cluster_list)
 
     def set_server_groups(self):
         if self.wls_helper.is_set_server_groups_supported():
@@ -148,12 +175,12 @@ class TopologyUpdater(Deployer):
         elif self._domain_typedef.is_jrf_domain_type():
             self.target_helper.target_jrf_groups_to_clusters_servers()
 
-    def _process_section(self, folder_dict, folder_list, key, location):
+    def _process_section(self, folder_dict, folder_list, key, location, delete_now=True):
         if key in folder_dict:
             nodes = dictionary_utils.get_dictionary_element(folder_dict, key)
             sub_location = LocationContext(location).append_location(key)
             if self.aliases.supports_multiple_mbean_instances(sub_location):
-                self._add_named_elements(key, nodes, location)
+                self._add_named_elements(key, nodes, location, delete_now)
             else:
                 self._add_model_elements(key, nodes, location)
 

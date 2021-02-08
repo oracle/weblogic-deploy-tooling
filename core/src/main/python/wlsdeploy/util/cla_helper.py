@@ -25,7 +25,7 @@ from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_helper
-from wlsdeploy.util import model_translator, path_utils
+from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_utils
 
 from wlsdeploy.util import tool_exit
@@ -314,12 +314,12 @@ def merge_model_files(model_file_value, variable_map=None):
 
     for model_file in model_files:
         model = FileToPython(model_file, True).parse()
-        _merge_dictionaries(merged_model, model, variable_map)
+        merge_model_dictionaries(merged_model, model, variable_map)
 
     return merged_model
 
 
-def _merge_dictionaries(dictionary, new_dictionary, variable_map):
+def merge_model_dictionaries(dictionary, new_dictionary, variable_map):
     """
     Merge the values from the new dictionary to the existing one.
     Use variables to resolve keys.
@@ -345,7 +345,7 @@ def _merge_dictionaries(dictionary, new_dictionary, variable_map):
         else:
             value = dictionary[dictionary_key]
             if isinstance(value, dict) and isinstance(new_value, dict):
-                _merge_dictionaries(value, new_value, variable_map)
+                merge_model_dictionaries(value, new_value, variable_map)
             else:
                 dictionary[new_key] = new_value
 

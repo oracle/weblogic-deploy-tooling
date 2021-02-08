@@ -27,7 +27,6 @@ from wlsdeploy.aliases.alias_constants import MODEL_NAME
 from wlsdeploy.aliases.alias_constants import NAME_VALUE
 from wlsdeploy.aliases.alias_constants import NONE_CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import PATH_TOKEN
-from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_NAME_MAP
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import SHORT_NAME
@@ -54,14 +53,11 @@ from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import JPA
-from wlsdeploy.aliases.model_constants import KUBERNETES
-from wlsdeploy.aliases.model_constants import KUBERNETES_ALIAS
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import OHS
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
-from wlsdeploy.aliases.model_constants import SERVER_POD
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WLS_ROLES
@@ -160,25 +156,16 @@ class AliasEntries(object):
         WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
     ]
 
-    __kubernetes_top_level_folders = [
-        'metadata',
-        'spec'
-    ]
-
     __section_top_folders_map = {
         DOMAIN_INFO: __domain_info_top_level_folders,
         TOPOLOGY: __topology_top_level_folders,
         RESOURCES: __resources_top_level_folders,
-        APP_DEPLOYMENTS: __app_deployments_top_level_folders,
-        KUBERNETES: __kubernetes_top_level_folders
+        APP_DEPLOYMENTS: __app_deployments_top_level_folders
     }
 
     # in rare cases, the alias file name does not match the folder name
     __alternate_alias_file_name_map = {
-        APPLICATION: 'AppDeployment',
-        'metadata': 'Metadata',
-        'spec': 'Spec',
-        'serverPod': 'ServerPod'
+        APPLICATION: 'AppDeployment'
     }
 
     # all the categories that appear at the top of model sections
@@ -187,7 +174,6 @@ class AliasEntries(object):
     __top_model_categories.extend(__resources_top_level_folders)
     __top_model_categories.extend(__app_deployments_top_level_folders)
     __top_model_categories.extend(__domain_info_top_level_folders)
-    __top_model_categories.extend(__kubernetes_top_level_folders)
 
     # all the categories, including section-attribute and contained categories
     __all_model_categories = []
@@ -195,11 +181,9 @@ class AliasEntries(object):
 
     # include contained categories
     __all_model_categories.append(RESOURCE_MANAGER)
-    __all_model_categories.append(SERVER_POD)
 
     # include section attribute categories
     __all_model_categories.append(DOMAIN_INFO_ALIAS)
-    __all_model_categories.append(KUBERNETES_ALIAS)
 
     __domain_name_token = 'DOMAIN'
 
@@ -309,9 +293,6 @@ class AliasEntries(object):
         if section_name == DOMAIN_INFO:
             return LocationContext().append_location(DOMAIN_INFO_ALIAS)
 
-        if section_name == KUBERNETES:
-            return LocationContext().append_location(KUBERNETES_ALIAS)
-
         return None
 
     def get_model_subfolder_names_for_location(self, location):
@@ -367,7 +348,7 @@ class AliasEntries(object):
                 my_loc.append_location(location_folder)
 
                 # Have to check for security provider artificial folders that don't have a trailing name token
-                if location_folder not in SECURITY_PROVIDER_NAME_MAP:
+                if not self.is_location_child_folder_type(my_loc, ChildFoldersTypes.NONE):
                     name_token = self.get_name_token_for_location(my_loc)
                     if name_token is not None:
                         name = location.get_name_for_token(name_token)

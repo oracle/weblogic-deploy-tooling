@@ -4,7 +4,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the extractDomainResource tool.
 """
-import os
 import sys
 
 from oracle.weblogic.deploy.deploy import DeployException
@@ -66,7 +65,10 @@ def __process_args(args):
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
     cla_helper.process_encryption_args(argument_map)
 
-    return model_context_helper.create_context(_program_name, argument_map)
+    argument_map[CommandLineArgUtil.VALIDATION_METHOD] = CommandLineArgUtil.LAX_VALIDATION_METHOD
+    model_context = model_context_helper.create_context(_program_name, argument_map)
+    model_context.set_ignore_missing_archive_entries(True)
+    return model_context
 
 
 def __extract_resource(model, model_context, aliases):

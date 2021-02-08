@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module to handle translating between Yaml files and Python dictionaries.
@@ -19,7 +19,6 @@ import oracle.weblogic.deploy.yaml.YamlTranslator as JYamlTranslator
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import COMMENT_MATCH
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.yaml.dictionary_list import DictionaryList
 
 
 class YamlToPython(object):
@@ -103,12 +102,13 @@ class PythonToYaml(object):
     _class_name = 'PythonToYaml'
     # 4 spaces
     _indent_unit = '    '
-    _requires_quotes_chars_regex = '[:{}\[\],&*#?|<>=!%@`-]'
+    _requires_quotes_chars_regex = '[\r\n:{}\[\],&*#?|<>=!%@`-]'
 
     def __init__(self, dictionary):
         # Fix error handling for None
         self._dictionary = dictionary
         self._logger = PlatformLogger('wlsdeploy.yaml')
+        self._hyphenate_lists = False
         return
 
     def write_to_yaml_file(self, file_name):
@@ -153,6 +153,9 @@ class PythonToYaml(object):
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=yaml_file)
         return yaml_file
 
+    def set_hyphenate_lists(self, hyphenate_lists):
+        self._hyphenate_lists = hyphenate_lists
+
     def _write_dictionary_to_yaml_file(self, dictionary, writer, indent=''):
         """
         Do the actual heavy lifting of converting a dictionary and writing it to the file.  This method is
@@ -169,9 +172,9 @@ class PythonToYaml(object):
             quoted_key = self._quotify_string(key)
             if key.startswith(COMMENT_MATCH):
                 writer.println(indent + "# " + str(value))
-            elif isinstance(value, DictionaryList):
+            elif isinstance(value, list) and self._hyphenate_lists:
                 writer.println(indent + quoted_key + ':')
-                self._write_dictionary_list_to_yaml_file(value, writer, indent)
+                self._write_hyphen_list_to_yaml_file(value, writer, indent)
             elif isinstance(value, dict):
                 writer.println(indent + quoted_key + ':')
                 self._write_dictionary_to_yaml_file(value, writer, indent + self._indent_unit)
@@ -180,41 +183,54 @@ class PythonToYaml(object):
 
         return
 
-    def _write_dictionary_list_to_yaml_file(self, dictionary_list, writer, indent=''):
+    def _write_hyphen_list_to_yaml_file(self, item_list, writer, indent=''):
         """
-        Dictionary list is a special case for YAML. The result should look like:
+        Hyphen list is a special case for YAML. The result should look like:
+
+        items:
+        -   value1
+        -   value2
+        -   value3
+
+        If items are dictionaries:
 
         items:
         -   key1: value1
             key2: value2
-            key3:
-                subkey1: value1
-                subkey2: value2
+        -   key1: value1
+            key2: value2
 
-        :param dictionary: the Python dictionary to convert
+        :param item_list: the list to convert
         :param writer: the java.io.PrintWriter for the output file
         :param indent: the amount of indent to use (based on the level of recursion)
         :raises: IOException: if an error occurs while writing the output
         """
-        if dictionary_list is None:
+        if item_list is None:
             return
 
-        for dictionary in dictionary_list:
-            first = True
-            for key, value in dictionary.items():
-                quoted_key = self._quotify_string(key)
-                this_indent = indent + self._indent_unit
-                if first:
-                    this_indent = indent + "-   "
+        for item in item_list:
+            if isinstance(item, dict):
+                first = True
+                for key, value in item.items():
+                    quoted_key = self._quotify_string(key)
+                    this_indent = indent + self._indent_unit
+                    if first:
+                        this_indent = indent + "-   "
 
-                if isinstance(value, dict):
-                    writer.println(this_indent + quoted_key + ':')
-                    self._write_dictionary_to_yaml_file(value, writer, this_indent + self._indent_unit)
-                else:
-                    writer.println(this_indent + quoted_key + ': ' + self._get_value_string(value))
+                    if isinstance(value, dict):
+                        writer.println(this_indent + quoted_key + ':')
+                        self._write_dictionary_to_yaml_file(value, writer, indent + self._indent_unit
+                                                            + self._indent_unit)
+                    elif isinstance(value, list):
+                        writer.println(this_indent + quoted_key + ':')
+                        self._write_hyphen_list_to_yaml_file(value, writer, indent + self._indent_unit)
+                    else:
+                        writer.println(this_indent + quoted_key + ': ' + self._get_value_string(value))
 
-                first = False
-        return
+                    first = False
+            else:
+                this_indent = indent + "-   "
+                writer.println(this_indent + self._get_value_string(item))
 
     def _get_value_string(self, value):
         """
@@ -274,6 +290,7 @@ class PythonToYaml(object):
         else:
             result = _quote_embedded_quotes(text)
         return result
+
 
 def _quote_embedded_quotes(text):
     """

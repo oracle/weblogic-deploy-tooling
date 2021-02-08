@@ -142,12 +142,12 @@
                 "AllowedTargetHost":                    [ {"version": "[12.2.1.4,)",       "wlst_mode": "both",    "wlst_name": "AllowedTargetHost${:s}",                       "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string", "preferred_model_type": "list", "get_method": "LSA" } ],
                 "ArsRequiresSsl":                       [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "${Ars:ARS}Requires${Ssl:SSL}",                 "wlst_path": "WP001", "value": {"default": "true"  }, "wlst_type": "boolean"         } ],
                 "ArsRequiresTwoWaySsl":                 [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "${Ars:ARS}RequiresTwoWay${Ssl:SSL}",           "wlst_path": "WP001", "value": {"default": "false" }, "wlst_type": "boolean"         } ],
-                "AssertionConsumerUri":                 [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "AssertionConsumer${Uri:URIs}",                 "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string", "preferred_model_type": "list", "get_method": "LSA", "restart_required": "true" } ],
-                "AssertionRetrievalUri":                [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "AssertionRetrieval${Uri:URIs}",                "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string", "preferred_model_type": "list", "get_method": "LSA", "restart_required": "true" } ],
+                "AssertionConsumerUri":                 [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "AssertionConsumer${Uri:URIs}",                 "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string", "preferred_model_type": "list", "get_method": "${LSA:GET}", "restart_required": "true" } ],
+                "AssertionRetrievalUri":                [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "AssertionRetrieval${Uri:URIs}",                "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string", "preferred_model_type": "list", "get_method": "${LSA:GET}", "restart_required": "true" } ],
                 "AssertionStoreClassName":              [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "AssertionStoreClassName",                      "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string",         "restart_required": "true" } ],
                 "AssertionStoreProperties":             [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "AssertionStoreProperties",                     "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "properties",     "restart_required": "true" } ],
                 "DestinationSiteEnabled":               [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "DestinationSiteEnabled",                       "wlst_path": "WP001", "value": {"default": "false" }, "wlst_type": "boolean",        "restart_required": "true" } ],
-                "IntersiteTransferUri":                 [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "IntersiteTransfer${Uri:URIs}",                 "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string", "preferred_model_type": "list", "get_method": "LSA", "restart_required": "true" } ],
+                "IntersiteTransferUri":                 [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "IntersiteTransfer${Uri:URIs}",                 "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string", "preferred_model_type": "list", "get_method": "${LSA:GET}", "restart_required": "true" } ],
                 "ItsRequiresSsl":                       [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "${Its:ITS}Requires${Ssl:SSL}",                 "wlst_path": "WP001", "value": {"default": "true"  }, "wlst_type": "boolean"         } ],
                 "Notes":                                [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "Notes",                                        "wlst_path": "WP001", "value": {"default": "None"  }, "wlst_type": "string"          } ],
                 "PostOneUseCheckEnabled":               [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "${Post:POST}OneUseCheckEnabled",               "wlst_path": "WP001", "value": {"default": "true"  }, "wlst_type": "boolean"         } ],
@@ -397,7 +397,21 @@
             "wlst_type": "ServerDebug",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
-            "folders": {},
+            "folders": {
+                "DebugScope": {
+                    "wlst_type": "DebugScope${:s}",
+                    "child_folders_type": "multiple",
+                    "folders": {},
+                    "attributes": {
+                        "Enabled":            [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Enabled",            "wlst_path": "WP001", "value": {"default": "false"    }, "wlst_type": "boolean"} ],
+                        "Notes":              [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",              "wlst_path": "WP001", "value": {"default": "None"     }, "wlst_type": "string" } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/ServerDebug/%SERVERDEBUG%/DebugScope${:s}/%DEBUGSCOPE%"
+                    }
+                }
+            },
             "attributes": {
                 "ApplicationContainer":                         [ {"version": "[12.1.2,)", "wlst_mode": "both", "wlst_name": "ApplicationContainer",                         "wlst_path": "WP001", "value": {"default": "false"}, "wlst_type": "boolean"} ],
                 "BugReportServiceWsdlUrl":                      [ {"version": "[12.1.2,)", "wlst_mode": "both", "wlst_name": "BugReportServiceWsdlUrl",                      "wlst_path": "WP001", "value": {"default": "None" }, "wlst_type": "string",  "get_method": "${LSA:GET}", "restart_required": "true" } ],

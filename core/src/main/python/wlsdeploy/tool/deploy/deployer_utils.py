@@ -7,7 +7,10 @@ import os
 from sets import Set
 
 from java.io import IOException
+from java.io import PrintStream
+from java.lang import System
 from java.net import URI
+from java.net import URISyntaxException
 from java.security import NoSuchAlgorithmException
 
 from oracle.weblogic.deploy.deploy import DeployException
@@ -16,7 +19,12 @@ from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
+from oracle.weblogic.deploy.exception import BundleAwareException
+
+from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SIZE
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
@@ -24,16 +32,22 @@ from wlsdeploy.aliases.model_constants import FILE_URI
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import LIBRARY
+from wlsdeploy.aliases.model_constants import MAX_DYNAMIC_SERVER_COUNT
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_NAME_PREFIX
 from wlsdeploy.aliases.model_constants import SERVER_NAME_START_IDX
+from wlsdeploy.aliases.model_constants import TARGET
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging import platform_logger
-from wlsdeploy.util import model_helper
+from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import model_helper
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
@@ -267,6 +281,7 @@ def delete_named_element(location, delete_name, existing_names, aliases):
         type_path = aliases.get_wlst_create_path(location)
         _wlst_helper.cd(type_path)
         _wlst_helper.delete(name, type_name)
+        existing_names.remove(name)
 
 
 def ensure_no_uncommitted_changes_or_edit_sessions(ignoreEditSessionCheck=False):
@@ -327,36 +342,47 @@ def discard_current_edit():
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
 
+
 def extract_from_uri(model_context, path_value):
     """
     If the MBean path attribute has a URI file scheme, look past the scheme and
-    resolve any global tokens.
+    resolve any global tokens. If the filename contains non-standard RFC 2936 and
+    does not represent a file but rather a future file.
 
     :param model_context: current context containing job information
     :param path_value: MBean attribute path
     :return: fully resolved URI path, or the path_value if not a URI scheme
     """
-    uri = URI(path_value)
-    if uri.getScheme() == 'file':
-        return FILE_URI + model_context.replace_token_string(uri.getPath()[1:])
+    _method_name = 'extract_from_uri'
+    try:
+        uri = URI(path_value)
+        if uri.getScheme() == 'file':
+            return FILE_URI + model_context.replace_token_string(uri.getPath()[1:])
+    except URISyntaxException, use:
+        _logger.fine('WLSDPLY-09113', path_value, use, class_name=_class_name, method_name=_method_name)
     return path_value
 
 
 def get_rel_path_from_uri(model_context, path_value):
     """
     If the MBean attribute is a URI. To extract it from the archive, need to make
-    it into a relative path.
+    it into a relative path. If it contains non-standard RF 2396 characters, assume
+    it is not a file name in the archive.
     :param model_context: current context containing run information
     :param path_value: the full value of the path attribute
     :return: The relative value of the path attribute
     """
-    uri = URI(path_value)
-    if uri.getScheme() == 'file':
-        value = model_context.tokenize_path(uri.getPath())
-        if value.startswith(model_context.DOMAIN_HOME_TOKEN):
-            # point past the token and first slash
-            value = value[len(model_context.DOMAIN_HOME_TOKEN)+1:]
-        return value
+    _method_name = 'get_rel_path_from_uri'
+    try:
+        uri = URI(path_value)
+        if uri.getScheme() == 'file':
+            value = model_context.tokenize_path(uri.getPath())
+            if value.startswith(model_context.DOMAIN_HOME_TOKEN):
+                # point past the token and first slash
+                value = value[len(model_context.DOMAIN_HOME_TOKEN)+1:]
+            return value
+    except URISyntaxException, use:
+        _logger.fine('WLSDPLY-09113', path_value, use, class_name=_class_name, method_name=_method_name)
     return path_value
 
 
@@ -480,6 +506,22 @@ def list_restarts(model_context, exit_code):
     return result
 
 
+def list_non_dynamic_changes(model_context, non_dynamic_changes_string):
+    """
+    If output dir is present in the model context, write the restart data to the output dir as non_dynamic_changes.file.
+    :param model_context: Current context with the run parameters.
+    :param non_dynamic_changes_string: java.lang.String of changes that were non dynamic
+    """
+    _method_name = 'list_non_dynamic_changes'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
+    output_dir = model_context.get_output_dir()
+    if len(str(non_dynamic_changes_string)) > 0 and output_dir is not None:
+        file_name = os.path.join(output_dir, 'non_dynamic_changes.file')
+        pw = FileUtils.getPrintWriter(file_name)
+        pw.println(non_dynamic_changes_string)
+        pw.close()
+
+
 def get_list_of_restarts():
     """
     Return the restart checklist from the online domain instance. Log each instance of the restart checklist
@@ -501,7 +543,7 @@ def get_list_of_restarts():
             prt_cluster = cluster_name
             if cluster_name == '':
                 prt_cluster = 'standalone'
-            for resource in server.getPendingRestartSystemResources():
+            for resource in resources:
                 line = list()
                 line.append(cluster_name)
                 line.append(server_name)
@@ -524,6 +566,63 @@ def get_list_of_restarts():
                 _logger.warning('WLSDPLY-09206', server_name, prt_cluster,
                                 class_name=_class_name, method_name=_method_name)
     return restart_list
+
+
+def online_check_save_activate(model_context):
+    """
+    For online update and deploy, check if restart is required, then cancel or save and activate.
+    :param model_context: used to perform checks
+    :return: the exit code for the tool
+    :raises BundleAwareException: if an error occurs during the process
+    """
+    _method_name = 'online_check_save_activate'
+    exit_code = 0
+
+    try:
+        # First we enable the stdout again and then redirect the stdoout to a string output stream
+        # call isRestartRequired to get the output, capture the string and then silence wlst output again
+
+        _wlst_helper.enable_stdout()
+        sostream = StringOutputStream()
+        System.setOut(PrintStream(sostream))
+        restart_required = _wlst_helper.is_restart_required()
+        is_restartreq_output = sostream.get_string()
+        _wlst_helper.silence()
+        if model_context.is_cancel_changes_if_restart_required() and restart_required:
+            _wlst_helper.cancel_edit()
+            _logger.warning('WLSDPLY_09015', is_restartreq_output)
+            exit_code = CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE
+            list_non_dynamic_changes(model_context, is_restartreq_output)
+        else:
+            _wlst_helper.save()
+            _wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
+            if restart_required:
+                exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
+                list_non_dynamic_changes(model_context, is_restartreq_output)
+                exit_code = list_restarts(model_context, exit_code)
+
+    except BundleAwareException, ex:
+        release_edit_session_and_disconnect()
+        raise ex
+
+    return exit_code
+
+
+def release_edit_session_and_disconnect():
+    """
+    An online error recovery method.
+    """
+    _method_name = 'release_edit_session_and_disconnect'
+    try:
+        _wlst_helper.undo()
+        _wlst_helper.stop_edit()
+        _wlst_helper.disconnect()
+    except BundleAwareException, ex:
+        # This method is only used for cleanup after an error so don't mask
+        # the original problem by throwing yet another exception...
+        _logger.warning('WLSDPLY-09012', ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+    return
 
 
 def check_if_dynamic_cluster(server_name, cluster_name, aliases):
@@ -554,7 +653,11 @@ def check_if_dynamic_cluster(server_name, cluster_name, aliases):
         _wlst_helper.cd(attr_path)
     except DeployException:
         return False
-    attr_name = aliases.get_wlst_attribute_name(location, DYNAMIC_CLUSTER_SIZE)
+    present, __ = aliases.is_valid_model_attribute_name(location, DYNAMIC_CLUSTER_SIZE)
+    if present == ValidationCodes.VALID:
+        attr_name = aliases.get_wlst_attribute_name(location, DYNAMIC_CLUSTER_SIZE)
+    else:
+        attr_name = aliases.get_wlst_attribute_name(location, MAX_DYNAMIC_SERVER_COUNT)
     dynamic_size = _wlst_helper.get(attr_name)
     attr_name = aliases.get_wlst_attribute_name(location, SERVER_NAME_PREFIX)
     prefix = _wlst_helper.get(attr_name)
@@ -571,3 +674,55 @@ def check_if_dynamic_cluster(server_name, cluster_name, aliases):
                 return True
     return False
 
+
+def delete_online_deployment_targets(model, aliases, wlst_mode):
+    """
+    For online deploy and update, remove any deleted targets from existing apps and libraries.
+    This step needs to occur during the WLST edit session, before regular app/library deployment.
+    :param model: the model to be examined
+    :param aliases: to resolve WLST paths
+    :param wlst_mode: to check for online mode
+    """
+    if wlst_mode == WlstModes.ONLINE:
+        app_deployments = dictionary_utils.get_dictionary_element(model.get_model(), APP_DEPLOYMENTS)
+        __delete_online_targets(app_deployments, APPLICATION, aliases)
+        __delete_online_targets(app_deployments, LIBRARY, aliases)
+
+
+def __delete_online_targets(app_deployments, model_type, aliases):
+    """
+    For online deploy and update, remove any deleted targets from existing objects of the specified type.
+    Objects may be applications or libraries.
+    :param app_deployments: the APP_DEPLOYMENTS dictionary from the model
+    :param model_type: map of library targets to be deleted
+    :param aliases: the parent location of the apps and libraries
+    """
+    _method_name = '__delete_online_targets'
+
+    location = LocationContext().append_location(model_type)
+    wlst_path = aliases.get_wlst_list_path(location)
+    wlst_names = _wlst_helper.get_existing_object_list(wlst_path)
+    name_token = aliases.get_name_token(location)
+
+    deploy_dict = dictionary_utils.get_dictionary_element(app_deployments, model_type)
+    for deploy_name in deploy_dict.keys():
+        if deploy_name in wlst_names:
+            value_dict = deploy_dict[deploy_name]
+
+            delete_names = []
+            model_targets = dictionary_utils.get_element(value_dict, TARGET)
+            targets = alias_utils.create_list(model_targets, 'WLSDPLY-08000')
+            for target in targets:
+                if model_helper.is_delete_name(target):
+                    delete_names.append(model_helper.get_delete_item_name(target))
+
+            location.add_name_token(name_token, deploy_name)
+            mbean_path = aliases.get_wlst_attributes_path(location)
+            mbean = _wlst_helper.get_mbean_for_wlst_path(mbean_path)
+            mbean_targets = mbean.getTargets()
+            for mbean_target in mbean_targets:
+                mbean_name = mbean_target.getName()
+                if mbean_name in delete_names:
+                    _logger.info('WLSDPLY-09114', mbean_name, model_type, deploy_name, class_name=_class_name,
+                                 method_name=_method_name)
+                    mbean.removeTarget(mbean_target)

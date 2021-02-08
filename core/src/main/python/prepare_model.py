@@ -88,7 +88,9 @@ def __process_args(args):
 
     target_configuration_helper.process_target_arguments(argument_map)
 
-    return ModelContext(_program_name, argument_map)
+    model_context = ModelContext(_program_name, argument_map)
+    model_context.set_ignore_missing_archive_entries(True)
+    return model_context
 
 
 class PrepareModel:
@@ -237,6 +239,9 @@ class PrepareModel:
 
         model_file_name = None
 
+        # create a merged model that is not substituted
+        merged_model_dictionary = {}
+
         try:
             model_file_list = self.model_files.split(',')
             for model_file in model_file_list:
@@ -283,6 +288,12 @@ class PrepareModel:
                 pty._write_dictionary_to_yaml_file(self.current_dict, writer)
                 writer.close()
 
+                cla_helper.merge_model_dictionaries(merged_model_dictionary, self.current_dict, None)
+
+            # filter variables or secrets that are no longer in the merged, filtered model
+            filter_helper.apply_filters(merged_model_dictionary, "discover", self.model_context)
+            self.credential_injector.filter_unused_credentials(merged_model_dictionary)
+
             # use a merged, substituted, filtered model to get domain name and create additional target output.
             full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._aliases,
                                                           "discover", WlstModes.OFFLINE)
@@ -291,7 +302,7 @@ class PrepareModel:
             if target_config.uses_credential_secrets():
                 target_configuration_helper.generate_k8s_script(self.model_context,
                                                                 self.credential_injector.get_variable_cache(),
-                                                                full_model_dictionary)
+                                                                full_model_dictionary, ExceptionType.VALIDATE)
 
             # create any additional outputs from full model dictionary
             target_configuration_helper.create_additional_output(Model(full_model_dictionary), self.model_context,

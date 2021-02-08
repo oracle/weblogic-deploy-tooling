@@ -7,18 +7,21 @@ from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
 from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
+from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_DB_USER
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RCU_VARIABLES
 from wlsdeploy.aliases.model_constants import USE_ATP
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_context import ModelContext
 
 
@@ -35,32 +38,32 @@ class RcuDbInfo(object):
         self.rcu_properties_map = rcu_properties_map
 
     def get_atp_tns_admin(self):
-        return self.rcu_properties_map[DRIVER_PARAMS_NET_TNS_ADMIN]
+        return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_NET_TNS_ADMIN)
 
     def get_atp_entry(self):
-        return self.rcu_properties_map[ATP_TNS_ENTRY]
+        return dictionary_utils.get_element(self.rcu_properties_map, ATP_TNS_ENTRY)
 
     def get_rcu_prefix(self):
-        return self.rcu_properties_map[RCU_PREFIX]
+        return dictionary_utils.get_element(self.rcu_properties_map, RCU_PREFIX)
 
     def get_rcu_schema_password(self):
-        password = self.rcu_properties_map[RCU_SCHEMA_PASSWORD]
+        password = dictionary_utils.get_element(self.rcu_properties_map, RCU_SCHEMA_PASSWORD)
         return self.aliases.decrypt_password(password)
 
     def get_keystore_password(self):
-        password = self.rcu_properties_map[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY]
+        password = dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY)
         return self.aliases.decrypt_password(password)
 
     def get_truststore_password(self):
-        password = self.rcu_properties_map[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY]
+        password = dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY)
         return self.aliases.decrypt_password(password)
 
     def get_admin_password(self):
-        password = self.rcu_properties_map[RCU_ADMIN_PASSWORD]
+        password = dictionary_utils.get_element(self.rcu_properties_map, RCU_ADMIN_PASSWORD)
         return self.aliases.decrypt_password(password)
 
     def get_rcu_regular_db_conn(self):
-        return self.rcu_properties_map[RCU_DB_CONN]
+        return dictionary_utils.get_element(self.rcu_properties_map, RCU_DB_CONN)
 
     def get_atp_default_tablespace(self):
         if ATP_DEFAULT_TABLESPACE in self.rcu_properties_map:
@@ -84,7 +87,7 @@ class RcuDbInfo(object):
         if RCU_DB_USER in self.rcu_properties_map:
             return self.rcu_properties_map[RCU_DB_USER]
         else:
-            return 'SYS'
+            return ModelContext.DB_USER_DEFAULT
 
     def get_comp_info_location(self):
         if RCU_COMP_INFO in self.rcu_properties_map:
@@ -130,3 +133,71 @@ class RcuDbInfo(object):
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'
         return False
+
+    def get_preferred_db(self):
+        """
+        Return the regular db connect string from command line or model.
+        :return: the db connect string
+        """
+        cli_value = self.model_context.get_rcu_database()
+        if cli_value is not None:
+            return cli_value
+        return self.get_rcu_regular_db_conn()
+
+    def get_preferred_db_user(self):
+        """
+        Return the db user from command line or model.
+        :return: the db user
+        """
+        cli_value = self.model_context.get_rcu_db_user()
+        if cli_value != ModelContext.DB_USER_DEFAULT:
+            return cli_value
+        return self.get_rcu_db_user()
+
+    def get_preferred_prefix(self):
+        """
+        Return the prefix from command line or model.
+        :return: the prefix
+        """
+        cli_value = self.model_context.get_rcu_prefix()
+        if cli_value is not None:
+            return cli_value
+        return self.get_rcu_prefix()
+
+    def get_preferred_schema_pass(self):
+        """
+        Return the schema password from command line or model.
+        :return: the schema password
+        """
+        cli_value = self.model_context.get_rcu_schema_pass()
+        if cli_value is not None:
+            return cli_value
+        return self.get_rcu_schema_password()
+
+    def get_preferred_sys_pass(self):
+        """
+        Return the system password from command line or model.
+        :return: the system password
+        """
+        cli_value = self.model_context.get_rcu_sys_pass()
+        if cli_value is not None:
+            return cli_value
+        return self.get_admin_password()
+
+
+def create(model_dictionary, model_context, aliases):
+    """
+    Create an RcuDbInfo object from the model dictionary.
+    If domainInfo / RCUDbInfo section, create using those values,
+    otherwise create from an empty dictionary to use empty or default values.
+    :param model_dictionary: the model dictionary to be checked
+    :param model_context: used to resolve paths, check CLI arguments
+    :param aliases: used for decryption
+    :return: a new RcuDbInfo object
+    """
+    domain_info = dictionary_utils.get_dictionary_element(model_dictionary, DOMAIN_INFO)
+    rcu_properties_map = {}
+    if RCU_DB_INFO in domain_info:
+        rcu_properties_map = domain_info[RCU_DB_INFO]
+
+    return RcuDbInfo(model_context, aliases, rcu_properties_map)

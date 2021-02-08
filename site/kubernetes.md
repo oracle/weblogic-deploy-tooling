@@ -15,7 +15,7 @@ Here is an example command line for the Extract Domain Resource Tool:
 
 For the simplest case, the Extract Domain Resource Tool will create a sparse domain file. This is what is generated when there is not a `kubernetes` section in the model, or that section is empty.
 ```yaml
-apiVersion: weblogic.oracle/v6
+apiVersion: weblogic.oracle/v8
 kind: Domain
 metadata:
     name: DemoDomain
@@ -25,6 +25,9 @@ spec:
     imagePullSecrets:
     -   name: '--FIX ME--'
     webLogicCredentialsSecret: '--FIX ME--'
+    configuration:
+        model:
+            domainType: WLS
     clusters:
     -   clusterName: mycluster
         replicas: 2
@@ -48,6 +51,13 @@ kubernetes:
             WEBLOGIC_IMAGE_PULL_SECRET_NAME:
         webLogicCredentialsSecret:
             name: '@@PROP:mySecret@@'
+        configuration:
+            model:
+                domainType: 'WLS'
+            secrets: [
+              'secret1',
+              'secret2'
+            ]
         serverPod:
             env:
                 USER_MEM_ARGS:
@@ -59,6 +69,8 @@ This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentials
 
 For this example, the resulting domain resource file would contain:
 ```yaml
+apiVersion: weblogic.oracle/v8
+kind: Domain
 metadata:
     name: myName
     namespace: myNamespace
@@ -75,13 +87,17 @@ spec:
         -   name: JAVA_OPTIONS
             value: '-Dmydir=/home/me'
     domainHome: /u01/mine/domain
+    configuration:
+        model:
+            domainType: WLS
+        secrets:
+        -   secret1
+        -   secret2
     clusters:
     -   clusterName: mycluster
         replicas: 2
     -   clusterName: mycluster3
         replicas: 4
-apiVersion: weblogic.oracle/v6
-kind: Domain
 ```
 
 The syntax of the `spec/serverPod/env` and other list sections in the WDT model are different from the syntax in the target file. The WDT tools do not recognize the hyphenated list syntax, so these elements are specified in a similar manner to other model lists.

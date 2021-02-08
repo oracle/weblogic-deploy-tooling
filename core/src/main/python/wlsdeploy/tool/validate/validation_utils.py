@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -126,7 +126,8 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
     elif expected_data_type in ['float', 'double']:
         retval = (actual_data_type in ["<type 'float'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type == 'properties' or expected_data_type == 'dict':
-        retval = (actual_data_type in ["<type 'PyOrderedDict'>", "<type 'dict'>", "<type 'str'>"])
+        retval = (actual_data_type in ["<type 'PyOrderedDict'>", "<type 'oracle.weblogic.deploy.util.PyOrderedDict'>",
+                                       "<type 'dict'>", "<type 'str'>"])
     elif 'list' in expected_data_type:
         retval = (actual_data_type in ["<type 'list'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type in ['password', 'credential', 'jarray']:

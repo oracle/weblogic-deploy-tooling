@@ -98,9 +98,8 @@ class ApplicationsVersionHelper(object):
 
         self.logger.entering(source_path, model_name, class_name=self._class_name, method_name=_method_name)
 
-        # discard any version information in the model name
-        model_name_tuple = deployer_utils.get_library_name_components(model_name)
-        versioned_name = model_name_tuple[self._EXTENSION_INDEX]
+        # if no manifest version is found, leave the original name unchanged
+        versioned_name = model_name
 
         try:
             manifest = self.__get_manifest(source_path, from_archive)
@@ -109,7 +108,10 @@ class ApplicationsVersionHelper(object):
                 attributes = manifest.getMainAttributes()
                 application_version = attributes.getValue(self._APP_VERSION_MANIFEST_KEY)
                 if application_version is not None:
-                    versioned_name = model_name + '#' + application_version
+                    # replace any version information in the model name
+                    model_name_tuple = deployer_utils.get_library_name_components(model_name)
+                    versioned_name = model_name_tuple[self._EXTENSION_INDEX]
+                    versioned_name = versioned_name + '#' + application_version
                     self.logger.info('WLSDPLY-09328', model_name, versioned_name, class_name=self._class_name,
                                      method_name=_method_name)
 

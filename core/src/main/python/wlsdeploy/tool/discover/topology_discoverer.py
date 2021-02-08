@@ -341,7 +341,9 @@ class TopologyDiscoverer(Discoverer):
                     self._discover_subfolders(result[model_constants.REALM][realm], location, check_order)
                     location.remove_name_token(name_token)
                 except DiscoverException, de:
-                    _logger.warning('WLSDPLY-06200', self._wls_version, de.getLocalizedMessage(),
+                    wlst_path = self._aliases.get_wlst_attributes_path(location)
+                    _logger.warning('WLSDPLY-06200', wlst_path,
+                                    self._wls_version, de.getLocalizedMessage(),
                                     class_name=_class_name, method_name=_method_name)
                     result = OrderedDict()
 
@@ -765,9 +767,16 @@ class TopologyDiscoverer(Discoverer):
                 if self._wlst_helper.path_exists(wlst_path):
                     _logger.fine('WLSDPLY-06613', server, class_name=_class_name, method_name=_method_name)
                     self._wlst_helper.cd(wlst_path)
-                    attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
-                                                                      model_constants.DYNAMIC_CLUSTER_SIZE)
+                    present, __ = self._aliases.is_valid_model_attribute_name(location,
+                                                                              model_constants.DYNAMIC_CLUSTER_SIZE)
+                    if present == ValidationCodes.VALID:
+                        attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
+                                                                          model_constants.DYNAMIC_CLUSTER_SIZE)
+                    else:
+                        attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
+                                                                          model_constants.MAX_DYNAMIC_SERVER_COUNT)
                     dynamic_size = self._wlst_helper.get(attr_name)
+
                     attr_name = self._aliases.get_wlst_attribute_name(cluster_location,
                                                                       model_constants.SERVER_NAME_PREFIX)
                     prefix = self._wlst_helper.get(attr_name)
