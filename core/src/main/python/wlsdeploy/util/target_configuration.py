@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -83,6 +83,15 @@ class TargetConfiguration(object):
         :return: the dictionary of variable injectors
         """
         return dictionary_utils.get_dictionary_element(self.config_dictionary, 'variable_injectors')
+
+    def uses_runtime_encryption_secret(self):
+        """
+        Determine if this configuration uses a runtime encryption secret to
+        encrypt the WDT model and the SystemSerializedIni.data file.
+        :return: True if a runtime encryption secret is used, False otherwise
+        """
+        value = dictionary_utils.get_dictionary_element(self.config_dictionary, 'use_runtime_encryption_secret')
+        return value == 'true'
 
     def uses_credential_secrets(self):
         """

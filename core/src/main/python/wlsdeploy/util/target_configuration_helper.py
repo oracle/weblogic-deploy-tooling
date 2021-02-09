@@ -1,4 +1,4 @@
-# Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+# Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # Shared methods for using target environments (-target abc).
@@ -29,6 +29,9 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 # Kubernetes secret for admin name and password is <domainUid>-weblogic-credentials
 WEBLOGIC_CREDENTIALS_SECRET_NAME = 'weblogic-credentials'
 WEBLOGIC_CREDENTIALS_SECRET_SUFFIX = '-' + WEBLOGIC_CREDENTIALS_SECRET_NAME
+
+RUNTIME_ENCRYPTION_SECRET_NAME = 'runtime-encryption-secret'
+RUNTIME_ENCRYPTION_SECRET_SUFFIX = '-' + RUNTIME_ENCRYPTION_SECRET_NAME
 
 # keys for secrets, such as "password" in "jdbc-mydatasource:password"
 SECRET_USERNAME_KEY = "username"
@@ -141,6 +144,13 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary, excep
             secrets.append(_build_secret_hash(secret_name, None, PASSWORD_TAG))
         else:
             paired_secrets.append(_build_secret_hash(secret_name, user_name, PASSWORD_TAG))
+
+    # add a secret with a specific comment for runtime encryption
+    target_config = model_context.get_target_configuration()
+    if target_config.uses_runtime_encryption_secret():
+        runtime_hash = _build_secret_hash(RUNTIME_ENCRYPTION_SECRET_NAME, None, PASSWORD_TAG)
+        runtime_hash['comment'] = exception_helper.get_message("WLSDPLY-01671", PASSWORD_TAG)
+        secrets.append(runtime_hash)
 
     script_hash['secrets'] = secrets
     script_hash['pairedSecrets'] = paired_secrets
