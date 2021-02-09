@@ -14,8 +14,6 @@ sys.path.append(pathname)
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.aliases.wlst_modes import WlstModes
 
-import aliastest.generate.generator_wlst as generate_wlst
-import aliastest.generate.generator_helper as generator_helper
 import aliastest.util.all_utils as all_utils
 from aliastest.verify.verifier import Verifier
 
@@ -23,10 +21,6 @@ from aliastest.verify.verifier import Verifier
 __logger = PlatformLogger('test.aliases.verify', resource_bundle_name='systemtest_rb')
 __logger.set_level(Level.FINEST)
 CLASS_NAME = 'verify_online'
-
-generate_wlst.wlst_functions = globals()
-generate_wlst.wlst_silence()
-
 
 def get_dictionary(model_context):
     """
@@ -37,7 +31,7 @@ def get_dictionary(model_context):
     _method_name = 'get_dictionary'
     __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
     dictionary = all_utils.get_dictionary_from_json_file(
-        all_utils.filename(generator_helper.filename(), WlstModes.from_value(model_context.get_target_wlst_mode()),
+        all_utils.filename('generated', WlstModes.from_value(model_context.get_target_wlst_mode()),
                            model_context.get_target_wls_version().replace('.', '')))
     __logger.exiting(class_name=CLASS_NAME, method_name=_method_name)
     return dictionary

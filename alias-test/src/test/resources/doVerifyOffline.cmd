@@ -184,16 +184,49 @@ IF NOT DEFINED WLSDEPLOY_LOG_DIRECTORY (
   SET WLSDEPLOY_LOG_DIRECTORY=%WLSDEPLOY_HOME%\logs
 )
 
+SET PY_SCRIPTS_PATH=%TEST_HOME%\python
+
 ECHO JAVA_HOME = %JAVA_HOME%
 ECHO WLST_EXT_CLASSPATH = %WLST_EXT_CLASSPATH%
 ECHO CLASSPATH = %CLASSPATH%
 ECHO WLST_PROPERTIES = %WLST_PROPERTIES%
 
-SET PY_SCRIPTS_PATH=%TEST_HOME%\python
+SET ORACLE_SERVER_DIR=
+IF EXIST "%ORACLE_HOME%\wlserver_10.3" (
+    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_10.3
+) ELSE IF EXIST "%ORACLE_HOME%\wlserver_12.1" (
+    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_12.1
+) ELSE (
+    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver
+)
 
-ECHO %WLST% "%PY_SCRIPTS_PATH%\verify_offline.py" %*
+SET "JAVA_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS%"
+SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.cachedir.skip=true"
+SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.path=%ORACLE_SERVER_DIR%/common/wlst/modules/jython-modules.jar/Lib"
+SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.console="
+SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% %WLSDEPLOY_PROPERTIES%"
 
-"%WLST%" "%PY_SCRIPTS_PATH%\verify_offline.py" %*
+SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources
+SET CLASSPATH=%CLASSPATH%;%ORACLE_SERVER_DIR%\server\lib\weblogic.jar
+
+@REM print the configuration, and run the script
+
+ECHO JAVA_HOME = %JAVA_HOME%
+ECHO CLASSPATH = %CLASSPATH%
+ECHO JAVA_PROPERTIES = %JAVA_PROPERTIES%
+
+
+ECHO ^
+%JAVA_HOME%/bin/java -cp %CLASSPATH% ^
+    %JAVA_PROPERTIES% ^
+    org.python.util.jython ^
+    "%PY_SCRIPTS_PATH%\verify_offline.py" %*
+
+%JAVA_HOME%/bin/java -cp %CLASSPATH% ^
+    %JAVA_PROPERTIES% ^
+    org.python.util.jython ^
+    "%PY_SCRIPTS_PATH%\verify_offline.py" %*
+
 
 SET RETURN_CODE=%ERRORLEVEL%
 IF "%RETURN_CODE%" == "100" (
