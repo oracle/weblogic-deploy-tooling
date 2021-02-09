@@ -2,7 +2,6 @@
 Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-print ' BEFORE IAM HERE'
 import java.lang.Object as JObject
 import java.lang.System as JSystem
 import java.lang.Thread as JThread
@@ -12,7 +11,6 @@ import java.util.logging.Level as JLevel
 import java.util.logging.Logger as JLogger
 import java.util.logging.LogRecord as JLogRecord
 
-print 'IIII am here'
 import wlsdeploy.exception.exception_helper as exception_helper
 
 

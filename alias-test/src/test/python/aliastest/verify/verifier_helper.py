@@ -134,6 +134,7 @@ class VerifierHelper:
 
     def __init__(self, model_context, dictionary):
         self._dictionary = dictionary
+        self._model_context = model_context
         self._helper = TestHelper(model_context)
         self._error_dictionary = dict()
         self.__nbr_of_errs = 0
@@ -167,7 +168,8 @@ class VerifierHelper:
             report_file = None
             try:
                 report_file = all_utils.open_file_for_write(
-                    all_utils.filename(filename(), WlstModes.from_value(self._helper.mode())))
+                    all_utils.filename(filename(), WlstModes.from_value(self._helper.mode()),
+                                       self._model_context.get_target_wls_version().replace('.', '')))
                 for entry in list_str:
                     new_entry = '%-60s ' % MSG_MAP[Integer(entry[:4]).intValue()] + entry[4:]
                     report_file.write(new_entry + '\n')
@@ -304,7 +306,11 @@ class VerifierHelper:
                 if instance_type != all_utils.MULTIPLE:
                     self.add_error(location, ERROR_SINGLE_UNPREDICTABLE)
             else:
-                token_name = self._helper.aliases().get_wlst_mbean_name(location)
+                try:
+                    token_name = self._helper.aliases().get_wlst_mbean_name(location)
+                except AliasException:
+                    self.add_error(location, ERROR_ATTRIBUTE_INVALID_VERSION)
+                    return
                 if instance_type == all_utils.SINGLE_NO_NAME:
                     if token_name != 'NO_NAME_0':
                         self.add_error(location, ERROR_ATTRIBUTE_MUST_BE_NO_NAME)

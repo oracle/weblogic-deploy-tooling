@@ -37,7 +37,8 @@ def get_dictionary(model_context):
     _method_name = 'get_dictionary'
     __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
     dictionary = all_utils.get_dictionary_from_json_file(
-        all_utils.filename(generator_helper.filename(), WlstModes.from_value(model_context.get_target_wlst_mode())))
+        all_utils.filename(generator_helper.filename(), WlstModes.from_value(model_context.get_target_wlst_mode()),
+                           model_context.get_target_wls_version().replace('.', '')))
     __logger.exiting(class_name=CLASS_NAME, method_name=_method_name)
     return dictionary
 
