@@ -30,7 +30,7 @@ public class BaseTest {
     private static String projectRoot = "";
     protected static String mwhome_12213 = "";
     protected static String createDomainScript = "";
-    protected static String compareDomainScript = "";
+    protected static String compareModelScript = "";
     protected static String discoverDomainScript = "";
     protected static String updateDomainScript = "";
     protected static String deployAppScript = "";
@@ -55,7 +55,7 @@ public class BaseTest {
         deployAppScript = getWDTScriptsHome() + FS + "deployApps.sh";
         encryptModelScript = getWDTScriptsHome() + FS + "encryptModel.sh";
         validateModelScript = getWDTScriptsHome() + FS + "validateModel.sh";
-        compareDomainScript = getWDTScriptsHome() + FS + "compareModel.sh";
+        compareModelScript = getWDTScriptsHome() + FS + "compareModel.sh";
 
         domainParent12213 = "." + FS + "domains";
     }
