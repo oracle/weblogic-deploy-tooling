@@ -781,8 +781,9 @@ public class ITWdt extends BaseTest {
     public void testCompareModelRemoveAttribute() throws Exception {
         String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
         logTestBegin(testMethodName);
-        String tmpdir = Files.createTempDirectory("wdt_temp_output").toFile().getAbsolutePath();
-        tmpdir.toFile().deleteOnExit();
+        Path tempPath = Files.createTempDirectory("wdt_temp_output");
+        String tmpdir = tempPath.toFile().getAbsolutePath();
+        tempPath.toFile().deleteOnExit();
         String cmd = compareModelScript + " -oracle_home " + mwhome_12213 + " -output_dir " + tmpdir
             + " " + getSampleModelFile("1-lessattribute") + " " +  getSampleModelFile("1");
         logger.info("Executing command: " + cmd);
