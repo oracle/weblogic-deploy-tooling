@@ -8,5 +8,5 @@
     "validation_method" : "lax",
     "credentials_method" : "secrets",
     "wls_credentials_name" : "__weblogic-credentials__",
-    "additional_output" : "component.yaml,application.yaml"
+    "additional_output" : "application.yaml"
 }
