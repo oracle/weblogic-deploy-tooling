@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module that handles command-line argument parsing and common validation.
@@ -46,6 +46,7 @@ class CommandLineArgUtil(object):
     # phony arg used as a key to store the password
     ADMIN_PASS_SWITCH          = '-admin_pass'
     ARCHIVE_FILE_SWITCH        = '-archive_file'
+    SKIP_ARCHIVE_FILE_SWITCH    = '-skip_archive'
     MODEL_FILE_SWITCH          = '-model_file'
     DISCARD_CURRENT_EDIT_SWITCH   = '-discard_current_edit'
     OPSS_WALLET_SWITCH         = '-opss_wallet'
@@ -64,7 +65,7 @@ class CommandLineArgUtil(object):
     ENCRYPT_MANUAL_SWITCH      = '-manual'
     # phony arg used as a key to store the password
     ONE_PASS_SWITCH            = '-password'
-    ROLLBACK_IF_RESTART_REQ_SWITCH = '-rollback_if_restart_required'
+    CANCEL_CHANGES_IF_RESTART_REQ_SWITCH = '-cancel_changes_if_restart_required'
     USE_ENCRYPTION_SWITCH      = '-use_encryption'
     RUN_RCU_SWITCH             = '-run_rcu'
     TARGET_VERSION_SWITCH      = '-target_version'
@@ -95,8 +96,9 @@ class CommandLineArgUtil(object):
         ENCRYPT_MANUAL_SWITCH,
         FOLDERS_ONLY_SWITCH,
         MODEL_SAMPLE_SWITCH,
+        SKIP_ARCHIVE_FILE_SWITCH,
         RECURSIVE_SWITCH,
-        ROLLBACK_IF_RESTART_REQ_SWITCH,
+        CANCEL_CHANGES_IF_RESTART_REQ_SWITCH,
         RUN_RCU_SWITCH,
         UPDATE_RCU_SCHEMA_PASS_SWITCH,
         DISCARD_CURRENT_EDIT_SWITCH,
@@ -119,7 +121,7 @@ class CommandLineArgUtil(object):
     USAGE_ERROR_EXIT_CODE          = 99
     ARG_VALIDATION_ERROR_EXIT_CODE = 98
     PROG_RESTART_REQUIRED          = 103
-    PROG_ROLLBACK_IF_RESTART_EXIT_CODE = 104
+    PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE = 104
     PROG_ERROR_EXIT_CODE           = 2
     PROG_WARNING_EXIT_CODE         = 1
     PROG_OK_EXIT_CODE              = 0

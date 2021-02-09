@@ -130,6 +130,10 @@ def get_type(schema_map):
     return dictionary_utils.get_element(schema_map, "type")
 
 
+def get_enum_values(schema_map):
+    return dictionary_utils.get_element(schema_map, 'enum')
+
+
 def is_unsupported_folder(path):
     return path in UNSUPPORTED_FOLDERS
 

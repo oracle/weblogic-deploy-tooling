@@ -416,7 +416,7 @@ public class ITWdt extends BaseTest {
 
 
     /**
-     * testDOnlineUpdate2 check for 104 return code if an update rollback changes.
+     * testDOnlineUpdate2 check for 104 return code if an update cancel changes.
      * @throws Exception - if any error occurs
      */
     @Test
@@ -450,7 +450,7 @@ public class ITWdt extends BaseTest {
 
             String cmd = "echo welcome1 | " + updateDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 domainParent12213 + FS + "jrfDomain1 -model_file " +
-                tmpWdtModel + " -admin_url t3://localhost:7001 -admin_user weblogic -rollback_if_restart_required ";
+                tmpWdtModel + " -admin_url t3://localhost:7001 -admin_user weblogic -cancel_changes_if_restart_required ";
             ExecResult result = ExecCommand.exec(cmd);
             int updateResult = result.exitValue();
             if (updateResult != 0 || updateResult != 104) {

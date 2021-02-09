@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021 Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
@@ -13,19 +13,39 @@ from oracle.weblogic.deploy.logging import SummaryHandler
 from oracle.weblogic.deploy.util import PyWLSTException
 
 from compare_model import ModelFileDiffer
+from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
+from wlsdeploy.aliases.model_constants import LIBRARY
+from wlsdeploy.aliases.model_constants import MAX_THREADS_CONSTRAINT
+from wlsdeploy.aliases.model_constants import MIN_THREADS_CONSTRAINT
+from wlsdeploy.aliases.model_constants import RESOURCES
+from wlsdeploy.aliases.model_constants import SELF_TUNING
+from wlsdeploy.aliases.model_constants import SOURCE_PATH
+from wlsdeploy.aliases.model_constants import TOPOLOGY
+from wlsdeploy.aliases.model_constants import WORK_MANAGER
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import model_helper
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 
 
 class CompareModelTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes'
+    _tests_dir = '../../unit-tests'
+    _results_dir = _tests_dir + '/compare'
     _use_ordering = True
 
     def setUp(self):
         self.name = 'CompareModelTestCase'
         self._logger = PlatformLogger('wlsdeploy.compare_model')
         self._program_name = 'CompareModelTestCase'
+
+        if not os.path.isdir(self._tests_dir):
+            os.mkdir(self._tests_dir)
+
+        if not os.path.isdir(self._results_dir):
+            os.mkdir(self._results_dir)
 
         # add summary handler to validate logger to check results
         self._summary_handler = SummaryHandler()
@@ -72,7 +92,7 @@ class CompareModelTestCase(unittest.TestCase):
 
             self.assertEqual(yaml_exists, True)
             self.assertEqual(json_exists, True)
-            self.assertEqual(len(stdout_result), 1)
+            self.assertEqual(len(stdout_result), 14)
 
             self.assertEqual(model_dictionary.has_key('resources'), True)
             self.assertEqual(model_dictionary.has_key('topology'), True)
@@ -85,12 +105,8 @@ class CompareModelTestCase(unittest.TestCase):
             self.assertEqual(model_dictionary['appDeployments'].has_key('Application'), True)
             self.assertEqual(model_dictionary['appDeployments']['Application'].has_key('myear'), True)
             self.assertEqual(model_dictionary['resources'].has_key('JMSSystemResource'), True)
-            self.assertEqual(model_dictionary['resources'].has_key('!WebAppContainer'), True)
             self.assertEqual(model_dictionary['resources']['JMSSystemResource'].has_key('MyJmsModule'), True)
-            self.assertEqual(model_dictionary['resources'].has_key('!WebAppContainer'), True)
             self.assertEqual(model_dictionary['resources'].has_key('SingletonService'), True)
-            self.assertEqual(model_dictionary['topology']['ServerTemplate']['cluster-1-template']
-                             .has_key('!ServerStart'), True)
             self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jax-rs#2.0@2.22.4.0'), True)
             self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jsf#1.2@1.2.9.0'), True)
             self.assertEqual(model_dictionary['appDeployments']['Application']['myear'].has_key('ModuleType'), False)
@@ -423,6 +439,87 @@ class CompareModelTestCase(unittest.TestCase):
 
         if os.path.exists(_temp_dir):
             shutil.rmtree(_temp_dir)
+
+        self.assertEqual(return_code, 0)
+
+    def testCompareModel4(self):
+        _method_name = 'testCompareModel4'
+
+        _models_dir = self._resources_dir + '/compare'
+        _new_model_file = _models_dir + '/model-4-new.yaml'
+        _old_model_file = _models_dir + '/model-4-old.yaml'
+
+        _output_dir = os.path.join(self._results_dir, 'model-4')
+        if not os.path.isdir(_output_dir):
+            os.mkdir(_output_dir)
+
+        args_map = {
+            '-oracle_home': '/oracle',
+            '-output_dir': _output_dir,
+            '-trailing_arguments': [_new_model_file, _old_model_file]
+        }
+
+        try:
+            model_context = ModelContext('CompareModelTestCase', args_map)
+            differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _output_dir)
+            return_code = differ.compare()
+            self.assertEqual(return_code, 0)
+
+            yaml_result = _output_dir + os.sep + 'diffed_model.yaml'
+            self.assertEqual(os.path.exists(yaml_result), True, "YAML result should exist: " + yaml_result)
+
+            json_result = _output_dir + os.sep + 'diffed_model.json'
+            self.assertEqual(os.path.exists(json_result), True, "JSON result should exist: " + json_result)
+
+            # see comments in the model for erased attributes
+            messages = differ.get_compare_msgs()
+            self.assertEqual(len(messages), 2)
+
+            model_root = FileToPython(yaml_result).parse()
+
+            # topology section not present, since no Server differences
+            topology = dictionary_utils.get_element(model_root, TOPOLOGY)
+            self.assertEqual(topology, None, "topology should not be present")
+
+            resources = dictionary_utils.get_dictionary_element(model_root, RESOURCES)
+
+            # the SelfTuning should contain delete keys for nested, named folders
+            self_tuning = dictionary_utils.get_dictionary_element(resources, SELF_TUNING)
+
+            work_manager = dictionary_utils.get_dictionary_element(self_tuning, WORK_MANAGER)
+            delete_name = model_helper.get_delete_name('newWM')
+            self.assertEqual(delete_name in work_manager, True, WORK_MANAGER + ' should contain ' + delete_name)
+
+            min_constraint = dictionary_utils.get_dictionary_element(self_tuning, MIN_THREADS_CONSTRAINT)
+            delete_name = model_helper.get_delete_name('SampleMinThreads')
+            self.assertEqual(delete_name in min_constraint, True,
+                             MIN_THREADS_CONSTRAINT + ' should contain ' + delete_name)
+
+            max_constraint = dictionary_utils.get_dictionary_element(self_tuning, MAX_THREADS_CONSTRAINT)
+            delete_name = model_helper.get_delete_name('SampleMaxThreads')
+            self.assertEqual(delete_name in max_constraint, True,
+                             MAX_THREADS_CONSTRAINT + ' should contain ' + delete_name)
+
+            deployments = dictionary_utils.get_dictionary_element(model_root, APP_DEPLOYMENTS)
+
+            libraries = dictionary_utils.get_dictionary_element(deployments, LIBRARY)
+            # mylib should not appear in change model, it had no changes
+            self.assertEqual(len(libraries), 1, "only one entry should be present in " + LIBRARY)
+            # retarget should have a source path in change model, even though only targeting changed
+            retarget = dictionary_utils.get_dictionary_element(libraries, 'retarget')
+            self.assertEqual(SOURCE_PATH in retarget, True, LIBRARY + ' retarget should  contain ' + SOURCE_PATH)
+
+            applications = dictionary_utils.get_dictionary_element(deployments, APPLICATION)
+            # myapp should not appear in change model, it had no changes
+            self.assertEqual(len(applications), 1, "only one entry should be present in " + APPLICATION)
+            # retarget should have a source path in change model, even though only targeting changed
+            retarget = dictionary_utils.get_dictionary_element(applications, 'retarget')
+            self.assertEqual(SOURCE_PATH in retarget, True, APPLICATION + ' retarget should  contain ' + SOURCE_PATH)
+
+        except (CompareException, PyWLSTException), te:
+            return_code = 2
+            self._logger.severe('WLSDPLY-05709', te.getLocalizedMessage(), error=te,
+                                class_name=self._program_name, method_name=_method_name)
 
         self.assertEqual(return_code, 0)
 

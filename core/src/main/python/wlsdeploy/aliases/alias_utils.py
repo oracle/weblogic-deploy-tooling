@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -144,7 +144,7 @@ def merge_model_and_existing_properties(model_props, existing_props, string_prop
         for entry_set in model_properties.entrySet():
             key = entry_set.getKey()
             value = entry_set.getValue()
-            existing_properties.setProperty(key, value)
+            existing_properties.setProperty(key, str(value))
         if model_props_is_string:
             result = _properties_to_string(existing_properties, string_props_separator_char)
         else:

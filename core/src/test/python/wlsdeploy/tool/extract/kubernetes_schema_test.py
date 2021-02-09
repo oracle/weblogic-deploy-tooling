@@ -104,6 +104,9 @@ class KubernetesSchemaTest(unittest.TestCase):
             elif property_type in wko_schema_helper.SIMPLE_TYPES:
                 if property_name != multi_key:
                     value = _get_sample_value(property_type)
+                    enum_values = wko_schema_helper.get_enum_values(property_map)
+                    if enum_values:
+                        value = "'" + enum_values[0] + "'  # " + ', '.join(enum_values)
                     self._write_line(indent + str(property_name) + ": " + value)
 
             else:

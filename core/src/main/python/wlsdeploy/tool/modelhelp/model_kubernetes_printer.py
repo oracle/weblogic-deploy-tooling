@@ -174,7 +174,11 @@ class ModelKubernetesPrinter(object):
                     attribute_map[key] = 'list of ' + wko_schema_helper.get_array_element_type(property_map)
 
                 elif not wko_schema_helper.is_folder(property_map):
-                    attribute_map[key] = wko_schema_helper.get_type(property_map)
+                    type_text = wko_schema_helper.get_type(property_map)
+                    enum_values = wko_schema_helper.get_enum_values(property_map)
+                    if enum_values:
+                        type_text += ' (' + ', '.join(enum_values) + ')'
+                    attribute_map[key] = type_text
 
         if attribute_map:
             attr_list = attribute_map.keys()

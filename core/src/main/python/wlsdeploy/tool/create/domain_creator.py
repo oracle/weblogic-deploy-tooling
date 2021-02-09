@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -50,12 +50,8 @@ from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
-from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
-from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
-from wlsdeploy.aliases.model_constants import RCU_PREFIX
-from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
@@ -469,6 +465,9 @@ class DomainCreator(Creator):
             self.wlst_helper.add_template(custom_template)
 
         topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
+
+        resources_dict = self.model.get_model_resources()
+        jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
         self.__create_machines_clusters_and_servers(delete_now=False)
         self.__configure_fmw_infra_database()
 
@@ -484,6 +483,9 @@ class DomainCreator(Creator):
 
         self.logger.info('WLSDPLY-12209', self._domain_name,
                          class_name=self.__class_name, method_name=_method_name)
+
+        # targets may have been inadvertently assigned when clusters were added
+        self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
 
         self.__apply_base_domain_config(topology_folder_list)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -543,6 +545,8 @@ class DomainCreator(Creator):
         self.__create_security_folder()
         topology_folder_list.remove(SECURITY)
 
+        resources_dict = self.model.get_model_resources()
+        jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
         self.__create_machines_clusters_and_servers(delete_now=False)
 
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
@@ -556,6 +560,9 @@ class DomainCreator(Creator):
 
         if len(dynamic_assigns) > 0:
             self.target_helper.target_dynamic_server_groups(dynamic_assigns)
+
+        # targets may have been inadvertently assigned when clusters were added
+        self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
 
         self.__apply_base_domain_config(topology_folder_list)
 
@@ -615,7 +622,8 @@ class DomainCreator(Creator):
 
         self.__create_mbeans_used_by_topology_mbeans(location, topology_folder_list)
 
-        self.__create_machines_clusters_and_servers()
+        # these deletions were intentionally skipped when these elements are first created.
+        self.topology_helper.remove_deleted_clusters_and_servers(location, self._topology)
         topology_folder_list.remove(MACHINE)
         topology_folder_list.remove(UNIX_MACHINE)
         topology_folder_list.remove(CLUSTER)
@@ -791,8 +799,7 @@ class DomainCreator(Creator):
         self.topology_helper.create_placeholder_server_templates(self._topology)
 
         # create placeholders for JDBC resources that may be referenced in cluster definition.
-        resources_dict = self.model.get_model_resources()
-        jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+
         cluster_nodes = dictionary_utils.get_dictionary_element(self._topology, CLUSTER)
         if len(cluster_nodes) > 0:
             self._create_named_mbeans(CLUSTER, cluster_nodes, location, log_created=True, delete_now=delete_now)
@@ -814,9 +821,8 @@ class DomainCreator(Creator):
         if len(server_nodes) > 0:
             self._create_named_mbeans(SERVER, server_nodes, location, log_created=True, delete_now=delete_now)
 
-        # targets may have been inadvertently assigned when clusters were added
-        self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
         self.__create_migratable_targets(location, delete_now=delete_now)
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 

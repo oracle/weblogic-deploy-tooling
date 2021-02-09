@@ -27,6 +27,7 @@ CLUSTERS = 'clusters'
 CLUSTER_NAME = 'clusterName'
 CONFIGURATION = 'configuration'
 DOMAIN_HOME = 'domainHome'
+DOMAIN_HOME_SOURCE_TYPE = 'domainHomeSourceType'
 DOMAIN_TYPE = 'domainType'
 IMAGE = 'image'
 IMAGE_PULL_POLICY = 'imagePullPolicy'
@@ -47,6 +48,7 @@ DEFAULT_KIND = 'Domain'
 DEFAULT_WEBLOGIC_CREDENTIALS_SECRET = PASSWORD_TOKEN
 DEFAULT_IMAGE = PASSWORD_TOKEN
 DEFAULT_IMAGE_PULL_SECRETS = PASSWORD_TOKEN
+DEFAULT_SOURCE_TYPE = 'Image'
 
 MULTI_KEYS = {
     'spec/adminServer/adminService/channels': 'channelName',
@@ -216,6 +218,10 @@ class DomainResourceExtractor:
         # only set domain home if it is not present in spec section
         if DOMAIN_HOME not in spec_section:
             spec_section[DOMAIN_HOME] = self._model_context.get_domain_home()
+
+        # only set domain home source type if it is not present in spec section
+        if DOMAIN_HOME_SOURCE_TYPE not in spec_section:
+            spec_section[DOMAIN_HOME_SOURCE_TYPE] = DEFAULT_SOURCE_TYPE
 
         # only set image if it is not present in spec section
         if IMAGE not in spec_section:

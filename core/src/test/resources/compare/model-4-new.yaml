@@ -1,0 +1,26 @@
+# Copyright (c) 2021, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+# see comments in model-4-old.yaml
+topology:
+    Server:
+        s1:
+
+appDeployments:
+    Library:
+        'mylib':
+            SourcePath: '/libs/mylib.jar'
+            Target: 'cluster-1'
+
+        'retarget':
+            SourcePath: '/libs/retarget.jar'
+            Target: 'cluster-1,cluster-2'
+
+    Application:
+        myapp:
+            SourcePath: /apps/myapp.ear
+            Target: ['cluster-1']
+
+        retarget:
+            SourcePath: /apps/retarget.ear
+            Target: ['cluster-1','cluster-2']
