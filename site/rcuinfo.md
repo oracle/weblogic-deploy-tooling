@@ -9,9 +9,9 @@ domainInfo:
     RCUDbInfo:
         useATP : true
         rcu_prefix : DEV
-        rcu_admin_password: <database admin password is required only when you specify -run_rcu flag, will be prompted
+        rcu_admin_password: <database admin password is required only when you specified -run_rcu flag, will be prompted
          if not specify>
-        rcu_schema_password : <rcu schema password, will be prompted if not specify>
+        rcu_schema_password : <RCU schema password, user will be prompted if not specified>
         atp.admin.user : admin
         tns.alias : dbatp_tp
         javax.net.ssl.keyStorePassword : <atp wallet password>
