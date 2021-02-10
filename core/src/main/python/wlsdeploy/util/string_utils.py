@@ -112,9 +112,9 @@ def load_properties(property_file, exception_type=None):
 def is_weblogic_version_or_above(wls_version, str_version):
     """
     Is the provided version number equal to or greater than the version encapsualted by this version instance
-    :param wls_version: the array representation of the current weblogic version to be compared
-    :param str_version: the string representation of the version to be compared
-    :return: True if the provided version is equal or greater than the version represented by this helper instance
+    :param wls_version: the string representation of the current weblogic version
+    :param str_version: the string representation of the version to be compared to the weblogic version
+    :return: True if the provided version is equal or greater than the version represented by the wls_version argument
     """
     result = False
     array_version = str_version.split('.')
@@ -148,7 +148,7 @@ def is_weblogic_version_or_above(wls_version, str_version):
 def _get_wl_version_array(wl_version):
     """
     Get the WebLogic version number padded to the standard number of digits.
-    :param wl_version: Weblogic version number
+    :param wl_version: WebLogic version number
     :return: the padded WebLogic version number
     """
     result = wl_version.split('.')
