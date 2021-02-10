@@ -1,4 +1,4 @@
-// Copyright 2019, 2020, Oracle Corporation and/or its affiliates.
+// Copyright 2019, 2021, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at
 // http://oss.oracle.com/licenses/upl.
 
@@ -769,6 +769,31 @@ public class ITWdt extends BaseTest {
         logger.info("NEGATIVE TEST: returned msg: " + result.stderr());
         String expectedWarningMsg = ", but no variables file was specified";
         verifyErrorMsg(result, expectedWarningMsg);
+
+        logTestEnd(testMethodName);
+    }
+
+    /**
+     * test compareModel.sh with only attribute difference.  The files existences test whether it impacts WKO operation
+     * @throws Exception - if any error occurs
+     */
+    @Test
+    public void testCompareModelRemoveAttribute() throws Exception {
+        String testMethodName = new Object() {}.getClass().getEnclosingMethod().getName();
+        logTestBegin(testMethodName);
+        Path tempPath = Files.createTempDirectory("wdt_temp_output");
+        String tmpdir = tempPath.toFile().getAbsolutePath();
+        tempPath.toFile().deleteOnExit();
+        String cmd = compareModelScript + " -oracle_home " + mwhome_12213 + " -output_dir " + tmpdir
+            + " " + getSampleModelFile("1-lessattribute") + " " +  getSampleModelFile("1");
+        logger.info("Executing command: " + cmd);
+        ExecResult result = ExecCommand.exec(cmd);
+        verifyResult(result, "compareModel.sh completed successfully");
+
+        String diffedModelYaml = tmpdir + File.separator + "diffed_model.yaml";
+        String compareModelStdout = tmpdir + File.separator + "compare_model_stdout";
+        verifyFileExists(compareModelStdout);
+        verifyFileDoesNotExists(diffedModelYaml);
 
         logTestEnd(testMethodName);
     }

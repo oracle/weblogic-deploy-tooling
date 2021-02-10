@@ -1,0 +1,39 @@
+domainInfo:
+    AdminUserName: weblogic
+    AdminPassword: welcome1
+    ServerStartMode: '@@PROP:SERVER_START_MODE@@'
+topology:
+    Name: '@@PROP:DOMAIN_NAME@@'
+    AdminServerName: '@@PROP:ADMIN_NAME@@'
+    ProductionModeEnabled: '@@PROP:PRODUCTION_MODE_ENABLED@@'
+    Cluster:
+        '@@PROP:CLUSTER_NAME@@':
+            ClientCertProxyEnabled: true
+            #FrontendHost: localhost
+            DynamicServers:
+                ServerTemplate: template1
+                CalculatedListenPorts: true
+                ServerNamePrefix: '@@PROP:MANAGED_SERVER_NAME_BASE@@'
+                DynamicClusterSize: '@@PROP:CONFIGURED_MANAGED_SERVER_COUNT@@'
+                MaxDynamicClusterSize: '@@PROP:CONFIGURED_MANAGED_SERVER_COUNT@@'
+    Server:
+        '@@PROP:ADMIN_NAME@@':
+            ListenPort: '@@PROP:ADMIN_PORT@@'
+            NetworkAccessPoint:
+                T3Channel:
+                    ListenAddress: None
+                    ListenPort: '@@PROP:T3_CHANNEL_PORT@@'
+                    PublicAddress: '@@PROP:T3_PUBLIC_ADDRESS@@'
+                    PublicPort: '@@PROP:T3_CHANNEL_PORT@@'
+    ServerTemplate:
+        template1:
+            ListenPort: '@@PROP:MANAGED_SERVER_PORT@@'
+appDeployments:
+    Application:
+        # Quote needed because of hyphen in string
+        'simple-app':
+            SourcePath: 'wlsdeploy/applications/simple-app.war'
+            Target: '@@PROP:CLUSTER_NAME@@'
+            ModuleType: war
+            StagingMode: nostage
+            PlanStagingMode: nostage
