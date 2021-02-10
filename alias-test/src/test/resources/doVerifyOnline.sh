@@ -1,17 +1,17 @@
 #!/bin/sh
 # *****************************************************************************
-# doVerifyOffline.sh
+# doVerifyOnline.sh
 #
 # Copyright (c) 2021, Oracle and/or its affiliates.
 # The Universal Permissive License (UPL), Version 1.0
 #
 #     NAME
-#       doVerifyOffline.sh - alias test to verify the domain MBeans and attributes
+#       doVerifyOnline.sh - alias test to verify the domain MBeans and attributes
 #                            against WDT alias definitions
 #
 #     DESCRIPTION
-#       This script verifies offline mode of a specific version of WebLogic Server alias definitions.
-#       It compares the offline WebLogic version JSON file created by the generate step against the
+#       This script verifies online mode of a specific version of WebLogic Server alias definitions.
+#       It compares the online WebLogic version JSON file created by the generate step against the
 #       definitions.
 #
 #
@@ -255,22 +255,22 @@ if [ ${RETURN_CODE} -eq 100 ]; then
 elif [ ${RETURN_CODE} -eq 99 ]; then
   usage `basename $0`
   echo ""
-  echo "doVerifyOffline.sh failed due to the usage error shown above" >&2
+  echo "doVerifyOnline.sh failed due to the usage error shown above" >&2
 elif [ ${RETURN_CODE} -eq 98 ]; then
   echo ""
-  echo "doVerifyOffline.sh failed due to a parameter validation error" >&2
+  echo "doVerifyOnline.sh failed due to a parameter validation error" >&2
 elif [ ${RETURN_CODE} -eq 2 ]; then
   echo ""
-  echo "doVerifyOffline.sh failed (exit code = ${RETURN_CODE})" >&2
+  echo "doVerifyOnline.sh failed (exit code = ${RETURN_CODE})" >&2
 elif [ ${RETURN_CODE} -eq 1 ]; then
   echo ""
-  echo "doVerifyOffline.sh completed but with some issues (exit code = ${RETURN_CODE})" >&2
+  echo "doVerifyOnline.sh completed but with some issues (exit code = ${RETURN_CODE})" >&2
 elif [ ${RETURN_CODE} -eq 0 ]; then
   echo ""
-  echo "doVerifyOffline.sh completed successfully (exit code = ${RETURN_CODE})"
+  echo "doVerifyOnline.sh completed successfully (exit code = ${RETURN_CODE})"
 else
   # Unexpected return code so just print the message and exit...
   echo ""
-  echo "doVerifyOffline.sh failed (exit code = ${RETURN_CODE})" >&2
+  echo "doVerifyOnline.sh failed (exit code = ${RETURN_CODE})" >&2
 fi
 exit ${RETURN_CODE}

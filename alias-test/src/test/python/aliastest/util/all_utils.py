@@ -608,3 +608,7 @@ def get_interface_name(mbean_interface):
     except (Exception, JException):
         result = str(mbean_interface)
     return result
+
+
+def generated_filename():
+    return 'generated'
