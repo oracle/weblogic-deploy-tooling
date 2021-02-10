@@ -1,9 +1,10 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 This module provides string manipulation helper methods that are not found in the WLST version of Jython
 """
+import java.lang.String as JString
 import java.util.Properties as Properties
 import java.io.FileInputStream as FileInputStream
 import java.io.IOException as IOException
@@ -14,6 +15,8 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 __logger = PlatformLogger('wlsdeploy.util')
 _class_name = 'string_utils'
+
+STANDARD_VERSION_NUMBER_PLACES = 5
 
 
 def is_empty(text):
@@ -104,3 +107,56 @@ def load_properties(property_file, exception_type=None):
         prop_dict[key] = value
 
     return prop_dict
+
+
+def is_weblogic_version_or_above(wls_version, str_version):
+    """
+    Is the provided version number equal to or greater than the version encapsualted by this version instance
+    :param wls_version: the array representation of the current weblogic version to be compared
+    :param str_version: the string representation of the version to be compared
+    :return: True if the provided version is equal or greater than the version represented by this helper instance
+    """
+    result = False
+    array_version = str_version.split('.')
+    array_wl_version = _get_wl_version_array(wls_version)
+
+    len_compare = len(array_wl_version)
+    if len(array_version) < len_compare:
+        len_compare = len(array_version)
+
+    idx = 0
+    while idx < len_compare:
+        compare_value = JString(array_version[idx]).compareTo(JString(array_wl_version[idx]))
+        if compare_value < 0:
+            result = True
+            break
+        elif compare_value > 0:
+            result = False
+            break
+        elif idx + 1 == len_compare:
+            result = True
+
+        idx += 1
+
+    return result
+
+
+# We need to pad the actual version number for comparison purposes so
+# that is is never shorter than the specified version.  Otherwise,
+# actual version 12.2.1 will be considered to be equal to 12.2.1.1
+#
+def _get_wl_version_array(wl_version):
+    """
+    Get the WebLogic version number padded to the standard number of digits.
+    :param wl_version: Weblogic version number
+    :return: the padded WebLogic version number
+    """
+    result = wl_version.split('.')
+
+    if len(result) < STANDARD_VERSION_NUMBER_PLACES:
+        index = len(result)
+        while index < STANDARD_VERSION_NUMBER_PLACES:
+            result.append('0')
+            index += 1
+
+    return result
