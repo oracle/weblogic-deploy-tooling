@@ -55,7 +55,7 @@ spec:
     spec:
       domainUID: {{{domainUid}}}
 
-      # WebLogic Image Tool provides domainHome, domainHomeSourceType, and image
+      # WebLogic Image Tool provides domainHome, domainHomeSourceType, and imageName
       domainHome: {{{domainHome}}}
       domainHomeSourceType: {{{domainHomeSourceType}}}
       image: {{{imageName}}}
@@ -64,7 +64,6 @@ spec:
         - name: {{{domainPrefix}}}-registry-credentials
       logHomeEnabled: true
       includeServerOutInPodLog: true
-      replicas: 1
       webLogicCredentialsSecret:
         name: {{{webLogicCredentialsSecret}}}
       configuration:
@@ -73,12 +72,13 @@ spec:
         introspectorJobActiveDeadlineSeconds: 900
         model:
           configMap: {{{domainPrefix}}}-overrides-config
-          domainType: WLS
+          domainType: {{{domainType}}}
 
           # WebLogic Image Tool provides modelHome
           modelHome: {{{modelHome}}}
 
-          # encryption for the WDT model and the SystemSerializedIni.data file
+          # encryption for the WDT model and the SystemSerializedIni.data file.
+          # used only for model-in-image deployment, can be removed for other types.
           runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
 {{#hasAdditionalSecrets}}
 
