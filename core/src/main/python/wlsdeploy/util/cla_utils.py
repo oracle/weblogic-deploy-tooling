@@ -19,12 +19,12 @@ from wlsdeploy.util import path_utils
 from wlsdeploy.util.target_configuration import CREDENTIALS_METHOD
 from wlsdeploy.util.target_configuration import CREDENTIALS_METHODS
 from wlsdeploy.util.target_configuration import TargetConfiguration
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 # tool type may indicate variations in argument processing
 TOOL_TYPE_CREATE = "create"
 TOOL_TYPE_DEFAULT = "default"
 TOOL_TYPE_EXTRACT = "extract"
+
 
 
 class CommandLineArgUtil(object):
@@ -422,6 +422,7 @@ class CommandLineArgUtil(object):
         return self.ORACLE_HOME_SWITCH == key
 
     def _validate_oracle_home_arg(self, value):
+        from wlsdeploy.util.weblogic_helper import WebLogicHelper
         method_name = '_validate_oracle_home_arg'
 
         try:
@@ -923,6 +924,7 @@ class CommandLineArgUtil(object):
         return self.TARGET_VERSION_SWITCH == key
 
     def _validate_target_version_arg(self, value):
+        from wlsdeploy.util.weblogic_helper import WebLogicHelper
         method_name = '_validate_target_version_arg'
 
         # Try our best to determine if this is a legitimate WLS version number.
