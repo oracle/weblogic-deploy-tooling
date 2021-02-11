@@ -113,7 +113,7 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
         domain_name = DEFAULT_WLS_DOMAIN_NAME
     template_hash[DOMAIN_NAME] = domain_name
 
-    # domain UID and prefix must follow DNS-1123
+    # domain UID, prefix, and namespace must follow DNS-1123
 
     domain_uid = k8s_helper.get_domain_uid(domain_name)
     template_hash[DOMAIN_UID] = domain_uid
