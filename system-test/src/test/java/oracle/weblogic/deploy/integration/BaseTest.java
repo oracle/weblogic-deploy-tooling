@@ -1,4 +1,4 @@
-// Copyright 2019, 2020, Oracle Corporation and/or its affiliates. 
+// Copyright 2019, 2021, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 package oracle.weblogic.deploy.integration;
@@ -30,6 +30,7 @@ public class BaseTest {
     private static String projectRoot = "";
     protected static String mwhome_12213 = "";
     protected static String createDomainScript = "";
+    protected static String compareModelScript = "";
     protected static String discoverDomainScript = "";
     protected static String updateDomainScript = "";
     protected static String deployAppScript = "";
@@ -54,6 +55,8 @@ public class BaseTest {
         deployAppScript = getWDTScriptsHome() + FS + "deployApps.sh";
         encryptModelScript = getWDTScriptsHome() + FS + "encryptModel.sh";
         validateModelScript = getWDTScriptsHome() + FS + "validateModel.sh";
+        compareModelScript = getWDTScriptsHome() + FS + "compareModel.sh";
+
         domainParent12213 = "." + FS + "domains";
     }
 
@@ -181,6 +184,18 @@ public class BaseTest {
         if(Integer.parseInt(result.stdout().trim()) != 1) {
             throw new Exception("no model file is created as expected");
         }
+    }
+
+    protected void verifyFileExists(String filePath) throws Exception {
+      if (!Files.exists(Paths.get(filePath))) {
+        throw new Exception("File does not exists but should " + filePath);
+      }
+    }
+
+    protected void verifyFileDoesNotExists(String filePath) throws Exception {
+      if (Files.exists(Paths.get(filePath))) {
+        throw new Exception("File exists but should not " + filePath);
+      }
     }
 
     protected void logTestBegin(String testMethodName) throws Exception {
