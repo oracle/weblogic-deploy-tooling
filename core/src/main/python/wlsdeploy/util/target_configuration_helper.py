@@ -149,7 +149,9 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary, excep
     target_config = model_context.get_target_configuration()
     if target_config.uses_runtime_encryption_secret():
         runtime_hash = _build_secret_hash(RUNTIME_ENCRYPTION_SECRET_NAME, None, PASSWORD_TAG)
-        runtime_hash['comment'] = exception_helper.get_message("WLSDPLY-01671", PASSWORD_TAG)
+        message1 = exception_helper.get_message("WLSDPLY-01671", PASSWORD_TAG)
+        message2 = exception_helper.get_message("WLSDPLY-01672")
+        runtime_hash['comments'] = [{'comment': message1}, {'comment': message2}]
         secrets.append(runtime_hash)
 
     script_hash['secrets'] = secrets
@@ -282,7 +284,7 @@ def _build_secret_hash(secret_name, user, password):
     """
     if user:
         message = exception_helper.get_message("WLSDPLY-01664", USER_TAG, PASSWORD_TAG, secret_name)
-        return {'secretName': secret_name, 'user': user, 'password': password, 'comment': message}
+        return {'secretName': secret_name, 'user': user, 'password': password, 'comments': [{'comment': message}]}
     else:
         message = exception_helper.get_message("WLSDPLY-01663", PASSWORD_TAG, secret_name)
-        return {'secretName': secret_name, 'password': password, 'comment': message}
+        return {'secretName': secret_name, 'password': password, 'comments': [{'comment': message}]}

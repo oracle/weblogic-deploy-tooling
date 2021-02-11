@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021 Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Methods for template substitution.
@@ -41,7 +41,7 @@ def create_file_from_resource(resource_path, template_hash, output_file, excepti
         __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
         raise ex
 
-    _create_file_from_stream(template_stream, template_hash, output_file, exception_type)
+    _create_file_from_stream(template_stream, template_hash, output_file)
 
 
 def create_file_from_file(file_path, template_hash, output_file, exception_type):
@@ -58,49 +58,87 @@ def create_file_from_file(file_path, template_hash, output_file, exception_type)
     try:
         template_stream = FileUtils.getFileAsStream(file_path)
         if template_stream is not None:
-            _create_file_from_stream(template_stream, template_hash, output_file, exception_type)
+            _create_file_from_stream(template_stream, template_hash, output_file)
     except (IOException, IllegalArgumentException), ie:
         ex = exception_helper.create_exception(exception_type, 'WLSDPLY-01666', file_path, ie)
         __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
         raise ex
 
 
-def _create_file_from_stream(template_stream, template_hash, output_file, exception_type):
+def _create_file_from_stream(template_stream, template_hash, output_file):
     template_reader = BufferedReader(InputStreamReader(template_stream))
     file_writer = open(output_file.getPath(), "w")
 
-    current_block_key = None
+    block_key = None
     block_lines = []
 
-    more = True
-    while more:
+    line = ''
+    while line is not None:
         line = template_reader.readLine()
         if line is not None:
             block_start_key = _get_block_start_key(line)
-            block_end_key = _get_block_end_key(line)
 
-            # if this is a nested block start, continue and add without substitution
-            if (block_start_key is not None) and (current_block_key is None):
-                current_block_key = block_start_key
+            # if inside a block, collect lines until end key is found, then process the block.
+            if block_key is not None:
+                block_end_key = _get_block_end_key(line)
+                if block_end_key == block_key:
+                    _process_block(block_key, block_lines, template_hash, file_writer)
+                    block_key = None
+                else:
+                    block_lines.append(line)
+
+            # if this is a block start, begin collecting block lines
+            elif block_start_key is not None:
+                block_key = block_start_key
                 block_lines = []
 
-            # if this is a nested block end, continue and add without substitution
-            elif (block_end_key == current_block_key) and (current_block_key is not None):
-                _write_block(current_block_key, block_lines, template_hash, file_writer)
-                current_block_key = None
-
+            # otherwise, substitute and write the line
             else:
                 line = _substitute_line(line, template_hash)
-
-                if current_block_key is not None:
-                    block_lines.append(line)
-                else:
-                    file_writer.write(line + "\n")
-
-        else:
-            more = False
+                file_writer.write(line + "\n")
 
     file_writer.close()
+
+
+def _process_block(block_key, template_lines, template_hash, file_writer):
+    value = dictionary_utils.get_element(template_hash, block_key)
+
+    if value is None:
+        return
+
+    if not isinstance(value, list):
+        value = [value]
+
+    for list_element in value:
+        nested_block_key = None
+        nested_block_lines = []
+
+        for line in template_lines:
+            block_start_key = _get_block_start_key(line)
+
+            # if inside a block, collect lines until end key is found,
+            # then process the block with an updated hash.
+            if nested_block_key is not None:
+                block_end_key = _get_block_end_key(line)
+                if block_end_key == nested_block_key:
+                    nested_hash = dict(template_hash)
+                    if isinstance(list_element, dict):
+                        nested_hash.update(list_element)
+                    _process_block(nested_block_key, nested_block_lines, nested_hash, file_writer)
+                    nested_block_key = None
+                else:
+                    nested_block_lines.append(line)
+
+            # if this is a block start, begin collecting block lines
+            elif block_start_key is not None:
+                nested_block_key = block_start_key
+                nested_block_lines = []
+
+            # otherwise, substitute and write the line
+            else:
+                if isinstance(list_element, dict):
+                    line = _substitute_line(line, list_element)
+                file_writer.write(line + "\n")
 
 
 def _get_block_start_key(line):
@@ -142,31 +180,3 @@ def _substitute_line(line, template_hash):
         if replacement is not None:
             line = line.replace(token, replacement)
     return line
-
-
-def _write_block(key, lines, template_hash, file_writer):
-    """
-    Write a block of lines to the file writer, making substitutions as necessary.
-    This method does not currently handle nested blocks.
-    :param key: the key of this block
-    :param lines: the lines to be output
-    :param template_hash: the parent hash
-    :param file_writer: to write the output
-    """
-    value = dictionary_utils.get_element(template_hash, key)
-
-    # skip block for value of False, None, or empty collection
-    if not value:
-        return
-
-    # if value is not a list, make it a list with one item
-    if not isinstance(value, list):
-        value = [value]
-
-    for list_element in value:
-        for line in lines:
-            # this does not account for nested blocks
-
-            if isinstance(list_element, dict):
-                line = _substitute_line(line, list_element)
-            file_writer.write(line + "\n")
