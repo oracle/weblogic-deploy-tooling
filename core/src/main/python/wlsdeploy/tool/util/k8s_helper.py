@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Methods and constants for building Kubernetes resource files,
@@ -26,7 +26,16 @@ def get_domain_uid(domain_name):
     :param domain_name: the domain name to be checked
     :return: the domain UID
     """
-    result = domain_name.lower()
+    return get_dns_name(domain_name)
+
+
+def get_dns_name(name):
+    """
+    Return a DNS-1123 compatible name, with the pattern ^[a-z0-9-.]{1,253}$
+    :param name: the domain name to be converted
+    :return: the DNS-1123 compatible name
+    """
+    result = name.lower()
     # replace any disallowed character with hyphen
     result = re.sub('[^a-z0-9-.]', '-', result)
     return result

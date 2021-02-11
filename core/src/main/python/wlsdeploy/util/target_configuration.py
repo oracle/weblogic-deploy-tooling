@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -83,6 +83,16 @@ class TargetConfiguration(object):
         :return: the dictionary of variable injectors
         """
         return dictionary_utils.get_dictionary_element(self.config_dictionary, 'variable_injectors')
+
+    def get_additional_secrets(self):
+        """
+        Return a list of secrets to be included in the create secrets script.
+        :return: a list of secrets
+        """
+        secrets = dictionary_utils.get_element(self.config_dictionary, 'additional_secrets')
+        if secrets is not None:
+            return secrets.split(',')
+        return []
 
     def uses_credential_secrets(self):
         """
