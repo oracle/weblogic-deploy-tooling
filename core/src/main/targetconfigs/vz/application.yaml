@@ -33,11 +33,6 @@ spec:
                     - path: "{{{applicationPrefix}}}"
                       pathType: Prefix
 {{/applications}}
-      scopes:
-        - scopeRef:
-            apiVersion: oam.verrazzano.io/v1alpha1
-            kind: LoggingScope
-            name: {{{domainPrefix}}}-logging-scope
     - componentName: {{{domainPrefix}}}-configmap
 ---
 apiVersion: core.oam.dev/v1alpha2
@@ -71,7 +66,7 @@ spec:
           enabled: false
         introspectorJobActiveDeadlineSeconds: 900
         model:
-          configMap: {{{domainPrefix}}}-overrides-config
+          configMap: {{{domainPrefix}}}-configmap
           domainType: {{{domainType}}}
 
           # WebLogic Image Tool provides modelHome
@@ -126,7 +121,7 @@ spec:
     apiVersion: v1
     kind: ConfigMap
     metadata:
-      name: {{{domainPrefix}}}-overrides-config
+      name: {{{domainPrefix}}}-configmap
       namespace: {{{domainUid}}}
     data:
 {{#hasDatasources}}
@@ -141,14 +136,3 @@ spec:
                   # This is the URL of the database used by the WebLogic Server application
                   URL: "{{{url}}}"
 {{/datasources}}
----
-apiVersion: oam.verrazzano.io/v1alpha1
-kind: LoggingScope
-metadata:
-  name: {{{domainPrefix}}}-logging-scope
-  namespace: {{{domainUid}}}
-spec:
-  elasticSearchHost: vmi-system-es-ingest.verrazzano-system.svc.cluster.local
-  elasticSearchPort: 9200
-  secretName: verrazzano
-  workloadRefs: []

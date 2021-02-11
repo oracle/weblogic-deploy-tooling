@@ -147,7 +147,8 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary, excep
 
     # add a secret with a specific comment for runtime encryption
     target_config = model_context.get_target_configuration()
-    if target_config.uses_runtime_encryption_secret():
+    additional_secrets = target_config.get_additional_secrets()
+    if RUNTIME_ENCRYPTION_SECRET_NAME in additional_secrets:
         runtime_hash = _build_secret_hash(RUNTIME_ENCRYPTION_SECRET_NAME, None, PASSWORD_TAG)
         message1 = exception_helper.get_message("WLSDPLY-01671", PASSWORD_TAG)
         message2 = exception_helper.get_message("WLSDPLY-01672")

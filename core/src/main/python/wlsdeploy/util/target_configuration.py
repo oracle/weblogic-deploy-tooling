@@ -84,14 +84,15 @@ class TargetConfiguration(object):
         """
         return dictionary_utils.get_dictionary_element(self.config_dictionary, 'variable_injectors')
 
-    def uses_runtime_encryption_secret(self):
+    def get_additional_secrets(self):
         """
-        Determine if this configuration uses a runtime encryption secret to
-        encrypt the WDT model and the SystemSerializedIni.data file.
-        :return: True if a runtime encryption secret is used, False otherwise
+        Return a list of secrets to be included in the create secrets script.
+        :return: a list of secrets
         """
-        value = dictionary_utils.get_dictionary_element(self.config_dictionary, 'use_runtime_encryption_secret')
-        return value == 'true'
+        secrets = dictionary_utils.get_element(self.config_dictionary, 'additional_secrets')
+        if secrets is not None:
+            return secrets.split(',')
+        return []
 
     def uses_credential_secrets(self):
         """
