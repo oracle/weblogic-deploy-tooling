@@ -46,6 +46,7 @@ HAS_ADDITIONAL_SECRETS = 'hasAdditionalSecrets'
 HAS_APPLICATIONS = 'hasApplications'
 HAS_CLUSTERS = 'hasClusters'
 HAS_DATASOURCES = 'hasDatasources'
+NAMESPACE = 'namespace'
 REPLICAS = 'replicas'
 RUNTIME_ENCRYPTION_SECRET = "runtimeEncryptionSecret"
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
@@ -117,6 +118,7 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
     domain_uid = k8s_helper.get_domain_uid(domain_name)
     template_hash[DOMAIN_UID] = domain_uid
     template_hash[DOMAIN_PREFIX] = domain_uid
+    template_hash[NAMESPACE] = domain_uid
 
     # secrets that should not be included in secrets section
     declared_secrets = []

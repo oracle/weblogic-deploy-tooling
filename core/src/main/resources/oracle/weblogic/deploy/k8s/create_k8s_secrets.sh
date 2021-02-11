@@ -3,7 +3,7 @@
 set -eu
 
 # {{{topComment}}}
-NAMESPACE=default
+NAMESPACE={{{namespace}}}
 DOMAIN_UID={{{domainUid}}}
 
 LONG_SECRETS=()

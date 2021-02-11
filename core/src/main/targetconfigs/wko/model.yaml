@@ -5,7 +5,7 @@ apiVersion: "weblogic.oracle/v8"
 kind: Domain
 metadata:
   name: {{{domainUid}}}
-  namespace: default
+  namespace: {{{namespace}}}
   labels:
     weblogic.domainUID: {{{domainUid}}}
 spec:

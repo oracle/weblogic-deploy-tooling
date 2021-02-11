@@ -5,7 +5,7 @@ apiVersion: core.oam.dev/v1alpha2
 kind: ApplicationConfiguration
 metadata:
   name: {{{domainPrefix}}}-appconf
-  namespace: {{{domainUid}}}
+  namespace: {{{namespace}}}
   annotations:
     version: v1.0.0
     description: "{{{domainName}}} application configuration"
@@ -39,14 +39,14 @@ apiVersion: core.oam.dev/v1alpha2
 kind: Component
 metadata:
   name: {{{domainPrefix}}}-domain
-  namespace: {{{domainUid}}}
+  namespace: {{{namespace}}}
 spec:
   workload:
     apiVersion: weblogic.oracle/v8
     kind: Domain
     metadata:
       name: {{{domainPrefix}}}-domain
-      namespace: {{{domainUid}}}
+      namespace: {{{namespace}}}
     spec:
       domainUID: {{{domainUid}}}
 
@@ -115,14 +115,14 @@ apiVersion: core.oam.dev/v1alpha2
 kind: Component
 metadata:
   name: {{{domainPrefix}}}-configmap
-  namespace: {{{domainUid}}}
+  namespace: {{{namespace}}}
 spec:
   workload:
     apiVersion: v1
     kind: ConfigMap
     metadata:
       name: {{{domainPrefix}}}-configmap
-      namespace: {{{domainUid}}}
+      namespace: {{{namespace}}}
     data:
 {{#hasDatasources}}
       wdt_jdbc.yaml: |

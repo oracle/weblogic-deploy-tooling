@@ -111,7 +111,7 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary, excep
 
     domain_uid = k8s_helper.get_domain_uid(domain_name)
     comment = exception_helper.get_message("WLSDPLY-01665")
-    script_hash = {'domainUid': domain_uid, 'topComment': comment}
+    script_hash = {'domainUid': domain_uid, 'topComment': comment, 'namespace': domain_uid}
 
     # build a map of secret names (jdbc-generic1) to keys (username, password)
     secret_map = {}
