@@ -308,6 +308,3 @@ class WebLogicHelper(object):
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
         return encryption_service
-
-
-def check_weblogic_version_or_above(wls_version, check_version, use_actual_version=False)

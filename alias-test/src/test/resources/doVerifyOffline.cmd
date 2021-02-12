@@ -30,7 +30,15 @@ IF NOT DEFINED TEST_HOME (
     GOTO exit_script
   )
 )
-
+IF NOT DEFINED PYTHON_PATH (
+  SET PYTHON_PATH=%SCRIPT_PATH%\..
+) ELSE (
+  IF NOT EXIST "%PYTHON_PATH%" (
+    ECHO Specified PYTHON_PATH of "%PYTHON_PATH%" does not exist >&2
+    SET RETURN_CODE=2
+    GOTO exit_script
+  )
+)
 @rem
 @rem Make sure that the JAVA_HOME environment variable is set to point to a
 @rem JDK 7 or higher JVM (and that it isn't OpenJDK).
@@ -90,48 +98,25 @@ IF "%~1" == "" (
 @rem Find the args required to determine the WLST script to run
 @rem
 
-SET ORACLE_HOME=
-SET DOMAIN_HOME=
 SET TESTFILES_LOCATION=
-SET ADMIN_USER=
-SET ADMIN_PASSWORD=
-SET ADMIN_URL=
+SET WLS_VERSION=
 
 :arg_loop
 IF "%1" == "-help" (
   SET RETURN_CODE=0
   GOTO usage
 )
-IF "%1" == "-oracle_home" (
-  SET ORACLE_HOME=%2
-  SHIFT
-  GOTO arg_continue
-)
-IF "%1" == "-domain_home" (
-  SET DOMAIN_HOME=%2
-  SHIFT
-  GOTO arg_continue
-)
 IF "%1" == "-testfiles_path" (
   SET TESTFILES_LOCATION=%2
   SHIFT
   GOTO arg_continue
 )
-IF "%1" == "-admin_user" (
-  SET ADMIN_USER=%2
+IF "%1" == "-wls_version" (
+  SET WLS_VERSION=%2
   SHIFT
   GOTO arg_continue
 )
-IF "%1" == "-admin_pass" (
-  SET ADMIN_PASSWORD=%2
-  SHIFT
-  GOTO arg_continue
-)
-IF "%1" == "-admin_url" (
-  SET ADMIN_URL=%2
-  SHIFT
-  GOTO arg_continue
-)
+
 @REM If none of the above, unknown argument so skip it
 :arg_continue
 SHIFT
@@ -139,42 +124,8 @@ IF NOT "%~1" == "" (
   GOTO arg_loop
 )
 
-SET WLST=
-IF EXIST "%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd" (
-    SET WLST=%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd
-    SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources
-    SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources
-    GOTO found_wlst
-)
-IF EXIST "%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd" (
-    SET WLST=%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd
-    SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-    GOTO found_wlst
-)
-IF EXIST "%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd" (
-    SET WLST=%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd
-    SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-    GOTO found_wlst
-)
-IF EXIST "%ORACLE_HOME%\wlserver\common\bin\wlst.cmd" (
-    IF EXIST "%ORACLE_HOME%\wlserver\.product.properties" (
-        @rem WLS 12.1.2 or WLS 12.1.3
-        SET WLST=%ORACLE_HOME%\wlserver\common\bin\wlst.cmd
-        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-    )
-    GOTO found_wlst
-)
-
-IF NOT EXIST "%WLST%" (
-  ECHO Unable to locate wlst.cmd script in ORACLE_HOME %ORACLE_HOME% >&2
-  EXIT /B 98
-)
-
-:found_wlst
-
 SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
-SET WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
-SET "WLST_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS% %WLST_PROPERTIES%"
+SET "WLST_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS%"
 SET "WLST_PROPERTIES=%WLST_PROPERTIES% %WLSDEPLOY_PROPERTIES%"
 
 IF NOT DEFINED WLSDEPLOY_LOG_PROPERTIES (
@@ -187,27 +138,17 @@ IF NOT DEFINED WLSDEPLOY_LOG_DIRECTORY (
 SET PY_SCRIPTS_PATH=%TEST_HOME%\python
 
 ECHO JAVA_HOME = %JAVA_HOME%
-ECHO WLST_EXT_CLASSPATH = %WLST_EXT_CLASSPATH%
 ECHO CLASSPATH = %CLASSPATH%
 ECHO WLST_PROPERTIES = %WLST_PROPERTIES%
 
-SET ORACLE_SERVER_DIR=
-IF EXIST "%ORACLE_HOME%\wlserver_10.3" (
-    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_10.3
-) ELSE IF EXIST "%ORACLE_HOME%\wlserver_12.1" (
-    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_12.1
-) ELSE (
-    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver
-)
-
 SET "JAVA_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS%"
 SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.cachedir.skip=true"
-SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.path=%ORACLE_SERVER_DIR%/common/wlst/modules/jython-modules.jar/Lib"
+SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.path=%PYTHON_HOME%\jython.jar"
 SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.console="
 SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% %WLSDEPLOY_PROPERTIES%"
 
-SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources
-SET CLASSPATH=%CLASSPATH%;%ORACLE_SERVER_DIR%\server\lib\weblogic.jar
+SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources;%PYTHON_HOME%\jython.jar
+
 
 @REM print the configuration, and run the script
 

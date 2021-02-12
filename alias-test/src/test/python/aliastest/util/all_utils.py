@@ -20,7 +20,6 @@ import java.lang.Class as Class
 
 import java.lang.SecurityException as SecurityException
 
-import java.lang.String as String
 import java.lang.StringBuilder as StringBuilder
 import java.lang.System as JSystem
 import java.util.logging.FileHandler as FileHandler
@@ -36,7 +35,8 @@ import wlsdeploy.aliases.alias_constants as alias_constants
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-from wlsdeploy.util.model_context import ModelContext
+
+from aliastest.util.verify_context import VerifyContext
 
 LOGGER_PROPERTIES_LOCATION = 'resources'
 LOGGER_PROPERTIES = 'logging.properties'
@@ -122,6 +122,7 @@ def get_dictionary_from_json_file(json_file_name):
     """
     _method_name = 'get_dictionary_from_json_file'
     __logger.entering(json_file_name, class_name=CLASS_NAME, method_name=_method_name)
+    print 'THE FILE NAME IS ', json_file_name
     json_input_stream = FileInputStream(File(json_file_name))
     json_translator = JsonStreamTranslator(json_file_name, json_input_stream)
     dictionary = None
@@ -285,6 +286,8 @@ def kwargs_map(args):
             kwargs[CommandLineArgUtil.ADMIN_PASS_SWITCH] = args[idx]
         elif CommandLineArgUtil.ADMIN_URL_SWITCH == key:
             kwargs[CommandLineArgUtil.ADMIN_URL_SWITCH] = args[idx]
+        elif '-wls_version' == key:
+            kwargs['-wls_version'] = args[idx]
 
     return kwargs
 
@@ -297,10 +300,10 @@ def populate_model_context(program_name, wlst_mode, kwargs):
     :param program_name: name of the program for logging purposes
     :param wlst_mode: online or offline
     :param kwargs: map of the command line arguments
-    :return: model context encapsulating runtime information
+    :return: verify context encapsulating runtime information
     """
     kwargs[CommandLineArgUtil.TARGET_MODE_SWITCH] = WlstModes.from_value(wlst_mode)
-    return ModelContext(program_name, kwargs)
+    return VerifyContext(program_name, kwargs)
 
 
 def str_mode(model_context):

@@ -67,6 +67,7 @@ def main(args):
     kwargs = all_utils.kwargs_map(args)
     all_utils.populate_test_files_location(kwargs)
     online_model_context = all_utils.populate_model_context('verify_online', WlstModes.ONLINE, kwargs)
+    print 'online model context *** ', online_model_context
     try:
         verify_online_dictionary(online_model_context)
     except StackOverflowError:

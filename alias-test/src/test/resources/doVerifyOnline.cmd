@@ -31,6 +31,15 @@ IF NOT DEFINED TEST_HOME (
   )
 )
 
+IF NOT DEFINED PYTHON_HOME (
+  SET PYTHON_HOME=%SCRIPT_PATH%\..
+) ELSE (
+  IF NOT EXIST "%PYTHON_HOME%" (
+    ECHO Specified PYTHON_HOME of "%PYTHON_HOME%" does not exist >&2
+    SET RETURN_CODE=2
+    GOTO exit_script
+  )
+)
 @rem
 @rem Make sure that the JAVA_HOME environment variable is set to point to a
 @rem JDK 7 or higher JVM (and that it isn't OpenJDK).
@@ -90,45 +99,21 @@ IF "%~1" == "" (
 @rem Find the args required to determine the WLST script to run
 @rem
 
-SET ORACLE_HOME=
-SET DOMAIN_HOME=
 SET TESTFILES_LOCATION=
-SET ADMIN_USER=
-SET ADMIN_PASSWORD=
-SET ADMIN_URL=
+SET WLS_VERSION=
 
 :arg_loop
 IF "%1" == "-help" (
   SET RETURN_CODE=0
   GOTO usage
 )
-IF "%1" == "-oracle_home" (
-  SET ORACLE_HOME=%2
-  SHIFT
-  GOTO arg_continue
-)
-IF "%1" == "-domain_home" (
-  SET DOMAIN_HOME=%2
-  SHIFT
-  GOTO arg_continue
-)
 IF "%1" == "-testfiles_path" (
   SET TESTFILES_LOCATION=%2
   SHIFT
   GOTO arg_continue
 )
-IF "%1" == "-admin_user" (
-  SET ADMIN_USER=%2
-  SHIFT
-  GOTO arg_continue
-)
-IF "%1" == "-admin_pass" (
-  SET ADMIN_PASSWORD=%2
-  SHIFT
-  GOTO arg_continue
-)
-IF "%1" == "-admin_url" (
-  SET ADMIN_URL=%2
+IF "%1" == "-wls_version" (
+  SET WLS_VERSION=%2
   SHIFT
   GOTO arg_continue
 )
@@ -143,16 +128,6 @@ IF NOT "%~1" == "" (
 @rem Check for values of required arguments for this script to continue.
 @rem The underlying WLST script has other required arguments.
 @rem
-IF "%ORACLE_HOME%" == "" (
-  ECHO Required argument ORACLE_HOME not provided >&2
-  SET RETURN_CODE=99
-  GOTO usage
-)
-IF "%DOMAIN_HOME%" == "" (
-  ECHO Required argument DOMAIN_HOME not provided >&2
-  SET RETURN_CODE=99
-  GOTO usage
-)
 IF "%TESTFILES_LOCATION%" == "" (
   ECHO Required argument TESTFILES_LOCATION not provided >&2
   SET RETURN_CODE=99
@@ -168,8 +143,7 @@ IF "%TESTFILES_LOCATION%" == "" (
 
 
 SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
-SET WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
-SET "WLST_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS% %WLST_PROPERTIES%"
+SET "WLST_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS%"
 SET "WLST_PROPERTIES=%WLST_PROPERTIES% %WLSDEPLOY_PROPERTIES%"
 
 IF NOT DEFINED WLSDEPLOY_LOG_PROPERTIES (
@@ -185,23 +159,13 @@ ECHO CLASSPATH = %CLASSPATH%
 ECHO WLST_PROPERTIES = %WLST_PROPERTIES%
 SET PY_SCRIPTS_PATH=%TEST_HOME%\python
 
-SET ORACLE_SERVER_DIR=
-IF EXIST "%ORACLE_HOME%\wlserver_10.3" (
-    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_10.3
-) ELSE IF EXIST "%ORACLE_HOME%\wlserver_12.1" (
-    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_12.1
-) ELSE (
-    SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver
-)
-
 SET "JAVA_PROPERTIES=-Djava.util.logging.config.class=%LOG_CONFIG_CLASS%"
 SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.cachedir.skip=true"
-SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.path=%ORACLE_SERVER_DIR%/common/wlst/modules/jython-modules.jar/Lib"
+SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.path=%PYTHON_HOME%\Lib"
 SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.console="
 SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% %WLSDEPLOY_PROPERTIES%"
 
-SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources
-SET CLASSPATH=%CLASSPATH%;%ORACLE_SERVER_DIR%\server\lib\weblogic.jar
+SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%TEST_HOME%\resources;%PYTHON_HOME%\jython.jar
 
 @REM print the configuration, and run the script
 
@@ -255,30 +219,14 @@ GOTO exit_script
 
 :usage
 ECHO.
-ECHO Usage: %~nx0 -oracle_home ^<oracle-home^>
-ECHO              -domain_home ^<domain-home^>
-ECHO              -testfiles_path ^<testfiles-path^>
-ECHO              -admin_user ^<admin_user^>
-ECHO              -admin_pass ^<admin_pass^>
-ECHO              -admin_url ^<admin_url^>
+ECHO Usage: %~nx0 -testfiles_path ^<testfiles-path^>
+ECHO              -wls_version ^<wls-version^>
+ECHO
 ECHO.
 ECHO     where:
-ECHO         oracle-home    - the existing Oracle Home directory for the domain
-ECHO.
-ECHO         domain-home    - the domain home directory
-ECHO.
 ECHO         testfiles_path  - the location to store the generated files and reports
 ECHO.
-ECHO.
-ECHO         wlst-path      - the Oracle Home subdirectory of the wlst.cmd
-ECHO                          script to use (e.g., ^<ORACLE_HOME^>\soa)
-ECHO.
-ECHO         admin-url      - the system test admin server URL
-ECHO.
-ECHO         admin-user     - the system test admin username
-ECHO.
-ECHO         admin-pass     - the system test admin password
-ECHO.
+ECHO         wls-version     - the version of WebLogic that is being verified in string format such as 12.2.1.4.0
 
 :exit_script
 ECHO %RETURN_CODE%

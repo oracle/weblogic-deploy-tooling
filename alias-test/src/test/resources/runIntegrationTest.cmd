@@ -1,7 +1,9 @@
 SET VERSION=12214
+SET WLS_VERSION=12.2.1.4.0
 SET PORT=7001
 
 SET TEST_HOME=c:\Users\crountre\workspace\weblogic-deploy-tooling\alias-test\src\test
+SET PYTHON_HOME=c:\jython2.7.2
 @REM SET JAVA_HOME=d:\jcs1036\jdk1.7.0_80
 SET JAVA_HOME=\jdk1.8.0_201
 @REM SET JAVA_HOME=\jdk-11.0.4
@@ -22,12 +24,12 @@ SET WLSDEPLOY_HOME=c:\Users\crountre\temp\weblogic-deploy
 REM echo "%TEST_HOME%\resources\doGenerateOnline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%"
 REM CALL %TEST_HOME%\resources\doGenerateOnline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%
 
-echo "%TEST_HOME%\resources\doVerifyOnline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%"
-CALL %TEST_HOME%\resources\doVerifyOnline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%
+echo "%TEST_HOME%\resources\doVerifyOnline.cmd -testfiles_path %TESTFILES% -wls_version %WLS_VERSION%"
+CALL %TEST_HOME%\resources\doVerifyOnline.cmd -testfiles_path %TESTFILES% -wls_version %WLS_VERSION%
 
 REM echo "%TEST_HOME%\resources\doGenerateOffline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%"
 REM CALL %TEST_HOME%\resources\doGenerateOffline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%
 
-echo "%TEST_HOME%\resources\doVerifyOffline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%"
-CALL %TEST_HOME%\resources\doVerifyOffline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%
+echo "%TEST_HOME%\resources\doVerifyOffline.cmd -testfiles_path %TESTFILES% -wls_version %WLS_VERSION%"
+CALL %TEST_HOME%\resources\doVerifyOffline.cmd -testfiles_path %TESTFILES% -wls_version %WLS_VERSION%
 
