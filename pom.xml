@@ -109,6 +109,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>3.0.0-M1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.20.1</version>
                     <configuration>
@@ -259,10 +264,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
                 <configuration>
-                    <useReleaseProfile>false</useReleaseProfile>
                     <tagNameFormat>weblogic-deploy-tooling-@{project.version}</tagNameFormat>
+                    <!-- Tell release:perform to stop before trying to push to a remote repository -->
+                    <goals>install</goals>
                 </configuration>
             </plugin>
         </plugins>
@@ -288,6 +293,16 @@
                 <module>core</module>
                 <module>installer</module>
                 <module>system-test</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>core</module>
+                <module>installer</module>
             </modules>
         </profile>
     </profiles>
