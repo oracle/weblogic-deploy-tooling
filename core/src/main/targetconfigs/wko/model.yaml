@@ -1,8 +1,11 @@
+# Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
 apiVersion: "weblogic.oracle/v8"
 kind: Domain
 metadata:
   name: {{{domainUid}}}
-  namespace: default
+  namespace: {{{namespace}}}
   labels:
     weblogic.domainUID: {{{domainUid}}}
 spec:
@@ -60,6 +63,18 @@ spec:
 {{/clusters}}
 
   configuration:
+    istio:
+      enabled: false
+    introspectorJobActiveDeadlineSeconds: 900
+    model:
+      domainType: {{{domainType}}}
+
+      # WebLogic Image Tool provides modelHome
+      modelHome: {{{modelHome}}}
+
+      # encryption for the WDT model and the SystemSerializedIni.data file.
+      # used only for model-in-image deployment, can be removed for other types.
+      runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
 {{#hasAdditionalSecrets}}
 
     # Secrets that are referenced by model yaml macros

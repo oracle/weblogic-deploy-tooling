@@ -1,9 +1,8 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.lang.Exception as JException
-import java.lang.String as JString
 
 import weblogic.management.provider.ManagementServiceClient as ManagementServiceClient
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
@@ -16,11 +15,12 @@ from wlsdeploy.util import string_utils
 import os
 import re
 
+
 class WebLogicHelper(object):
     """
     Helper functions for version-specific WebLogic operations.
     """
-    STANDARD_VERSION_NUMBER_PLACES = 5
+
     MINIMUM_WEBLOGIC_VERSION = '10.3.6'
     _class_name = 'WebLogicHelper'
 
@@ -228,27 +228,11 @@ class WebLogicHelper(object):
                 False (default), use version places up to the number represented by STANDARD_VERSION_NUMBER_PLACES
         :return: True if the provided version is equal or greater than the version represented by this helper instance
         """
-        result = False
-        array_version = str_version.split('.')
-        array_wl_version = self._get_wl_version_array(use_actual_version=use_actual_version)
-
-        len_compare = len(array_wl_version)
-        if len(array_version) < len_compare:
-            len_compare = len(array_version)
-
-        idx = 0
-        while idx < len_compare:
-            compare_value = JString(array_version[idx]).compareTo(JString(array_wl_version[idx]))
-            if compare_value < 0:
-                result = True
-                break
-            elif compare_value > 0:
-                result = False
-                break
-            elif idx + 1 == len_compare:
-                result = True
-
-            idx += 1
+        if use_actual_version:
+            wl_version = self.wl_version_actual
+        else:
+            wl_version = self.wl_version
+        result = string_utils.is_weblogic_version_or_above(wl_version, str_version)
 
         return result
 
@@ -260,29 +244,6 @@ class WebLogicHelper(object):
         """
         bean_access = ManagementServiceClient.getBeanInfoAccess()
         return bean_access.getBeanInfoForInterface(interface_name, False, '9.0.0.0')
-
-    # We need to pad the actual version number for comparison purposes so
-    # that is is never shorter than the specified version.  Otherwise,
-    # actual version 12.2.1 will be considered to be equal to 12.2.1.1
-    #
-    def _get_wl_version_array(self, use_actual_version=False):
-        """
-        Get the WebLogic version number padded to the standard number of digits.
-        :param use_actual_version: whether to use the actual or supplied version of WebLogic
-        :return: the padded WebLogic version number
-        """
-        if use_actual_version:
-            result = self.wl_version_actual.split('.')
-        else:
-            result = self.wl_version.split('.')
-
-        if len(result) < self.STANDARD_VERSION_NUMBER_PLACES:
-            index = len(result)
-            while index < self.STANDARD_VERSION_NUMBER_PLACES:
-                result.append('0')
-                index += 1
-
-        return result
 
     def get_next_higher_order_version_number(self, version_number):
         """

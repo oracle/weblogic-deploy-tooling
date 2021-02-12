@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Methods for creating Kubernetes resource configuration files for Verrazzano.
@@ -7,6 +7,7 @@ Methods for creating Kubernetes resource configuration files for Verrazzano.
 from java.io import File
 
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
@@ -27,21 +28,27 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 # substitution keys used in the templates
 ADDITIONAL_SECRET_NAME = 'additionalSecretName'
 ADDITIONAL_SECRETS = 'additionalSecrets'
+APPLICATIONS = 'applications'
+APPLICATION_NAME = 'applicationName'
+APPLICATION_PREFIX = 'applicationPrefix'
 CLUSTER_NAME = 'clusterName'
 CLUSTERS = 'clusters'
-DATABASE_CREDENTIALS = 'databaseCredentials'
-DATABASE_PREFIX = 'databasePrefix'
-DATABASES = 'databases'
+DATASOURCE_CREDENTIALS = 'datasourceCredentials'
+DATASOURCE_PREFIX = 'datasourcePrefix'
+DATASOURCES = 'datasources'
 DATASOURCE_NAME = 'datasourceName'
+DATASOURCE_URL = 'url'
 DOMAIN_NAME = 'domainName'
 DOMAIN_PREFIX = 'domainPrefix'
 DOMAIN_TYPE = 'domainType'
 DOMAIN_UID = 'domainUid'
-DS_URL = 'url'
 HAS_ADDITIONAL_SECRETS = 'hasAdditionalSecrets'
+HAS_APPLICATIONS = 'hasApplications'
 HAS_CLUSTERS = 'hasClusters'
-HAS_DATABASES = 'hasDatabases'
+HAS_DATASOURCES = 'hasDatasources'
+NAMESPACE = 'namespace'
 REPLICAS = 'replicas'
+RUNTIME_ENCRYPTION_SECRET = "runtimeEncryptionSecret"
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 
 
@@ -104,13 +111,14 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
     domain_name = dictionary_utils.get_element(model.get_model_topology(), NAME)
     if domain_name is None:
         domain_name = DEFAULT_WLS_DOMAIN_NAME
+    template_hash[DOMAIN_NAME] = domain_name
 
-    # domain UID, name and prefix must follow DNS-1123
+    # domain UID, prefix, and namespace must follow DNS-1123
 
     domain_uid = k8s_helper.get_domain_uid(domain_name)
     template_hash[DOMAIN_UID] = domain_uid
-    template_hash[DOMAIN_NAME] = domain_uid
     template_hash[DOMAIN_PREFIX] = domain_uid
+    template_hash[NAMESPACE] = domain_uid
 
     # secrets that should not be included in secrets section
     declared_secrets = []
@@ -120,6 +128,12 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
     admin_secret = domain_uid + target_configuration_helper.WEBLOGIC_CREDENTIALS_SECRET_SUFFIX
     declared_secrets.append(admin_secret)
     template_hash[WEBLOGIC_CREDENTIALS_SECRET] = admin_secret
+
+    # runtime encryption secret
+
+    runtime_secret = domain_uid + target_configuration_helper.RUNTIME_ENCRYPTION_SECRET_SUFFIX
+    declared_secrets.append(runtime_secret)
+    template_hash[RUNTIME_ENCRYPTION_SECRET] = runtime_secret
 
     # configuration / model
     template_hash[DOMAIN_TYPE] = model_context.get_domain_type()
@@ -159,20 +173,39 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
         url = dictionary_utils.get_element(driver_params, URL)
         if url is None:
             url = ''
-        database_hash[DS_URL] = url
+        database_hash[DATASOURCE_URL] = url
 
         # should change spaces to hyphens?
-        database_hash[DATABASE_PREFIX] = jdbc_name.lower()
+        database_hash[DATASOURCE_PREFIX] = k8s_helper.get_dns_name(jdbc_name)
 
         # get the name that matches secret
         location.add_name_token(name_token, jdbc_name)
         secret_name = target_configuration_helper.get_secret_name_for_location(location, domain_uid, aliases)
-        database_hash[DATABASE_CREDENTIALS] = secret_name
+        database_hash[DATASOURCE_CREDENTIALS] = secret_name
 
         databases.append(database_hash)
 
-    template_hash[DATABASES] = databases
-    template_hash[HAS_DATABASES] = len(databases) != 0
+    template_hash[DATASOURCES] = databases
+    template_hash[HAS_DATASOURCES] = len(databases) != 0
+
+    # applications
+
+    apps = []
+
+    applications = dictionary_utils.get_dictionary_element(model.get_model_app_deployments(), APPLICATION)
+    for app_name in applications:
+        app_hash = dict()
+        prefix = '/' + app_name
+
+        # get the prefix from the app descriptor?
+
+        app_hash[APPLICATION_NAME] = app_name
+        app_hash[APPLICATION_PREFIX] = prefix
+
+        apps.append(app_hash)
+
+    template_hash[APPLICATIONS] = apps
+    template_hash[HAS_APPLICATIONS] = len(apps) != 0
 
     # additional secrets - exclude admin
 

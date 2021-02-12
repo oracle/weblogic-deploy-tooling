@@ -3,7 +3,7 @@
 set -eu
 
 # {{{topComment}}}
-NAMESPACE=default
+NAMESPACE={{{namespace}}}
 DOMAIN_UID={{{domainUid}}}
 
 LONG_SECRETS=()
@@ -31,12 +31,16 @@ function create_paired_k8s_secret {
 }
 {{#pairedSecrets}}
 
+{{#comments}}
 # {{{comment}}}
+{{/comments}}
 create_paired_k8s_secret {{{secretName}}} {{{user}}} {{{password}}}
 {{/pairedSecrets}}
 {{#secrets}}
 
+{{#comments}}
 # {{{comment}}}
+{{/comments}}
 create_k8s_secret {{{secretName}}} {{{password}}}
 {{/secrets}}
 

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import String
@@ -50,7 +50,6 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import string_utils
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class Aliases(object):
@@ -74,8 +73,9 @@ class Aliases(object):
         self._exception_type = exception_type
         self._logger = PlatformLogger('wlsdeploy.aliases')
 
-        self._wls_helper = WebLogicHelper(self._logger)
         if wls_version is None:
+            from wlsdeploy.util.weblogic_helper import WebLogicHelper
+            self._wls_helper = WebLogicHelper(self._logger)
             self._wls_version = self._wls_helper.wl_version_actual
         else:
             self._wls_version = wls_version
