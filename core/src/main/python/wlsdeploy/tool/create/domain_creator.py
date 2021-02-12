@@ -1055,7 +1055,8 @@ class DomainCreator(Creator):
         if not has_atp:
             rcu_database = rcu_db_info.get_preferred_db()
             if rcu_database is None:
-                return
+                ex = exception_helper.create_create_exception('WLSDPLY-12564')
+                raise ex
 
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
 
