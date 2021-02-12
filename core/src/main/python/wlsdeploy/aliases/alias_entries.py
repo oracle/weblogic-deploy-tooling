@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -68,7 +68,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
+from wlsdeploy.util import string_utils
 
 _class_name = 'AliasEntries'
 _logger = PlatformLogger('wlsdeploy.aliases')
@@ -196,10 +196,10 @@ class AliasEntries(object):
         self._category_dict = {}
         self._wlst_mode = wlst_mode
         if wls_version is None:
+            from wlsdeploy.util.weblogic_helper import WebLogicHelper
             self._wls_helper = WebLogicHelper(_logger)
             self._wls_version = self._wls_helper.get_actual_weblogic_version()
         else:
-            self._wls_helper = WebLogicHelper(_logger, wls_version)
             self._wls_version = wls_version
 
         return
@@ -242,9 +242,9 @@ class AliasEntries(object):
         :return: a list of the folder names
         """
         result = list(self.__topology_top_level_folders)
-        if not self._wls_helper.is_weblogic_version_or_above('12.2.1'):
+        if not string_utils.is_weblogic_version_or_above(self._wls_version, '12.2.1'):
             result.remove('VirtualTarget')
-            if not self._wls_helper.is_weblogic_version_or_above('12.1.2'):
+            if not string_utils.is_weblogic_version_or_above(self._wls_version, '12.1.2'):
                 result.remove('RestfulManagementServices')
                 result.remove('ServerTemplate')
         return result
@@ -255,13 +255,13 @@ class AliasEntries(object):
         :return: a list of the folder names
         """
         result = list(self.__resources_top_level_folders)
-        if not self._wls_helper.is_weblogic_version_or_above('12.2.1'):
+        if not string_utils.is_weblogic_version_or_above(self._wls_version, '12.2.1'):
             result.remove('Partition')
             result.remove('PartitionWorkManager')
             result.remove('ResourceGroup')
             result.remove('ResourceGroupTemplate')
             result.remove('ResourceManagement')
-            if not self._wls_helper.is_weblogic_version_or_above('12.1.2'):
+            if not string_utils.is_weblogic_version_or_above(self._wls_version, '12.1.2'):
                 result.remove('CoherenceClusterSystemResource')
         return result
 
@@ -356,7 +356,7 @@ class AliasEntries(object):
                             my_loc.add_name_token(name_token, name)
                             # dont include token in path for single-unpredictable
                             if not self.is_location_child_folder_type(my_loc, ChildFoldersTypes.SINGLE):
-                                 model_folder_path += '%s/' % name
+                                model_folder_path += '%s/' % name
                         elif location_folder != location_folders[-1]:
                             # Throw AliasException if name_token is missing
                             # from any location folder, except the last one
@@ -581,12 +581,11 @@ class AliasEntries(object):
                 code, message = self.is_valid_model_folder_name_for_location(err_location, folder_name)
                 if code == ValidationCodes.VERSION_INVALID:
                     ex = exception_helper.create_alias_exception('WLSDPLY-08130', path,
-                                                                 self._wls_helper.get_actual_weblogic_version(),
+                                                                 self._wls_version,
                                                                  message)
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                     raise ex
-            ex = exception_helper.create_alias_exception('WLSDPLY-08131', path,
-                                                         self._wls_helper.get_actual_weblogic_version())
+            ex = exception_helper.create_alias_exception('WLSDPLY-08131', path, self._wls_version)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -833,7 +832,7 @@ class AliasEntries(object):
         if self.get_wlst_mbean_type_for_location(location) is None:
             model_folder_path = self.get_model_folder_path_for_location(location)
             message = exception_helper.get_message('WLSDPLY-08138', model_folder_path,
-                                                   self._wls_helper.get_weblogic_version())
+                                                   self._wls_version)
             code = ValidationCodes.VERSION_INVALID
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[code, message])
@@ -1281,7 +1280,7 @@ class AliasEntries(object):
         if dict_version_range:
             try:
                 _logger.finer('WLSDPLY-08123', path_name, dict_version_range,
-                              self._wls_helper.get_actual_weblogic_version(),
+                              self._wls_version,
                               class_name=_class_name, method_name=_method_name)
                 is_version = self.__version_in_range(dict_version_range)
 
@@ -1295,7 +1294,7 @@ class AliasEntries(object):
 
         if is_version:
             _logger.finer('WLSDPLY-08125', path_name, dict_version_range,
-                          self._wls_helper.get_actual_weblogic_version(),
+                          self._wls_version,
                           class_name=_class_name, method_name=_method_name)
 
         return is_version
