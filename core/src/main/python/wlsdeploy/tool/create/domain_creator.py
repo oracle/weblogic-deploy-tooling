@@ -918,12 +918,40 @@ class DomainCreator(Creator):
         if rcu_db_info.has_atpdbinfo():
             has_atp = 1
             # parse the tnsnames.ora file and retrieve the connection string
+            # tns_admin is the wallet path either the path to $DOMAIN_HOME/atpwallet or
+            # specified in RCUDbinfo.oracle.net.tns_admin
+
             tns_admin = rcu_db_info.get_atp_tns_admin()
+            if tns_admin is None or not os.path.exists(tns_admin + os.sep + "tnsnames.ora"):
+                ex = exception_helper.create_create_exception('WLSDPLY-12562')
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+            if rcu_db_info.get_atp_entry() is None:
+                ex = exception_helper.create_create_exception('WLSDPLY-12413','tns.alias')
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
             rcu_database = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
                                                              rcu_db_info.get_atp_entry())
 
+            if rcu_database is None:
+                ex = exception_helper.create_create_exception('WLSDPLY-12563', rcu_db_info.get_atp_entry())
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
             keystore_pwd = rcu_db_info.get_keystore_password()
             truststore_pwd = rcu_db_info.get_truststore_password()
+
+            if keystore_pwd is None:
+                ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.keyStorePassword')
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+            if truststore_pwd is None:
+                ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.trustStorePassword')
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
 
             # Need to set for the connection property for each datasource
 
