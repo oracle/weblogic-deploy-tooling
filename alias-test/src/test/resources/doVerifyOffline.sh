@@ -18,28 +18,9 @@
 # This script uses the following command-line arguments directly, the rest
 # of the arguments are passed down to the underlying python program:
 #
-#     - -oracle_home        The directory of the existing Oracle Home to use.
-#                           This directory must exist and it is the caller^'s
-#                           responsibility to verify that it does. This
-#                           argument is required.
-#
 #     - -testfiles_path     The location where to store the generated files and reports
 #                           and where to read the generated files to create the reports.
-#  
-#     - -admin_url          The URL of the admin server to be used for generating the online 
-#                           information for the designated oracle-home (they must match) and
-#                           to seed the offline generated files.
-#
-#     - -admin_user         The userid to connect to the admin server
-#           
-#     - -admin_pass         The password to connect to the admin server
-#                 
-#     - -wlst_path          The path to the Oracle Home product directory under
-#                           which to find the wlst.cmd script.  This is only
-#                           needed for pre-12.2.1 upper stack products like SOA.
-#
-#                           For example, for SOA 12.1.3, -wlst_path should be
-#                           specified as $ORACLE_HOME/soa
+#     - -wls_version        The version of WebLogic formatted such as 12.2.1.4.0
 #
 # This script uses the following variables:
 #
@@ -51,36 +32,18 @@
 #
 # TEST_HOME            - The location of the WLS Deploy Alias System Test installation.
 #
+# PYTHON_HOME          - The location of the 2.7.0 or 2.7.2 jython jar that this tool will run with
 
 usage() {
   echo ""
   echo "Usage: $1 [-help]"
-  echo "          -oracle_home <oracle-home>"
   echo "          -testfiles_path <testfiles-path>"
-  echo "          -admin_url <admin-url>"
-  echo "          -admin_user <admin-user>"
-  echo "          -admin_pass <admin-pass>" 
-  echo "          [-wlst_path <wlst-path>]"
+  echo "          -wls_version <wls-version>"
   echo ""
   echo "    where:"
-  echo "        oracle-home     - the existing Oracle Home directory for the domain"
-  echo ""
   echo "        testfiles-path  - location to store to / read from the generated files and to store the report files"
   echo ""
-  echo "        model-file      - the location of the model file to use,"
-  echo "                          the default is to get the model from the archive"
-  echo ""
-  echo "        domain-type     - the type of domain (e.g., WLS, JRF)."
-  echo "                          Used to locate wlst.cmd if wlst-path not specified"
-  echo ""
-  echo "        admin-url       - the system test admin server URL"
-  echo ""
-  echo "        admin-user      - the system test admin username"
-  echo ""
-  echo "        admin-pass      - the system test admin password"
-  echo ""
-  echo "        wlst-path       - the Oracle Home subdirectory of the wlst.cmd"
-  echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
+  echo "        wls-version     - the version of WebLogic Server to be verified formatted such as 12.2.1.4.0,"
   echo ""
 }
 scriptName=`basename $0`
@@ -103,6 +66,14 @@ if [ "${TEST_HOME}" = "" ]; then
     export TEST_HOME
 if [ ! -d ${TEST_HOME} ]; then
     echo "Specified TEST_HOME of ${TEST_HOME} does not exist" >&2
+    exit 2
+fi
+
+if [ "${PYTHON_HOME}" = "" ]; then
+    SET PYTHON_HOME=${WLSDEPLOY_HOME}/test
+    export PYTHON_HOME
+if [ ! -d ${PYTHON_HOME} ]; then
+    echo "Specified PYTHON_HOME of ${PYTHON_HOME} does not exist" >&2
     exit 2
 fi
 
@@ -163,8 +134,8 @@ while [[ $# > 1 ]]; do
         usage `basename $0`
         exit 0
         ;;
-        -oracle_home)
-        ORACLE_HOME="$2"
+        -wls_version)
+        WLS_VERSION="$2"
         shift
         ;;
         -testfiles_path)
@@ -182,14 +153,12 @@ done
 # Check for values of required arguments for this script to continue.
 # The underlying WLST script has other required arguments.
 #
-if [ "${ORACLE_HOME}" = "" ]; then
-    echo "Required argument ORACLE_HOME not provided" >&2
+
+if [ "${WLS_VERSION}" = "" ]; then
+    echo "Required argument WLS_VERSION not provided" >&2
     usage `basename $0`
     exit 99
-elif [ ! -d ${ORACLE_HOME} ]; then
-    echo "The specified ORACLE_HOME does not exist: ${ORACLE_HOME}" >&2
-    exit 98
-fi
+
 if [ "${TESTFILES_LOCATION}" = "" ]; then
     echo "Required argument TESTFILES_LOCATION not provided" >&2
     usage `basename $0`
@@ -199,26 +168,16 @@ elif [ ! -d ${TESTFILES_LOCATION} ]; then
     exit 98
 fi
 
-ORACLE_SERVER_DIR=
-if [ -x ${ORACLE_HOME}/wlserver_10.3 ]; then
-    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver_10.3
-elif [ -x ${ORACLE_HOME}/wlserver_12.1 ]; then
-    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver_12.1
-else
-    ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver
-fi
-
 variableSetup
 
 JAVA_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
 JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.cachedir.skip=true"
-JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.path=${ORACLE_SERVER_DIR}/common/wlst/modules/jython-modules.jar/Lib"
+JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.path=${PYTHON_HOME}/Lib"
 JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.console="
 JAVA_PROPERTIES="${JAVA_PROPERTIES}  ${WLSDEPLOY_PROPERTIES}"
 export JAVA_PROPERTIES
 
-CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources;
-CLASSPATH=${CLASSPATH}:${ORACLE_SERVER_DIR}/server/lib/weblogic.jar
+CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources;${PYTHON_HOME}/jython.jar
 
 
 LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig

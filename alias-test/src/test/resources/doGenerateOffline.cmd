@@ -295,7 +295,7 @@ ECHO         oracle-home    - the existing Oracle Home directory for the domain
 ECHO.
 ECHO         domain-home    - the existing Domain directory for the Oracle version
 ECHO.
-ECHO         testfiles_path  - the location to store the generated files and reports
+ECHO         testfiles-path - the location to store the generated files and reports
 ECHO.
 ECHO         admin-url      - the system test admin server URL
 ECHO.
