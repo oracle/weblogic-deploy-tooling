@@ -15,7 +15,7 @@ domainInfo:
         tns.alias : dbatp_tp
         javax.net.ssl.keyStorePassword : <atp wallet password>
         javax.net.ssl.trustStorePassword : <atp wallet password>
-        oracle.net.tns_admin: <optional: unzipped wallet root directory, if the wallet.zip is not included in the archive>
+        oracle.net.tns_admin: <optional: absolute path of the unzipped wallet root directory (outside of the archive), if the wallet.zip is not included in the archive>
 ```           
 The database wallet can be included in the archive file under `atpwallet` zipentry structure
 
