@@ -88,15 +88,15 @@ pipeline {
                     }
                 }
                 stages {
-                    agent {
-                        docker {
-                            alwaysPull true
-                            reuseNode true
-                            image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:aliastest'
-                            args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
-                        }
-                    }
                     stage('Test') {
+                        agent {
+                            docker {
+                                alwaysPull true
+                                reuseNode true
+                                image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:aliastest'
+                                args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
+                            }
+                        }
                         steps {
                            sh  'cd /u01/verify/alias-test/src/test/resources && ./runIntegrationTest.sh -wls_version ${WLS_VERSION} -testfiles_path /u01/verify/testfiles'
                         }
