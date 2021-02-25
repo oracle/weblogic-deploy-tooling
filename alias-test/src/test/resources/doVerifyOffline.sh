@@ -46,6 +46,7 @@ usage() {
   echo "        wls-version     - the version of WebLogic Server to be verified formatted such as 12.2.1.4.0,"
   echo ""
 }
+echo "I am in doVerifyOffline.sh"
 scriptName=`basename $0`
 scriptPath=$(dirname "$0")
 scriptArgs=$*
@@ -61,17 +62,11 @@ elif [ ! -d ${WLSDEPLOY_HOME} ]; then
     exit 2
 fi
 
-if [ "${TEST_HOME}" = "" ]; then
-    SET TEST_HOME=${WLSDEPLOY_HOME}/test
-    export TEST_HOME
 if [ ! -d ${TEST_HOME} ]; then
-    echo "Specified TEST_HOME of ${TEST_HOME} does not exist" >&2
+    echo "Specified TEST_HOME of ${TEST_HOME} does not exist"
     exit 2
 fi
 
-if [ "${PYTHON_HOME}" = "" ]; then
-    SET PYTHON_HOME=${WLSDEPLOY_HOME}/test
-    export PYTHON_HOME
 if [ ! -d ${PYTHON_HOME} ]; then
     echo "Specified PYTHON_HOME of ${PYTHON_HOME} does not exist" >&2
     exit 2
@@ -148,17 +143,19 @@ while [[ $# > 1 ]]; do
     esac
     shift # past arg or value
 done
-
+echo "finished check the parameters"
 #
 # Check for values of required arguments for this script to continue.
 # The underlying WLST script has other required arguments.
 #
-
+echo "check the two arguments"
+echo "WLS_VERSION=${WLS_VERSION}"
 if [ "${WLS_VERSION}" = "" ]; then
-    echo "Required argument WLS_VERSION not provided" >&2
-    usage `basename $0`
+    echo "Required argument WLS_VERSION not provided"
     exit 99
+fi
 
+echo "TESTFILES_LOCATION=${TESTFILES_LOCATION}"
 if [ "${TESTFILES_LOCATION}" = "" ]; then
     echo "Required argument TESTFILES_LOCATION not provided" >&2
     usage `basename $0`
@@ -168,8 +165,8 @@ elif [ ! -d ${TESTFILES_LOCATION} ]; then
     exit 98
 fi
 
-variableSetup
-
+echo "SET the values for logging"
+LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
 JAVA_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
 JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.cachedir.skip=true"
 JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.path=${PYTHON_HOME}/Lib"
@@ -177,25 +174,24 @@ JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.console="
 JAVA_PROPERTIES="${JAVA_PROPERTIES}  ${WLSDEPLOY_PROPERTIES}"
 export JAVA_PROPERTIES
 
-CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources;${PYTHON_HOME}/jython.jar
-
-
-LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
+CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources:${PYTHON_HOME}/jython.jar
 
 if [ "${WLSDEPLOY_LOG_PROPERTIES}" = "" ]; then
     WLSDEPLOY_LOG_PROPERTIES=${WLSDEPLOY_HOME}/etc/logging.properties; export WLSDEPLOY_LOG_PROPERTIES
 fi
 
 if [ "${WLSDEPLOY_LOG_DIRECTORY}" = "" ]; then
-    WLSDEPLOY_LOG_DIRECTORY=${WLSDEPLOY_HOME}/logs; export WLSDEPLOY_LOG_DIRECTORY
+    WLSDEPLOY_LOG_DIRECTORY=${WLSDEPLOY_HOME}/logs
+    export WLSDEPLOY_LOG_DIRECTORY
 fi
 
 echo "JAVA_HOME = ${JAVA_HOME}"
 echo "CLASSPATH = ${CLASSPATH}"
 echo "JAVA_PROPERTIES = ${JAVA_PROPERTIES}"
 
-PY_SCRIPTS_PATH=${WLSDEPLOY_HOME}/lib/python
+PY_SCRIPTS_PATH=${TEST_HOME}/python
 
+edho "about to call python"
 echo \
 ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
     ${JAVA_PROPERTIES} \
@@ -208,28 +204,5 @@ ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
     "${PY_SCRIPTS_PATH}/verify_offline.py" ${scriptArgs}
 
 RETURN_CODE=$?
-if [ ${RETURN_CODE} -eq 100 ]; then
-  usage `basename $0`
-  RETURN_CODE=0
-elif [ ${RETURN_CODE} -eq 99 ]; then
-  usage `basename $0`
-  echo ""
-  echo "doVerifyOffline.sh failed due to the usage error shown above" >&2
-elif [ ${RETURN_CODE} -eq 98 ]; then
-  echo ""
-  echo "doVerifyOffline.sh failed due to a parameter validation error" >&2
-elif [ ${RETURN_CODE} -eq 2 ]; then
-  echo ""
-  echo "doVerifyOffline.sh failed (exit code = ${RETURN_CODE})" >&2
-elif [ ${RETURN_CODE} -eq 1 ]; then
-  echo ""
-  echo "doVerifyOffline.sh completed but with some issues (exit code = ${RETURN_CODE})" >&2
-elif [ ${RETURN_CODE} -eq 0 ]; then
-  echo ""
-  echo "doVerifyOffline.sh completed successfully (exit code = ${RETURN_CODE})"
-else
-  # Unexpected return code so just print the message and exit...
-  echo ""
-  echo "doVerifyOffline.sh failed (exit code = ${RETURN_CODE})" >&2
-fi
+echo "Test completed with return code ${RETURN_CODE}"
 exit ${RETURN_CODE}
