@@ -98,7 +98,7 @@ pipeline {
                     }
                     stage('Test') {
                         steps {
-                            cd /u01/verify/alias-test/src/test/resources && ./runIntegrationTest.sh -wls_version ${WLS_VERSION} -testfiles_path /u01/verify/testfiles
+                           sh  'cd /u01/verify/alias-test/src/test/resources && ./runIntegrationTest.sh -wls_version ${WLS_VERSION} -testfiles_path /u01/verify/testfiles'
                         }
                     }
                 }
