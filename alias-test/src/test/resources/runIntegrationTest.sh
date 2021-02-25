@@ -32,8 +32,7 @@
 # TEST_HOME            - The location of the WLS Deploy Alias System Test installation.
 #
 # PYTHON_HOME          - The location of the 2.7.0 or 2.7.2 jython jar that this tool will run with
-cd ${WLSDEPLOY_BASE}
-unzip weblogic-deploy.zip
+unzip installer/target/weblogic-deploy.zip -d ${WLSDEPLOY_BASE}
 echo WLS_VERSION=${WLS_VERSION}
 ${TEST_HOME}/resources/doVerifyOnline.sh $*
 ${TEST_HOME}/resources/doVerifyOffline.sh $*
