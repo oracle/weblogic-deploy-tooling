@@ -46,7 +46,7 @@ usage() {
   echo "        wls-version     - the version of WebLogic Server to be verified formatted such as 12.2.1.4.0,"
   echo ""
 }
-echo "I am in doVerifyOffline.sh"
+
 scriptName=`basename $0`
 scriptPath=$(dirname "$0")
 scriptArgs=$*
