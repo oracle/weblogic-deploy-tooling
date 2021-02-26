@@ -20,10 +20,9 @@ COPY --chown=oracle generatedfiles.zip ${TESTFILES_HOME}/
 
 USER oracle
 RUN cd ${TESTFILES_HOME} && \
-    ls && \
     unzip generatedfiles.zip && \
+    chmod 777 ${TESTFILES_HOME} && \
 	cd ${PYTHON_BASE} && \
-	ls && \
 	unzip jython-installer-2.7.2.jar && \
 	cd ${TEST_HOME}/resources && \
 	sed -i 's/\r//g' runIntegrationTest.sh && \
