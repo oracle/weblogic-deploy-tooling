@@ -143,12 +143,12 @@ while [[ $# > 1 ]]; do
     esac
     shift # past arg or value
 done
-echo "finished check the parameters"
+
 #
 # Check for values of required arguments for this script to continue.
 # The underlying WLST script has other required arguments.
 #
-echo "check the two arguments"
+
 echo "WLS_VERSION=${WLS_VERSION}"
 if [ "${WLS_VERSION}" = "" ]; then
     echo "Required argument WLS_VERSION not provided"
@@ -165,7 +165,6 @@ elif [ ! -d ${TESTFILES_LOCATION} ]; then
     exit 98
 fi
 
-echo "SET the values for logging"
 LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
 JAVA_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
 JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.cachedir.skip=true"
@@ -191,7 +190,6 @@ echo "JAVA_PROPERTIES = ${JAVA_PROPERTIES}"
 
 PY_SCRIPTS_PATH=${TEST_HOME}/python
 
-edho "about to call python"
 echo \
 ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
     ${JAVA_PROPERTIES} \
