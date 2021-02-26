@@ -2,10 +2,10 @@ FROM phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213
 
 ENV PYTHON_BASE=/u01/jython \
     VERIFY_HOME=/u01/verify \
-	WLSDEPLOY_BASE=/u01
+	WLSDEPLOY_BASE=/u01/wlsdeploy
 	
 ENV	TESTFILES_HOME=${VERIFY_HOME}/testfiles \
-	WLSDEPLOY_HOME=/u01/weblogic-deploy \
+	WLSDEPLOY_HOME=${WLSDEPLOY_BASE}/weblogic-deploy \
 	TEST_HOME=${VERIFY_HOME}/alias-test/src/test \
 	PYTHON_HOME=${PYTHON_BASE} \
 	MODE=online \
@@ -29,7 +29,9 @@ RUN cd ${TESTFILES_HOME} && \
 	sed -i 's/\r//g' runIntegrationTest.sh && \
 	sed -i 's/\r//g' doVerifyOnline.sh && \
 	sed -i 's/\r//g' doVerifyOffline.sh && \
-	chmod 777 *.sh 
+	chmod 777 *.sh && \
+	mkdir ${WLSDEPLOY_BASE} && \
+	chmod 777 ${WLSDEPLOY_BASE}
 
 	
 USER oracle
