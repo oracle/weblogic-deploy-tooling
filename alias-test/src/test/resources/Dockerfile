@@ -35,5 +35,5 @@ RUN cd ${TESTFILES_HOME} && \
 
 	
 USER oracle
-WORKDIR ${TEST_HOME}/python
+
 CMD  /u01/verify/alias-test/src/test/resources/runIntegrationTest.sh -wls_version ${WLS_VERSION} -testfiles_path ${TESTFILES_HOME}

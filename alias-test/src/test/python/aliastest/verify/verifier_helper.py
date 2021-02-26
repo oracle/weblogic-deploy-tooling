@@ -282,8 +282,8 @@ class VerifierHelper:
             _logger.exiting(class_name=CLASS_NAME, method_name=_method_name)
 
         top_location = LocationContext()
-        top_folder_map = self._helper.get_top_folder_map(top_location)
         top_location.add_name_token('DOMAIN', 'system_test_domain')
+        top_folder_map = self._helper.get_top_folder_map(top_location)
         top_attributes = attribute_list(self._dictionary)
         self.verify_attributes(top_attributes, top_location)
         _check(self._dictionary, top_location, top_folder_map)
