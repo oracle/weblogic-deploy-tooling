@@ -2,10 +2,10 @@ FROM phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213
 
 ENV PYTHON_BASE=/u01/jython \
     VERIFY_HOME=/u01/verify \
-	WLSDEPLOY_BASE=/u01/wlsdeploy
+	WLSDEPLOY_BASE=/u01
 	
 ENV	TESTFILES_HOME=${VERIFY_HOME}/testfiles \
-	WLSDEPLOY_HOME=/u01/wlsdeploy/weblogic-deploy \
+	WLSDEPLOY_HOME=/u01/weblogic-deploy \
 	TEST_HOME=${VERIFY_HOME}/alias-test/src/test \
 	PYTHON_HOME=${PYTHON_BASE} \
 	MODE=online \
