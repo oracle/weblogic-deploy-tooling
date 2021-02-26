@@ -54,7 +54,6 @@ umask 27
 
 WLSDEPLOY_PROGRAM_NAME="aliases_tests"; export WLSDEPLOY_PROGRAM_NAME
 
-echo "test wlsdeploy home "
 if [ "${WLSDEPLOY_HOME}" = "" ]; then
     echo "WLSDEPLOY_HOME environment variable must be set" >&2
     exit 2
@@ -63,19 +62,16 @@ elif [ ! -d ${WLSDEPLOY_HOME} ]; then
     exit 2
 fi
 
-echo "test test_home"
 if [ ! -d ${TEST_HOME} ]; then
     echo "Specified TEST_HOME of ${TEST_HOME} does not exist"
     exit 2
 fi
 
-echo "test python_home"
 if [ ! -d ${PYTHON_HOME} ]; then
     echo "Specified PYTHON_HOME of ${PYTHON_HOME} does not exist" >&2
     exit 2
 fi
 
-echo "test java home"
 #
 # Make sure that the JAVA_HOME environment variable is set to point to a
 # JDK 7 or higher JVM (and that it isn't OpenJDK).
@@ -126,7 +122,6 @@ SCRIPT_ARGS="$*"
 #
 # Find the args required to determine the WLST script to run
 #
-echo "check the parameters"
 while [[ $# > 1 ]]; do
     key="$1"
     case $key in
@@ -148,12 +143,12 @@ while [[ $# > 1 ]]; do
     esac
     shift # past arg or value
 done
-echo "finished check the parameters"
+
 #
 # Check for values of required arguments for this script to continue.
 # The underlying WLST script has other required arguments.
 #
-echo "check the two arguments"
+
 echo "WLS_VERSION=${WLS_VERSION}"
 if [ "${WLS_VERSION}" = "" ]; then
     echo "Required argument WLS_VERSION not provided"
@@ -170,7 +165,6 @@ elif [ ! -d ${TESTFILES_LOCATION} ]; then
     exit 98
 fi
 
-echo "SET the values for logging"
 LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
 JAVA_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
 JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.cachedir.skip=true"
@@ -196,7 +190,6 @@ echo "JAVA_PROPERTIES = ${JAVA_PROPERTIES}"
 
 PY_SCRIPTS_PATH=${TEST_HOME}/python
 
-edho "about to call python"
 echo \
 ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
     ${JAVA_PROPERTIES} \
