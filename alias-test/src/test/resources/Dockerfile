@@ -20,8 +20,8 @@ COPY --chown=oracle generatedfiles.zip ${TESTFILES_HOME}/
 
 USER oracle
 RUN cd ${TESTFILES_HOME} && \
-    unzip generatedfiles.zip && \
     chmod 777 ${TESTFILES_HOME} && \
+    unzip generatedfiles.zip && \
 	cd ${PYTHON_BASE} && \
 	unzip jython-installer-2.7.2.jar && \
 	cd ${TEST_HOME}/resources && \

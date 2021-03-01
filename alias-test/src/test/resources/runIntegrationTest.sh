@@ -35,6 +35,7 @@
 pwd
 rm -rf ${WLSDEPLOY_BASE}/weblogic-deploy
 unzip installer/target/weblogic-deploy.zip -d ${WLSDEPLOY_BASE}
+ls -l ${TESTFILES_HOME}
 echo WLS_VERSION=${WLS_VERSION}
 ${TEST_HOME}/resources/doVerifyOnline.sh $*
 ${TEST_HOME}/resources/doVerifyOffline.sh $*
