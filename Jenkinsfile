@@ -63,7 +63,7 @@ pipeline {
                     alwaysPull true
                     reuseNode true
                     image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
-                    args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
@@ -84,7 +84,7 @@ pipeline {
                 axes {
                     axis {
                         name 'WLS_VERSION'
-                        values '12.2.1.3', '12.2.1.4.0', '14.1.1.0.0', '14.1.2.0.0'
+                        values '12.2.1.3.0', '12.2.1.4.0', '14.1.1.0.0', '14.1.2.0.0'
                     }
                 }
                 stages {
