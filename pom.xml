@@ -206,11 +206,6 @@
         </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>io.rhpatrick.mojo</groupId>
-                <artifactId>github-maven-plugin</artifactId>
-                <version>0.6</version>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
