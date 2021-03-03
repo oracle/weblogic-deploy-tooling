@@ -20,7 +20,7 @@ This document describes the process that should be followed to create a WebLogic
 The best practice is to write the release notes that will be published to GitHub prior to starting the steps below.
 
 1. Set (and export) the environment variable `WLST_DIR` to `<WLS-install-dir>/oracle_common/common/bin`, replacing `<WLS-install-dir>` with the full path to the WLS 12.2.1.x installation directory.
-2. In the weblogic-deploy-tooling project directory, create a file called release.properties with content similar to the example shown below.  Note that the example is configured to cut the 1.9.11 release.
+2. In the weblogic-deploy-tooling project directory, create a file called `release.properties` with content similar to the example shown below.  Note that the example is configured to cut the 1.9.11 release.
 
 ```properties
 tag=release-1.9.11
