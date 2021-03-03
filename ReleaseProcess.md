@@ -30,7 +30,7 @@ developmentVersion=1.9.12-SNAPSHOT
 
 3. In the weblogic-deploy-tooling project directory, run the `mvn -B -P release release:prepare release:perform` command.  If your SSH private key has a passphrase, watch the build closely since it will prompt for your passphrase multiple times.  Failure to enter it in a timely manner may result in a failure.
 4. If the build fails, run the `mvn -B -P release release:rollback` command to undo it and start over from Step 2 after correcting the issue.
-4. Once the software has been released, move on to the GitHub Release Creation Process.
+5. Once the software has been released, move on to the GitHub Release Creation Process.
 
 ## GitHub Release Process
 Note that this process relies on the WDT installers being in your local Maven repository.  As such, it is critical for the same user to run these steps on the same machine as the steps from the previous section!
