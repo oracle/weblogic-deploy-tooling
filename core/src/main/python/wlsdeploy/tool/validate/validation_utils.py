@@ -116,7 +116,7 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
     """
     retval = False
     if expected_data_type == 'string':
-        retval = (actual_data_type in ["<type 'str'>", "<type 'long'>", "<type 'unicode'>"])
+        retval = (actual_data_type in ["<type 'str'>", "<type 'long'>", "<type 'float'>", "<type 'unicode'>"])
     elif expected_data_type == 'integer':
         retval = (actual_data_type in ["<type 'int'>", "<type 'long'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type == 'long':
