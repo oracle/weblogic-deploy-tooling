@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The WLS Deploy tooling entry point for the validateModel tool.
@@ -22,6 +22,7 @@ from oracle.weblogic.deploy.logging import SummaryHandler
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
@@ -109,6 +110,10 @@ def __perform_model_file_validation(model_file_name, model_context):
         model_validator = Validator(model_context, logger=__logger)
         variable_map = model_validator.load_variables(model_context.get_variable_file())
         model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
+
+        # apply filters to merged model
+        variables.substitute(model_dictionary, variable_map, model_context)
+        filter_helper.apply_filters(model_dictionary, "validate")
 
         if cla_helper.check_persist_model():
             persist_model_dict = copy.deepcopy(model_dictionary)

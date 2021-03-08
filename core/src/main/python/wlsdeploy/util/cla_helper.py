@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Utility CLS methods shared by multiple tools.
@@ -243,13 +243,11 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
         clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
+    filter_helper.apply_filters(model_dictionary, filter_type)
+
     persist_model(model_context, model_dictionary)
 
     validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode)
-
-    if filter_helper.apply_filters(model_dictionary, filter_type):
-        # if any filters were applied, re-validate the model
-        validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode)
 
     return model_dictionary
 
