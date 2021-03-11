@@ -2,14 +2,31 @@
 Copyright (c) 2019, 2020, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
+import os
 import unittest
 
+from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util import cla_helper
 
 
 class ClaHelperTest(unittest.TestCase):
 
+    _resources_dir = '../../test-classes'
+    _wlsdeply_store_model = os.path.abspath(os.getcwd()) + '/' + _resources_dir + '/validate-mii-model.json'
     properties_file = '../../test-classes/test.properties'
+
+    def setUp(self):
+        os.environ['WDT_CUSTOM_CONFIG'] = self._resources_dir
+        os.environ['__WLSDEPLOY_STORE_MODEL__'] = self._wlsdeply_store_model
+
+    def tearDown(self):
+        del os.environ['WDT_CUSTOM_CONFIG']
+        del os.environ['__WLSDEPLOY_STORE_MODEL__']
+        deleteFile(self._wlsdeply_store_model)
+
     # merging should combine elements with the same name (m1), add any elements only in the second model (m3),
     # and leave existing elements (m2) in place.
     def testMergeModels(self):
@@ -136,6 +153,27 @@ class ClaHelperTest(unittest.TestCase):
         server = self._check_single_server(dictionary, 'm1')
         self.assertEquals(2, len(server), "server should have two attributes")
 
+    def testPersistModelAfterFilter(self):
+        _model_file = self._resources_dir + '/simple-model.yaml'
+        _archive_file = self._resources_dir + "/SingleAppDomain.zip"
+        _method_name = 'testPersistModelAfterFilter'
+
+        mw_home = os.environ['MW_HOME']
+        print mw_home
+        args_map = {
+            '-oracle_home': mw_home,
+            '-model_file': _model_file,
+            '-archive_file': _archive_file
+        }
+
+        model_context = ModelContext('validate', args_map)
+
+        aliases = Aliases(model_context, wlst_mode=WlstModes.OFFLINE, exception_type=ExceptionType.DEPLOY)
+        model_dictionary = cla_helper.load_model('validateModel', model_context, aliases, "validate", WlstModes.OFFLINE)
+
+        self.assertEquals('gumby1234', model_dictionary['domainInfo']['AdminPassword'], "Expected validate filter to have changed AdminPassword to 'gumby1234'")
+
+
         # check that a single server exists in the result, and its attributes were merged correctly
     def _check_merged_server(self, dictionary, key):
         server = self._check_single_server(dictionary, key)
@@ -190,3 +228,9 @@ def _build_variable_map():
         "server1a": "m1",
         "server1b": "m1"
     }
+
+def deleteFile(path):
+    try:
+        os.remove(path)
+    except OSError:
+        pass
