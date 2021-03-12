@@ -8,6 +8,5 @@
 #
 
 def filter_model(model):
-  print "Entering filter_model of wdt_mii_filter"
   if 'domainInfo' in model:
     model['domainInfo']['AdminPassword'] = 'gumby1234'
