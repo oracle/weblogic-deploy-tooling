@@ -112,7 +112,9 @@ def __perform_model_file_validation(model_file_name, model_context):
         model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
 
         # apply filters to merged model
-        variables.substitute(model_dictionary, variable_map, model_context)
+        if variable_map:
+            # if there are any variables than substitute them in the model
+            variables.substitute(model_dictionary, variable_map, model_context)
         filter_helper.apply_filters(model_dictionary, "validate")
 
         if cla_helper.check_persist_model():
