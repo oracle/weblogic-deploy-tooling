@@ -99,7 +99,7 @@ pipeline {
                         }
                         steps {
                            sh  '/u01/verify/alias-test/src/test/resources/runIntegrationTest.sh -wls_version ${WLS_VERSION} -testfiles_path /u01/verify/testfiles'
-                           '''docker cp alias-test:/u01/verify/testfiles/report* build'''
+                           docker 'cp alias-test:/u01/verify/testfiles/report* build'
                         }
                         post {
                            always {
