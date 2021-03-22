@@ -94,7 +94,7 @@ pipeline {
                                 alwaysPull true
                                 reuseNode true
                                 image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:aliastest'
-                                args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock -v build/testfiles:/u01/verify/testfiles'
+                                args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/testfiles:/u01/verify/testfiles'
                             }
                         }
                         steps {
