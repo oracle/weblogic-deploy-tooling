@@ -99,10 +99,11 @@ pipeline {
                         }
                         steps {
                            sh  '/u01/verify/alias-test/src/test/resources/runIntegrationTest.sh -wls_version ${WLS_VERSION} -testfiles_path /u01/verify/testfiles'
+                           sh 'cp /u01/verify/testfiles/report*' ${WORKSPACE}
                         }
                         post {
                            always {
-                             archiveArtifacts artifacts: '/u01/verify/testfiles/report*', fingerprint: true
+                             archiveArtifacts artifacts: 'report*', fingerprint: true
                            }
                         }
                     }
