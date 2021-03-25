@@ -94,16 +94,15 @@ pipeline {
                                 alwaysPull true
                                 reuseNode true
                                 image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:aliastest'
-                                args '--name=alias-test -u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
+                                args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
                             }
                         }
                         steps {
                            sh  '/u01/verify/alias-test/src/test/resources/runIntegrationTest.sh -wls_version ${WLS_VERSION} -testfiles_path /u01/verify/testfiles'
-                           docker 'cp alias-test:/u01/verify/testfiles/report* build'
                         }
                         post {
                            always {
-                             archiveArtifacts artifacts: 'build/report*', fingerprint: true
+                             archiveArtifacts artifacts: '/u01/verify/testfiles/report*', fingerprint: true
                            }
                         }
                     }
