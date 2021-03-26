@@ -103,6 +103,7 @@ pipeline {
                         post {
                            always {
                              archiveArtifacts artifacts: 'report*', fingerprint: true
+                             archiveArtifacts artifacts: 'generated*' fingerprint: false
                            }
                         }
                     }
