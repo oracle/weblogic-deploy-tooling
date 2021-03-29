@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+    Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.oracle.weblogic.lifecycle</groupId>
+    <artifactId>weblogic-deploy-github-release</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+
+    <properties>
+        <releaseVersion>${env.VERSION_NUMBER}</releaseVersion>
+
+        <weblogic-deploy-installer-name>weblogic-deploy</weblogic-deploy-installer-name>
+        <release-github-repository>oracle/weblogic-deploy-tooling</release-github-repository>
+
+        <release-settings-xml-server-id>github</release-settings-xml-server-id>
+        <release-notes-file-name>${project.build.directory}/ReleaseNotes.md</release-notes-file-name>
+        <release-installer-stage-dir>${project.build.directory}/installers</release-installer-stage-dir>
+        <release-zip-installer-name>${weblogic-deploy-installer-name}.zip</release-zip-installer-name>
+        <release-tgz-installer-name>${weblogic-deploy-installer-name}.tar.gz</release-tgz-installer-name>
+    </properties>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.8</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.0.0-M2</version>
+                </plugin>
+                <plugin>
+                    <groupId>io.rhpatrick.mojo</groupId>
+                    <artifactId>github-maven-plugin</artifactId>
+                    <version>0.6</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-build-environment</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireProperty>
+                                    <property>releaseVersion</property>
+                                    <message>You must specify a release version number using -DreleaseVersion=x.y.z</message>
+                                    <regex>\d+\.\d+\.\d+</regex>
+                                    <regexMessage>You must provide a three place release number</regexMessage>
+                                </requireProperty>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>stage-installer-artifacts</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${release-installer-stage-dir}</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>weblogic-deploy-installer</artifactId>
+                                    <version>${releaseVersion}</version>
+                                    <type>zip</type>
+                                    <overWrite>true</overWrite>
+                                    <destFileName>${release-zip-installer-name}</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>weblogic-deploy-installer</artifactId>
+                                    <version>${releaseVersion}</version>
+                                    <type>tar.gz</type>
+                                    <overWrite>true</overWrite>
+                                    <destFileName>${release-tgz-installer-name}</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.rhpatrick.mojo</groupId>
+                <artifactId>github-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-draft-github-release</id>
+                        <goals>
+                            <goal>create-release</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <repositoryId>${release-github-repository}</repositoryId>
+                            <serverId>${release-settings-xml-server-id}</serverId>
+                            <tag>release-${releaseVersion}</tag>
+                            <name>WebLogic Deploy Tooling ${releaseVersion}</name>
+                            <descriptionFile>${release-notes-file-name}</descriptionFile>
+                            <draft>true</draft>
+                            <assets>
+                                <fileSet>
+                                    <directory>${release-installer-stage-dir}</directory>
+                                    <includes>
+                                        <include>${release-zip-installer-name}</include>
+                                        <include>${release-tgz-installer-name}</include>
+                                    </includes>
+                                </fileSet>
+                            </assets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

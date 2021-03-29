@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
@@ -18,7 +18,10 @@ from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.aliases import alias_constants
 
+from validate import __perform_model_file_validation
+
 import oracle.weblogic.deploy.util.TranslateException as TranslateException
+import oracle.weblogic.deploy.validate.ValidateException as ValidateException
 
 from wlsdeploy.tool.create import wlsroles_helper
 
@@ -27,6 +30,8 @@ class ValidationTestCase(unittest.TestCase):
     _program_name = 'validation_test'
     _class_name = 'ValidationTestCase'
     _resources_dir = '../../test-classes'
+    # Model persistence file
+    _wlsdeply_store_model = os.path.abspath(os.getcwd()) + '/' + _resources_dir + '/validate-mii-model.json'
     # _variable_file = _resources_dir + "/test_sub_variable_file.properties"
     # _model_file = _resources_dir + '/test_empty.json'
     # _variable_file = _resources_dir + "/test_invalid_variable_file.properties"
@@ -41,9 +46,20 @@ class ValidationTestCase(unittest.TestCase):
         self._summary_handler = SummaryHandler()
         self._logger.logger.addHandler(self._summary_handler)
 
+        # Define custom configuration path for WDT
+        os.environ['WDT_CUSTOM_CONFIG'] = self._resources_dir
+        # Indicate that WDT should persist model file
+        os.environ['__WLSDEPLOY_STORE_MODEL__'] = self._wlsdeply_store_model
+
     def tearDown(self):
         # remove summary handler for next test suite
         self._logger.logger.removeHandler(self._summary_handler)
+
+        # Clean up temporary WDT custom configuration environment variables
+        # and model persistence files
+        del os.environ['WDT_CUSTOM_CONFIG']
+        del os.environ['__WLSDEPLOY_STORE_MODEL__']
+        self.deleteFile(self._wlsdeply_store_model)
 
     def testModelValidation(self):
         _method_name = 'testModelValidation'
@@ -161,6 +177,44 @@ class ValidationTestCase(unittest.TestCase):
         self.assertEqual(handler.getMessageCount(Level.SEVERE), 0)
         self.assertEqual(handler.getMessageCount(Level.WARNING), 3)
 
+    def testFilterInvokedOnModelValidation(self):
+        """
+        Verify filter was run and changes are persisted to model file
+        """
+
+        # Setup model context arguments
+        _model_file = self._resources_dir + '/simple-model.yaml'
+        _archive_file = self._resources_dir + "/SingleAppDomain.zip"
+        _method_name = 'testFilterInvokedOnModelValidation'
+
+        mw_home = os.environ['MW_HOME']
+
+        args_map = {
+          '-oracle_home': mw_home,
+          '-model_file': _model_file,
+          '-archive_file': _archive_file
+        }
+
+        model_context = ModelContext('validate', args_map)
+
+        try:
+          # Invoke model validation
+          __perform_model_file_validation(_model_file, model_context)
+
+          # read persisted model file and convert to python dictionary
+          model_dictionary = FileToPython(self._wlsdeply_store_model, True)._parse_json()
+        except ValidateException, ve:
+          self._logger.severe('WLSDPLY-20000', self._program_name, ve.getLocalizedMessage(), error=ve,
+                        class_name=self._class_name, method_name=_method_name)
+
+        # assert the validate filter made modications and was persisted
+        self.assertEquals('gumby1234', model_dictionary['domainInfo']['AdminPassword'], "Expected validate filter to have changed AdminPassword to 'gumby1234'")
+
+    def deleteFile(self, path):
+      try:
+        os.remove(path)
+      except OSError:
+        pass
 
 if __name__ == '__main__':
     unittest.main()

@@ -103,7 +103,8 @@ def _create_file_from_stream(template_stream, template_hash, output_file):
 def _process_block(block_key, template_lines, template_hash, file_writer):
     value = dictionary_utils.get_element(template_hash, block_key)
 
-    if value is None:
+    # skip block for value of False, None, or empty collection
+    if not value:
         return
 
     if not isinstance(value, list):

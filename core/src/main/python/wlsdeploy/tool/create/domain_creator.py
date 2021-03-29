@@ -286,6 +286,8 @@ class DomainCreator(Creator):
         if rcu_db_info.is_use_atp():
             # ATP database, build runner map from RCUDbInfo in the model.
 
+            # check it first
+            self.__retrieve_atp_rcudbinfo(rcu_db_info, True)
             # make a copy of model's map to pass to RCURunner, since we will modify some values
             rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
             rcu_runner_map = dict(rcu_properties_map)
@@ -893,6 +895,61 @@ class DomainCreator(Creator):
 
         root_location.remove_name_token(property_name)
 
+    def __retrieve_atp_rcudbinfo(self, rcu_db_info, checkAdminPwd=False):
+        """
+        Check and return atp connection info and make sure atp rcudb info is complete
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '__retrieve_atp_rcudbinfo'
+
+        tns_admin = rcu_db_info.get_atp_tns_admin()
+
+        if tns_admin is None or not os.path.exists(tns_admin + os.sep + "tnsnames.ora"):
+            ex = exception_helper.create_create_exception('WLSDPLY-12562')
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        if rcu_db_info.get_atp_entry() is None:
+            ex = exception_helper.create_create_exception('WLSDPLY-12413','tns.alias',
+                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
+                                                          "'javax.net.ssl.trustStorePassword']")
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        rcu_database = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
+                                                         rcu_db_info.get_atp_entry())
+
+        if rcu_database is None:
+            ex = exception_helper.create_create_exception('WLSDPLY-12563', rcu_db_info.get_atp_entry())
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        keystore_pwd = rcu_db_info.get_keystore_password()
+        truststore_pwd = rcu_db_info.get_truststore_password()
+
+        if keystore_pwd is None:
+            ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.keyStorePassword',
+                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
+                                                          "'javax.net.ssl.trustStorePassword']")
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        if truststore_pwd is None:
+            ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.trustStorePassword',
+                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
+                                                          "'javax.net.ssl.trustStorePassword']")
+            raise ex
+
+        if checkAdminPwd:
+            admin_pwd = rcu_db_info.get_admin_password()
+            if admin_pwd is None:
+                ex = exception_helper.create_create_exception('WLSDPLY-12413','rcu_admin_password',
+                                                              "['rcu_prefix','rcu_schema_password',"
+                                                              "'rcu_admin_password']")
+                raise ex
+
+        return tns_admin, rcu_database, keystore_pwd, truststore_pwd
+
     def __configure_fmw_infra_database(self):
         """
         Configure the FMW Infrastructure DataSources.
@@ -911,6 +968,18 @@ class DomainCreator(Creator):
         rcu_prefix = rcu_db_info.get_preferred_prefix()
         rcu_schema_pwd = rcu_db_info.get_preferred_schema_pass()
 
+        if rcu_prefix is None:
+            ex = exception_helper.create_create_exception('WLSDPLY-12413','rcu_prefix',
+                                                          "['rcu_prefix','rcu_schema_password']")
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        if rcu_schema_pwd is None:
+            ex = exception_helper.create_create_exception('WLSDPLY-12413','rcu_schema_password',
+                                                          "['rcu_prefix','rcu_schema_password']")
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
         # For ATP databases :  we need to set all the property for each datasource
         # load atp connection properties from properties file
         # HANDLE ATP case
@@ -918,12 +987,10 @@ class DomainCreator(Creator):
         if rcu_db_info.has_atpdbinfo():
             has_atp = 1
             # parse the tnsnames.ora file and retrieve the connection string
-            tns_admin = rcu_db_info.get_atp_tns_admin()
-            rcu_database = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
-                                                             rcu_db_info.get_atp_entry())
+            # tns_admin is the wallet path either the path to $DOMAIN_HOME/atpwallet or
+            # specified in RCUDbinfo.oracle.net.tns_admin
 
-            keystore_pwd = rcu_db_info.get_keystore_password()
-            truststore_pwd = rcu_db_info.get_truststore_password()
+            tns_admin, rcu_database, keystore_pwd, truststore_pwd = self.__retrieve_atp_rcudbinfo(rcu_db_info)
 
             # Need to set for the connection property for each datasource
 
@@ -988,9 +1055,11 @@ class DomainCreator(Creator):
         if not has_atp:
             rcu_database = rcu_db_info.get_preferred_db()
             if rcu_database is None:
-                return
+                ex = exception_helper.create_create_exception('WLSDPLY-12564')
+                raise ex
 
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
+
             self.logger.fine('WLSDPLY-12221', fmw_database, class_name=self.__class_name, method_name=_method_name)
 
             svc_table_ds_name = self.wls_helper.get_jrf_service_table_datasource_name()

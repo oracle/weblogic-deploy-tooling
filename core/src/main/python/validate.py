@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The WLS Deploy tooling entry point for the validateModel tool.
@@ -22,6 +22,7 @@ from oracle.weblogic.deploy.logging import SummaryHandler
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
@@ -117,6 +118,18 @@ def __perform_model_file_validation(model_file_name, model_context):
 
         model_validator.validate_in_standalone_mode(model_dictionary, variable_map,
                                                     model_context.get_archive_file_name())
+
+        # substitute variables before filtering
+        variables.substitute(model_dictionary, variable_map, model_context)
+        # apply filters to merged model
+        if filter_helper.apply_filters(model_dictionary, "validate"):
+            # persist model after filtering
+            cla_helper.persist_model(model_context, model_dictionary)
+
+            # validate model changes after filtering
+            model_validator.validate_in_standalone_mode(model_dictionary, variable_map,
+                                                        model_context.get_archive_file_name())
+
     except (TranslateException, VariableException), te:
         __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
                         error=te, class_name=_class_name, method_name=_method_name)

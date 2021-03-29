@@ -64,7 +64,6 @@ def fix_jps_config(rcu_db_info, model_context):
 
 def get_atp_connect_string(tnsnames_ora_path, tns_sid_name):
 
-
     try:
         f = open(tnsnames_ora_path, "r+")
         try:

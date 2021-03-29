@@ -18,7 +18,7 @@ Unlike the Create Domain Tool, the full domain home directory is specified, rath
 
 The Update Domain Tool will not attempt to recreate or add schemas for the RCU database, for domain types that use RCU.
 
-When running the tool in WLST online mode, the update operation may require server restarts or a domain restart to pick up the changes.  The update operation can also encounter situations where it cannot complete its operation until the domain is restarted.  To communicate these conditions to scripts that may be calling the Update Domain Tool, the shell scripts have three special, non-zero exit codes to communicate these states:
+When running the tool in WLST online mode, the update operation may require server restarts or a domain restart to pick up the changes.  The update operation can also encounter situations where it cannot complete its operation until the domain is restarted.  To communicate these conditions to scripts that may be calling the Update Domain Tool, the shell scripts have two special, non-zero exit codes to communicate these states:
 
 - `103` - The entire domain needs to be restarted.
 - `104` - The domain changes have been canceled because the changes in the model requires a domain restart and -cancel_changes_if_restart_required is specified.

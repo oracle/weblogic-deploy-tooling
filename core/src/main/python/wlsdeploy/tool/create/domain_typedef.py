@@ -115,6 +115,8 @@ class DomainTypedef(object):
         This returns False for the Restricted JRF domain type.
         :return: True if the JRF template is present
         """
+        if self.is_restricted_jrf_domain_type():
+            return False
         for template in self.get_extension_templates():
             if re.match(self.JRF_TEMPLATE_REGEX, template):
                 return True

@@ -9,18 +9,20 @@ domainInfo:
     RCUDbInfo:
         useATP : true
         rcu_prefix : DEV
-        rcu_admin_password: <database admin password is required only when you specify -run_rcu flag, will be prompted
-         if not specified>
-        rcu_schema_password : <RCU schema password, user will be prompted if not specified>
+        rcu_admin_password: <database admin password is required only when you specify -run_rcu flag>
+        rcu_schema_password : <RCU schema password>
         atp.admin.user : admin
         tns.alias : dbatp_tp
         javax.net.ssl.keyStorePassword : <atp wallet password>
         javax.net.ssl.trustStorePassword : <atp wallet password>
+        oracle.net.tns_admin: <optional: absolute path of the unzipped wallet root directory (outside of the archive), if the wallet.zip is not included in the archive>
 ```           
 The database wallet can be included in the archive file under `atpwallet` zipentry structure
 
 `atpwallet/Walletxyz.zip`
-        
+
+or by specifying the unzipped root directory of the ATP wallet zip file in `oracle.net.tns_admin`.
+     
 Using the Create Domain Tool with the `-run_rcu` flag will create the RCU schemas against the Oracle Autonomous Transaction Processing Cloud Database and configure the datasources in the JRF domain to use the database.  For example:
 
     weblogic-deploy/bin/createDomain.sh -oracle_home /u01/wls12213 -domain_type JRF -domain_home /u01/data/domains/demodomain -archive_file DemoDomain.zip -run_rcu 

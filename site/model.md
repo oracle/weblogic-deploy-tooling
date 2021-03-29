@@ -36,7 +36,7 @@ All assignment statements must have one or more spaces between the colon and the
 - [Using Multiple Models](#using-multiple-models)
 
 ### Top-Level Model Sections
-The tooling has four top-level model sections:
+The tooling has five top-level model sections:
 
 - `domainInfo`     - The location where special information not represented in WLST is specified (for example, the libraries that go in `$DOMAIN_HOME/lib`).
 - `topology`       - The location where servers, clusters, machines, server templates, and other domain-level configuration is specified.
