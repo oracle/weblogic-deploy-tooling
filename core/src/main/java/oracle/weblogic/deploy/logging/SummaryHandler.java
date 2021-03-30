@@ -266,7 +266,7 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
     private int getSize(String propSize) {
         Integer handlerSize;
         try {
-            handlerSize = new Integer(propSize);
+            handlerSize = Integer.valueOf(propSize);
         } catch (NumberFormatException nfe) {
             handlerSize = DEFAULT_SIZE;
         }

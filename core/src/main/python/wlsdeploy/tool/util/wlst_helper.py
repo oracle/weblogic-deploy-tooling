@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -112,6 +112,9 @@ class WlstHelper(object):
         try:
             mbean_path = self.get_pwd()
             mbean = self.get_mbean_for_wlst_path(mbean_path)
+            if 'isSet' not in dir(mbean):
+                return True
+
             result = mbean.isSet(attribute)
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00125', attribute,
