@@ -63,7 +63,7 @@ pipeline {
                     alwaysPull true
                     reuseNode true
                     image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                    args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
