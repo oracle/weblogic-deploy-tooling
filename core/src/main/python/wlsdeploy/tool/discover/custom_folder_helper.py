@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
 
@@ -20,6 +20,7 @@ import oracle.weblogic.deploy.util.PyOrderedDict as PyOrderedDict
 
 import wlsdeploy.aliases.alias_constants as alias_constants
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
@@ -75,7 +76,7 @@ class CustomFolderHelper(object):
                           class_name=_class_name, method_name=_method_name)
             short_name = attribute_helper.get_mbean_name()
             # This is not like other custom interface names and should be changed to be more flexible
-            interface_name = security_provider_interface_name(attribute_helper.get_mbean_instance(),
+            interface_name = self.security_provider_interface_name(attribute_helper.get_mbean_instance(),
                                                               attribute_helper.get_mbean_interface_name())
             subfolder_result[mbean_name][interface_name] = PyOrderedDict()
             _logger.info('WLSDPLY-06751', model_type, short_name, class_name=_class_name, method_name=_method_name)
@@ -304,6 +305,33 @@ class CustomFolderHelper(object):
                 self._credential_injector.custom_injection(model_section, attribute_name, location,
                                                            STANDARD_PASSWORD_INJECTOR)
 
+    def security_provider_interface_name(self, mbean_instance, mbean_interface_name):
+        """
+        Return the name that is used to look up the custom Security Provider MBeanInfo.
+
+        This is too tightly coupled to be in this class.
+        This needs something more to differentiate Security Provider Interface which is formatted differently from other
+        custom MBean Interface names.
+        :param mbean_instance: instance for the current custom MBean
+        :param mbean_interface_name: interface for the MBean
+        :return: provider class name returned from the massaged MBean name
+        """
+        _method_name = 'security_provider_interface_name'
+        try:
+            getter = getattr(mbean_instance, 'getProviderClassName')
+            result = getter()
+        except (Exception, JException):
+            _logger.warning('WLSDPLY-06778', mbean_interface_name, class_name=_class_name, method_name=_method_name)
+            result = mbean_interface_name
+        if result.endswith('ProviderMBean'):
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-06779', str(mbean_instance),)
+            _logger.throwing(class_name=_class_name, method_name=_method_name, error=ex)
+            raise ex
+        idx = result.rfind('MBean')
+        if idx > 0:
+            result = result[:idx]
+        return result
+
 
 def equal_dictionary(dict1, dict2):
     if dict1 is not None and dict2 is not None:
@@ -347,33 +375,6 @@ def equal_jarrays(array1, array2):
                 return False
         return True
     return False
-
-
-def security_provider_interface_name(mbean_instance, mbean_interface_name):
-    """
-    Return the name that is used to look up the custom Security Provider MBeanInfo.
-
-    This is too tightly coupled to be in this class.
-    This needs something more to differentiate Security Provider Interface which is formatted differently from other
-    custom MBean Interface names.
-    :param mbean_instance: instance for the current custom MBean
-    :param mbean_interface_name: interface for the MBean
-    :return: provider class name returned from the massaged MBean name
-    """
-    _method_name = 'security_provider_interface_name'
-    try:
-        getter = getattr(mbean_instance, 'getProviderClassName')
-        result = getter()
-        if result.endswith('ProviderMBean'):
-            result = mbean_interface_name
-            _logger.warning('WLSDPLY-06779', str(mbean_instance), class_name=_class_name, method_name=_method_name)
-    except (Exception, JException):
-        _logger.warning('WLSDPLY-06778', mbean_interface_name, class_name=_class_name, method_name=_method_name)
-        result = mbean_interface_name
-    idx = result.rfind('MBean')
-    if idx > 0:
-        result = result[:idx]
-    return result
 
 
 def attribute_type(attribute_helper, attribute_name):

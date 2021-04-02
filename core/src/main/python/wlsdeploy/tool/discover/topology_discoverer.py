@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -342,10 +342,10 @@ class TopologyDiscoverer(Discoverer):
                     location.remove_name_token(name_token)
                 except DiscoverException, de:
                     wlst_path = self._aliases.get_wlst_attributes_path(location)
-                    _logger.warning('WLSDPLY-06200', wlst_path,
-                                    self._wls_version, de.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
-                    result = OrderedDict()
+                    ex = exception_helper.create_discover_exception('WLSDPLY-06200', wlst_path, self._wls_version,
+                                                                    de.getLocalizedMessage())
+                    _logger.throwing(class_name=_class_name, method_name=_method_name, error=ex)
+                    raise ex
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, self._slim_security_config(result)
