@@ -643,6 +643,11 @@ class ApplicationsDeployer(Deployer):
                                                                                     from_archive=True)
 
                 existing_app_ref = dictionary_utils.get_dictionary_element(existing_app_refs, versioned_name)
+                if len(dictionary_utils.get_element(app_dict, TARGET)) == 0:
+                    existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
+                    if existing_app_targets is not None:
+                        stop_and_undeploy_app_list.append(app)
+                    continue
 
                 # remove deleted targets from the model and the existing app targets
                 self.__remove_delete_targets(app_dict, existing_app_ref)
@@ -684,7 +689,6 @@ class ApplicationsDeployer(Deployer):
                                 adjusted_set = model_targets_set.difference(existing_app_targets_set)
                                 adjusted_targets = ','.join(adjusted_set)
                                 app_dict['Target'] = adjusted_targets
-
                                 # For update case, the sparse model may be just changing targets, therefore without sourcepath
 
                                 if app_dict['SourcePath'] is None and src_path is not None:
