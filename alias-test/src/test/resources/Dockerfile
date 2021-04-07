@@ -1,3 +1,5 @@
+# Copyright (c) 2021, Oracle Corporation and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 FROM phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213
 
 ENV PYTHON_BASE=/u01/jython \
@@ -16,11 +18,10 @@ COPY --chown=oracle alias-test ${VERIFY_HOME}/alias-test
 COPY --chown=oracle alias-test/src/test/python ${VERIFY_HOME}/alias-test/src/test/python
 COPY --chown=oracle alias-test/src/test/resources ${VERIFY_HOME}/alias-test/src/test/resources
 COPY --chown=oracle alias-test/src/test/resources ${VERIFY_HOME}/alias-test/src/test/resources/
-COPY --chown=oracle generatedfiles.zip ${TESTFILES_HOME}/
+COPY --chown=oracle alias-test/src/test/resources/generated/* ${TESTFILES_HOME}/
 
 USER oracle
 RUN cd ${TESTFILES_HOME} && \
-    unzip generatedfiles.zip && \
     chmod 777 ${TESTFILES_HOME} && \
 	cd ${PYTHON_BASE} && \
 	unzip jython-installer-2.7.2.jar && \

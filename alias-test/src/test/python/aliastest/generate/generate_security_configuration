@@ -1,0 +1,18 @@
+ADJUDICATOR_STRING = 'Adjudicator'
+adjudicator_types = None
+AUDITOR_STRING = 'Auditor'
+auditor_types = None
+AUTHENTICATION_PROVIDER_STRING = 'AuthenticationProvider'
+authentication_provider_types = None
+AUTHORIZER_STRING = 'Authorizer'
+authorizer_types = None
+CERTPATH_PROVIDER_STRING = 'CertPathProvider'
+certpath_provider_types = None
+PASSWORD_VALIDATOR_STRING = 'PasswordValidator'
+password_validator_types = None
+ROLE_MAPPER_STRING = 'RoleMapper'
+role_mapper_types = None
+
+def populate_security_types(user, password, url):
+    connect
+    
