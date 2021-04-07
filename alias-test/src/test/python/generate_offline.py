@@ -26,9 +26,8 @@ import aliastest.generate.generator_helper as generator_helper
 import aliastest.util.all_utils as all_utils
 from aliastest.generate.generator_offline import OfflineGenerator
 
-# __logger = Logger.getLogger('test.aliases.generate.offline', 'systemtest_rb')
 # __handlers = __logger.getHandlers()
-__logger = PlatformLogger('test.aliases', resource_bundle_name='systemtest_rb')
+__logger = PlatformLogger('test.aliases', resource_bundle_name='aliastest_rb')
 __logger.set_level(Level.FINEST)
 CLASS_NAME = 'generate_offline'
 domain_home = os.environ['DOMAIN_HOME']

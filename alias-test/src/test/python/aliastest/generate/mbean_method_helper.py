@@ -16,7 +16,7 @@ import aliastest.generate.generator_wlst as generator_wlst
 
 class MBeanMethodHelper(object):
     
-    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='systemtest_rb')
+    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='aliastest_rb')
     __logger.set_level(Level.FINER)
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
@@ -176,7 +176,7 @@ class MBeanMethodHelper(object):
 class MBeanMethodAttributeHelper(object):
 
     __tossed_attributes = ['DefaultedMBean', 'Attribute', 'Comments', 'Attributes', 'PersistenceEnabled']
-    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='systemtest_rb')
+    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='aliastest_rb')
     __logger.set_level(Level.FINER)
 
     def __init__(self, mbean_info, attribute_name, mbean_instance):

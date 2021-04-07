@@ -87,7 +87,7 @@ TEST_FILE_LOCATION_SWITCH = '-testfiles_path'
 
 __test_files_location = None
 
-__logger = PlatformLogger('test.aliases', resource_bundle_name='systemtest_rb')
+__logger = PlatformLogger('test.aliases', resource_bundle_name='aliastest_rb')
 __logger.set_level(Level.FINER)
 CLASS_NAME = 'all_utils'
 

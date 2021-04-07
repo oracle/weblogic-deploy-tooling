@@ -14,7 +14,7 @@ import java.lang.NoSuchMethodException as NoSuchMethodException
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-__logger = PlatformLogger('test.aliases', resource_bundle_name='systemtest_rb')
+__logger = PlatformLogger('test.aliases', resource_bundle_name='aliastest_rb')
 __logger.set_level(Level.FINER)
 __class_name = 'generate_wlst'
 

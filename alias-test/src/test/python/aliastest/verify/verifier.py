@@ -8,7 +8,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 import aliastest.util.all_utils as all_utils
 from aliastest.verify.verifier_helper import VerifierHelper
 
-_logger = PlatformLogger('test.aliases.verify', resource_bundle_name='systemtest_rb')
+_logger = PlatformLogger('test.aliases.verify', resource_bundle_name='aliastest_rb')
 _logger.set_level(Level.FINEST)
 CLASS_NAME = 'Verifier'
 

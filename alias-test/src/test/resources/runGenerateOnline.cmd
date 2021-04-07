@@ -23,12 +23,12 @@ SET JAVA_HOME=\jdk1.8.0_201
 SET BASE_HOME=C:\oracle\wls
 SET ORACLE_HOME=%BASE_HOME%%VERSION%
 
-SET CREATE_YAML=%RUN_HOME%\system-test-domain.yaml
-SET CREATE_ARCHIVE=%RUN_HOME%\system-test.zip
+SET CREATE_YAML=%RUN_HOME%\alias-test-model.yaml
+SET CREATE_ARCHIVE=%RUN_HOME%\alias-test-archive.zip
 SET DOMAIN_TYPE=WLS
 SET INTEGRATION_PROJECT=wls-deploy-integration-test
-SET SOURCE_HOME=%TEST_HOME%\%INTEGRATION_PROJECT%\system-test\src\test
-SET DOMAIN_HOME=%ORACLE_HOME%\user_projects\domains\system_test_domain
+SET SOURCE_HOME=%TEST_HOME%\%INTEGRATION_PROJECT%\alias-test\src\test
+SET DOMAIN_HOME=%ORACLE_HOME%\user_projects\domains\alias_test_domain
 SET ADMIN_NAME=AdminServer
 SET ADMIN_USER=weblogic
 SET ADMIN_PASSWORD=welcome1

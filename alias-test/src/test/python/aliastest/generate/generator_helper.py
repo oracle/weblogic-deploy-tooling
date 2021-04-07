@@ -28,7 +28,7 @@ class GeneratorHelper:
     generators.
     """
 
-    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='systemtest_rb')
+    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='aliastest_rb')
     __logger.set_level(Level.FINER)
     __class_name = 'GeneratorHelper'
 

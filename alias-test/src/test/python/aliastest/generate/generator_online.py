@@ -26,7 +26,7 @@ class OnlineGenerator(GeneratorHelper):
         GeneratorHelper.__init__(self,  model_context, dictionary)
         self.__class_name__ = self.__class__.__name__
         self._domain_home = None
-        self.__logger = PlatformLogger('test.aliases.generate', resource_bundle_name='systemtest_rb')
+        self.__logger = PlatformLogger('test.aliases.generate', resource_bundle_name='aliastest_rb')
         self.__logger.set_level(Level.FINER)
 
     def generate(self):

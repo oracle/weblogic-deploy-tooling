@@ -122,7 +122,7 @@ LOCATION = 'location'
 MESSAGE = 'message'
 ATTRIBUTE = 'attribute'
 
-_logger = PlatformLogger('test.aliases.verify', resource_bundle_name='systemtest_rb')
+_logger = PlatformLogger('test.aliases.verify', resource_bundle_name='aliastest_rb')
 _logger.set_level(Level.FINER)
 CLASS_NAME = 'VerifierHelper'
 

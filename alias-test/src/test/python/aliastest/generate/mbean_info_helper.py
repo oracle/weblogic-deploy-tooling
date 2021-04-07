@@ -20,7 +20,7 @@ class MBeanInfoHelper(object):
     encapsulated in an instance.
     """
     
-    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='systemtest_rb')
+    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='aliastest_rb')
     __logger.set_level(Level.FINER)
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
@@ -210,7 +210,7 @@ class MBeanInfoHelper(object):
 
 class MBeanInfoAttributeHelper(object):
 
-    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='systemtest_rb')
+    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='aliastest_rb')
     __logger.set_level(Level.FINER)
 
     def __init__(self, mbean_info, attribute_name, mbean_instance, mbean_type=None):

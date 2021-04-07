@@ -18,7 +18,7 @@ import aliastest.util.all_utils as all_utils
 from aliastest.verify.verifier import Verifier
 
 
-__logger = PlatformLogger('test.aliases', resource_bundle_name='systemtest_rb')
+__logger = PlatformLogger('test.aliases', resource_bundle_name='aliastest_rb')
 __logger.set_level(Level.FINEST)
 CLASS_NAME = 'verify_offline'
 

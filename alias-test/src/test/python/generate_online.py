@@ -25,7 +25,7 @@ import aliastest.util.all_utils as all_utils
 from aliastest.generate.generator_online import OnlineGenerator
 
 
-__logger = PlatformLogger('test.aliases.generate', resource_bundle_name='systemtest_rb')
+__logger = PlatformLogger('test.aliases.generate', resource_bundle_name='aliastest_rb')
 __logger.set_level(Level.FINEST)
 CLASS_NAME = 'generate_online'
 

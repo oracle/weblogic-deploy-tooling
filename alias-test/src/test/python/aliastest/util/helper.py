@@ -18,7 +18,7 @@ class TestHelper:
     Common alias types of helper methods used for both generate and verify.
     """
     
-    __logger = PlatformLogger('test.aliases', resource_bundle_name='systemtest_rb')
+    __logger = PlatformLogger('test.aliases', resource_bundle_name='aliastest_rb')
     __logger.set_level(Level.FINEST)
 
     def __init__(self, model_context):

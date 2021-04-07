@@ -33,7 +33,7 @@ class OfflineGenerator(GeneratorHelper):
     Generate the offline folder and attribute information into a dictionary. The offline generate is seeded
     by the mbean information in dictionary generated from online.
     """
-    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='systemtest_rb')
+    __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='aliastest_rb')
     __logger.set_level(Level.FINER)
     
     def __init__(self, model_context, dictionary):
