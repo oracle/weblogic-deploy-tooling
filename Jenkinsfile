@@ -78,7 +78,7 @@ pipeline {
        stage ('Alias Test') {
             // only run this stage when triggered by a cron timer and the commit does not have []skip-ci in the message
             // for example, only run integration tests during the timer triggered nightly build
-            when { branch 'WDT-alias-test-branch' }
+            when { changeRequest() }
             matrix {
                 // run verify tests for each version in parallel.
                 axes {
