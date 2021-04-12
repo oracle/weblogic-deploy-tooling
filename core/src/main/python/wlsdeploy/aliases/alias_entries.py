@@ -486,7 +486,10 @@ class AliasEntries(object):
         result = None
 
         folder_dict = self.__get_dictionary_for_location(location, False)
-        flattened_folder_data = dictionary_utils.get_element(folder_dict, FLATTENED_FOLDER_DATA)
+
+        flattened_folder_data = None
+        if folder_dict is not None:
+            flattened_folder_data = dictionary_utils.get_element(folder_dict, FLATTENED_FOLDER_DATA)
         if flattened_folder_data is not None:
             mbean_type = flattened_folder_data[WLST_TYPE]
             mbean_name = alias_utils.get_token_value(location, flattened_folder_data[NAME_VALUE])
