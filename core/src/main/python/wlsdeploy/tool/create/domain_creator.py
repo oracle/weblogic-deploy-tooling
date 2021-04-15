@@ -668,7 +668,7 @@ class DomainCreator(Creator):
     def __create_mbeans_used_by_topology_mbeans(self, topology_folder_list):
         """
         Create the entities that are referenced by domain, machine, server and server template attributes.
-        :param location: current location
+        :param topology_folder_list: the model topology folder list to process
         :raises: CreateException: if an error occurs
         """
         _method_name = '__create_mbeans_used_by_topology_mbeans'
