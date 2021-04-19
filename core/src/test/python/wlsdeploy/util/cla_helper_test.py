@@ -60,7 +60,9 @@ class ClaHelperTest(unittest.TestCase):
         }
 
         variables = {}
-        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables)
+        model_context = ModelContext('validate', [])
+
+        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables, model_context)
         # print("Merged model: " + str(dictionary))
 
         servers = dictionary['Servers']
@@ -80,8 +82,9 @@ class ClaHelperTest(unittest.TestCase):
         new_dictionary = _build_model_two('@@PROP:server1@@')
         variables = {}
 
+        model_context = ModelContext('validate', [])
         # no variables are needed to resolve this
-        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables)
+        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables, model_context)
         # print("Merged model: " + str(dictionary))
 
         servers = dictionary['Servers']
@@ -95,7 +98,8 @@ class ClaHelperTest(unittest.TestCase):
         new_dictionary = _build_model_two('@@PROP:server1b@@')
         variables = _build_variable_map()
 
-        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables)
+        model_context = ModelContext('validate', [])
+        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables, model_context)
         # print("Merged model: " + str(dictionary))
 
         self._check_merged_server(dictionary, '@@PROP:server1a@@')
@@ -106,7 +110,8 @@ class ClaHelperTest(unittest.TestCase):
         new_dictionary = _build_model_two('@@PROP:server1b@@')
         variables = _build_variable_map()
 
-        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables)
+        model_context = ModelContext('validate', [])
+        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables, model_context)
         # print("Merged model: " + str(dictionary))
 
         self._check_merged_server(dictionary, 'm1')
@@ -117,7 +122,8 @@ class ClaHelperTest(unittest.TestCase):
         new_dictionary = _build_model_two('m1')
         variables = _build_variable_map()
 
-        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables)
+        model_context = ModelContext('validate', [])
+        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables, model_context)
         # print("Merged model: " + str(dictionary))
 
         self._check_merged_server(dictionary, '@@PROP:server1a@@')
@@ -128,7 +134,8 @@ class ClaHelperTest(unittest.TestCase):
         new_dictionary = _build_delete_model('m1')
         variables = {}
 
-        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables)
+        model_context = ModelContext('validate', [])
+        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables, model_context)
         # print("Merged model: " + str(dictionary))
 
         servers = dictionary['Servers']
@@ -140,7 +147,8 @@ class ClaHelperTest(unittest.TestCase):
         new_dictionary = _build_delete_model('m1')
         variables = {}
 
-        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables)
+        model_context = ModelContext('validate', [])
+        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables, model_context)
         # print("Merged model: " + str(dictionary))
 
         server = self._check_single_server(dictionary, '!m1')
@@ -152,7 +160,8 @@ class ClaHelperTest(unittest.TestCase):
         new_dictionary = _build_model_two('m1')
         variables = {}
 
-        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables)
+        model_context = ModelContext('validate', [])
+        cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables, model_context)
         # print("Merged model: " + str(dictionary))
 
         server = self._check_single_server(dictionary, 'm1')

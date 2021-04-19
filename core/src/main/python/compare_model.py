@@ -121,7 +121,7 @@ class ModelFileDiffer:
             variable_map = validator.load_variables(self.model_context.get_variable_file())
             model_file_name = self.current_dict_file
 
-            model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
+            model_dictionary = cla_helper.merge_model_files(model_file_name, self.model_context, variable_map)
 
             variables.substitute(model_dictionary, variable_map, self.model_context)
 
@@ -141,7 +141,7 @@ class ModelFileDiffer:
             current_dict = model_dictionary
             model_file_name = self.past_dict_file
 
-            model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
+            model_dictionary = cla_helper.merge_model_files(model_file_name, self.model_context, variable_map)
             variables.substitute(model_dictionary, variable_map, self.model_context)
 
             arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name

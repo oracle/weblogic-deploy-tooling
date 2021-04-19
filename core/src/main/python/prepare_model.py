@@ -254,7 +254,7 @@ class PrepareModel:
                 validator = Validator(self.model_context, aliases, wlst_mode=WlstModes.OFFLINE)
 
                 # Just merge and validate but without substitution
-                model_dictionary = cla_helper.merge_model_files(model_file_name, None)
+                model_dictionary = cla_helper.merge_model_files(model_file_name, self.model_context, None)
 
                 variable_file = self.model_context.get_variable_file()
                 if not os.path.exists(variable_file):
@@ -288,7 +288,8 @@ class PrepareModel:
                 pty._write_dictionary_to_yaml_file(self.current_dict, writer)
                 writer.close()
 
-                cla_helper.merge_model_dictionaries(merged_model_dictionary, self.current_dict, None)
+                cla_helper.merge_model_dictionaries(merged_model_dictionary, self.current_dict, None
+                                                    , self.model_context)
 
             # filter variables or secrets that are no longer in the merged, filtered model
             filter_helper.apply_filters(merged_model_dictionary, "discover", self.model_context)

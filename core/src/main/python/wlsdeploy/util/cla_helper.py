@@ -228,7 +228,7 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
 
     model_file_value = model_context.get_model_file()
     try:
-        model_dictionary = merge_model_files(model_file_value, variable_map)
+        model_dictionary = merge_model_files(model_file_value, model_context, variable_map)
     except TranslateException, te:
         __logger.severe('WLSDPLY-09014', program_name, model_file_value, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
@@ -299,12 +299,13 @@ def clean_up_temp_files():
         __tmp_model_dir = None
 
 
-def merge_model_files(model_file_value, variable_map=None):
+def merge_model_files(model_file_value, model_context, variable_map=None):
     """
     Merge the model files specified by the model file value.
     It may be a single file, or a comma-separated list of files.
     :param variable_map: variables to be used for name resolution, or None
     :param model_file_value: the value specified as a command argument
+    ;param model_context:  model context
     :return: the merge model dictionary
     """
     merged_model = OrderedDict()
@@ -312,12 +313,12 @@ def merge_model_files(model_file_value, variable_map=None):
 
     for model_file in model_files:
         model = FileToPython(model_file, True).parse()
-        merge_model_dictionaries(merged_model, model, variable_map)
+        merge_model_dictionaries(merged_model, model, variable_map, model_context)
 
     return merged_model
 
 
-def merge_model_dictionaries(dictionary, new_dictionary, variable_map):
+def merge_model_dictionaries(dictionary, new_dictionary, variable_map, model_context):
     """
     Merge the values from the new dictionary to the existing one.
     Use variables to resolve keys.
@@ -327,7 +328,7 @@ def merge_model_dictionaries(dictionary, new_dictionary, variable_map):
     """
     for new_key in new_dictionary:
         new_value = new_dictionary[new_key]
-        dictionary_key, replace_key = _find_dictionary_merge_key(dictionary, new_key, variable_map)
+        dictionary_key, replace_key = _find_dictionary_merge_key(dictionary, new_key, variable_map, model_context)
 
         # the key is not in the original dictionary, just add it
         if dictionary_key is None:
@@ -343,12 +344,12 @@ def merge_model_dictionaries(dictionary, new_dictionary, variable_map):
         else:
             value = dictionary[dictionary_key]
             if isinstance(value, dict) and isinstance(new_value, dict):
-                merge_model_dictionaries(value, new_value, variable_map)
+                merge_model_dictionaries(value, new_value, variable_map, model_context)
             else:
                 dictionary[new_key] = new_value
 
 
-def _find_dictionary_merge_key(dictionary, new_key, variable_map):
+def _find_dictionary_merge_key(dictionary, new_key, variable_map, model_context):
     """
     Find the key corresponding to new_key in the specified dictionary.
     Determine if the new_key should completely replace the value in the dictionary.
@@ -363,11 +364,11 @@ def _find_dictionary_merge_key(dictionary, new_key, variable_map):
         return new_key, False
 
     new_is_delete = model_helper.is_delete_name(new_key)
-    match_new_key = _get_merge_match_key(new_key, variable_map)
+    match_new_key = _get_merge_match_key(new_key, variable_map, model_context)
 
     for dictionary_key in dictionary.keys():
         dictionary_is_delete = model_helper.is_delete_name(dictionary_key)
-        match_dictionary_key = _get_merge_match_key(dictionary_key, variable_map)
+        match_dictionary_key = _get_merge_match_key(dictionary_key, variable_map, model_context)
         if match_dictionary_key == match_new_key:
             replace_key = new_is_delete != dictionary_is_delete
             return dictionary_key, replace_key
@@ -375,7 +376,7 @@ def _find_dictionary_merge_key(dictionary, new_key, variable_map):
     return None, False
 
 
-def _get_merge_match_key(key, variable_map):
+def _get_merge_match_key(key, variable_map, model_context):
     """
     Get the key name to use for matching in model merge.
     This includes resolving any variables, and removing delete notation if present.
@@ -383,10 +384,8 @@ def _get_merge_match_key(key, variable_map):
     :param variable_map: variable map to use for substitutions
     :return: the key to use for matching
     """
-    if variable_map is not None:
-        match_key = variables.substitute_key(key, variable_map)
-    else:
-        match_key = key
+
+    match_key = variables.substitute_key(key, variable_map, model_context)
 
     if model_helper.is_delete_name(match_key):
         match_key = model_helper.get_delete_item_name(match_key)

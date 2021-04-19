@@ -109,7 +109,7 @@ def __perform_model_file_validation(model_file_name, model_context):
     try:
         model_validator = Validator(model_context, logger=__logger)
         variable_map = model_validator.load_variables(model_context.get_variable_file())
-        model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
+        model_dictionary = cla_helper.merge_model_files(model_file_name, model_context, variable_map)
 
         if cla_helper.check_persist_model():
             persist_model_dict = copy.deepcopy(model_dictionary)
