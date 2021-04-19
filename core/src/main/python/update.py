@@ -199,6 +199,11 @@ def __update_offline(model, model_context, aliases):
     # deleting servers that are added by templates before set server groups causes mayhem
     topology_updater.update_machines_clusters_and_servers(delete_now=False)
 
+    # update rcu schema password must happen before updating jrf domain
+    if model_context.get_update_rcu_schema_pass() is True:
+        rcu_helper = RCUHelper(model, model_context, aliases)
+        rcu_helper.update_rcu_password()
+
     __update_offline_domain()
 
     topology_updater.set_server_groups()
@@ -207,9 +212,6 @@ def __update_offline(model, model_context, aliases):
 
     # Add resources after server groups are established to prevent auto-renaming
     model_deployer.deploy_model_offline(model, model_context, aliases, wlst_mode=__wlst_mode)
-    if model_context.get_update_rcu_schema_pass() is True:
-        rcu_helper = RCUHelper(model, model_context, aliases)
-        rcu_helper.update_rcu_password()
 
     __update_offline_domain()
 
