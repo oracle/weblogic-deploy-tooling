@@ -305,7 +305,6 @@ def merge_model_files(model_file_value, variable_map=None):
     It may be a single file, or a comma-separated list of files.
     :param variable_map: variables to be used for name resolution, or None
     :param model_file_value: the value specified as a command argument
-    ;param model_context:  model context
     :return: the merge model dictionary
     """
     merged_model = OrderedDict()
