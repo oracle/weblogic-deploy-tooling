@@ -438,7 +438,7 @@ def _report_token_issue(message_key, method_name, model_context, *args):
         raise ex
 
 
-def substitute_key(text, variables, model_context):
+def substitute_key(text, variables):
     """
     Substitute any @@PROP values in the text and return.
     If the corresponding variable is not found, leave the @@PROP value in place.
@@ -459,7 +459,6 @@ def substitute_key(text, variables, model_context):
     for token, key in matches:
         # log, or throw an exception if key is not found.
         if not os.environ.has_key(key):
-            _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
             continue
 
         value = os.environ.get(key)
