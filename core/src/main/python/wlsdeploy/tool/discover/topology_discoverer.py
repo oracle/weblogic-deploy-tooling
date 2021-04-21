@@ -342,6 +342,7 @@ class TopologyDiscoverer(Discoverer):
                     location.remove_name_token(name_token)
                 except DiscoverException, de:
                     wlst_path = self._aliases.get_wlst_attributes_path(location)
+                    
                     ex = exception_helper.create_discover_exception('WLSDPLY-06200', wlst_path, self._wls_version,
                                                                     de.getLocalizedMessage())
                     _logger.throwing(class_name=_class_name, method_name=_method_name, error=ex)
