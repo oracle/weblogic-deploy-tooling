@@ -56,9 +56,11 @@ class RCUHelper(Deployer):
                 password_location = LocationContext(location)
                 list_path = self.aliases.get_wlst_list_path(location)
                 if not self.wlst_helper.path_exists(list_path):
-                    # For update case when a new custom data source has not be persisted
-                    # the driver params location is just placeholder continue
-                    # since we only care about stock datasource
+                    # For update case when a new custom data source has not been persisted,
+                    # the driver params location is just a placeholder and will result in error
+                    # if we try to get the attribute list from the location.
+                    # Since we only care about rcu stock data sources from the template for changing
+                    # rcu schema password; we can skip for any new custom data source.
                     continue
 
                 wlst_path = self.aliases.get_wlst_attributes_path(location)
