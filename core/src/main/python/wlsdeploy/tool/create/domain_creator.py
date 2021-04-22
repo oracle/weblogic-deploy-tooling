@@ -470,6 +470,7 @@ class DomainCreator(Creator):
 
         resources_dict = self.model.get_model_resources()
         jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+        self.__create_mbeans_used_by_topology_mbeans(topology_folder_list)
         self.__create_machines_clusters_and_servers(delete_now=False)
         self.__configure_fmw_infra_database()
 
@@ -549,6 +550,7 @@ class DomainCreator(Creator):
 
         resources_dict = self.model.get_model_resources()
         jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+        self.__create_mbeans_used_by_topology_mbeans(topology_folder_list)
         self.__create_machines_clusters_and_servers(delete_now=False)
 
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
@@ -622,7 +624,8 @@ class DomainCreator(Creator):
 
         topology_folder_list.remove(SECURITY_CONFIGURATION)
 
-        self.__create_mbeans_used_by_topology_mbeans(location, topology_folder_list)
+        self.__create_reliable_delivery_policy(location)
+        topology_folder_list.remove(WS_RELIABLE_DELIVERY_POLICY)
 
         # these deletions were intentionally skipped when these elements are first created.
         self.topology_helper.remove_deleted_clusters_and_servers(location, self._topology)
@@ -663,16 +666,21 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __create_mbeans_used_by_topology_mbeans(self, location, topology_folder_list):
+    def __create_mbeans_used_by_topology_mbeans(self, topology_folder_list):
         """
         Create the entities that are referenced by domain, machine, server and server template attributes.
-        :param location: current location
+        :param topology_folder_list: the model topology folder list to process
         :raises: CreateException: if an error occurs
         """
+        _method_name = '__create_mbeans_used_by_topology_mbeans'
+        location = LocationContext()
+        domain_name_token = self.aliases.get_name_token(location)
+        location.add_name_token(domain_name_token, self._domain_name)
+
+        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
         self.__create_log_filters(location)
         topology_folder_list.remove(LOG_FILTER)
-        self.__create_reliable_delivery_policy(location)
-        topology_folder_list.remove(WS_RELIABLE_DELIVERY_POLICY)
+
         self.__create_xml_entity_cache(location)
         topology_folder_list.remove(XML_ENTITY_CACHE)
         self.__create_xml_registry(location)

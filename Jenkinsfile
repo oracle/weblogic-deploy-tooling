@@ -75,6 +75,46 @@ pipeline {
                 }
             }
         }
+       stage ('Alias Test') {
+            // only run this stage when triggered by a cron timer and the commit does not have []skip-ci in the message
+            // for example, only run integration tests during the timer triggered nightly build
+            when {
+                allOf {
+                    triggeredBy 'TimerTrigger'
+                    branch "master"
+                }
+            }
+            matrix {
+                // run verify tests for each version in parallel.
+                axes {
+                    axis {
+                        name 'WLS_VERSION'
+                        values '10.3.6.0', '12.1.1.0', '12.1.2.0.0', '12.1.3.0.0', '12.2.1.0.0', '12.2.1.1.0', '12.2.1.2.0', '12.2.1.3.0', '12.2.1.4.0', '14.1.1.0.0', '14.1.2.0.0'
+                    }
+                }
+                stages {
+                    stage('Test') {
+                        agent {
+                            docker {
+                                alwaysPull true
+                                reuseNode true
+                                image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:aliastest'
+                                args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
+                            }
+                        }
+                        steps {
+                           sh  '/u01/verify/alias-test/src/test/resources/runIntegrationTest.sh -wls_version ${WLS_VERSION} -testfiles_path /u01/verify/testfiles;cp /u01/verify/testfiles/report* $WORKSPACE'
+                        }
+                        post {
+                           always {
+                             archiveArtifacts artifacts: 'report*', fingerprint: true
+                           }
+                        }
+                    }
+                }
+            }
+            // after all sets are complete, the job will continue here.
+        }
         stage ('Save Nightly Installer'){
             when {
                 allOf {

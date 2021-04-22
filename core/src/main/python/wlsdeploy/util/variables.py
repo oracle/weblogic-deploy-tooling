@@ -446,11 +446,24 @@ def substitute_key(text, variables):
     :param variables: the variable map
     :return: the substituted text value
     """
-    matches = _property_pattern.findall(text)
+    method_name = "substitute_key"
+
+    if variables is not None:
+        matches = _property_pattern.findall(text)
+        for token, key in matches:
+            if key in variables:
+                value = variables[key]
+                text = text.replace(token, value)
+
+    matches = _environment_pattern.findall(text)
     for token, key in matches:
-        if key in variables:
-            value = variables[key]
-            text = text.replace(token, value)
+        # log, or throw an exception if key is not found.
+        if not os.environ.has_key(key):
+            continue
+
+        value = os.environ.get(key)
+        text = text.replace(token, value)
+
     return text
 
 

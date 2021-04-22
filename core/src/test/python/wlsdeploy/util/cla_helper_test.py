@@ -60,6 +60,7 @@ class ClaHelperTest(unittest.TestCase):
         }
 
         variables = {}
+
         cla_helper.merge_model_dictionaries(dictionary, new_dictionary, variables)
         # print("Merged model: " + str(dictionary))
 

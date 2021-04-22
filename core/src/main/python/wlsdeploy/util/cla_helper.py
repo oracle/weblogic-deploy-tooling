@@ -383,10 +383,8 @@ def _get_merge_match_key(key, variable_map):
     :param variable_map: variable map to use for substitutions
     :return: the key to use for matching
     """
-    if variable_map is not None:
-        match_key = variables.substitute_key(key, variable_map)
-    else:
-        match_key = key
+
+    match_key = variables.substitute_key(key, variable_map)
 
     if model_helper.is_delete_name(match_key):
         match_key = model_helper.get_delete_item_name(match_key)

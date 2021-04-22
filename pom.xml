@@ -8,7 +8,7 @@
 
     <groupId>com.oracle.weblogic.lifecycle</groupId>
     <artifactId>weblogic-deploy</artifactId>
-    <version>1.9.11-SNAPSHOT</version>
+    <version>1.9.12-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Oracle WebLogic Server Deploy Tooling</name>
@@ -266,6 +266,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
+                    <arguments>-Dunit-test-wlst-dir=${unit-test-wlst-dir}</arguments>
                     <tagNameFormat>release-@{project.version}</tagNameFormat>
                     <!-- Tell release:perform to stop before trying to push to a remote repository -->
                     <goals>install</goals>
