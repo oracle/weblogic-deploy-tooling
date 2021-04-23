@@ -2,6 +2,7 @@
 Copyright (c) 2019, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
 The Universal Permissive License (UPL), Version 1.0
 """
+import os
 
 import java.lang.Boolean as Boolean
 import java.lang.Double as Double
@@ -324,6 +325,9 @@ class CustomFolderHelper(object):
             _logger.warning('WLSDPLY-06778', mbean_interface_name, class_name=_class_name, method_name=_method_name)
             result = mbean_interface_name
         if result.endswith('ProviderMBean'):
+            spath = os.path.join(self._model_context.get_oracle_home(), 'oracle_common', 'lib', 'schematypes')
+            slist = os.listdir(spath)
+            print '******* directories are ', slist
             ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-06779', str(mbean_instance),)
             _logger.throwing(class_name=_class_name, method_name=_method_name, error=ex)
             raise ex
