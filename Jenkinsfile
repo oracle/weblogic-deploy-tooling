@@ -67,7 +67,7 @@ pipeline {
                 }
             }
             steps {
-                ls /u01/oracle/oracle_common/lib/schematypes
+                ls ${ORACLE_HOME}/oracle_common/lib/schematypes
             }
             post {
                 always {
