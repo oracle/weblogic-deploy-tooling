@@ -67,7 +67,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'mvn -P system-test -Dmw_home=${ORACLE_HOME} test-compile failsafe:integration-test'
+                ls /u01/oracle/oracle_common/lib/schematypes
             }
             post {
                 always {
