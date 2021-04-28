@@ -10,7 +10,7 @@
  - [Modeling ODL](#odl-configuration)
  - [Modeling Oracle HTTP Server (OHS)](#configuring-oracle-http-server)
  - [Targeting Server Groups](#targeting-server-groups)
- - [Using WDT with Oracle WebLogic Server Kubernetes Operator](kubernetes.md)
+ - [Using WDT with WebLogic Kubernetes Operator](kubernetes.md)
 
  ### Administration Server Configuration
 
@@ -338,7 +338,7 @@
  **NOTE:** Creating and updating domains with custom security providers is limited to WebLogic version 12.1.2 and newer.
 
  Prior to using this tooling to create or update a domain with a custom security provider, there are several prerequisites.  First, WebLogic Server requires the custom MBean JAR to be in the Oracle Home directory before it can be configured, `WLSERVER/server/lib/mbeantypes`.  Second, WebLogic Scripting Tool, WLST, requires that the schema JAR be placed in the Oracle Home directory before WLST offline can be used to discover it or configure it, `ORACLEHOME/oracle_common/lib/schematypes`.  Generating an MBean JAR documentation can be found in the WebLogic Server [documentation](https://docs.oracle.com/en/middleware/standalone/weblogic-server/14.1.1.0/devsp/generate_mbeantype.html).  Generating the schema JAR can be done with the `prepareCustomProvider` script provided in the WebLogic Server installation.
- 
+
  WebLogic allows you to define an alternate directory other than `WLSERVER/server/lib/mbeantypes` by using the system property `-Dweblogic.alternateTypesDirectory=dir`. In order for the custom provider jars to be loaded correctly by WLST when discovering or configuring a domain, set this system property in the `WLSDEPLOY_PROPERTIES` environment variable.
 
  The format for a custom security provider is slightly different from a built-in provider in that the custom provider must supply the fully-qualified name of the class for the provider in the model between the provider name and the attributes for that provider.  Note that the generated Impl suffix is omitted from the name. In the custom `CredentialMapper` example below, note the location in the model of 'examples.security.providers.SampleCredentialMapper':
@@ -413,7 +413,7 @@
  - The user and group processing is not complete, currently, users cannot be assigned to groups. Users created using the `Security` section are automatically added to the `Administrators` group and are not added to the groups specified. See [Known Issues](../KnownIssues.md#assigning-security-groups-to-users) for information about a patch for this issue.
 
  ### Modeling WebLogic User Password Credential Mapping
- 
+
  The Create Domain Tool can be used to create user password credential mappings for use with the `DefaultCredentialMapper` security provider. Information in the model will be used to create a credential mapping file that will be imported the first time the Administration Server is started. This example shows how mappings are represented in the model:
  ```yaml
 domainInfo:
@@ -444,11 +444,11 @@ domainInfo:
                 RemotePassword: '@@PROP:remote2.pwd@@'
 ```
  In this example, the mapping `map1` creates a cross-domain credential mapping that provides access from this domain to the remote domain `otherDomain` as the user `otherUser` with the configured password.
- 
+
  The mapping `map2` creates a remote resource credential mapping that will give the local user `user1` access to a single remote resource on `remote.host` as the user `remoteUser` with the configured password. The mapping `map3` is similar, but provides access to a different remote resource for two local users, `user1` and `user2`.
- 
+
  The names of the mapping sections in the model, such as `map1` and `map2`, are used to group the attributes for each mapping in the model and are not part of the resulting credential mappings. These names should be unique for each mapping of a particular type.
- 
+
  ### ODL Configuration
 
  Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tools, starting with WDT release 1.5.2. ODL configuration is only supported for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool. This example shows how some common configuration elements can be represented in the model.
