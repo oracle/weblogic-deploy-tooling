@@ -6,17 +6,17 @@ Many organizations are using WebLogic Server, with or without other Oracle Fusio
 
 Currently, the project provides several single-purpose tools, all exposed as shell scripts (both Windows and UNIX scripts are provided):
 
-- The [Create Domain Tool](create.md) (`createDomain`) understands how to create a domain and populate the domain with all resources and applications specified in the model.
-- The [Update Domain Tool](update.md) (`updateDomain`) understands how to update an existing domain and populate the domain with all resources and applications specified in the model, either in offline or online mode.
-- The [Deploy Applications Tool](deploy.md) (`deployApps`) understands how to add resources and applications to an existing domain, either in offline or online mode.
-- The [Discover Domain Tool](discover.md) (`discoverDomain`) introspects an existing domain and creates a model file describing the domain and an archive file of the binaries deployed to the domain.
-- The [Encrypt Model Tool](encrypt.md) (`encryptModel`) encrypts the passwords in a model (or its variable file) using a user-provided passphrase.
-- The [Validate Model Tool](validate.md) (`validateModel`) provides both standalone validation of a model as well as model usage information to help users write or edit their models.
-- The [Compare Model Tool](compare.md) (`compareModel`) compares two model files.
-- The [Prepare Model Tool](prepare.md) (`prepareModel`) prepares model files for deploying to WebLogic Server Kubernetes Operator environment.
-- The [Extract Domain Resource Tool](kubernetes.md) (`extractDomainResource`) generates a domain resource YAML for use with the Oracle WebLogic Server Kubernetes Operator.
-- The [Variable Injector Tool](variable_injection.md) is used to tokenize a model with variables.
-- The [Model Help Tool](model_help.md) (`modelHelp.sh`) provides information about the folders and attributes that are valid for sections and folders of a domain model.
+- The [Create Domain Tool]({{< relref "/create.md" >}}) (`createDomain`) understands how to create a domain and populate the domain with all resources and applications specified in the model.
+- The [Update Domain Tool]({{< relref "/update.md" >}}) (`updateDomain`) understands how to update an existing domain and populate the domain with all resources and applications specified in the model, either in offline or online mode.
+- The [Deploy Applications Tool]({{< relref "/deploy.md" >}}) (`deployApps`) understands how to add resources and applications to an existing domain, either in offline or online mode.
+- The [Discover Domain Tool]({{< relref "/discover.md" >}}) (`discoverDomain`) introspects an existing domain and creates a model file describing the domain and an archive file of the binaries deployed to the domain.
+- The [Encrypt Model Tool]({{< relref "/encrypt.md" >}}) (`encryptModel`) encrypts the passwords in a model (or its variable file) using a user-provided passphrase.
+- The [Validate Model Tool]({{< relref "/validate.md" >}}) (`validateModel`) provides both standalone validation of a model as well as model usage information to help users write or edit their models.
+- The [Compare Model Tool]({{< relref "/compare.md" >}}) (`compareModel`) compares two model files.
+- The [Prepare Model Tool]({{< relref "/prepare.md" >}}) (`prepareModel`) prepares model files for deploying to WebLogic Server Kubernetes Operator environment.
+- The [Extract Domain Resource Tool]({{< relref "/kubernetes.md" >}}) (`extractDomainResource`) generates a domain resource YAML for use with the Oracle WebLogic Server Kubernetes Operator.
+- The [Variable Injector Tool]({{< relref "/variable_injection.md" >}}) is used to tokenize a model with variables.
+- The [Model Help Tool]({{< relref "/model_help.md" >}}) (`modelHelp.sh`) provides information about the folders and attributes that are valid for sections and folders of a domain model.
 
 As new use cases are discovered, new tools will likely be added to cover those operations but all will use the metadata model to describe what needs to be done.
 
@@ -28,20 +28,20 @@ The Oracle WebLogic Server Deploy Tooling project repository is located at [`htt
 
 ## Supported WLS Versions
 
-For the supported WebLogic Server and JDK versions required to run WebLogic Server Deploy Tooling, see [Supported WLS Versions](wls_versions.md).
+For the supported WebLogic Server and JDK versions required to run WebLogic Server Deploy Tooling, see [Supported WLS Versions]({{< relref "/wls_versions.md" >}}).
 
 
 ## Concepts
 
-- [The Model](model.md)
-- [The Archive File](archive.md)
-- [Model Use Cases](use_cases.md)
-- [Tools Configuration](tool_configuration.md)
+- [The Model]({{< relref "/model.md" >}})
+- [The Archive File]({{< relref "/archive.md" >}})
+- [Model Use Cases]({{< relref "/use_cases.md" >}})
+- [Tools Configuration]({{< relref "/tool_configuration.md" >}})
 
 ## Developer Guide
 
-For information for developers, see the [Developer Guide](developer/developer_guide.md).
+For information for developers, see the [Developer Guide]({{< relref "/developer/developer_guide.md" >}}).
 
 ## Known Issues
 
-See the following list of [Known Issues](KnownIssues.md) and workarounds.
+See the following list of [Known Issues]({{< relref "/KnownIssues.md" >}}) and workarounds.

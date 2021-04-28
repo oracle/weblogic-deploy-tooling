@@ -1,9 +1,9 @@
 ## Target Environments
 
-The [Discover Domain](../discover.md) and [Prepare Model](../prepare.md) Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
-- Using model tokens for some attributes in the model (see [Model Tokens](../model.md#model-tokens))
+The [Discover Domain]({{< relref "/discover.md" >}}) and [Prepare Model]({{< relref "/prepare.md" >}}) Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
+- Using model tokens for some attributes in the model (see [Model Tokens]({{< relref "/model#model-tokens" >}}))
 - Using Kubernetes secrets for credentials in the model
-- Applying filters to the model (see [Model Filters](../tool_configuration.md#model-filters))
+- Applying filters to the model (see [Model Filters]({{< relref "/tool_configuration#model-filters" >}}))
 - Creating additional configuration files for the target system
 
 ### Specifying a Target Environment
