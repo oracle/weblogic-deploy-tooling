@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="description" content="">
+
+
+    <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
+
+    <title> :: WebLogic Kubernetes Operator</title>
+
+    
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619643291" rel="stylesheet">
+    
+    
+
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619643291"></script>
+
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+        :not(pre) > code + span.copy-to-clipboard {
+            display: none;
+        }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/weblogic-deploy-tooling/compare/">
+    <nav id="sidebar" class="">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="https://oracle.github.io/weblogic-deploy-tooling">
+  <img src="https://oracle.github.io/weblogic-deploy-tooling/images/logo.png" height="60"><br/>
+  Kubernetes Operator
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619643291"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619643291"></script>
+<script type="text/javascript">
+    
+        var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
+    
+</script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619643291"></script>
+
+    
+  </div>
+
+    <div class="highlightable">
+    <ul class="topics">
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling">Home</a></li>
+        
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/config/" title="Configs" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/config/">
+          Configs
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/config/target_env/" title="" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/config/target_env/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developers" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/developer/">
+          Developers
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/developer_guide/" title="" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/developer_guide/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+        
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling/release-notes">Release Notes</a></li>
+    </ul>
+
+    
+    
+
+    
+    <section id="footer">
+      <p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<p>&nbsp</p>
+<p><a href="https://github.com/oracle/weblogic-deploy-tooling"><i class="fab fa-github"></i> GitHub repo</a></p>
+<p><a href="https://weblogic-slack-inviter.herokuapp.com/"><i class="fab fa-slack"></i> Public Slack #operator</a></p>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-deploy-tooling/'></a> > 
+          
+        
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-compare-model-tool">The Compare Model Tool</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+        <div id="head-tags">
+        
+        </div>
+        
+        <div id="body-inner">
+          
+            <h1>
+              
+              
+            </h1>
+          
+
+        
+
+
+<h2 id="the-compare-model-tool">The Compare Model Tool</h2>
+<p>When working with a domain model, sometimes it is useful to know the differences between different models.
+The Compare Model Tool compares two model files and generates a model that shows the differences between them.</p>
+<p>To use the Compare Model Tool, simply run the <code>compareModel</code> shell script with the correct arguments.  To see the list of valid arguments, simply run the shell script with the <code>-help</code> option (or with no arguments) for usage information.</p>
+<p>For example, comparing the following models.</p>
+<p>New Model</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">AdminUserName</span>: <span style="color:#e6db74">&#39;weblogic&#39;</span>
+    <span style="color:#f92672">AdminPassword</span>: <span style="color:#e6db74">&#39;welcome2&#39;</span>
+    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#e6db74">&#39;prod&#39;</span>
+<span style="color:#f92672">topology</span>:
+    <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">domain1</span>
+    <span style="color:#f92672">AdminServerName</span>: <span style="color:#e6db74">&#34;admin-server&#34;</span>
+    <span style="color:#f92672">SecurityConfiguration</span>:
+        <span style="color:#f92672">NodeManagerUsername </span>: <span style="color:#e6db74">&#39;weblogic&#39;</span>
+        <span style="color:#f92672">NodeManagerPasswordEncrypted </span>: <span style="color:#e6db74">&#39;welcome1&#39;</span>
+    <span style="color:#f92672">Cluster</span>:
+        <span style="color:#e6db74">&#34;cluster-1&#34;</span>:
+            <span style="color:#f92672">DynamicServers</span>:
+                <span style="color:#f92672">ServerTemplate</span>:  <span style="color:#e6db74">&#34;cluster-1-template&#34;</span>
+                <span style="color:#f92672">ServerNamePrefix</span>: <span style="color:#e6db74">&#34;managed-server&#34;</span>
+                <span style="color:#f92672">DynamicClusterSize</span>: <span style="color:#ae81ff">5</span>
+                <span style="color:#f92672">MaxDynamicClusterSize</span>: <span style="color:#ae81ff">5</span>
+                <span style="color:#f92672">CalculatedListenPorts</span>: <span style="color:#66d9ef">false</span>
+        <span style="color:#e6db74">&#34;cluster-2&#34;</span>:
+            <span style="color:#f92672">DynamicServers</span>:
+                <span style="color:#f92672">ServerTemplate</span>:  <span style="color:#e6db74">&#34;cluster-2-template&#34;</span>
+                <span style="color:#f92672">ServerNamePrefix</span>: <span style="color:#e6db74">&#34;managed-server&#34;</span>
+                <span style="color:#f92672">DynamicClusterSize</span>: <span style="color:#ae81ff">2</span>
+                <span style="color:#f92672">MaxDynamicClusterSize</span>: <span style="color:#ae81ff">3</span>
+                <span style="color:#f92672">CalculatedListenPorts</span>: <span style="color:#66d9ef">false</span>
+    <span style="color:#f92672">Server</span>:
+        <span style="color:#e6db74">&#34;admin-server&#34;</span>:
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">10011</span>
+    <span style="color:#f92672">ServerTemplate</span>:
+        <span style="color:#e6db74">&#34;cluster-1-template&#34;</span>:
+            <span style="color:#f92672">Cluster</span>: <span style="color:#e6db74">&#34;cluster-1&#34;</span>
+            <span style="color:#f92672">ListenPort </span>: <span style="color:#e6db74">&#39;5001&#39;</span>
+            <span style="color:#f92672">JTAMigratableTarget</span>:
+                    <span style="color:#f92672">StrictOwnershipCheck</span>: <span style="color:#66d9ef">true</span>
+                    <span style="color:#f92672">Cluster</span>: <span style="color:#e6db74">&#34;cluster-1&#34;</span>
+        <span style="color:#e6db74">&#34;cluster-2-template&#34;</span>:
+            <span style="color:#f92672">Cluster</span>: <span style="color:#e6db74">&#34;cluster-2&#34;</span>
+            <span style="color:#f92672">ListenPort </span>: <span style="color:#e6db74">&#39;8001&#39;</span>
+            <span style="color:#f92672">ServerStart</span>:
+                    <span style="color:#f92672">Arguments</span>: [<span style="color:#e6db74">&#39;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006&#39;</span>]
+            <span style="color:#f92672">JTAMigratableTarget</span>:
+                    <span style="color:#f92672">StrictOwnershipCheck</span>: <span style="color:#66d9ef">true</span>
+                    <span style="color:#f92672">Cluster</span>: <span style="color:#e6db74">&#34;cluster-2&#34;</span>
+<span style="color:#f92672">appDeployments</span>:
+     <span style="color:#f92672">Application</span>:
+         <span style="color:#f92672">myear</span>:
+             <span style="color:#f92672">SourcePath</span>: <span style="color:#ae81ff">/home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app.ear</span>
+             <span style="color:#f92672">Target</span>: [<span style="color:#e6db74">&#39;cluster-2&#39;</span>,<span style="color:#e6db74">&#39;cluster-1&#39;</span>]
+         <span style="color:#f92672">yourear</span>:
+             <span style="color:#f92672">SourcePath</span>: <span style="color:#ae81ff">/home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app2.ear</span>
+             <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">ear</span>
+             <span style="color:#f92672">Target</span>: [<span style="color:#e6db74">&#39;cluster-2&#39;</span>,<span style="color:#e6db74">&#39;cluster-1&#39;</span>]
+<span style="color:#f92672">resources</span>:
+    <span style="color:#f92672">JMSServer</span>:
+        <span style="color:#f92672">JMSServer1</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">m1</span>
+        <span style="color:#f92672">JMSServer2</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">m2</span>
+    <span style="color:#f92672">JMSSystemResource</span>:
+        <span style="color:#f92672">MyJmsModule</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">mycluster</span>
+            <span style="color:#f92672">SubDeployment</span>:
+                <span style="color:#f92672">JMSServer1Subdeployment</span>:
+                    <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">JMSServer1</span>
+                <span style="color:#f92672">JMSServer2Subdeployment</span>:
+                    <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">JMSServer2</span>
+            <span style="color:#f92672">JmsResource</span>:
+                <span style="color:#f92672">ConnectionFactory</span>:
+                    <span style="color:#f92672">WebAppConnectionFactory</span>:
+                        <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
+                        <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/WebCF</span>
+                        <span style="color:#f92672">ClientParams</span>:
+                            <span style="color:#f92672">AllowCloseInOnMessage</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">MessagesMaximum</span>: <span style="color:#ae81ff">1</span>
+                        <span style="color:#f92672">DefaultDeliveryParams</span>:
+                            <span style="color:#f92672">DefaultTimeToDeliver</span>: <span style="color:#ae81ff">3</span>
+                            <span style="color:#f92672">DefaultTimeToLive</span>: <span style="color:#ae81ff">3600</span>
+                        <span style="color:#f92672">FlowControlParams</span>:
+                            <span style="color:#f92672">FlowControlEnabled</span>: <span style="color:#66d9ef">false</span>
+                        <span style="color:#f92672">LoadBalancingParams</span>:
+                            <span style="color:#f92672">LoadBalancingEnabled</span>: <span style="color:#66d9ef">false</span>
+                        <span style="color:#f92672">SecurityParams</span>:
+                            <span style="color:#f92672">AttachJMSXUserId</span>: <span style="color:#66d9ef">true</span>
+                        <span style="color:#f92672">TransactionParams</span>:
+                            <span style="color:#f92672">XAConnectionFactoryEnabled</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">UniformDistributedQueue</span>:
+                    <span style="color:#f92672">MyUniformDistributedQueue</span>:
+                        <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
+                        <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/myUDQ</span>
+</code></pre></div><p>Old Model</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">AdminUserName</span>: <span style="color:#e6db74">&#39;weblogic&#39;</span>
+    <span style="color:#f92672">AdminPassword</span>: <span style="color:#e6db74">&#39;welcome2&#39;</span>
+    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#e6db74">&#39;prod&#39;</span>
+<span style="color:#f92672">topology</span>:
+    <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">domain1</span>
+    <span style="color:#f92672">AdminServerName</span>: <span style="color:#e6db74">&#34;admin-server&#34;</span>
+    <span style="color:#f92672">SecurityConfiguration</span>:
+        <span style="color:#f92672">NodeManagerUsername </span>: <span style="color:#e6db74">&#39;weblogic&#39;</span>
+        <span style="color:#f92672">NodeManagerPasswordEncrypted </span>: <span style="color:#e6db74">&#39;welcome1&#39;</span>
+    <span style="color:#f92672">Cluster</span>:
+        <span style="color:#e6db74">&#34;cluster-1&#34;</span>:
+            <span style="color:#f92672">DynamicServers</span>:
+                <span style="color:#f92672">ServerTemplate</span>:  <span style="color:#e6db74">&#34;cluster-1-template&#34;</span>
+                <span style="color:#f92672">ServerNamePrefix</span>: <span style="color:#e6db74">&#34;managed-server&#34;</span>
+                <span style="color:#f92672">DynamicClusterSize</span>: <span style="color:#ae81ff">5</span>
+                <span style="color:#f92672">MaxDynamicClusterSize</span>: <span style="color:#ae81ff">5</span>
+                <span style="color:#f92672">CalculatedListenPorts</span>: <span style="color:#66d9ef">false</span>
+    <span style="color:#f92672">Server</span>:
+        <span style="color:#e6db74">&#34;admin-server&#34;</span>:
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">10011</span>
+    <span style="color:#f92672">ServerTemplate</span>:
+        <span style="color:#e6db74">&#34;cluster-1-template&#34;</span>:
+            <span style="color:#f92672">Cluster</span>: <span style="color:#e6db74">&#34;cluster-1&#34;</span>
+            <span style="color:#f92672">ListenPort </span>: <span style="color:#e6db74">&#39;5001&#39;</span>
+            <span style="color:#f92672">ServerStart</span>:
+                    <span style="color:#f92672">Arguments</span>: [<span style="color:#e6db74">&#39;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006&#39;</span>]
+            <span style="color:#f92672">JTAMigratableTarget</span>:
+                    <span style="color:#f92672">StrictOwnershipCheck</span>: <span style="color:#66d9ef">true</span>
+                    <span style="color:#f92672">Cluster</span>: <span style="color:#e6db74">&#34;cluster-1&#34;</span>
+<span style="color:#f92672">appDeployments</span>:
+     <span style="color:#f92672">Application</span>:
+         <span style="color:#f92672">myear</span>:
+             <span style="color:#f92672">SourcePath</span>: <span style="color:#ae81ff">/home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app.ear</span>
+             <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">ear</span>
+             <span style="color:#f92672">Target</span>: [<span style="color:#e6db74">&#39;cluster-1&#39;</span>,<span style="color:#e6db74">&#39;cluster-2&#39;</span>]
+         <span style="color:#f92672">myear2</span>:
+             <span style="color:#f92672">SourcePath</span>: <span style="color:#ae81ff">/home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app2.ear</span>
+             <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">ear</span>
+             <span style="color:#f92672">Target</span>: [<span style="color:#e6db74">&#39;cluster-1&#39;</span>,<span style="color:#e6db74">&#39;cluster-2&#39;</span>]
+<span style="color:#f92672">resources</span>:
+    <span style="color:#f92672">WebAppContainer</span>:
+        <span style="color:#f92672">WAPEnabled</span>: <span style="color:#e6db74">&#39;@@PROP:WAPENABLED@@&#39;</span>
+        <span style="color:#f92672">FilterDispatchedRequestsEnabled</span>: <span style="color:#66d9ef">true</span>
+        <span style="color:#f92672">AllowAllRoles</span>: <span style="color:#66d9ef">true</span>
+        <span style="color:#f92672">XPoweredByHeaderLevel</span>: <span style="color:#ae81ff">NONE</span>
+        <span style="color:#f92672">ServletAuthenticationFormURL</span>: <span style="color:#66d9ef">true</span>
+        <span style="color:#f92672">ServletReloadCheckSecs</span>: <span style="color:#ae81ff">1</span>
+        <span style="color:#f92672">ChangeSessionIDOnAuthentication</span>: <span style="color:#66d9ef">true</span>
+        <span style="color:#f92672">MimeMappingFile</span>: <span style="color:#ae81ff">wlsdeploy/config/amimemappings.properties</span>
+        <span style="color:#f92672">AuthCookieEnabled</span>: <span style="color:#66d9ef">true</span>
+        <span style="color:#f92672">WorkContextPropagationEnabled</span>: <span style="color:#66d9ef">true</span>
+        <span style="color:#f92672">ReloginEnabled</span>: <span style="color:#66d9ef">true</span>
+        <span style="color:#f92672">GzipCompression</span>:
+            <span style="color:#f92672">GzipCompressionContentType</span>: [ <span style="color:#ae81ff">text/html, text/xml, text/plain ]</span>
+            <span style="color:#f92672">GzipCompressionEnabled</span>: <span style="color:#66d9ef">true</span>
+    <span style="color:#f92672">JMSServer</span>:
+        <span style="color:#f92672">JMSServer1</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">m1</span>
+        <span style="color:#f92672">JMSServer2</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">m2</span>
+    <span style="color:#f92672">JMSSystemResource</span>:
+        <span style="color:#f92672">MyJmsModule</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">mycluster</span>
+            <span style="color:#f92672">SubDeployment</span>:
+                <span style="color:#f92672">JMSServer1Subdeployment</span>:
+                    <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">JMSServer1</span>
+                <span style="color:#f92672">JMSServer2Subdeployment</span>:
+                    <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">JMSServer2</span>
+            <span style="color:#f92672">JmsResource</span>:
+                <span style="color:#f92672">ConnectionFactory</span>:
+                    <span style="color:#f92672">WebAppConnectionFactory</span>:
+                        <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
+                        <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/WebCF</span>
+                        <span style="color:#f92672">ClientParams</span>:
+                            <span style="color:#f92672">AllowCloseInOnMessage</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">MessagesMaximum</span>: <span style="color:#ae81ff">1</span>
+                        <span style="color:#f92672">DefaultDeliveryParams</span>:
+                            <span style="color:#f92672">DefaultTimeToDeliver</span>: <span style="color:#ae81ff">3</span>
+                            <span style="color:#f92672">DefaultTimeToLive</span>: <span style="color:#ae81ff">3600</span>
+                        <span style="color:#f92672">FlowControlParams</span>:
+                            <span style="color:#f92672">FlowControlEnabled</span>: <span style="color:#66d9ef">false</span>
+                        <span style="color:#f92672">LoadBalancingParams</span>:
+                            <span style="color:#f92672">LoadBalancingEnabled</span>: <span style="color:#66d9ef">false</span>
+                        <span style="color:#f92672">SecurityParams</span>:
+                            <span style="color:#f92672">AttachJMSXUserId</span>: <span style="color:#66d9ef">true</span>
+                        <span style="color:#f92672">TransactionParams</span>:
+                            <span style="color:#f92672">XAConnectionFactoryEnabled</span>: <span style="color:#66d9ef">true</span>
+                    <span style="color:#f92672">MDBConnectionFactory</span>:
+                        <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
+                        <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/mdbCF</span>
+                        <span style="color:#f92672">TransactionParams</span>:
+                            <span style="color:#f92672">XAConnectionFactoryEnabled</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">UniformDistributedQueue</span>:
+                    <span style="color:#f92672">MyUniformDistributedQueue</span>:
+                        <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
+                        <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/myUDQ</span>
+                        <span style="color:#f92672">ResetDeliveryCountOnForward</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div><p>To compare the two model files, run the tool as follows:</p>
+<pre><code>weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 new_model.yaml old_model.yaml
+</code></pre>
+<p>The output of the tool will look something like this:</p>
+<pre><code>Comparing Models: new=/tmp/model2.yaml vs old=/tmp/model1.yaml
+
+Differences between new model and old model:
+
+resources:
+    JMSSystemResource:
+        MyJmsModule:
+            JmsResource:
+                ConnectionFactory:
+                    '!MDBConnectionFactory':
+    '!WebAppContainer':
+appDeployments:
+    Application:
+        '!myear2':
+        yourear:
+            SourcePath: /home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app2.ear
+            ModuleType: ear
+            Target: [ 'cluster-2', 'cluster-1' ]
+        myear:
+            Target: [ 'cluster-2', 'cluster-1' ]
+topology:
+    ServerTemplate:
+        'cluster-1-template':
+            '!ServerStart':
+        'cluster-2-template':
+            Cluster: 'cluster-2'
+            ListenPort: 8001
+            ServerStart:
+                Arguments: [ '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006' ]
+            JTAMigratableTarget:
+                StrictOwnershipCheck: True
+                Cluster: 'cluster-2'
+    Cluster:
+        'cluster-2':
+            DynamicServers:
+                ServerTemplate: 'cluster-2-template'
+                ServerNamePrefix: 'managed-server'
+                DynamicClusterSize: 2
+                MaxDynamicClusterSize: 3
+                CalculatedListenPorts: False
+
+
+1. Model Path: resources--&gt;JMSSystemResource--&gt;MyJmsModule--&gt;JmsResource--&gt;UniformDistributedQueue--&gt;MyUniformDistributedQueue--&gt;ResetDeliveryCountOnForward does not exist in new model but exists in previous model
+
+2. Model Path: appDeployments--&gt;Application--&gt;myear--&gt;ModuleType does not exist in new model but exists in previous model
+
+</code></pre><p>Comparing the new and old models:</p>
+<ol>
+<li>Added <code>cluster-2</code> and <code>cluster-2-template</code> in the topology section.</li>
+<li>Removed <code>ServerStart</code> of <code>cluster-1-template</code> in the topology section.</li>
+<li>Deployed two applications <code>yourear</code> and <code>myear</code> in the appDeployments section.</li>
+<li>Removed application <code>myear</code> in the appDeployments section.</li>
+<li>Removed <code>MDBConnectionFactory</code> from the <code>MyJmsModule</code> JMS Module in the resource section.</li>
+<li>Removed <code>WebAppContainer</code> in the resource section.</li>
+<li>Removed the attribute <code>ResetDeliveryCountOnForward</code> from <code>MyUniformDistributedQueue</code>.</li>
+<li>Changed deployment targets for application <code>myear</code>.</li>
+<li>Removed the attribute &lsquo;ModuleType&rsquo; for application <code>myear</code>.</li>
+</ol>
+<p><strong>Note</strong>:  The <code>!</code> is a notation for the deletion of a non-attribute key element from the model. Missing attributes
+will be omitted from the resulting model, but shown as messages in the output.  If the attribute value is a list, even
+if all the individual items within the list are identical but the ordering is different, the attribute is counted as
+different.</p>
+<p>To compare the two model files and generate the output to files, run the tool as follows:</p>
+<pre><code>weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 -output_dir c:\cm-output ew_model.yaml old_model.yaml
+
+The following files will be written to the directory:
+
+diffed_model.json
+diffed_model.yaml
+compare_model_stdout
+</code></pre>
+
+
+<footer class="footline">
+	
+</footer>
+
+        
+        </div>
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+
+        
+
+
+	 
+	 
+		
+		
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/config/" title="Configs" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619643291"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619643291"></script>
+    
+        
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619643291"></script>
+        
+        <script>
+            mermaid.initialize({ startOnLoad: true });
+        </script>
+    
+    
+
+  </body>
+</html>
+

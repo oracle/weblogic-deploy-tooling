@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Developers on WebLogic Kubernetes Operator</title>
+    <link>https://oracle.github.io/weblogic-deploy-tooling/developer/</link>
+    <description>Recent content in Developers on WebLogic Kubernetes Operator</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/developer/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title></title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/developer_guide/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/developer_guide/</guid>
+      <description>Developer Guide Table of Contents  Project Structure Feature Implementation Alias Definitions Building WebLogic Deploy Tool  Project Structure This project is structured using the Standard Directory Layout for Maven projects, with two child modules, core and installer. In addition, there is a samples directory with example configurations, and the site directory containing project documentation.
+The core module contains the main source code for the project. This includes Jython modules and Java classes, as well as typedef files, alias definitions, and the message bundle.</description>
+    </item>
+    
+  </channel>
+</rss>

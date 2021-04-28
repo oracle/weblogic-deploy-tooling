@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="description" content="">
+
+
+    <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
+
+    <title> :: WebLogic Kubernetes Operator</title>
+
+    
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619643291" rel="stylesheet">
+    
+    
+
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619643291"></script>
+
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+        :not(pre) > code + span.copy-to-clipboard {
+            display: none;
+        }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/weblogic-deploy-tooling/rcuinfo/">
+    <nav id="sidebar" class="">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="https://oracle.github.io/weblogic-deploy-tooling">
+  <img src="https://oracle.github.io/weblogic-deploy-tooling/images/logo.png" height="60"><br/>
+  Kubernetes Operator
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619643291"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619643291"></script>
+<script type="text/javascript">
+    
+        var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
+    
+</script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619643291"></script>
+
+    
+  </div>
+
+    <div class="highlightable">
+    <ul class="topics">
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling">Home</a></li>
+        
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/config/" title="Configs" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/config/">
+          Configs
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/config/target_env/" title="" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/config/target_env/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developers" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/developer/">
+          Developers
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/developer_guide/" title="" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/developer_guide/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+        
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling/release-notes">Release Notes</a></li>
+    </ul>
+
+    
+    
+
+    
+    <section id="footer">
+      <p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<p>&nbsp</p>
+<p><a href="https://github.com/oracle/weblogic-deploy-tooling"><i class="fab fa-github"></i> GitHub repo</a></p>
+<p><a href="https://weblogic-slack-inviter.herokuapp.com/"><i class="fab fa-slack"></i> Public Slack #operator</a></p>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-deploy-tooling/'></a> > 
+          
+        
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#specifying-rcu-connection-information-in-the-model">Specifying RCU connection information in the model</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+        <div id="head-tags">
+        
+        </div>
+        
+        <div id="body-inner">
+          
+            <h1>
+              
+              
+            </h1>
+          
+
+        
+
+
+<h2 id="specifying-rcu-connection-information-in-the-model">Specifying RCU connection information in the model</h2>
+<p>During creating or updating a domain, there is new section <code>RCUDbInfo</code> in the model, under the <code>domainInfo</code> section, for specifying RCU database connection information without using the command-line arguments <code>-rcu_db</code> and <code>-rcu_prefix</code>. Use this to support a database where the connection string is more complex and requires extra options.</p>
+<p>For example, in order to use the Oracle Autonomous Transaction Processing Cloud Database for the JRF domain, specify the following information in the model:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">RCUDbInfo</span>:
+        <span style="color:#f92672">useATP </span>: <span style="color:#66d9ef">true</span>
+        <span style="color:#f92672">rcu_prefix </span>: <span style="color:#ae81ff">DEV</span>
+        <span style="color:#f92672">rcu_admin_password</span>: <span style="color:#ae81ff">&lt;database admin password is required only when you specify -run_rcu flag&gt;</span>
+        <span style="color:#f92672">rcu_schema_password </span>: <span style="color:#ae81ff">&lt;RCU schema password&gt;</span>
+        <span style="color:#f92672">atp.admin.user </span>: <span style="color:#ae81ff">admin</span>
+        <span style="color:#f92672">tns.alias </span>: <span style="color:#ae81ff">dbatp_tp</span>
+        <span style="color:#f92672">javax.net.ssl.keyStorePassword </span>: <span style="color:#ae81ff">&lt;atp wallet password&gt;</span>
+        <span style="color:#f92672">javax.net.ssl.trustStorePassword </span>: <span style="color:#ae81ff">&lt;atp wallet password&gt;</span>
+        <span style="color:#f92672">oracle.net.tns_admin: &lt;optional</span>: <span style="color:#ae81ff">absolute path of the unzipped wallet root directory (outside of the archive), if the wallet.zip is not included in the archive&gt;</span>
+</code></pre></div><p>The database wallet can be included in the archive file under <code>atpwallet</code> zipentry structure</p>
+<p><code>atpwallet/Walletxyz.zip</code></p>
+<p>or by specifying the unzipped root directory of the ATP wallet zip file in <code>oracle.net.tns_admin</code>.</p>
+<p>Using the Create Domain Tool with the <code>-run_rcu</code> flag will create the RCU schemas against the Oracle Autonomous Transaction Processing Cloud Database and configure the datasources in the JRF domain to use the database.  For example:</p>
+<pre><code>weblogic-deploy/bin/createDomain.sh -oracle_home /u01/wls12213 -domain_type JRF -domain_home /u01/data/domains/demodomain -archive_file DemoDomain.zip -run_rcu 
+</code></pre>
+<p>For a non-ATP database, use the following example:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">RCUDbInfo</span>:
+        <span style="color:#f92672">rcu_prefix </span>: <span style="color:#ae81ff">DEV</span>
+        <span style="color:#75715e"># Optional rcu_db_user for creating RCU schema if -run_rcu flag is specified. Default user is SYS if not specified.</span>
+        <span style="color:#75715e"># This user must have SYSDBA privilege and this is the equivalent of -dbUser in the RCU utility.</span>
+        <span style="color:#f92672">rcu_db_user</span>: <span style="color:#ae81ff">superuser</span>
+        <span style="color:#f92672">rcu_schema_password </span>: <span style="color:#ae81ff">&lt;rcu schema password, will be prompted if not specified&gt;</span>
+        <span style="color:#f92672">rcu_admin_password </span>: <span style="color:#ae81ff">&lt;database admin password is required only when you specify -run_rcu flag, will be prompted</span>
+         <span style="color:#ae81ff">if not specified&gt;</span>
+        <span style="color:#f92672">rcu_db_conn_string </span>: <span style="color:#e6db74">&#39;dbhost:1521/pdborcl&#39;</span>
+</code></pre></div><p>RCU <code>-variables</code> option of the repository creation utility can now be included in the <code>RCUDbInfo</code> section with the key <code>rcu_variables</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">RCUDbInfo</span>:
+        <span style="color:#f92672">rcu_variables </span>: <span style="color:#e6db74">&#39;xxxx&#39;</span>
+</code></pre></div><p><strong>Note: Prior to release 0.23, the useATP flag only accepts values of 0, 1, &lsquo;true&rsquo; or &lsquo;false&rsquo;.</strong></p>
+<p>When creating a domain using WDT and the -run_rcu option, you can specify your extended XML files in the RCUDbInfo section.</p>
+<p>This correlates to the <code>createRepository</code> and <code>dropRepository</code> command line arguments <code>RCU -compInfoXMLLocation &lt;file path&gt; -storageXMLLocation &lt;file path&gt;</code></p>
+<p>Include your XML files in your archive file using location <code>wlsdeploy/rcu/config</code>. Then include this relative location in the RCUDbInfo section of the model.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">RCUDbInfo</span>:
+        <span style="color:#f92672">compInfoXMLLocation</span>: <span style="color:#e6db74">&#39;wlsdeploy/rcu/config/MyComponentInfo.xml&#39;</span>
+        <span style="color:#f92672">storageXMLLocation</span>: <span style="color:#e6db74">&#39;wlsdeploy/rcu/config/MyStorage.xml&#39;</span>
+</code></pre></div>
+
+<footer class="footline">
+	
+</footer>
+
+        
+        </div>
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+
+        
+
+
+	 
+	 
+		
+		
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/config/" title="Configs" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619643291"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619643291"></script>
+    
+        
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619643291"></script>
+        
+        <script>
+            mermaid.initialize({ startOnLoad: true });
+        </script>
+    
+    
+
+  </body>
+</html>
+

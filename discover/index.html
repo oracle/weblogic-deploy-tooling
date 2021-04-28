@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="description" content="">
+
+
+    <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
+
+    <title> :: WebLogic Kubernetes Operator</title>
+
+    
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619643291" rel="stylesheet">
+    
+    
+
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619643291"></script>
+
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+        :not(pre) > code + span.copy-to-clipboard {
+            display: none;
+        }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/weblogic-deploy-tooling/discover/">
+    <nav id="sidebar" class="">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="https://oracle.github.io/weblogic-deploy-tooling">
+  <img src="https://oracle.github.io/weblogic-deploy-tooling/images/logo.png" height="60"><br/>
+  Kubernetes Operator
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619643291"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619643291"></script>
+<script type="text/javascript">
+    
+        var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
+    
+</script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619643291"></script>
+
+    
+  </div>
+
+    <div class="highlightable">
+    <ul class="topics">
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling">Home</a></li>
+        
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/config/" title="Configs" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/config/">
+          Configs
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/config/target_env/" title="" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/config/target_env/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developers" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/developer/">
+          Developers
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/developer_guide/" title="" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/developer_guide/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+        
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling/release-notes">Release Notes</a></li>
+    </ul>
+
+    
+    
+
+    
+    <section id="footer">
+      <p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<p>&nbsp</p>
+<p><a href="https://github.com/oracle/weblogic-deploy-tooling"><i class="fab fa-github"></i> GitHub repo</a></p>
+<p><a href="https://weblogic-slack-inviter.herokuapp.com/"><i class="fab fa-slack"></i> Public Slack #operator</a></p>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-deploy-tooling/'></a> > 
+          
+        
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-discover-domain-tool">The Discover Domain Tool</a>
+      <ul>
+        <li><a href="#environmental-variables">Environmental Variables</a></li>
+        <li><a href="#opening-an-issue-against-discover-domain">Opening an Issue against Discover Domain</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+        <div id="head-tags">
+        
+        </div>
+        
+        <div id="body-inner">
+          
+            <h1>
+              
+              
+            </h1>
+          
+
+        
+
+
+<h2 id="the-discover-domain-tool">The Discover Domain Tool</h2>
+<p>The Discover Domain Tool provides a bootstrapping mechanism to creating a model and archive file by inspecting an existing domain and gathering configuration and binaries from it.  Note that the model file produced by the tool is not directly usable by the Create Domain Tool or the Deploy Applications Tool because the Discover Domain Tool does not discover the passwords from the existing domain.  Instead, it puts a <code>--FIX ME--</code> placeholder for passwords it finds.  Domain users are also not discoverable so the tool injects the same placeholder value in the <code>AdminUserName</code> and <code>AdminPassword</code> fields in the <code>domainInfo</code> section. The idea of this tool is simply to provide a starting point where the user can edit the generated model and archive file to suit their needs for running one of the other tools.</p>
+<p>To run the Discover Domain Tool, simply provide the Oracle home and domain location. Provide a location and file name for the model file and archive file where the discovered domain information will be written. The model can be generated in either YAML or JSON format. Simply label the file name with the correct suffix. Both a sh and cmd script are provided.</p>
+<p>Example of basic discoverDomain:</p>
+<pre><code>weblogic-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.yaml
+</code></pre>
+<p>When creating the archive, the tool will try to gather all binaries, scripts, and required directories referenced by the domain configuration with the following caveats.</p>
+<ol>
+<li>Any binaries referenced from the <code>ORACLE_HOME</code> will not be gathered, as they are assumed to exist in any target domain to which model-driven operations will be applied.  Doing this is key to allowing the model to be WebLogic Server version independent.</li>
+<li>In its current form, the Discover Domain Tool will only gather binaries and scripts that are accessible from the local machine.  Warnings will be generated for any binaries or scripts that cannot be found but the configuration for those binaries will still be collected, where possible.  It is the user&rsquo;s responsibility to add those missing files to the archive in the appropriate locations and edit the the model, as needed, to point to those files inside the archive using the relative path inside the archive (for example, <code>wlsdeploy/applications/myapp.ear</code>).</li>
+<li>You can you run the discover tool without generating an archive file if you wish to inspect the model file. A create or update domain requires a valid archive file for any binaries, scripts or directories that will be installed into the domain.</li>
+</ol>
+<p>You can customize what is generated in the model for password attributes by providing a variable file location and name. This file is a text properties file which will contain a key=value for each password found in the model. The key is a unique token name for a password attribute, and the value is the replacement value; in this case, an empty string. The attribute in the model is injected with the token name and property field notation. For example, <code>@@PROP:AdminUserName@@</code> or <code>@@PROP:JDBCSystemResource.&lt;Name&gt;.JdbcResource.JDBCDriverParams.PasswordEncrypted@@</code>.</p>
+<p>A command line example containing the variable file name:</p>
+<pre><code>weblogic-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.json -variable_file DiscoverDemoDomain.properties
+</code></pre>
+<p>To discover the domain using online WLST, simply include the admin user name and admin URL on the command line. The tool will prompt for a password to be entered into STDIN.</p>
+<p>An example of running in online WLST mode:</p>
+<pre><code>weblogic-deploy/bin/discoverDomain.sh -oracle_home /u01/oracle -domain_home /u01/oracle/domains/DemoDomain -archive_file ./DiscoveredDemoDomain.zip -model_file ./DiscoveredDemoDomain.yaml -admin_user weblogic -admin_url t3://localhost:7001
+</code></pre>
+<p>Note that the command must run on the same system where the domain binaries are located in order to successfully gather the corresponding binaries into the archive file.</p>
+<p>When a domain is created using custom or product templates, the templates will install resources into the domain that do not need to be discovered for the model or collected into the archive. The domain type argument, which corresponds to a domain typedef file, must describe the type of domain in order for these resources and files to be ignored. By default, discover runs using domain type WLS, which assumes only the WebLogic Server template was applied to the domain. The tool has canned typedefs for two other domain types, RestrictedJRF and JRF. You may use these domain types, or another custom typedef. For more information, refer to <a href="tool_configuration.md#domain-type-definitions">Domain Type Definitions</a>.</p>
+<p>An example of using the domain type argument:</p>
+<pre><code>weblogic-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.yaml -domain_type RestrictedJRF
+</code></pre>
+<p>Before the model is persisted to the model file, any variable injectors or model filters are run, in that order. The final step is validation, which validates the contents of the model, archive and variable file. If the validation is successful, the model is persisted. For more information on these three topics, go to:</p>
+<ul>
+<li><a href="variable_injection.md">Variable Injection</a></li>
+<li><a href="tool_configuration.md#model-filters">Model Filters</a></li>
+<li><a href="validate.md">Validate Model Tool</a></li>
+</ul>
+<p>The resulting model can also be modified for compatibility with specific target environments, such as Oracle Weblogic Server Kubernetes Operator. For more information, see <a href="config/target_env.md">Target Environments</a>.</p>
+<p>Any problems (or success) will be listed in the discover tool summary. The summary will print the version of the tool and Oracle home, and the WLST mode with which the tool was run (online or offline). A recap of all Warning and Severe messages will be listed, along with a total.</p>
+<p>An example of a summary with a WARNING message:</p>
+<pre><code>Issue Log for discoverDomain version 1.5.2-SNAPSHOT running WebLogic version 10.3.6.0 offline mode:
+
+WARNING Messages:
+
+        1. WLSDPLY-06200: Unable to get the Security Realm Provider name in version 10.3.6.0 with offline wlst. The SecurityConfiguration will not be added to the model. The work-around is to manually add the Security Configuration to the model or to discover the domain in online mode : Invalid Security Provider name &quot;Provider&quot; found for provider type at location /SecurityConfiguration/Realm/Adjudicator.
+
+Total:       WARNING :     1    SEVERE :     0
+</code></pre><h3 id="environmental-variables">Environmental Variables</h3>
+<p>The following environment variables may be set.</p>
+<ul>
+<li>JAVA_HOME             The location of the JDK. This must be a valid Java 7 or later JDK.</li>
+<li>WLSDEPLOY_HOME        The location of the WebLogic Deploy Tooling installation. By default, the location is calculated
+from the location of the discoverDomain script.</li>
+<li>WLSDEPLOY_PROPERTIES  System properties that will be passed to WLST.</li>
+</ul>
+<h3 id="opening-an-issue-against-discover-domain">Opening an Issue against Discover Domain</h3>
+<p>Please provide the STDOUT and STDERR logstreams in the GitHub Issue. If the summary is not listed (unhandled exception stacktrace occurs), be sure and include the Oracle and WDT install versions and whether the tool was run in online or offline WLST mode. If possible, provide the model, variable and archive files and the log file, discoverDomain.log, from location <code>&lt;install home&gt;\weblogic-deploy\log</code>.</p>
+
+
+<footer class="footline">
+	
+</footer>
+
+        
+        </div>
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+
+        
+
+
+	 
+	 
+		
+		
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/config/" title="Configs" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619643291"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619643291"></script>
+    
+        
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619643291"></script>
+        
+        <script>
+            mermaid.initialize({ startOnLoad: true });
+        </script>
+    
+    
+
+  </body>
+</html>
+

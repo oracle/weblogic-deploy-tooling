@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="description" content="">
+
+
+    <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
+
+    <title> :: WebLogic Kubernetes Operator</title>
+
+    
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619643291" rel="stylesheet">
+    
+    
+
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619643291"></script>
+
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+        :not(pre) > code + span.copy-to-clipboard {
+            display: none;
+        }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/weblogic-deploy-tooling/validate/">
+    <nav id="sidebar" class="">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="https://oracle.github.io/weblogic-deploy-tooling">
+  <img src="https://oracle.github.io/weblogic-deploy-tooling/images/logo.png" height="60"><br/>
+  Kubernetes Operator
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619643291"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619643291"></script>
+<script type="text/javascript">
+    
+        var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
+    
+</script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619643291"></script>
+
+    
+  </div>
+
+    <div class="highlightable">
+    <ul class="topics">
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling">Home</a></li>
+        
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/config/" title="Configs" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/config/">
+          Configs
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/config/target_env/" title="" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/config/target_env/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developers" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/developer/">
+          Developers
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/developer_guide/" title="" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/developer_guide/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+        
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling/release-notes">Release Notes</a></li>
+    </ul>
+
+    
+    
+
+    
+    <section id="footer">
+      <p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<p>&nbsp</p>
+<p><a href="https://github.com/oracle/weblogic-deploy-tooling"><i class="fab fa-github"></i> GitHub repo</a></p>
+<p><a href="https://weblogic-slack-inviter.herokuapp.com/"><i class="fab fa-slack"></i> Public Slack #operator</a></p>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-deploy-tooling/'></a> > 
+          
+        
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-validate-model-tool">The Validate Model Tool</a>
+      <ul>
+        <li><a href="#using-multiple-models">Using Multiple Models</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+        <div id="head-tags">
+        
+        </div>
+        
+        <div id="body-inner">
+          
+            <h1>
+              
+              
+            </h1>
+          
+
+        
+
+
+<h2 id="the-validate-model-tool">The Validate Model Tool</h2>
+<p>When working with a metadata model that drives tooling, it is critical to make it easy both to validate that the model and its related artifacts are well-formed and to provide help on the valid attributes and subfolders for a particular model location.  The Validate Model Tool provides both validation and help for model authors as a standalone tool.  In addition, the tool is integrated with the <code>createDomain</code> and <code>deployApps</code> tools to catch validation errors early, before any actions are performed on the domain.</p>
+<p>To use the Validate Model Tool, simply run the <code>validateModel</code> shell script with the correct arguments.  To see the list of valid arguments for any tool in the Oracle WebLogic Server Deploy Tooling installation, simply run the shell script with the <code>-help</code> option (or with no arguments) to see the shell script usage information.</p>
+<p>For example, starting with the following model shown below, where the <code>AdminServer</code> attribute <code>Machine</code> is misspelled as <code>Machines</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
+    <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">DemoDomain</span>
+    <span style="color:#f92672">AdminServerName</span>: <span style="color:#ae81ff">AdminServer</span>
+    <span style="color:#f92672">Cluster</span>:
+        <span style="color:#f92672">mycluster</span>:
+    <span style="color:#f92672">Server</span>:
+        <span style="color:#f92672">AdminServer</span>:
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7001</span>
+            <span style="color:#f92672">Machines</span>: <span style="color:#ae81ff">machine1</span>
+            <span style="color:#f92672">SSL</span>:
+                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7002</span>
+            <span style="color:#f92672">ServerStart</span>:
+                <span style="color:#f92672">ClassPath</span>: <span style="color:#e6db74">&#39;c:\foo\bar&#39;</span>
+        <span style="color:#f92672">m1</span>:
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8001</span>
+            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">mycluster</span>
+            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine1</span>
+            <span style="color:#f92672">ServerStart</span>:
+                <span style="color:#f92672">ClassPath</span>: <span style="color:#e6db74">&#39;c:\foo\bar&#39;</span>
+        <span style="color:#f92672">m2</span>:
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.51</span>
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8001</span>
+            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">mycluster</span>
+            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine2</span>
+            <span style="color:#f92672">ServerStart</span>:
+                <span style="color:#f92672">ClassPath</span>: <span style="color:#e6db74">&#39;c:\foo\bar&#39;</span>
+    <span style="color:#f92672">Machine</span>:
+        <span style="color:#f92672">machine1</span>:
+            <span style="color:#f92672">NodeManager</span>:
+                <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">5556</span>
+        <span style="color:#f92672">machine2</span>:
+            <span style="color:#f92672">NodeManager</span>:
+                <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.51</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">5556</span>
+</code></pre></div><p>To validate the standalone model file, run the tool as follows:</p>
+<pre><code>weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml
+</code></pre>
+<p>The output of the tool will look something like this:</p>
+<pre><code>-----------------------------------------------
+Validation Area: topology Section
+-----------------------------------------------
+
+  Errors: 1
+    Message: Machines is not one of the folder, folder instance or attribute names allowed in model location topology:/Server/AdminServer
+</code></pre>
+<p>Use the <a href="model_help.md">Model Help Tool</a> to determine the valid list of attributes and folders at this model location.</p>
+<p>If the model contains variable definitions and the variable file is specified, the Validate Model Tool will validate that all variable references in the model are defined in the variable file.  For example, invoking the tool as shown here:</p>
+<pre><code>weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -variable_file InvalidDemoDomain.properties
+</code></pre>
+<p>Results in output similar to that shown below, if the <code>db.password</code> variable is not defined in the variable file.</p>
+<pre><code>-----------------------------------------------
+Validation Area: Variable Substitutions
+-----------------------------------------------
+
+  Errors: 2
+    Message: Model location resource:/JDBCSystemResource/Generic1/JdbcResource/JDBCDriverParams/PasswordEncrypted references variable db.password that is not defined in D:/demo/InvalidDemoDomain.properties
+    Message: Model location resource:/JDBCSystemResource/Generic2/JdbcResource/JDBCDriverParams/PasswordEncrypted references variable db.password that is not defined in D:/demo/InvalidDemoDomain.properties
+</code></pre>
+<p>If the model references binaries that should be present in the archive, the Validate Model Tool will validate that all binary references in the model that point to archive file locations are present in the archive file.  For example, invoking the tool as shown here:</p>
+<pre><code>weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -archive_file InvalidDemoDomain.zip
+</code></pre>
+<p>Results in output similar to that shown below, if the <code>simpleear.ear</code> file is not in the model-specified location inside the archive file.</p>
+<pre><code>-----------------------------------------------
+Validation Area: Archive Entries
+-----------------------------------------------
+
+  Errors: 1
+    Message: Model location appDeployments:/Application/simpleear/SourcePath references file wlsdeploy/applications/simpleear.ear that is not found in the archive file D:/demo/InvalidDemoDomain.zip
+</code></pre>
+<h3 id="using-multiple-models">Using Multiple Models</h3>
+<p>The Validate Model Tool supports the use of multiple models, as described in <a href="model.md#using-multiple-models">Using Multiple Models</a>.</p>
+
+
+<footer class="footline">
+	
+</footer>
+
+        
+        </div>
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+
+        
+
+
+	 
+	 
+		
+		
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/config/" title="Configs" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619643291"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619643291"></script>
+    
+        
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619643291"></script>
+        
+        <script>
+            mermaid.initialize({ startOnLoad: true });
+        </script>
+    
+    
+
+  </body>
+</html>
+

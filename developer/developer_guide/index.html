@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="description" content="">
+
+
+    <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
+
+    <title> :: WebLogic Kubernetes Operator</title>
+
+    
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619643291" rel="stylesheet">
+    
+    
+
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619643291"></script>
+
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+        :not(pre) > code + span.copy-to-clipboard {
+            display: none;
+        }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/weblogic-deploy-tooling/developer/developer_guide/">
+    <nav id="sidebar" class="">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="https://oracle.github.io/weblogic-deploy-tooling">
+  <img src="https://oracle.github.io/weblogic-deploy-tooling/images/logo.png" height="60"><br/>
+  Kubernetes Operator
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619643291"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619643291"></script>
+<script type="text/javascript">
+    
+        var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
+    
+</script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619643291"></script>
+
+    
+  </div>
+
+    <div class="highlightable">
+    <ul class="topics">
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling">Home</a></li>
+        
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/config/" title="Configs" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/config/">
+          Configs
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/config/target_env/" title="" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/config/target_env/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developers" class="dd-item
+        parent
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/developer/">
+          Developers
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/developer_guide/" title="" class="dd-item active">
+        <a href="/weblogic-deploy-tooling/developer/developer_guide/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+        
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling/release-notes">Release Notes</a></li>
+    </ul>
+
+    
+    
+
+    
+    <section id="footer">
+      <p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<p>&nbsp</p>
+<p><a href="https://github.com/oracle/weblogic-deploy-tooling"><i class="fab fa-github"></i> GitHub repo</a></p>
+<p><a href="https://weblogic-slack-inviter.herokuapp.com/"><i class="fab fa-slack"></i> Public Slack #operator</a></p>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/developer/'>Developers</a> > 
+          
+        
+          
+        
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#table-of-contents">Table of Contents</a></li>
+    <li><a href="#project-structure">Project Structure</a></li>
+    <li><a href="#feature-implementation">Feature Implementation</a>
+      <ul>
+        <li><a href="#creator-and-deployer-class-hierarchies">Creator and Deployer Class Hierarchies</a></li>
+      </ul>
+    </li>
+    <li><a href="#alias-definitions">Alias Definitions</a>
+      <ul>
+        <li><a href="#conventions">Conventions</a></li>
+        <li><a href="#keys-for-top-level-and-folders-elements">Keys for Top Level and <code>folders</code> Elements</a></li>
+        <li><a href="#keys-for-attributes-elements">Keys for <code>attributes</code> Elements</a></li>
+      </ul>
+    </li>
+    <li><a href="#building-weblogic-deploy-tool">Building WebLogic Deploy Tool</a>
+      <ul>
+        <li><a href="#prerequisite">Prerequisite</a></li>
+        <li><a href="#specifying-the-wlst-location">Specifying the WLST location</a></li>
+        <li><a href="#build-commands">Build Commands</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+        <div id="head-tags">
+        
+        </div>
+        
+        <div id="body-inner">
+          
+            <h1>
+              
+              
+            </h1>
+          
+
+        
+
+
+<h1 id="developer-guide">Developer Guide</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#project-structure">Project Structure</a></li>
+<li><a href="#feature-implementation">Feature Implementation</a></li>
+<li><a href="#alias-definitions">Alias Definitions</a></li>
+<li><a href="#building-weblogic-deploy-tool">Building WebLogic Deploy Tool</a></li>
+</ul>
+<h2 id="project-structure">Project Structure</h2>
+<p>This project is structured using the Standard Directory Layout for Maven projects, with two child modules, <code>core</code> and <code>installer</code>. In addition, there is a <code>samples</code> directory with example configurations, and the <code>site</code> directory containing project documentation.</p>
+<p>The <code>core</code> module contains the main source code for the project. This includes Jython modules and Java classes, as well as typedef files, alias definitions, and the message bundle. There are unit tests related to this module.</p>
+<p>Alias definitions are discussed in more detail <a href="#alias-definitions">here</a>.</p>
+<p>The <code>installer</code> module builds the final installer ZIP file. It includes the assembly definitions, start scripts for each tool for Linux and Windows platforms, and configurations for variable injection and logging.</p>
+<p>A single installer ZIP file is built under the <code>WLSDEPLOY_HOME/installer/target</code> directory.</p>
+<p>There are detailed instructions for building the project <a href="#building-weblogic-deploy-tool">here</a>.</p>
+<h2 id="feature-implementation">Feature Implementation</h2>
+<p>This section describes how specific features of WebLogic Deploy Tooling are implemented in the source code.</p>
+<h3 id="creator-and-deployer-class-hierarchies">Creator and Deployer Class Hierarchies</h3>
+<p>The creation of individual folders and attributes within the <code>topology</code> section of the domain model is accomplished using subclasses of the Jython class <code>Creator</code>, in the module <code>wlsdeploy.tool.create.creator.py</code>.  The <code>Creator</code> class provides base methods to recurse through nested folders in the domain model, create or update those folders, and set or update their attributes. Each subclass can override these methods to account for variations in behavior for different functional areas.</p>
+<p>For example, the <code>SecurityProviderCreator</code> subclass overrides the method <code>_create_named_subtype_mbeans</code> with special processing to remove all existing security providers, and re-create them from the data in the model.</p>
+<p>The update of folders and attributes in the <code>resources</code> section of the domain model follows a similar pattern, but the base class for these modules is <code>Deployer</code> in the module <code>wlsdeploy.tool.deploy.deployer.py</code>.</p>
+<p>The class <code>TopologyUpdater</code> is a special subclass of <code>Deployer</code> that is used to update elements in the <code>topology</code> section after their initial creation.</p>
+<h2 id="alias-definitions">Alias Definitions</h2>
+<p>WebLogic Deploy Tool uses a set of JSON configuration files to map folders and attributes in the model to the corresponding WLST MBeans and their attributes. These mappings are referred as &lsquo;aliases&rsquo; throughout the project code and documentation. Each element in the alias definition file has detailed properties that assist in this mapping.</p>
+<p>The model&rsquo;s folder and attribute names usually match the names of the corresponding elements in WLST. For cases where the names of WLST elements may change across WebLogic Server releases, the names should match the names in the 12.2.1.3 release. The unit test <code>AttributesTestCase</code> verifies that this convention is used, and identifies a few exceptions.</p>
+<p>Attributes that are introduced after the 12.2.1.3 release should, in most cases, match the name of the first WebLogic Server release in which they appear. The unit test <code>AttributesTestCase</code> will ignore these for now, because they will not be present in the 12.2.1.3 alias structure.</p>
+<p>The alias definition files reside in the directory:</p>
+<p><code>$WLSDEPLOY_HOME/core/src/main/resources/oracle/weblogic/deploy/aliases/category_module</code></p>
+<p>Each definition file corresponds to a second-level folder within the model, such as <code>JDBCSystemResource</code>.  Any elements below a second-level folder are defined in the file of that parent. For example, the model element <code>resources/JDBCSystemResource/JdbcResource/JDBCConnectionPoolParams</code> is described in <code>JDBCSystemResource.json</code>.</p>
+<p>Top-level elements such as <code>topology</code> and <code>resources</code> are for organizational purposes, and are not represented in the alias definition files.</p>
+<p>No elements in the <code>domainInfo</code> section of the model are represented in the alias definitions, because they don&rsquo;t correspond directly to WLST elements.</p>
+<p>This example, from the file <code>JDBCSystemResource.json</code>, will be used as a reference in the descriptions below:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{
+    <span style="color:#f92672">&#34;copyright&#34;: </span><span style="color:#e6db74">&#34;Copyright (c) 2017, 2018, Oracle Corporation and/or its affiliates.  All rights reserved.&#34;</span>,
+    <span style="color:#f92672">&#34;license&#34;: </span><span style="color:#e6db74">&#34;Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl&#34;</span>,
+    <span style="color:#f92672">&#34;wlst_type&#34;: </span><span style="color:#e6db74">&#34;JDBCSystemResource${:s}&#34;</span>,
+    <span style="color:#f92672">&#34;child_folders_type&#34;: </span><span style="color:#e6db74">&#34;multiple&#34;</span>,
+    <span style="color:#f92672">&#34;folders&#34;: </span>{
+        <span style="color:#e6db74">&#34;JdbcResource&#34;</span> : {
+            <span style="color:#f92672">&#34;wlst_type&#34;: </span><span style="color:#e6db74">&#34;${Jdbc:JDBC}Resource&#34;</span>,
+            <span style="color:#f92672">&#34;folders&#34;: </span>{
+                <span style="color:#f92672">&#34;JDBCConnectionPoolParams&#34;: </span>{
+                    <span style="color:#f92672">&#34;wlst_type&#34;: </span><span style="color:#e6db74">&#34;JDBCConnectionPoolParams&#34;</span>,
+                    <span style="color:#f92672">&#34;folders&#34;: </span>{},
+                    <span style="color:#f92672">&#34;attributes&#34;: </span>{
+                        <span style="color:#f92672">&#34;CapacityIncrement&#34;:  [ {&#34;version&#34;: </span><span style="color:#e6db74">&#34;[10,)&#34;</span>,       
+                                                 <span style="color:#f92672">&#34;wlst_mode&#34;: </span><span style="color:#e6db74">&#34;both&#34;</span>,    
+                                                 <span style="color:#f92672">&#34;wlst_name&#34;: </span><span style="color:#e6db74">&#34;CapacityIncrement&#34;</span>,                                
+                                                 <span style="color:#f92672">&#34;wlst_path&#34;: </span><span style="color:#e6db74">&#34;WP001&#34;</span>, 
+                                                 <span style="color:#f92672">&#34;value&#34;: {&#34;default&#34;: </span><span style="color:#e6db74">&#34;${None:1}&#34;</span>},  
+                                                 <span style="color:#f92672">&#34;wlst_type&#34;: </span><span style="color:#e6db74">&#34;integer&#34;</span>,       
+                                                 <span style="color:#f92672">&#34;get_method&#34;: </span><span style="color:#e6db74">&#34;LSA&#34;</span>} ],
+                        <span style="color:#f92672">&#34;ConnectionCreationRetryFrequencySeconds&#34;: [ {&#34;version&#34;: </span><span style="color:#e6db74">&#34;[10,)&#34;</span>,     
+                                                                     <span style="color:#f92672">&#34;wlst_mode&#34;: </span><span style="color:#e6db74">&#34;both&#34;</span>,    
+                                                                     <span style="color:#f92672">&#34;wlst_name&#34;: </span><span style="color:#e6db74">&#34;ConnectionCreationRetryFrequencySeconds&#34;</span>,
+                                                                     <span style="color:#f92672">&#34;wlst_path&#34;: </span><span style="color:#e6db74">&#34;WP001&#34;</span>, 
+                                                                     <span style="color:#f92672">&#34;value&#34;: {&#34;default&#34;: </span><span style="color:#e6db74">&#34;${None:0}&#34;</span>},        
+                                                                     <span style="color:#f92672">&#34;wlst_type&#34;: </span><span style="color:#e6db74">&#34;integer&#34;</span>,      
+                                                                     <span style="color:#f92672">&#34;get_method&#34;: </span><span style="color:#e6db74">&#34;LSA&#34;</span>} ]
+                    },
+                    <span style="color:#f92672">&#34;wlst_attributes_path&#34;: </span><span style="color:#e6db74">&#34;WP001&#34;</span>,
+                    <span style="color:#f92672">&#34;wlst_paths&#34;: </span>{
+                        <span style="color:#f92672">&#34;WP001&#34;: </span><span style="color:#e6db74">&#34;/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCConnectionPoolParams/${NO_NAME_0:%DATASOURCE%}&#34;</span>
+                    }
+                },
+...
+</code></pre></div><h3 id="conventions">Conventions</h3>
+<p>Notations similar to <code>${Jdbc:JDBC}Resource</code> appear throughout this example, and other alias definition files. It is shorthand for the common situation where a value is different between offline and online WLST. The value before the colon is used in offline processing, and the value after is used for online. In this example, the value for <code>wlst_type</code> is <code>JdbcResource</code> in offline, and <code>JDBCResource</code> in online. This notation can be used for values in most places in the model. It cannot be used for key values, such as <code>wlst_type</code>.</p>
+<h3 id="keys-for-top-level-and-folders-elements">Keys for Top Level and <code>folders</code> Elements</h3>
+<p>These JSON keys are applicable for the top-level element (such as <code>JDBCSystemResource</code>), and each of its nested <code>folders</code> elements (such as <code>JdbcResource</code> and <code>JdbcResource/JDBCConnectionPoolParams</code>.</p>
+<h4 id="wlst_type"><code>wlst_type</code></h4>
+<p>This value is the type name of the WLST MBean that corresponds to a model folder. The <code>${x:y}</code> notation described above is often used here to distinguish offline and online folder names.</p>
+<h4 id="child_folders_type"><code>child_folders_type</code></h4>
+<p>This value specifies how the tool will map the domain model element to one or more WLST MBeans. The values are:</p>
+<ul>
+<li>
+<p><code>single</code> (default) - this element represents a single MBean, and the MBean name is known.</p>
+</li>
+<li>
+<p><code>single-unpredictable</code> - this element represents a single MBean, but the MBean name must be derived at runtime.</p>
+</li>
+<li>
+<p><code>multiple</code> - this element contains multiple named elements (such as <code>dataSource1</code>, <code>dataSource2</code>), and each represents a single MBean.</p>
+</li>
+</ul>
+<h4 id="folders"><code>folders</code></h4>
+<p>Nested WLST MBean types for the current MBean are listed here. Each has a domain model type name, followed by its own JSON keyed elements.</p>
+<h4 id="wlst_attributes_path"><code>wlst_attributes_path</code></h4>
+<p>This key element specifies the name of the path expression used for navigating to the MBean attributes folder. The actual path expression is defined later in the <code>&quot;wlst_paths&quot;: { }</code> element.</p>
+<h4 id="wlst_paths"><code>wlst_paths</code></h4>
+<p>The dictionary key defines the various WLST path values used elsewhere in this folder&rsquo;s definition. Each entry maps a name to a full WLST MBean path.  In this example, <code>JDBCConnectionPoolParams</code> has a single path:</p>
+<p><code>&quot;WP001&quot;: &quot;/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCConnectionPoolParams/${NO_NAME_0:%DATASOURCE%}&quot;</code></p>
+<p>The <code>%DATASOURCE%</code> text is token placeholder. It will be replaced with the name of the actual data source by the tool.</p>
+<h3 id="keys-for-attributes-elements">Keys for <code>attributes</code> Elements</h3>
+<p>Each child of an <code>attributes</code> element represents a single MBean attribute, and its key is the corresponding model name, such as <code>CapacityIncrement</code>. It contains at least one description element with the JSON keys below. There may be multiple description elements for cases where the configuration varies for different WebLogic Server version ranges, or varies between offline and online WLST.</p>
+<h4 id="version"><code>version</code></h4>
+<p>This key element defines the applicable versions for a particular MBean attribute description. Maven versioning conventions are used to describe ranges and limits. For example:</p>
+<p><code>&quot;version&quot;: &quot;[10,)&quot;</code></p>
+<p>Specifies that an MBean attribute description is relevant for WebLogic Server version 10 and later</p>
+<h4 id="wlst_mode"><code>wlst_mode</code></h4>
+<p>This key element specifies the WLST modes that are applicable for an MBean attribute description. The value can be &ldquo;offline&rdquo;, &ldquo;online&rdquo;, or &ldquo;both&rdquo;.</p>
+<h4 id="wlst_name"><code>wlst_name</code></h4>
+<p>This key element specifies the WLST name of the MBean attribute.</p>
+<h4 id="wlst_type-1"><code>wlst_type</code></h4>
+<p>This key element specifies the data type used to set the WLST MBean attribute. Valid values are <code>integer</code>, <code>long</code>, <code>string</code>, <code>delimited_string</code>, <code>boolean</code> and <code>jarray</code>. If the <code>wlst_read_type</code> is not set, this is also the data type used to read the value from WLST.</p>
+<h4 id="wlst_read_type"><code>wlst_read_type</code></h4>
+<p>This key element specifies the data type used to read the WLST MBean attribute. If it is not specified, the value of <code>wlst_type</code> is used for the read.</p>
+<h4 id="get_method"><code>get_method</code></h4>
+<p>This key element specifies which method should be used for retrieving the value the MBean attribute.  Valid values are:</p>
+<ul>
+<li><code>GET</code>  use the WLST get method to retrieve the value of the attribute</li>
+<li><code>LSA</code>  use ls(type=&lsquo;a&rsquo;) to retrieve the value of the attribute</li>
+<li><code>NONE</code> do not retrieve the attribute value</li>
+</ul>
+<h4 id="access"><code>access</code></h4>
+<p>By default, an attribute is read write in both WLST and MODEL. This element is used to set an attribute to read-only. The two read-only attributes are <code>RO</code> and <code>ROD</code>. The latter indicates that the attribute is read-only and will not be written into the domain. However, it will be discovered by the discover tool into the model.</p>
+<h4 id="preferred_model_type"><code>preferred_model_type</code></h4>
+<p>This key element specifies the preferred data type that should be used to put data in the model during discovery. As an example, list values can be represented in the model as comma-separated text, such as <code>&quot;value1, value2&quot;</code>, or as a YAML list, such as <code>[&quot;value1&quot;, &quot;value2&quot;]</code>. If the list values can contain commas, it is preferred to use a YAML list.</p>
+<h4 id="wlst_path"><code>wlst_path</code></h4>
+<p>This key element specifies the name of the path expression used for navigating to the MBean attribute&rsquo;s folder. This name maps to an entry in the parent folder&rsquo;s <code>&quot;wlst_paths&quot;: { }</code> list.</p>
+<h4 id="value"><code>value</code></h4>
+<p>This key element is used to specify the default value of the MBean attribute. For example:</p>
+<p><code>&quot;value&quot;: {&quot;default&quot;: &quot;${None:1}&quot;}</code></p>
+<h4 id="set_method"><code>set_method</code></h4>
+<p>For cases where attributes cannot be set with simple types, it may be necessary to use a custom method to set the value. For example, most <code>Target</code> attributes require their values to be set as lists of MBeans, in online mode. This may be defined as:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">&#34;attributes&#34;: </span>{
+        <span style="color:#f92672">&#34;Target&#34;: </span>[ {
+            <span style="color:#f92672">&#34;set_method&#34;: </span><span style="color:#e6db74">&#34;MBEAN.set_target_mbeans&#34;</span>, 
+            <span style="color:#f92672">&#34;set_mbean_type&#34;: </span><span style="color:#e6db74">&#34;weblogic.management.configuration.TargetMBean&#34;</span>} ],
+    },
+</code></pre></div><p>The method <code>set_target_mbeans</code> directs the tool to call the Jython method <code>attribute_setter.set_target_mbeans</code> to set this value.</p>
+<h4 id="set_mbean_type"><code>set_mbean_type</code></h4>
+<p>When a <code>set_method</code> key is specified, it may be required to specify the MBean type for the set method to use (see the example under <code>set_method</code>).</p>
+<h2 id="building-weblogic-deploy-tool">Building WebLogic Deploy Tool</h2>
+<h3 id="prerequisite">Prerequisite</h3>
+<p>You will need the following software installed in your local build environment</p>
+<ol>
+<li>Oracle WebLogic Server installation version 12.2.1 and later</li>
+<li>JDK version 8</li>
+<li>Maven 3 and later</li>
+</ol>
+<h3 id="specifying-the-wlst-location">Specifying the WLST location</h3>
+<p>Execution of the unit tests requires a WebLogic Server installation, because the tests must be run within WLST.</p>
+<p>The WLST directory can be specified in one of two ways:</p>
+<ul>
+<li>
+<p>Specify the <code>-Dunit-test-wlst-dir=&lt;wlst-directory&gt;</code> on the mvn command line.</p>
+</li>
+<li>
+<p>Create a file <code>.mvn/maven.config</code> file in the project directory, containing a single line with the <code>-Dunit-test-wlst-dir=&lt;wlst-directory&gt;</code> value. The <code>.mvn</code> directory contains a <code>maven.config-template</code> file that can be copied and used as a starting point.</p>
+</li>
+</ul>
+<p>In these cases, <code>&lt;wlst-directory&gt;</code> refers to the fully-qualified path to the WLST script (<code>wlst.sh</code> or <code>wlst.cmd</code>).</p>
+<p>If you are using an IDE for development and building, creating a <code>maven-config</code> file will allow some Maven tasks to be performed within the IDE.</p>
+<h3 id="build-commands">Build Commands</h3>
+<p>If you are making changes to the project, you can build the project using this command line:</p>
+<p><code>mvn -Dunit-test-wlst-dir=&lt;wlst-directory&gt; clean install</code></p>
+<p>This will build the entire project and run the unit tests. Omit the <code>-Dunit-test-wlst-dir=</code> argument if you have created a <code>maven.config</code> file, as described above.</p>
+<p>Another option for specifying the WLST directory is to set the environment variable WLST_DIR.  It is not necessary to use both, and
+the -D setting will take precedence.</p>
+<p>If you are not making changes and are only interested in building the latest version, then you can skip the unit tests, using this command line:</p>
+<p><code>mvn -DskipTests clean install</code></p>
+<p>The resulting installer ZIP file built is under the <code>WLSDEPLOY_HOME/installer/target</code> directory.</p>
+
+
+<footer class="footline">
+	
+</footer>
+
+        
+        </div>
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+
+        
+
+
+	 
+	 
+		
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/developer/" title="Developers"> <i class="fa fa-chevron-left"></i></a>
+		
+		
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/config/" title="Configs" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619643291"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619643291"></script>
+    
+        
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619643291"></script>
+        
+        <script>
+            mermaid.initialize({ startOnLoad: true });
+        </script>
+    
+    
+
+  </body>
+</html>
+

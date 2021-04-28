@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.82.0" />
+    <meta name="description" content="">
+
+
+    <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
+
+    <title> :: WebLogic Kubernetes Operator</title>
+
+    
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619643291" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619643291" rel="stylesheet">
+    
+    
+
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619643291"></script>
+
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+        :not(pre) > code + span.copy-to-clipboard {
+            display: none;
+        }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/weblogic-deploy-tooling/model_help/">
+    <nav id="sidebar" class="">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="https://oracle.github.io/weblogic-deploy-tooling">
+  <img src="https://oracle.github.io/weblogic-deploy-tooling/images/logo.png" height="60"><br/>
+  Kubernetes Operator
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619643291"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619643291"></script>
+<script type="text/javascript">
+    
+        var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
+    
+</script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619643291"></script>
+
+    
+  </div>
+
+    <div class="highlightable">
+    <ul class="topics">
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling">Home</a></li>
+        
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/config/" title="Configs" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/config/">
+          Configs
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/config/target_env/" title="" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/config/target_env/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developers" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/developer/">
+          Developers
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/developer_guide/" title="" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/developer_guide/">
+        
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+        
+      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling/release-notes">Release Notes</a></li>
+    </ul>
+
+    
+    
+
+    
+    <section id="footer">
+      <p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<p>&nbsp</p>
+<p><a href="https://github.com/oracle/weblogic-deploy-tooling"><i class="fab fa-github"></i> GitHub repo</a></p>
+<p><a href="https://weblogic-slack-inviter.herokuapp.com/"><i class="fab fa-slack"></i> Public Slack #operator</a></p>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-deploy-tooling/'></a> > 
+          
+        
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-model-help-tool">The Model Help Tool</a>
+      <ul>
+        <li><a href="#path-patterns">Path Patterns</a></li>
+        <li><a href="#output-options">Output Options</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+        <div id="head-tags">
+        
+        </div>
+        
+        <div id="body-inner">
+          
+            <h1>
+              
+              
+            </h1>
+          
+
+        
+
+
+<h2 id="the-model-help-tool">The Model Help Tool</h2>
+<p>The Model Help Tool provides information about the folders and attributes that are valid for sections and folders of a domain model. This is useful when creating a new domain model, or expanding an existing model, including discovered models.</p>
+<p><strong>NOTE:</strong> The Model Help Tool is new in WebLogic Deploy Tooling 1.8.</p>
+<p><strong>NOTE:</strong> The <code>-model_sample</code> argument is deprecated starting with WebLogic Deploy Tooling 1.9.2, when model sample became the default output format.</p>
+<p>Here is a simple example using the Model Help Tool:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">&lt;wls-deploy-home&gt;/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource</span>
+</code></pre></div><p>This will result in the following output:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">Attributes and sub-folders for resources:/JDBCSystemResource</span>
+
+<span style="color:#f92672">resources</span>:
+    <span style="color:#f92672">JDBCSystemResource</span>:
+        <span style="color:#f92672">&#39;JDBC-1&#39;</span>:
+            <span style="color:#f92672">CompatibilityName</span>:       <span style="color:#75715e"># string</span>
+            <span style="color:#f92672">DeploymentOrder</span>:         <span style="color:#75715e"># integer</span>
+            <span style="color:#f92672">DeploymentPrincipalName</span>: <span style="color:#75715e"># string</span>
+            <span style="color:#f92672">DescriptorFileName</span>:      <span style="color:#75715e"># string</span>
+            <span style="color:#f92672">ModuleType</span>:              <span style="color:#75715e"># string</span>
+            <span style="color:#f92672">Notes</span>:                   <span style="color:#75715e"># string</span>
+            <span style="color:#f92672">SourcePath</span>:              <span style="color:#75715e"># string</span>
+            <span style="color:#f92672">Target</span>:                  <span style="color:#75715e"># delimited_string</span>
+
+            <span style="color:#f92672">JdbcResource</span>:
+                <span style="color:#75715e"># see /JDBCSystemResource/JdbcResource</span>
+
+            <span style="color:#f92672">SubDeployment</span>:
+                <span style="color:#f92672">&#39;SubDeployment-1&#39;</span>:
+                    <span style="color:#75715e"># see /JDBCSystemResource/SubDeployment</span>
+</code></pre></div><p>This output shows the eight attributes and two sub-folders available for the <code>JDBCSystemResource</code> folder in the <code>resources</code> section of the model. Each attribute includes a comment describing the type of the value to be added.</p>
+<p>Folders that support multiple instances, such as <code>JDBCSystemResource</code> in this example, are shown with a derived name, such as <code>'JDBC-1'</code>.</p>
+<p>Each sub-folder includes a comment with a model path that can be used to display additional information about that sub-folder. For example, to determine the attributes and sub-folders for <code>'SubDeployment-1'</code>, the Model Help Tool could be re-invoked with the model path from the comment:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">&lt;wls-deploy-home&gt;/bin/modelHelp.sh -oracle_home /tmp/oracle -model_sample /JDBCSystemResource/SubDeployment</span>
+</code></pre></div><p>You can use the information above to construct this model section:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">resources</span>:
+    <span style="color:#f92672">JDBCSystemResource</span>:
+        <span style="color:#f92672">CompatibilityName</span>: <span style="color:#e6db74">&#39;myName&#39;</span>
+        <span style="color:#f92672">DeploymentOrder</span>: <span style="color:#ae81ff">5</span>
+        <span style="color:#f92672">Target</span>: <span style="color:#e6db74">&#39;ms1,ms2&#39;</span>
+        <span style="color:#f92672">&#39;JDBC-1&#39;</span>:
+            <span style="color:#75715e"># JdbcSystemResource attributes and folders</span>
+        <span style="color:#f92672">SubDeployment</span>:
+            <span style="color:#f92672">deployment1</span>:
+                <span style="color:#75715e"># SubDeployment attributes and folders</span>
+            <span style="color:#f92672">deployment2</span>:
+                <span style="color:#75715e"># SubDeployment attributes and folders</span>
+</code></pre></div><p>If you are copying elements from the sample model to create a full domain model, you should exclude any attributes or sub-folders that you do not intend to declare or override.</p>
+<h3 id="path-patterns">Path Patterns</h3>
+<p>There are a number of ways to specify model location in the path argument. Here are some examples:</p>
+<p>List all the top-level model sections, such as <code>topology</code>, <code>resources</code>, and such:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">top</span>
+</code></pre></div><p>List the attributes and folders within a section, such as <code>topology</code>, <code>resources</code>, and such:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">topology</span>
+</code></pre></div><p>List all the attributes and folders within a folder:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">resources:/JDBCSystemResource/JdbcResource</span>
+</code></pre></div><p>If the section is not provided for a folder, then it will be derived and included in the output text:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">/JDBCSystemResource/JdbcResource</span>
+</code></pre></div><h3 id="output-options">Output Options</h3>
+<p>There are several command-line options that you can use to control the output text for the model path. Use only one of these options at a time. If no output options are specified, then the attributes and immediate sub-folders for the specified path are listed.</p>
+<p><strong>NOTE:</strong>
+When the top sections are listed using the path <code>top</code>, any output options are ignored.</p>
+<h4 id="-attributes_only"><code>-attributes_only</code></h4>
+<p>This option will list only the attributes for the specified path.</p>
+<h4 id="-folders_only"><code>-folders_only</code></h4>
+<p>This option will list only the immediate sub-folders for the specified path.</p>
+<h4 id="-recursive"><code>-recursive</code></h4>
+<p>This option will recursively list all the sub-folders within the specified path. No attributes are listed.</p>
+<p>Here is an example using the <code>-recursive</code> option:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">&lt;wls-deploy-home&gt;/bin/modelHelp.sh -oracle_home /tmp/oracle -recursive resources:/JDBCSystemResource</span>
+</code></pre></div><p>The output is:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">Recursive sub-folders only for resources:/JDBCSystemResource</span>
+
+<span style="color:#f92672">resources</span>:
+    <span style="color:#f92672">JDBCSystemResource</span>:
+        <span style="color:#f92672">&#39;JDBC-1&#39;</span>:
+            <span style="color:#f92672">JdbcResource</span>:
+                <span style="color:#f92672">JDBCConnectionPoolParams</span>:
+                <span style="color:#f92672">JDBCDataSourceParams</span>:
+                <span style="color:#f92672">JDBCDriverParams</span>:
+                    <span style="color:#f92672">Properties</span>:
+                        <span style="color:#f92672">&#39;Properties-1&#39;</span>:
+                <span style="color:#f92672">JDBCOracleParams</span>:
+                <span style="color:#f92672">JDBCXAParams</span>:
+            <span style="color:#f92672">SubDeployment</span>:
+                <span style="color:#f92672">&#39;SubDeployment-1&#39;</span>:
+</code></pre></div>
+
+<footer class="footline">
+	
+</footer>
+
+        
+        </div>
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+
+        
+
+
+	 
+	 
+		
+		
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/config/" title="Configs" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619643291"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619643291"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619643291"></script>
+    
+        
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619643291"></script>
+        
+        <script>
+            mermaid.initialize({ startOnLoad: true });
+        </script>
+    
+    
+
+  </body>
+</html>
+
