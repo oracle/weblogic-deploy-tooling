@@ -1,9 +1,9 @@
 # analytics
 googleAnalytics = "UA-129126578-2"
 
-baseURL = "/weblogic-kubernetes-operator/"
+baseURL = "/weblogic-deploy-tooling/"
 languageCode = "en-us"
-title = "WebLogic Kubernetes Operator"
+title = "WebLogic Deploy Tooling"
 
 # Change the default theme to be use when building the site with Hugo
 theme = "hugo-theme-learn"
