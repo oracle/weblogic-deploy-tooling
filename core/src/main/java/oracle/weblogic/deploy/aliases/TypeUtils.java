@@ -268,7 +268,7 @@ public final class TypeUtils {
         return c;
     }
 
-    private static Object[] convertToObjectArray(Object value, String strValue, String delimiter)
+    public static Object[] convertToObjectArray(Object value, String strValue, String delimiter)
         throws AliasException {
         Object[] result;
         if (Object[].class.isAssignableFrom(value.getClass())) {
@@ -280,7 +280,7 @@ public final class TypeUtils {
                 Class<?> elementClass = list.get(0).getClass();
                 Object[] array = (Object[]) Array.newInstance(elementClass, list.size());
                 @SuppressWarnings( "unchecked" )
-                Object[] rtn = list.toArray( array );
+                Object[] rtn = list.toArray(array);
                 result = rtn;
             } else {
                 result = null;
@@ -288,7 +288,7 @@ public final class TypeUtils {
         } else {
             result = convertStringToList(strValue, delimiter).toArray(new String[0]);
         }
-        LOGGER.fine("before convert {0} and after convert {1}", value, strValue);
+        LOGGER.fine("before convert {0} and after convert {1}", value, result);
         return result;
     }
 

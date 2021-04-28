@@ -13,6 +13,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 import aliastest.util.all_utils as all_utils
 import aliastest.generate.generator_wlst as generator_wlst
+import aliastest.generate.generator_security_configuration as generator_security_configuration
 from aliastest.generate.generator_helper import GeneratorHelper
 from aliastest.generate.mbean_info_helper import MBeanInfoHelper
 from aliastest.generate.mbean_method_helper import MBeanMethodHelper
@@ -48,7 +49,9 @@ class OfflineGenerator(GeneratorHelper):
         _method_name = 'generate'
         self.__logger.entering(class_name=self.__class_name__, method_name=_method_name)
         offline_dictionary = all_utils.dict_obj()
-        generator_wlst.read_domain(self._helper.domain_home())
+        isRead = generator_wlst.read_domain(self._helper.domain_home())
+        if not isRead:
+            return
         top_mbean_path = '/'
         self.__folder_hierarchy(offline_dictionary, self.__online_dictionary, top_mbean_path)
         for mbean_type, mbean_type_map in OFFLINE_ONLY_FOLDERS_MAP.items():
@@ -102,16 +105,19 @@ class OfflineGenerator(GeneratorHelper):
                                    class_name=self.__class_name__, method_name=_method_name)
 
             if self._is_valid_folder(mbean_helper):
-                success, lsc_name, attributes = \
-                    self.__generate_folder(mbean_instance, parent_mbean_type, mbean_type, mbean_helper)
+                if mbean_type in generator_security_configuration.PROVIDERS:
+                    success, lsc_name, attributes = self.create_security_type(mbean_type)
+                else:
+                    success, lsc_name, attributes = \
+                        self.__generate_folder(mbean_instance, parent_mbean_type, mbean_type, mbean_helper)
                 mbean_dictionary[lsc_name] = attributes
                 if success:
                     next_online_dictionary = dict()
                     if mbean_type in online_dictionary:
                         next_online_dictionary = online_dictionary[mbean_type]
-                    self.__folder_hierarchy(mbean_dictionary[lsc_name], next_online_dictionary,
+                        self.__folder_hierarchy(mbean_dictionary[lsc_name], next_online_dictionary,
                                             generator_wlst.current_path(), parent_mbean_type=lsc_name)
-                    generator_wlst.cd_mbean('../..')
+                        generator_wlst.cd_mbean('../..')
             else:
                 self.__logger.finer('Skipping invalid child MBean {0} for MBean {1}', mbean_type, parent_mbean_type,
                                     class_name=self.__class_name__, method_name=_method_name)
@@ -133,6 +139,7 @@ class OfflineGenerator(GeneratorHelper):
                                        class_name=self.__class_name__, method_name=_method_name)
                     mbean_dictionary[lsc_name] = attributes
                     next_online_dictionary = online_dictionary[online_dictionary_name]
+                    print '***** online dictionary name ', online_dictionary_name
                     self.__folder_hierarchy(mbean_dictionary[lsc_name], next_online_dictionary,
                                             generator_wlst.current_path(), lsc_name)
                     generator_wlst.cd_mbean('../..')
@@ -194,6 +201,7 @@ class OfflineGenerator(GeneratorHelper):
         folder_dict = all_utils.dict_obj()
         lsc_name = self.__create_offline_mbean(mbean_type, folder_dict)
         success = False
+        # put code here to check for existing mbean
         if lsc_name is None:
             if mbean_helper is not None:
                 lsc_name = mbean_type
@@ -387,6 +395,26 @@ class OfflineGenerator(GeneratorHelper):
                 attribute_map[attribute] = all_utils.sort_dict(holder)
         self.__logger.exiting(class_name=self.__class_name__, method_name=_method_name)
         return all_utils.sort_dict(attribute_map)
+
+    def create_security_type(self, mbean_type):
+        print '**** Im in security type '
+        folder_dict = all_utils.dict_obj()
+        folder_dict[all_utils.TYPE] = 'Provider'
+        types = generator_security_configuration.providers_map[mbean_type]
+        print '***** types is ', types
+        for item in types:
+            idx = item.rfind('.')
+            short = item[idx + 1:]
+            package = short
+            result = generator_wlst.created_security_provider(mbean_type, short, package)
+            orig = generator_wlst.current_path()
+            mbean_instance = generator_wlst.get_mbean_proxy(mbean_type + '/' + short)
+            print '*** path right now is ', generator_wlst.current_path()
+            folder_dict[short] = all_utils.dict_obj()
+            folder_dict[short][all_utils.ATTRIBUTES] = self.__get_attributes(mbean_instance)
+            print '*** change back to ', orig
+            generator_wlst.cd_mbean(orig)
+        return True, mbean_type, folder_dict
 
     def _slim_maps_for_report(self, mbean_proxy, mbean_type, lsa_map, methods_map, mbean_info_map):
         # Unlike the slim_maps method, this report discards additional information to determine how
