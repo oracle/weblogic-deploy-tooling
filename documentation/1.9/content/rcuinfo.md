@@ -1,4 +1,4 @@
-## Specifying RCU connection information in the model
+### Specifying RCU connection information in the model
 
 During creating or updating a domain, there is new section `RCUDbInfo` in the model, under the `domainInfo` section, for specifying RCU database connection information without using the command-line arguments `-rcu_db` and `-rcu_prefix`. Use this to support a database where the connection string is more complex and requires extra options.
 
@@ -22,10 +22,10 @@ The database wallet can be included in the archive file under `atpwallet` zipent
 `atpwallet/Walletxyz.zip`
 
 or by specifying the unzipped root directory of the ATP wallet zip file in `oracle.net.tns_admin`.
-     
+
 Using the Create Domain Tool with the `-run_rcu` flag will create the RCU schemas against the Oracle Autonomous Transaction Processing Cloud Database and configure the datasources in the JRF domain to use the database.  For example:
 
-    weblogic-deploy/bin/createDomain.sh -oracle_home /u01/wls12213 -domain_type JRF -domain_home /u01/data/domains/demodomain -archive_file DemoDomain.zip -run_rcu 
+    weblogic-deploy/bin/createDomain.sh -oracle_home /u01/wls12213 -domain_type JRF -domain_home /u01/data/domains/demodomain -archive_file DemoDomain.zip -run_rcu
 
 For a non-ATP database, use the following example:
 
@@ -51,7 +51,7 @@ domainInfo:
 
 **Note: Prior to release 0.23, the useATP flag only accepts values of 0, 1, 'true' or 'false'.**
 
-When creating a domain using WDT and the -run_rcu option, you can specify your extended XML files in the RCUDbInfo section. 
+When creating a domain using WDT and the -run_rcu option, you can specify your extended XML files in the RCUDbInfo section.
 
 This correlates to the `createRepository` and `dropRepository` command line arguments `RCU -compInfoXMLLocation <file path> -storageXMLLocation <file path>`
 

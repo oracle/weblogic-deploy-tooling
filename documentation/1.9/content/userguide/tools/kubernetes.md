@@ -1,12 +1,21 @@
-## Using WDT with Oracle WebLogic Server Kubernetes Operator
+---
+title: "Extract Domain Resource Tool"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 9
+description: "Generates a domain resource YAML for use with the WebLogic Kubernetes Operator."
+---
 
-The Extract Domain Resource Tool can be used to create a domain resource file for use with the Oracle WebLogic Server Kubernetes Operator. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
+
+#### Using WDT with WebLogic Kubernetes Operator
+
+The Extract Domain Resource Tool can be used to create a domain resource file for use with the WebLogic Kubernetes Operator. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
 
 This is especially useful when making configuration changes to the domain that also need to be reflected in the domain resource file. For example, adding a cluster to the domain only requires that it be added to the `topology` section of the WDT model, then a new domain resource file can be generated to apply to Kubernetes.
 
-More information about the Oracle WebLogic Server Kubernetes Operator can be found [here](https://oracle.github.io/weblogic-kubernetes-operator).
+More information about the WebLogic Kubernetes Operator can be found [here](https://oracle.github.io/weblogic-kubernetes-operator).
 
-NOTE: The Extract Domain Resource Tool is available with WDT releases 1.7.0 and later.
+**NOTE**: The Extract Domain Resource Tool is available with WDT releases 1.7.0 and later.
 
 Here is an example command line for the Extract Domain Resource Tool:
 ```
@@ -65,7 +74,7 @@ kubernetes:
                 JAVA_OPTIONS:
                     value: '-Dmydir=/home/me'
 ```
-This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the `kubernetes` section of the model. More details about using model variables can be found [here](model.md#simple-example).
+This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the `kubernetes` section of the model. More details about using model variables can be found [here]({{< relref "/concepts/model#simple-example" >}}).
 
 For this example, the resulting domain resource file would contain:
 ```yaml
@@ -106,11 +115,11 @@ If clusters are specified in the `kubernetes/spec` section of the model, those c
 
 If the WDT model has a value of `Never` for `spec/imagePullPolicy`, the `imagePullSecrets` default value will not be added.
 
-A full list of sections and variables supported by the Oracle WebLogic Server Kubernetes Operator is available [here](https://github.com/oracle/weblogic-kubernetes-operator/blob/master/docs/domains/Domain.md).
+A full list of sections and variables supported by the WebLogic Kubernetes Operator is available [here](https://github.com/oracle/weblogic-kubernetes-operator/blob/master/docs/domains/Domain.md).
 
 The Extract Domain Resource Tool supports a subset of these sections, including `metadata`, `serverPod`, and `spec`.
 
-The [Model Help Tool](model_help.md) can be used to determine the folders and attributes that can be used in the `kubernetes` section of the model. For example, this command will list the folders and attributes in the `spec` folder:
+The [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) can be used to determine the folders and attributes that can be used in the `kubernetes` section of the model. For example, this command will list the folders and attributes in the `spec` folder:
 ```yaml
 <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle kubernetes:/spec
 ```

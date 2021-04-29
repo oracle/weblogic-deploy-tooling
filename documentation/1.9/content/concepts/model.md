@@ -1,4 +1,10 @@
-## The Metadata Model
+---
+title: "Metadata Model"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 1
+---
+
 
 The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration.  The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts.  For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.  If the data source was previously created, the `deployApps` tool will not try to recreate it but may update part of that data source's configuration if the model description is different than the existing values.  If the application was previously deployed, the `deployApps` tool will compare the binaries to determine if the application needs to be redeployed or not.
 
@@ -25,7 +31,7 @@ The model is written in YAML (or optionally, JSON).  The YAML parser, built into
 
 All assignment statements must have one or more spaces between the colon and the value.  All comments must have a space after the pound sign (also known as hash) to be considered a comment.  YAML doesn't allow comments in all locations.  While the YAML parser used by the framework does not try to enforce these restrictions, it is likely that putting comments in some locations may cause parse errors since YAML is a difficult language to parse due to its complex indention rules.
 
-## Contents
+### Contents
 
 - [Top-Level Sections](#top-level-model-sections)
 - [Simple Example](#simple-example)
@@ -44,7 +50,7 @@ The tooling has five top-level model sections:
 - `appDeployments` - The location where shared libraries and applications are specified.
 - `kubernetes`     - The location where the WLS Kubernetes Operator domain configuration is specified.
 
-### Simple Example
+#### Simple Example
 Here is a simple example of a model to deploy an application and its data source:
 
 ```yaml
@@ -83,7 +89,7 @@ The above example shows two important features of the framework.  First, notice 
 
 Second, notice that the `jsf#2.0` shared library `SourcePath` attribute value starts with `@@WL_HOME@@`. This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  See [Model Tokens](#model-tokens) for more information and a list of available path tokens.
 
-The example above shows the attribute `SourcePath` of the `simpleear` application with a value of `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory within the domain, in this case `<domain-home>/wlsdeploy/applications/simpleear.ear`. See [The Archive File](archive.md) for more details about using the archive file.
+The example above shows the attribute `SourcePath` of the `simpleear` application with a value of `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory within the domain, in this case `<domain-home>/wlsdeploy/applications/simpleear.ear`. See [The Archive File]({{< relref "/concepts/archive.md" >}}) for more details about using the archive file.
 
 Users can create further directory structures underneath the above locations to organize the files and directories as they see fit.  Note that any binary that already exists on the target system need not be included in the archive provided that the model specified the correct location on the target system.
 
@@ -248,7 +254,7 @@ This feature can also remove items that were created by WebLogic Server template
                 ...
 ```
 
-This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling Security Providers](use_cases.md#modeling-security-providers) for detailed information.
+This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling Security Providers]({{< relref "/concepts/use_cases#modeling-security-providers" >}}) for detailed information.
 
 This feature cannot be use to un-deploy applications or remove libraries.
 

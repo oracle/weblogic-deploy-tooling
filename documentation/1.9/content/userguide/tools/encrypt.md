@@ -1,12 +1,20 @@
-## The Encrypt Model Tool
+---
+title: "Encrypt Model Tool"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 5
+description: "Encrypts the passwords in a model (or its variable file) using a user-provided passphrase."
+---
+
 
 **NOTE: To meet Oracle's security standards, the encryption algorithms require JDK 8 to execute.**
 
-Models contain WebLogic Server domain configuration.  Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection.  When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.  Clear-text passwords are not conducive to storing configurations as source, so the Encrypt Model Tool gives the model author the ability to encrypt the passwords in the model and variable file using passphrase-based, reversible encryption.  When using a tool with a model containing encrypted passwords, the encryption passphrase must be provided, so that the tool can decrypt the password in memory to set the necessary WebLogic Server configuration (which supports its own encryption mechanism based on a domain-specific key).  While there is no requirement to use the Oracle WebLogic Server Deploy Tooling encryption mechanism, it is highly recommended because storing clear text passwords on disk is never a good idea.
+Models contain WebLogic Server domain configuration.  Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection.  When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.  Clear-text passwords are not conducive to storing configurations as source, so the Encrypt Model Tool gives the model author the ability to encrypt the passwords in the model and variable file using passphrase-based, reversible encryption.  When using a tool with a model containing encrypted passwords, the encryption passphrase must be provided, so that the tool can decrypt the password in memory to set the necessary WebLogic Server configuration (which supports its own encryption mechanism based on a domain-specific key).  While there is no requirement to use the WebLogic Deploy Tooling encryption mechanism, it is highly recommended because storing clear text passwords on disk is never a good idea.
 
 The Create, Update and Deploy tools can take a set of models. The Encrypt model will encrypt a set of models. Each model is encrypted using the same passphrase and written back to its original location.
 
-**NOTE: WebLogic Server Deploy Tooling also supports the use of domain-encrypted passwords directly in the model. The Encrypt Model Tool should not be used in tandem with this method.**  
+{{% notice note %}} WebLogic Deploy Tooling also supports the use of domain-encrypted passwords directly in the model. The Encrypt Model Tool should not be used in tandem with this method.
+{{% /notice %}}
 
 Start with the following example model:
 
@@ -210,4 +218,3 @@ The variable file will now look something like the following:
     db.url=mydb.example.com:1539/PDBORCL
     db.password={AES}czFXMkNFWNG9jNTNYd0hRL2R1anBnb0hDUlp4K1liQWFBdVM4UTlvMnE0NU1aMUZ5UVhiK25oaWFBc2lIQ20\=
     mymailsession.password={AES}RW9nRnUzcE41WGNMdnEzNDdRQVVNWm1LMGhidkFBVXg6OUN3aXcyci82cmh3cnpNQTpmY2UycUp5YWl4UT0\=
-

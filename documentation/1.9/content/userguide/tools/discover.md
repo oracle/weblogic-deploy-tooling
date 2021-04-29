@@ -1,4 +1,11 @@
-## The Discover Domain Tool
+---
+title: "Discover Domain Tool"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 4
+description: "Introspects an existing domain and creates a model file describing the domain and an archive file of the binaries deployed to the domain."
+---
+
 
 The Discover Domain Tool provides a bootstrapping mechanism to creating a model and archive file by inspecting an existing domain and gathering configuration and binaries from it.  Note that the model file produced by the tool is not directly usable by the Create Domain Tool or the Deploy Applications Tool because the Discover Domain Tool does not discover the passwords from the existing domain.  Instead, it puts a `--FIX ME--` placeholder for passwords it finds.  Domain users are also not discoverable so the tool injects the same placeholder value in the `AdminUserName` and `AdminPassword` fields in the `domainInfo` section. The idea of this tool is simply to provide a starting point where the user can edit the generated model and archive file to suit their needs for running one of the other tools.
 
@@ -28,7 +35,7 @@ An example of running in online WLST mode:
 
 Note that the command must run on the same system where the domain binaries are located in order to successfully gather the corresponding binaries into the archive file.
 
-When a domain is created using custom or product templates, the templates will install resources into the domain that do not need to be discovered for the model or collected into the archive. The domain type argument, which corresponds to a domain typedef file, must describe the type of domain in order for these resources and files to be ignored. By default, discover runs using domain type WLS, which assumes only the WebLogic Server template was applied to the domain. The tool has canned typedefs for two other domain types, RestrictedJRF and JRF. You may use these domain types, or another custom typedef. For more information, refer to [Domain Type Definitions](tool_configuration.md#domain-type-definitions).
+When a domain is created using custom or product templates, the templates will install resources into the domain that do not need to be discovered for the model or collected into the archive. The domain type argument, which corresponds to a domain typedef file, must describe the type of domain in order for these resources and files to be ignored. By default, discover runs using domain type WLS, which assumes only the WebLogic Server template was applied to the domain. The tool has canned typedefs for two other domain types, RestrictedJRF and JRF. You may use these domain types, or another custom typedef. For more information, refer to [Domain Type Definitions]({{< relref "/concepts/tool_configuration#domain-type-definitions" >}}).
 
 An example of using the domain type argument:
 
@@ -36,14 +43,14 @@ An example of using the domain type argument:
 
 Before the model is persisted to the model file, any variable injectors or model filters are run, in that order. The final step is validation, which validates the contents of the model, archive and variable file. If the validation is successful, the model is persisted. For more information on these three topics, go to:
 
- - [Variable Injection](variable_injection.md)
- - [Model Filters](tool_configuration.md#model-filters)
- - [Validate Model Tool](validate.md)
+ - [Variable Injection]({{< relref "/userguide/tools/variable_injection.md" >}})
+ - [Model Filters]({{< relref "/concepts/tool_configuration#model-filters" >}})
+ - [Validate Model Tool]({{< relref "/userguide/tools/validate.md" >}})
 
 
-The resulting model can also be modified for compatibility with specific target environments, such as Oracle Weblogic Server Kubernetes Operator. For more information, see [Target Environments](config/target_env.md).
+The resulting model can also be modified for compatibility with specific target environments, such as Oracle Weblogic Server Kubernetes Operator. For more information, see [Target Environments]({{< relref "/concepts/target_env.md" >}}).
 
-Any problems (or success) will be listed in the discover tool summary. The summary will print the version of the tool and Oracle home, and the WLST mode with which the tool was run (online or offline). A recap of all Warning and Severe messages will be listed, along with a total. 
+Any problems (or success) will be listed in the discover tool summary. The summary will print the version of the tool and Oracle home, and the WLST mode with which the tool was run (online or offline). A recap of all Warning and Severe messages will be listed, along with a total.
 
 
 An example of a summary with a WARNING message:

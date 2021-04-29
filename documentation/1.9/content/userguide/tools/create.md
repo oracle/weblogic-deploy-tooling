@@ -1,4 +1,11 @@
-## The Create Domain Tool
+---
+title: "Create Domain Tool"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 1
+description: "Understands how to create a domain and populate the domain with all resources and applications specified in the model."
+---
+
 
 The Create Domain Tool uses a model and WLST offline to create a domain.  To use the tool, at a minimum, the model must specify the domain's administrative password in the `domainInfo` section of the model, as shown below.
 
@@ -19,9 +26,9 @@ The Create Domain Tool understands three domain types: `WLS`, `RestrictedJRF`, a
 
 To have the Create Domain Tool run RCU, simply add the `-run_rcu` argument to the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!
 
-It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to [Specifying RCU connection information in the model](rcuinfo.md)
+It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to [Specifying RCU connection information in the model]({{< relref "/content/rcuinfo.md" >}}).
 
-To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to [Domain Type Definitions](tool_configuration.md#domain-type-definitions).
+To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to [Domain Type Definitions]({{< relref "/concepts/tool_configuration#domain-type-definitions" >}}).
 
 ### Using an Encrypted Model
 
@@ -29,7 +36,7 @@ If the model or variables file contains passwords encrypted with the WDT Encrypt
 
 ### Using Multiple Models
 
-The Create Domain Tool supports the use of multiple models, as described in [Using Multiple Models](model.md#using-multiple-models).
+The Create Domain Tool supports the use of multiple models, as described in [Using Multiple Models]({{< relref "/concepts/model#using-multiple-models" >}}).
 
 ### Development Domain and `boot.properties`
 
