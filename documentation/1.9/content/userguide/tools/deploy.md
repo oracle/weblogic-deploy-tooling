@@ -3,7 +3,7 @@ title: "Deploy Applications Tool"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 3
-description: "Understands how to add resources and applications to an existing domain, either in offline or online mode."
+description: "Adds resources and applications to an existing domain, either in offline or online mode."
 ---
 
 

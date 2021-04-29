@@ -5,6 +5,18 @@ draft: false
 weight: 1
 ---
 
+### Contents
+
+- [Overview](#overview)
+- [Top-Level Sections](#top-level-model-sections)
+- [Simple Example](#simple-example)
+- [Model Names](#model-names)
+- [Model Tokens](#model-tokens)
+- [Model Semantics](#model-semantics)
+- [Declaring Named MBeans to Delete](#declaring-named-mbeans-to-delete)
+- [Using Multiple Models](#using-multiple-models)
+
+### Overview
 
 The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration.  The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts.  For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.  If the data source was previously created, the `deployApps` tool will not try to recreate it but may update part of that data source's configuration if the model description is different than the existing values.  If the application was previously deployed, the `deployApps` tool will compare the binaries to determine if the application needs to be redeployed or not.
 
@@ -31,15 +43,6 @@ The model is written in YAML (or optionally, JSON).  The YAML parser, built into
 
 All assignment statements must have one or more spaces between the colon and the value.  All comments must have a space after the pound sign (also known as hash) to be considered a comment.  YAML doesn't allow comments in all locations.  While the YAML parser used by the framework does not try to enforce these restrictions, it is likely that putting comments in some locations may cause parse errors since YAML is a difficult language to parse due to its complex indention rules.
 
-### Contents
-
-- [Top-Level Sections](#top-level-model-sections)
-- [Simple Example](#simple-example)
-- [Model Names](#model-names)
-- [Model Tokens](#model-tokens)
-- [Model Semantics](#model-semantics)
-- [Declaring Named MBeans to Delete](#declaring-named-mbeans-to-delete)
-- [Using Multiple Models](#using-multiple-models)
 
 ### Top-Level Model Sections
 The tooling has five top-level model sections:

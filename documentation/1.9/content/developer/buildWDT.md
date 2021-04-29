@@ -19,7 +19,7 @@ Execution of the unit tests requires a WebLogic Server installation, because the
 
 The WLST directory can be specified in one of two ways:
 
-- Specify the `-Dunit-test-wlst-dir=<wlst-directory>` on the mvn command line.
+- Specify the `-Dunit-test-wlst-dir=<wlst-directory>` on the `mvn` command line.
 
 - Create a file `.mvn/maven.config` file in the project directory, containing a single line with the `-Dunit-test-wlst-dir=<wlst-directory>` value. The `.mvn` directory contains a `maven.config-template` file that can be copied and used as a starting point.
 
