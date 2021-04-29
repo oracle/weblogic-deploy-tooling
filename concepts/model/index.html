@@ -12,20 +12,20 @@
     <title>Metadata Model :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619730840" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619737751" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619730840"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619737751"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619730840"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619730840"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619737751"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619737751"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619730840"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619737751"></script>
 
     
   </div>
@@ -751,6 +751,7 @@
     <li>
       <ul>
         <li><a href="#contents">Contents</a></li>
+        <li><a href="#overview">Overview</a></li>
         <li><a href="#top-level-model-sections">Top-Level Model Sections</a></li>
         <li><a href="#model-names">Model Names</a></li>
         <li><a href="#model-tokens">Model Tokens</a></li>
@@ -783,6 +784,18 @@
         
 
 
+<h3 id="contents">Contents</h3>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#top-level-model-sections">Top-Level Sections</a></li>
+<li><a href="#simple-example">Simple Example</a></li>
+<li><a href="#model-names">Model Names</a></li>
+<li><a href="#model-tokens">Model Tokens</a></li>
+<li><a href="#model-semantics">Model Semantics</a></li>
+<li><a href="#declaring-named-mbeans-to-delete">Declaring Named MBeans to Delete</a></li>
+<li><a href="#using-multiple-models">Using Multiple Models</a></li>
+</ul>
+<h3 id="overview">Overview</h3>
 <p>The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration.  The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts.  For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.  If the data source was previously created, the <code>deployApps</code> tool will not try to recreate it but may update part of that data source&rsquo;s configuration if the model description is different than the existing values.  If the application was previously deployed, the <code>deployApps</code> tool will compare the binaries to determine if the application needs to be redeployed or not.</p>
 <p>The model structure, and its folder and attribute names, are based on the WLST 12.2.1.3 offline structure and names with redundant folders removed to keep the model simple.  For example, the WLST path to the URL for a JDBC data source is <code>/JDBCSystemResource/&lt;data-source-name&gt;/JdbcResource/&lt;data-source-name&gt;/JDBCDriverParams/NO_NAME_0/URL</code>.  In the model, it is <code>resources:/JDBCSystemResource/&lt;data-source-name&gt;/JdbcResource/JDBCDriverParams/URL</code> (where <code>resources</code> is the top-level model section where all WebLogic Server resources/services are described).</p>
 <p>The model is written in YAML (or optionally, JSON).  The YAML parser, built into the underlying framework, is both strict with regard to the specification and supports only the subset of YAML needed to describe WebLogic Server artifacts.  For example, YAML does not support tabs as indent characters so the parser will generate parse errors if the model file contains leading tabs used for indention purposes.  In general, names and values can be specified without quotes except when the content contains one of the restricted characters; in which case, the content must be enclosed in either single or double quotes.  The restricted characters are:</p>
@@ -805,16 +818,6 @@
 <li>back quote</li>
 </ul>
 <p>All assignment statements must have one or more spaces between the colon and the value.  All comments must have a space after the pound sign (also known as hash) to be considered a comment.  YAML doesn&rsquo;t allow comments in all locations.  While the YAML parser used by the framework does not try to enforce these restrictions, it is likely that putting comments in some locations may cause parse errors since YAML is a difficult language to parse due to its complex indention rules.</p>
-<h3 id="contents">Contents</h3>
-<ul>
-<li><a href="#top-level-model-sections">Top-Level Sections</a></li>
-<li><a href="#simple-example">Simple Example</a></li>
-<li><a href="#model-names">Model Names</a></li>
-<li><a href="#model-tokens">Model Tokens</a></li>
-<li><a href="#model-semantics">Model Semantics</a></li>
-<li><a href="#declaring-named-mbeans-to-delete">Declaring Named MBeans to Delete</a></li>
-<li><a href="#using-multiple-models">Using Multiple Models</a></li>
-</ul>
 <h3 id="top-level-model-sections">Top-Level Model Sections</h3>
 <p>The tooling has five top-level model sections:</p>
 <ul>
@@ -1510,19 +1513,19 @@ For example, if Model 1 looks like:</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619730840"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619737751"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619730840"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619737751"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619730840"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619737751"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

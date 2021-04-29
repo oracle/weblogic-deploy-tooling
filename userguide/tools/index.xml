@@ -51,8 +51,8 @@ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/encrypt/</guid>
-      <description>NOTE: To meet Oracle&amp;rsquo;s security standards, the encryption algorithms require JDK 8 to execute.
-Models contain WebLogic Server domain configuration. Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection. When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file. Clear-text passwords are not conducive to storing configurations as source, so the Encrypt Model Tool gives the model author the ability to encrypt the passwords in the model and variable file using passphrase-based, reversible encryption.</description>
+      <description>To meet Oracle&amp;rsquo;s security standards, the encryption algorithms require JDK 8 to execute.
+ Models contain WebLogic Server domain configuration. Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection. When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.</description>
     </item>
     
     <item>

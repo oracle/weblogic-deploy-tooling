@@ -12,20 +12,20 @@
     <title>Model Use Cases :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1619730840" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619730840" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619737751" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619737751" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619730840"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619737751"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619730840"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619730840"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619737751"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619737751"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619730840"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619737751"></script>
 
     
   </div>
@@ -1048,7 +1048,10 @@
                         <span style="color:#f92672">DefaultIdentityAsserter</span>:
 
 </code></pre></div><h4 id="trust-service-identity-asserter">Trust Service Identity Asserter</h4>
-<p><strong>NOTE:</strong> The Trust Identity Asserter Security Provider is installed by JRF in 12c versions and newer.</p>
+
+<div class="notices note" ><p>The Trust Identity Asserter Security Provider is installed by JRF in 12c versions and newer.</p>
+</div>
+
 <p>The JRF installed Trust Identity Asserter does not supply a schema file by default.  Before you can configure this asserter with WLST offline or WDT offline, you must first build the schema file using the <code>prepareCustomProvider</code> script.</p>
 <p>Here is an example of how to prepare and install a schema file from its MBean Jar File (MJF):</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">export CONFIG_JVM_ARGS<span style="color:#f92672">=</span>-DSchemaTypeSystemName<span style="color:#f92672">=</span>TrustServiceIdentityAsserter
@@ -1058,7 +1061,10 @@ ORACLE_HOME/oracle_common/common/bin/prepareCustomProvider.sh -mjf<span style="c
 </code></pre></div><p>For FMW versions 12.1.2 and 12.1.3, replace <code>oracle.jps</code> in the example path above with:
 oracle.jps_12.1.2, or oracle.jps_12.1.3, respectively.</p>
 <h4 id="custom-security-providers">Custom Security Providers</h4>
-<p><strong>NOTE:</strong> Creating and updating domains with custom security providers is limited to WebLogic version 12.1.2 and newer.</p>
+
+<div class="notices note" ><p>Creating and updating domains with custom security providers is limited to WebLogic version 12.1.2 and newer.</p>
+</div>
+
 <p>Prior to using this tooling to create or update a domain with a custom security provider, there are several prerequisites.  First, WebLogic Server requires the custom MBean JAR to be in the Oracle Home directory before it can be configured, <code>WLSERVER/server/lib/mbeantypes</code>.  Second, WebLogic Scripting Tool, WLST, requires that the schema JAR be placed in the Oracle Home directory before WLST offline can be used to discover it or configure it, <code>ORACLEHOME/oracle_common/lib/schematypes</code>.  Generating an MBean JAR documentation can be found in the WebLogic Server <a href="https://docs.oracle.com/en/middleware/standalone/weblogic-server/14.1.1.0/devsp/generate_mbeantype.html">documentation</a>.  Generating the schema JAR can be done with the <code>prepareCustomProvider</code> script provided in the WebLogic Server installation.</p>
 <p>WebLogic allows you to define an alternate directory other than <code>WLSERVER/server/lib/mbeantypes</code> by using the system property <code>-Dweblogic.alternateTypesDirectory=dir</code>. In order for the custom provider jars to be loaded correctly by WLST when discovering or configuring a domain, set this system property in the <code>WLSDEPLOY_PROPERTIES</code> environment variable.</p>
 <p>The format for a custom security provider is slightly different from a built-in provider in that the custom provider must supply the fully-qualified name of the class for the provider in the model between the provider name and the attributes for that provider.  Note that the generated Impl suffix is omitted from the name. In the custom <code>CredentialMapper</code> example below, note the location in the model of &lsquo;examples.security.providers.SampleCredentialMapper&rsquo;:</p>
@@ -1073,9 +1079,9 @@ oracle.jps_12.1.2, or oracle.jps_12.1.3, respectively.</p>
 <li><code>PasswordCredentials</code> provider types cannot be updated in WLST online.</li>
 </ul>
 <h3 id="modeling-weblogic-users-groups-and-roles">Modeling WebLogic Users, Groups, and Roles</h3>
-<p>WebLogic Server has the ability to establish a set of users, groups, and global roles as part of the WebLogic domain creation. The WebLogic global roles become part of the WebLogic role mapper (i.e. <code>XACMLRoleMapper</code>) and are specified under <code>domainInfo</code> in the <code>WLSRoles</code> section. The users and groups become part of the Embedded LDAP server (i.e. <code>DefaultAuthenticator</code>) and are specified under <code>topology</code> in the <code>Security</code> section.</p>
+<p>WebLogic Server has the ability to establish a set of users, groups, and global roles as part of the WebLogic domain creation. The WebLogic global roles become part of the WebLogic role mapper (for example, <code>XACMLRoleMapper</code>) and are specified under <code>domainInfo</code> in the <code>WLSRoles</code> section. The users and groups become part of the Embedded LDAP server (for example, <code>DefaultAuthenticator</code>) and are specified under <code>topology</code> in the <code>Security</code> section.</p>
 <h4 id="weblogic-global-roles">WebLogic Global Roles</h4>
-<p>The model allows for the definition of WebLogic roles that can augment the well known WebLogic global roles (e.g. <code>Admin</code>, <code>Deployer</code>, <code>Monitor</code>, &hellip;) in addition to defining new roles. When updating the well known WebLogic roles, an <code>UpdateMode</code> can be specified as <code>{ append | prepend | replace }</code> with the default being <code>replace</code> when not specified. Also, when updating the well known roles, the specified <code>Expression</code> will be a logical <code>OR</code> with the default expression. The <code>Expression</code> value for the role is the same as when using the WebLogic <code>RoleEditorMBean</code> for a WebLogic security role mapping provider.</p>
+<p>The model allows for the definition of WebLogic roles that can augment the well known WebLogic global roles (for example, <code>Admin</code>, <code>Deployer</code>, <code>Monitor</code>, &hellip;) in addition to defining new roles. When updating the well known WebLogic roles, an <code>UpdateMode</code> can be specified as <code>{ append | prepend | replace }</code> with the default being <code>replace</code> when not specified. Also, when updating the well known roles, the specified <code>Expression</code> will be a logical <code>OR</code> with the default expression. The <code>Expression</code> value for the role is the same as when using the WebLogic <code>RoleEditorMBean</code> for a WebLogic security role mapping provider.</p>
 <p>For example, the <code>WLSRoles</code> section below updates the well known <code>Admin</code>, <code>Deployer</code> and <code>Monitor</code> roles while adding a new global role with <code>Tester</code> as the role name:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
   <span style="color:#f92672">WLSRoles</span>:
@@ -1093,7 +1099,7 @@ oracle.jps_12.1.2, or oracle.jps_12.1.3, respectively.</p>
 </code></pre></div><p>The <code>Admin</code> role will have the expression appended to the default expression, the <code>Deployer</code> role expression will replace the default, the <code>Monitor</code> role expression will be prepended to the default expression and <code>Tester</code> will be a new role with the specified expression.</p>
 <p>In addition, the <code>Expression</code> value can use the variable placeholder syntax specified when running the <a href="/weblogic-deploy-tooling/userguide/tools/create/">Create Tool</a> as shown in the above example.</p>
 <h4 id="weblogic-users-and-groups">WebLogic Users and Groups</h4>
-<p>The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP Server (i.e. <code>DefaultAuthenticator</code>). New groups can be specified and users can be added as members of the new groups or existing groups such as the <code>Administrators</code> group which is defaulted to be in the WebLogic <code>Admin</code> global role. Please see Known Limitations below for additional information on users and groups.</p>
+<p>The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP Server (for example, <code>DefaultAuthenticator</code>). New groups can be specified and users can be added as members of the new groups or existing groups such as the <code>Administrators</code> group which is defaulted to be in the WebLogic <code>Admin</code> global role. Please see Known Limitations below for additional information on users and groups.</p>
 <p>The user password can be specified with a placeholder or encrypted with the <a href="encrypt.md">Encrypt Tool</a>. An example <code>Security</code> section that adds an additional group <code>AppMonitors</code>, adds two new users and places the users into groups is as follows:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
   <span style="color:#f92672">Security</span>:
@@ -1109,9 +1115,9 @@ oracle.jps_12.1.2, or oracle.jps_12.1.3, respectively.</p>
          <span style="color:#f92672">GroupMemberOf</span>: [ <span style="color:#ae81ff">AppMonitors ]</span>
 </code></pre></div><h4 id="known-limitations-1">Known Limitations</h4>
 <ul>
-<li>The processing of users, groups, and roles will only take place when using the <a href="/weblogic-deploy-tooling/userguide/tools/create/">Create Domain Tool</a></li>
-<li>WebLogic global roles are only supported with WebLogic Server version 12.2.1 or greater</li>
-<li>WebLogic global roles are only updated for the WebLogic security XACML role mapping provider (i.e. <code>XACMLRoleMapper</code>)</li>
+<li>The processing of users, groups, and roles will only take place when using the <a href="/weblogic-deploy-tooling/userguide/tools/create/">Create Domain Tool</a>.</li>
+<li>WebLogic global roles are only supported with WebLogic Server version 12.2.1 or greater.</li>
+<li>WebLogic global roles are only updated for the WebLogic security XACML role mapping provider (for example, <code>XACMLRoleMapper</code>).</li>
 <li>The user and group processing is not complete, currently, users cannot be assigned to groups. Users created using the <code>Security</code> section are automatically added to the <code>Administrators</code> group and are not added to the groups specified. See <a href="/weblogic-deploy-tooling/release-notes/#assigning-security-groups-to-users">Known Issues</a> for information about a patch for this issue.</li>
 </ul>
 <h3 id="modeling-weblogic-user-password-credential-mapping">Modeling WebLogic User Password Credential Mapping</h3>
@@ -1806,19 +1812,19 @@ oracle.jps_12.1.2, or oracle.jps_12.1.3, respectively.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619730840"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619737751"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1619730840"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619730840"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619737751"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619737751"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619730840"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619737751"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
