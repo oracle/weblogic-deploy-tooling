@@ -12,20 +12,20 @@
     <title>Tools Configuration :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619714883" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619714883" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619714883" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619714883" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619714883" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619714883" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619714883" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1619714883" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1619714883" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619714883" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619715905" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619714883"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619715905"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619714883"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619714883"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619715905"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619715905"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619714883"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619715905"></script>
 
     
   </div>
@@ -174,9 +174,9 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/concepts/target_env/" title="Target environments" class="dd-item ">
-        <a href="/weblogic-deploy-tooling/concepts/target_env/">
-        Target environments
+      <li data-nav-id="/weblogic-deploy-tooling/concepts/tool_configuration/" title="Tools Configuration" class="dd-item active">
+        <a href="/weblogic-deploy-tooling/concepts/tool_configuration/">
+        Tools Configuration
         
         </a>
     </li>
@@ -195,9 +195,9 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/concepts/tool_configuration/" title="Tools Configuration" class="dd-item active">
-        <a href="/weblogic-deploy-tooling/concepts/tool_configuration/">
-        Tools Configuration
+      <li data-nav-id="/weblogic-deploy-tooling/concepts/target_env/" title="Target environments" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/concepts/target_env/">
+        Target environments
         
         </a>
     </li>
@@ -748,8 +748,9 @@
     <div class="wrapper">
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#contents">Contents</a>
+    <li>
       <ul>
+        <li></li>
         <li><a href="#tool-property-file">Tool Property File</a></li>
         <li><a href="#model-filters">Model Filters</a></li>
         <li><a href="#domain-type-definitions">Domain Type Definitions</a></li>
@@ -780,7 +781,7 @@
         
 
 
-<h2 id="contents">Contents</h2>
+<h4 id="contents">Contents</h4>
 <ul>
 <li><a href="#tool-property-file">Tool Property File</a></li>
 <li><a href="#model-filters">Model Filters</a></li>
@@ -790,7 +791,7 @@
 <li><a href="#custom-configuration">Custom Configuration</a></li>
 </ul>
 <h3 id="tool-property-file">Tool Property File</h3>
-<p>You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as <code>&lt;weblogic-deploy&gt;/lib/tool.properties</code>. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the <code>tool.properties</code> file in the $WDT_CUSTOM_CONFIG directory.</p>
+<p>You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as <code>&lt;weblogic-deploy&gt;/lib/tool.properties</code>. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the <code>tool.properties</code> file in the <code>$WDT_CUSTOM_CONFIG</code> directory.</p>
 <p>If a property is removed from the file, or a property value is incorrectly formatted, a <code>WARNING</code> message is logged and an internal default value used instead of the missing or bad value.</p>
 <table>
 <thead>
@@ -1137,22 +1138,6 @@
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
                     
                 
                 
@@ -1165,9 +1150,6 @@
             
         
                     
-            
-        
-                    
                         
             
             
@@ -1175,6 +1157,25 @@
                     
                         
                         
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
                     
                 
                 
@@ -1502,10 +1503,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/concepts/target_env/" title="Target environments"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/concepts/use_cases/" title="Model Use Cases"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/" title="User Guide" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/concepts/target_env/" title="Target environments" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1515,19 +1516,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619714883"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619714883"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619714883"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619714883"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619714883"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619714883"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619715905"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619714883"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1619714883"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619714883"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619715905"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619714883"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619715905"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
