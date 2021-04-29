@@ -111,8 +111,8 @@ To enable the Variable Injector Tool during the Discover Domain Tool run, create
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/model_help/</guid>
       <description>The Model Help Tool provides information about the folders and attributes that are valid for sections and folders of a domain model. This is useful when creating a new domain model, or expanding an existing model, including discovered models.
-NOTE: The Model Help Tool is new in WebLogic Deploy Tooling 1.8.
-NOTE: The -model_sample argument is deprecated starting with WebLogic Deploy Tooling 1.9.2, when model sample became the default output format.</description>
+The Model Help Tool is new in WebLogic Deploy Tooling 1.8. The -model_sample argument is deprecated starting with WebLogic Deploy Tooling 1.9.2, when model sample became the default output format.
+ Here is a simple example using the Model Help Tool:</description>
     </item>
     
   </channel>

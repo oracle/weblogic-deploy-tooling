@@ -12,20 +12,20 @@
     <title>Target environments :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619724172" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619724172"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619715905"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619715905"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619724172"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619724172"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619715905"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619724172"></script>
 
     
   </div>
@@ -781,10 +781,10 @@
 
 <p>The <a href="/weblogic-deploy-tooling/userguide/tools/discover/">Discover Domain</a> and <a href="/weblogic-deploy-tooling/userguide/tools/prepare/">Prepare Model</a> Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:</p>
 <ul>
-<li>Using model tokens for some attributes in the model (see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model Tokens</a>)</li>
-<li>Using Kubernetes secrets for credentials in the model</li>
-<li>Applying filters to the model (see <a href="/weblogic-deploy-tooling/concepts/tool_configuration/#model-filters">Model Filters</a>)</li>
-<li>Creating additional configuration files for the target system</li>
+<li>Using model tokens for some attributes in the model. See <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model Tokens</a>.</li>
+<li>Using Kubernetes secrets for credentials in the model.</li>
+<li>Applying filters to the model. See <a href="/weblogic-deploy-tooling/concepts/tool_configuration/#model-filters">Model Filters</a>.</li>
+<li>Creating additional configuration files for the target system.</li>
 </ul>
 <h3 id="specifying-a-target-environment">Specifying a target environment</h3>
 <p>Each tool specifies a target environment using the command-line argument <code>-target &lt;target-name&gt;</code>, where <code>&lt;target-name&gt;</code> refers to a pre-configured target environment, or a user-defined environment. In addition, the <code>-output_dir &lt;output-directory&gt;</code> argument specifies where the files for the target environment will be stored.</p>
@@ -797,10 +797,10 @@
 <pre><code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;/target.json
 </code></pre><p>The <code>&lt;target-name&gt;</code> value corresponds to the value of the <code>-target</code> argument on the tool&rsquo;s command line. The WLS installation includes two pre-defined targets:</p>
 <ul>
-<li><a href="#the-oracle-weblogic-server-kubernetes-operator-target">Oracle Weblogic Server Kubernetes Operator</a> (named <code>k8s</code>)</li>
+<li><a href="#the-weblogic-kubernetes-operator-target">Weblogic Kubernetes Operator</a> (named <code>k8s</code>)</li>
 <li><a href="#the-verrazzano-target">Verrazzano</a> (named <code>vz</code>).</li>
 </ul>
-<p>You can define a new or extended target environment with a new <code>target-name</code> in the above location, or using a <a href="../tool_configuration.md#custom-configuration">Custom Configuration</a> directory, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;my-target-name&gt;/target.json</code>.</p>
+<p>You can define a new or extended target environment with a new <code>target-name</code> in the above location, or using a <a href="/weblogic-deploy-tooling/concepts/tool_configuration/#custom-configuration">Custom Configuration</a> directory, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;my-target-name&gt;/target.json</code>.</p>
 <p>Here is an example of a target environment file:</p>
 <pre><code>{
   &quot;model_filters&quot; : {
@@ -816,10 +816,10 @@
 }
 </code></pre><p>Each of the fields in this example is optional, and can be customized.</p>
 <h4 id="model_filters"><code>model_filters</code></h4>
-<p>This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the <a href="../tool_configuration.md#model-filters">Model Filters</a> configuration. The <code>discover</code> type should always be used here.</p>
+<p>This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the <a href="/weblogic-deploy-tooling/concepts/tool_configuration/#model-filters">Model Filters</a> configuration. The <code>discover</code> type should always be used here.</p>
 <p>The <code>@@TARGET_CONFIG_DIR@@</code> token can be used to indicate that the specified filter is in the same directory as the target configuration file.</p>
 <h4 id="variable_injectors"><code>variable_injectors</code></h4>
-<p>This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the <a href="../variable_injection.md">Variable Injectors</a> configuration.</p>
+<p>This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the <a href="/weblogic-deploy-tooling/userguide/tools/variable_injection/">Variable Injectors</a> configuration.</p>
 <h4 id="validation_method"><code>validation_method</code></h4>
 <p>This field can be used to set the validation level for the resulting model. Only the value <code>lax</code>is currently supported. With <code>lax</code> validation, variables and Kubernetes secrets referenced in the resulting model do not need to be available when the model is created.</p>
 <h4 id="credentials_method"><code>credentials_method</code></h4>
@@ -830,7 +830,7 @@
 </ul>
 <p>In both these cases, the script to create the Kubernetes secrets is written to <code>&lt;output-directory&gt;/create_k8s_secrets.sh</code>. You will need to update this script with credential values before executing</p>
 <h4 id="wls_credentials_name"><code>wls_credentials_name</code></h4>
-<p>This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the <code>&lt;directory&gt;/&lt;name&gt;/&lt;key&gt;</code> convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see <a href="../model.md#model-tokens">Model Tokens</a>.</p>
+<p>This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the <code>&lt;directory&gt;/&lt;name&gt;/&lt;key&gt;</code> convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model Tokens</a>.</p>
 <h4 id="additional_output"><code>additional_output</code></h4>
 <p>This field can be used to create additional output for use in the target environment. The value is a comma-separated list of template files in the <code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;</code> directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.</p>
 <p>Template files can be customized for specific environments. The recommended method is to copy the original template to a custom configuration directory as described above, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;target-name&gt;/model.yaml</code>. The copied file can then be edited as needed, while maintaining the original for reference.</p>
@@ -1342,19 +1342,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619724172"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619724172"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619715905"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619724172"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

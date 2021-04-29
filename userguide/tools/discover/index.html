@@ -12,20 +12,20 @@
     <title>Discover Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619724172" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619724172"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619715905"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619715905"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619724172"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619724172"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619715905"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619724172"></script>
 
     
   </div>
@@ -804,17 +804,17 @@
 <pre><code>weblogic-deploy/bin/discoverDomain.sh -oracle_home /u01/oracle -domain_home /u01/oracle/domains/DemoDomain -archive_file ./DiscoveredDemoDomain.zip -model_file ./DiscoveredDemoDomain.yaml -admin_user weblogic -admin_url t3://localhost:7001
 </code></pre>
 <p>Note that the command must run on the same system where the domain binaries are located in order to successfully gather the corresponding binaries into the archive file.</p>
-<p>When a domain is created using custom or product templates, the templates will install resources into the domain that do not need to be discovered for the model or collected into the archive. The domain type argument, which corresponds to a domain typedef file, must describe the type of domain in order for these resources and files to be ignored. By default, discover runs using domain type WLS, which assumes only the WebLogic Server template was applied to the domain. The tool has canned typedefs for two other domain types, RestrictedJRF and JRF. You may use these domain types, or another custom typedef. For more information, refer to <a href="tool_configuration.md#domain-type-definitions">Domain Type Definitions</a>.</p>
+<p>When a domain is created using custom or product templates, the templates will install resources into the domain that do not need to be discovered for the model or collected into the archive. The domain type argument, which corresponds to a domain typedef file, must describe the type of domain in order for these resources and files to be ignored. By default, discover runs using domain type WLS, which assumes only the WebLogic Server template was applied to the domain. The tool has canned typedefs for two other domain types, RestrictedJRF and JRF. You may use these domain types, or another custom typedef. For more information, refer to <a href="/weblogic-deploy-tooling/concepts/tool_configuration/#domain-type-definitions">Domain Type Definitions</a>.</p>
 <p>An example of using the domain type argument:</p>
 <pre><code>weblogic-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.yaml -domain_type RestrictedJRF
 </code></pre>
 <p>Before the model is persisted to the model file, any variable injectors or model filters are run, in that order. The final step is validation, which validates the contents of the model, archive and variable file. If the validation is successful, the model is persisted. For more information on these three topics, go to:</p>
 <ul>
-<li><a href="variable_injection.md">Variable Injection</a></li>
-<li><a href="tool_configuration.md#model-filters">Model Filters</a></li>
-<li><a href="validate.md">Validate Model Tool</a></li>
+<li><a href="/weblogic-deploy-tooling/userguide/tools/variable_injection/">Variable Injection</a></li>
+<li><a href="/weblogic-deploy-tooling/concepts/tool_configuration/#model-filters">Model Filters</a></li>
+<li><a href="/weblogic-deploy-tooling/userguide/tools/validate/">Validate Model Tool</a></li>
 </ul>
-<p>The resulting model can also be modified for compatibility with specific target environments, such as Oracle Weblogic Server Kubernetes Operator. For more information, see <a href="config/target_env.md">Target Environments</a>.</p>
+<p>The resulting model can also be modified for compatibility with specific target environments, such as Oracle Weblogic Server Kubernetes Operator. For more information, see <a href="/weblogic-deploy-tooling/concepts/target_env/">Target Environments</a>.</p>
 <p>Any problems (or success) will be listed in the discover tool summary. The summary will print the version of the tool and Oracle home, and the WLST mode with which the tool was run (online or offline). A recap of all Warning and Severe messages will be listed, along with a total.</p>
 <p>An example of a summary with a WARNING message:</p>
 <pre><code>Issue Log for discoverDomain version 1.5.2-SNAPSHOT running WebLogic version 10.3.6.0 offline mode:
@@ -1321,19 +1321,19 @@ from the location of the discoverDomain script.</li>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619724172"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619724172"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619715905"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619724172"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

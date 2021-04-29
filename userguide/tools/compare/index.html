@@ -12,20 +12,20 @@
     <title>Compare Model Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1619715905" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619715905" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619724172" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619724172" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619724172"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619715905"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619715905"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619724172"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619724172"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619715905"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619724172"></script>
 
     
   </div>
@@ -752,7 +752,15 @@
                 
                     <div class="progress">
     <div class="wrapper">
-<nav id="TableOfContents"></nav>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
@@ -779,7 +787,7 @@
 The Compare Model Tool compares two model files and generates a model that shows the differences between them.</p>
 <p>To use the Compare Model Tool, simply run the <code>compareModel</code> shell script with the correct arguments.  To see the list of valid arguments, simply run the shell script with the <code>-help</code> option (or with no arguments) for usage information.</p>
 <p>For example, comparing the following models.</p>
-<p>New Model</p>
+<h5 id="new-model">New Model</h5>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">AdminUserName</span>: <span style="color:#e6db74">&#39;weblogic&#39;</span>
     <span style="color:#f92672">AdminPassword</span>: <span style="color:#e6db74">&#39;welcome2&#39;</span>
@@ -869,7 +877,7 @@ The Compare Model Tool compares two model files and generates a model that shows
                     <span style="color:#f92672">MyUniformDistributedQueue</span>:
                         <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
                         <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/myUDQ</span>
-</code></pre></div><p>Old Model</p>
+</code></pre></div><h5 id="old-model">Old Model</h5>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">AdminUserName</span>: <span style="color:#e6db74">&#39;weblogic&#39;</span>
     <span style="color:#f92672">AdminPassword</span>: <span style="color:#e6db74">&#39;welcome2&#39;</span>
@@ -1030,10 +1038,13 @@ topology:
 <li>Changed deployment targets for application <code>myear</code>.</li>
 <li>Removed the attribute &lsquo;ModuleType&rsquo; for application <code>myear</code>.</li>
 </ol>
-<p><strong>Note</strong>:  The <code>!</code> is a notation for the deletion of a non-attribute key element from the model. Missing attributes
+
+<div class="notices note" ><p>The <code>!</code> is a notation for the deletion of a non-attribute key element from the model. Missing attributes
 will be omitted from the resulting model, but shown as messages in the output.  If the attribute value is a list, even
 if all the individual items within the list are identical but the ordering is different, the attribute is counted as
 different.</p>
+</div>
+
 <p>To compare the two model files and generate the output to files, run the tool as follows:</p>
 <pre><code>weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 -output_dir c:\cm-output ew_model.yaml old_model.yaml
 
@@ -1530,19 +1541,19 @@ compare_model_stdout
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619724172"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1619715905"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619715905"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619724172"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619724172"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619715905"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619724172"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

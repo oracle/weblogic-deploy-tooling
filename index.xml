@@ -151,7 +151,7 @@ Models contain WebLogic Server domain configuration. Certain types of resources 
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/concepts/target_env/</guid>
       <description>The Discover Domain and Prepare Model Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
- Using model tokens for some attributes in the model (see Model Tokens) Using Kubernetes secrets for credentials in the model Applying filters to the model (see Model Filters) Creating additional configuration files for the target system  Specifying a target environment Each tool specifies a target environment using the command-line argument -target &amp;lt;target-name&amp;gt;, where &amp;lt;target-name&amp;gt; refers to a pre-configured target environment, or a user-defined environment.</description>
+ Using model tokens for some attributes in the model. See Model Tokens. Using Kubernetes secrets for credentials in the model. Applying filters to the model. See Model Filters. Creating additional configuration files for the target system.  Specifying a target environment Each tool specifies a target environment using the command-line argument -target &amp;lt;target-name&amp;gt;, where &amp;lt;target-name&amp;gt; refers to a pre-configured target environment, or a user-defined environment.</description>
     </item>
     
     <item>
@@ -210,8 +210,8 @@ To enable the Variable Injector Tool during the Discover Domain Tool run, create
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/model_help/</guid>
       <description>The Model Help Tool provides information about the folders and attributes that are valid for sections and folders of a domain model. This is useful when creating a new domain model, or expanding an existing model, including discovered models.
-NOTE: The Model Help Tool is new in WebLogic Deploy Tooling 1.8.
-NOTE: The -model_sample argument is deprecated starting with WebLogic Deploy Tooling 1.9.2, when model sample became the default output format.</description>
+The Model Help Tool is new in WebLogic Deploy Tooling 1.8. The -model_sample argument is deprecated starting with WebLogic Deploy Tooling 1.9.2, when model sample became the default output format.
+ Here is a simple example using the Model Help Tool:</description>
     </item>
     
     <item>
