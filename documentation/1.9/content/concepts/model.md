@@ -31,7 +31,7 @@ The model is written in YAML (or optionally, JSON).  The YAML parser, built into
 
 All assignment statements must have one or more spaces between the colon and the value.  All comments must have a space after the pound sign (also known as hash) to be considered a comment.  YAML doesn't allow comments in all locations.  While the YAML parser used by the framework does not try to enforce these restrictions, it is likely that putting comments in some locations may cause parse errors since YAML is a difficult language to parse due to its complex indention rules.
 
-## Contents
+#### Contents
 
 - [Top-Level Sections](#top-level-model-sections)
 - [Simple Example](#simple-example)

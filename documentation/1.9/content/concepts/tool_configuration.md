@@ -6,7 +6,7 @@ weight: 4
 ---
 
 
-## Contents
+#### Contents
  - [Tool Property File](#tool-property-file)
  - [Model Filters](#model-filters)
  - [Target Environments](config/target_env.md)
@@ -15,7 +15,7 @@ weight: 4
  - [Custom Configuration](#custom-configuration)
 
  ### Tool Property File
- You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as `<weblogic-deploy>/lib/tool.properties`. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the `tool.properties` file in the $WDT_CUSTOM_CONFIG directory.
+ You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as `<weblogic-deploy>/lib/tool.properties`. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the `tool.properties` file in the `$WDT_CUSTOM_CONFIG` directory.
 
  If a property is removed from the file, or a property value is incorrectly formatted, a `WARNING` message is logged and an internal default value used instead of the missing or bad value.
 

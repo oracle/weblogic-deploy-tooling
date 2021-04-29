@@ -18,10 +18,10 @@ See the [Release Notes]({{< relref "/release-notes.md" >}}) for recent changes, 
 
 This documentation includes sections targeted to different audiences. To help you find what you are looking for more easily, please consult this table of contents:
 
- 
-
-
-
+* [Concepts]({{< relref "/concepts/" >}}) explains the underlying metadata model, files, and configurations.
+* The [User guide]({{< relref "/userguide/" >}}) contains detailed usage information, including how to install and configure WebLogic Deploy Tooling, and how to use the tools to .
+* The [Samples]({{< relref "/samples/" >}}) provide detailed example code and instructions that show you how to perform various tasks.
+* The [Developer guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WDT is built, tested, and so on.
 
 
 ### Contributing

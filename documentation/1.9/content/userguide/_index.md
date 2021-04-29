@@ -6,4 +6,6 @@ chapter = true
 pre = "<b>2. </b>"
 +++
 
+# User Guide
+
 The User Guide provides detailed information about installing and using WebLogic Deploy Tools.

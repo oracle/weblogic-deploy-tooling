@@ -14,7 +14,7 @@ Note that file resources that already exist on the target system need not be inc
 - [Archive Structure](#archive-structure)
 - [Using Multiple Archive Files](#using-multiple-archive-files)
 
-## Example
+#### Example
 
 This example shows an application with a `SourcePath` value referencing an EAR file resource contained in the archive.
 
@@ -29,22 +29,22 @@ appDeployments:
 
 The example above shows the attribute `SourcePath` of the `simpleear` application with a value of `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory in the domain, in this case `<domain-home>/wlsdeploy/applications/simpleear.ear`.
 
-## Archive Structure
+### Archive Structure
 
 These are the paths within the archive that are used for different types of resources. Users can create further directory structures underneath these locations to organize the files and directories as they see fit.  
 
-### `atpwallet`
+#### `atpwallet`
 
 The directory where a wallet can be stored for use with Oracle Autonomous Transaction Processing Cloud Database. The file resource name is not specified in the model, and is assumed to be a single ZIP file in the archive at this location.  
 
-### `model`
+#### `model`
 The directory where the model is optionally located. Only one model file, either in YAML or JSON, is allowed, and it must have the appropriate YAML or JSON file extension.
 
-### `opsswallet`
+#### `opsswallet`
 
 The directory where a wallet can be stored for use with Oracle Platform Security Services. The file resource name is not specified in the model, and is assumed to be a single ZIP file in the archive at this location.  
 
-### `wlsdeploy/applications`
+#### `wlsdeploy/applications`
 The root directory under which applications are stored. Applications can be stored in the archive as EAR or WAR files, or expanded* under this folder. A sample expanded WAR application might have these entries:
 ```
 wlsdeploy/applications/myApp/index.jsp
@@ -56,34 +56,34 @@ wlsdeploy/applications/myApp/WEB-INF/weblogic.xml
 
 \* Expanded application directories are supported after WebLogic Deploy Tooling release 1.6.2
 
-### `wlsdeploy/classpathLibraries`
+#### `wlsdeploy/classpathLibraries`
 The root directory under which JARs/directories used for server classpaths are stored. Every file resource under this directory is extracted, even those not referenced in the model.
 
-### `wlsdeploy/coherence`
+#### `wlsdeploy/coherence`
 The root directory under which empty directories must exist for Coherence persistent stores.
 
-### `wlsdeploy/domainBin`
+#### `wlsdeploy/domainBin`
 The root directory under which $DOMAIN_HOME/bin scripts are stored. Only scripts referenced in the `domainInfo/domainBin` section of the model are extracted.
 
-### `wlsdeploy/domainLibraries`
+#### `wlsdeploy/domainLibraries`
 The root directory under which `$DOMAIN_HOME/lib` libraries are stored. Only libraries referenced in the `domainInfo/domainLibraries` section of the model are extracted.
 
-### `wlsdeploy/nodeManager`
+#### `wlsdeploy/nodeManager`
 The root directory under which node manager file resources, such as keystore files, are stored.
 
-### `wlsdeploy/scripts`
+#### `wlsdeploy/scripts`
 The root directory under which scripts are stored. These can include JDBC create scripts, and WLDF action scripts.
 
-### `wlsdeploy/servers`
+#### `wlsdeploy/servers`
 The root directory under which server files, such as keystore files, are stored. These are organized by server name, such as `wlsdeploy/server/my-server/mykey.jks`
 
-### `wlsdeploy/sharedLibraries`
+#### `wlsdeploy/sharedLibraries`
 The root directory under which shared libraries are stored. These are stored as JAR files within the archive.
 
-### `wlsdeploy/stores`
+#### `wlsdeploy/stores`
 The root directory under which empty directories must exist for `FileStore` elements in the model.
 
-## Using Multiple Archive Files
+### Using Multiple Archive Files
 
 The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple archive files on the command line. For example:
 
