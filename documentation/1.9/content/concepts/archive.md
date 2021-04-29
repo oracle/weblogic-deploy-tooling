@@ -1,4 +1,10 @@
-# The Archive File
+---
+title: "Archive File"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 2
+---
+
 
 The archive file is used to deploy binaries and other file resources to the target domain. The archive is a ZIP file with a specific directory structure.  Any file resources referenced in the model that are not already on the target system must be stored in the correct location in the archive, and the model must reflect the path into the archive. The model itself can also be stored inside the archive, if desired.
 
@@ -51,7 +57,7 @@ wlsdeploy/applications/myApp/WEB-INF/weblogic.xml
 \* Expanded application directories are supported after WebLogic Deploy Tooling release 1.6.2
 
 ### `wlsdeploy/classpathLibraries`
-The root directory under which JARs/directories used for server classpaths are stored. Every file resource under this directory is extracted, even those not referenced in the model. 
+The root directory under which JARs/directories used for server classpaths are stored. Every file resource under this directory is extracted, even those not referenced in the model.
 
 ### `wlsdeploy/coherence`
 The root directory under which empty directories must exist for Coherence persistent stores.
@@ -84,7 +90,7 @@ The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools 
     weblogic-deploy\bin\createDomain.cmd -archive_file one.zip,two.zip,three.zip ...
 
 File resources can be present in any of these archives. Resources in each archive will supersede resources found in previous archives.
- 
+
 When the model references a resource that is present in multiple archives, the latest in the list takes precedence. For example, if the model references `wlsdeploy/applications/myapp.ear`, and that resource is present in archives `one.zip` and `two.zip`, the resource in `two.zip` will be used.
 
 A similar rule applies for resources that have an assumed location, but are not specifically called out in the model. For example, if archive `two.zip` has a wallet in location `atpwallet/wallet2.zip`, and `three.zip` has a wallet in location `atpwallet/wallet3.zip`, the wallet `atpwallet/wallet3.zip` will be used.

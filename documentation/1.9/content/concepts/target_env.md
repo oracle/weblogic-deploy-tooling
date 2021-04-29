@@ -1,4 +1,10 @@
-## Target environments
+---
+title: "Target environments"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 4
+---
+
 
 The [Discover Domain]({{< relref "/discover.md" >}}) and [Prepare Model]({{< relref "/prepare.md" >}}) Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
 - Using model tokens for some attributes in the model (see [Model Tokens]({{< relref "/model#model-tokens" >}}))

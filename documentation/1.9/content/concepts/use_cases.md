@@ -1,4 +1,12 @@
-## Model Use Cases
+---
+title: "Model Use Cases"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 3
+---
+
+
+## Contents
 
  - [Customizing the Administration Server](#administration-server-configuration)
  - [Modeling a Configured Cluster](#configured-cluster-sample)
