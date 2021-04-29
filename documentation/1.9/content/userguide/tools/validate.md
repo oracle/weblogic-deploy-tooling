@@ -1,8 +1,15 @@
-## The Validate Model Tool
+---
+title: "Validate Model Tool"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 6
+description: "Provides both standalone validation of a model as well as model usage information to help users write or edit their models."
+---
+
 
 When working with a metadata model that drives tooling, it is critical to make it easy both to validate that the model and its related artifacts are well-formed and to provide help on the valid attributes and subfolders for a particular model location.  The Validate Model Tool provides both validation and help for model authors as a standalone tool.  In addition, the tool is integrated with the `createDomain` and `deployApps` tools to catch validation errors early, before any actions are performed on the domain.
 
-To use the Validate Model Tool, simply run the `validateModel` shell script with the correct arguments.  To see the list of valid arguments for any tool in the Oracle WebLogic Server Deploy Tooling installation, simply run the shell script with the `-help` option (or with no arguments) to see the shell script usage information.
+To use the Validate Model Tool, simply run the `validateModel` shell script with the correct arguments.  To see the list of valid arguments for any tool in the WebLogic Deploy Tooling installation, simply run the shell script with the `-help` option (or with no arguments) to see the shell script usage information.
 
 For example, starting with the following model shown below, where the `AdminServer` attribute `Machine` is misspelled as `Machines`:
 

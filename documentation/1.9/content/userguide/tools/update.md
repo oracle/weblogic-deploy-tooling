@@ -1,4 +1,11 @@
-## The Update Domain Tool
+---
+title: "Update Domain Tool"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 2
+description: "Understands how to update an existing domain and populate the domain with all resources and applications specified in the model, either in offline or online mode."
+---
+
 
 The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode.  The update tool will add or re-configure elements from the `topology` section of the model, and deploy applications and resources from the `resources` and `appDeployments` sections, as described in the Deploy Applications Tool.
 

@@ -1,4 +1,11 @@
-## The Create Domain Tool
+---
+title: "Create Domain Tool"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 1
+description: "Understands how to create a domain and populate the domain with all resources and applications specified in the model."
+---
+
 
 The Create Domain Tool uses a model and WLST offline to create a domain.  To use the tool, at a minimum, the model must specify the domain's administrative password in the `domainInfo` section of the model, as shown below.
 

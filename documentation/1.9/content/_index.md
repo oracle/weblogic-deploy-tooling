@@ -12,22 +12,18 @@ WDT provides several single-purpose tools, all exposed as shell scripts (for bot
 - The [Encrypt Model Tool]({{< relref "/encrypt.md" >}}) (`encryptModel`) encrypts the passwords in a model (or its variable file) using a user-provided passphrase.
 - The [Validate Model Tool]({{< relref "/validate.md" >}}) (`validateModel`) provides both standalone validation of a model as well as model usage information to help users write or edit their models.
 - The [Compare Model Tool]({{< relref "/compare.md" >}}) (`compareModel`) compares two model files.
-- The [Prepare Model Tool]({{< relref "/prepare.md" >}}) (`prepareModel`) prepares model files for deploying to WebLogic Server Kubernetes Operator environment.
-- The [Extract Domain Resource Tool]({{< relref "/kubernetes.md" >}}) (`extractDomainResource`) generates a domain resource YAML for use with the Oracle WebLogic Server Kubernetes Operator.
+- The [Prepare Model Tool]({{< relref "/prepare.md" >}}) (`prepareModel`) prepares model files for deploying to WebLogic Kubernetes Operator environment.
+- The [Extract Domain Resource Tool]({{< relref "/kubernetes.md" >}}) (`extractDomainResource`) generates a domain resource YAML for use with the WebLogic Kubernetes Operator.
 - The [Variable Injector Tool]({{< relref "/variable_injection.md" >}}) is used to tokenize a model with variables.
 - The [Model Help Tool]({{< relref "/model_help.md" >}}) (`modelHelp.sh`) provides information about the folders and attributes that are valid for sections and folders of a domain model.
 
 As new use cases are discovered, new tools will likely be added to cover those operations but all will use the metadata model to describe what needs to be done.
 
 
-### Download and Install the Software
-
-The Oracle WebLogic Server Deploy Tooling project repository is located at [`https://github.com/oracle/weblogic-deploy-tooling`](https://github.com/oracle/weblogic-deploy-tooling).  Binary distributions of the `weblogic-deploy.zip` installer can be downloaded from the [GitHub Releases page](https://github.com/oracle/weblogic-deploy-tooling/releases).  To install the software, simply unzip the `weblogic-deploy.zip` installer on a machine that has the desired versions of WebLogic Server installed.  After being unzipped, the software is ready to use, just set the `JAVA_HOME` environment variable to point to a Java 7 or higher JDK  and the shell scripts are ready to run.
-
 
 ### Supported WLS Versions
 
-For the supported WebLogic Server and JDK versions required to run WebLogic Server Deploy Tooling, see [Supported WLS Versions]({{< relref "/wls_versions.md" >}}).
+For the supported WebLogic Server and JDK versions required to run WebLogic Deploy Tooling, see [Supported WLS Versions]({{< relref "/wls_versions.md" >}}).
 
 
 ## Concepts

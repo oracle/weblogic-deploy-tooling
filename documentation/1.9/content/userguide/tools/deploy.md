@@ -1,6 +1,11 @@
-## The Deploy Applications Tool
+---
+title: "Deploy Applications Tool"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 3
+description: "Understands how to add resources and applications to an existing domain, either in offline or online mode."
+---
 
-**NOTE: Work on the Deploy Applications Tool to bring it in line with the text below is still in progress.**
 
 The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode.  When deploying applications and resources from a model, the deploy tool focuses primarily on the `resources` and `appDeployments` sections of the model.  There are exceptions for the `domainInfo` and `topology` sections, where those configuration elements are deemed to be "application-related."  For example, the servers' `ServerStart` folder has an `Arguments` and a `ClassPath` attribute that change the server environment (when started by the Node Manager) that applications may rely on to function properly.  Likewise, the `domainInfo` section contains a list of JAR files that are to be placed in `<DOMAIN_HOME>/lib` which are relevant to applications for a similar reason.
 

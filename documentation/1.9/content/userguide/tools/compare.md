@@ -1,8 +1,15 @@
-## The Compare Model Tool
+---
+title: "Compare Model Tool"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 7
+description: "Compares two model files."
+---
+
 
 When working with a domain model, sometimes it is useful to know the differences between different models.
  The Compare Model Tool compares two model files and generates a model that shows the differences between them.
-    
+
 To use the Compare Model Tool, simply run the `compareModel` shell script with the correct arguments.  To see the list of valid arguments, simply run the shell script with the `-help` option (or with no arguments) for usage information.
 
 For example, comparing the following models.  
@@ -259,7 +266,7 @@ topology:
 ```
 
 Comparing the new and old models:
- 
+
  1. Added `cluster-2` and `cluster-2-template` in the topology section.
  2. Removed `ServerStart` of `cluster-1-template` in the topology section.
  3. Deployed two applications `yourear` and `myear` in the appDeployments section.
@@ -268,19 +275,19 @@ Comparing the new and old models:
  5. Removed `WebAppContainer` in the resource section.
  6. Removed the attribute `ResetDeliveryCountOnForward` from `MyUniformDistributedQueue`.
  7. Changed deployment targets for application `myear`.
- 8. Removed the attribute 'ModuleType' for application `myear`. 
- 
- **Note**:  The `!` is a notation for the deletion of a non-attribute key element from the model. Missing attributes 
- will be omitted from the resulting model, but shown as messages in the output.  If the attribute value is a list, even 
- if all the individual items within the list are identical but the ordering is different, the attribute is counted as 
+ 8. Removed the attribute 'ModuleType' for application `myear`.
+
+ **Note**:  The `!` is a notation for the deletion of a non-attribute key element from the model. Missing attributes
+ will be omitted from the resulting model, but shown as messages in the output.  If the attribute value is a list, even
+ if all the individual items within the list are identical but the ordering is different, the attribute is counted as
  different.
- 
+
  To compare the two model files and generate the output to files, run the tool as follows:
 
     weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 -output_dir c:\cm-output ew_model.yaml old_model.yaml
-    
+
     The following files will be written to the directory:
-    
+
     diffed_model.json
     diffed_model.yaml
     compare_model_stdout

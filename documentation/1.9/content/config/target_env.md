@@ -1,4 +1,4 @@
-## Target Environments
+## Target environments
 
 The [Discover Domain]({{< relref "/discover.md" >}}) and [Prepare Model]({{< relref "/prepare.md" >}}) Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
 - Using model tokens for some attributes in the model (see [Model Tokens]({{< relref "/model#model-tokens" >}}))
@@ -6,7 +6,7 @@ The [Discover Domain]({{< relref "/discover.md" >}}) and [Prepare Model]({{< rel
 - Applying filters to the model (see [Model Filters]({{< relref "/tool_configuration#model-filters" >}}))
 - Creating additional configuration files for the target system
 
-### Specifying a Target Environment
+### Specifying a target environment
 
 Each tool specifies a target environment using the command-line argument `-target <target-name>`, where `<target-name>` refers to a pre-configured target environment, or a user-defined environment. In addition, the `-output_dir <output-directory>` argument specifies where the files for the target environment will be stored.
 
@@ -18,7 +18,7 @@ This example would apply the `k8s` target type to the discovery result, and plac
 
 If a variable file is specified on the tool's command line using the `-variable_file` argument, any injected variables will be added to that file. If no variable file is specified, injected variables will be written to the file `<output-directory>/<target_name>_variable.properties`.
 
-### The Target Configuration File 
+### The Target Configuration File
 
 A target environment is configured in a JSON file at this location:
 ```
@@ -26,9 +26,9 @@ $WLSDEPLOY_HOME/lib/target/<target-name>/target.json
 ```
 The `<target-name>` value corresponds to the value of the `-target` argument on the tool's command line. The WLS installation includes two pre-defined targets:
  - [Oracle Weblogic Server Kubernetes Operator](#the-oracle-weblogic-server-kubernetes-operator-target) (named `k8s`)
- - [Verrazzano](#the-verrazzano-target) (named `vz`). 
+ - [Verrazzano](#the-verrazzano-target) (named `vz`).
 
-You can define a new or extended target environment with a new `target-name` in the above location, or using a [Custom Configuration](../tool_configuration.md#custom-configuration) directory, such as `$WDT_CUSTOM_CONFIG/target/<my-target-name>/target.json`. 
+You can define a new or extended target environment with a new `target-name` in the above location, or using a [Custom Configuration](../tool_configuration.md#custom-configuration) directory, such as `$WDT_CUSTOM_CONFIG/target/<my-target-name>/target.json`.
 
 Here is an example of a target environment file:
 ```
@@ -83,7 +83,7 @@ Template files can be customized for specific environments. The recommended meth
 
 These target environment configurations are included in the WebLogic Deploy Tooling installation.
 
-#### The Oracle WebLogic Server Kubernetes Operator Target
+#### The WebLogic Kubernetes Operator target
 
 This target environment can be applied by providing the command-line argument `-target wko`. It will provide this additional processing:
 
