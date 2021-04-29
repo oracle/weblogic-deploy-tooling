@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="Understands how to create a domain and populate the domain with all resources and applications specified in the model.">
+    <meta name="description" content="">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Create Domain Tool :: WebLogic Deploy Tooling</title>
+    <title>Target environments :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1619714883" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/create/">
+  <body class="" data-url="/weblogic-deploy-tooling/concepts/target_env/">
     <nav id="sidebar" class="">
 
 
@@ -85,7 +85,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/concepts/" title="Concepts" class="dd-item
-        
+        parent
         
         
         ">
@@ -174,7 +174,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/concepts/target_env/" title="Target environments" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/concepts/target_env/" title="Target environments" class="dd-item active">
         <a href="/weblogic-deploy-tooling/concepts/target_env/">
         Target environments
         
@@ -224,7 +224,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -274,7 +274,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
-        parent
+        
         
         
         ">
@@ -300,7 +300,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools/create/">
         Create Domain Tool
         
@@ -733,13 +733,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Create Domain Tool
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/concepts/'>Concepts</a> > Target environments
           
         
           
@@ -756,9 +750,9 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#using-an-encrypted-model">Using an Encrypted Model</a></li>
-        <li><a href="#using-multiple-models">Using Multiple Models</a></li>
-        <li><a href="#development-domain-and-bootproperties">Development Domain and <code>boot.properties</code></a></li>
+        <li><a href="#specifying-a-target-environment">Specifying a target environment</a></li>
+        <li><a href="#the-target-configuration-file">The Target Configuration File</a></li>
+        <li><a href="#pre-configured-target-environments">Pre-configured Target Environments</a></li>
       </ul>
     </li>
   </ul>
@@ -778,44 +772,97 @@
           
             <h1>
               
-              Create Domain Tool
+              Target environments
             </h1>
           
 
         
 
 
-<p>The Create Domain Tool uses a model and WLST offline to create a domain.  To use the tool, at a minimum, the model must specify the domain&rsquo;s administrative password in the <code>domainInfo</code> section of the model, as shown below.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
-</code></pre></div><p>Using the model above, simply run the <code>createDomain</code> tool, specifying the type of domain to create and where to create it.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml
-</code></pre>
-<p>Clearly, creating an empty domain with only the template-defined servers is not very interesting, but this example just reinforces how sparse the model can be.  When running the Create Domain Tool, the model must be provided either inside the archive file or as a standalone file.  If both the archive and model files are provided, the model file outside the archive will take precedence over any that might be inside the archive.  If the archive file is not provided, the Create Domain Tool will create the <code>topology</code> section only (using the <code>domainInfo</code> section) of the model in the domain.  This is because the <code>resources</code> and <code>appDeployments</code> sections of the model can reference files from the archive so to create the domain with the model-defined resources and applications, an archive file must be provided&ndash;even if the model does not reference anything in the archive.  At some point in the future, this restriction may be relaxed to require the archive only if it is actually needed.</p>
-<p>The Create Domain Tool understands three domain types: <code>WLS</code>, <code>RestrictedJRF</code>, and <code>JRF</code>.  When specifying the domain type, the Oracle Home must match the requirements for the domain type.  Both <code>RestrictedJRF</code> and <code>JRF</code> require an Oracle Home with the FMW Infrastucture (also known as JRF) installed.  When creating a JRF domain, the RCU database information must be provided as arguments to the <code>createDomain</code> script.  Note that the tool will prompt for any passwords required.  Optionally, they can be piped to standard input (for example, <code>stdin</code>) of the script, to make the script run without user input.  For example, the command to create a JRF domain looks like the one below.  Note that this requires the user to have run RCU prior to running the command.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO [-rcu_db_user SYS]
-</code></pre>
-<p>To have the Create Domain Tool run RCU, simply add the <code>-run_rcu</code> argument to the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!</p>
-<p>It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to <a href="rcuinfo.md">Specifying RCU connection information in the model</a></p>
-<p>To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to <a href="tool_configuration.md#domain-type-definitions">Domain Type Definitions</a>.</p>
-<h3 id="using-an-encrypted-model">Using an Encrypted Model</h3>
-<p>If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the <code>-use_encryption</code> flag on the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, <code>stdin</code>) to allow the tool to run without any user input.</p>
-<h3 id="using-multiple-models">Using Multiple Models</h3>
-<p>The Create Domain Tool supports the use of multiple models, as described in <a href="model.md#using-multiple-models">Using Multiple Models</a>.</p>
-<h3 id="development-domain-and-bootproperties">Development Domain and <code>boot.properties</code></h3>
-<p>When creating a development domain, WDT provides the convenience of making a <code>boot.properties</code> file for each of the servers in the domain. The <code>boot.properties</code> file will contain encrypted values of the Administration Server user name and password. When the Administration Server or Managed Server is started, WebLogic Server will bypass the prompt for credentials, and instead use the credentials from the <code>boot.properties</code> file.</p>
-<p>A domain is in production mode if the <code>ServerStartMode</code> option is set to <code>prod</code> or the domain <code>ProductionModeEnabled</code> is set to <code>true</code>. The default value for both of these attributes is development mode.</p>
-<p>The <code>boot.properties</code> file is stored in the domain home on the machine where WDT runs. It is stored for each server as <code>&lt;domain_home&gt;/servers/&lt;server_name&gt;/security/boot.properties</code>.</p>
-<p>The following is a model example with both attributes explicitly set to development mode.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
-    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">dev</span>
-<span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Name</span>: <span style="color:#e6db74">&#34;my-domain&#34;</span>
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#e6db74">&#34;admin-server&#34;</span>
-    <span style="color:#f92672">ProductionModeEnabled</span>: <span style="color:#66d9ef">false</span>
-</code></pre></div>
+<p>The <a href="/weblogic-deploy-tooling/userguide/tools/discover/">Discover Domain</a> and <a href="/weblogic-deploy-tooling/userguide/tools/prepare/">Prepare Model</a> Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:</p>
+<ul>
+<li>Using model tokens for some attributes in the model (see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model Tokens</a>)</li>
+<li>Using Kubernetes secrets for credentials in the model</li>
+<li>Applying filters to the model (see <a href="/weblogic-deploy-tooling/concepts/tool_configuration/#model-filters">Model Filters</a>)</li>
+<li>Creating additional configuration files for the target system</li>
+</ul>
+<h3 id="specifying-a-target-environment">Specifying a target environment</h3>
+<p>Each tool specifies a target environment using the command-line argument <code>-target &lt;target-name&gt;</code>, where <code>&lt;target-name&gt;</code> refers to a pre-configured target environment, or a user-defined environment. In addition, the <code>-output_dir &lt;output-directory&gt;</code> argument specifies where the files for the target environment will be stored.</p>
+<p>This command line shows how these arguments can be used with the Discover Domain Tool:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"> <span style="color:#ae81ff">$WLSDEPLOY_HOME/bin/discoverDomain.sh ... -target k8s -output_dir /etc/files</span>
+</code></pre></div><p>This example would apply the <code>k8s</code> target type to the discovery result, and place those files in <code>/etc/files</code>.</p>
+<p>If a variable file is specified on the tool&rsquo;s command line using the <code>-variable_file</code> argument, any injected variables will be added to that file. If no variable file is specified, injected variables will be written to the file <code>&lt;output-directory&gt;/&lt;target_name&gt;_variable.properties</code>.</p>
+<h3 id="the-target-configuration-file">The Target Configuration File</h3>
+<p>A target environment is configured in a JSON file at this location:</p>
+<pre><code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;/target.json
+</code></pre><p>The <code>&lt;target-name&gt;</code> value corresponds to the value of the <code>-target</code> argument on the tool&rsquo;s command line. The WLS installation includes two pre-defined targets:</p>
+<ul>
+<li><a href="#the-oracle-weblogic-server-kubernetes-operator-target">Oracle Weblogic Server Kubernetes Operator</a> (named <code>k8s</code>)</li>
+<li><a href="#the-verrazzano-target">Verrazzano</a> (named <code>vz</code>).</li>
+</ul>
+<p>You can define a new or extended target environment with a new <code>target-name</code> in the above location, or using a <a href="../tool_configuration.md#custom-configuration">Custom Configuration</a> directory, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;my-target-name&gt;/target.json</code>.</p>
+<p>Here is an example of a target environment file:</p>
+<pre><code>{
+  &quot;model_filters&quot; : {
+        &quot;discover&quot;: [
+          { &quot;name&quot;: &quot;k8s_prep&quot;, &quot;path&quot;: &quot;@@TARGET_CONFIG_DIR@@/k8s_operator_filter.py&quot; }
+        ]
+      },
+  &quot;variable_injectors&quot; : {&quot;PORT&quot;: {},&quot;HOST&quot;: {},&quot;URL&quot;: {}},
+  &quot;validation_method&quot; : &quot;lax&quot;,
+  &quot;credentials_method&quot; : &quot;secrets&quot;,
+  &quot;wls_credentials_name&quot; : &quot;__weblogic-credentials__&quot;,
+  &quot;additional_output&quot; : &quot;binding.yaml,model.yaml&quot;
+}
+</code></pre><p>Each of the fields in this example is optional, and can be customized.</p>
+<h4 id="model_filters"><code>model_filters</code></h4>
+<p>This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the <a href="../tool_configuration.md#model-filters">Model Filters</a> configuration. The <code>discover</code> type should always be used here.</p>
+<p>The <code>@@TARGET_CONFIG_DIR@@</code> token can be used to indicate that the specified filter is in the same directory as the target configuration file.</p>
+<h4 id="variable_injectors"><code>variable_injectors</code></h4>
+<p>This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the <a href="../variable_injection.md">Variable Injectors</a> configuration.</p>
+<h4 id="validation_method"><code>validation_method</code></h4>
+<p>This field can be used to set the validation level for the resulting model. Only the value <code>lax</code>is currently supported. With <code>lax</code> validation, variables and Kubernetes secrets referenced in the resulting model do not need to be available when the model is created.</p>
+<h4 id="credentials_method"><code>credentials_method</code></h4>
+<p>This field specifies how credentials in the model should be handled. There are two values available:</p>
+<ul>
+<li><code>secrets</code> - the credentials in the model are replaced with references to Kubernetes secrets, and a UNIX script to create those secrets is produced.</li>
+<li><code>config_override_secrets</code> - the credentials in the model are replaced with placeholder values, such as <code>password1</code>, and a UNIX script to create corresponding Kubernetes secrets is produced.</li>
+</ul>
+<p>In both these cases, the script to create the Kubernetes secrets is written to <code>&lt;output-directory&gt;/create_k8s_secrets.sh</code>. You will need to update this script with credential values before executing</p>
+<h4 id="wls_credentials_name"><code>wls_credentials_name</code></h4>
+<p>This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the <code>&lt;directory&gt;/&lt;name&gt;/&lt;key&gt;</code> convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see <a href="../model.md#model-tokens">Model Tokens</a>.</p>
+<h4 id="additional_output"><code>additional_output</code></h4>
+<p>This field can be used to create additional output for use in the target environment. The value is a comma-separated list of template files in the <code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;</code> directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.</p>
+<p>Template files can be customized for specific environments. The recommended method is to copy the original template to a custom configuration directory as described above, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;target-name&gt;/model.yaml</code>. The copied file can then be edited as needed, while maintaining the original for reference.</p>
+<h3 id="pre-configured-target-environments">Pre-configured Target Environments</h3>
+<p>These target environment configurations are included in the WebLogic Deploy Tooling installation.</p>
+<h4 id="the-weblogic-kubernetes-operator-target">The WebLogic Kubernetes Operator target</h4>
+<p>This target environment can be applied by providing the command-line argument <code>-target wko</code>. It will provide this additional processing:</p>
+<ul>
+<li>The <code>wko_operator_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
+<li>Variables will be injected into the model for port, host, and URL attributes</li>
+<li><code>lax</code> validation will be applied for the resulting model</li>
+<li>Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced</li>
+<li>An additional Kubernetes resource file, <code>model.yaml</code>, will be produced, with cluster and naming information derived from the model</li>
+</ul>
+<h4 id="the-verrazzano-target">The Verrazzano Target</h4>
+<p>This target environment can be applied by providing the command-line argument <code>-target vz</code>. It will provide this additional processing:</p>
+<ul>
+<li>The <code>vz_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
+<li>Variables will be injected into the model for port, host, and URL attributes</li>
+<li><code>lax</code> validation will be applied for the resulting model</li>
+<li>Credentials in the model will be replaced with placeholder values, and a script to create corresponding secrets will be produced</li>
+<li>Two additional Kubernetes resource files, <code>model.yaml</code> and <code>binding.yaml</code>, will be produced, with cluster and data source information derived from the model</li>
+</ul>
+<h4 id="generic-kubernetes-target">Generic Kubernetes Target</h4>
+<p>This target environment can be applied by providing the command-line argument <code>-target k8s</code>. It will provide this additional processing:</p>
+<ul>
+<li>The <code>k8s_operator_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
+<li>Variables will be injected into the model for port, host, and URL attributes</li>
+<li><code>lax</code> validation will be applied for the resulting model</li>
+<li>Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced</li>
+</ul>
+
 
 <footer class="footline">
 	
@@ -852,8 +899,6 @@
             
                 
                     
-                        
-                        
                     
                 
                 
@@ -868,37 +913,8 @@
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
                         
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
                         
-            
-            
-                
                     
                 
                 
@@ -943,58 +959,6 @@
             
         
                     
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                        
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
                         
             
             
@@ -1019,6 +983,85 @@
                     
                         
                         
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
                     
                 
                 
@@ -1286,10 +1329,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/concepts/use_cases/" title="Model Use Cases"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/update/" title="Update Domain Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/concepts/tool_configuration/" title="Tools Configuration" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
