@@ -67,7 +67,7 @@ The output of the tool will look something like this:
       Errors: 1
         Message: Machines is not one of the folder, folder instance or attribute names allowed in model location topology:/Server/AdminServer
 
-Use the [Model Help Tool](model_help.md) to determine the valid list of attributes and folders at this model location.
+Use the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) to determine the valid list of attributes and folders at this model location.
 
 If the model contains variable definitions and the variable file is specified, the Validate Model Tool will validate that all variable references in the model are defined in the variable file.  For example, invoking the tool as shown here:
 
@@ -98,4 +98,4 @@ Results in output similar to that shown below, if the `simpleear.ear` file is no
 
 ### Using Multiple Models
 
-The Validate Model Tool supports the use of multiple models, as described in [Using Multiple Models](model.md#using-multiple-models).
+The Validate Model Tool supports the use of multiple models, as described in [Using Multiple Models]({{< relref "/concepts/model#using-multiple-models" >}}).

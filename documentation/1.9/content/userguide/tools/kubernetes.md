@@ -15,7 +15,7 @@ This is especially useful when making configuration changes to the domain that a
 
 More information about the WebLogic Kubernetes Operator can be found [here](https://oracle.github.io/weblogic-kubernetes-operator).
 
-NOTE: The Extract Domain Resource Tool is available with WDT releases 1.7.0 and later.
+**NOTE**: The Extract Domain Resource Tool is available with WDT releases 1.7.0 and later.
 
 Here is an example command line for the Extract Domain Resource Tool:
 ```
@@ -74,7 +74,7 @@ kubernetes:
                 JAVA_OPTIONS:
                     value: '-Dmydir=/home/me'
 ```
-This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the `kubernetes` section of the model. More details about using model variables can be found [here](model.md#simple-example).
+This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the `kubernetes` section of the model. More details about using model variables can be found [here]({{< relref "/concepts/model#simple-example" >}}).
 
 For this example, the resulting domain resource file would contain:
 ```yaml
@@ -119,7 +119,7 @@ A full list of sections and variables supported by the WebLogic Kubernetes Opera
 
 The Extract Domain Resource Tool supports a subset of these sections, including `metadata`, `serverPod`, and `spec`.
 
-The [Model Help Tool](model_help.md) can be used to determine the folders and attributes that can be used in the `kubernetes` section of the model. For example, this command will list the folders and attributes in the `spec` folder:
+The [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) can be used to determine the folders and attributes that can be used in the `kubernetes` section of the model. For example, this command will list the folders and attributes in the `spec` folder:
 ```yaml
 <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle kubernetes:/spec
 ```

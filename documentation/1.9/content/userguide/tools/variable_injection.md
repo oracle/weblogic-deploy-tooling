@@ -11,7 +11,7 @@ The Variable Injector Tool is used to tokenize a model with variables. The value
 
 To enable the Variable Injector Tool during the Discover Domain Tool run, create a variable injector configuration by placing a JSON file named `model_variable_injector.json` into the `<WLSDEPLOY>/lib` directory using one or more of the pre-defined keywords and/or a CUSTOM list of files.
 
-Another option is to configure variable injection in a [Custom Configuration](tool_configuration.md#custom-configuration) directory. Create the `model_variable_injector.json` file in the `$WDT_CUSTOM_CONFIG` directory.
+Another option is to configure variable injection in a [Custom Configuration]({{< relref "/concepts/tool_configuration#custom-configuration" >}}) directory. Create the `model_variable_injector.json` file in the `$WDT_CUSTOM_CONFIG` directory.
 
 A keyword points to an injector directive file. The tool applies the directives to the attributes in a model, and if the directive matches an attribute, then a property token with a unique variable name is injected into the model and replaces the attribute value. The variable name and model attribute value are placed into the external variable properties file.
 
@@ -22,16 +22,11 @@ If variable injection is enabled, the Discover Domain Tool calls the variable in
 The supported keywords are as follows:
 
 - `CREDENTIALS` - All MBean credentials attribute values (user and password) are injected with a variable.
-
 - `HOST` - All MBean host attribute values in the model are injected with a variable.
-
 - `PORT` - All MBean port attribute values in the model are injected with a variable.
-
 - `TARGET` - All MBean target attribute values in the model are injected with a variable.
-
 - `TOPOLOGY` - Common environmental MBean attributes found in the topology section of the model are injected with a variable.
    This includes server, machine and Node Manager ports, credentials and listen addresses, and cluster messaging modes, addresses and ports.
-
 - `URL` - All MBean URL attribute values in the model are injected with a variable.
 
 **NOTE**: The directives used by each pre-defined keyword are defined in an injector JSON file that is located in the `<WLSDEPLOY>/lib/injectors` folder. These files should not be changed, but could be used as is.
@@ -214,6 +209,6 @@ A custom injector for the Administration Server SSL listen port is:
 }
 ```
 
-## Variable Injector Sample
+### Variable Injector Sample
 
 A sample of a `model_variable_injector.json` file and a custom injector JSON file are installed in the `WLSDEPLOY/samples` directory.

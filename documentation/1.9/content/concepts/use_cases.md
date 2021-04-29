@@ -6,7 +6,7 @@ weight: 3
 ---
 
 
-## Contents
+### Contents
 
  - [Customizing the Administration Server](#administration-server-configuration)
  - [Modeling a Configured Cluster](#configured-cluster-sample)
@@ -18,7 +18,7 @@ weight: 3
  - [Modeling ODL](#odl-configuration)
  - [Modeling Oracle HTTP Server (OHS)](#configuring-oracle-http-server)
  - [Targeting Server Groups](#targeting-server-groups)
- - [Using WDT with WebLogic Kubernetes Operator](kubernetes.md)
+ - [Using WDT with WebLogic Kubernetes Operator]({{< relref "/userguide/tools/kubernetes.md" >}})
 
  ### Administration Server Configuration
 
@@ -80,7 +80,7 @@ weight: 3
  The name of the Administration Server cannot be changed after domain creation, so any changes to the `AdminServerName` attribute will be ignored by the Update Domain Tool.
 
 
- ### Configured Cluster Sample
+ #### Configured Cluster Sample
 
  This WDT domain model sample section has a typical configuration for a configured cluster with a single managed server, including connection information, logging setup, and other details.
 
@@ -122,7 +122,7 @@ weight: 3
                  Arguments: '-Dosgi=true -Dtangosol.coherence.management=all'
                  ClassPath: '/foo/bar,wlsdeploy/classpathLibraries/mylib.jar'
  ```
- There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool](model_help.md). For example, this command will list the attributes and sub-folders for the `Server` folder:
+ There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}). For example, this command will list the attributes and sub-folders for the `Server` folder:
  ```yaml
  ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle topology:/Server
  ```
@@ -130,7 +130,7 @@ weight: 3
  For this sample, the machine named `machine-1` and the data source named `jdbc-1` should be defined elsewhere within this model, or should already exist in a domain that is being updated.
 
 
- ### JDBC Sample
+ #### JDBC Sample
 
  This WDT domain model sample section has a typical configuration for a JDBC data source, including targeting information, connection pool parameters, and other details.
 
@@ -156,17 +156,17 @@ weight: 3
                          user:
                              Value: scott
  ```
- There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool](model_help.md). For example, this command will list the attributes and sub-folders for the `JDBCSystemResource/JdbcResource` folder:
+ There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}). For example, this command will list the attributes and sub-folders for the `JDBCSystemResource/JdbcResource` folder:
  ```yaml
  ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource/JdbcResource
  ```
 
  For this sample, the target cluster `cluster-1` should be defined elsewhere within this model, or should already exist in a domain that is being updated.
 
- It is recommended that credential fields, such as `PasswordEncrypted`, should not be stored as clear text in the model. Those values can be referenced in a separate variables file or in Kubernetes secrets, or the model can be encrypted using the [Encrypt Model Tool](encrypt.md).
+ It is recommended that credential fields, such as `PasswordEncrypted`, should not be stored as clear text in the model. Those values can be referenced in a separate variables file or in Kubernetes secrets, or the model can be encrypted using the [Encrypt Model Tool]({{< relref "/userguide/tools/encrypt.md" >}}).
 
 
- ### Work Manager Sample
+ #### Work Manager Sample
 
  This WDT domain model sample section has typical configurations for a Work Manager and its related request classes and constraints. These elements are configured in the `SelfTuning` folder in the `resources` section of the model.
  ```yaml
@@ -223,7 +223,7 @@ weight: 3
  ```
  In this sample, assignments for `FairShareRequestClass` and `ResponseTimeRequestClass` are included as comments under `myWorkManager`. A Work Manager can only specify one request class type.
 
- There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool](model_help.md). For example, this command will list the attributes and sub-folders for the `WorkManager` folder:
+ There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}). For example, this command will list the attributes and sub-folders for the `WorkManager` folder:
  ```yaml
  ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/WorkManager
  ```
@@ -391,10 +391,10 @@ weight: 3
 
  The `Admin` role will have the expression appended to the default expression, the `Deployer` role expression will replace the default, the `Monitor` role expression will be prepended to the default expression and `Tester` will be a new role with the specified expression.
 
- In addition, the `Expression` value can use the variable placeholder syntax specified when running the [Create Tool](create.md) as shown in the above example.
+ In addition, the `Expression` value can use the variable placeholder syntax specified when running the [Create Tool]({{< relref "/userguide/tools/create.md" >}}) as shown in the above example.
 
  #### WebLogic Users and Groups
- The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP Server (i.e. `DefaultAuthenticator`). New groups can be specified and users can be added as members of the new groups or existing groups such as the `Administrators` group which is defaulted to be in the WebLogic `Admin` global role. Please see [known limitations](#known-limitations) below for additional information on users and groups.
+ The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP Server (i.e. `DefaultAuthenticator`). New groups can be specified and users can be added as members of the new groups or existing groups such as the `Administrators` group which is defaulted to be in the WebLogic `Admin` global role. Please see Known Limitations below for additional information on users and groups.
 
  The user password can be specified with a placeholder or encrypted with the [Encrypt Tool](encrypt.md). An example `Security` section that adds an additional group `AppMonitors`, adds two new users and places the users into groups is as follows:
 
@@ -415,10 +415,10 @@ weight: 3
 
  #### Known Limitations
 
- - The processing of users, groups, and roles will only take place when using the [Create Domain Tool](create.md)
+ - The processing of users, groups, and roles will only take place when using the [Create Domain Tool]({{< relref "/userguide/tools/create.md" >}})
  - WebLogic global roles are only supported with WebLogic Server version 12.2.1 or greater
  - WebLogic global roles are only updated for the WebLogic security XACML role mapping provider (i.e. `XACMLRoleMapper`)
- - The user and group processing is not complete, currently, users cannot be assigned to groups. Users created using the `Security` section are automatically added to the `Administrators` group and are not added to the groups specified. See [Known Issues](../KnownIssues.md#assigning-security-groups-to-users) for information about a patch for this issue.
+ - The user and group processing is not complete, currently, users cannot be assigned to groups. Users created using the `Security` section are automatically added to the `Administrators` group and are not added to the groups specified. See [Known Issues]({{< relref "/release-notes#assigning-security-groups-to-users" >}}) for information about a patch for this issue.
 
  ### Modeling WebLogic User Password Credential Mapping
 
@@ -516,7 +516,7 @@ domainInfo:
 
  In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS [here](https://www.oracle.com/middleware/technologies/webtier-downloads.html).
 
- The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see [Domain Type Definitions](tool_configuration.md#domain-type-definitions).
+ The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see [Domain Type Definitions]({{< relref "/concepts/tool_configuration#domain-type-definitions" >}}).
 
  You create a copy of an existing domain type definition file, add the template to that file, and then reference that file on the WDT command line. For example, if you want to create a domain with Oracle HTTP Server based on a Restricted JRF domain, then you would first create a copy of the file `WLSDEPLOY_HOME/lib/typedefs/RestrictedJRF.json` in the same directory, such as `WLSDEPLOY_HOME/lib/typedefs/HttpServer.json`. In this example, you would change the existing `extensionTemplates` section to include the additional OHS template. The original value is:
  ```
@@ -553,7 +553,7 @@ domainInfo:
 
  The `ComponentType` field of the `SystemComponent` element must be set to `OHS` in order to allow configuration of the corresponding `OHS` folders.
 
- You can use the [Model Help Tool](model_help.md) to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the `OHS` folder:
+ You can use the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the `OHS` folder:
  ```yaml
  ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/OHS
  ```

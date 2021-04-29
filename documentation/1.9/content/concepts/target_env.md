@@ -6,11 +6,11 @@ weight: 5
 ---
 
 
-The [Discover Domain]({{< relref "/discover.md" >}}) and [Prepare Model]({{< relref "/prepare.md" >}}) Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
-- Using model tokens for some attributes in the model (see [Model Tokens]({{< relref "/model#model-tokens" >}}))
-- Using Kubernetes secrets for credentials in the model
-- Applying filters to the model (see [Model Filters]({{< relref "/tool_configuration#model-filters" >}}))
-- Creating additional configuration files for the target system
+The [Discover Domain]({{< relref "/userguide/tools/discover.md" >}}) and [Prepare Model]({{< relref "/userguide/tools/prepare.md" >}}) Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
+- Using model tokens for some attributes in the model. See [Model Tokens]({{< relref "/concepts/model#model-tokens" >}}).
+- Using Kubernetes secrets for credentials in the model.
+- Applying filters to the model. See [Model Filters]({{< relref "/concepts/tool_configuration#model-filters" >}}).
+- Creating additional configuration files for the target system.
 
 ### Specifying a target environment
 
@@ -31,10 +31,10 @@ A target environment is configured in a JSON file at this location:
 $WLSDEPLOY_HOME/lib/target/<target-name>/target.json
 ```
 The `<target-name>` value corresponds to the value of the `-target` argument on the tool's command line. The WLS installation includes two pre-defined targets:
- - [Oracle Weblogic Server Kubernetes Operator](#the-oracle-weblogic-server-kubernetes-operator-target) (named `k8s`)
+ - [Weblogic Kubernetes Operator](#the-weblogic-kubernetes-operator-target) (named `k8s`)
  - [Verrazzano](#the-verrazzano-target) (named `vz`).
 
-You can define a new or extended target environment with a new `target-name` in the above location, or using a [Custom Configuration](../tool_configuration.md#custom-configuration) directory, such as `$WDT_CUSTOM_CONFIG/target/<my-target-name>/target.json`.
+You can define a new or extended target environment with a new `target-name` in the above location, or using a [Custom Configuration]({{< relref "/concepts/tool_configuration#custom-configuration" >}}) directory, such as `$WDT_CUSTOM_CONFIG/target/<my-target-name>/target.json`.
 
 Here is an example of a target environment file:
 ```
@@ -55,13 +55,13 @@ Each of the fields in this example is optional, and can be customized.
 
 #### `model_filters`
 
-This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the [Model Filters](../tool_configuration.md#model-filters) configuration. The `discover` type should always be used here.
+This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the [Model Filters]({{< relref "/concepts/tool_configuration#model-filters" >}}) configuration. The `discover` type should always be used here.
 
 The `@@TARGET_CONFIG_DIR@@` token can be used to indicate that the specified filter is in the same directory as the target configuration file.  
 
 #### `variable_injectors`
 
-This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the [Variable Injectors](../variable_injection.md) configuration.
+This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the [Variable Injectors]({{< relref "/userguide/tools/variable_injection.md" >}}) configuration.
 
 #### `validation_method`
 
@@ -77,7 +77,7 @@ In both these cases, the script to create the Kubernetes secrets is written to `
 
 #### `wls_credentials_name`
 
-This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the `<directory>/<name>/<key>` convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see [Model Tokens](../model.md#model-tokens).
+This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the `<directory>/<name>/<key>` convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see [Model Tokens]({{< relref "/concepts/model#model-tokens" >}}).
 
 #### `additional_output`
 

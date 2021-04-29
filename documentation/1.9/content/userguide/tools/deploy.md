@@ -40,4 +40,4 @@ If the model or variables file contains passwords encrypted with the WDT Encrypt
 
 ### Using Multiple Models
 
-The Deploy Applications Tool supports the use of multiple models, as described in [Using Multiple Models](model.md#using-multiple-models).
+The Deploy Applications Tool supports the use of multiple models, as described in [Using Multiple Models]({{< relref "/concepts/model#using-multiple-models" >}}).

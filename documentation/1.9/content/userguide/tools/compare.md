@@ -14,7 +14,7 @@ To use the Compare Model Tool, simply run the `compareModel` shell script with t
 
 For example, comparing the following models.  
 
-New Model
+##### New Model
 
 ```yaml
 domainInfo:
@@ -108,7 +108,7 @@ resources:
                         JNDIName: jms/myUDQ
 ```
 
-Old Model
+##### Old Model
 
 ```yaml
 domainInfo:
@@ -277,10 +277,11 @@ Comparing the new and old models:
  7. Changed deployment targets for application `myear`.
  8. Removed the attribute 'ModuleType' for application `myear`.
 
- **Note**:  The `!` is a notation for the deletion of a non-attribute key element from the model. Missing attributes
+{{% notice note %}}  The `!` is a notation for the deletion of a non-attribute key element from the model. Missing attributes
  will be omitted from the resulting model, but shown as messages in the output.  If the attribute value is a list, even
  if all the individual items within the list are identical but the ordering is different, the attribute is counted as
  different.
+ {{% /notice %}}
 
  To compare the two model files and generate the output to files, run the tool as follows:
 

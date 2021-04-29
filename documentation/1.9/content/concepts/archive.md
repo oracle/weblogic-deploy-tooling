@@ -10,6 +10,8 @@ The archive file is used to deploy binaries and other file resources to the targ
 
 Note that file resources that already exist on the target system need not be included in the archive, provided that the model specifies the correct location on the target system.
 
+### Contents
+
 - [Example](#example)
 - [Archive Structure](#archive-structure)
 - [Using Multiple Archive Files](#using-multiple-archive-files)

@@ -13,7 +13,8 @@ Models contain WebLogic Server domain configuration.  Certain types of resources
 
 The Create, Update and Deploy tools can take a set of models. The Encrypt model will encrypt a set of models. Each model is encrypted using the same passphrase and written back to its original location.
 
-**NOTE: WebLogic Deploy Tooling also supports the use of domain-encrypted passwords directly in the model. The Encrypt Model Tool should not be used in tandem with this method.**  
+{{% notice note %}} WebLogic Deploy Tooling also supports the use of domain-encrypted passwords directly in the model. The Encrypt Model Tool should not be used in tandem with this method.
+{{% /notice %}}
 
 Start with the following example model:
 
