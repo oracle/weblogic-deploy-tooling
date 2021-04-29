@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title> :: WebLogic Deploy Tooling</title>
+    <title>Feature implementation :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1619700148" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/releaseprocess/">
+  <body class="" data-url="/weblogic-deploy-tooling/developer/feature-impl/">
     <nav id="sidebar" class="">
 
 
@@ -85,7 +85,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developer Guide" class="dd-item
-        
+        parent
         
         
         ">
@@ -132,7 +132,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/developer/feature-impl/" title="Feature implementation" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/developer/feature-impl/" title="Feature implementation" class="dd-item active">
         <a href="/weblogic-deploy-tooling/developer/feature-impl/">
         Feature implementation
         
@@ -297,7 +297,13 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > 
+            
+            
+          
+          
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/developer/'>Developer Guide</a> > Feature implementation
+          
+        
           
         
           
@@ -310,9 +316,11 @@
     <div class="wrapper">
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#prerequisites">Prerequisites</a></li>
-    <li><a href="#software-release-process">Software Release Process</a></li>
-    <li><a href="#github-release-process">GitHub Release Process</a></li>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
   </ul>
 </nav>
     </div>
@@ -330,49 +338,19 @@
           
             <h1>
               
-              
+              Feature implementation
             </h1>
           
 
         
 
 
-<h1 id="weblogic-deploy-tooling-project-release-process">WebLogic Deploy Tooling Project Release Process</h1>
-<p>This document describes the process that should be followed to create a WebLogic Deploy Tooling (WDT) release.</p>
-<h2 id="prerequisites">Prerequisites</h2>
-<ul>
-<li>A local installation of WebLogic Server 12.2.1.x must be available.</li>
-<li>The person running the release process must have admin privileges on the <a href="https://github.com/oracle/weblogic-deploy-tooling">WebLogic Deploy Tooling GitHub repo</a> since the release process pushes to the master branch directly.</li>
-<li>The person running the release process needs to create a GitHub Personal Access Token for the repository with (at least) the <code>repo:status</code>, <code>repo_deployment</code>, <code>public_repo</code>, and <code>security_events</code> privileges.</li>
-<li>The person running the release needs a server added to their Maven <code>settings.xml</code> where the GitHub Personal Access Token is stored, as shown below.  Note that this token can either be stored in plain text of encrypted using <a href="https://maven.apache.org/guides/mini/guide-encryption.html">Maven password encryption</a>.</li>
-</ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">  <span style="color:#f92672">&lt;servers&gt;</span>
-    <span style="color:#f92672">&lt;server&gt;</span>
-      <span style="color:#f92672">&lt;id&gt;</span>github<span style="color:#f92672">&lt;/id&gt;</span>
-      <span style="color:#f92672">&lt;passphrase&gt;</span>store plain text or encrypted token here<span style="color:#f92672">&lt;/passphrase&gt;</span>
-    <span style="color:#f92672">&lt;/server&gt;</span>
-  <span style="color:#f92672">&lt;/servers&gt;</span>
-</code></pre></div><h2 id="software-release-process">Software Release Process</h2>
-<p>The best practice is to write the release notes that will be published to GitHub prior to starting the steps below.</p>
-<ol>
-<li>Set (and export) the environment variable <code>WLST_DIR</code> to <code>&lt;WLS-install-dir&gt;/oracle_common/common/bin</code>, replacing <code>&lt;WLS-install-dir&gt;</code> with the full path to the WLS 12.2.1.x installation directory.</li>
-<li>In the weblogic-deploy-tooling project directory, create a file called <code>release.properties</code> with content similar to the example shown below.  Note that the example is configured to cut the 1.9.11 release.</li>
-</ol>
-<pre><code class="language-properties" data-lang="properties">tag=release-1.9.11
-releaseVersion=1.9.11
-developmentVersion=1.9.12-SNAPSHOT
-</code></pre><ol start="3">
-<li>In the weblogic-deploy-tooling project directory, run the <code>mvn -B -P release release:prepare release:perform</code> command.  If your SSH private key has a passphrase, watch the build closely since it will prompt for your passphrase multiple times.  Failure to enter it in a timely manner may result in a failure.</li>
-<li>If the build fails, run the <code>mvn -B -P release release:rollback</code> command to undo it and start over from Step 2 after correcting the issue.</li>
-<li>Once the software has been released, move on to the GitHub Release Process.</li>
-</ol>
-<h2 id="github-release-process">GitHub Release Process</h2>
-<p>Note that this process relies on the WDT installers being in your local Maven repository.  As such, it is critical for the same user to run these steps on the same machine as the steps from the previous section!</p>
-<ol>
-<li>Save the release notes in the file <code>&lt;wdt-project-directory&gt;/target/ReleaseNotes.md</code>.</li>
-<li>Run the command <code>mvn -f github-release.xml -DreleaseVersion=&lt;release version number&gt; verify</code> to create the draft GitHub Release.</li>
-<li>Log into <a href="https://github.com/oracle/weblogic-deploy-tooling">GitHub</a>, go to the Releases page, review/edit the draft release, and then publish the release.</li>
-</ol>
+<p>This document describes how specific features of WebLogic Deploy Tooling are implemented in the source code.</p>
+<h4 id="creator-and-deployer-class-hierarchies">Creator and Deployer class hierarchies</h4>
+<p>The creation of individual folders and attributes within the <code>topology</code> section of the domain model is accomplished using subclasses of the Jython class <code>Creator</code>, in the module <code>wlsdeploy.tool.create.creator.py</code>.  The <code>Creator</code> class provides base methods to recurse through nested folders in the domain model, create or update those folders, and set or update their attributes. Each subclass can override these methods to account for variations in behavior for different functional areas.</p>
+<p>For example, the <code>SecurityProviderCreator</code> subclass overrides the method <code>_create_named_subtype_mbeans</code> with special processing to remove all existing security providers, and re-create them from the data in the model.</p>
+<p>The update of folders and attributes in the <code>resources</code> section of the domain model follows a similar pattern, but the base class for these modules is <code>Deployer</code> in the module <code>wlsdeploy.tool.deploy.deployer.py</code>.</p>
+<p>The class <code>TopologyUpdater</code> is a special subclass of <code>Deployer</code> that is used to update elements in the <code>topology</code> section after their initial creation.</p>
 
 
 <footer class="footline">
@@ -410,8 +388,6 @@ developmentVersion=1.9.12-SNAPSHOT
             
                 
                     
-                        
-                        
                     
                 
                 
@@ -425,6 +401,9 @@ developmentVersion=1.9.12-SNAPSHOT
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -442,6 +421,7 @@ developmentVersion=1.9.12-SNAPSHOT
             
                 
                     
+                    
                 
                 
 
@@ -457,6 +437,9 @@ developmentVersion=1.9.12-SNAPSHOT
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -529,8 +512,10 @@ developmentVersion=1.9.12-SNAPSHOT
 	 
 	 
 		
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/developer/project-structure/" title="Project structure"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/developer/" title="Developer Guide" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/developer/alias-definitions/" title="Alias definitions" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

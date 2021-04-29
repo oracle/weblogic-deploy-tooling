@@ -2,7 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/project-structure/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/feature-impl/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/alias-definitions/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/buildwdt/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/</loc>
+    <lastmod>2019-02-22T15:27:54-05:00</lastmod>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
     <priority>0</priority>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/archive/</loc>
@@ -18,8 +34,6 @@
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/deploy/</loc>
     <priority>0</priority>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/developer_guide/</loc>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/discover/</loc>
     <priority>0</priority>
@@ -69,8 +83,6 @@
     <loc>https://oracle.github.io/weblogic-deploy-tooling/categories/</loc>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/config/</loc>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/</loc>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/tags/</loc>
   </url>
