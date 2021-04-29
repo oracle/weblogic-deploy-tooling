@@ -8,6 +8,28 @@
     <language>en-us</language>
     <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Create Domain Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/</guid>
+      <description>The Create Domain Tool uses a model and WLST offline to create a domain. To use the tool, at a minimum, the model must specify the domain&amp;rsquo;s administrative password in the domainInfo section of the model, as shown below.
+domainInfo: AdminPassword: welcome1 Using the model above, simply run the createDomain tool, specifying the type of domain to create and where to create it.
+weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.</description>
+    </item>
+    
+    <item>
+      <title>Install WDT</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/install/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/install/</guid>
+      <description>Download and Install the Software The WebLogic Deploy Tooling project repository is located at https://github.com/oracle/weblogic-deploy-tooling.
+Binary distributions of the weblogic-deploy.zip installer can be downloaded from the GitHub Releases page.
+ To install the software, simply unzip the weblogic-deploy.zip installer on a machine that has the desired versions of WebLogic Server installed. After being unzipped, the software is ready to use, just set the JAVA_HOME environment variable to point to a Java 7 or higher JDK and the shell scripts are ready to run.</description>
+    </item>
+    
+    <item>
       <title>Project structure</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/developer/project-structure/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
@@ -28,6 +50,15 @@ Creator and Deployer class hierarchies The creation of individual folders and at
     </item>
     
     <item>
+      <title>Update Domain Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/update/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/update/</guid>
+      <description>The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode. The update tool will add or re-configure elements from the topology section of the model, and deploy applications and resources from the resources and appDeployments sections, as described in the Deploy Applications Tool.</description>
+    </item>
+    
+    <item>
       <title>Alias definitions</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/developer/alias-definitions/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
@@ -35,6 +66,15 @@ Creator and Deployer class hierarchies The creation of individual folders and at
       <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/alias-definitions/</guid>
       <description>WebLogic Deploy Tool uses a set of JSON configuration files to map folders and attributes in the model to the corresponding WLST MBeans and their attributes. These mappings are referred as &amp;lsquo;aliases&amp;rsquo; throughout the project code and documentation. Each element in the alias definition file has detailed properties that assist in this mapping.
 The model&amp;rsquo;s folder and attribute names usually match the names of the corresponding elements in WLST. For cases where the names of WLST elements may change across WebLogic Server releases, the names should match the names in the 12.</description>
+    </item>
+    
+    <item>
+      <title>Deploy Applications Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/deploy/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/deploy/</guid>
+      <description>The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode. When deploying applications and resources from a model, the deploy tool focuses primarily on the resources and appDeployments sections of the model. There are exceptions for the domainInfo and topology sections, where those configuration elements are deemed to be &amp;ldquo;application-related.&amp;rdquo; For example, the servers&#39; ServerStart folder has an Arguments and a ClassPath attribute that change the server environment (when started by the Node Manager) that applications may rely on to function properly.</description>
     </item>
     
     <item>
@@ -50,6 +90,85 @@ The WLST directory can be specified in one of two ways:
     </item>
     
     <item>
+      <title>Discover Domain Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/discover/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/discover/</guid>
+      <description>The Discover Domain Tool provides a bootstrapping mechanism to creating a model and archive file by inspecting an existing domain and gathering configuration and binaries from it. Note that the model file produced by the tool is not directly usable by the Create Domain Tool or the Deploy Applications Tool because the Discover Domain Tool does not discover the passwords from the existing domain. Instead, it puts a --FIX ME-- placeholder for passwords it finds.</description>
+    </item>
+    
+    <item>
+      <title>Encrypt Model Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/encrypt/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/encrypt/</guid>
+      <description>NOTE: To meet Oracle&amp;rsquo;s security standards, the encryption algorithms require JDK 8 to execute.
+Models contain WebLogic Server domain configuration. Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection. When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file. Clear-text passwords are not conducive to storing configurations as source, so the Encrypt Model Tool gives the model author the ability to encrypt the passwords in the model and variable file using passphrase-based, reversible encryption.</description>
+    </item>
+    
+    <item>
+      <title>Validate Model Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/validate/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/validate/</guid>
+      <description>When working with a metadata model that drives tooling, it is critical to make it easy both to validate that the model and its related artifacts are well-formed and to provide help on the valid attributes and subfolders for a particular model location. The Validate Model Tool provides both validation and help for model authors as a standalone tool. In addition, the tool is integrated with the createDomain and deployApps tools to catch validation errors early, before any actions are performed on the domain.</description>
+    </item>
+    
+    <item>
+      <title>Compare Model Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/compare/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/compare/</guid>
+      <description>When working with a domain model, sometimes it is useful to know the differences between different models. The Compare Model Tool compares two model files and generates a model that shows the differences between them.
+To use the Compare Model Tool, simply run the compareModel shell script with the correct arguments. To see the list of valid arguments, simply run the shell script with the -help option (or with no arguments) for usage information.</description>
+    </item>
+    
+    <item>
+      <title>Prepare Model Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/prepare/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/prepare/</guid>
+      <description>The Prepare Model Tool prepares WDT model files for deploying to specific target environments. These customizations include:
+ Removing sections from the model that are not compatible with the environment Replacing credential and attribute values with WDT macros Generating a UNIX shell script that will help with creating any required Kubernetes secrets Generating a variable properties file to customize attribute values Generating any additional configuration files to configure the target environment Updating the model file(s)  To use the Prepare Model Tool, simply run the prepareModel shell script with the correct arguments.</description>
+    </item>
+    
+    <item>
+      <title>Extract Domain Resource Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/kubernetes/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/kubernetes/</guid>
+      <description>Using WDT with WebLogic Kubernetes Operator The Extract Domain Resource Tool can be used to create a domain resource file for use with the WebLogic Kubernetes Operator. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
+This is especially useful when making configuration changes to the domain that also need to be reflected in the domain resource file. For example, adding a cluster to the domain only requires that it be added to the topology section of the WDT model, then a new domain resource file can be generated to apply to Kubernetes.</description>
+    </item>
+    
+    <item>
+      <title>Variable Injector Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/variable_injection/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/variable_injection/</guid>
+      <description>The Variable Injector Tool is used to tokenize a model with variables. The values for these variables are assigned using an external property file. This facilitates using the same domain model to create new domains in different environments. The Variable Injector Tool can be run as an option in the Discover Domain Tool, or from the standalone command-line interface.
+To enable the Variable Injector Tool during the Discover Domain Tool run, create a variable injector configuration by placing a JSON file named model_variable_injector.</description>
+    </item>
+    
+    <item>
+      <title>Model Help Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/model_help/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/model_help/</guid>
+      <description>The Model Help Tool provides information about the folders and attributes that are valid for sections and folders of a domain model. This is useful when creating a new domain model, or expanding an existing model, including discovered models.
+NOTE: The Model Help Tool is new in WebLogic Deploy Tooling 1.8.
+NOTE: The -model_sample argument is deprecated starting with WebLogic Deploy Tooling 1.9.2, when model sample became the default output format.</description>
+    </item>
+    
+    <item>
       <title></title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/archive/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -60,62 +179,12 @@ The WLST directory can be specified in one of two ways:
     
     <item>
       <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/compare/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/compare/</guid>
-      <description>The Compare Model Tool When working with a domain model, sometimes it is useful to know the differences between different models. The Compare Model Tool compares two model files and generates a model that shows the differences between them.
-To use the Compare Model Tool, simply run the compareModel shell script with the correct arguments. To see the list of valid arguments, simply run the shell script with the -help option (or with no arguments) for usage information.</description>
-    </item>
-    
-    <item>
-      <title></title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/config/target_env/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/config/target_env/</guid>
-      <description>Target Environments The Discover Domain and Prepare Model Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
- Using model tokens for some attributes in the model (see Model Tokens) Using Kubernetes secrets for credentials in the model Applying filters to the model (see Model Filters) Creating additional configuration files for the target system  Specifying a Target Environment Each tool specifies a target environment using the command-line argument -target &amp;lt;target-name&amp;gt;, where &amp;lt;target-name&amp;gt; refers to a pre-configured target environment, or a user-defined environment.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/create/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/create/</guid>
-      <description>The Create Domain Tool The Create Domain Tool uses a model and WLST offline to create a domain. To use the tool, at a minimum, the model must specify the domain&amp;rsquo;s administrative password in the domainInfo section of the model, as shown below.
-domainInfo: AdminPassword: welcome1 Using the model above, simply run the createDomain tool, specifying the type of domain to create and where to create it.
-weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/deploy/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/deploy/</guid>
-      <description>The Deploy Applications Tool NOTE: Work on the Deploy Applications Tool to bring it in line with the text below is still in progress.
-The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode. When deploying applications and resources from a model, the deploy tool focuses primarily on the resources and appDeployments sections of the model.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/discover/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/discover/</guid>
-      <description>The Discover Domain Tool The Discover Domain Tool provides a bootstrapping mechanism to creating a model and archive file by inspecting an existing domain and gathering configuration and binaries from it. Note that the model file produced by the tool is not directly usable by the Create Domain Tool or the Deploy Applications Tool because the Discover Domain Tool does not discover the passwords from the existing domain. Instead, it puts a --FIX ME-- placeholder for passwords it finds.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/encrypt/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/encrypt/</guid>
-      <description>The Encrypt Model Tool NOTE: To meet Oracle&amp;rsquo;s security standards, the encryption algorithms require JDK 8 to execute.
-Models contain WebLogic Server domain configuration. Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection. When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.</description>
+      <description>Target environments The Discover Domain and Prepare Model Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
+ Using model tokens for some attributes in the model (see Model Tokens) Using Kubernetes secrets for credentials in the model Applying filters to the model (see Model Filters) Creating additional configuration files for the target system  Specifying a target environment Each tool specifies a target environment using the command-line argument -target &amp;lt;target-name&amp;gt;, where &amp;lt;target-name&amp;gt; refers to a pre-configured target environment, or a user-defined environment.</description>
     </item>
     
     <item>
@@ -124,18 +193,8 @@ Models contain WebLogic Server domain configuration. Certain types of resources 
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/knownissues/</guid>
-      <description>Known Issues for Oracle WebLogic Server Deploy Tooling The following list contains known issues. Each issue may contain a workaround or an associated issue number.
+      <description>Known Issues for WebLogic Deploy Tooling The following list contains known issues. Each issue may contain a workaround or an associated issue number.
 Discover Domain Tool SEVERE Messages ISSUE: The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1.0 domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present in a domain. When it tests an MBean that is not present, an error message is logged by WLST.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/kubernetes/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/kubernetes/</guid>
-      <description>Using WDT with Oracle WebLogic Server Kubernetes Operator The Extract Domain Resource Tool can be used to create a domain resource file for use with the Oracle WebLogic Server Kubernetes Operator. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
-This is especially useful when making configuration changes to the domain that also need to be reflected in the domain resource file.</description>
     </item>
     
     <item>
@@ -145,27 +204,6 @@ This is especially useful when making configuration changes to the domain that a
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/model/</guid>
       <description>The Metadata Model The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration. The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts. For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/model_help/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/model_help/</guid>
-      <description>The Model Help Tool The Model Help Tool provides information about the folders and attributes that are valid for sections and folders of a domain model. This is useful when creating a new domain model, or expanding an existing model, including discovered models.
-NOTE: The Model Help Tool is new in WebLogic Deploy Tooling 1.8.
-NOTE: The -model_sample argument is deprecated starting with WebLogic Deploy Tooling 1.9.2, when model sample became the default output format.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/prepare/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/prepare/</guid>
-      <description>The Prepare Model Tool The Prepare Model Tool prepares WDT model files for deploying to specific target environments. These customizations include:
- Removing sections from the model that are not compatible with the environment Replacing credential and attribute values with WDT macros Generating a UNIX shell script that will help with creating any required Kubernetes secrets Generating a variable properties file to customize attribute values Generating any additional configuration files to configure the target environment Updating the model file(s)  To use the Prepare Model Tool, simply run the prepareModel shell script with the correct arguments.</description>
     </item>
     
     <item>
@@ -199,39 +237,11 @@ Prerequisites  A local installation of WebLogic Server 12.2.1.x must be availabl
     
     <item>
       <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/update/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/update/</guid>
-      <description>The Update Domain Tool The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode. The update tool will add or re-configure elements from the topology section of the model, and deploy applications and resources from the resources and appDeployments sections, as described in the Deploy Applications Tool.</description>
-    </item>
-    
-    <item>
-      <title></title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/use_cases/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/use_cases/</guid>
-      <description>Model Use Cases  Customizing the Administration Server Modeling a Configured Cluster Modeling a JDBC Data Source Modeling a Work Manager Modeling Security Providers Modeling WebLogic Users, Groups, and Roles Modeling WebLogic User Password Credential Mapping Modeling ODL Modeling Oracle HTTP Server (OHS) Targeting Server Groups Using WDT with Oracle WebLogic Server Kubernetes Operator  Administration Server Configuration The Create Domain Tool allows you to configure the Administration Server using a domain model.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/validate/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/validate/</guid>
-      <description>The Validate Model Tool When working with a metadata model that drives tooling, it is critical to make it easy both to validate that the model and its related artifacts are well-formed and to provide help on the valid attributes and subfolders for a particular model location. The Validate Model Tool provides both validation and help for model authors as a standalone tool. In addition, the tool is integrated with the createDomain and deployApps tools to catch validation errors early, before any actions are performed on the domain.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/variable_injection/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/variable_injection/</guid>
-      <description>The Variable Injector Tool The Variable Injector Tool is used to tokenize a model with variables. The values for these variables are assigned using an external property file. This facilitates using the same domain model to create new domains in different environments. The Variable Injector Tool can be run as an option in the Discover Domain Tool, or from the standalone command-line interface.
-To enable the Variable Injector Tool during the Discover Domain Tool run, create a variable injector configuration by placing a JSON file named model_variable_injector.</description>
+      <description>Model Use Cases  Customizing the Administration Server Modeling a Configured Cluster Modeling a JDBC Data Source Modeling a Work Manager Modeling Security Providers Modeling WebLogic Users, Groups, and Roles Modeling WebLogic User Password Credential Mapping Modeling ODL Modeling Oracle HTTP Server (OHS) Targeting Server Groups Using WDT with WebLogic Kubernetes Operator  Administration Server Configuration The Create Domain Tool allows you to configure the Administration Server using a domain model.</description>
     </item>
     
     <item>

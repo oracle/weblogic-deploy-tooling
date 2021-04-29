@@ -2,20 +2,62 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/install/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/project-structure/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/</loc>
+    <lastmod>2019-02-22T15:27:54-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/feature-impl/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/update/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/</loc>
+    <lastmod>2019-02-22T15:27:54-05:00</lastmod>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/alias-definitions/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/deploy/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/buildwdt/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/discover/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/</loc>
     <lastmod>2019-02-22T15:27:54-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/encrypt/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/validate/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/compare/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/prepare/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/kubernetes/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/variable_injection/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/model_help/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
@@ -24,36 +66,12 @@
     <loc>https://oracle.github.io/weblogic-deploy-tooling/archive/</loc>
     <priority>0</priority>
   </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/compare/</loc>
-    <priority>0</priority>
-  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/config/target_env/</loc>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/create/</loc>
-    <priority>0</priority>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/deploy/</loc>
-    <priority>0</priority>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/discover/</loc>
-    <priority>0</priority>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/encrypt/</loc>
-    <priority>0</priority>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/knownissues/</loc>
     <priority>0</priority>
   </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/kubernetes/</loc>
-    <priority>0</priority>
-  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/model/</loc>
-    <priority>0</priority>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/model_help/</loc>
-    <priority>0</priority>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/prepare/</loc>
     <priority>0</priority>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/rcuinfo/</loc>
@@ -65,16 +83,7 @@
     <loc>https://oracle.github.io/weblogic-deploy-tooling/tool_configuration/</loc>
     <priority>0</priority>
   </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/update/</loc>
-    <priority>0</priority>
-  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/use_cases/</loc>
-    <priority>0</priority>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/validate/</loc>
-    <priority>0</priority>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/variable_injection/</loc>
     <priority>0</priority>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/wls_versions/</loc>

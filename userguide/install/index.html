@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title> :: WebLogic Deploy Tooling</title>
+    <title>Install WDT :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1619709315" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/config/target_env/">
+  <body class="" data-url="/weblogic-deploy-tooling/userguide/install/">
     <nav id="sidebar" class="">
 
 
@@ -85,7 +85,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        
+        parent
         
         
         ">
@@ -113,7 +113,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/install/" title="Install WDT" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/install/" title="Install WDT" class="dd-item active">
         <a href="/weblogic-deploy-tooling/userguide/install/">
         Install WDT
         
@@ -527,7 +527,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/config/" title="Configs" class="dd-item
-        parent
+        
         
         
         ">
@@ -553,7 +553,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/config/target_env/" title="" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/config/target_env/" title="" class="dd-item ">
         <a href="/weblogic-deploy-tooling/config/target_env/">
         
         
@@ -625,7 +625,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/config/'>Configs</a> > 
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > Install WDT
           
         
           
@@ -640,11 +640,9 @@
     <div class="wrapper">
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#target-environments">Target environments</a>
+    <li>
       <ul>
-        <li><a href="#specifying-a-target-environment">Specifying a target environment</a></li>
-        <li><a href="#the-target-configuration-file">The Target Configuration File</a></li>
-        <li><a href="#pre-configured-target-environments">Pre-configured Target Environments</a></li>
+        <li></li>
       </ul>
     </li>
   </ul>
@@ -664,97 +662,20 @@
           
             <h1>
               
-              
+              Install WDT
             </h1>
           
 
         
 
 
-<h2 id="target-environments">Target environments</h2>
-<p>The <a href="/weblogic-deploy-tooling/userguide/tools/discover/">Discover Domain</a> and <a href="/weblogic-deploy-tooling/userguide/tools/prepare/">Prepare Model</a> Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:</p>
-<ul>
-<li>Using model tokens for some attributes in the model (see <a href="/weblogic-deploy-tooling/model/#model-tokens">Model Tokens</a>)</li>
-<li>Using Kubernetes secrets for credentials in the model</li>
-<li>Applying filters to the model (see <a href="/weblogic-deploy-tooling/tool_configuration/#model-filters">Model Filters</a>)</li>
-<li>Creating additional configuration files for the target system</li>
-</ul>
-<h3 id="specifying-a-target-environment">Specifying a target environment</h3>
-<p>Each tool specifies a target environment using the command-line argument <code>-target &lt;target-name&gt;</code>, where <code>&lt;target-name&gt;</code> refers to a pre-configured target environment, or a user-defined environment. In addition, the <code>-output_dir &lt;output-directory&gt;</code> argument specifies where the files for the target environment will be stored.</p>
-<p>This command line shows how these arguments can be used with the Discover Domain Tool:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"> <span style="color:#ae81ff">$WLSDEPLOY_HOME/bin/discoverDomain.sh ... -target k8s -output_dir /etc/files</span>
-</code></pre></div><p>This example would apply the <code>k8s</code> target type to the discovery result, and place those files in <code>/etc/files</code>.</p>
-<p>If a variable file is specified on the tool&rsquo;s command line using the <code>-variable_file</code> argument, any injected variables will be added to that file. If no variable file is specified, injected variables will be written to the file <code>&lt;output-directory&gt;/&lt;target_name&gt;_variable.properties</code>.</p>
-<h3 id="the-target-configuration-file">The Target Configuration File</h3>
-<p>A target environment is configured in a JSON file at this location:</p>
-<pre><code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;/target.json
-</code></pre><p>The <code>&lt;target-name&gt;</code> value corresponds to the value of the <code>-target</code> argument on the tool&rsquo;s command line. The WLS installation includes two pre-defined targets:</p>
-<ul>
-<li><a href="#the-oracle-weblogic-server-kubernetes-operator-target">Oracle Weblogic Server Kubernetes Operator</a> (named <code>k8s</code>)</li>
-<li><a href="#the-verrazzano-target">Verrazzano</a> (named <code>vz</code>).</li>
-</ul>
-<p>You can define a new or extended target environment with a new <code>target-name</code> in the above location, or using a <a href="../tool_configuration.md#custom-configuration">Custom Configuration</a> directory, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;my-target-name&gt;/target.json</code>.</p>
-<p>Here is an example of a target environment file:</p>
-<pre><code>{
-  &quot;model_filters&quot; : {
-        &quot;discover&quot;: [
-          { &quot;name&quot;: &quot;k8s_prep&quot;, &quot;path&quot;: &quot;@@TARGET_CONFIG_DIR@@/k8s_operator_filter.py&quot; }
-        ]
-      },
-  &quot;variable_injectors&quot; : {&quot;PORT&quot;: {},&quot;HOST&quot;: {},&quot;URL&quot;: {}},
-  &quot;validation_method&quot; : &quot;lax&quot;,
-  &quot;credentials_method&quot; : &quot;secrets&quot;,
-  &quot;wls_credentials_name&quot; : &quot;__weblogic-credentials__&quot;,
-  &quot;additional_output&quot; : &quot;binding.yaml,model.yaml&quot;
-}
-</code></pre><p>Each of the fields in this example is optional, and can be customized.</p>
-<h4 id="model_filters"><code>model_filters</code></h4>
-<p>This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the <a href="../tool_configuration.md#model-filters">Model Filters</a> configuration. The <code>discover</code> type should always be used here.</p>
-<p>The <code>@@TARGET_CONFIG_DIR@@</code> token can be used to indicate that the specified filter is in the same directory as the target configuration file.</p>
-<h4 id="variable_injectors"><code>variable_injectors</code></h4>
-<p>This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the <a href="../variable_injection.md">Variable Injectors</a> configuration.</p>
-<h4 id="validation_method"><code>validation_method</code></h4>
-<p>This field can be used to set the validation level for the resulting model. Only the value <code>lax</code>is currently supported. With <code>lax</code> validation, variables and Kubernetes secrets referenced in the resulting model do not need to be available when the model is created.</p>
-<h4 id="credentials_method"><code>credentials_method</code></h4>
-<p>This field specifies how credentials in the model should be handled. There are two values available:</p>
-<ul>
-<li><code>secrets</code> - the credentials in the model are replaced with references to Kubernetes secrets, and a UNIX script to create those secrets is produced.</li>
-<li><code>config_override_secrets</code> - the credentials in the model are replaced with placeholder values, such as <code>password1</code>, and a UNIX script to create corresponding Kubernetes secrets is produced.</li>
-</ul>
-<p>In both these cases, the script to create the Kubernetes secrets is written to <code>&lt;output-directory&gt;/create_k8s_secrets.sh</code>. You will need to update this script with credential values before executing</p>
-<h4 id="wls_credentials_name"><code>wls_credentials_name</code></h4>
-<p>This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the <code>&lt;directory&gt;/&lt;name&gt;/&lt;key&gt;</code> convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see <a href="../model.md#model-tokens">Model Tokens</a>.</p>
-<h4 id="additional_output"><code>additional_output</code></h4>
-<p>This field can be used to create additional output for use in the target environment. The value is a comma-separated list of template files in the <code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;</code> directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.</p>
-<p>Template files can be customized for specific environments. The recommended method is to copy the original template to a custom configuration directory as described above, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;target-name&gt;/model.yaml</code>. The copied file can then be edited as needed, while maintaining the original for reference.</p>
-<h3 id="pre-configured-target-environments">Pre-configured Target Environments</h3>
-<p>These target environment configurations are included in the WebLogic Deploy Tooling installation.</p>
-<h4 id="the-weblogic-kubernetes-operator-target">The WebLogic Kubernetes Operator target</h4>
-<p>This target environment can be applied by providing the command-line argument <code>-target wko</code>. It will provide this additional processing:</p>
-<ul>
-<li>The <code>wko_operator_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
-<li>Variables will be injected into the model for port, host, and URL attributes</li>
-<li><code>lax</code> validation will be applied for the resulting model</li>
-<li>Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced</li>
-<li>An additional Kubernetes resource file, <code>model.yaml</code>, will be produced, with cluster and naming information derived from the model</li>
-</ul>
-<h4 id="the-verrazzano-target">The Verrazzano Target</h4>
-<p>This target environment can be applied by providing the command-line argument <code>-target vz</code>. It will provide this additional processing:</p>
-<ul>
-<li>The <code>vz_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
-<li>Variables will be injected into the model for port, host, and URL attributes</li>
-<li><code>lax</code> validation will be applied for the resulting model</li>
-<li>Credentials in the model will be replaced with placeholder values, and a script to create corresponding secrets will be produced</li>
-<li>Two additional Kubernetes resource files, <code>model.yaml</code> and <code>binding.yaml</code>, will be produced, with cluster and data source information derived from the model</li>
-</ul>
-<h4 id="generic-kubernetes-target">Generic Kubernetes Target</h4>
-<p>This target environment can be applied by providing the command-line argument <code>-target k8s</code>. It will provide this additional processing:</p>
-<ul>
-<li>The <code>k8s_operator_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
-<li>Variables will be injected into the model for port, host, and URL attributes</li>
-<li><code>lax</code> validation will be applied for the resulting model</li>
-<li>Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced</li>
-</ul>
+<h4 id="download-and-install-the-software">Download and Install the Software</h4>
+<p>The WebLogic Deploy Tooling project repository is located at <a href="https://github.com/oracle/weblogic-deploy-tooling"><code>https://github.com/oracle/weblogic-deploy-tooling</code></a>.<br>
+Binary distributions of the <code>weblogic-deploy.zip</code> installer can be downloaded from the <a href="https://github.com/oracle/weblogic-deploy-tooling/releases">GitHub Releases page</a>.</p>
+<ol>
+<li>To install the software, simply unzip the <code>weblogic-deploy.zip</code> installer on a machine that has the desired versions of WebLogic Server installed.</li>
+<li>After being unzipped, the software is ready to use, just set the <code>JAVA_HOME</code> environment variable to point to a Java 7 or higher JDK  and the shell scripts are ready to run.</li>
+</ol>
 
 
 <footer class="footline">
@@ -792,8 +713,6 @@
             
                 
                     
-                        
-                        
                     
                 
                 
@@ -809,6 +728,7 @@
             
             
                 
+                    
                     
                 
                 
@@ -826,34 +746,8 @@
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
                         
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
                         
-            
-            
-                
                     
                 
                 
@@ -862,9 +756,6 @@
                     
                     
 
-                    
-            
-        
                     
                         
             
@@ -1010,57 +901,6 @@
             
         
                     
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
                         
             
             
@@ -1096,11 +936,13 @@
             
         
                     
+            
+        
+                    
                         
             
             
                 
-                    
                     
                 
                 
@@ -1115,6 +957,85 @@
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
                     
                 
                 
@@ -1139,10 +1060,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/config/" title="Configs"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/" title="User Guide"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/" title="User Guide" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

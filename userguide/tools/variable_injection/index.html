@@ -4,28 +4,28 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="">
+    <meta name="description" content="Adds token to a model with variables.">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title> :: WebLogic Deploy Tooling</title>
+    <title>Variable Injector Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619700148" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619700148" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619700148" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619700148" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619700148" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619700148" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619700148" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1619700148" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1619700148" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619700148" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1619709315" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1619709315" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1619709315" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1619709315" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1619709315" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1619709315" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1619709315" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1619709315" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1619709315" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1619709315" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619700148"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1619709315"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/variable_injection/">
+  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/variable_injection/">
     <nav id="sidebar" class="">
 
 
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619700148"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619700148"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1619709315"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1619709315"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619700148"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1619709315"></script>
 
     
   </div>
@@ -84,13 +84,337 @@
  
   
     
+    <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
+        parent
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/userguide/">
+          <b>2. </b>User Guide
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/install/" title="Install WDT" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/install/">
+        Install WDT
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
+        parent
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/userguide/tools/">
+          <b> </b>WDT Tools
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/create/">
+        Create Domain Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/update/" title="Update Domain Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/update/">
+        Update Domain Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/deploy/" title="Deploy Applications Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/deploy/">
+        Deploy Applications Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/discover/" title="Discover Domain Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/discover/">
+        Discover Domain Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/encrypt/" title="Encrypt Model Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/encrypt/">
+        Encrypt Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/validate/" title="Validate Model Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/validate/">
+        Validate Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/compare/" title="Compare Model Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/compare/">
+        Compare Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/prepare/" title="Prepare Model Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/prepare/">
+        Prepare Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/kubernetes/" title="Extract Domain Resource Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/kubernetes/">
+        Extract Domain Resource Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/variable_injection/" title="Variable Injector Tool" class="dd-item active">
+        <a href="/weblogic-deploy-tooling/userguide/tools/variable_injection/">
+        Variable Injector Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/model_help/" title="Model Help Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/model_help/">
+        Model Help Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
     <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developer Guide" class="dd-item
         
         
         
         ">
       <a href="/weblogic-deploy-tooling/developer/">
-          <b> </b>Developer Guide
+          <b>4. </b>Developer Guide
           
       </a>
       
@@ -297,7 +621,19 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > 
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Variable Injector Tool
+          
+        
+          
+        
           
         
           
@@ -310,7 +646,7 @@
     <div class="wrapper">
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#the-variable-injector-tool">The Variable Injector Tool</a>
+    <li>
       <ul>
         <li><a href="#custom-variable-injector">Custom Variable Injector</a></li>
       </ul>
@@ -333,14 +669,13 @@
           
             <h1>
               
-              
+              Variable Injector Tool
             </h1>
           
 
         
 
 
-<h2 id="the-variable-injector-tool">The Variable Injector Tool</h2>
 <p>The Variable Injector Tool is used to tokenize a model with variables. The values for these variables are assigned using an external property file. This facilitates using the same domain model to create new domains in different environments. The Variable Injector Tool can be run as an option in the Discover Domain Tool, or from the standalone command-line interface.</p>
 <p>To enable the Variable Injector Tool during the Discover Domain Tool run, create a variable injector configuration by placing a JSON file named <code>model_variable_injector.json</code> into the <code>&lt;WLSDEPLOY&gt;/lib</code> directory using one or more of the pre-defined keywords and/or a CUSTOM list of files.</p>
 <p>Another option is to configure variable injection in a <a href="tool_configuration.md#custom-configuration">Custom Configuration</a> directory. Create the <code>model_variable_injector.json</code> file in the <code>$WDT_CUSTOM_CONFIG</code> directory.</p>
@@ -541,8 +876,243 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
             
                 
                     
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
                         
                         
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
                     
                 
                 
@@ -660,8 +1230,10 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
 	 
 	 
 		
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/kubernetes/" title="Extract Domain Resource Tool"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/developer/" title="Developer Guide" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/model_help/" title="Model Help Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -671,19 +1243,19 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619700148"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619700148"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619700148"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619700148"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619700148"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619700148"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1619709315"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1619709315"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1619709315"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1619709315"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1619709315"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1619709315"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619700148"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1619700148"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619700148"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1619709315"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1619709315"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1619709315"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619700148"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1619709315"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
