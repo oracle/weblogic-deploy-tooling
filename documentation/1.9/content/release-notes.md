@@ -1,3 +1,14 @@
+#### WDT Version 1.9.12
+
+Additional features in this release:
+
+* FMW Platform specific patches are now included in `--recommendedPatches` for all WLS-based installer types.
+* Java Required Files specific patches are now included in `--recommendedPatches` for all FMW-based installer types.
+
+Issues addressed in this release:
+
+* Increased the default version of HTTP retries to 10 to improve reliability with retrieving patch information from Oracle.
+
 
 #### WDT Version 1.9.11
 

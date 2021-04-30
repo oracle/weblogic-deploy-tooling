@@ -8,7 +8,7 @@ WDT provides several single-purpose tools, all exposed as shell scripts (for bot
 
 ### Current production release
 
-The current [release](https://github.com/oracle/weblogic-deploy-tooling/releases) of WebLogic Deploy Tooling is 1.9.11. This release was published on March, 2021.
+The current [release](https://github.com/oracle/weblogic-deploy-tooling/releases) of WebLogic Deploy Tooling is 1.9.12. This release was published on April, 29, 2021.
 
 ### Recent changes and known issues
 
