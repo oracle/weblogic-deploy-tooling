@@ -15,7 +15,8 @@ Another option is to configure variable injection in a [Custom Configuration]({{
 
 A keyword points to an injector directive file. The tool applies the directives to the attributes in a model, and if the directive matches an attribute, then a property token with a unique variable name is injected into the model and replaces the attribute value. The variable name and model attribute value are placed into the external variable properties file.
 
-**NOTE**: Variable injection on an attribute is only performed once. The property token is not replaced by any subsequent matches.
+{{% notice note %}} Variable injection on an attribute is only performed once. The property token is not replaced by any subsequent matches.
+{{% /notice %}}
 
 If variable injection is enabled, the Discover Domain Tool calls the variable injector after the model has been discovered and after all filters run, but before model validation.
 
@@ -29,7 +30,8 @@ The supported keywords are as follows:
    This includes server, machine and Node Manager ports, credentials and listen addresses, and cluster messaging modes, addresses and ports.
 - `URL` - All MBean URL attribute values in the model are injected with a variable.
 
-**NOTE**: The directives used by each pre-defined keyword are defined in an injector JSON file that is located in the `<WLSDEPLOY>/lib/injectors` folder. These files should not be changed, but could be used as is.
+{{% notice note %}} The directives used by each pre-defined keyword are defined in an injector JSON file that is located in the `<WLSDEPLOY>/lib/injectors` folder. These files should not be changed, but could be used as is.
+{{% /notice %}}
 
 Here is an example of a `model_variable_injector.json` file using the PORT keyword.
 

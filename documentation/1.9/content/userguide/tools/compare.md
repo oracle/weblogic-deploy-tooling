@@ -14,7 +14,7 @@ To use the Compare Model Tool, simply run the `compareModel` shell script with t
 
 For example, comparing the following models.  
 
-##### New Model
+#### New Model
 
 ```yaml
 domainInfo:
@@ -108,7 +108,7 @@ resources:
                         JNDIName: jms/myUDQ
 ```
 
-##### Old Model
+#### Old Model
 
 ```yaml
 domainInfo:

@@ -3,7 +3,7 @@ title: "Create Domain Tool"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 1
-description: "Understands how to create a domain and populate the domain with all resources and applications specified in the model."
+description: "Creates a domain and populates the domain with all the resources and applications specified in the model."
 ---
 
 

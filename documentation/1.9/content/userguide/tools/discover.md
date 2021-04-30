@@ -41,7 +41,7 @@ An example of using the domain type argument:
 
     weblogic-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.yaml -domain_type RestrictedJRF
 
-Before the model is persisted to the model file, any variable injectors or model filters are run, in that order. The final step is validation, which validates the contents of the model, archive and variable file. If the validation is successful, the model is persisted. For more information on these three topics, go to:
+Before the model is persisted to the model file, any variable injectors or model filters are run, in that order. The final step is validation, which validates the contents of the model, archive and variable file. If the validation is successful, the model is persisted. For more information on these three topics, see:
 
  - [Variable Injection]({{< relref "/userguide/tools/variable_injection.md" >}})
  - [Model Filters]({{< relref "/concepts/tool_configuration#model-filters" >}})
@@ -68,10 +68,10 @@ Total:       WARNING :     1    SEVERE :     0
 ### Environmental Variables
 The following environment variables may be set.
 
--  JAVA_HOME             The location of the JDK. This must be a valid Java 7 or later JDK.
--  WLSDEPLOY_HOME        The location of the WebLogic Deploy Tooling installation. By default, the location is calculated
+-  `JAVA_HOME`             The location of the JDK. This must be a valid Java 7 or later JDK.
+-  `WLSDEPLOY_HOME`        The location of the WebLogic Deploy Tooling installation. By default, the location is calculated
                          from the location of the discoverDomain script.
--  WLSDEPLOY_PROPERTIES  System properties that will be passed to WLST.
+-  `WLSDEPLOY_PROPERTIES`  System properties that will be passed to WLST.
 
 ### Opening an Issue against Discover Domain
 

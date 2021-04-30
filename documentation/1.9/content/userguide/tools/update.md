@@ -3,7 +3,7 @@ title: "Update Domain Tool"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 2
-description: "Understands how to update an existing domain and populate the domain with all resources and applications specified in the model, either in offline or online mode."
+description: "Updates an existing domain and populates the domain with all the resources and applications specified in the model, either in offline or online mode."
 ---
 
 

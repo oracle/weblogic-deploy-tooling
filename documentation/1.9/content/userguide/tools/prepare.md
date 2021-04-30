@@ -18,7 +18,7 @@ The Prepare Model Tool prepares WDT model files for deploying to specific target
 
 To use the Prepare Model Tool, simply run the `prepareModel` shell script with the correct arguments.  To see the list of valid arguments, simply run the shell script with the `-help` option (or with no arguments) for usage information.
 
-For example, to prepare model files for use with Oracle Weblogic Server Kubernetes Operator, run the tool with `-target wko` as follows:
+For example, to prepare model files for use with WebLogic Kubernetes Operator, run the tool with `-target wko` as follows:
 ```
 $WLSDEPLOY_HOME/bin/prepareModel.sh -oracle_home /u01/wls12213 -model_file model1.yaml, model2.yaml -target wko -output_dir $HOME/wko-output
 ```

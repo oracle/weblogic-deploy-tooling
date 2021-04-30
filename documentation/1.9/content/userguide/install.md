@@ -19,7 +19,8 @@ The following table specifies the supported WebLogic Server versions, along with
 
  To create a domain with the proper JDK (particularly if the `JAVA_HOME` is different from the one which will be used by the target domain), set the domain `JavaHome` attribute in the domain model.
 
- **Note**: The WDT Encryption Model Tool used to encrypt and decrypt clear text passwords in the model and variable files, requires WDT to run with a minimum JDK version of 1.8.
+{{% notice note %}} The WDT Encryption Model Tool used to encrypt and decrypt clear text passwords in the model and variable files, requires WDT to run with a minimum JDK version of 1.8.
+{{% /notice %}}
 
   | WebLogic Server Version | Tool JDK Version |
   |--------------------------|-------------------|

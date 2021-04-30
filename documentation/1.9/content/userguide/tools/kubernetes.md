@@ -3,7 +3,7 @@ title: "Extract Domain Resource Tool"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 9
-description: "Generates a domain resource YAML for use with the WebLogic Kubernetes Operator."
+description: "Generates a domain resource YAML file for use with the WebLogic Kubernetes Operator."
 ---
 
 
@@ -15,7 +15,8 @@ This is especially useful when making configuration changes to the domain that a
 
 More information about the WebLogic Kubernetes Operator can be found [here](https://oracle.github.io/weblogic-kubernetes-operator).
 
-**NOTE**: The Extract Domain Resource Tool is available with WDT releases 1.7.0 and later.
+{{% notice note %}} The Extract Domain Resource Tool is available with WDT releases 1.7.0 and later.
+{{% /notice %}}
 
 Here is an example command line for the Extract Domain Resource Tool:
 ```
