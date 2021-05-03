@@ -18,7 +18,7 @@ Using the default Administration Server configuration When the Create Domain Too
     </item>
     
     <item>
-      <title>Modeling a Configured Cluster</title>
+      <title>Modeling a configured cluster</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/cluster-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
@@ -28,7 +28,7 @@ topology: Cluster: &amp;#39;cluster-1&amp;#39;: ClientCertProxyEnabled: true Aut
     </item>
     
     <item>
-      <title>Modeling a JDBC Data Source</title>
+      <title>Modeling a JDBC data source</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/jdbc-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
@@ -48,7 +48,7 @@ resources: SelfTuning: Capacity: capacity40: Target: &amp;#39;cluster-1&amp;#39;
     </item>
     
     <item>
-      <title>Modeling Security Providers</title>
+      <title>Modeling security providers</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/securityproviders-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
@@ -57,7 +57,7 @@ resources: SelfTuning: Capacity: capacity40: Target: &amp;#39;cluster-1&amp;#39;
     </item>
     
     <item>
-      <title>Modeling WebLogic Users, Groups, and Roles</title>
+      <title>Modeling WebLogic users, groups, and roles</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/usersgroups-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
@@ -67,7 +67,7 @@ WebLogic Global Roles The model allows for the definition of WebLogic roles that
     </item>
     
     <item>
-      <title>Modeling WebLogic User Password Credential Mapping</title>
+      <title>Modeling WebLogic user password credential mapping</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/pwcredentialmap-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
@@ -98,7 +98,7 @@ The OHS template must be present in the WDT domain type definition file used to 
     </item>
     
     <item>
-      <title>Targeting Server Groups</title>
+      <title>Targeting server groups</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/targetservers-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       

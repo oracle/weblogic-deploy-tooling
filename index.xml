@@ -78,7 +78,7 @@ Creator and Deployer class hierarchies The creation of individual folders and at
     </item>
     
     <item>
-      <title>Modeling a Configured Cluster</title>
+      <title>Modeling a configured cluster</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/cluster-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
@@ -135,7 +135,7 @@ The model&amp;rsquo;s folder and attribute names usually match the names of the 
     </item>
     
     <item>
-      <title>Modeling a JDBC Data Source</title>
+      <title>Modeling a JDBC data source</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/jdbc-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
@@ -186,7 +186,7 @@ resources: SelfTuning: Capacity: capacity40: Target: &amp;#39;cluster-1&amp;#39;
     </item>
     
     <item>
-      <title>Modeling Security Providers</title>
+      <title>Modeling security providers</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/securityproviders-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
@@ -205,7 +205,7 @@ Prerequisites  A local installation of WebLogic Server 12.2.1.x must be availabl
     </item>
     
     <item>
-      <title>Modeling WebLogic Users, Groups, and Roles</title>
+      <title>Modeling WebLogic users, groups, and roles</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/usersgroups-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
@@ -234,7 +234,7 @@ To use the Compare Model Tool, simply run the compareModel shell script with the
     </item>
     
     <item>
-      <title>Modeling WebLogic User Password Credential Mapping</title>
+      <title>Modeling WebLogic user password credential mapping</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/pwcredentialmap-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
@@ -285,7 +285,7 @@ This is especially useful when making configuration changes to the domain that a
     </item>
     
     <item>
-      <title>Targeting Server Groups</title>
+      <title>Targeting server groups</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/targetservers-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
