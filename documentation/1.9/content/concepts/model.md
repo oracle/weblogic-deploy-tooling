@@ -257,7 +257,7 @@ This feature can also remove items that were created by WebLogic Server template
                 ...
 ```
 
-This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling Security Providers]({{< relref "/concepts/use_cases#modeling-security-providers" >}}) for detailed information.
+This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling Security Providers]({{< relref "/samples/use_cases#modeling-security-providers" >}}) for detailed information.
 
 This feature cannot be use to un-deploy applications or remove libraries.
 

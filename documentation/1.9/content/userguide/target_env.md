@@ -2,14 +2,14 @@
 title: "Target environments"
 date: 2019-02-23T17:19:24-05:00
 draft: false
-weight: 5
+weight: 2
 ---
 
 
 The [Discover Domain]({{< relref "/userguide/tools/discover.md" >}}) and [Prepare Model]({{< relref "/userguide/tools/prepare.md" >}}) Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
 - Using model tokens for some attributes in the model. See [Model Tokens]({{< relref "/concepts/model#model-tokens" >}}).
 - Using Kubernetes secrets for credentials in the model.
-- Applying filters to the model. See [Model Filters]({{< relref "/concepts/tool_configuration#model-filters" >}}).
+- Applying filters to the model. See [Model Filters]({{< relref "/reference/tool_configuration#model-filters" >}}).
 - Creating additional configuration files for the target system.
 
 ### Specifying a target environment
@@ -34,7 +34,7 @@ The `<target-name>` value corresponds to the value of the `-target` argument on 
  - [Weblogic Kubernetes Operator](#the-weblogic-kubernetes-operator-target) (named `k8s`)
  - [Verrazzano](#the-verrazzano-target) (named `vz`)
 
-You can define a new or extended target environment with a new `target-name` in the above location, or using a [Custom Configuration]({{< relref "/concepts/tool_configuration#custom-configuration" >}}) directory, such as `$WDT_CUSTOM_CONFIG/target/<my-target-name>/target.json`.
+You can define a new or extended target environment with a new `target-name` in the above location, or using a [Custom Configuration]({{< relref "/reference/tool_configuration#custom-configuration" >}}) directory, such as `$WDT_CUSTOM_CONFIG/target/<my-target-name>/target.json`.
 
 Here is an example of a target environment file:
 ```
@@ -55,7 +55,7 @@ Each of the fields in this example is optional, and can be customized.
 
 #### `model_filters`
 
-This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the [Model Filters]({{< relref "/concepts/tool_configuration#model-filters" >}}) configuration. The `discover` type should always be used here.
+This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the [Model Filters]({{< relref "/reference/tool_configuration#model-filters" >}}) configuration. The `discover` type should always be used here.
 
 The `@@TARGET_CONFIG_DIR@@` token can be used to indicate that the specified filter is in the same directory as the target configuration file.  
 

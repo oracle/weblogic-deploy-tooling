@@ -28,7 +28,7 @@ To have the Create Domain Tool run RCU, simply add the `-run_rcu` argument to th
 
 It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to [Specifying RCU connection information in the model]({{< relref "/content/rcuinfo.md" >}}).
 
-To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to [Domain Type Definitions]({{< relref "/concepts/tool_configuration#domain-type-definitions" >}}).
+To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to [Domain Type Definitions]({{< relref "/reference/tool_configuration#domain-type-definitions" >}}).
 
 ### Using an Encrypted Model
 

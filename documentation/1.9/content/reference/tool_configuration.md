@@ -2,14 +2,14 @@
 title: "Tools Configuration"
 date: 2019-02-23T17:19:24-05:00
 draft: false
-weight: 4
+weight: 2
 ---
 
 
 #### Contents
  - [Tool Property File](#tool-property-file)
  - [Model Filters](#model-filters)
- - [Target Environments]({{< relref "/concepts/target_env.md" >}})
+ - [Target Environments]({{< relref "/userguide/target_env.md" >}})
  - [Type Definitions](#domain-type-definitions)
  - [Variable Injection]({{< relref "/userguide/tools/variable_injection.md" >}})
  - [Custom Configuration](#custom-configuration)

@@ -2,7 +2,7 @@
 title: "Model Use Cases"
 date: 2019-02-23T17:19:24-05:00
 draft: false
-weight: 3
+weight: 1
 ---
 
 
@@ -22,7 +22,7 @@ weight: 3
 
  ### Administration Server Configuration
 
- The Create Domain Tool allows you to configure the Administration Server using a domain model. These examples show how some common configurations can be represented in the model.
+ The Create Domain Tool lets you configure the Administration Server using a domain model. These examples show how some common configurations can be represented in the model.
 
  #### Using the Default Administration Server Configuration
 
@@ -80,7 +80,7 @@ weight: 3
  The name of the Administration Server cannot be changed after domain creation, so any changes to the `AdminServerName` attribute will be ignored by the Update Domain Tool.
 
 
- #### Configured Cluster Sample
+ ### Configured Cluster Sample
 
  This WDT domain model sample section has a typical configuration for a configured cluster with a single managed server, including connection information, logging setup, and other details.
 
@@ -130,7 +130,7 @@ weight: 3
  For this sample, the machine named `machine-1` and the data source named `jdbc-1` should be defined elsewhere within this model, or should already exist in a domain that is being updated.
 
 
- #### JDBC Sample
+ ### JDBC Sample
 
  This WDT domain model sample section has a typical configuration for a JDBC data source, including targeting information, connection pool parameters, and other details.
 
@@ -166,7 +166,7 @@ weight: 3
  It is recommended that credential fields, such as `PasswordEncrypted`, should not be stored as clear text in the model. Those values can be referenced in a separate variables file or in Kubernetes secrets, or the model can be encrypted using the [Encrypt Model Tool]({{< relref "/userguide/tools/encrypt.md" >}}).
 
 
- #### Work Manager Sample
+ ### Work Manager Sample
 
  This WDT domain model sample section has typical configurations for a Work Manager and its related request classes and constraints. These elements are configured in the `SelfTuning` folder in the `resources` section of the model.
  ```yaml
@@ -518,7 +518,7 @@ domainInfo:
 
  In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS [here](https://www.oracle.com/middleware/technologies/webtier-downloads.html).
 
- The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see [Domain Type Definitions]({{< relref "/concepts/tool_configuration#domain-type-definitions" >}}).
+ The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see [Domain Type Definitions]({{< relref "/reference/tool_configuration#domain-type-definitions" >}}).
 
  You create a copy of an existing domain type definition file, add the template to that file, and then reference that file on the WDT command line. For example, if you want to create a domain with Oracle HTTP Server based on a Restricted JRF domain, then you would first create a copy of the file `WLSDEPLOY_HOME/lib/typedefs/RestrictedJRF.json` in the same directory, such as `WLSDEPLOY_HOME/lib/typedefs/HttpServer.json`. In this example, you would change the existing `extensionTemplates` section to include the additional OHS template. The original value is:
  ```

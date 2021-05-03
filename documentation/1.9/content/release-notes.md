@@ -1,25 +1,3 @@
-#### WDT Version 1.9.12
-
-Additional features in this release:
-
-* FMW Platform specific patches are now included in `--recommendedPatches` for all WLS-based installer types.
-* Java Required Files specific patches are now included in `--recommendedPatches` for all FMW-based installer types.
-
-Issues addressed in this release:
-
-* Increased the default version of HTTP retries to 10 to improve reliability with retrieving patch information from Oracle.
-
-
-#### WDT Version 1.9.11
-
-Issues addressed in this release:
-
-* Fixed validate process to recognize float values as strings.
-* Fixed JMS Server issue with jarray in store.
-* Fixed issue with recognizing NodeManager properties user and password as credentials.
-* Fixed discovery of SAFRemoteContext.
-* Fixed discovery of ServerTemplate DataSource.
-
 #### Known Issues for WebLogic Deploy Tooling
 
 The following list contains known issues. Each issue may contain a workaround or an associated issue number.

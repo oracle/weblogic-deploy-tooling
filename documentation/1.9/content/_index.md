@@ -22,19 +22,19 @@ For detailed information, see [WDT Tools]({{< relref "/userguide/tools/" >}}).
 ***
 ### Current production release
 
-The current [release](https://github.com/oracle/weblogic-deploy-tooling/releases) of WebLogic Deploy Tooling is 1.9.12. This release was published on April, 29, 2021.
+WebLogic Deploy Tooling version and release information is found [here](https://github.com/oracle/weblogic-deploy-tooling/releases).
 ***
 ### Recent changes and known issues
 
-See the [Release Notes]({{< relref "/release-notes.md" >}}) for recent changes, known issues, and workarounds.
+See the [Release Notes]({{< relref "/release-notes.md" >}}) for known issues and workarounds.
 
 ### About this documentation
 
 This documentation includes sections targeted to different audiences:
 
-* [Concepts]({{< relref "/concepts/" >}}) explains the underlying metadata models, archive files, tool configuration, and target environments.
+* [Concepts]({{< relref "/concepts/" >}}) explains the underlying metadata models and archive files.
 * The [User guide]({{< relref "/userguide/" >}}) contains detailed usage information, including how to install and configure WebLogic Deploy Tooling, and how to use each tool.
-* The [Samples]({{< relref "/samples/" >}}) provide detailed example code and instructions that show you how to perform various tasks.
+* The [Samples]({{< relref "/samples/" >}}) provide informative use case scenarios.
 * The [Developer guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WDT is built, its features mapped and implemented.
 
 
