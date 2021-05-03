@@ -49,5 +49,15 @@ The WLST directory can be specified in one of two ways:
   Specify the -Dunit-test-wlst-dir=&amp;lt;wlst-directory&amp;gt; on the mvn command line.</description>
     </item>
     
+    <item>
+      <title>WDT Project Release Process</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/releaseprocess/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/releaseprocess/</guid>
+      <description>This document describes the process that should be followed to create a WebLogic Deploy Tooling (WDT) release.
+Prerequisites  A local installation of WebLogic Server 12.2.1.x must be available. The person running the release process must have admin privileges on the WebLogic Deploy Tooling GitHub repo because the release process pushes to the master branch directly. The person running the release process needs to create a GitHub Personal Access Token for the repository with (at least) the repo:status, repo_deployment, public_repo, and security_events privileges.</description>
+    </item>
+    
   </channel>
 </rss>

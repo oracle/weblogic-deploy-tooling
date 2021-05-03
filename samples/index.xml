@@ -7,5 +7,14 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:54 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/samples/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Model Use Cases</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/use_cases/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/use_cases/</guid>
+      <description>Contents  Customizing the Administration Server Modeling a Configured Cluster Modeling a JDBC Data Source Modeling a Work Manager Modeling Security Providers Modeling WebLogic Users, Groups, and Roles Modeling WebLogic User Password Credential Mapping Modeling ODL Modeling Oracle HTTP Server (OHS) Targeting Server Groups Using WDT with WebLogic Kubernetes Operator  Administration Server Configuration The Create Domain Tool lets you configure the Administration Server using a domain model. These examples show how some common configurations can be represented in the model.</description>
+    </item>
+    
   </channel>
 </rss>
