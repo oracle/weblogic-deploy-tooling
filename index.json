@@ -120,7 +120,7 @@
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/samples/",
-	"title": "Model Use Cases",
+	"title": "Samples",
 	"tags": [],
 	"description": "",
 	"content": "These typical use case scenarios show you how some common configurations can be represented in the model.\n Customizing the Administration Server  Configure the Administration Server using a domain model.\n Modeling a Configured Cluster  A domain model with a typical configuration for a configured cluster.\n Modeling a JDBC Data Source  A domain model with a typical configuration for a JDBC data source.\n Modeling a Work Manager  A domain model with a typical configuration for Work Manager.\n Modeling Security Providers  Special handling and model semantics for WebLogic Server security configuration.\n Modeling WebLogic Users, Groups, and Roles  Establishing users, groups, and global roles as part of WebLogic domain creation.\n Modeling WebLogic User Password Credential Mapping  A model for creating user password credential mappings.\n Configuring Oracle Diagnostic Logging  A model for configuring Oracle Diagnostic Logging (ODL).\n Configuring Oracle HTTP Server  A model for configuring Oracle HTTP Server (OHS).\n Targeting Server Groups  Targeting server groups to managed servers and dynamic server groups to dynamic clusters.\n Using WDT with WebLogic Kubernetes Operator  Using WDT with WebLogic Kubernetes Operator.\n "
