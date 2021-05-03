@@ -1,5 +1,5 @@
 ---
-title: "Modeling WebLogic Users, Groups, and Roles"
+title: "Modeling WebLogic users, groups, and roles"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 6

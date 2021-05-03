@@ -1,5 +1,5 @@
 ---
-title: "Targeting Server Groups"
+title: "Targeting server groups"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 10

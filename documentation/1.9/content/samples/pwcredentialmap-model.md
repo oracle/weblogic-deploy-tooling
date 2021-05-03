@@ -1,5 +1,5 @@
 ---
-title: "Modeling WebLogic User Password Credential Mapping"
+title: "Modeling WebLogic user password credential mapping"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 7
