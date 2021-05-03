@@ -17,9 +17,7 @@ WDT provides several single-purpose tools, all exposed as shell scripts (for bot
 * Provide information about the folders and attributes that are valid for sections and folders of a domain model.
 
 ***
-The [current release](https://github.com/oracle/weblogic-deploy-tooling/releases) of WebLogic Deploy Tooling is 1.9.12.
-
-This release was published on April, 29, 2021.
+WebLogic Deploy Tooling version and release information is found [here](https://github.com/oracle/weblogic-deploy-tooling/releases).
 ***
 
 # Documentation
@@ -27,6 +25,14 @@ This release was published on April, 29, 2021.
 Documentation for WebLogic Deploy Tooling is [available here](https://oracle.github.io/weblogic-deploy-tooling/).
 
 This documentation includes information for users and for developers.
+
+# Related projects
+
+* [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/)
+* [WebLogic Image Tool](https://github.com/oracle/weblogic-image-tool)
+* [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
+* [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
+* [WebLogic Remote Console](https://github.com/oracle/weblogic-remote-console)
 
 # Contributing
 

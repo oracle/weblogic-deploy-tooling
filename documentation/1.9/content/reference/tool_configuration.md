@@ -9,9 +9,7 @@ weight: 2
 #### Contents
  - [Tool Property File](#tool-property-file)
  - [Model Filters](#model-filters)
- - [Target Environments]({{< relref "/userguide/target_env.md" >}})
- - [Type Definitions](#domain-type-definitions)
- - [Variable Injection]({{< relref "/userguide/tools/variable_injection.md" >}})
+ - [Domain Type Definitions](#domain-type-definitions)
  - [Custom Configuration](#custom-configuration)
 
  ### Tool Property File
@@ -265,9 +263,9 @@ def filter_model(model):
  This is a full set of files that can be configured. You will need only to add the files you have created or extended. Details for each configuration type are found at:
  - [Tool Property File](#tool-property-file)
  - [Model Filters](#model-filters)
- - [Type Definitions](#domain-type-definitions) (See the [example](#example-extending-a-type-definition) below.)
+ - [Type Definitions](#domain-type-definitions) (See the following [Extending a Type Definition](#example-extending-a-type-definition) example.)
  - [Variable Injection]({{< relref "/userguide/tools/variable_injection.md" >}})
- - [The Prepare Model Tool]({{< relref "/userguide/tools/prepare.md" >}}) (target environments)
+ - [The Prepare Model Tool]({{< relref "/userguide/tools/prepare.md" >}}); see [Target environments]({{< relref "/userguide/target_env.md" >}}).
 
  The WDT tools will look for each configuration file under `$WDT_CUSTOM_CONFIG` if specified, then under `$WLSDEPLOY_HOME/lib`.
 

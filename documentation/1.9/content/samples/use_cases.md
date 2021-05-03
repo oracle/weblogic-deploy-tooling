@@ -398,7 +398,7 @@ weight: 1
  #### WebLogic Users and Groups
  The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP Server (for example, `DefaultAuthenticator`). New groups can be specified and users can be added as members of the new groups or existing groups such as the `Administrators` group which is defaulted to be in the WebLogic `Admin` global role. Please see Known Limitations below for additional information on users and groups.
 
- The user password can be specified with a placeholder or encrypted with the [Encrypt Tool](encrypt.md). An example `Security` section that adds an additional group `AppMonitors`, adds two new users and places the users into groups is as follows:
+ The user password can be specified with a placeholder or encrypted with the [Encrypt Tool]({{< relref "/userguide/tools/encrypt.md" >}}). An example `Security` section that adds an additional group `AppMonitors`, adds two new users and places the users into groups is as follows:
 
  ```yaml
  topology:

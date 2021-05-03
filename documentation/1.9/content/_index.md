@@ -37,6 +37,13 @@ This documentation includes sections targeted to different audiences:
 * The [Samples]({{< relref "/samples/" >}}) provide informative use case scenarios.
 * The [Developer guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WDT is built, its features mapped and implemented.
 
+### Related projects
+
+* [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/)
+* [WebLogic Image Tool](https://github.com/oracle/weblogic-image-tool)
+* [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
+* [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
+* [WebLogic Remote Console](https://github.com/oracle/weblogic-remote-console)
 
 ### Contributing
 Those who wish to contribute to the WebLogic Deploy Tooling code will find useful information [here](https://github.com/oracle/weblogic-deploy-tooling/blob/master/CONTRIBUTING.md).
