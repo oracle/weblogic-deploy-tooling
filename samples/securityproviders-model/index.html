@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="Creates a domain and populates the domain with all the resources and applications specified in the model.">
+    <meta name="description" content="Special handling and model semantics for WebLogic Server security configuration.">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Create Domain Tool :: WebLogic Deploy Tooling</title>
+    <title>Modeling Security Providers :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1620076226" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/create/">
+  <body class="" data-url="/weblogic-deploy-tooling/samples/securityproviders-model/">
     <nav id="sidebar" class="">
 
 
@@ -161,7 +161,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -211,7 +211,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
-        parent
+        
         
         
         ">
@@ -237,7 +237,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools/create/">
         Create Domain Tool
         
@@ -506,7 +506,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/samples/" title="Model Use Cases" class="dd-item
-        
+        parent
         
         
         ">
@@ -616,7 +616,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/samples/securityproviders-model/" title="Modeling Security Providers" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/samples/securityproviders-model/" title="Modeling Security Providers" class="dd-item active">
         <a href="/weblogic-deploy-tooling/samples/securityproviders-model/">
         Modeling Security Providers
         
@@ -1008,13 +1008,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Create Domain Tool
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/samples/'>Model Use Cases</a> > Modeling Security Providers
           
         
           
@@ -1031,9 +1025,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#using-an-encrypted-model">Using an Encrypted Model</a></li>
-        <li><a href="#using-multiple-models">Using Multiple Models</a></li>
-        <li><a href="#development-domain-and-bootproperties">Development Domain and <code>boot.properties</code></a></li>
+        <li></li>
       </ul>
     </li>
   </ul>
@@ -1053,44 +1045,128 @@
           
             <h1>
               
-              Create Domain Tool
+              Modeling Security Providers
             </h1>
           
 
         
 
 
-<p>The Create Domain Tool uses a model and WLST offline to create a domain.  To use the tool, at a minimum, the model must specify the domain&rsquo;s administrative password in the <code>domainInfo</code> section of the model, as shown below.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
-</code></pre></div><p>Using the model above, simply run the <code>createDomain</code> tool, specifying the type of domain to create and where to create it.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml
-</code></pre>
-<p>Clearly, creating an empty domain with only the template-defined servers is not very interesting, but this example just reinforces how sparse the model can be.  When running the Create Domain Tool, the model must be provided either inside the archive file or as a standalone file.  If both the archive and model files are provided, the model file outside the archive will take precedence over any that might be inside the archive.  If the archive file is not provided, the Create Domain Tool will create the <code>topology</code> section only (using the <code>domainInfo</code> section) of the model in the domain.  This is because the <code>resources</code> and <code>appDeployments</code> sections of the model can reference files from the archive so to create the domain with the model-defined resources and applications, an archive file must be provided&ndash;even if the model does not reference anything in the archive.  At some point in the future, this restriction may be relaxed to require the archive only if it is actually needed.</p>
-<p>The Create Domain Tool understands three domain types: <code>WLS</code>, <code>RestrictedJRF</code>, and <code>JRF</code>.  When specifying the domain type, the Oracle Home must match the requirements for the domain type.  Both <code>RestrictedJRF</code> and <code>JRF</code> require an Oracle Home with the FMW Infrastucture (also known as JRF) installed.  When creating a JRF domain, the RCU database information must be provided as arguments to the <code>createDomain</code> script.  Note that the tool will prompt for any passwords required.  Optionally, they can be piped to standard input (for example, <code>stdin</code>) of the script, to make the script run without user input.  For example, the command to create a JRF domain looks like the one below.  Note that this requires the user to have run RCU prior to running the command.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO [-rcu_db_user SYS]
-</code></pre>
-<p>To have the Create Domain Tool run RCU, simply add the <code>-run_rcu</code> argument to the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!</p>
-<p>It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to <a href="/weblogic-deploy-tooling/rcuinfo/">Specifying RCU connection information in the model</a>.</p>
-<p>To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to <a href="/weblogic-deploy-tooling/reference/tool_configuration/#domain-type-definitions">Domain Type Definitions</a>.</p>
-<h3 id="using-an-encrypted-model">Using an Encrypted Model</h3>
-<p>If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the <code>-use_encryption</code> flag on the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, <code>stdin</code>) to allow the tool to run without any user input.</p>
-<h3 id="using-multiple-models">Using Multiple Models</h3>
-<p>The Create Domain Tool supports the use of multiple models, as described in <a href="/weblogic-deploy-tooling/concepts/model/#using-multiple-models">Using Multiple Models</a>.</p>
-<h3 id="development-domain-and-bootproperties">Development Domain and <code>boot.properties</code></h3>
-<p>When creating a development domain, WDT provides the convenience of making a <code>boot.properties</code> file for each of the servers in the domain. The <code>boot.properties</code> file will contain encrypted values of the Administration Server user name and password. When the Administration Server or Managed Server is started, WebLogic Server will bypass the prompt for credentials, and instead use the credentials from the <code>boot.properties</code> file.</p>
-<p>A domain is in production mode if the <code>ServerStartMode</code> option is set to <code>prod</code> or the domain <code>ProductionModeEnabled</code> is set to <code>true</code>. The default value for both of these attributes is development mode.</p>
-<p>The <code>boot.properties</code> file is stored in the domain home on the machine where WDT runs. It is stored for each server as <code>&lt;domain_home&gt;/servers/&lt;server_name&gt;/security/boot.properties</code>.</p>
-<p>The following is a model example with both attributes explicitly set to development mode.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
-    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">dev</span>
-<span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Name</span>: <span style="color:#e6db74">&#34;my-domain&#34;</span>
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#e6db74">&#34;admin-server&#34;</span>
-    <span style="color:#f92672">ProductionModeEnabled</span>: <span style="color:#66d9ef">false</span>
-</code></pre></div>
+<p>WebLogic Server security configuration requires special handling and causes the need for the model semantics to differ from other folders.  Because provider ordering is important, and to make sure that the ordering is correctly set in the newly created domain, the Create Domain Tool and Update Domain Tool require that all providers be specified in the model for any provider type that will be created or altered.  For example, if you want to change one of the providers in the provider type <code>AuthenticationProvider</code>, your model must specify all of the <code>AuthenticationProvider</code> providers and any non-default attributes for those providers.  In order to apply security providers, these tools will delete all providers from the target domain for those provider types specified in the model before adding the providers from the model to the target domain. Provider types that are omitted from the model will be unchanged.  Example provider types are <code>Adjudicator</code>, <code>AuthenticationProvider</code>, <code>Authorizer</code>, <code>CertPathProvider</code>, <code>CredentialMapper</code>, <code>PasswordValidator</code>, and <code>RoleMapper</code>.</p>
+<p>For example, if the model specified an <code>LDAPAuthenticator</code> and an <code>LDAPX509IdentityAsserter</code> similar to what is shown below, the <code>DefaultAuthenticator</code> and <code>DefaultIdentityAsserter</code> would be deleted.  In this example, other provider types like <code>RoleMapper</code> and <code>CredentialMapper</code> are not specified and would be left untouched by the tools.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
+    <span style="color:#f92672">SecurityConfiguration</span>:
+        <span style="color:#f92672">Realm</span>:
+            <span style="color:#f92672">myrealm</span>:
+                <span style="color:#f92672">AuthenticationProvider</span>:
+                    <span style="color:#f92672">My LDAP authenticator</span>:
+                        <span style="color:#f92672">LDAPAuthenticator</span>:
+                            <span style="color:#f92672">ControlFlag</span>: <span style="color:#ae81ff">SUFFICIENT</span>
+                            <span style="color:#f92672">PropagateCauseForLoginException</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">EnableGroupMembershipLookupHierarchyCaching</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">Host</span>: <span style="color:#ae81ff">myldap.example.com</span>
+                            <span style="color:#f92672">Port</span>: <span style="color:#ae81ff">389</span>
+                            <span style="color:#f92672">UserObjectClass</span>: <span style="color:#ae81ff">person</span>
+                            <span style="color:#f92672">GroupHierarchyCacheTTL</span>: <span style="color:#ae81ff">600</span>
+                            <span style="color:#f92672">SSLEnabled</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">UserNameAttribute</span>: <span style="color:#ae81ff">cn</span>
+                            <span style="color:#f92672">Principal</span>: <span style="color:#e6db74">&#39;cn=foo,ou=users,dc=example,dc=com&#39;</span>
+                            <span style="color:#f92672">UserBaseDn</span>: <span style="color:#e6db74">&#39;OU=Users,DC=example,DC=com&#39;</span>
+                            <span style="color:#f92672">UserSearchScope</span>: <span style="color:#ae81ff">subtree</span>
+                            <span style="color:#f92672">UserFromNameFilter</span>: <span style="color:#e6db74">&#39;(&amp;(cn=%u)(objectclass=person))&#39;</span>
+                            <span style="color:#f92672">AllUsersFilter</span>: <span style="color:#e6db74">&#39;(memberOf=CN=foo,OU=mygroups,DC=example,DC=com)&#39;</span>
+                            <span style="color:#f92672">GroupBaseDN</span>: <span style="color:#e6db74">&#39;OU=mygroups,DC=example,DC=com&#39;</span>
+                            <span style="color:#f92672">AllGroupsFilter</span>: <span style="color:#e6db74">&#39;(&amp;(foo)(objectclass=group))&#39;</span>
+                            <span style="color:#f92672">StaticGroupObjectClass</span>: <span style="color:#ae81ff">group</span>
+                            <span style="color:#f92672">StaticMemberDNAttribute</span>: <span style="color:#ae81ff">cn</span>
+                            <span style="color:#f92672">StaticGroupDNsfromMemberDNFilter</span>: <span style="color:#e6db74">&#39;(&amp;(member=%M)(objectclass=group))&#39;</span>
+                            <span style="color:#f92672">DynamicGroupObjectClass</span>: <span style="color:#ae81ff">group</span>
+                            <span style="color:#f92672">DynamicGroupNameAttribute</span>: <span style="color:#ae81ff">cn</span>
+                            <span style="color:#f92672">UseRetrievedUserNameAsPrincipal</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">KeepAliveEnabled</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">GuidAttribute</span>: <span style="color:#ae81ff">uuid</span>
+                    <span style="color:#f92672">My LDAP IdentityAsserter</span>:
+                        <span style="color:#f92672">LDAPX509IdentityAsserter</span>:
+                            <span style="color:#f92672">ActiveType</span>: <span style="color:#ae81ff">AuthenticatedUser</span>
+                            <span style="color:#f92672">Host</span>: <span style="color:#ae81ff">myldap.example.com</span>
+                            <span style="color:#f92672">Port</span>: <span style="color:#ae81ff">389</span>
+                            <span style="color:#f92672">SSLEnabled</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div><p>In order to keep the <code>DefaultAuthenticator</code> and <code>DefaultIdentityAsserter</code> while changing/adding providers, they must be specified in the model with any non-default attributes as shown in the example below.  Keep in mind, the ordering of providers in the model will be the order the providers are set in the WebLogic security configuration.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
+    <span style="color:#f92672">SecurityConfiguration</span>:
+        <span style="color:#f92672">Realm</span>:
+            <span style="color:#f92672">myrealm</span>:
+                <span style="color:#f92672">AuthenticationProvider</span>:
+                    <span style="color:#f92672">My LDAP authenticator</span>:
+                        <span style="color:#f92672">LDAPAuthenticator</span>:
+                            <span style="color:#f92672">ControlFlag</span>: <span style="color:#ae81ff">SUFFICIENT</span>
+                            <span style="color:#f92672">PropagateCauseForLoginException</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">EnableGroupMembershipLookupHierarchyCaching</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">Host</span>: <span style="color:#ae81ff">myldap.example.com</span>
+                            <span style="color:#f92672">Port</span>: <span style="color:#ae81ff">389</span>
+                            <span style="color:#f92672">UserObjectClass</span>: <span style="color:#ae81ff">person</span>
+                            <span style="color:#f92672">GroupHierarchyCacheTTL</span>: <span style="color:#ae81ff">600</span>
+                            <span style="color:#f92672">SSLEnabled</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">UserNameAttribute</span>: <span style="color:#ae81ff">cn</span>
+                            <span style="color:#f92672">Principal</span>: <span style="color:#e6db74">&#39;cn=foo,ou=users,dc=example,dc=com&#39;</span>
+                            <span style="color:#f92672">UserBaseDn</span>: <span style="color:#e6db74">&#39;OU=Users,DC=example,DC=com&#39;</span>
+                            <span style="color:#f92672">UserSearchScope</span>: <span style="color:#ae81ff">subtree</span>
+                            <span style="color:#f92672">UserFromNameFilter</span>: <span style="color:#e6db74">&#39;(&amp;(cn=%u)(objectclass=person))&#39;</span>
+                            <span style="color:#f92672">AllUsersFilter</span>: <span style="color:#e6db74">&#39;(memberOf=CN=foo,OU=mygroups,DC=example,DC=com)&#39;</span>
+                            <span style="color:#f92672">GroupBaseDN</span>: <span style="color:#e6db74">&#39;OU=mygroups,DC=example,DC=com&#39;</span>
+                            <span style="color:#f92672">AllGroupsFilter</span>: <span style="color:#e6db74">&#39;(&amp;(foo)(objectclass=group))&#39;</span>
+                            <span style="color:#f92672">StaticGroupObjectClass</span>: <span style="color:#ae81ff">group</span>
+                            <span style="color:#f92672">StaticMemberDNAttribute</span>: <span style="color:#ae81ff">cn</span>
+                            <span style="color:#f92672">StaticGroupDNsfromMemberDNFilter</span>: <span style="color:#e6db74">&#39;(&amp;(member=%M)(objectclass=group))&#39;</span>
+                            <span style="color:#f92672">DynamicGroupObjectClass</span>: <span style="color:#ae81ff">group</span>
+                            <span style="color:#f92672">DynamicGroupNameAttribute</span>: <span style="color:#ae81ff">cn</span>
+                            <span style="color:#f92672">UseRetrievedUserNameAsPrincipal</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">KeepAliveEnabled</span>: <span style="color:#66d9ef">true</span>
+                            <span style="color:#f92672">GuidAttribute</span>: <span style="color:#ae81ff">uuid</span>
+                    <span style="color:#f92672">My LDAP IdentityAsserter</span>:
+                        <span style="color:#f92672">LDAPX509IdentityAsserter</span>:
+                            <span style="color:#f92672">ActiveType</span>: <span style="color:#ae81ff">AuthenticatedUser</span>
+                            <span style="color:#f92672">Host</span>: <span style="color:#ae81ff">myldap.example.com</span>
+                            <span style="color:#f92672">Port</span>: <span style="color:#ae81ff">389</span>
+                            <span style="color:#f92672">SSLEnabled</span>: <span style="color:#66d9ef">true</span>
+                    <span style="color:#f92672">DefaultAuthenticator</span>:
+                        <span style="color:#f92672">DefaultAuthenticator</span>:
+                            <span style="color:#f92672">ControlFlag</span>: <span style="color:#ae81ff">SUFFICIENT</span>
+                    <span style="color:#f92672">DefaultIdentityAsserter</span>:
+                        <span style="color:#f92672">DefaultIdentityAsserter</span>:
+
+</code></pre></div><h4 id="trust-service-identity-asserter">Trust Service Identity Asserter</h4>
+
+<div class="notices note" ><p>The Trust Identity Asserter Security Provider is installed by JRF in 12c versions and newer.</p>
+</div>
+
+<p>The JRF installed Trust Identity Asserter does not supply a schema file by default.  Before you can configure this asserter with WLST offline or WDT offline, you must first build the schema file using the <code>prepareCustomProvider</code> script.</p>
+<p>Here is an example of how to prepare and install a schema file from its MBean Jar File (MJF):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">export CONFIG_JVM_ARGS<span style="color:#f92672">=</span>-DSchemaTypeSystemName<span style="color:#f92672">=</span>TrustServiceIdentityAsserter
+
+ORACLE_HOME/oracle_common/common/bin/prepareCustomProvider.sh -mjf<span style="color:#f92672">=</span>ORACLE_HOME/oracle_common/modules/oracle.jps/jps-wls-trustprovider.jar -out ORACLE_HOME/oracle_common/lib/schematypes/jps-wls-trustprovider.schema.jar
+
+</code></pre></div><p>For FMW versions 12.1.2 and 12.1.3, replace <code>oracle.jps</code> in the example path above with:
+oracle.jps_12.1.2, or oracle.jps_12.1.3, respectively.</p>
+<h4 id="custom-security-providers">Custom Security Providers</h4>
+
+<div class="notices note" ><p>Creating and updating domains with custom security providers is limited to WebLogic version 12.1.2 and newer.</p>
+</div>
+
+<p>Prior to using this tooling to create or update a domain with a custom security provider, there are several prerequisites.  First, WebLogic Server requires the custom MBean JAR to be in the Oracle Home directory before it can be configured, <code>WLSERVER/server/lib/mbeantypes</code>.  Second, WebLogic Scripting Tool, WLST, requires that the schema JAR be placed in the Oracle Home directory before WLST offline can be used to discover it or configure it, <code>ORACLEHOME/oracle_common/lib/schematypes</code>.  Generating an MBean JAR documentation can be found in the WebLogic Server <a href="https://docs.oracle.com/en/middleware/standalone/weblogic-server/14.1.1.0/devsp/generate_mbeantype.html">documentation</a>.  Generating the schema JAR can be done with the <code>prepareCustomProvider</code> script provided in the WebLogic Server installation.</p>
+<p>WebLogic allows you to define an alternate directory other than <code>WLSERVER/server/lib/mbeantypes</code> by using the system property <code>-Dweblogic.alternateTypesDirectory=dir</code>. In order for the custom provider jars to be loaded correctly by WLST when discovering or configuring a domain, set this system property in the <code>WLSDEPLOY_PROPERTIES</code> environment variable.</p>
+<p>The format for a custom security provider is slightly different from a built-in provider in that the custom provider must supply the fully-qualified name of the class for the provider in the model between the provider name and the attributes for that provider.  Note that the generated Impl suffix is omitted from the name. In the custom <code>CredentialMapper</code> example below, note the location in the model of &lsquo;examples.security.providers.SampleCredentialMapper&rsquo;:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">        <span style="color:#f92672">CredentialMapper</span>:
+            <span style="color:#f92672">&#39;Sample CredentialMapper&#39;</span>:
+                <span style="color:#f92672">&#39;examples.security.providers.SampleCredentialMapper&#39;</span>:
+                    <span style="color:#f92672">UserNameMapperClassName</span>: <span style="color:#e6db74">&#39;examples.security.providers.CredentialMapperProviderImpl&#39;</span>
+                    <span style="color:#f92672">CredentialMappingDeploymentEnabled</span>: <span style="color:#f92672">true</span>:
+</code></pre></div><h4 id="known-limitations">Known Limitations</h4>
+<ul>
+<li><code>Adjudicator</code> provider types cannot be added or modified due to a limitation in WLST.</li>
+<li><code>PasswordCredentials</code> provider types cannot be updated in WLST online.</li>
+</ul>
+
 
 <footer class="footline">
 	
@@ -1178,7 +1254,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1193,9 +1268,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1213,7 +1285,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1226,7 +1297,6 @@
             
             
                 
-                    
                     
                 
                 
@@ -1243,9 +1313,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1429,6 +1496,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1441,6 +1509,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1506,6 +1577,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1521,6 +1593,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1753,10 +1828,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/samples/workmanager-model/" title="Modeling a Work Manager"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/update/" title="Update Domain Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/samples/usersgroups-model/" title="Modeling WebLogic Users, Groups, and Roles" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

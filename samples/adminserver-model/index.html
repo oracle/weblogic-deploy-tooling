@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="Creates a domain and populates the domain with all the resources and applications specified in the model.">
+    <meta name="description" content="Configure the Administration Server using a domain model.">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Create Domain Tool :: WebLogic Deploy Tooling</title>
+    <title>Customizing the Administration Server :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1620076226" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/create/">
+  <body class="" data-url="/weblogic-deploy-tooling/samples/adminserver-model/">
     <nav id="sidebar" class="">
 
 
@@ -161,7 +161,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -211,7 +211,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
-        parent
+        
         
         
         ">
@@ -237,7 +237,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools/create/">
         Create Domain Tool
         
@@ -506,7 +506,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/samples/" title="Model Use Cases" class="dd-item
-        
+        parent
         
         
         ">
@@ -532,7 +532,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/samples/adminserver-model/" title="Customizing the Administration Server" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/samples/adminserver-model/" title="Customizing the Administration Server" class="dd-item active">
         <a href="/weblogic-deploy-tooling/samples/adminserver-model/">
         Customizing the Administration Server
         
@@ -1008,13 +1008,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Create Domain Tool
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/samples/'>Model Use Cases</a> > Customizing the Administration Server
           
         
           
@@ -1031,9 +1025,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#using-an-encrypted-model">Using an Encrypted Model</a></li>
-        <li><a href="#using-multiple-models">Using Multiple Models</a></li>
-        <li><a href="#development-domain-and-bootproperties">Development Domain and <code>boot.properties</code></a></li>
+        <li><a href="#administration-server-configuration">Administration Server configuration</a></li>
       </ul>
     </li>
   </ul>
@@ -1053,44 +1045,56 @@
           
             <h1>
               
-              Create Domain Tool
+              Customizing the Administration Server
             </h1>
           
 
         
 
 
-<p>The Create Domain Tool uses a model and WLST offline to create a domain.  To use the tool, at a minimum, the model must specify the domain&rsquo;s administrative password in the <code>domainInfo</code> section of the model, as shown below.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
-</code></pre></div><p>Using the model above, simply run the <code>createDomain</code> tool, specifying the type of domain to create and where to create it.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml
-</code></pre>
-<p>Clearly, creating an empty domain with only the template-defined servers is not very interesting, but this example just reinforces how sparse the model can be.  When running the Create Domain Tool, the model must be provided either inside the archive file or as a standalone file.  If both the archive and model files are provided, the model file outside the archive will take precedence over any that might be inside the archive.  If the archive file is not provided, the Create Domain Tool will create the <code>topology</code> section only (using the <code>domainInfo</code> section) of the model in the domain.  This is because the <code>resources</code> and <code>appDeployments</code> sections of the model can reference files from the archive so to create the domain with the model-defined resources and applications, an archive file must be provided&ndash;even if the model does not reference anything in the archive.  At some point in the future, this restriction may be relaxed to require the archive only if it is actually needed.</p>
-<p>The Create Domain Tool understands three domain types: <code>WLS</code>, <code>RestrictedJRF</code>, and <code>JRF</code>.  When specifying the domain type, the Oracle Home must match the requirements for the domain type.  Both <code>RestrictedJRF</code> and <code>JRF</code> require an Oracle Home with the FMW Infrastucture (also known as JRF) installed.  When creating a JRF domain, the RCU database information must be provided as arguments to the <code>createDomain</code> script.  Note that the tool will prompt for any passwords required.  Optionally, they can be piped to standard input (for example, <code>stdin</code>) of the script, to make the script run without user input.  For example, the command to create a JRF domain looks like the one below.  Note that this requires the user to have run RCU prior to running the command.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO [-rcu_db_user SYS]
-</code></pre>
-<p>To have the Create Domain Tool run RCU, simply add the <code>-run_rcu</code> argument to the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!</p>
-<p>It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to <a href="/weblogic-deploy-tooling/rcuinfo/">Specifying RCU connection information in the model</a>.</p>
-<p>To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to <a href="/weblogic-deploy-tooling/reference/tool_configuration/#domain-type-definitions">Domain Type Definitions</a>.</p>
-<h3 id="using-an-encrypted-model">Using an Encrypted Model</h3>
-<p>If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the <code>-use_encryption</code> flag on the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, <code>stdin</code>) to allow the tool to run without any user input.</p>
-<h3 id="using-multiple-models">Using Multiple Models</h3>
-<p>The Create Domain Tool supports the use of multiple models, as described in <a href="/weblogic-deploy-tooling/concepts/model/#using-multiple-models">Using Multiple Models</a>.</p>
-<h3 id="development-domain-and-bootproperties">Development Domain and <code>boot.properties</code></h3>
-<p>When creating a development domain, WDT provides the convenience of making a <code>boot.properties</code> file for each of the servers in the domain. The <code>boot.properties</code> file will contain encrypted values of the Administration Server user name and password. When the Administration Server or Managed Server is started, WebLogic Server will bypass the prompt for credentials, and instead use the credentials from the <code>boot.properties</code> file.</p>
-<p>A domain is in production mode if the <code>ServerStartMode</code> option is set to <code>prod</code> or the domain <code>ProductionModeEnabled</code> is set to <code>true</code>. The default value for both of these attributes is development mode.</p>
-<p>The <code>boot.properties</code> file is stored in the domain home on the machine where WDT runs. It is stored for each server as <code>&lt;domain_home&gt;/servers/&lt;server_name&gt;/security/boot.properties</code>.</p>
-<p>The following is a model example with both attributes explicitly set to development mode.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
-    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">dev</span>
-<span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Name</span>: <span style="color:#e6db74">&#34;my-domain&#34;</span>
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#e6db74">&#34;admin-server&#34;</span>
-    <span style="color:#f92672">ProductionModeEnabled</span>: <span style="color:#66d9ef">false</span>
-</code></pre></div>
+<h3 id="administration-server-configuration">Administration Server configuration</h3>
+<p>The Create Domain Tool lets you configure the Administration Server using a domain model. These examples show how some common configurations can be represented in the model.</p>
+<h4 id="using-the-default-administration-server-configuration">Using the default Administration Server configuration</h4>
+<p>When the Create Domain Tool is run, the templates associated with your domain type will automatically create an Administration Server named <code>AdminServer</code>, with default values for all the attributes. If you don&rsquo;t need to change any of these attributes, such as <code>ListenAddress</code> or <code>ListenPort</code>, or any of the sub-folders, such as <code>SSL</code> or <code>ServerStart</code>, nothing needs to be added to the model.</p>
+<h4 id="customizing-the-administration-server-configuration">Customizing the Administration Server configuration</h4>
+<p>To customize the configuration of the default Administration Server, you will need to add a server with the default name <code>AdminServer</code>. Because you are not changing the name of the Administration Server, there is no need to specify the <code>AdminServerName</code> attribute under the topology section. This example shows some attributes and sub-folders:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
+    <span style="color:#f92672">Server</span>:
+        <span style="color:#f92672">AdminServer</span>:
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9071</span>
+            <span style="color:#f92672">RestartDelaySeconds</span>: <span style="color:#ae81ff">10</span>
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#e6db74">&#39;my-host-1&#39;</span>
+            <span style="color:#f92672">Log</span>:
+                <span style="color:#f92672">FileCount</span>: <span style="color:#ae81ff">9</span>
+                <span style="color:#f92672">LogFileSeverity</span>: <span style="color:#ae81ff">Info</span>
+                <span style="color:#f92672">FileMinSize</span>: <span style="color:#ae81ff">5000</span>
+            <span style="color:#f92672">SSL</span>:
+                <span style="color:#f92672">HostnameVerificationIgnored</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">JSSEEnabled</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9072</span>
+                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div><p>The most common problem with this type of configuration is to misspell the name of the folder under <code>Server</code>, when it should be <code>AdminServer</code>. This will result in the creation of an Administration Server with the default name, and an additional Managed Server with the misspelled name.</p>
+<h4 id="configuring-the-administration-server-with-a-different-name">Configuring the Administration Server with a different name</h4>
+<p>If you want the Administration Server to have a name other than the default <code>AdminServer</code>, you will need to specify that name in the <code>AdminServerName</code> attribute, and use that name in the <code>Server</code> section. This example uses the name <code>my-admin-server</code>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
+    <span style="color:#f92672">AdminServerName</span>: <span style="color:#e6db74">&#39;my-admin-server&#39;</span>
+    <span style="color:#f92672">Server</span>:
+        <span style="color:#f92672">&#39;my-admin-server&#39;</span>:
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9071</span>
+            <span style="color:#f92672">RestartDelaySeconds</span>: <span style="color:#ae81ff">10</span>
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#e6db74">&#39;my-host-1&#39;</span>
+            <span style="color:#f92672">Log</span>:
+                <span style="color:#f92672">FileCount</span>: <span style="color:#ae81ff">9</span>
+                <span style="color:#f92672">LogFileSeverity</span>: <span style="color:#ae81ff">Info</span>
+                <span style="color:#f92672">FileMinSize</span>: <span style="color:#ae81ff">5000</span>
+            <span style="color:#f92672">SSL</span>:
+                <span style="color:#f92672">HostnameVerificationIgnored</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">JSSEEnabled</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9072</span>
+                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div><p>The most common problem with this type of configuration is to mismatch the <code>AdminServerName</code> attribute with the name in the <code>Server</code> folder. This will change the name of the default Administration Server to the value of <code>AdminServerName</code>, and the folder under <code>Server</code> to be created as an additional Managed Server.</p>
+<p>The name of the Administration Server cannot be changed after domain creation, so any changes to the <code>AdminServerName</code> attribute will be ignored by the Update Domain Tool.</p>
+
 
 <footer class="footline">
 	
@@ -1178,7 +1182,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1193,9 +1196,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1213,7 +1213,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1226,7 +1225,6 @@
             
             
                 
-                    
                     
                 
                 
@@ -1243,9 +1241,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1429,6 +1424,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1441,6 +1437,7 @@
             
             
                 
+                    
                     
                 
                 
@@ -1457,6 +1454,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1753,10 +1753,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/samples/" title="Model Use Cases"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/update/" title="Update Domain Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/samples/cluster-model/" title="Modeling a Configured Cluster" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="Creates a domain and populates the domain with all the resources and applications specified in the model.">
+    <meta name="description" content="Targeting server groups to managed servers and dynamic server groups to dynamic clusters.">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Create Domain Tool :: WebLogic Deploy Tooling</title>
+    <title>Targeting Server Groups :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1620076226" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/create/">
+  <body class="" data-url="/weblogic-deploy-tooling/samples/targetservers-model/">
     <nav id="sidebar" class="">
 
 
@@ -161,7 +161,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -211,7 +211,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
-        parent
+        
         
         
         ">
@@ -237,7 +237,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools/create/">
         Create Domain Tool
         
@@ -506,7 +506,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/samples/" title="Model Use Cases" class="dd-item
-        
+        parent
         
         
         ">
@@ -721,7 +721,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/samples/targetservers-model/" title="Targeting Server Groups" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/samples/targetservers-model/" title="Targeting Server Groups" class="dd-item active">
         <a href="/weblogic-deploy-tooling/samples/targetservers-model/">
         Targeting Server Groups
         
@@ -1008,13 +1008,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Create Domain Tool
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/samples/'>Model Use Cases</a> > Targeting Server Groups
           
         
           
@@ -1031,9 +1025,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#using-an-encrypted-model">Using an Encrypted Model</a></li>
-        <li><a href="#using-multiple-models">Using Multiple Models</a></li>
-        <li><a href="#development-domain-and-bootproperties">Development Domain and <code>boot.properties</code></a></li>
+        <li></li>
       </ul>
     </li>
   </ul>
@@ -1053,43 +1045,124 @@
           
             <h1>
               
-              Create Domain Tool
+              Targeting Server Groups
             </h1>
           
 
         
 
 
-<p>The Create Domain Tool uses a model and WLST offline to create a domain.  To use the tool, at a minimum, the model must specify the domain&rsquo;s administrative password in the <code>domainInfo</code> section of the model, as shown below.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
-</code></pre></div><p>Using the model above, simply run the <code>createDomain</code> tool, specifying the type of domain to create and where to create it.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml
-</code></pre>
-<p>Clearly, creating an empty domain with only the template-defined servers is not very interesting, but this example just reinforces how sparse the model can be.  When running the Create Domain Tool, the model must be provided either inside the archive file or as a standalone file.  If both the archive and model files are provided, the model file outside the archive will take precedence over any that might be inside the archive.  If the archive file is not provided, the Create Domain Tool will create the <code>topology</code> section only (using the <code>domainInfo</code> section) of the model in the domain.  This is because the <code>resources</code> and <code>appDeployments</code> sections of the model can reference files from the archive so to create the domain with the model-defined resources and applications, an archive file must be provided&ndash;even if the model does not reference anything in the archive.  At some point in the future, this restriction may be relaxed to require the archive only if it is actually needed.</p>
-<p>The Create Domain Tool understands three domain types: <code>WLS</code>, <code>RestrictedJRF</code>, and <code>JRF</code>.  When specifying the domain type, the Oracle Home must match the requirements for the domain type.  Both <code>RestrictedJRF</code> and <code>JRF</code> require an Oracle Home with the FMW Infrastucture (also known as JRF) installed.  When creating a JRF domain, the RCU database information must be provided as arguments to the <code>createDomain</code> script.  Note that the tool will prompt for any passwords required.  Optionally, they can be piped to standard input (for example, <code>stdin</code>) of the script, to make the script run without user input.  For example, the command to create a JRF domain looks like the one below.  Note that this requires the user to have run RCU prior to running the command.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO [-rcu_db_user SYS]
-</code></pre>
-<p>To have the Create Domain Tool run RCU, simply add the <code>-run_rcu</code> argument to the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!</p>
-<p>It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to <a href="/weblogic-deploy-tooling/rcuinfo/">Specifying RCU connection information in the model</a>.</p>
-<p>To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to <a href="/weblogic-deploy-tooling/reference/tool_configuration/#domain-type-definitions">Domain Type Definitions</a>.</p>
-<h3 id="using-an-encrypted-model">Using an Encrypted Model</h3>
-<p>If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the <code>-use_encryption</code> flag on the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, <code>stdin</code>) to allow the tool to run without any user input.</p>
-<h3 id="using-multiple-models">Using Multiple Models</h3>
-<p>The Create Domain Tool supports the use of multiple models, as described in <a href="/weblogic-deploy-tooling/concepts/model/#using-multiple-models">Using Multiple Models</a>.</p>
-<h3 id="development-domain-and-bootproperties">Development Domain and <code>boot.properties</code></h3>
-<p>When creating a development domain, WDT provides the convenience of making a <code>boot.properties</code> file for each of the servers in the domain. The <code>boot.properties</code> file will contain encrypted values of the Administration Server user name and password. When the Administration Server or Managed Server is started, WebLogic Server will bypass the prompt for credentials, and instead use the credentials from the <code>boot.properties</code> file.</p>
-<p>A domain is in production mode if the <code>ServerStartMode</code> option is set to <code>prod</code> or the domain <code>ProductionModeEnabled</code> is set to <code>true</code>. The default value for both of these attributes is development mode.</p>
-<p>The <code>boot.properties</code> file is stored in the domain home on the machine where WDT runs. It is stored for each server as <code>&lt;domain_home&gt;/servers/&lt;server_name&gt;/security/boot.properties</code>.</p>
-<p>The following is a model example with both attributes explicitly set to development mode.</p>
+<p>To create more complex domains with clusters of different types, it is necessary to control the targeting of server groups to managed servers.
+By default, all server groups in the domain type definition are targeted to all managed servers.
+To create a SOA domain with SOA and OSB clusters, simply add the OSB template and server group to the SOA domain definition, as shown below.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;SOA&#34;</span>,
+    <span style="color:#f92672">&#34;description&#34;</span>: <span style="color:#e6db74">&#34;SOA type domain definitions&#34;</span>,
+    <span style="color:#f92672">&#34;versions&#34;</span>: {
+        <span style="color:#f92672">&#34;12.2.1.3&#34;</span>: <span style="color:#e6db74">&#34;SOA_12213&#34;</span>
+    },
+    <span style="color:#f92672">&#34;definitions&#34;</span>: {
+        <span style="color:#f92672">&#34;SOA_12213&#34;</span>: {
+            <span style="color:#f92672">&#34;baseTemplate&#34;</span>: <span style="color:#e6db74">&#34;Basic WebLogic Server Domain&#34;</span>,
+            <span style="color:#f92672">&#34;extensionTemplates&#34;</span>: [
+                <span style="color:#e6db74">&#34;Oracle SOA Suite&#34;</span>,
+                <span style="color:#e6db74">&#34;Oracle Service Bus&#34;</span>
+            ],
+            <span style="color:#f92672">&#34;serverGroupsToTarget&#34;</span>: [ <span style="color:#e6db74">&#34;JRF-MAN-SVR&#34;</span>, <span style="color:#e6db74">&#34;WSMPM-MAN-SVR&#34;</span>,  <span style="color:#e6db74">&#34;SOA-MGD-SVRS&#34;</span>,  <span style="color:#e6db74">&#34;OSB-MGD-SVRS-COMBINED&#34;</span> ],
+            <span style="color:#f92672">&#34;dynamicClusterServerGroupsToTarget&#34;</span>: [ <span style="color:#e6db74">&#34;SOA-DYN-CLUSTER&#34;</span> ],
+            <span style="color:#f92672">&#34;rcuSchemas&#34;</span>: [ <span style="color:#e6db74">&#34;STB&#34;</span>, <span style="color:#e6db74">&#34;WLS&#34;</span>, <span style="color:#e6db74">&#34;MDS&#34;</span>, <span style="color:#e6db74">&#34;IAU&#34;</span>, <span style="color:#e6db74">&#34;IAU_VIEWER&#34;</span>, <span style="color:#e6db74">&#34;IAU_APPEND&#34;</span>, <span style="color:#e6db74">&#34;OPSS&#34;</span>, <span style="color:#e6db74">&#34;UCSUMS&#34;</span>, <span style="color:#e6db74">&#34;SOAINFRA&#34;</span> ]
+        }
+    }
+}
+</code></pre></div><p>Then, use the <code>ServerGroupTargetingLimits</code> map in the <code>domainInfo</code> section to limit the targeting of the Web Services Manager, SOA, and OSB server groups to the <code>soa_cluster</code> or <code>osb_cluster</code>, as appropriate.  In the example below, notice that the <code>JRF-MAN-SVR</code> server group is not listed; therefore, it will use the default targeting and be targeted to all managed servers.  The value of each element in this section is a logical list of server and/or cluster names.  As shown in the example, the value for each server group can be specified as a list, a comma-separated string, or a single-valued string.  There is no semantic difference between listing a cluster&rsquo;s member server names versus using the cluster name; the example uses these simply to show what is possible.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
     <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
-    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">dev</span>
+    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">prod</span>
+    <span style="color:#f92672">ServerGroupTargetingLimits</span>:
+        <span style="color:#f92672">&#39;WSMPM-MAN-SVR&#39;</span>: <span style="color:#ae81ff">soa_cluster</span>
+        <span style="color:#f92672">&#39;SOA-MGD-SVRS&#39;</span>: <span style="color:#e6db74">&#39;soa_server1,soa_server2&#39;</span>
+        <span style="color:#f92672">&#39;OSB-MGD-SVRS-COMBINED&#39;</span>: [ <span style="color:#ae81ff">osb_server1, osb_server2 ]</span>
+
 <span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Name</span>: <span style="color:#e6db74">&#34;my-domain&#34;</span>
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#e6db74">&#34;admin-server&#34;</span>
-    <span style="color:#f92672">ProductionModeEnabled</span>: <span style="color:#66d9ef">false</span>
+    <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">soa_domain</span>
+    <span style="color:#f92672">AdminServerName</span>: <span style="color:#ae81ff">AdminServer</span>
+    <span style="color:#f92672">Cluster</span>:
+        <span style="color:#f92672">soa_cluster</span>:
+        <span style="color:#f92672">osb_cluster</span>:
+    <span style="color:#f92672">Server</span>:
+        <span style="color:#f92672">AdminServer</span>:
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">myadmin.example.com</span>
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7001</span>
+            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine1</span>
+            <span style="color:#f92672">SSL</span>:
+                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7002</span>
+        <span style="color:#f92672">soa_server1</span>:
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">managed1.example.com</span>
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8001</span>
+            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">soa_cluster</span>
+            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine2</span>
+            <span style="color:#f92672">SSL</span>:
+                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8002</span>
+        <span style="color:#f92672">soa_server2</span>:
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">managed2.example.com</span>
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8001</span>
+            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">soa_cluster</span>
+            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine3</span>
+            <span style="color:#f92672">SSL</span>:
+                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8002</span>
+        <span style="color:#f92672">osb_server1</span>:
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">managed1.example.com</span>
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9001</span>
+            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">osb_cluster</span>
+            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine2</span>
+            <span style="color:#f92672">SSL</span>:
+                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9002</span>
+        <span style="color:#f92672">osb_server2</span>:
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">managed2.example.com</span>
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9001</span>
+            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">osb_cluster</span>
+            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine3</span>
+            <span style="color:#f92672">SSL</span>:
+                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9002</span>
+    <span style="color:#f92672">UnixMachine</span>:
+        <span style="color:#f92672">machine1</span>:
+            <span style="color:#f92672">NodeManager</span>:
+                <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">myadmin.example.com</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">5556</span>
+        <span style="color:#f92672">machine2</span>:
+            <span style="color:#f92672">NodeManager</span>:
+                <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">managed1.example.com</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">5556</span>
+        <span style="color:#f92672">machine3</span>:
+            <span style="color:#f92672">NodeManager</span>:
+                <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">managed2.example.com</span>
+                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">5556</span>
+    <span style="color:#f92672">SecurityConfiguration</span>:
+        <span style="color:#f92672">NodeManagerUsername</span>: <span style="color:#ae81ff">weblogic</span>
+        <span style="color:#f92672">NodeManagerPasswordEncrypted</span>: <span style="color:#ae81ff">welcome1</span>
+</code></pre></div><h4 id="targeting-dynamic-cluster-server-groups">Targeting Dynamic Cluster Server Groups</h4>
+<p>Dynamic Cluster Server Groups are server groups that can be targeted to dynamic clusters. Dynamic clusters were added in WebLogic Server version 12.1.2.
+In WebLogic Server version 12.2.1.1, the ability to target a single dynamic server group to a dynamic cluster was added. In WebLogic Server Version 12.2.1.4,
+you now have the ability to target multiple dynamic server groups to a dynamic cluster.</p>
+<p>To enable targeting of dynamic server groups to dynamic clusters, add the dynamicClusterServerGroupsToTarget entry with any dynamic server groups you wish to be targeted to the dynamic clusters in your model or domain. This list must only contain one dynamic server group if you are running a version of WebLogic Server earlier than 12.2.1.4.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#f92672">&#34;definitions&#34;</span>: {
+    <span style="color:#f92672">&#34;dynamicClusterServerGroupsToTarget&#34;</span> : [ <span style="color:#e6db74">&#34;WSMPM-DYN-CLUSTER&#34;</span>, <span style="color:#e6db74">&#34;WSM-CACHE-DYN-CLUSTER&#34;</span> ]
+  }
+}
+</code></pre></div><p>If you wish to specify which dynamic server group to target to a dynamic server, add DynamicClusterServerGroupTargetingLimits to the domainInfo of your model. This entry can coexist with managed servers defined in ServerGroupTargetingLimits.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
+    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
+    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">prod</span>
+    <span style="color:#f92672">DynamicClusterServerGroupTargetingLimits</span>:
+        <span style="color:#f92672">&#39;SOA-DYN-CLUSTER&#39;</span>: <span style="color:#e6db74">&#39;soa_dynamic_cluster&#39;</span>
 </code></pre></div>
 
 <footer class="footline">
@@ -1178,7 +1251,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1193,9 +1265,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1213,7 +1282,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1226,7 +1294,6 @@
             
             
                 
-                    
                     
                 
                 
@@ -1243,9 +1310,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1429,6 +1493,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1441,6 +1506,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1586,6 +1654,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1601,6 +1670,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1753,10 +1825,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/samples/ohs-model/" title="Configuring Oracle HTTP Server"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/update/" title="Update Domain Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/samples/wko-model/" title="Using WDT with WebLogic Kubernetes Operator" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

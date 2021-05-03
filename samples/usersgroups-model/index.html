@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="Creates a domain and populates the domain with all the resources and applications specified in the model.">
+    <meta name="description" content="Establishing users, groups, and global roles as part of WebLogic domain creation.">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Create Domain Tool :: WebLogic Deploy Tooling</title>
+    <title>Modeling WebLogic Users, Groups, and Roles :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1620076226" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/create/">
+  <body class="" data-url="/weblogic-deploy-tooling/samples/usersgroups-model/">
     <nav id="sidebar" class="">
 
 
@@ -161,7 +161,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -211,7 +211,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
-        parent
+        
         
         
         ">
@@ -237,7 +237,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools/create/">
         Create Domain Tool
         
@@ -506,7 +506,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/samples/" title="Model Use Cases" class="dd-item
-        
+        parent
         
         
         ">
@@ -637,7 +637,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/samples/usersgroups-model/" title="Modeling WebLogic Users, Groups, and Roles" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/samples/usersgroups-model/" title="Modeling WebLogic Users, Groups, and Roles" class="dd-item active">
         <a href="/weblogic-deploy-tooling/samples/usersgroups-model/">
         Modeling WebLogic Users, Groups, and Roles
         
@@ -1008,13 +1008,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Create Domain Tool
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/samples/'>Model Use Cases</a> > Modeling WebLogic Users, Groups, and Roles
           
         
           
@@ -1031,9 +1025,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#using-an-encrypted-model">Using an Encrypted Model</a></li>
-        <li><a href="#using-multiple-models">Using Multiple Models</a></li>
-        <li><a href="#development-domain-and-bootproperties">Development Domain and <code>boot.properties</code></a></li>
+        <li></li>
       </ul>
     </li>
   </ul>
@@ -1053,44 +1045,55 @@
           
             <h1>
               
-              Create Domain Tool
+              Modeling WebLogic Users, Groups, and Roles
             </h1>
           
 
         
 
 
-<p>The Create Domain Tool uses a model and WLST offline to create a domain.  To use the tool, at a minimum, the model must specify the domain&rsquo;s administrative password in the <code>domainInfo</code> section of the model, as shown below.</p>
+<p>WebLogic Server has the ability to establish a set of users, groups, and global roles as part of the WebLogic domain creation. The WebLogic global roles become part of the WebLogic role mapper (for example, <code>XACMLRoleMapper</code>) and are specified under <code>domainInfo</code> in the <code>WLSRoles</code> section. The users and groups become part of the Embedded LDAP server (for example, <code>DefaultAuthenticator</code>) and are specified under <code>topology</code> in the <code>Security</code> section.</p>
+<h4 id="weblogic-global-roles">WebLogic Global Roles</h4>
+<p>The model allows for the definition of WebLogic roles that can augment the well known WebLogic global roles (for example, <code>Admin</code>, <code>Deployer</code>, <code>Monitor</code>, &hellip;) in addition to defining new roles. When updating the well known WebLogic roles, an <code>UpdateMode</code> can be specified as <code>{ append | prepend | replace }</code> with the default being <code>replace</code> when not specified. Also, when updating the well known roles, the specified <code>Expression</code> will be a logical <code>OR</code> with the default expression. The <code>Expression</code> value for the role is the same as when using the WebLogic <code>RoleEditorMBean</code> for a WebLogic security role mapping provider.</p>
+<p>For example, the <code>WLSRoles</code> section below updates the well known <code>Admin</code>, <code>Deployer</code> and <code>Monitor</code> roles while adding a new global role with <code>Tester</code> as the role name:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
-</code></pre></div><p>Using the model above, simply run the <code>createDomain</code> tool, specifying the type of domain to create and where to create it.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml
-</code></pre>
-<p>Clearly, creating an empty domain with only the template-defined servers is not very interesting, but this example just reinforces how sparse the model can be.  When running the Create Domain Tool, the model must be provided either inside the archive file or as a standalone file.  If both the archive and model files are provided, the model file outside the archive will take precedence over any that might be inside the archive.  If the archive file is not provided, the Create Domain Tool will create the <code>topology</code> section only (using the <code>domainInfo</code> section) of the model in the domain.  This is because the <code>resources</code> and <code>appDeployments</code> sections of the model can reference files from the archive so to create the domain with the model-defined resources and applications, an archive file must be provided&ndash;even if the model does not reference anything in the archive.  At some point in the future, this restriction may be relaxed to require the archive only if it is actually needed.</p>
-<p>The Create Domain Tool understands three domain types: <code>WLS</code>, <code>RestrictedJRF</code>, and <code>JRF</code>.  When specifying the domain type, the Oracle Home must match the requirements for the domain type.  Both <code>RestrictedJRF</code> and <code>JRF</code> require an Oracle Home with the FMW Infrastucture (also known as JRF) installed.  When creating a JRF domain, the RCU database information must be provided as arguments to the <code>createDomain</code> script.  Note that the tool will prompt for any passwords required.  Optionally, they can be piped to standard input (for example, <code>stdin</code>) of the script, to make the script run without user input.  For example, the command to create a JRF domain looks like the one below.  Note that this requires the user to have run RCU prior to running the command.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO [-rcu_db_user SYS]
-</code></pre>
-<p>To have the Create Domain Tool run RCU, simply add the <code>-run_rcu</code> argument to the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!</p>
-<p>It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to <a href="/weblogic-deploy-tooling/rcuinfo/">Specifying RCU connection information in the model</a>.</p>
-<p>To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to <a href="/weblogic-deploy-tooling/reference/tool_configuration/#domain-type-definitions">Domain Type Definitions</a>.</p>
-<h3 id="using-an-encrypted-model">Using an Encrypted Model</h3>
-<p>If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the <code>-use_encryption</code> flag on the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, <code>stdin</code>) to allow the tool to run without any user input.</p>
-<h3 id="using-multiple-models">Using Multiple Models</h3>
-<p>The Create Domain Tool supports the use of multiple models, as described in <a href="/weblogic-deploy-tooling/concepts/model/#using-multiple-models">Using Multiple Models</a>.</p>
-<h3 id="development-domain-and-bootproperties">Development Domain and <code>boot.properties</code></h3>
-<p>When creating a development domain, WDT provides the convenience of making a <code>boot.properties</code> file for each of the servers in the domain. The <code>boot.properties</code> file will contain encrypted values of the Administration Server user name and password. When the Administration Server or Managed Server is started, WebLogic Server will bypass the prompt for credentials, and instead use the credentials from the <code>boot.properties</code> file.</p>
-<p>A domain is in production mode if the <code>ServerStartMode</code> option is set to <code>prod</code> or the domain <code>ProductionModeEnabled</code> is set to <code>true</code>. The default value for both of these attributes is development mode.</p>
-<p>The <code>boot.properties</code> file is stored in the domain home on the machine where WDT runs. It is stored for each server as <code>&lt;domain_home&gt;/servers/&lt;server_name&gt;/security/boot.properties</code>.</p>
-<p>The following is a model example with both attributes explicitly set to development mode.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
-    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">dev</span>
-<span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Name</span>: <span style="color:#e6db74">&#34;my-domain&#34;</span>
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#e6db74">&#34;admin-server&#34;</span>
-    <span style="color:#f92672">ProductionModeEnabled</span>: <span style="color:#66d9ef">false</span>
-</code></pre></div>
+  <span style="color:#f92672">WLSRoles</span>:
+    <span style="color:#f92672">Admin</span>:
+      <span style="color:#f92672">UpdateMode</span>: <span style="color:#ae81ff">append</span>
+      <span style="color:#f92672">Expression</span>: <span style="color:#e6db74">&#34;?weblogic.entitlement.rules.IDCSAppRoleName(AppAdmin,@@PROP:AppName@@)&#34;</span>
+    <span style="color:#f92672">Deployer</span>:
+      <span style="color:#f92672">UpdateMode</span>: <span style="color:#ae81ff">replace</span>
+      <span style="color:#f92672">Expression</span>: <span style="color:#e6db74">&#34;?weblogic.entitlement.rules.AdministrativeGroup(@@PROP:Deployers@@)&#34;</span>
+    <span style="color:#f92672">Monitor</span>:
+      <span style="color:#f92672">UpdateMode</span>: <span style="color:#ae81ff">prepend</span>
+      <span style="color:#f92672">Expression</span>: <span style="color:#e6db74">&#34;?weblogic.entitlement.rules.AdministrativeGroup(AppMonitors)&#34;</span>
+    <span style="color:#f92672">Tester</span>:
+      <span style="color:#f92672">Expression</span>: <span style="color:#e6db74">&#34;?weblogic.entitlement.rules.IDCSAppRoleName(AppTester,@@PROP:AppName@@)&#34;</span>
+</code></pre></div><p>The <code>Admin</code> role will have the expression appended to the default expression, the <code>Deployer</code> role expression will replace the default, the <code>Monitor</code> role expression will be prepended to the default expression and <code>Tester</code> will be a new role with the specified expression.</p>
+<p>In addition, the <code>Expression</code> value can use the variable placeholder syntax specified when running the <a href="/weblogic-deploy-tooling/userguide/tools/create/">Create Tool</a> as shown in the above example.</p>
+<h4 id="weblogic-users-and-groups">WebLogic Users and Groups</h4>
+<p>The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP Server (for example, <code>DefaultAuthenticator</code>). New groups can be specified and users can be added as members of the new groups or existing groups such as the <code>Administrators</code> group which is defaulted to be in the WebLogic <code>Admin</code> global role. Please see Known Limitations below for additional information on users and groups.</p>
+<p>The user password can be specified with a placeholder or encrypted with the <a href="/weblogic-deploy-tooling/userguide/tools/encrypt/">Encrypt Tool</a>. An example <code>Security</code> section that adds an additional group <code>AppMonitors</code>, adds two new users and places the users into groups is as follows:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
+  <span style="color:#f92672">Security</span>:
+    <span style="color:#f92672">Group</span>:
+      <span style="color:#f92672">AppMonitors</span>:
+        <span style="color:#f92672">Description</span>: <span style="color:#ae81ff">Application Monitors</span>
+    <span style="color:#f92672">User</span>:
+      <span style="color:#f92672">john</span>:
+         <span style="color:#f92672">Password</span>: <span style="color:#ae81ff">welcome1</span>
+         <span style="color:#f92672">GroupMemberOf</span>: [ <span style="color:#ae81ff">AppMonitors, Administrators ]</span>
+      <span style="color:#f92672">joe</span>:
+         <span style="color:#f92672">Password</span>: <span style="color:#ae81ff">welcome1</span>
+         <span style="color:#f92672">GroupMemberOf</span>: [ <span style="color:#ae81ff">AppMonitors ]</span>
+</code></pre></div><h4 id="known-limitations">Known Limitations</h4>
+<ul>
+<li>The processing of users, groups, and roles will only take place when using the <a href="/weblogic-deploy-tooling/userguide/tools/create/">Create Domain Tool</a>.</li>
+<li>WebLogic global roles are only supported with WebLogic Server version 12.2.1 or greater.</li>
+<li>WebLogic global roles are only updated for the WebLogic security XACML role mapping provider (for example, <code>XACMLRoleMapper</code>).</li>
+<li>The user and group processing is not complete, currently, users cannot be assigned to groups. Users created using the <code>Security</code> section are automatically added to the <code>Administrators</code> group and are not added to the groups specified. See <a href="/weblogic-deploy-tooling/release-notes/#assigning-security-groups-to-users">Known Issues</a> for information about a patch for this issue.</li>
+</ul>
+
 
 <footer class="footline">
 	
@@ -1178,7 +1181,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1193,9 +1195,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1213,7 +1212,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1226,7 +1224,6 @@
             
             
                 
-                    
                     
                 
                 
@@ -1243,9 +1240,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1429,6 +1423,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1441,6 +1436,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1522,6 +1520,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1537,6 +1536,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1753,10 +1755,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/samples/securityproviders-model/" title="Modeling Security Providers"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/update/" title="Update Domain Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/samples/pwcredentialmap-model/" title="Modeling WebLogic User Password Credential Mapping" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

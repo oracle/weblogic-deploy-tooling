@@ -1,19 +1,119 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Samples on WebLogic Deploy Tooling</title>
+    <title>Model Use Cases on WebLogic Deploy Tooling</title>
     <link>https://oracle.github.io/weblogic-deploy-tooling/samples/</link>
-    <description>Recent content in Samples on WebLogic Deploy Tooling</description>
+    <description>Recent content in Model Use Cases on WebLogic Deploy Tooling</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:54 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/samples/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Model Use Cases</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/use_cases/</link>
+      <title>Customizing the Administration Server</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/adminserver-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/use_cases/</guid>
-      <description>Contents  Customizing the Administration Server Modeling a Configured Cluster Modeling a JDBC Data Source Modeling a Work Manager Modeling Security Providers Modeling WebLogic Users, Groups, and Roles Modeling WebLogic User Password Credential Mapping Modeling ODL Modeling Oracle HTTP Server (OHS) Targeting Server Groups Using WDT with WebLogic Kubernetes Operator  Administration Server Configuration The Create Domain Tool lets you configure the Administration Server using a domain model. These examples show how some common configurations can be represented in the model.</description>
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/adminserver-model/</guid>
+      <description>Administration Server configuration The Create Domain Tool lets you configure the Administration Server using a domain model. These examples show how some common configurations can be represented in the model.
+Using the default Administration Server configuration When the Create Domain Tool is run, the templates associated with your domain type will automatically create an Administration Server named AdminServer, with default values for all the attributes. If you don&amp;rsquo;t need to change any of these attributes, such as ListenAddress or ListenPort, or any of the sub-folders, such as SSL or ServerStart, nothing needs to be added to the model.</description>
+    </item>
+    
+    <item>
+      <title>Modeling a Configured Cluster</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/cluster-model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/cluster-model/</guid>
+      <description>This WDT domain model sample has a typical configuration for a configured cluster with a single managed server, including connection information, logging setup, and other details.
+topology: Cluster: &amp;#39;cluster-1&amp;#39;: ClientCertProxyEnabled: true AutoMigrationTableName: MIGRATION_1 DataSourceForAutomaticMigration: &amp;#39;jdbc-1&amp;#39; ClusterMessagingMode: unicast FrontendHost: frontend.com FrontendHTTPPort: 9001 FrontendHTTPSPort: 9002 MigrationBasis: database NumberOfServersInClusterAddress: 5 WeblogicPluginEnabled: true Server: &amp;#39;server-1&amp;#39;: Cluster: &amp;#39;cluster-1&amp;#39; # this server belongs to cluster-1 ListenAddress: 127.0.0.1 ListenPort: 8001 Machine: &amp;#39;machine-1&amp;#39; Log: DomainLogBroadcastSeverity: Error FileCount: 7 FileMinSize: 5000 FileName: &amp;#39;logs/AdminServer.</description>
+    </item>
+    
+    <item>
+      <title>Modeling a JDBC Data Source</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/jdbc-model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/jdbc-model/</guid>
+      <description>This WDT domain model sample section has a typical configuration for a JDBC data source, including targeting information, connection pool parameters, and other details.
+resources: JDBCSystemResource: &amp;#39;datasource-1&amp;#39;: Target: &amp;#39;AdminServer,cluster-1&amp;#39; JdbcResource: DatasourceType: GENERIC JDBCConnectionPoolParams: ConnectionReserveTimeoutSeconds: 10 InitialCapacity: 0 MaxCapacity: 5 MinCapacity: 0 TestConnectionsOnReserve: true TestTableName: SQL ISVALID JDBCDriverParams: DriverName: oracle.jdbc.OracleDriver PasswordEncrypted: &amp;#39;@@PROP:jdbc.password@@&amp;#39; URL: &amp;#39;jdbc:oracle:thin:@//localhost:1521/myDB&amp;#39; Properties: user: Value: scott There are additional sub-folders and attributes available for more configuration options. These can be determined using the Model Help Tool.</description>
+    </item>
+    
+    <item>
+      <title>Modeling a Work Manager</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/workmanager-model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/workmanager-model/</guid>
+      <description>This WDT domain model sample section has typical configurations for a Work Manager and its related request classes and constraints. These elements are configured in the SelfTuning folder in the resources section of the model.
+resources: SelfTuning: Capacity: capacity40: Target: &amp;#39;cluster-1&amp;#39; Count: 40 MaxThreadsConstraint: threeMax: Target: &amp;#39;cluster-1&amp;#39; Count: 3 MinThreadsConstraint: twoMin: Target: &amp;#39;cluster-1&amp;#39; Count: 2 FairShareRequestClass: appFairShare: Target: &amp;#39;cluster-1&amp;#39; FairShare: 50 highFairshare: Target: &amp;#39;cluster-1&amp;#39; FairShare: 80 lowFairshare: Target: &amp;#39;cluster-1&amp;#39; FairShare: 20 ResponseTimeRequestClass: fiveSecondResponse: Target: &amp;#39;cluster-1&amp;#39; GoalMs: 5000 ContextRequestClass: appContextRequest: Target: &amp;#39;cluster-1&amp;#39; ContextCase: Case1: GroupName: Administrators RequestClassName: highFairshare Target: &amp;#39;cluster-1&amp;#39; Case2: UserName: weblogic RequestClassName: lowFairshare Target: &amp;#39;cluster-1&amp;#39; WorkManager: myWorkManager: Capacity: capacity40 ContextRequestClass: appContextRequest # FairShareRequestClass: appFairShare IgnoreStuckThreads: true MaxThreadsConstraint: threeMax MinThreadsConstraint: twoMin # ResponseTimeRequestClass: fiveSecondResponse Target: &amp;#39;cluster-1&amp;#39; In this sample, assignments for FairShareRequestClass and ResponseTimeRequestClass are included as comments under myWorkManager.</description>
+    </item>
+    
+    <item>
+      <title>Modeling Security Providers</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/securityproviders-model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/securityproviders-model/</guid>
+      <description>WebLogic Server security configuration requires special handling and causes the need for the model semantics to differ from other folders. Because provider ordering is important, and to make sure that the ordering is correctly set in the newly created domain, the Create Domain Tool and Update Domain Tool require that all providers be specified in the model for any provider type that will be created or altered. For example, if you want to change one of the providers in the provider type AuthenticationProvider, your model must specify all of the AuthenticationProvider providers and any non-default attributes for those providers.</description>
+    </item>
+    
+    <item>
+      <title>Modeling WebLogic Users, Groups, and Roles</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/usersgroups-model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/usersgroups-model/</guid>
+      <description>WebLogic Server has the ability to establish a set of users, groups, and global roles as part of the WebLogic domain creation. The WebLogic global roles become part of the WebLogic role mapper (for example, XACMLRoleMapper) and are specified under domainInfo in the WLSRoles section. The users and groups become part of the Embedded LDAP server (for example, DefaultAuthenticator) and are specified under topology in the Security section.
+WebLogic Global Roles The model allows for the definition of WebLogic roles that can augment the well known WebLogic global roles (for example, Admin, Deployer, Monitor, &amp;hellip;) in addition to defining new roles.</description>
+    </item>
+    
+    <item>
+      <title>Modeling WebLogic User Password Credential Mapping</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/pwcredentialmap-model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/pwcredentialmap-model/</guid>
+      <description>The Create Domain Tool can be used to create user password credential mappings for use with the DefaultCredentialMapper security provider. Information in the model will be used to create a credential mapping file that will be imported the first time the Administration Server is started. This example shows how mappings are represented in the model:
+domainInfo: WLSUserPasswordCredentialMappings: CrossDomain: map1: RemoteDomain: otherDomain RemoteUser: otherUser RemotePassword: &amp;#39;@@PROP:other.pwd@@&amp;#39; RemoteResource: map2: Protocol: http RemoteHost: remote.</description>
+    </item>
+    
+    <item>
+      <title>Configuring Oracle Diagnostic Logging</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/odl-model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/odl-model/</guid>
+      <description>Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tools, starting with WDT release 1.5.2. ODL configuration is only supported for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool. This example shows how some common configuration elements can be represented in the model.
+resources: ODLConfiguration: config1: Servers: &amp;#34;m1, m2&amp;#34; AddJvmNumber: true HandlerDefaults: abc: r123 xyz: k890 Handler: &amp;#39;my-handler&amp;#39;: Class: &amp;#39;com.</description>
+    </item>
+    
+    <item>
+      <title>Configuring Oracle HTTP Server</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/ohs-model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/ohs-model/</guid>
+      <description>Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.
+Prerequisites In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS here.
+The OHS template must be present in the WDT domain type definition file used to create or update the domain.</description>
+    </item>
+    
+    <item>
+      <title>Targeting Server Groups</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/targetservers-model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/targetservers-model/</guid>
+      <description>To create more complex domains with clusters of different types, it is necessary to control the targeting of server groups to managed servers. By default, all server groups in the domain type definition are targeted to all managed servers. To create a SOA domain with SOA and OSB clusters, simply add the OSB template and server group to the SOA domain definition, as shown below.
+{ &amp;#34;name&amp;#34;: &amp;#34;SOA&amp;#34;, &amp;#34;description&amp;#34;: &amp;#34;SOA type domain definitions&amp;#34;, &amp;#34;versions&amp;#34;: { &amp;#34;12.</description>
+    </item>
+    
+    <item>
+      <title>Using WDT with WebLogic Kubernetes Operator</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/wko-model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/wko-model/</guid>
+      <description>For details, see the Extract Domain Resource Tool.</description>
     </item>
     
   </channel>
