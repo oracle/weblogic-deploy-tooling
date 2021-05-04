@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tools configuration on WebLogic Deploy Tooling</title>
+    <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/</link>
+    <description>Recent content in Tools configuration on WebLogic Deploy Tooling</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 22 Feb 2019 15:27:54 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Model filters</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/model_filters/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/model_filters/</guid>
+      <description>WebLogic Deploy Tooling supports the use of model filters to manipulate the domain model. The Create Domain, Update Domain, and Deploy Applications Tool apply filters to the model after it is read, before it is validated and applied to the domain. The Discover Domain Tool applies filters to the model after it has been discovered, before the model is validated and written.
+Model filters are written in Jython, and must be compatible with the version used in the corresponding version of WLST.</description>
+    </item>
+    
+    <item>
+      <title>Domain type definitions</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/domain_def/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/domain_def/</guid>
+      <description>WebLogic Deploy Tooling has an extensible domain type system. The three built-in domain types (WLS, RestrictedJRF, and JRF) are defined in JSON files of the same name in the WLSDEPLOY_HOME/lib/typedefs directory. For example, the JRF domain type is defined in the WLSDEPLOY_HOME/lib/typedefs/JRF.json file with similar content, as shown below.
+{ &amp;#34;copyright&amp;#34;: &amp;#34;Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.&amp;#34;, &amp;#34;license&amp;#34;: &amp;#34;Licensed under the Universal Permissive License v 1.0 as shown at https://oss.</description>
+    </item>
+    
+    <item>
+      <title>Custom configuration</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/custom_config/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/custom_config/</guid>
+      <description>WDT allows you to create or extend the pre-installed type definitions, model filters, variable injectors, and target environments. Starting with WDT 1.10.0, these additional configuration files can be stored outside the $WLSDEPLOY_HOME/lib directory. This allows the files to remain in place if the WDT installation is moved or upgraded to a new version.
+To use a separate configuration directory, set the WDT_CUSTOM_CONFIG environment variable to the directory to be used for configuration.</description>
+    </item>
+    
+    <item>
+      <title>Tool property file</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/tool_prop/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/tool_prop/</guid>
+      <description>You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as &amp;lt;weblogic-deploy&amp;gt;/lib/tool.properties. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the tool.properties file in the $WDT_CUSTOM_CONFIG directory.
+If a property is removed from the file, or a property value is incorrectly formatted, a WARNING message is logged and an internal default value used instead of the missing or bad value.</description>
+    </item>
+    
+  </channel>
+</rss>

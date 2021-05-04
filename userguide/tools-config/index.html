@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="A model for configuring Oracle Diagnostic Logging (ODL).">
+    <meta name="description" content="">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Configuring Oracle Diagnostic Logging :: WebLogic Deploy Tooling</title>
+    <title>Tools configuration :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1620166122" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/samples/odl-model/">
+  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools-config/">
     <nav id="sidebar" class="">
 
 
@@ -161,7 +161,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        
+        parent
         
         
         ">
@@ -499,8 +499,8 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/" title="Tools configuration" class="dd-item
-        
-        
+        parent
+        active
         
         ">
       <a href="/weblogic-deploy-tooling/userguide/tools-config/">
@@ -626,7 +626,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/samples/" title="Samples" class="dd-item
-        parent
+        
         
         
         ">
@@ -799,7 +799,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/samples/odl-model/" title="Configuring Oracle Diagnostic Logging" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/samples/odl-model/" title="Configuring Oracle Diagnostic Logging" class="dd-item ">
         <a href="/weblogic-deploy-tooling/samples/odl-model/">
         Configuring Oracle Diagnostic Logging
         
@@ -1073,7 +1073,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/samples/'>Samples</a> > Configuring Oracle Diagnostic Logging
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > Tools configuration
           
         
           
@@ -1102,60 +1102,20 @@
           
             <h1>
               
-              Configuring Oracle Diagnostic Logging
+              Tools configuration
             </h1>
           
 
         
 
 
-<p>Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tool, starting with WDT release 1.5.2.
-ODL configuration is supported only for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool.
-This example shows how some common configuration elements can be represented in the model.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">resources</span>:
-    <span style="color:#f92672">ODLConfiguration</span>:
-        <span style="color:#f92672">config1</span>:
-            <span style="color:#f92672">Servers</span>: <span style="color:#e6db74">&#34;m1, m2&#34;</span>
-            <span style="color:#f92672">AddJvmNumber</span>: <span style="color:#66d9ef">true</span>
-            <span style="color:#f92672">HandlerDefaults</span>:
-                <span style="color:#f92672">abc</span>: <span style="color:#ae81ff">r123</span>
-                <span style="color:#f92672">xyz</span>: <span style="color:#ae81ff">k890</span>
-            <span style="color:#f92672">Handler</span>:
-                <span style="color:#f92672">&#39;my-handler&#39;</span>:
-                    <span style="color:#f92672">Class</span>: <span style="color:#e6db74">&#39;com.my.MyHandler&#39;</span>
-                    <span style="color:#f92672">Level</span>: <span style="color:#e6db74">&#39;TRACE:32&#39;</span>
-                    <span style="color:#f92672">ErrorManager</span>: <span style="color:#e6db74">&#39;com.my.MyErrorManager&#39;</span>
-                    <span style="color:#f92672">Filter</span>: <span style="color:#e6db74">&#39;com.my.MyFilter&#39;</span>
-                    <span style="color:#f92672">Formatter</span>: <span style="color:#e6db74">&#39;com.my.MyFormatter&#39;</span>
-                    <span style="color:#f92672">Encoding</span>: <span style="color:#e6db74">&#39;UTF-8&#39;</span>
-                    <span style="color:#f92672">Properties</span>:
-                        <span style="color:#f92672">&#39;path&#39;</span>: <span style="color:#e6db74">&#39;/home/me/mypath&#34;
-</span><span style="color:#e6db74">                &#39;</span><span style="color:#f92672">quicktrace-handler&#39;</span>:
-                    <span style="color:#f92672">Filter</span>: <span style="color:#e6db74">&#39;oracle:dfw:incident:IncidentDetectionLogFilter&#39;</span>
-                    <span style="color:#f92672">Properties</span>:
-                        <span style="color:#f92672">path</span>: <span style="color:#e6db74">&#39;${domain.home}/servers/${weblogic.Name}/logs/${weblogic.Name}-myhistory.log&#39;</span>
-                        <span style="color:#f92672">useSourceClassandMethod</span>: <span style="color:#e6db74">&#39;true&#39;</span>
-            <span style="color:#f92672">Logger</span>:
-                <span style="color:#f92672">&#39;my-logger&#39;</span>:
-                    <span style="color:#f92672">Level</span>: <span style="color:#e6db74">&#39;NOTIFICATION:1&#39;</span>
-                    <span style="color:#f92672">UseParentHandlers</span>: <span style="color:#66d9ef">true</span>
-                    <span style="color:#f92672">Filter</span>: <span style="color:#e6db74">&#39;oracle:dfw:incident:IncidentDetectionLogFilter&#39;</span>
-                    <span style="color:#f92672">Handlers</span>: <span style="color:#e6db74">&#39;richard-handler,owsm-message-handler&#39;</span>
-                <span style="color:#f92672">&#39;oracle.sysman&#39;</span>:
-                    <span style="color:#f92672">Handlers</span>: [
-                        <span style="color:#e6db74">&#39;my-handler&#39;</span>,
-                        <span style="color:#e6db74">&#39;owsm-message-handler&#39;</span>
-                    ]
-        <span style="color:#f92672">config2</span>:
-            <span style="color:#f92672">Servers</span>: <span style="color:#e6db74">&#39;AdminServer&#39;</span>
-            <span style="color:#f92672">HandlerDefaults</span>:
-                <span style="color:#f92672">path</span>: <span style="color:#e6db74">&#39;/home/me/otherpath&#39;</span>
-                <span style="color:#f92672">maxFileSize</span>: <span style="color:#ae81ff">5242880</span>
-</code></pre></div><p>Each named ODL configuration (such as <code>config1</code>) is updated for each of the managed servers in the <code>Servers</code> list. Handlers and loggers that exist in the current configuration are updated, and any new ones are created and updated.</p>
-<p>Unlike other WDT model elements, ODL configuration is not updated using WLST MBeans. The configuration is written directly to the file system, in the file <code>&lt;domain_home&gt;/config/fmwconfig/servers/&lt;server&gt;/logging.xml</code>.</p>
+
+	
 
 
-<footer class="footline">
+
+
+<footer class=" footline" >
 	
 </footer>
 
@@ -1241,12 +1201,45 @@ This example shows how some common configuration elements can be represented in 
             
                 
                     
+                    
                 
                 
 
                     
                     
                         
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
                     
                     
 
@@ -1263,6 +1256,272 @@ This example shows how some common configuration elements can be represented in 
                     
                     
 
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
                     
             
         
@@ -1412,305 +1671,6 @@ This example shows how some common configuration elements can be represented in 
             
             
                 
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
                     
                 
                 
@@ -1863,10 +1823,10 @@ This example shows how some common configuration elements can be represented in 
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/samples/pwcredentialmap-model/" title="Modeling WebLogic user password credential mapping"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/target_env/" title="Target environments"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/samples/ohs-model/" title="Configuring Oracle HTTP Server" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/" title="Model filters" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -1898,4 +1858,3 @@ This example shows how some common configuration elements can be represented in 
 
   </body>
 </html>
-
