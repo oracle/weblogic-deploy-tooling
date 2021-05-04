@@ -29,9 +29,9 @@ from wlsdeploy.tool.create import wlsroles_helper
 class ValidationTestCase(unittest.TestCase):
     _program_name = 'validation_test'
     _class_name = 'ValidationTestCase'
-    _resources_dir = '..' + os.sep + '..' + os.sep + 'test-classes'
+    _resources_dir = '../../test-classes'
     # Model persistence file
-    _wlsdeply_store_model = os.path.join(os.path.abspath(os.getcwd()), _resources_dir, 'validate-mii-model.json')
+    _wlsdeply_store_model = os.path.abspath(os.getcwd()) + '/' + _resources_dir + '/validate-mii-model.json'
     # _variable_file = _resources_dir + "/test_sub_variable_file.properties"
     # _model_file = _resources_dir + '/test_empty.json'
     # _variable_file = _resources_dir + "/test_invalid_variable_file.properties"
