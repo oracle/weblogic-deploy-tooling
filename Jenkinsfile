@@ -109,7 +109,7 @@ pipeline {
                 }
             }
             // after all sets are complete, the job will continue here.
-            Stage('Save reports') {
+            stage('Save reports') {
                 post {
                    always {
                      archiveArtifacts artifacts: 'report*', fingerprint: true
