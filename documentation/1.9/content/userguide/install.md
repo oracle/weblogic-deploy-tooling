@@ -5,7 +5,7 @@ draft: false
 weight: 1
 ---
 
-#### Download and Install the Software
+#### Download and install the software
 
 The WebLogic Deploy Tooling project repository is located at [`https://github.com/oracle/weblogic-deploy-tooling`](https://github.com/oracle/weblogic-deploy-tooling).  
 Binary distributions of the `weblogic-deploy.zip` installer can be downloaded from the [GitHub Releases page](https://github.com/oracle/weblogic-deploy-tooling/releases).  
@@ -13,13 +13,13 @@ Binary distributions of the `weblogic-deploy.zip` installer can be downloaded fr
 1. To install the software, simply unzip the `weblogic-deploy.zip` installer on a machine that has the desired versions of WebLogic Server installed.  
 1. After being unzipped, the software is ready to use, just set the `JAVA_HOME` environment variable to point to a Java 7 or higher JDK  and the shell scripts are ready to run.
 
-#### Supported WLS Versions
+#### Supported WLS versions
 
 The following table specifies the supported WebLogic Server versions, along with the JDK versions, that must be used to run the WDT tool. You must set the `JAVA_HOME` environment variable to specify a JDK version different from the system default version.
 
  To create a domain with the proper JDK (particularly if the `JAVA_HOME` is different from the one which will be used by the target domain), set the domain `JavaHome` attribute in the domain model.
 
-{{% notice note %}} The WDT Encryption Model Tool used to encrypt and decrypt clear text passwords in the model and variable files, requires WDT to run with a minimum JDK version of 1.8.
+{{% notice note %}} The Encryption Model Tool used to encrypt and decrypt clear text passwords in the model and variable files, requires WDT to run with a minimum JDK version of 1.8.
 {{% /notice %}}
 
   | WebLogic Server Version | Tool JDK Version |

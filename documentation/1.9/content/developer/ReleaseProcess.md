@@ -22,7 +22,7 @@ This document describes the process that should be followed to create a WebLogic
   </servers>
 ```
 
-### Software Release Process
+### Software release process
 The best practice is to write the release notes that will be published to GitHub prior to starting the steps below.
 
 1. Set (and export) the environment variable `WLST_DIR` to `<WLS-install-dir>/oracle_common/common/bin`, replacing `<WLS-install-dir>` with the full path to the WLS 12.2.1.x installation directory.
@@ -38,7 +38,7 @@ developmentVersion=1.9.12-SNAPSHOT
 4. If the build fails, run the `mvn -B -P release release:rollback` command to undo it and start over from Step 2., after correcting the issue.
 5. After the software has been released, move on to the GitHub Release Process.
 
-### GitHub Release Process
+### GitHub release process
 Note that this process relies on the WDT installers being in your local Maven repository.  As such, it is critical for the same user to run these steps on the same machine as the steps from the previous section!
 
 1. Save the release notes in the file `<wdt-project-directory>/target/ReleaseNotes.md`.

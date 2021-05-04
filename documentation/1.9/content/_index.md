@@ -50,9 +50,9 @@ See the [Release Notes]({{< relref "/release-notes.md" >}}) for known issues and
 This documentation includes sections targeted to different audiences:
 
 * [Concepts]({{< relref "/concepts/" >}}) explains the underlying metadata models and archive files.
-* The [User guide]({{< relref "/userguide/" >}}) contains detailed usage information, including how to install and configure WebLogic Deploy Tooling, and how to use each tool.
+* The [User Guide]({{< relref "/userguide/" >}}) contains detailed usage information, including how to install and configure WebLogic Deploy Tooling, and how to use each tool.
 * The [Samples]({{< relref "/samples/" >}}) provide informative use case scenarios.
-* The [Developer guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WDT is built, its features mapped and implemented.
+* The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WDT is built, its features mapped and implemented.
 
 ### Related projects
 

@@ -7,8 +7,8 @@ description: "A model for configuring Oracle Diagnostic Logging (ODL)."
 ---
 
 
-Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tools, starting with WDT release 1.5.2.
-ODL configuration is only supported for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool.
+Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tool, starting with WDT release 1.5.2.
+ODL configuration is supported only for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool.
 This example shows how some common configuration elements can be represented in the model.
 
 ```yaml

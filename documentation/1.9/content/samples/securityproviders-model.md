@@ -99,7 +99,7 @@ description: "Special handling and model semantics for WebLogic Server security 
                          DefaultIdentityAsserter:
 
  ```
- #### Trust Service Identity Asserter
+ #### Trust service identity asserter
 
 {{% notice note %}} The Trust Identity Asserter Security Provider is installed by JRF in 12c versions and newer.
 {{% /notice %}}
@@ -117,7 +117,7 @@ description: "Special handling and model semantics for WebLogic Server security 
  For FMW versions 12.1.2 and 12.1.3, replace `oracle.jps` in the example path above with:
  oracle.jps_12.1.2, or oracle.jps_12.1.3, respectively.
 
- #### Custom Security Providers
+ #### Custom security providers
 
 {{% notice note %}} Creating and updating domains with custom security providers is limited to WebLogic version 12.1.2 and newer.
 {{% /notice %}}
@@ -136,7 +136,7 @@ description: "Special handling and model semantics for WebLogic Server security 
                      CredentialMappingDeploymentEnabled: true:
  ```
 
- #### Known Limitations
+ #### Known limitations
 
  - `Adjudicator` provider types cannot be added or modified due to a limitation in WLST.
  - `PasswordCredentials` provider types cannot be updated in WLST online.

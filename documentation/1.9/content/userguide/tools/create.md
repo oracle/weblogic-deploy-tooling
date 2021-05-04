@@ -28,17 +28,17 @@ To have the Create Domain Tool run RCU, simply add the `-run_rcu` argument to th
 
 It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to [Specifying RCU connection information in the model]({{< relref "/content/rcuinfo.md" >}}).
 
-To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to [Domain Type Definitions]({{< relref "/reference/tool_configuration#domain-type-definitions" >}}).
+To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to [Domain type definitions]({{< relref "/reference/tool_configuration#domain-type-definitions" >}}).
 
-### Using an Encrypted Model
+### Using an encrypted model
 
 If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the `-use_encryption` flag on the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input.
 
-### Using Multiple Models
+### Using multiple models
 
-The Create Domain Tool supports the use of multiple models, as described in [Using Multiple Models]({{< relref "/concepts/model#using-multiple-models" >}}).
+The Create Domain Tool supports the use of multiple models, as described in [Using multiple models]({{< relref "/concepts/model#using-multiple-models" >}}).
 
-### Development Domain and `boot.properties`
+### Development domain and `boot.properties`
 
 When creating a development domain, WDT provides the convenience of making a `boot.properties` file for each of the servers in the domain. The `boot.properties` file will contain encrypted values of the Administration Server user name and password. When the Administration Server or Managed Server is started, WebLogic Server will bypass the prompt for credentials, and instead use the credentials from the `boot.properties` file.
 

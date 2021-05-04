@@ -49,7 +49,7 @@ domainInfo:
         rcu_variables : 'xxxx'
 ```    
 
-**Note: Prior to release 0.23, the useATP flag only accepts values of 0, 1, 'true' or 'false'.**
+**Note: Prior to release 0.23, the `useATP` flag only accepts values of 0, 1, 'true' or 'false'.**
 
 When creating a domain using WDT and the -run_rcu option, you can specify your extended XML files in the RCUDbInfo section.
 

@@ -7,9 +7,9 @@ weight: 2
 
 
 The [Discover Domain]({{< relref "/userguide/tools/discover.md" >}}) and [Prepare Model]({{< relref "/userguide/tools/prepare.md" >}}) Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
-- Using model tokens for some attributes in the model. See [Model Tokens]({{< relref "/concepts/model#model-tokens" >}}).
+- Using model tokens for some attributes in the model. See [Model tokens]({{< relref "/concepts/model#model-tokens" >}}).
 - Using Kubernetes secrets for credentials in the model.
-- Applying filters to the model. See [Model Filters]({{< relref "/reference/tool_configuration#model-filters" >}}).
+- Applying filters to the model. See [Model filters]({{< relref "/reference/tool_configuration#model-filters" >}}).
 - Creating additional configuration files for the target system.
 
 ### Specifying a target environment
@@ -24,7 +24,7 @@ This example would apply the `k8s` target type to the discovery result, and plac
 
 If a variable file is specified on the tool's command line using the `-variable_file` argument, any injected variables will be added to that file. If no variable file is specified, injected variables will be written to the file `<output-directory>/<target_name>_variable.properties`.
 
-### The Target Configuration File
+### The target configuration file
 
 A target environment is configured in a JSON file at this location:
 ```
@@ -34,7 +34,7 @@ The `<target-name>` value corresponds to the value of the `-target` argument on 
  - [Weblogic Kubernetes Operator](#the-weblogic-kubernetes-operator-target) (named `k8s`)
  - [Verrazzano](#the-verrazzano-target) (named `vz`)
 
-You can define a new or extended target environment with a new `target-name` in the above location, or using a [Custom Configuration]({{< relref "/reference/tool_configuration#custom-configuration" >}}) directory, such as `$WDT_CUSTOM_CONFIG/target/<my-target-name>/target.json`.
+You can define a new or extended target environment with a new `target-name` in the above location, or using a [Custom configuration]({{< relref "/reference/tool_configuration#custom-configuration" >}}) directory, such as `$WDT_CUSTOM_CONFIG/target/<my-target-name>/target.json`.
 
 Here is an example of a target environment file:
 ```
@@ -55,13 +55,13 @@ Each of the fields in this example is optional, and can be customized.
 
 #### `model_filters`
 
-This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the [Model Filters]({{< relref "/reference/tool_configuration#model-filters" >}}) configuration. The `discover` type should always be used here.
+This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the [Model filters]({{< relref "/reference/tool_configuration#model-filters" >}}) configuration. The `discover` type should always be used here.
 
 The `@@TARGET_CONFIG_DIR@@` token can be used to indicate that the specified filter is in the same directory as the target configuration file.  
 
 #### `variable_injectors`
 
-This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the [Variable Injectors]({{< relref "/userguide/tools/variable_injection.md" >}}) configuration.
+This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the [Variable injectors]({{< relref "/userguide/tools/variable_injection.md" >}}) configuration.
 
 #### `validation_method`
 
@@ -77,7 +77,7 @@ In both these cases, the script to create the Kubernetes secrets is written to `
 
 #### `wls_credentials_name`
 
-This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the `<directory>/<name>/<key>` convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see [Model Tokens]({{< relref "/concepts/model#model-tokens" >}}).
+This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the `<directory>/<name>/<key>` convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see [Model tokens]({{< relref "/concepts/model#model-tokens" >}}).
 
 #### `additional_output`
 
@@ -85,7 +85,7 @@ This field can be used to create additional output for use in the target environ
 
 Template files can be customized for specific environments. The recommended method is to copy the original template to a custom configuration directory as described above, such as `$WDT_CUSTOM_CONFIG/target/<target-name>/model.yaml`. The copied file can then be edited as needed, while maintaining the original for reference.
 
-### Pre-configured Target Environments
+### Pre-configured target environments
 
 These target environment configurations are included in the WebLogic Deploy Tooling installation.
 
@@ -99,7 +99,7 @@ This target environment can be applied by providing the command-line argument `-
 - Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
 - An additional Kubernetes resource file, `model.yaml`, will be produced, with cluster and naming information derived from the model
 
-#### The Verrazzano Target
+#### The Verrazzano target
 This target environment can be applied by providing the command-line argument `-target vz`. It will provide this additional processing:
 
 - The `vz_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
@@ -108,7 +108,7 @@ This target environment can be applied by providing the command-line argument `-
 - Credentials in the model will be replaced with placeholder values, and a script to create corresponding secrets will be produced
 - Two additional Kubernetes resource files, `model.yaml` and `binding.yaml`, will be produced, with cluster and data source information derived from the model
 
-#### Generic Kubernetes Target
+#### Generic Kubernetes target
 
 This target environment can be applied by providing the command-line argument `-target k8s`. It will provide this additional processing:
 

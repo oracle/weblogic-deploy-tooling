@@ -14,7 +14,7 @@ To use the Compare Model Tool, simply run the `compareModel` shell script with t
 
 For example, comparing the following models.  
 
-#### New Model
+#### New model
 
 ```yaml
 domainInfo:
@@ -108,7 +108,7 @@ resources:
                         JNDIName: jms/myUDQ
 ```
 
-#### Old Model
+#### Old model
 
 ```yaml
 domainInfo:
@@ -267,12 +267,12 @@ topology:
 
 Comparing the new and old models:
 
- 1. Added `cluster-2` and `cluster-2-template` in the topology section.
- 2. Removed `ServerStart` of `cluster-1-template` in the topology section.
- 3. Deployed two applications `yourear` and `myear` in the appDeployments section.
- 4. Removed application `myear` in the appDeployments section.
- 4. Removed `MDBConnectionFactory` from the `MyJmsModule` JMS Module in the resource section.
- 5. Removed `WebAppContainer` in the resource section.
+ 1. Added `cluster-2` and `cluster-2-template` in the `topology` section.
+ 2. Removed `ServerStart` of `cluster-1-template` in the `topology` section.
+ 3. Deployed two applications `yourear` and `myear` in the `appDeployments` section.
+ 4. Removed application `myear` in the `appDeployments` section.
+ 4. Removed `MDBConnectionFactory` from the `MyJmsModule` JMS Module in the `resource` section.
+ 5. Removed `WebAppContainer` in the `resource` section.
  6. Removed the attribute `ResetDeliveryCountOnForward` from `MyUniformDistributedQueue`.
  7. Changed deployment targets for application `myear`.
  8. Removed the attribute 'ModuleType' for application `myear`.

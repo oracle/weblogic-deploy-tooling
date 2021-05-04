@@ -11,7 +11,7 @@ The Variable Injector Tool is used to tokenize a model with variables. The value
 
 To enable the Variable Injector Tool during the Discover Domain Tool run, create a variable injector configuration by placing a JSON file named `model_variable_injector.json` into the `<WLSDEPLOY>/lib` directory using one or more of the pre-defined keywords and/or a CUSTOM list of files.
 
-Another option is to configure variable injection in a [Custom Configuration]({{< relref "/reference/tool_configuration#custom-configuration" >}}) directory. Create the `model_variable_injector.json` file in the `$WDT_CUSTOM_CONFIG` directory.
+Another option is to configure variable injection in a [Custom configuration]({{< relref "/reference/tool_configuration#custom-configuration" >}}) directory. Create the `model_variable_injector.json` file in the `$WDT_CUSTOM_CONFIG` directory.
 
 A keyword points to an injector directive file. The tool applies the directives to the attributes in a model, and if the directive matches an attribute, then a property token with a unique variable name is injected into the model and replaces the attribute value. The variable name and model attribute value are placed into the external variable properties file.
 
@@ -94,7 +94,7 @@ To specify the name and location of the variable properties file for the Discove
 
 As with the archive and model file, each run of the Discover Domain Tool will overwrite the contents of an existing variable property file with the values from the current run.
 
-### Custom Variable Injector
+### Custom variable injector
 
 To designate custom injector directives, use the `CUSTOM` keyword in the `model_variable_injector.json` file. The `CUSTOM` keyword requires a list of one or more custom injector directive JSON files.
 
@@ -211,6 +211,6 @@ A custom injector for the Administration Server SSL listen port is:
 }
 ```
 
-### Variable Injector Sample
+### Variable injector sample
 
 A sample of a `model_variable_injector.json` file and a custom injector JSON file are installed in the `WLSDEPLOY/samples` directory.

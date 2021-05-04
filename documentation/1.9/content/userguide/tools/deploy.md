@@ -33,11 +33,11 @@ When running the tool in WLST online mode, the deploy operation may require serv
 - `103` - The entire domain needs to be restarted.
 - `104` - The domain changes have been canceled because the changes in the model requires a domain restart and -cancel_changes_if_restart_required is specified.
 
-### Using an Encrypted Model
+### Using an encrypted model
 
 If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the `-use_encryption` flag on the command line to tell the Deploy Applications Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input.
 
 
-### Using Multiple Models
+### Using multiple models
 
-The Deploy Applications Tool supports the use of multiple models, as described in [Using Multiple Models]({{< relref "/concepts/model#using-multiple-models" >}}).
+The Deploy Applications Tool supports the use of multiple models, as described in [Using multiple models]({{< relref "/concepts/model#using-multiple-models" >}}).

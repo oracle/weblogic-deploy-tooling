@@ -96,6 +96,6 @@ Results in output similar to that shown below, if the `simpleear.ear` file is no
       Errors: 1
         Message: Model location appDeployments:/Application/simpleear/SourcePath references file wlsdeploy/applications/simpleear.ear that is not found in the archive file D:/demo/InvalidDemoDomain.zip
 
-### Using Multiple Models
+### Using multiple models
 
-The Validate Model Tool supports the use of multiple models, as described in [Using Multiple Models]({{< relref "/concepts/model#using-multiple-models" >}}).
+The Validate Model Tool supports the use of multiple models, as described in [Using multiple models]({{< relref "/concepts/model#using-multiple-models" >}}).

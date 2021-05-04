@@ -8,13 +8,13 @@ weight: 1
 ### Contents
 
 - [Overview](#overview)
-- [Top-Level Sections](#top-level-model-sections)
-- [Simple Example](#simple-example)
-- [Model Names](#model-names)
-- [Model Tokens](#model-tokens)
-- [Model Semantics](#model-semantics)
-- [Declaring Named MBeans to Delete](#declaring-named-mbeans-to-delete)
-- [Using Multiple Models](#using-multiple-models)
+- [Top-level sections](#top-level-model-sections)
+- [Simple example](#simple-example)
+- [Model names](#model-names)
+- [Model tokens](#model-tokens)
+- [Model semantics](#model-semantics)
+- [Declaring named MBeans to delete](#declaring-named-mbeans-to-delete)
+- [Using multiple models](#using-multiple-models)
 
 ### Overview
 
@@ -44,7 +44,7 @@ The model is written in YAML (or optionally, JSON).  The YAML parser, built into
 All assignment statements must have one or more spaces between the colon and the value.  All comments must have a space after the pound sign (also known as hash) to be considered a comment.  YAML doesn't allow comments in all locations.  While the YAML parser used by the framework does not try to enforce these restrictions, it is likely that putting comments in some locations may cause parse errors since YAML is a difficult language to parse due to its complex indention rules.
 
 
-### Top-Level Model Sections
+### Top-level model sections
 The tooling has five top-level model sections:
 
 - `domainInfo`     - The location where special information not represented in WLST is specified (for example, the libraries that go in `$DOMAIN_HOME/lib`).
@@ -53,7 +53,7 @@ The tooling has five top-level model sections:
 - `appDeployments` - The location where shared libraries and applications are specified.
 - `kubernetes`     - The location where the WLS Kubernetes Operator domain configuration is specified.
 
-#### Simple Example
+#### Simple example
 Here is a simple example of a model to deploy an application and its data source:
 
 ```yaml
@@ -88,17 +88,17 @@ appDeployments:
             ModuleType: war
 ```
 
-The above example shows two important features of the framework.  First, notice that the `URL`, `PasswordEncrypted`, `user` property `Value` and all `Target` fields contain values that have a `@@PROP:<name>@@` pattern.  This indicates a variable placeholder whose value is specified at runtime using a variables file. See [Model Tokens](#model-tokens) for more information about this and other token types.
+The above example shows two important features of the framework.  First, notice that the `URL`, `PasswordEncrypted`, `user` property `Value` and all `Target` fields contain values that have a `@@PROP:<name>@@` pattern.  This indicates a variable placeholder whose value is specified at runtime using a variables file. See [Model tokens](#model-tokens) for more information about this and other token types.
 
-Second, notice that the `jsf#2.0` shared library `SourcePath` attribute value starts with `@@WL_HOME@@`. This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  See [Model Tokens](#model-tokens) for more information and a list of available path tokens.
+Second, notice that the `jsf#2.0` shared library `SourcePath` attribute value starts with `@@WL_HOME@@`. This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  See [Model tokens](#model-tokens) for more information and a list of available path tokens.
 
-The example above shows the attribute `SourcePath` of the `simpleear` application with a value of `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory within the domain, in this case `<domain-home>/wlsdeploy/applications/simpleear.ear`. See [The Archive File]({{< relref "/concepts/archive.md" >}}) for more details about using the archive file.
+The example above shows the attribute `SourcePath` of the `simpleear` application with a value of `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory within the domain, in this case `<domain-home>/wlsdeploy/applications/simpleear.ear`. See the [Archive file]({{< relref "/concepts/archive.md" >}}) for more details about using the archive file.
 
 Users can create further directory structures underneath the above locations to organize the files and directories as they see fit.  Note that any binary that already exists on the target system need not be included in the archive provided that the model specified the correct location on the target system.
 
 One final note is that the framework is written in such a way to allow the model to be extended for use by other tools.  Adding other top-level sections to the model is supported and the existing tooling and framework will simply ignore them, if present.  For example, it would be possible to add a `soaComposites` section to the model where SOA composite applications are described, and a location within the archive file where those binaries can be stored, so that a tool that understands SOA composites and how to deploy them could be run against the same model and archive files.
 
-### Model Names
+### Model names
 
 The WebLogic Deploy Tooling handles names of WebLogic Server configuration artifacts in a very prescribed way.  To understand how names are handled, users first need a basic understanding of WLST offline naming.  In WLST offline, there are two general categories of configuration artifacts:
 
@@ -131,7 +131,7 @@ topology:
 
 As the example above shows, the `SecurityConfiguration` element has no named sub-element, as there is with `JDBCSystemResource`, even though the WLST path to the `SecurityConfiguration` attributes is `/SecurityConfiguration/<domain-name>`.  The WebLogic Deploy Tooling has built-in rules and a knowledge base that controls how these names are handled so that it can complete the configuration of these artifacts.  As with the previous class of configuration artifact, the folder almost always contains a ` Name` attribute that, in WLST, could be used to change the name.  As with the previous class of artifact, the WebLogic Deploy Tooling does not support the use of the `Name` attribute in these folders and any attempt to set the `Name` attribute will not be honored.  In general, the only model location that uses the `Name` attribute is the top-level topology section, because this maps to where WLST stores the domain name.
 
-### Model Tokens
+### Model tokens
 
 The model allows the use of tokens that are substituted with text values as the model is processed. This section describes several types of tokens.
 
@@ -186,7 +186,7 @@ Using the path token `@@WL_HOME@@` allows the model to be used across multiple e
 - `@@PWD@@`         - The current working directory from which the tool was invoked.
 - `@@TMP@@`         - The location of the temporary directory, as controlled by the `java.io.tmpdir` system property.
 
-### Model Semantics
+### Model semantics
 
 When modeling configuration attributes that can have multiple values, the WebLogic Deploy Tooling tries to make this as painless as possible.  For example, the `Target` attribute on resources can have zero or more clusters and/or servers specified.  When specifying the value of such list attributes, the user has freedom to specify them as a list or as a comma-delimited string (comma is the only recognized delimiter for lists).  For attributes where the values can legally contain commas, the items must be specified as a list.  Examples of each are shown below.
 
@@ -224,7 +224,7 @@ In the example above, the `Target` attribute is specified three different ways, 
 
 One of the primary goals of the WebLogic Deploy Tooling is to support a sparse model where the user can specify just the configuration needed for a particular situation.  What this implies varies somewhat between the tools but, in general, this implies that the tools are using an additive model.  That is, the tools add to what is already there in the existing domain or domain templates (when creating a new domain) rather than making the domain conform exactly to the specified model.  Where it makes sense, a similar, additive approach is taken when setting the value of multi-valued attributes.  For example, if the model specified the cluster `mycluster` as the target for an artifact, the tooling will add `mycluster` to any existing list of targets for the artifact.  While the development team has tried to mark attributes that do not make sense to merge accordingly in our knowledge base, this behavior can be disabled on an attribute-by-attribute basis, by adding an additional annotation in the knowledge base data files.  The development team is already thinking about how to handle situations that require a non-additive, converge-to-the-model approach, and how that might be supported, but this still remains a wish list item.  Users with these requirements should raise an issue for this support.
 
-### Declaring Named MBeans to Delete
+### Declaring named MBeans to delete
 
 With WebLogic Deploy Tooling release 1.3.0, you can specify named items in the model to be deleted using the Create Domain, Update Domain, and Deploy Applications Tools.  Named items are those that have multiple instances that are distinguished by user-provided names, such as managed servers, data sources, and security realms.  Items to be deleted are prepended with an exclamation point (!) in the model.
 
@@ -257,11 +257,11 @@ This feature can also remove items that were created by WebLogic Server template
                 ...
 ```
 
-This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling Security Providers]({{< relref "/samples/securityproviders-model.md" >}}) for detailed information.
+This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling security providers]({{< relref "/samples/securityproviders-model.md" >}}) for detailed information.
 
 This feature cannot be use to un-deploy applications or remove libraries.
 
-### Using Multiple Models
+### Using multiple models
 
 The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple models on the command line. For example:
 
@@ -304,7 +304,7 @@ topology:
 
 If variable properties are used in element names, such as ```@@PROP:my-server@@```, the names in both models will be resolved and matching elements will be merged.
 
-#### Multiple Models and Delete Notation
+#### Multiple models and delete notation
 
 A named element using [delete notation](#declaring-named-mbeans-to-delete) will completely delete an element with a matching name and no delete notation in a previous model. For example, if Model 1 looks like:
 ```yaml

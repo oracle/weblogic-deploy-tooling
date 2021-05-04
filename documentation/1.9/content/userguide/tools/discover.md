@@ -35,7 +35,7 @@ An example of running in online WLST mode:
 
 Note that the command must run on the same system where the domain binaries are located in order to successfully gather the corresponding binaries into the archive file.
 
-When a domain is created using custom or product templates, the templates will install resources into the domain that do not need to be discovered for the model or collected into the archive. The domain type argument, which corresponds to a domain typedef file, must describe the type of domain in order for these resources and files to be ignored. By default, discover runs using domain type WLS, which assumes only the WebLogic Server template was applied to the domain. The tool has canned typedefs for two other domain types, RestrictedJRF and JRF. You may use these domain types, or another custom typedef. For more information, refer to [Domain Type Definitions]({{< relref "/reference/tool_configuration#domain-type-definitions" >}}).
+When a domain is created using custom or product templates, the templates will install resources into the domain that do not need to be discovered for the model or collected into the archive. The domain type argument, which corresponds to a domain typedef file, must describe the type of domain in order for these resources and files to be ignored. By default, discover runs using domain type WLS, which assumes only the WebLogic Server template was applied to the domain. The tool has canned typedefs for two other domain types, RestrictedJRF and JRF. You may use these domain types, or another custom typedef. For more information, refer to [Domain type definitions]({{< relref "/reference/tool_configuration#domain-type-definitions" >}}).
 
 An example of using the domain type argument:
 
@@ -43,12 +43,12 @@ An example of using the domain type argument:
 
 Before the model is persisted to the model file, any variable injectors or model filters are run, in that order. The final step is validation, which validates the contents of the model, archive and variable file. If the validation is successful, the model is persisted. For more information on these three topics, see:
 
- - [Variable Injection]({{< relref "/userguide/tools/variable_injection.md" >}})
- - [Model Filters]({{< relref "/reference/tool_configuration#model-filters" >}})
+ - [Variable injection]({{< relref "/userguide/tools/variable_injection.md" >}})
+ - [Model filters]({{< relref "/reference/tool_configuration#model-filters" >}})
  - [Validate Model Tool]({{< relref "/userguide/tools/validate.md" >}})
 
 
-The resulting model can also be modified for compatibility with specific target environments, such as Oracle Weblogic Server Kubernetes Operator. For more information, see [Target Environments]({{< relref "/userguide/target_env.md" >}}).
+The resulting model can also be modified for compatibility with specific target environments, such as Oracle WebLogic Server Kubernetes Operator. For more information, see [Target environments]({{< relref "/userguide/target_env.md" >}}).
 
 Any problems (or success) will be listed in the discover tool summary. The summary will print the version of the tool and Oracle home, and the WLST mode with which the tool was run (online or offline). A recap of all Warning and Severe messages will be listed, along with a total.
 
@@ -65,14 +65,14 @@ WARNING Messages:
 Total:       WARNING :     1    SEVERE :     0
 ```
 
-### Environmental Variables
+### Environmental variables
 The following environment variables may be set.
 
 -  `JAVA_HOME`             The location of the JDK. This must be a valid Java 7 or later JDK.
 -  `WLSDEPLOY_HOME`        The location of the WebLogic Deploy Tooling installation. By default, the location is calculated
-                         from the location of the discoverDomain script.
+                         from the location of the `discoverDomain` script.
 -  `WLSDEPLOY_PROPERTIES`  System properties that will be passed to WLST.
 
-### Opening an Issue against Discover Domain
+### Opening an issue against Discover Domain
 
-Please provide the STDOUT and STDERR logstreams in the GitHub Issue. If the summary is not listed (unhandled exception stacktrace occurs), be sure and include the Oracle and WDT install versions and whether the tool was run in online or offline WLST mode. If possible, provide the model, variable and archive files and the log file, discoverDomain.log, from location `<install home>\weblogic-deploy\log`.
+Please provide the `STDOUT` and `STDERR` log streams in the GitHub Issue. If the summary is not listed (unhandled exception stack trace occurs), be sure and include the Oracle and WDT install versions and whether the tool was run in online or offline WLST mode. If possible, provide the model, variable and archive files, and the log file, `discoverDomain.log`, from location `<install home>\weblogic-deploy\log`.

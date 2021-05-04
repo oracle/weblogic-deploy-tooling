@@ -13,8 +13,8 @@ Note that file resources that already exist on the target system need not be inc
 ### Contents
 
 - [Example](#example)
-- [Archive Structure](#archive-structure)
-- [Using Multiple Archive Files](#using-multiple-archive-files)
+- [Archive structure](#archive-structure)
+- [Using multiple archive files](#using-multiple-archive-files)
 
 #### Example
 
@@ -31,7 +31,7 @@ appDeployments:
 
 The example above shows the attribute `SourcePath` of the `simpleear` application with a value of `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory in the domain, in this case `<domain-home>/wlsdeploy/applications/simpleear.ear`.
 
-### Archive Structure
+### Archive structure
 
 These are the paths within the archive that are used for different types of resources. Users can create further directory structures underneath these locations to organize the files and directories as they see fit.  
 
@@ -85,7 +85,7 @@ The root directory under which shared libraries are stored. These are stored as 
 #### `wlsdeploy/stores`
 The root directory under which empty directories must exist for `FileStore` elements in the model.
 
-### Using Multiple Archive Files
+### Using multiple archive files
 
 The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple archive files on the command line. For example:
 

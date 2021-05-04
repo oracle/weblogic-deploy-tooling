@@ -36,4 +36,4 @@ wko_variable.properties
 You can then customize the `wko_variable.properties` and `create_k8s_secrets.sh` to provide environment-specific values.
 
 
-For more information about additional target environments and options, see [Target Environments]({{< relref "/userguide/target_env.md" >}}).
+For more information about additional target environments and options, see [Target environments]({{< relref "/userguide/target_env.md" >}}).

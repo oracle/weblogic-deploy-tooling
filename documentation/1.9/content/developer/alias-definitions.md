@@ -98,7 +98,7 @@ The dictionary key defines the various WLST path values used elsewhere in this f
 
 The `%DATASOURCE%` text is token placeholder. It will be replaced with the name of the actual data source by the tool.
 
-### Keys for `attributes` Elements
+### Keys for `attributes` elements
 
 Each child of an `attributes` element represents a single MBean attribute, and its key is the corresponding model name, such as `CapacityIncrement`. It contains at least one description element with the JSON keys below. There may be multiple description elements for cases where the configuration varies for different WebLogic Server version ranges, or varies between offline and online WLST.
 

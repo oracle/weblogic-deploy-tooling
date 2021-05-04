@@ -65,7 +65,7 @@ resources:
 ```
 If you are copying elements from the sample model to create a full domain model, you should exclude any attributes or sub-folders that you do not intend to declare or override.
 
-#### Path Patterns
+#### Path patterns
 There are a number of ways to specify model location in the path argument. Here are some examples:
 
 List all the top-level model sections, such as `topology`, `resources`, and such:
@@ -88,7 +88,7 @@ If the section is not provided for a folder, then it will be derived and include
 /JDBCSystemResource/JdbcResource
 ```
 
-#### Output Options
+#### Output options
 There are several command-line options that you can use to control the output text for the model path. Use only one of these options at a time. If no output options are specified, then the attributes and immediate sub-folders for the specified path are listed.
 
 {{% notice note %}}

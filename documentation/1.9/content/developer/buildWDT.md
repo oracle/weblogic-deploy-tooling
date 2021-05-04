@@ -13,7 +13,7 @@ You will need the following software installed in your local build environment:
 * JDK version 8
 * Maven 3 and later
 
-#### Specifying the WLST location
+#### Specify the WLST location
 
 Execution of the unit tests requires a WebLogic Server installation, because the tests must be run within WLST.
 
