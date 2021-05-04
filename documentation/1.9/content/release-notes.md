@@ -1,4 +1,4 @@
-#### Known Issues for WebLogic Deploy Tooling
+#### Known issues for WebLogic Deploy Tooling
 
 The following list contains known issues. Each issue may contain a workaround or an associated issue number.
 
