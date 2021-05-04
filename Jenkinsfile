@@ -81,6 +81,7 @@ pipeline {
             //        triggeredBy 'TimerTrigger'
             when {
                 allOf {
+                    changeRequest()
                     branch "fix-alias-test"
                 }
             }
