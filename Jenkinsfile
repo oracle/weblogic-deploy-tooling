@@ -79,10 +79,10 @@ pipeline {
             // only run this stage when triggered by a cron timer and the commit does not have []skip-ci in the message
             // for example, only run integration tests during the timer triggered nightly build
             //        triggeredBy 'TimerTrigger'
+            //        branch "fix-alias-test"
             when {
                 allOf {
                     changeRequest()
-                    branch "fix-alias-test"
                 }
             }
             matrix {
