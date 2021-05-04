@@ -5,7 +5,7 @@ If you want to submit a pull request to fix a bug or enhance an existing feature
 
 If you have any questions about a possible submission, feel free to open an issue too.
 
-## [Contributing to the Oracle WLS Deploy repository](http://github.com/oracle/wls-deploy/blob/master/CONTRIBUTING.md)
+## [Contributing to the WebLogic Deploy repository](http://github.com/oracle/wls-deploy/blob/master/CONTRIBUTING.md)
 Pull requests can be made under [The Oracle Contributor Agreement](https://www.oracle.com/technetwork/community/oca-486395.html) (OCA).
 
 For pull requests to be accepted, the bottom of your commit message must have the following line using your name and e-mail address as it appears in the OCA Signatories list.

@@ -90,11 +90,11 @@ usage() {
 
 WLSDEPLOY_PROGRAM_NAME="discoverDomain"; export WLSDEPLOY_PROGRAM_NAME
 
-scriptName=`basename $0`
+scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
 scriptArgs=$*
 
-. $scriptPath/shared.sh
+. "$scriptPath/shared.sh"
 
 umask 27
 
