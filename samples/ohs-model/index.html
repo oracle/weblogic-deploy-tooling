@@ -12,20 +12,20 @@
     <title>Configuring Oracle HTTP Server :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620128729" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620133406" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620133406"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620128729"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620133406"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620133406"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620133406"></script>
 
     
   </div>
@@ -1052,17 +1052,17 @@
         
 
 
-<p>Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.</p>
+<p>Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tool, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.</p>
 <h4 id="prerequisites">Prerequisites</h4>
 <p>In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS <a href="https://www.oracle.com/middleware/technologies/webtier-downloads.html">here</a>.</p>
-<p>The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see <a href="/weblogic-deploy-tooling/reference/tool_configuration/#domain-type-definitions">Domain Type Definitions</a>.</p>
+<p>The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see <a href="/weblogic-deploy-tooling/reference/tool_configuration/#domain-type-definitions">Domain type definitions</a>.</p>
 <p>You create a copy of an existing domain type definition file, add the template to that file, and then reference that file on the WDT command line. For example, if you want to create a domain with Oracle HTTP Server based on a Restricted JRF domain, then you would first create a copy of the file <code>WLSDEPLOY_HOME/lib/typedefs/RestrictedJRF.json</code> in the same directory, such as <code>WLSDEPLOY_HOME/lib/typedefs/HttpServer.json</code>. In this example, you would change the existing <code>extensionTemplates</code> section to include the additional OHS template. The original value is:</p>
 <pre><code>&quot;extensionTemplates&quot;: [ &quot;Oracle Restricted JRF&quot;, &quot;Oracle Enterprise Manager-Restricted JRF&quot; ],
 </code></pre><p>The revised value would be:</p>
 <pre><code>&quot;extensionTemplates&quot;: [ &quot;Oracle Restricted JRF&quot;, &quot;Oracle Enterprise Manager-Restricted JRF&quot;, &quot;Oracle HTTP Server (Restricted JRF)&quot; ],
 </code></pre><p>The file name of this new domain type (without the <code>.json</code> extension) is used with the <code>-domain_type</code> argument on the WDT command line. For example, the command line to create a domain using the <code>HttpServer.json</code> file from the previous steps would look like:</p>
 <pre><code>WLSDEPLOY_HOME/bin/createDomain -oracle_home /etc/oracle ... -domain_type HttpServer
-</code></pre><h4 id="configuring-the-model">Configuring the Model</h4>
+</code></pre><h4 id="configuring-the-model">Configuring the model</h4>
 <p>Configuring OHS typically involves adding two top-level folders to the <code>resources</code> section of the model, <code>SystemComponent</code> and <code>OHS</code>. Here is an example:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">resources</span>:
     <span style="color:#f92672">SystemComponent</span>:
@@ -1756,19 +1756,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620133406"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620133406"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620128729"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620133406"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

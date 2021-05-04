@@ -34,7 +34,7 @@ Using the default Administration Server configuration When the Create Domain Too
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/install/</guid>
-      <description>Download and Install the Software The WebLogic Deploy Tooling project repository is located at https://github.com/oracle/weblogic-deploy-tooling.
+      <description>Download and install the software The WebLogic Deploy Tooling project repository is located at https://github.com/oracle/weblogic-deploy-tooling.
 Binary distributions of the weblogic-deploy.zip installer can be downloaded from the GitHub Releases page.
  To install the software, simply unzip the weblogic-deploy.zip installer on a machine that has the desired versions of WebLogic Server installed. After being unzipped, the software is ready to use, just set the JAVA_HOME environment variable to point to a Java 7 or higher JDK and the shell scripts are ready to run.</description>
     </item>
@@ -45,7 +45,7 @@ Binary distributions of the weblogic-deploy.zip installer can be downloaded from
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/concepts/model/</guid>
-      <description>Contents  Overview Top-Level Sections Simple Example Model Names Model Tokens Model Semantics Declaring Named MBeans to Delete Using Multiple Models  Overview The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration. The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts. For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.</description>
+      <description>Contents  Overview Top-level sections Simple example Model names Model tokens Model semantics Declaring named MBeans to delete Using multiple models  Overview The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration. The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts. For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.</description>
     </item>
     
     <item>
@@ -94,7 +94,7 @@ topology: Cluster: &amp;#39;cluster-1&amp;#39;: ClientCertProxyEnabled: true Aut
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/target_env/</guid>
       <description>The Discover Domain and Prepare Model Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
- Using model tokens for some attributes in the model. See Model Tokens. Using Kubernetes secrets for credentials in the model. Applying filters to the model. See Model Filters. Creating additional configuration files for the target system.  Specifying a target environment Each tool specifies a target environment using the command-line argument -target &amp;lt;target-name&amp;gt;, where &amp;lt;target-name&amp;gt; refers to a pre-configured target environment, or a user-defined environment.</description>
+ Using model tokens for some attributes in the model. See Model tokens. Using Kubernetes secrets for credentials in the model. Applying filters to the model. See Model filters. Creating additional configuration files for the target system.  Specifying a target environment Each tool specifies a target environment using the command-line argument -target &amp;lt;target-name&amp;gt;, where &amp;lt;target-name&amp;gt; refers to a pre-configured target environment, or a user-defined environment.</description>
     </item>
     
     <item>
@@ -103,7 +103,7 @@ topology: Cluster: &amp;#39;cluster-1&amp;#39;: ClientCertProxyEnabled: true Aut
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/reference/tool_configuration/</guid>
-      <description>Contents  Tool Property File Model Filters Domain Type Definitions Custom Configuration  Tool Property File You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as &amp;lt;weblogic-deploy&amp;gt;/lib/tool.properties. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the tool.</description>
+      <description>Contents  Tool property file Model filters Domain type definitions Custom configuration  Tool property file You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as &amp;lt;weblogic-deploy&amp;gt;/lib/tool.properties. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the tool.</description>
     </item>
     
     <item>
@@ -151,7 +151,7 @@ resources: JDBCSystemResource: &amp;#39;datasource-1&amp;#39;: Target: &amp;#39;
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/buildwdt/</guid>
       <description>Prerequisites You will need the following software installed in your local build environment:
- Oracle WebLogic Server installation version 12.2.1 and later JDK version 8 Maven 3 and later  Specifying the WLST location Execution of the unit tests requires a WebLogic Server installation, because the tests must be run within WLST.
+ Oracle WebLogic Server installation version 12.2.1 and later JDK version 8 Maven 3 and later  Specify the WLST location Execution of the unit tests requires a WebLogic Server installation, because the tests must be run within WLST.
 The WLST directory can be specified in one of two ways:
   Specify the -Dunit-test-wlst-dir=&amp;lt;wlst-directory&amp;gt; on the mvn command line.</description>
     </item>
@@ -181,7 +181,7 @@ resources: SelfTuning: Capacity: capacity40: Target: &amp;#39;cluster-1&amp;#39;
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/encrypt/</guid>
-      <description>To meet Oracle&amp;rsquo;s security standards, the encryption algorithms require JDK 8 to execute.
+      <description>To meet Oracle&amp;rsquo;s security standards, the encryption algorithms require JDK 8 to run.
  Models contain WebLogic Server domain configuration. Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection. When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.</description>
     </item>
     
@@ -211,7 +211,7 @@ Prerequisites  A local installation of WebLogic Server 12.2.1.x must be availabl
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/usersgroups-model/</guid>
       <description>WebLogic Server has the ability to establish a set of users, groups, and global roles as part of the WebLogic domain creation. The WebLogic global roles become part of the WebLogic role mapper (for example, XACMLRoleMapper) and are specified under domainInfo in the WLSRoles section. The users and groups become part of the Embedded LDAP server (for example, DefaultAuthenticator) and are specified under topology in the Security section.
-WebLogic Global Roles The model allows for the definition of WebLogic roles that can augment the well known WebLogic global roles (for example, Admin, Deployer, Monitor, &amp;hellip;) in addition to defining new roles.</description>
+WebLogic global roles The model allows for the definition of WebLogic roles that can augment the well known WebLogic global roles (for example, Admin, Deployer, Monitor, &amp;hellip;) in addition to defining new roles.</description>
     </item>
     
     <item>
@@ -249,7 +249,7 @@ domainInfo: WLSUserPasswordCredentialMappings: CrossDomain: map1: RemoteDomain: 
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/odl-model/</guid>
-      <description>Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tools, starting with WDT release 1.5.2. ODL configuration is only supported for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool. This example shows how some common configuration elements can be represented in the model.
+      <description>Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tool, starting with WDT release 1.5.2. ODL configuration is supported only for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool. This example shows how some common configuration elements can be represented in the model.
 resources: ODLConfiguration: config1: Servers: &amp;#34;m1, m2&amp;#34; AddJvmNumber: true HandlerDefaults: abc: r123 xyz: k890 Handler: &amp;#39;my-handler&amp;#39;: Class: &amp;#39;com.</description>
     </item>
     
@@ -269,7 +269,7 @@ resources: ODLConfiguration: config1: Servers: &amp;#34;m1, m2&amp;#34; AddJvmNu
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/ohs-model/</guid>
-      <description>Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.
+      <description>Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tool, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.
 Prerequisites In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS here.
 The OHS template must be present in the WDT domain type definition file used to create or update the domain.</description>
     </item>
@@ -342,16 +342,6 @@ For example, in order to use the Oracle Autonomous Transaction Processing Cloud 
       <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/</guid>
       <description>Known Issues for WebLogic Deploy Tooling The following list contains known issues. Each issue may contain a workaround or an associated issue number.
 Discover Domain Tool SEVERE Messages ISSUE: The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1.0 domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present in a domain. When it tests an MBean that is not present, an error message is logged by WLST.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/wls_versions/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/wls_versions/</guid>
-      <description>Supported WebLogic Server Versions The following table specifies the supported WebLogic Server versions, along with the JDK versions, that must be used to run the WDT tool. You must set the JAVA_HOME environment variable to specify a JDK version different from the system default version.
-To create a domain with the proper JDK (particularly if the JAVA_HOME is different from the one which will be used by the target domain), set the domain JavaHome attribute in the domain model.</description>
     </item>
     
   </channel>

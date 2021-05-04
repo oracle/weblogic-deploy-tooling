@@ -12,20 +12,20 @@
     <title>Compare Model Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620128729" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620133406" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620133406"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620128729"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620133406"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620133406"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620133406"></script>
 
     
   </div>
@@ -1062,7 +1062,7 @@
 The Compare Model Tool compares two model files and generates a model that shows the differences between them.</p>
 <p>To use the Compare Model Tool, simply run the <code>compareModel</code> shell script with the correct arguments.  To see the list of valid arguments, simply run the shell script with the <code>-help</code> option (or with no arguments) for usage information.</p>
 <p>For example, comparing the following models.</p>
-<h4 id="new-model">New Model</h4>
+<h4 id="new-model">New model</h4>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">AdminUserName</span>: <span style="color:#e6db74">&#39;weblogic&#39;</span>
     <span style="color:#f92672">AdminPassword</span>: <span style="color:#e6db74">&#39;welcome2&#39;</span>
@@ -1152,7 +1152,7 @@ The Compare Model Tool compares two model files and generates a model that shows
                     <span style="color:#f92672">MyUniformDistributedQueue</span>:
                         <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
                         <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/myUDQ</span>
-</code></pre></div><h4 id="old-model">Old Model</h4>
+</code></pre></div><h4 id="old-model">Old model</h4>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">AdminUserName</span>: <span style="color:#e6db74">&#39;weblogic&#39;</span>
     <span style="color:#f92672">AdminPassword</span>: <span style="color:#e6db74">&#39;welcome2&#39;</span>
@@ -1303,12 +1303,12 @@ topology:
 
 </code></pre><p>Comparing the new and old models:</p>
 <ol>
-<li>Added <code>cluster-2</code> and <code>cluster-2-template</code> in the topology section.</li>
-<li>Removed <code>ServerStart</code> of <code>cluster-1-template</code> in the topology section.</li>
-<li>Deployed two applications <code>yourear</code> and <code>myear</code> in the appDeployments section.</li>
-<li>Removed application <code>myear</code> in the appDeployments section.</li>
-<li>Removed <code>MDBConnectionFactory</code> from the <code>MyJmsModule</code> JMS Module in the resource section.</li>
-<li>Removed <code>WebAppContainer</code> in the resource section.</li>
+<li>Added <code>cluster-2</code> and <code>cluster-2-template</code> in the <code>topology</code> section.</li>
+<li>Removed <code>ServerStart</code> of <code>cluster-1-template</code> in the <code>topology</code> section.</li>
+<li>Deployed two applications <code>yourear</code> and <code>myear</code> in the <code>appDeployments</code> section.</li>
+<li>Removed application <code>myear</code> in the <code>appDeployments</code> section.</li>
+<li>Removed <code>MDBConnectionFactory</code> from the <code>MyJmsModule</code> JMS Module in the <code>resource</code> section.</li>
+<li>Removed <code>WebAppContainer</code> in the <code>resource</code> section.</li>
 <li>Removed the attribute <code>ResetDeliveryCountOnForward</code> from <code>MyUniformDistributedQueue</code>.</li>
 <li>Changed deployment targets for application <code>myear</code>.</li>
 <li>Removed the attribute &lsquo;ModuleType&rsquo; for application <code>myear</code>.</li>
@@ -2008,19 +2008,19 @@ compare_model_stdout
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620133406"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620133406"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620128729"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620133406"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

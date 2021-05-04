@@ -12,20 +12,20 @@
     <title>Targeting server groups :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620128729" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620133406" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620133406"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620128729"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620133406"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620133406"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620133406"></script>
 
     
   </div>
@@ -1146,17 +1146,17 @@ To create a SOA domain with SOA and OSB clusters, simply add the OSB template an
     <span style="color:#f92672">SecurityConfiguration</span>:
         <span style="color:#f92672">NodeManagerUsername</span>: <span style="color:#ae81ff">weblogic</span>
         <span style="color:#f92672">NodeManagerPasswordEncrypted</span>: <span style="color:#ae81ff">welcome1</span>
-</code></pre></div><h4 id="targeting-dynamic-cluster-server-groups">Targeting Dynamic Cluster Server Groups</h4>
+</code></pre></div><h4 id="targeting-dynamic-cluster-server-groups">Targeting dynamic cluster server groups</h4>
 <p>Dynamic Cluster Server Groups are server groups that can be targeted to dynamic clusters. Dynamic clusters were added in WebLogic Server version 12.1.2.
 In WebLogic Server version 12.2.1.1, the ability to target a single dynamic server group to a dynamic cluster was added. In WebLogic Server Version 12.2.1.4,
 you now have the ability to target multiple dynamic server groups to a dynamic cluster.</p>
-<p>To enable targeting of dynamic server groups to dynamic clusters, add the dynamicClusterServerGroupsToTarget entry with any dynamic server groups you wish to be targeted to the dynamic clusters in your model or domain. This list must only contain one dynamic server group if you are running a version of WebLogic Server earlier than 12.2.1.4.</p>
+<p>To enable targeting of dynamic server groups to dynamic clusters, add the <code>dynamicClusterServerGroupsToTarget</code> entry with any dynamic server groups you wish to be targeted to the dynamic clusters in your model or domain. This list must only contain one dynamic server group if you are running a version of WebLogic Server earlier than 12.2.1.4.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
   <span style="color:#f92672">&#34;definitions&#34;</span>: {
     <span style="color:#f92672">&#34;dynamicClusterServerGroupsToTarget&#34;</span> : [ <span style="color:#e6db74">&#34;WSMPM-DYN-CLUSTER&#34;</span>, <span style="color:#e6db74">&#34;WSM-CACHE-DYN-CLUSTER&#34;</span> ]
   }
 }
-</code></pre></div><p>If you wish to specify which dynamic server group to target to a dynamic server, add DynamicClusterServerGroupTargetingLimits to the domainInfo of your model. This entry can coexist with managed servers defined in ServerGroupTargetingLimits.</p>
+</code></pre></div><p>If you wish to specify which dynamic server group to target to a dynamic server, add <code>DynamicClusterServerGroupTargetingLimits</code> to the <code>domainInfo</code> of your model. This entry can coexist with managed servers defined in <code>ServerGroupTargetingLimits</code>.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
     <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
@@ -1838,19 +1838,19 @@ you now have the ability to target multiple dynamic server groups to a dynamic c
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620133406"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620133406"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620128729"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620133406"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

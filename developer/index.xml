@@ -44,7 +44,7 @@ The model&amp;rsquo;s folder and attribute names usually match the names of the 
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/buildwdt/</guid>
       <description>Prerequisites You will need the following software installed in your local build environment:
- Oracle WebLogic Server installation version 12.2.1 and later JDK version 8 Maven 3 and later  Specifying the WLST location Execution of the unit tests requires a WebLogic Server installation, because the tests must be run within WLST.
+ Oracle WebLogic Server installation version 12.2.1 and later JDK version 8 Maven 3 and later  Specify the WLST location Execution of the unit tests requires a WebLogic Server installation, because the tests must be run within WLST.
 The WLST directory can be specified in one of two ways:
   Specify the -Dunit-test-wlst-dir=&amp;lt;wlst-directory&amp;gt; on the mvn command line.</description>
     </item>

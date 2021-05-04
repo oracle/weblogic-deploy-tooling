@@ -13,7 +13,7 @@
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/reference/tool_configuration/</guid>
-      <description>Contents  Tool Property File Model Filters Domain Type Definitions Custom Configuration  Tool Property File You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as &amp;lt;weblogic-deploy&amp;gt;/lib/tool.properties. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the tool.</description>
+      <description>Contents  Tool property file Model filters Domain type definitions Custom configuration  Tool property file You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as &amp;lt;weblogic-deploy&amp;gt;/lib/tool.properties. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the tool.</description>
     </item>
     
   </channel>

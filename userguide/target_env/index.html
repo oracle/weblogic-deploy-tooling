@@ -12,20 +12,20 @@
     <title>Target environments :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620128729" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620133406" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620133406"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620128729"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620133406"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620133406"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620133406"></script>
 
     
   </div>
@@ -1026,8 +1026,8 @@
     <li>
       <ul>
         <li><a href="#specifying-a-target-environment">Specifying a target environment</a></li>
-        <li><a href="#the-target-configuration-file">The Target Configuration File</a></li>
-        <li><a href="#pre-configured-target-environments">Pre-configured Target Environments</a></li>
+        <li><a href="#the-target-configuration-file">The target configuration file</a></li>
+        <li><a href="#pre-configured-target-environments">Pre-configured target environments</a></li>
       </ul>
     </li>
   </ul>
@@ -1056,9 +1056,9 @@
 
 <p>The <a href="/weblogic-deploy-tooling/userguide/tools/discover/">Discover Domain</a> and <a href="/weblogic-deploy-tooling/userguide/tools/prepare/">Prepare Model</a> Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:</p>
 <ul>
-<li>Using model tokens for some attributes in the model. See <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model Tokens</a>.</li>
+<li>Using model tokens for some attributes in the model. See <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model tokens</a>.</li>
 <li>Using Kubernetes secrets for credentials in the model.</li>
-<li>Applying filters to the model. See <a href="/weblogic-deploy-tooling/reference/tool_configuration/#model-filters">Model Filters</a>.</li>
+<li>Applying filters to the model. See <a href="/weblogic-deploy-tooling/reference/tool_configuration/#model-filters">Model filters</a>.</li>
 <li>Creating additional configuration files for the target system.</li>
 </ul>
 <h3 id="specifying-a-target-environment">Specifying a target environment</h3>
@@ -1067,7 +1067,7 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"> <span style="color:#ae81ff">$WLSDEPLOY_HOME/bin/discoverDomain.sh ... -target k8s -output_dir /etc/files</span>
 </code></pre></div><p>This example would apply the <code>k8s</code> target type to the discovery result, and place those files in <code>/etc/files</code>.</p>
 <p>If a variable file is specified on the tool&rsquo;s command line using the <code>-variable_file</code> argument, any injected variables will be added to that file. If no variable file is specified, injected variables will be written to the file <code>&lt;output-directory&gt;/&lt;target_name&gt;_variable.properties</code>.</p>
-<h3 id="the-target-configuration-file">The Target Configuration File</h3>
+<h3 id="the-target-configuration-file">The target configuration file</h3>
 <p>A target environment is configured in a JSON file at this location:</p>
 <pre><code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;/target.json
 </code></pre><p>The <code>&lt;target-name&gt;</code> value corresponds to the value of the <code>-target</code> argument on the tool&rsquo;s command line. The WLS installation includes two pre-defined targets:</p>
@@ -1075,7 +1075,7 @@
 <li><a href="#the-weblogic-kubernetes-operator-target">Weblogic Kubernetes Operator</a> (named <code>k8s</code>)</li>
 <li><a href="#the-verrazzano-target">Verrazzano</a> (named <code>vz</code>)</li>
 </ul>
-<p>You can define a new or extended target environment with a new <code>target-name</code> in the above location, or using a <a href="/weblogic-deploy-tooling/reference/tool_configuration/#custom-configuration">Custom Configuration</a> directory, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;my-target-name&gt;/target.json</code>.</p>
+<p>You can define a new or extended target environment with a new <code>target-name</code> in the above location, or using a <a href="/weblogic-deploy-tooling/reference/tool_configuration/#custom-configuration">Custom configuration</a> directory, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;my-target-name&gt;/target.json</code>.</p>
 <p>Here is an example of a target environment file:</p>
 <pre><code>{
   &quot;model_filters&quot; : {
@@ -1091,10 +1091,10 @@
 }
 </code></pre><p>Each of the fields in this example is optional, and can be customized.</p>
 <h4 id="model_filters"><code>model_filters</code></h4>
-<p>This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the <a href="/weblogic-deploy-tooling/reference/tool_configuration/#model-filters">Model Filters</a> configuration. The <code>discover</code> type should always be used here.</p>
+<p>This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the <a href="/weblogic-deploy-tooling/reference/tool_configuration/#model-filters">Model filters</a> configuration. The <code>discover</code> type should always be used here.</p>
 <p>The <code>@@TARGET_CONFIG_DIR@@</code> token can be used to indicate that the specified filter is in the same directory as the target configuration file.</p>
 <h4 id="variable_injectors"><code>variable_injectors</code></h4>
-<p>This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the <a href="/weblogic-deploy-tooling/userguide/tools/variable_injection/">Variable Injectors</a> configuration.</p>
+<p>This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the <a href="/weblogic-deploy-tooling/userguide/tools/variable_injection/">Variable injectors</a> configuration.</p>
 <h4 id="validation_method"><code>validation_method</code></h4>
 <p>This field can be used to set the validation level for the resulting model. Only the value <code>lax</code>is currently supported. With <code>lax</code> validation, variables and Kubernetes secrets referenced in the resulting model do not need to be available when the model is created.</p>
 <h4 id="credentials_method"><code>credentials_method</code></h4>
@@ -1105,11 +1105,11 @@
 </ul>
 <p>In both these cases, the script to create the Kubernetes secrets is written to <code>&lt;output-directory&gt;/create_k8s_secrets.sh</code>. You will need to update this script with credential values before executing</p>
 <h4 id="wls_credentials_name"><code>wls_credentials_name</code></h4>
-<p>This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the <code>&lt;directory&gt;/&lt;name&gt;/&lt;key&gt;</code> convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model Tokens</a>.</p>
+<p>This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the <code>&lt;directory&gt;/&lt;name&gt;/&lt;key&gt;</code> convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model tokens</a>.</p>
 <h4 id="additional_output"><code>additional_output</code></h4>
 <p>This field can be used to create additional output for use in the target environment. The value is a comma-separated list of template files in the <code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;</code> directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.</p>
 <p>Template files can be customized for specific environments. The recommended method is to copy the original template to a custom configuration directory as described above, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;target-name&gt;/model.yaml</code>. The copied file can then be edited as needed, while maintaining the original for reference.</p>
-<h3 id="pre-configured-target-environments">Pre-configured Target Environments</h3>
+<h3 id="pre-configured-target-environments">Pre-configured target environments</h3>
 <p>These target environment configurations are included in the WebLogic Deploy Tooling installation.</p>
 <h4 id="the-weblogic-kubernetes-operator-target">The WebLogic Kubernetes Operator target</h4>
 <p>This target environment can be applied by providing the command-line argument <code>-target wko</code>. It will provide this additional processing:</p>
@@ -1120,7 +1120,7 @@
 <li>Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced</li>
 <li>An additional Kubernetes resource file, <code>model.yaml</code>, will be produced, with cluster and naming information derived from the model</li>
 </ul>
-<h4 id="the-verrazzano-target">The Verrazzano Target</h4>
+<h4 id="the-verrazzano-target">The Verrazzano target</h4>
 <p>This target environment can be applied by providing the command-line argument <code>-target vz</code>. It will provide this additional processing:</p>
 <ul>
 <li>The <code>vz_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
@@ -1129,7 +1129,7 @@
 <li>Credentials in the model will be replaced with placeholder values, and a script to create corresponding secrets will be produced</li>
 <li>Two additional Kubernetes resource files, <code>model.yaml</code> and <code>binding.yaml</code>, will be produced, with cluster and data source information derived from the model</li>
 </ul>
-<h4 id="generic-kubernetes-target">Generic Kubernetes Target</h4>
+<h4 id="generic-kubernetes-target">Generic Kubernetes target</h4>
 <p>This target environment can be applied by providing the command-line argument <code>-target k8s</code>. It will provide this additional processing:</p>
 <ul>
 <li>The <code>k8s_operator_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
@@ -1812,19 +1812,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620133406"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620133406"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620128729"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620133406"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

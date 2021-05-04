@@ -12,20 +12,20 @@
     <title>Modeling WebLogic users, groups, and roles :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620128729" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620133406" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620133406"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620128729"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620133406"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620133406"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620133406"></script>
 
     
   </div>
@@ -1053,7 +1053,7 @@
 
 
 <p>WebLogic Server has the ability to establish a set of users, groups, and global roles as part of the WebLogic domain creation. The WebLogic global roles become part of the WebLogic role mapper (for example, <code>XACMLRoleMapper</code>) and are specified under <code>domainInfo</code> in the <code>WLSRoles</code> section. The users and groups become part of the Embedded LDAP server (for example, <code>DefaultAuthenticator</code>) and are specified under <code>topology</code> in the <code>Security</code> section.</p>
-<h4 id="weblogic-global-roles">WebLogic Global Roles</h4>
+<h4 id="weblogic-global-roles">WebLogic global roles</h4>
 <p>The model allows for the definition of WebLogic roles that can augment the well known WebLogic global roles (for example, <code>Admin</code>, <code>Deployer</code>, <code>Monitor</code>, &hellip;) in addition to defining new roles. When updating the well known WebLogic roles, an <code>UpdateMode</code> can be specified as <code>{ append | prepend | replace }</code> with the default being <code>replace</code> when not specified. Also, when updating the well known roles, the specified <code>Expression</code> will be a logical <code>OR</code> with the default expression. The <code>Expression</code> value for the role is the same as when using the WebLogic <code>RoleEditorMBean</code> for a WebLogic security role mapping provider.</p>
 <p>For example, the <code>WLSRoles</code> section below updates the well known <code>Admin</code>, <code>Deployer</code> and <code>Monitor</code> roles while adding a new global role with <code>Tester</code> as the role name:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
@@ -1071,7 +1071,7 @@
       <span style="color:#f92672">Expression</span>: <span style="color:#e6db74">&#34;?weblogic.entitlement.rules.IDCSAppRoleName(AppTester,@@PROP:AppName@@)&#34;</span>
 </code></pre></div><p>The <code>Admin</code> role will have the expression appended to the default expression, the <code>Deployer</code> role expression will replace the default, the <code>Monitor</code> role expression will be prepended to the default expression and <code>Tester</code> will be a new role with the specified expression.</p>
 <p>In addition, the <code>Expression</code> value can use the variable placeholder syntax specified when running the <a href="/weblogic-deploy-tooling/userguide/tools/create/">Create Tool</a> as shown in the above example.</p>
-<h4 id="weblogic-users-and-groups">WebLogic Users and Groups</h4>
+<h4 id="weblogic-users-and-groups">WebLogic users and groups</h4>
 <p>The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP Server (for example, <code>DefaultAuthenticator</code>). New groups can be specified and users can be added as members of the new groups or existing groups such as the <code>Administrators</code> group which is defaulted to be in the WebLogic <code>Admin</code> global role. Please see Known Limitations below for additional information on users and groups.</p>
 <p>The user password can be specified with a placeholder or encrypted with the <a href="/weblogic-deploy-tooling/userguide/tools/encrypt/">Encrypt Tool</a>. An example <code>Security</code> section that adds an additional group <code>AppMonitors</code>, adds two new users and places the users into groups is as follows:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
@@ -1086,12 +1086,12 @@
       <span style="color:#f92672">joe</span>:
          <span style="color:#f92672">Password</span>: <span style="color:#ae81ff">welcome1</span>
          <span style="color:#f92672">GroupMemberOf</span>: [ <span style="color:#ae81ff">AppMonitors ]</span>
-</code></pre></div><h4 id="known-limitations">Known Limitations</h4>
+</code></pre></div><h4 id="known-limitations">Known limitations</h4>
 <ul>
 <li>The processing of users, groups, and roles will only take place when using the <a href="/weblogic-deploy-tooling/userguide/tools/create/">Create Domain Tool</a>.</li>
 <li>WebLogic global roles are only supported with WebLogic Server version 12.2.1 or greater.</li>
 <li>WebLogic global roles are only updated for the WebLogic security XACML role mapping provider (for example, <code>XACMLRoleMapper</code>).</li>
-<li>The user and group processing is not complete, currently, users cannot be assigned to groups. Users created using the <code>Security</code> section are automatically added to the <code>Administrators</code> group and are not added to the groups specified. See <a href="/weblogic-deploy-tooling/release-notes/#assigning-security-groups-to-users">Known Issues</a> for information about a patch for this issue.</li>
+<li>The user and group processing is not complete, currently, users cannot be assigned to groups. Users created using the <code>Security</code> section are automatically added to the <code>Administrators</code> group and are not added to the groups specified. See <a href="/weblogic-deploy-tooling/release-notes/#assigning-security-groups-to-users">Known issues</a> for information about a patch for this issue.</li>
 </ul>
 
 
@@ -1768,19 +1768,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620133406"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620133406"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620128729"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620133406"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

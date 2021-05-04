@@ -12,20 +12,20 @@
     <title>Archive File :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1620128729" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620128729" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1620133406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620133406" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620133406"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620128729"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620133406"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620133406"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620128729"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620133406"></script>
 
     
   </div>
@@ -1026,8 +1026,8 @@
     <li>
       <ul>
         <li><a href="#contents">Contents</a></li>
-        <li><a href="#archive-structure">Archive Structure</a></li>
-        <li><a href="#using-multiple-archive-files">Using Multiple Archive Files</a></li>
+        <li><a href="#archive-structure">Archive structure</a></li>
+        <li><a href="#using-multiple-archive-files">Using multiple archive files</a></li>
       </ul>
     </li>
   </ul>
@@ -1059,8 +1059,8 @@
 <h3 id="contents">Contents</h3>
 <ul>
 <li><a href="#example">Example</a></li>
-<li><a href="#archive-structure">Archive Structure</a></li>
-<li><a href="#using-multiple-archive-files">Using Multiple Archive Files</a></li>
+<li><a href="#archive-structure">Archive structure</a></li>
+<li><a href="#using-multiple-archive-files">Using multiple archive files</a></li>
 </ul>
 <h4 id="example">Example</h4>
 <p>This example shows an application with a <code>SourcePath</code> value referencing an EAR file resource contained in the archive.</p>
@@ -1071,7 +1071,7 @@
             <span style="color:#f92672">Target</span>: <span style="color:#e6db74">&#39;my-cluster&#39;</span>
             <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">ear</span>
 </code></pre></div><p>The example above shows the attribute <code>SourcePath</code> of the <code>simpleear</code> application with a value of <code>wlsdeploy/applications/simpleear.ear</code>.  The prefix <code>wlsdeploy/</code> indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory in the domain, in this case <code>&lt;domain-home&gt;/wlsdeploy/applications/simpleear.ear</code>.</p>
-<h3 id="archive-structure">Archive Structure</h3>
+<h3 id="archive-structure">Archive structure</h3>
 <p>These are the paths within the archive that are used for different types of resources. Users can create further directory structures underneath these locations to organize the files and directories as they see fit.</p>
 <h4 id="atpwallet"><code>atpwallet</code></h4>
 <p>The directory where a wallet can be stored for use with Oracle Autonomous Transaction Processing Cloud Database. The file resource name is not specified in the model, and is assumed to be a single ZIP file in the archive at this location.</p>
@@ -1105,7 +1105,7 @@ wlsdeploy/applications/myApp/WEB-INF/weblogic.xml
 <p>The root directory under which shared libraries are stored. These are stored as JAR files within the archive.</p>
 <h4 id="wlsdeploystores"><code>wlsdeploy/stores</code></h4>
 <p>The root directory under which empty directories must exist for <code>FileStore</code> elements in the model.</p>
-<h3 id="using-multiple-archive-files">Using Multiple Archive Files</h3>
+<h3 id="using-multiple-archive-files">Using multiple archive files</h3>
 <p>The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple archive files on the command line. For example:</p>
 <pre><code>weblogic-deploy\bin\createDomain.cmd -archive_file one.zip,two.zip,three.zip ...
 </code></pre>
@@ -1785,19 +1785,19 @@ wlsdeploy/applications/myApp/WEB-INF/weblogic.xml
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620133406"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1620128729"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620128729"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1620133406"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620133406"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620128729"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620133406"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

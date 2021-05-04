@@ -126,9 +126,6 @@
     <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/</loc>
     <priority>0</priority>
   </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/wls_versions/</loc>
-    <priority>0</priority>
-  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/categories/</loc>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/tags/</loc>
