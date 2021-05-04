@@ -1,6 +1,22 @@
 # WebLogic Deploy Tooling
 
-Many organizations are using WebLogic Server, with or without other Oracle Fusion Middleware components, to run their enterprise applications.  As more and more organizations move toward Continuous Delivery of their applications, the importance of automated testing grows.  Automating WebLogic Server domain creation and application deployment with hand-coded WLST scripts is challenging.  After those scripts exist for a project, they must be maintained as the project evolves.  The motivation for the WebLogic Deploy Tooling project is to remove the need for most users to write WLST scripts for routine domain creation and application deployment tasks.  Instead, the project team can write a declarative, metadata model describing the domain and applications (with their dependent resources), and use one or more of the single-purpose tools provided that perform domain lifecycle operations based on the content of the model.  The goal is to make it easy to stand up environments and perform domain lifecycle operations in a repeatable fashion based on a metadata model that can be treated as source and evolve as the project evolves.
+WebLogic Deploy Tooling (WDT) makes it easy to stand up WebLogic environments and perform
+domain lifecycle operations in a repeatable fashion based on a metadata model that
+can be treated as source and evolve as the project evolves.
+
+Many organizations use WebLogic Server, with or without other Oracle Fusion Middleware components,
+to run their enterprise applications. And, as more and more of these organizations move toward Continuous Delivery
+of their applications, the importance of automated configuration application deployment grows. This automation
+is often implemented using the WebLogic Scripting Tool (WLST) configuration and deployment scripting language, but this is challenging.
+Such scripts must be carefully updated as the project evolves or the project is deployed to different environments,
+such as test to production.
+
+WebLogic Deploy Tooling  removes the need for most WebLogic Server deployments to rely on hand-coded WLST
+scripts for automating routine domain creation and application deployment tasks. It lets you write a
+declarative, metadata model, describing the domain and applications (with their dependent resources),
+and provides single-purpose tools that perform domain lifecycle operations based on the content of
+the model. It also lets you specify simple mutations suitable for moving your model between
+different environments, such as between test and production.
 
 WDT provides several single-purpose tools, all exposed as shell scripts (for both Windows and UNIX), that can:
 
