@@ -107,14 +107,13 @@ pipeline {
                         }
                     }
                 }
+
             }
             // after all sets are complete, the job will continue here.
-            stage('Save reports') {
-                post {
-                   always {
-                     archiveArtifacts artifacts: 'report*', fingerprint: true
-                   }
-                }
+            post {
+               always {
+                 archiveArtifacts artifacts: 'report*', fingerprint: true
+               }
             }
         }
         stage ('Save Nightly Installer'){
