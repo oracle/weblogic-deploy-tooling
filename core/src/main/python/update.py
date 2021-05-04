@@ -135,8 +135,9 @@ def __update_online(model, model_context, aliases):
     __logger.info("WLSDPLY-09007", admin_url, method_name=_method_name, class_name=_class_name)
 
     topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.ONLINE)
+    jdbc_names = None
     try:
-        topology_updater.update_machines_clusters_and_servers(delete_now=False)
+        jdbc_names = topology_updater.update_machines_clusters_and_servers(delete_now=False)
         topology_updater.warn_set_server_groups()
     except DeployException, de:
         deployer_utils.release_edit_session_and_disconnect()
@@ -157,6 +158,7 @@ def __update_online(model, model_context, aliases):
         raise ex
 
     try:
+        topology_updater.clear_placeholder_targeting(jdbc_names)
         topology_updater.update()
         model_deployer.deploy_resources(model, model_context, aliases, wlst_mode=__wlst_mode)
         deployer_utils.delete_online_deployment_targets(model, aliases, __wlst_mode)
@@ -197,7 +199,7 @@ def __update_offline(model, model_context, aliases):
 
     topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.OFFLINE)
     # deleting servers that are added by templates before set server groups causes mayhem
-    topology_updater.update_machines_clusters_and_servers(delete_now=False)
+    jdbc_names = topology_updater.update_machines_clusters_and_servers(delete_now=False)
 
     # update rcu schema password must happen before updating jrf domain
     if model_context.get_update_rcu_schema_pass() is True:
@@ -207,7 +209,7 @@ def __update_offline(model, model_context, aliases):
     __update_offline_domain()
 
     topology_updater.set_server_groups()
-
+    topology_updater.clear_placeholder_targeting(jdbc_names)
     topology_updater.update()
 
     # Add resources after server groups are established to prevent auto-renaming
