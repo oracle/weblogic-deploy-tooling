@@ -237,6 +237,22 @@
                             </rules>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>enforce-wlst</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipTests}</skip>
+                            <rules>
+                                <requireProperty>
+                                    <property>unit-test-wlst-dir</property>
+                                    <message>Unable to find WLST in order to run unit tests. Please set the unit-test-wlst-dir System property to point to the directory where wlst.sh lives in the Oracle Home. Or, set WLST_DIR environment variable. An example can be found in .mvn/maven.config-template. Optionally, you may -DskipTests.
+                                    </message>
+                                </requireProperty>
+                            </rules>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
