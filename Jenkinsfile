@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     triggers {
-        // timer trigger for "nightly build" on master branch
-        cron( env.BRANCH_NAME.equals('master') ? 'H H(0-3) * * 1-5' : '')
+        // timer trigger for "nightly build" on main branch
+        cron( env.BRANCH_NAME.equals('main') ? 'H H(0-3) * * 1-5' : '')
     }
 
     stages {
@@ -82,7 +82,7 @@ pipeline {
             when {
                 allOf {
                     triggeredBy 'TimerTrigger'
-                    branch "master"
+                    branch "main"
                 }
             }
             matrix {
@@ -121,12 +121,12 @@ pipeline {
             when {
                 allOf {
                     triggeredBy 'TimerTrigger'
-                    branch "master"
+                    branch "main"
                 }
             }
             steps {
                 sh '''
-                    oci os object put --namespace=weblogick8s --bucket-name=wko-system-test-files --config-file=/dev/null --auth=instance_principal --force --file=installer/target/weblogic-deploy.zip --name=weblogic-deploy-master.zip
+                    oci os object put --namespace=weblogick8s --bucket-name=wko-system-test-files --config-file=/dev/null --auth=instance_principal --force --file=installer/target/weblogic-deploy.zip --name=weblogic-deploy-main.zip
                 '''
             }
         }
