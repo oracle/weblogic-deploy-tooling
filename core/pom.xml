@@ -31,6 +31,7 @@
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <!-- Need to resolve Jython classes at compile time.  At runtime, WLST will provide the classes. -->
         <dependency>
