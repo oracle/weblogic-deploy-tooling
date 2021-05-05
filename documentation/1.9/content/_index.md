@@ -38,7 +38,7 @@ For detailed information, see [WDT Tools]({{< relref "/userguide/tools/" >}}).
 ***
 ### Current production release
 
-WebLogic Deploy Tooling version and release information is found [here](https://github.com/oracle/weblogic-deploy-tooling/releases).
+WebLogic Deploy Tooling version and release information can be found [here](https://github.com/oracle/weblogic-deploy-tooling/releases).
 
 ***
 ### Recent changes and known issues
