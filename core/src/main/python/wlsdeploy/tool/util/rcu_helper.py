@@ -34,7 +34,9 @@ class RCUHelper(Deployer):
         if RCU_DB_INFO in domain_info:
             rcu_db_info = RcuDbInfo(self.model_context, self.aliases, domain_info[RCU_DB_INFO])
             rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
-            rcu_prefix = rcu_db_info.get_rcu_prefix()
+            # upper case the prefix, the user may specify prefix as lower case
+            # but the prefix will always be upper case in the db.
+            rcu_prefix = rcu_db_info.get_rcu_prefix().upper()
 
             location = LocationContext()
             location.append_location(JDBC_SYSTEM_RESOURCE)
