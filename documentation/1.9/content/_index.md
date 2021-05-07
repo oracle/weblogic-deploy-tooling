@@ -52,7 +52,9 @@ This documentation includes sections targeted to different audiences:
 * [Concepts]({{< relref "/concepts/" >}}) explains the underlying metadata models and archive files.
 * The [User Guide]({{< relref "/userguide/" >}}) contains detailed usage information, including how to install and configure WebLogic Deploy Tooling, and how to use each tool.
 * The [Samples]({{< relref "/samples/" >}}) provide informative use case scenarios.
-* The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who want to understand how WDT is built, its features mapped and implemented.
+* The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who
+want to understand how WDT is built, its features mapped and implemented. Those who
+wish to contribute to the WebLogic Deploy Tooling code will find useful information [here]({{< relref "/developer/contribute.md" >}}).
 
 ### Related projects
 
@@ -61,6 +63,3 @@ This documentation includes sections targeted to different audiences:
 * [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
 * [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
 * [WebLogic Remote Console](https://github.com/oracle/weblogic-remote-console)
-
-### Contributing
-Those who wish to contribute to the WebLogic Deploy Tooling code will find useful information [here](https://github.com/oracle/weblogic-deploy-tooling/blob/master/CONTRIBUTING.md).

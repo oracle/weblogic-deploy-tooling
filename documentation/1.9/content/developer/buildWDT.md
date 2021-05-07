@@ -31,7 +31,7 @@ If you are using an IDE for development and building, creating a `maven-config` 
 
 If you are making changes to the project, you can build the project using this command line:
 
-  `mvn -Dunit-test-wlst-dir=<wlst-directory> clean install`
+  `$ mvn -Dunit-test-wlst-dir=<wlst-directory> clean install`
 
 This will build the entire project and run the unit tests. Omit the `-Dunit-test-wlst-dir=` argument if you have created a `maven.config` file, as described above.
 
@@ -40,6 +40,6 @@ the -D setting will take precedence.
 
 If you are not making changes and are only interested in building the latest version, then you can skip the unit tests, using this command line:
 
-  `mvn -DskipTests clean install`
+  `$ mvn -DskipTests clean install`
 
 The resulting installer ZIP file built is under the `WLSDEPLOY_HOME/installer/target` directory.

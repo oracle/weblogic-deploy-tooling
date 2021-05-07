@@ -212,7 +212,7 @@ resources:
 ```
 To compare the two model files, run the tool as follows:
 
-    weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 new_model.yaml old_model.yaml
+    $ weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 new_model.yaml old_model.yaml
 
 The output of the tool will look something like this:
 
@@ -285,7 +285,7 @@ Comparing the new and old models:
 
  To compare the two model files and generate the output to files, run the tool as follows:
 
-    weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 -output_dir c:\cm-output ew_model.yaml old_model.yaml
+    $ weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 -output_dir c:\cm-output ew_model.yaml old_model.yaml
 
     The following files will be written to the directory:
 

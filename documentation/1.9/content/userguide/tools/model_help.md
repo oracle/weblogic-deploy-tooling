@@ -15,7 +15,7 @@ The `-model_sample` argument is deprecated starting with WebLogic Deploy Tooling
 
 Here is a simple example using the Model Help Tool:
 ```yaml
-<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource
+$ <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource
 ```
 This will result in the following output:
 ```yaml
@@ -46,7 +46,7 @@ Folders that support multiple instances, such as `JDBCSystemResource` in this ex
 
 Each sub-folder includes a comment with a model path that can be used to display additional information about that sub-folder. For example, to determine the attributes and sub-folders for `'SubDeployment-1'`, the Model Help Tool could be re-invoked with the model path from the comment:
 ```yaml
-<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -model_sample /JDBCSystemResource/SubDeployment
+$ <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -model_sample /JDBCSystemResource/SubDeployment
 ```
 You can use the information above to construct this model section:
 ```yaml
@@ -106,7 +106,7 @@ This option will recursively list all the sub-folders within the specified path.
 
 Here is an example using the `-recursive` option:
 ```yaml
-<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -recursive resources:/JDBCSystemResource
+$ <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -recursive resources:/JDBCSystemResource
 ```
 The output is:
 ```yaml

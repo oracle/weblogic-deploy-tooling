@@ -47,7 +47,13 @@ The directory where the model is optionally located. Only one model file, either
 The directory where a wallet can be stored for use with Oracle Platform Security Services. The file resource name is not specified in the model, and is assumed to be a single ZIP file in the archive at this location.  
 
 #### `wlsdeploy/applications`
-The root directory under which applications are stored. Applications can be stored in the archive as EAR or WAR files, or expanded* under this folder. A sample expanded WAR application might have these entries:
+The root directory under which applications are stored. Applications can be stored in the archive as EAR or WAR files, or expanded under this folder.
+
+{{% notice note %}} Expanded application directories are supported after WebLogic Deploy Tooling release 1.6.2.
+{{% /notice %}}
+
+A sample expanded WAR application might have these entries:
+
 ```
 wlsdeploy/applications/myApp/index.jsp
 wlsdeploy/applications/myApp/META-INF/MANIFEST.MF
@@ -56,8 +62,6 @@ wlsdeploy/applications/myApp/WEB-INF/web.xml
 wlsdeploy/applications/myApp/WEB-INF/weblogic.xml
 ```
 
-\* Expanded application directories are supported after WebLogic Deploy Tooling release 1.6.2
-
 #### `wlsdeploy/classpathLibraries`
 The root directory under which JARs/directories used for server classpaths are stored. Every file resource under this directory is extracted, even those not referenced in the model.
 
@@ -65,19 +69,19 @@ The root directory under which JARs/directories used for server classpaths are s
 The root directory under which empty directories must exist for Coherence persistent stores.
 
 #### `wlsdeploy/domainBin`
-The root directory under which $DOMAIN_HOME/bin scripts are stored. Only scripts referenced in the `domainInfo/domainBin` section of the model are extracted.
+The root directory under which `$DOMAIN_HOME/bin` scripts are stored. Only scripts referenced in the `domainInfo/domainBin` section of the model are extracted.
 
 #### `wlsdeploy/domainLibraries`
 The root directory under which `$DOMAIN_HOME/lib` libraries are stored. Only libraries referenced in the `domainInfo/domainLibraries` section of the model are extracted.
 
 #### `wlsdeploy/nodeManager`
-The root directory under which node manager file resources, such as keystore files, are stored.
+The root directory under which Node Manager file resources, such as keystore files, are stored.
 
 #### `wlsdeploy/scripts`
 The root directory under which scripts are stored. These can include JDBC create scripts, and WLDF action scripts.
 
 #### `wlsdeploy/servers`
-The root directory under which server files, such as keystore files, are stored. These are organized by server name, such as `wlsdeploy/server/my-server/mykey.jks`
+The root directory under which server files, such as keystore files, are stored. These are organized by server name, such as `wlsdeploy/server/my-server/mykey.jks`.
 
 #### `wlsdeploy/sharedLibraries`
 The root directory under which shared libraries are stored. These are stored as JAR files within the archive.
@@ -89,7 +93,7 @@ The root directory under which empty directories must exist for `FileStore` elem
 
 The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple archive files on the command line. For example:
 
-    weblogic-deploy\bin\createDomain.cmd -archive_file one.zip,two.zip,three.zip ...
+    $ weblogic-deploy\bin\createDomain.cmd -archive_file one.zip,two.zip,three.zip ...
 
 File resources can be present in any of these archives. Resources in each archive will supersede resources found in previous archives.
 

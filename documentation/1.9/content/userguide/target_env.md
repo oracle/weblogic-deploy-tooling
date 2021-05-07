@@ -18,7 +18,7 @@ Each tool specifies a target environment using the command-line argument `-targe
 
 This command line shows how these arguments can be used with the Discover Domain Tool:
 ```yaml
- $WLSDEPLOY_HOME/bin/discoverDomain.sh ... -target k8s -output_dir /etc/files
+ $ $WLSDEPLOY_HOME/bin/discoverDomain.sh ... -target k8s -output_dir /etc/files
 ```
 This example would apply the `k8s` target type to the discovery result, and place those files in `/etc/files`.
 

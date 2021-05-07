@@ -109,9 +109,9 @@ description: "Special handling and model semantics for WebLogic Server security 
  Here is an example of how to prepare and install a schema file from its MBean Jar File (MJF):
 
  ```bash
- export CONFIG_JVM_ARGS=-DSchemaTypeSystemName=TrustServiceIdentityAsserter
+ $ export CONFIG_JVM_ARGS=-DSchemaTypeSystemName=TrustServiceIdentityAsserter
 
- ORACLE_HOME/oracle_common/common/bin/prepareCustomProvider.sh -mjf=ORACLE_HOME/oracle_common/modules/oracle.jps/jps-wls-trustprovider.jar -out ORACLE_HOME/oracle_common/lib/schematypes/jps-wls-trustprovider.schema.jar
+ $ ORACLE_HOME/oracle_common/common/bin/prepareCustomProvider.sh -mjf=ORACLE_HOME/oracle_common/modules/oracle.jps/jps-wls-trustprovider.jar -out ORACLE_HOME/oracle_common/lib/schematypes/jps-wls-trustprovider.schema.jar
 
  ```
  For FMW versions 12.1.2 and 12.1.3, replace `oracle.jps` in the example path above with:

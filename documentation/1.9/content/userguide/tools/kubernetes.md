@@ -20,7 +20,7 @@ More information about the WebLogic Kubernetes Operator can be found [here](http
 
 Here is an example command line for the Extract Domain Resource Tool:
 ```
-<wls-deploy-home>/bin/extractDomainResource.sh -oracle_home /tmp/oracle -domain_home /u01/mydomain -model_file /tmp/mymodel.yaml -variable_file /tmp/my.properties -domain_resource_file /tmp/operator/domain-resource.yaml
+$ <wls-deploy-home>/bin/extractDomainResource.sh -oracle_home /tmp/oracle -domain_home /u01/mydomain -model_file /tmp/mymodel.yaml -variable_file /tmp/my.properties -domain_resource_file /tmp/operator/domain-resource.yaml
 ```
 
 For the simplest case, the Extract Domain Resource Tool will create a sparse domain file. This is what is generated when there is not a `kubernetes` section in the model, or that section is empty.
