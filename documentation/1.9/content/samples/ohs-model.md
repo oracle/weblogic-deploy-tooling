@@ -50,6 +50,6 @@ Each name under the `OHS` folder must match a name under the `SystemComponent` f
 The `ComponentType` field of the `SystemComponent` element must be set to `OHS` in order to allow configuration of the corresponding `OHS` folders.
 
 You can use the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the `OHS` folder:
-```yaml
+```bash
 $ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/OHS
 ```

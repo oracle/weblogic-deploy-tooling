@@ -31,7 +31,7 @@ resources:
                             Value: scott
 ```
 There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}). For example, this command will list the attributes and sub-folders for the `JDBCSystemResource/JdbcResource` folder:
-```yaml
+```bash
 $ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource/JdbcResource
 ```
 
