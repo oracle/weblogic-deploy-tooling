@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # *****************************************************************************
 # extractDomainResource.sh
 #
@@ -71,7 +71,7 @@ WLSDEPLOY_PROGRAM_NAME="extractDomainResource"; export WLSDEPLOY_PROGRAM_NAME
 
 scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
-scriptArgs=$*
+scriptArgs=( "$@" )
 
 . "$scriptPath/shared.sh"
 

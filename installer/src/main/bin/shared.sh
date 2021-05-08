@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # *****************************************************************************
 # shared.sh
 #
@@ -33,12 +33,12 @@ javaSetup() {
       exit 2
     fi
 
-    JVM_OUTPUT=`"${JAVA_EXE}" -version 2>&1`
+    JVM_OUTPUT=$("${JAVA_EXE}" -version 2>&1)
 
     case "${JVM_OUTPUT}" in
       *GraalVM*)
         setOracleVersion
-        if [ -z "${ORACLE_VERSION}" ] || [ ${ORACLE_VER_ONE} -lt 14 ] || [ ${ORACLE_VER_ONE} -eq 14 ] && [ ${ORACLE_VER_THREE} -lt 2 ]; then
+        if [ -z "${ORACLE_VERSION}" ] || [ "${ORACLE_VER_ONE}" -lt 14 ] || [ "${ORACLE_VER_ONE}" -eq 14 ] && [ "${ORACLE_VER_THREE}" -lt 2 ]; then
           echo "JAVA_HOME ${JAVA_HOME} contains GraalVM OpenJDK, which is not supported before 14.1.2" >&2
           exit 2
         fi
@@ -51,16 +51,16 @@ javaSetup() {
     esac
 
 
-    JVM_FULL_VERSION=`"${JAVA_EXE}" -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
+    JVM_FULL_VERSION=$("${JAVA_EXE}" -fullversion 2>&1 | awk -F"\"" '{ print $2 }')
 
     # set JVM version to the major version, unless equal to 1, like 1.8.0, then use the minor version
-    JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $1 }'`
+    JVM_VERSION=$(echo "${JVM_FULL_VERSION}" | awk -F"." '{ print $1 }')
 
     if [ "${JVM_VERSION}" -eq "1" ]; then
-      JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $2 }'`
+      JVM_VERSION=$(echo "${JVM_FULL_VERSION}" | awk -F"." '{ print $2 }')
     fi
 
-    if [ ${JVM_VERSION} -lt $minJdkVersion ]; then
+    if [ "${JVM_VERSION}" -lt "$minJdkVersion" ]; then
       echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
       exit 2
     else
@@ -69,14 +69,14 @@ javaSetup() {
 }
 
 setOracleVersion() {
-  ORACLE_VERSION=`"${JAVA_HOME}/bin/java" -cp "$ORACLE_HOME/wlserver/server/lib/weblogic.jar" weblogic.version | grep "WebLogic Server" | cut -d " " -f3 2>&1`
-  ORACLE_VER_ONE=`echo ${ORACLE_VERSION} | cut -d "." -f1`
-  ORACLE_VER_THREE=`echo ${ORACLE_VERSION} | cut -d "." -f3`
-  echo ORACLE_VERSION=$ORACLE_VERSION
+  ORACLE_VERSION=$("${JAVA_HOME}/bin/java" -cp "$ORACLE_HOME/wlserver/server/lib/weblogic.jar" weblogic.version | grep "WebLogic Server" | cut -d " " -f3 2>&1)
+  ORACLE_VER_ONE=$(echo "${ORACLE_VERSION}" | cut -d "." -f1)
+  ORACLE_VER_THREE=$(echo "${ORACLE_VERSION}" | cut -d "." -f3)
+  echo ORACLE_VERSION="$ORACLE_VERSION"
 }
 
 checkArgs() {
-    checkJythonArgs $*
+    checkJythonArgs "$@"
 }
 
 checkJythonArgs() {
@@ -88,7 +88,7 @@ checkJythonArgs() {
 
     # if no args were given and print the usage message
     if [ "$#" -eq "0" ]; then
-      usage `basename "$0"`
+      usage "$(basename "$0")"
       exit 0
     fi
 
@@ -99,7 +99,7 @@ checkJythonArgs() {
         key="$1"
         case $key in
             -help)
-            usage `basename "$0"`
+            usage "$(basename "$0")"
             exit 0
             ;;
             -oracle_home)
@@ -126,7 +126,7 @@ checkJythonArgs() {
         # if -oracle_home argument was not found, but ORACLE_HOME was set in environment,
         # add the -oracle_home argument with the environment value.
         # put it at the beginning to protect trailing arguments.
-        scriptArgs="-oracle_home \"${ORACLE_HOME}\" ${scriptArgs}"
+        scriptArgs=(-oracle_home "$ORACLE_HOME" "${scriptArgs[@]}")
     fi
 
     #
@@ -135,7 +135,7 @@ checkJythonArgs() {
     #
     if [ -z "${ORACLE_HOME}" ]; then
         echo "-oracle_home not provided, and ORACLE_HOME not set" >&2
-        usage `basename "$0"`
+        usage "$(basename "$0")"
         exit 99
     elif [ ! -d "${ORACLE_HOME}" ]; then
         echo "The specified Oracle home directory does not exist: ${ORACLE_HOME}" >&2
@@ -150,7 +150,7 @@ variableSetup() {
 
     if [ -z "${WLSDEPLOY_HOME}" ]; then
         BASEDIR="$( cd "$( dirname "$0" )" && pwd )"
-        WLSDEPLOY_HOME=`cd "${BASEDIR}/.." ; pwd`
+        WLSDEPLOY_HOME=$(cd "${BASEDIR}/.." ; pwd)
         export WLSDEPLOY_HOME
     elif [ ! -d "${WLSDEPLOY_HOME}" ]; then
         echo "Specified WLSDEPLOY_HOME of ${WLSDEPLOY_HOME} does not exist" >&2
@@ -236,9 +236,9 @@ runWlst() {
     echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
 
     PY_SCRIPTS_PATH="${WLSDEPLOY_HOME}/lib/python"
-    echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript ${scriptArgs}"
+    echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript" "${scriptArgs[@]}"
 
-    "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" ${scriptArgs}
+    "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" "${scriptArgs[@]}"
 
     RETURN_CODE=$?
     checkExitCode ${RETURN_CODE}
@@ -281,15 +281,15 @@ runJython() {
     PY_SCRIPTS_PATH="${WLSDEPLOY_HOME}/lib/python"
 
     echo \
-    ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
-        ${JAVA_PROPERTIES} \
+    "${JAVA_HOME}"/bin/java -cp "${CLASSPATH}" \
+        "${JAVA_PROPERTIES}" \
         org.python.util.jython \
-        "${PY_SCRIPTS_PATH}/$jythonScript" ${scriptArgs}
+        "${PY_SCRIPTS_PATH}/$jythonScript $*"
 
     "${JAVA_HOME}/bin/java" -cp "${CLASSPATH}" \
-        ${JAVA_PROPERTIES} \
+        "${JAVA_PROPERTIES}" \
         org.python.util.jython \
-        "${PY_SCRIPTS_PATH}/$jythonScript" ${scriptArgs}
+        "${PY_SCRIPTS_PATH}/$jythonScript " "$@"
 
     RETURN_CODE=$?
     checkExitCode ${RETURN_CODE}
@@ -306,25 +306,25 @@ checkExitCode() {
     if [ $returnCode -eq 104 ]; then
       echo ""
       echo "$scriptName completed successfully but the domain changes have been canceled because -cancel_changes_if_restart_required is specified (exit code = ${RETURN_CODE})"
-    elif [ $returnCode -eq 103 ]; then
+    elif [ "$returnCode" -eq 103 ]; then
       echo ""
       echo "$scriptName completed successfully but the domain requires a restart for the changes to take effect (exit code = ${RETURN_CODE})"
-    elif [ $returnCode -eq 100 ]; then
-      usage `basename $0`
-    elif [ $returnCode -eq 99 ]; then
-      usage `basename $0`
+    elif [ "$returnCode" -eq 100 ]; then
+      usage "$(basename "$0")"
+    elif [ "$returnCode" -eq 99 ]; then
+      usage "$(basename "$0")"
       echo ""
       echo "$scriptName failed due to the usage error shown above" >&2
-    elif [ $returnCode -eq 98 ]; then
+    elif [ "$returnCode" -eq 98 ]; then
       echo ""
       echo "$scriptName failed due to a parameter validation error" >&2
-    elif [ $returnCode -eq 2 ]; then
+    elif [ "$returnCode" -eq 2 ]; then
       echo ""
       echo "$scriptName failed (exit code = $returnCode)" >&2
-    elif [ $returnCode -eq 1 ]; then
+    elif [ "$returnCode" -eq 1 ]; then
       echo ""
       echo "$scriptName completed but with some issues (exit code = $returnCode)" >&2
-    elif [ $returnCode -eq 0 ]; then
+    elif [ "$returnCode" -eq 0 ]; then
       echo ""
       echo "$scriptName completed successfully (exit code = $returnCode)"
     else

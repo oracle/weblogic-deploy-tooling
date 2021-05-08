@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # *****************************************************************************
 # discoverDomain.sh
 #
@@ -92,7 +92,7 @@ WLSDEPLOY_PROGRAM_NAME="discoverDomain"; export WLSDEPLOY_PROGRAM_NAME
 
 scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
-scriptArgs=$*
+scriptArgs=( "$@" )
 
 . "$scriptPath/shared.sh"
 
