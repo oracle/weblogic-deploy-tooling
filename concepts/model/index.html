@@ -12,20 +12,20 @@
     <title>Metadata Model :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620660387" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620660387"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620660156"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620660156"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620660387"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620660387"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620660156"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620660387"></script>
 
     
   </div>
@@ -1013,6 +1013,27 @@
 
             
           
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/contribute/">
+        Contribute to WDT
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
         
         </ul>
       
@@ -1245,7 +1266,10 @@
 <p>The second method for locating the Kubernetes secret file is to use the environment variable <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> to map <code>&lt;name&gt;</code> values to specific directory locations. For example, if <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> is set to <code>my-root=/etc/my-secrets,your-root=/etc/your-secrets</code>, then the token <code>@@SECRET:your-root:the-secret@@</code> will look for the secrets file at:</p>
 <pre><code>/etc/your-secrets/the-secret
 </code></pre><p>If the <code>&lt;name&gt;</code> value has a corresponding mapped directory in <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code>, then that directory will take precedence over any roots specified in <code>WDT_MODEL_SECRETS_DIRS</code>.</p>
-<p>NOTE: It is important that the secrets directories contain only secrets files, because those files are examined to create a list of available name/key pairs.</p>
+
+<div class="notices note" ><p>It is important that the secrets directories contain only secrets files, because those files are examined to create a list of available name/key pairs.</p>
+</div>
+
 <p><strong>Path tokens</strong> are tokens that reference known values, and can be used to make the model more portable. For example, a model may reference a WebLogic library source path as:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">SourcePath</span>: <span style="color:#e6db74">&#39;@@WL_HOME@@/common/deployable-libraries/jsf-2.0.war&#39;</span>
 </code></pre></div><p>Using the path token <code>@@WL_HOME@@</code> allows the model to be used across multiple environments, even if the WebLogic installation directory is different. Path tokens can be used at any location in the model that specifies a file or directory location.  The supported tokens are:</p>
@@ -1307,10 +1331,10 @@
                 <span style="color:#f92672">AuthenticationProvider</span>:
                 <span style="color:#ae81ff">...</span>
 </code></pre></div><p>This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See <a href="/weblogic-deploy-tooling/samples/securityproviders-model/">Modeling security providers</a> for detailed information.</p>
-<p>This feature cannot be use to un-deploy applications or remove libraries.</p>
+<p>This feature cannot be use to undeploy applications or remove libraries.</p>
 <h3 id="using-multiple-models">Using multiple models</h3>
 <p>The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple models on the command line. For example:</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -model_file modelOne,modelTwo,modelThree ...
+<pre><code>$ weblogic-deploy\bin\createDomain.cmd -model_file modelOne,modelTwo,modelThree ...
 </code></pre>
 <p>In this case, the models are merged into a single model before being applied. Each successive model is added to the previous model. In cases where entities exist in both models, the attributes are combined and attribute values from successive models prevail.  The resulting model is then verified before being applied.
 For example, if Model 1 looks like:</p>
@@ -2068,6 +2092,22 @@ For example, if Model 1 looks like:</p>
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -2093,19 +2133,19 @@ For example, if Model 1 looks like:</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620660387"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620660387"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620660156"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620660387"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

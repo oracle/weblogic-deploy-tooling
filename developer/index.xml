@@ -59,5 +59,17 @@ The WLST directory can be specified in one of two ways:
 Prerequisites  A local installation of WebLogic Server 12.2.1.x must be available. The person running the release process must have admin privileges on the WebLogic Deploy Tooling GitHub repo because the release process pushes to the master branch directly. The person running the release process needs to create a GitHub Personal Access Token for the repository with (at least) the repo:status, repo_deployment, public_repo, and security_events privileges.</description>
     </item>
     
+    <item>
+      <title>Contribute to WDT</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/contribute/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/contribute/</guid>
+      <description>Oracle welcomes contributions to this repository from anyone.
+If you want to submit a pull request to fix a bug or enhance an existing feature, first open an issue and link to that issue when you submit your pull request.
+If you have any questions about a possible submission, feel free to open an issue too.
+Contributing to the WebLogic Deploy repository Pull requests can be made under The Oracle Contributor Agreement (OCA).</description>
+    </item>
+    
   </channel>
 </rss>

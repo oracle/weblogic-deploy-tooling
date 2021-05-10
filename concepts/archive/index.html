@@ -12,20 +12,20 @@
     <title>Archive File :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620660387" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620660387"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620660156"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620660156"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620660387"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620660387"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620660156"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620660387"></script>
 
     
   </div>
@@ -1013,6 +1013,27 @@
 
             
           
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/contribute/">
+        Contribute to WDT
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
         
         </ul>
       
@@ -1145,34 +1166,38 @@
 <h4 id="opsswallet"><code>opsswallet</code></h4>
 <p>The directory where a wallet can be stored for use with Oracle Platform Security Services. The file resource name is not specified in the model, and is assumed to be a single ZIP file in the archive at this location.</p>
 <h4 id="wlsdeployapplications"><code>wlsdeploy/applications</code></h4>
-<p>The root directory under which applications are stored. Applications can be stored in the archive as EAR or WAR files, or expanded* under this folder. A sample expanded WAR application might have these entries:</p>
+<p>The root directory under which applications are stored. Applications can be stored in the archive as EAR or WAR files, or expanded under this folder.</p>
+
+<div class="notices note" ><p>Expanded application directories are supported after WebLogic Deploy Tooling release 1.6.2.</p>
+</div>
+
+<p>A sample expanded WAR application might have these entries:</p>
 <pre><code>wlsdeploy/applications/myApp/index.jsp
 wlsdeploy/applications/myApp/META-INF/MANIFEST.MF
 wlsdeploy/applications/myApp/WEB-INF/classes/MyClass.class
 wlsdeploy/applications/myApp/WEB-INF/web.xml
 wlsdeploy/applications/myApp/WEB-INF/weblogic.xml
-</code></pre><p>* Expanded application directories are supported after WebLogic Deploy Tooling release 1.6.2</p>
-<h4 id="wlsdeployclasspathlibraries"><code>wlsdeploy/classpathLibraries</code></h4>
+</code></pre><h4 id="wlsdeployclasspathlibraries"><code>wlsdeploy/classpathLibraries</code></h4>
 <p>The root directory under which JARs/directories used for server classpaths are stored. Every file resource under this directory is extracted, even those not referenced in the model.</p>
 <h4 id="wlsdeploycoherence"><code>wlsdeploy/coherence</code></h4>
 <p>The root directory under which empty directories must exist for Coherence persistent stores.</p>
 <h4 id="wlsdeploydomainbin"><code>wlsdeploy/domainBin</code></h4>
-<p>The root directory under which $DOMAIN_HOME/bin scripts are stored. Only scripts referenced in the <code>domainInfo/domainBin</code> section of the model are extracted.</p>
+<p>The root directory under which <code>$DOMAIN_HOME/bin</code> scripts are stored. Only scripts referenced in the <code>domainInfo/domainBin</code> section of the model are extracted.</p>
 <h4 id="wlsdeploydomainlibraries"><code>wlsdeploy/domainLibraries</code></h4>
 <p>The root directory under which <code>$DOMAIN_HOME/lib</code> libraries are stored. Only libraries referenced in the <code>domainInfo/domainLibraries</code> section of the model are extracted.</p>
 <h4 id="wlsdeploynodemanager"><code>wlsdeploy/nodeManager</code></h4>
-<p>The root directory under which node manager file resources, such as keystore files, are stored.</p>
+<p>The root directory under which Node Manager file resources, such as keystore files, are stored.</p>
 <h4 id="wlsdeployscripts"><code>wlsdeploy/scripts</code></h4>
 <p>The root directory under which scripts are stored. These can include JDBC create scripts, and WLDF action scripts.</p>
 <h4 id="wlsdeployservers"><code>wlsdeploy/servers</code></h4>
-<p>The root directory under which server files, such as keystore files, are stored. These are organized by server name, such as <code>wlsdeploy/server/my-server/mykey.jks</code></p>
+<p>The root directory under which server files, such as keystore files, are stored. These are organized by server name, such as <code>wlsdeploy/server/my-server/mykey.jks</code>.</p>
 <h4 id="wlsdeploysharedlibraries"><code>wlsdeploy/sharedLibraries</code></h4>
 <p>The root directory under which shared libraries are stored. These are stored as JAR files within the archive.</p>
 <h4 id="wlsdeploystores"><code>wlsdeploy/stores</code></h4>
 <p>The root directory under which empty directories must exist for <code>FileStore</code> elements in the model.</p>
 <h3 id="using-multiple-archive-files">Using multiple archive files</h3>
 <p>The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple archive files on the command line. For example:</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -archive_file one.zip,two.zip,three.zip ...
+<pre><code>$ weblogic-deploy\bin\createDomain.cmd -archive_file one.zip,two.zip,three.zip ...
 </code></pre>
 <p>File resources can be present in any of these archives. Resources in each archive will supersede resources found in previous archives.</p>
 <p>When the model references a resource that is present in multiple archives, the latest in the list takes precedence. For example, if the model references <code>wlsdeploy/applications/myapp.ear</code>, and that resource is present in archives <code>one.zip</code> and <code>two.zip</code>, the resource in <code>two.zip</code> will be used.</p>
@@ -1873,6 +1898,22 @@ wlsdeploy/applications/myApp/WEB-INF/weblogic.xml
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -1898,19 +1939,19 @@ wlsdeploy/applications/myApp/WEB-INF/weblogic.xml
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620660387"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620660387"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620660156"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620660387"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

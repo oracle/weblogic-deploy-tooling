@@ -12,20 +12,20 @@
     <title>Create Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1620660156" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1620660387" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620660387" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620660387"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620660156"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620660156"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620660387"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620660387"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620660156"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620660387"></script>
 
     
   </div>
@@ -1013,6 +1013,27 @@
 
             
           
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/contribute/">
+        Contribute to WDT
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
         
         </ul>
       
@@ -1129,11 +1150,11 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
 </code></pre></div><p>Using the model above, simply run the <code>createDomain</code> tool, specifying the type of domain to create and where to create it.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml
+<pre><code>$ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml
 </code></pre>
 <p>Clearly, creating an empty domain with only the template-defined servers is not very interesting, but this example just reinforces how sparse the model can be.  When running the Create Domain Tool, the model must be provided either inside the archive file or as a standalone file.  If both the archive and model files are provided, the model file outside the archive will take precedence over any that might be inside the archive.  If the archive file is not provided, the Create Domain Tool will create the <code>topology</code> section only (using the <code>domainInfo</code> section) of the model in the domain.  This is because the <code>resources</code> and <code>appDeployments</code> sections of the model can reference files from the archive so to create the domain with the model-defined resources and applications, an archive file must be provided&ndash;even if the model does not reference anything in the archive.  At some point in the future, this restriction may be relaxed to require the archive only if it is actually needed.</p>
 <p>The Create Domain Tool understands three domain types: <code>WLS</code>, <code>RestrictedJRF</code>, and <code>JRF</code>.  When specifying the domain type, the Oracle Home must match the requirements for the domain type.  Both <code>RestrictedJRF</code> and <code>JRF</code> require an Oracle Home with the FMW Infrastucture (also known as JRF) installed.  When creating a JRF domain, the RCU database information must be provided as arguments to the <code>createDomain</code> script.  Note that the tool will prompt for any passwords required.  Optionally, they can be piped to standard input (for example, <code>stdin</code>) of the script, to make the script run without user input.  For example, the command to create a JRF domain looks like the one below.  Note that this requires the user to have run RCU prior to running the command.</p>
-<pre><code>weblogic-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO [-rcu_db_user SYS]
+<pre><code>$ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO [-rcu_db_user SYS]
 </code></pre>
 <p>To have the Create Domain Tool run RCU, simply add the <code>-run_rcu</code> argument to the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!</p>
 <p>It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to <a href="/weblogic-deploy-tooling/rcuinfo/">Specifying RCU connection information in the model</a>.</p>
@@ -1854,6 +1875,22 @@
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -1879,19 +1916,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620660387"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1620660156"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1620660387"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620660387"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620660156"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620660387"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

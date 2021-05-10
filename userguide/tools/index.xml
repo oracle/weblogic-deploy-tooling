@@ -15,7 +15,7 @@
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/</guid>
       <description>The Create Domain Tool uses a model and WLST offline to create a domain. To use the tool, at a minimum, the model must specify the domain&amp;rsquo;s administrative password in the domainInfo section of the model, as shown below.
 domainInfo: AdminPassword: welcome1 Using the model above, simply run the createDomain tool, specifying the type of domain to create and where to create it.
-weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.</description>
+$ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.</description>
     </item>
     
     <item>

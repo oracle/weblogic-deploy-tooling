@@ -15,7 +15,7 @@
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/</guid>
       <description>The Create Domain Tool uses a model and WLST offline to create a domain. To use the tool, at a minimum, the model must specify the domain&amp;rsquo;s administrative password in the domainInfo section of the model, as shown below.
 domainInfo: AdminPassword: welcome1 Using the model above, simply run the createDomain tool, specifying the type of domain to create and where to create it.
-weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.</description>
+$ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.</description>
     </item>
     
     <item>
@@ -54,7 +54,7 @@ Binary distributions of the weblogic-deploy.zip installer can be downloaded from
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/model_filters/</guid>
-      <description>WebLogic Deploy Tooling supports the use of model filters to manipulate the domain model. The Create Domain, Update Domain, and Deploy Applications Tool apply filters to the model after it is read, before it is validated and applied to the domain. The Discover Domain Tool applies filters to the model after it has been discovered, before the model is validated and written.
+      <description>WebLogic Deploy Tooling supports the use of model filters to manipulate the domain model. The Create Domain, Update Domain, and Deploy Applications Tools apply filters to the model after it is read, before it is validated and applied to the domain. The Discover Domain Tool applies filters to the model after it has been discovered, before the model is validated and written.
 Model filters are written in Jython, and must be compatible with the version used in the corresponding version of WLST.</description>
     </item>
     
@@ -236,6 +236,18 @@ Prerequisites  A local installation of WebLogic Server 12.2.1.x must be availabl
     </item>
     
     <item>
+      <title>Contribute to WDT</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/contribute/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/contribute/</guid>
+      <description>Oracle welcomes contributions to this repository from anyone.
+If you want to submit a pull request to fix a bug or enhance an existing feature, first open an issue and link to that issue when you submit your pull request.
+If you have any questions about a possible submission, feel free to open an issue too.
+Contributing to the WebLogic Deploy repository Pull requests can be made under The Oracle Contributor Agreement (OCA).</description>
+    </item>
+    
+    <item>
       <title>Modeling WebLogic users, groups, and roles</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/usersgroups-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
@@ -280,7 +292,7 @@ domainInfo: WLSUserPasswordCredentialMappings: CrossDomain: map1: RemoteDomain: 
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/odl-model/</guid>
-      <description>Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tool, starting with WDT release 1.5.2. ODL configuration is supported only for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool. This example shows how some common configuration elements can be represented in the model.
+      <description>Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tools, starting with WDT release 1.5.2. ODL configuration is supported only for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool. This example shows how some common configuration elements can be represented in the model.
 resources: ODLConfiguration: config1: Servers: &amp;#34;m1, m2&amp;#34; AddJvmNumber: true HandlerDefaults: abc: r123 xyz: k890 Handler: &amp;#39;my-handler&amp;#39;: Class: &amp;#39;com.</description>
     </item>
     
@@ -300,7 +312,7 @@ resources: ODLConfiguration: config1: Servers: &amp;#34;m1, m2&amp;#34; AddJvmNu
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/ohs-model/</guid>
-      <description>Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tool, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.
+      <description>Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.
 Prerequisites In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS here.
 The OHS template must be present in the WDT domain type definition file used to create or update the domain.</description>
     </item>
