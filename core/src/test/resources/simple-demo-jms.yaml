@@ -60,6 +60,8 @@ resources:
                     Target: JMSServer1
                 JMSServer2Subdeployment:
                     Target: JMSServer2
+                JMSServersSubdeployment:
+                    Target: JMSServer1,JMSServer2
             JmsResource:
                 ConnectionFactory:
                     WebAppConnectionFactory:
@@ -86,9 +88,9 @@ resources:
                             XAConnectionFactoryEnabled: true
                 UniformDistributedQueue:
                     MyUniformDistributedQueue:
-                        DefaultTargetingEnabled: true
                         JNDIName: jms/myUDQ
                         ResetDeliveryCountOnForward: true
+                        SubDeploymentName: JMSServersSubdeployment
 # This is a comment
 appDeployments:
     Application:
