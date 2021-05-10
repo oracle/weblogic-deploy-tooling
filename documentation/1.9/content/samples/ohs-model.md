@@ -6,7 +6,7 @@ weight: 9
 description: "A model for configuring Oracle HTTP Server (OHS)."
 ---
 
-Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tool, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.
+Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.
 
 #### Prerequisites
 
@@ -24,7 +24,7 @@ The revised value would be:
 ```
 The file name of this new domain type (without the `.json` extension) is used with the `-domain_type` argument on the WDT command line. For example, the command line to create a domain using the `HttpServer.json` file from the previous steps would look like:
 ```
-WLSDEPLOY_HOME/bin/createDomain -oracle_home /etc/oracle ... -domain_type HttpServer
+$ WLSDEPLOY_HOME/bin/createDomain -oracle_home /etc/oracle ... -domain_type HttpServer
 ```
 
 #### Configuring the model
@@ -50,6 +50,6 @@ Each name under the `OHS` folder must match a name under the `SystemComponent` f
 The `ComponentType` field of the `SystemComponent` element must be set to `OHS` in order to allow configuration of the corresponding `OHS` folders.
 
 You can use the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the `OHS` folder:
-```yaml
-${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/OHS
+```bash
+$ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/OHS
 ```

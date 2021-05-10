@@ -10,7 +10,7 @@ WDT allows you to create or extend the pre-installed type definitions, model fil
 
 To use a separate configuration directory, set the `WDT_CUSTOM_CONFIG` environment variable to the directory to be used for configuration. For example:
 ```
-export WDT_CUSTOM_CONFIG=/etc/wdtconfig
+$ export WDT_CUSTOM_CONFIG=/etc/wdtconfig
 ```
 
 The customized configuration files should be named and organized the same way they would be under the `$WLSDEPLOY_HOME/lib` directory. For example:
@@ -46,5 +46,5 @@ To extend the `WLS` type definition, follow these steps:
 - Edit `MY_WLS.json` with any required changes.
 - Run the tool referencing the name of the new type definition, for example:
 ```
-createDomain.cmd -oracle_home /wls12213 -domain_type MY_WLS ...
+$ createDomain.cmd -oracle_home /wls12213 -domain_type MY_WLS ...
 ```

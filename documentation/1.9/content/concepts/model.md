@@ -172,7 +172,8 @@ The second method for locating the Kubernetes secret file is to use the environm
 ```
 If the `<name>` value has a corresponding mapped directory in `WDT_MODEL_SECRETS_NAME_DIR_PAIRS`, then that directory will take precedence over any roots specified in `WDT_MODEL_SECRETS_DIRS`.
 
-NOTE: It is important that the secrets directories contain only secrets files, because those files are examined to create a list of available name/key pairs.
+{{% notice note %}} It is important that the secrets directories contain only secrets files, because those files are examined to create a list of available name/key pairs.
+{{% /notice %}}
 
 **Path tokens** are tokens that reference known values, and can be used to make the model more portable. For example, a model may reference a WebLogic library source path as:
 ```yaml
@@ -259,13 +260,13 @@ This feature can also remove items that were created by WebLogic Server template
 
 This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling security providers]({{< relref "/samples/securityproviders-model.md" >}}) for detailed information.
 
-This feature cannot be use to un-deploy applications or remove libraries.
+This feature cannot be use to undeploy applications or remove libraries.
 
 ### Using multiple models
 
 The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple models on the command line. For example:
 
-    weblogic-deploy\bin\createDomain.cmd -model_file modelOne,modelTwo,modelThree ...
+    $ weblogic-deploy\bin\createDomain.cmd -model_file modelOne,modelTwo,modelThree ...
 
 In this case, the models are merged into a single model before being applied. Each successive model is added to the previous model. In cases where entities exist in both models, the attributes are combined and attribute values from successive models prevail.  The resulting model is then verified before being applied.
 For example, if Model 1 looks like:

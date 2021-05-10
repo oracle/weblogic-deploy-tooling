@@ -20,7 +20,7 @@ To use the Prepare Model Tool, simply run the `prepareModel` shell script with t
 
 For example, to prepare model files for use with WebLogic Kubernetes Operator, run the tool with `-target wko` as follows:
 ```
-$WLSDEPLOY_HOME/bin/prepareModel.sh -oracle_home /u01/wls12213 -model_file model1.yaml, model2.yaml -target wko -output_dir $HOME/wko-output
+$ $WLSDEPLOY_HOME/bin/prepareModel.sh -oracle_home /u01/wls12213 -model_file model1.yaml, model2.yaml -target wko -output_dir $HOME/wko-output
 ```
 
 In the output directory, you will find:

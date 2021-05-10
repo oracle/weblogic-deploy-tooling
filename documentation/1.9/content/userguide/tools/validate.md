@@ -56,7 +56,7 @@ topology:
 
 To validate the standalone model file, run the tool as follows:
 
-    weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml
+    $ weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml
 
 The output of the tool will look something like this:
 
@@ -71,7 +71,7 @@ Use the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) to de
 
 If the model contains variable definitions and the variable file is specified, the Validate Model Tool will validate that all variable references in the model are defined in the variable file.  For example, invoking the tool as shown here:
 
-    weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -variable_file InvalidDemoDomain.properties
+    $ weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -variable_file InvalidDemoDomain.properties
 
 Results in output similar to that shown below, if the `db.password` variable is not defined in the variable file.
 
@@ -85,7 +85,7 @@ Results in output similar to that shown below, if the `db.password` variable is 
 
 If the model references binaries that should be present in the archive, the Validate Model Tool will validate that all binary references in the model that point to archive file locations are present in the archive file.  For example, invoking the tool as shown here:
 
-    weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -archive_file InvalidDemoDomain.zip
+    $ weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -archive_file InvalidDemoDomain.zip
 
 Results in output similar to that shown below, if the `simpleear.ear` file is not in the model-specified location inside the archive file.
 
