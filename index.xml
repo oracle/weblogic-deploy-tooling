@@ -226,7 +226,7 @@ If a property is removed from the file, or a property value is incorrectly forma
     </item>
     
     <item>
-      <title>WDT Project Release Process</title>
+      <title>WDT project release process</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/developer/releaseprocess/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
@@ -372,7 +372,7 @@ For example, in order to use the Oracle Autonomous Transaction Processing Cloud 
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/</guid>
       <description>Known issues for WebLogic Deploy Tooling The following list contains known issues. Each issue may contain a workaround or an associated issue number.
-Discover Domain Tool SEVERE Messages ISSUE: The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1.0 domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present in a domain. When it tests an MBean that is not present, an error message is logged by WLST.</description>
+Discover Domain Tool SEVERE messages ISSUE: The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1.0 domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present in a domain. When it tests an MBean that is not present, an error message is logged by WLST.</description>
     </item>
     
   </channel>

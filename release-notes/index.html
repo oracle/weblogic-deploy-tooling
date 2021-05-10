@@ -12,20 +12,20 @@
     <title> :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620166122" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620166122" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620166122" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620166122" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620166122" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620166122" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620166122" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1620166122" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1620166122" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620166122" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1620660156" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1620660156" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620166122"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1620660156"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620166122"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620166122"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1620660156"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1620660156"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620166122"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1620660156"></script>
 
     
   </div>
@@ -1001,9 +1001,9 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/developer/releaseprocess/" title="WDT Project Release Process" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/developer/releaseprocess/" title="WDT project release process" class="dd-item ">
         <a href="/weblogic-deploy-tooling/developer/releaseprocess/">
-        WDT Project Release Process
+        WDT project release process
         
         </a>
     </li>
@@ -1084,7 +1084,7 @@
   <ul>
     <li>
       <ul>
-        <li></li>
+        <li><a href="#known-issues-for-weblogic-deploy-tooling">Known issues for WebLogic Deploy Tooling</a></li>
       </ul>
     </li>
   </ul>
@@ -1111,25 +1111,25 @@
         
 
 
-<h4 id="known-issues-for-weblogic-deploy-tooling">Known issues for WebLogic Deploy Tooling</h4>
+<h3 id="known-issues-for-weblogic-deploy-tooling">Known issues for WebLogic Deploy Tooling</h3>
 <p>The following list contains known issues. Each issue may contain a workaround or an associated issue number.</p>
-<h5 id="discover-domain-tool-severe-messages">Discover Domain Tool SEVERE Messages</h5>
+<h4 id="discover-domain-tool-severe-messages">Discover Domain Tool <code>SEVERE</code> messages</h4>
 <p><strong>ISSUE</strong>:
 The <code>discoverDomain</code> STDOUT contains many SEVERE messages about <code>cd()</code> and <code>ls()</code> when it is run against a 12.2.1.0 domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present in a domain. When it tests an MBean that is not present, an error message is logged by WLST. There is no 12.2.1.0 PSU available to address this WLST problem. It is resolved in 12.2.1.1.</p>
 <p><strong>ACTION</strong>:
 Ignore the following messages logged during discovery of a 12.2.1.0 domain.</p>
 <pre><code>&lt;Jan 14, 2019 1:14:21 PM&gt; &lt;SEVERE&gt; &lt;CommandExceptionHandler&gt; &lt;handleException&gt; &lt;&gt; &lt;Error: cd() failed.&gt;
 &lt;Jan 14, 2019 1:14:21 PM&gt; &lt;SEVERE&gt; &lt;CommandExceptionHandler&gt; &lt;handleException&gt; &lt;&gt; &lt;Error: ls() failed.&gt;
-</code></pre><h5 id="create-domain-tool-with-11g-jrf-domains">Create Domain Tool with 11g JRF Domains</h5>
+</code></pre><h4 id="create-domain-tool-with-11g-jrf-domains">Create Domain Tool with 11g JRF domains</h4>
 <p><strong>ISSUE</strong>:
 The Create Domain Tool cannot initialize RCU for 11g JRF domains. The tool will issue error messages in the log and terminate the create process.</p>
 <p><strong>ACTION</strong>:
 Run the WLS <code>rcu</code> command before executing <code>createDomain</code> for JRF domains</p>
-<h5 id="credential-in-security-configuration">Credential in Security Configuration</h5>
+<h4 id="credential-in-security-configuration">Credential in security configuration</h4>
 <p><strong>ISSUE</strong>: For WLS versions prior to 14.1.1, there is a problem setting the <code>CredentialEncrypted</code> attribute in the <code>topology/SecurityConfiguration</code> folder. The value is not encrypted properly in the configuration and the domain will fail to start with the error:</p>
 <pre><code>java.lang.IllegalArgumentException: In production mode, it's not allowed to set a clear text value to the property: CredentialEncrypted of SecurityConfigurationMBean
 </code></pre><p><strong>ACTION</strong>: Contact Oracle Support to obtain the patch for bug number 30874677 for your WebLogic Server version before running the tool.</p>
-<h5 id="assigning-security-groups-to-users">Assigning Security Groups to Users</h5>
+<h4 id="assigning-security-groups-to-users">Assigning security groups to users</h4>
 <p><strong>ISSUE</strong>: For WLS versions prior to 14.1.1, there is a problem setting the <code>GroupMemberOf</code> attribute in the <code>topology/Security/User</code> folder. The value is not persisted correctly, and the assignment will not be present when the domain is started.</p>
 <p><strong>ACTION</strong>: Contact Oracle Support to obtain the patch for bug number 30319071 for your WebLogic Server version before running the tool.</p>
 
@@ -1845,19 +1845,19 @@ Run the WLS <code>rcu</code> command before executing <code>createDomain</code> 
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620166122"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620166122"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620166122"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620166122"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620166122"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620166122"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1620660156"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620166122"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1620166122"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620166122"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1620660156"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1620660156"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620166122"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1620660156"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
