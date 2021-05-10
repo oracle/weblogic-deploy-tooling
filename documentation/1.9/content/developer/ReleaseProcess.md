@@ -1,5 +1,5 @@
 ---
-title: "WDT Project Release Process"
+title: "WDT project release process"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 5

@@ -33,7 +33,7 @@ WDT provides several single-purpose tools, all exposed as shell scripts (for bot
 * Provide information about the folders and attributes that are valid for sections and folders of a domain model.
 
 ***
-WebLogic Deploy Tooling version and release information is found [here](https://github.com/oracle/weblogic-deploy-tooling/releases).
+WebLogic Deploy Tooling version and release information can be found [here](https://github.com/oracle/weblogic-deploy-tooling/releases).
 ***
 
 # Documentation
