@@ -403,7 +403,7 @@ def persist_model(model_context, model_dictionary):
     if check_persist_model():
         store_value = os.environ.get(_store_environment_variable)
 
-        if store_value.startswith('/') or store_value.startswith('\\'):
+        if os.path.isabs(store_value):
             file_path = store_value
         elif model_context.get_domain_home() is not None:
             file_path = model_context.get_domain_home() + os.sep + 'wlsdeploy' + os.sep + 'domain_model.json'
