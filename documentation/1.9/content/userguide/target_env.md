@@ -30,9 +30,10 @@ A target environment is configured in a JSON file at this location:
 ```
 $WLSDEPLOY_HOME/lib/target/<target-name>/target.json
 ```
-The `<target-name>` value corresponds to the value of the `-target` argument on the tool's command line. The WLS installation includes two pre-defined targets:
- - [Weblogic Kubernetes Operator](#the-weblogic-kubernetes-operator-target) (named `k8s`)
+The `<target-name>` value corresponds to the value of the `-target` argument on the tool's command line. The WLS installation includes three pre-defined targets:
+ - [Weblogic Kubernetes Operator](#the-weblogic-kubernetes-operator-target) (named `wko`)
  - [Verrazzano](#the-verrazzano-target) (named `vz`)
+ - [Kubernetes](#generic-kubernetes-target) (named `k8s`)
 
 You can define a new or extended target environment with a new `target-name` in the above location, or using a [Custom configuration]({{< relref "/userguide/tools-config/custom_config.md" >}}) directory, such as `$WDT_CUSTOM_CONFIG/target/<my-target-name>/target.json`.
 
