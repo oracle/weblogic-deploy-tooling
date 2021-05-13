@@ -1,0 +1,8 @@
+topology:
+    SecurityConfiguration:
+        Realm:
+            myrealm:
+                Auditor:
+                    CustomAudit:
+                        myorg.audit.providers.ECCustomAudit:
+                            ControlFlag: REQUIRED
