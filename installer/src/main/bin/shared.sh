@@ -251,45 +251,39 @@ runJython() {
 
     # set up Oracle directory, logger, classpath
 
-    ORACLE_SERVER_DIR=
+    ORACLE_SERVER_DIR="${ORACLE_HOME}"/wlserver
     if [ -x "${ORACLE_HOME}/wlserver_10.3" ]; then
-        ORACLE_SERVER_DIR="${ORACLE_HOME}/wlserver_10.3"
+        ORACLE_SERVER_DIR="${ORACLE_HOME}"/wlserver_10.3
     elif [ -x "${ORACLE_HOME}/wlserver_12.1" ]; then
-        ORACLE_SERVER_DIR="${ORACLE_HOME}/wlserver_12.1"
-    else
-        ORACLE_SERVER_DIR="${ORACLE_HOME}/wlserver"
+        ORACLE_SERVER_DIR="${ORACLE_HOME}"/wlserver_12.1
     fi
 
     variableSetup
 
-    JAVA_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
-    JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.cachedir.skip=true"
-    JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.path=${ORACLE_SERVER_DIR}/common/wlst/modules/jython-modules.jar/Lib"
-    JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.console="
-    JAVA_PROPERTIES="${JAVA_PROPERTIES}  ${WLSDEPLOY_PROPERTIES}"
-    export JAVA_PROPERTIES
+    javaProperties=( -Djava.util.logging.config.class="${LOG_CONFIG_CLASS}" )
+    javaProperties+=( -Dpython.cachedir.skip=true )
+    javaProperties+=( -Dpython.path="${ORACLE_SERVER_DIR}"/common/wlst/modules/jython-modules.jar/Lib )
+    javaProperties+=( -Dpython.console= )
 
-    CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"
-    CLASSPATH="${CLASSPATH}:${ORACLE_SERVER_DIR}/server/lib/weblogic.jar"
+    if [ -n "${WLSDEPLOY_PROPERTIES}" ]; then
+      javaProperties+=( "${WLSDEPLOY_PROPERTIES}" )
+    fi
 
     # print the configuration, and run the script
 
     echo "JAVA_HOME = ${JAVA_HOME}"
     echo "CLASSPATH = ${CLASSPATH}"
-    echo "JAVA_PROPERTIES = ${JAVA_PROPERTIES}"
+    echo "JAVA_PROPERTIES =" "${javaProperties[@]}"
 
     PY_SCRIPTS_PATH="${WLSDEPLOY_HOME}/lib/python"
 
-    echo \
-    "${JAVA_HOME}"/bin/java -cp "${CLASSPATH}" \
-        "${JAVA_PROPERTIES}" \
-        org.python.util.jython \
-        "${PY_SCRIPTS_PATH}/$jythonScript $*"
+    cmdToRun=( -cp "${WLSDEPLOY_HOME}"/lib/weblogic-deploy-core.jar:"${ORACLE_SERVER_DIR}"/server/lib/weblogic.jar )
+    cmdToRun+=( "${javaProperties[@]}" org.python.util.jython )
+    cmdToRun+=( "${PY_SCRIPTS_PATH}"/"$jythonScript" "${scriptArgs[@]}")
 
-    "${JAVA_HOME}/bin/java" -cp "${CLASSPATH}" \
-        "${JAVA_PROPERTIES}" \
-        org.python.util.jython \
-        "${PY_SCRIPTS_PATH}/$jythonScript " "$@"
+    echo "${JAVA_HOME}"/bin/java "${cmdToRun[@]}"
+
+    "${JAVA_HOME}"/bin/java "${cmdToRun[@]}"
 
     RETURN_CODE=$?
     checkExitCode ${RETURN_CODE}
