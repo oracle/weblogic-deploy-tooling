@@ -125,8 +125,8 @@ class CompareModelTestCase(unittest.TestCase):
     def testCompareModelSecurityConfiguration(self):
         _method_name = 'testCompareModelSecurityConfiguration'
 
-        _new_model_file = self._resources_dir + '/compare_model_modela.yaml'
-        _old_model_file = self._resources_dir + '/compare_model_modelb.yaml'
+        _new_model_file = self._resources_dir + '/compare/model-a-old.yaml'
+        _old_model_file = self._resources_dir + '/compare/model-a-new.yaml'
         _temp_dir = os.path.join(tempfile.gettempdir(), _method_name)
 
         if os.path.exists(_temp_dir):
