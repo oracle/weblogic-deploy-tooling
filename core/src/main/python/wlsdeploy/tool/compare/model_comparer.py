@@ -3,6 +3,7 @@ Copyright (c) 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
+from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.aliases import alias_utils
@@ -277,6 +278,16 @@ class ModelComparer(object):
         if (location is None) and (key == KUBERNETES):
             self._logger.info('WLSDPLY-05713', KUBERNETES, class_name=self._class_name, method_name=_method_name)
             return False
+        try:
+            if (location is not None) and (not self._aliases.is_artificial_type_folder(location)) and \
+                    (self._aliases.requires_artificial_type_subfolder_handling(location)):
+                providers = self._aliases.get_model_subfolder_names(location)
+                if key not in providers:
+                    self._logger.warning('WLSDPLY-05716', key,
+                                         class_name=self._class_name, method_name=_method_name)
+                    return False
+        except AliasException:
+            return True
         return True
 
     def _finalize_folder(self, current_folder, past_folder, change_folder, location):
