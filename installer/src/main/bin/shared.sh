@@ -263,16 +263,8 @@ runJython() {
 
     variableSetup
 
-    # JAVA_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
-    # JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.cachedir.skip=true"
-    # JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.path=${ORACLE_SERVER_DIR}/common/wlst/modules/jython-modules.jar/Lib"
-    # JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.console="
-    # JAVA_PROPERTIES="${JAVA_PROPERTIES}  ${WLSDEPLOY_PROPERTIES}"
-
-
     JAVA_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
     JAVA_PROPERTIES+=" -Dpython.cachedir.skip=true"
-    #JAVA_PROPERTIES+=" -Dpython.path=$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib"
     JAVA_PROPERTIES+=" -Dpython.console="
     JAVA_PROPERTIES+=" ${WLSDEPLOY_PROPERTIES}"
     export JAVA_PROPERTIES
