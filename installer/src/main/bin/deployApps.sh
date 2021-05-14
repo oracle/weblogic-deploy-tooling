@@ -109,4 +109,4 @@ fi
 # required Java version is dependent on use of encryption
 javaSetup $minJdkVersion
 
-runWlst deploy.py $@
+runWlst deploy.py "$@"
