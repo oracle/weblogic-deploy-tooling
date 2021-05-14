@@ -11,7 +11,7 @@
 #     DESCRIPTION
 #       This script contains shared functions for use with WDT scripts.
 #
-echo $sArgs
+
 javaSetup() {
     # Make sure that the JAVA_HOME environment variable is set to point to a
     # JDK with the specified level or higher (and that it isn't OpenJDK).
@@ -126,7 +126,6 @@ checkJythonArgs() {
         # if -oracle_home argument was not found, but ORACLE_HOME was set in environment,
         # add the -oracle_home argument with the environment value.
         # put it at the beginning to protect trailing arguments.
-        #scriptArgs="-oracle_home \"${ORACLE_HOME}\" ${scriptArgs}"
 	      OHARG="-oracle_home "
 	      OHARG_VALUE="${ORACLE_HOME}"
     fi

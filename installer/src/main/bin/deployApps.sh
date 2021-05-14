@@ -94,7 +94,6 @@ WLSDEPLOY_PROGRAM_NAME="deployApps"; export WLSDEPLOY_PROGRAM_NAME
 
 scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
-scriptArgs=$*
 
 . "$scriptPath/shared.sh"
 

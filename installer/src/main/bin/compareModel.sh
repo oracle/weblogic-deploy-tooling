@@ -45,7 +45,6 @@ WLSDEPLOY_PROGRAM_NAME="compareModel"; export WLSDEPLOY_PROGRAM_NAME
 
 scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
-scriptArgs=$*
 
 . "$scriptPath/shared.sh"
 
