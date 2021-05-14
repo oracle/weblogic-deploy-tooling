@@ -109,4 +109,4 @@ fi
 # required Java version is dependent on use of encryption
 javaSetup $minJdkVersion
 
-runWlst update.py $@
+runWlst update.py "$@"

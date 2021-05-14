@@ -55,4 +55,4 @@ checkJythonArgs "$@"
 # Java 7 is required, no encryption is used
 javaSetup 7
 
-runJython compare_model.py $@
+runJython compare_model.py "$@"

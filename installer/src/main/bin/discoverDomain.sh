@@ -107,4 +107,4 @@ fi
 # required Java version is dependent on use of encryption
 javaSetup $minJdkVersion
 
-runWlst discover.py $@
+runWlst discover.py "$@"

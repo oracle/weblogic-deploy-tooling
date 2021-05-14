@@ -86,4 +86,4 @@ fi
 # required Java version is dependent on use of encryption
 javaSetup $minJdkVersion
 
-runJython extract_resource.py $@
+runJython extract_resource.py "$@"
