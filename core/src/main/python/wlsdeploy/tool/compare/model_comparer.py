@@ -65,14 +65,70 @@ class ModelComparer(object):
 
         # determine if the specified location has named folders, such as topology/Server
         has_named_folders = False
+        has_security = False
         if (location is not None) and not self._aliases.is_artificial_type_folder(location):
-            has_named_folders = self._aliases.supports_multiple_mbean_instances(location) or \
-                                self._aliases.requires_artificial_type_subfolder_handling(location)
+            if self._aliases.supports_multiple_mbean_instances(location):
+                has_named_folders = True
+            elif self._aliases.requires_artificial_type_subfolder_handling(location):
+                has_security = True
 
         if has_named_folders:
             return self._compare_named_folders(current_folder, past_folder, location, attributes_location)
+        elif has_security:
+            return self._compare_security_folders(current_folder, past_folder, location, attributes_location)
         else:
             return self._compare_folder_contents(current_folder, past_folder, location, attributes_location)
+
+    def _compare_security_folders(self, current_folder, past_folder, location, attributes_location):
+        """
+        Compare current and past security configuration provider section.
+        :param current_folder: a folder in the current model
+        :param past_folder: corresponding folder in the past model
+        :param location: the location for the specified folders
+        :param attributes_location: the attribute location for the specified folders
+        :return: a dictionary of differences between these folders
+        """
+        providers = self._aliases.get_model_subfolder_names(location)
+        matches = True
+        custom = True
+        if len(current_folder) == len(past_folder):
+            curr_keys = current_folder.keys()
+            past_keys = past_folder.keys()
+            idx = 0
+            while idx < len(curr_keys):
+                if curr_keys[idx] == past_keys[idx]:
+                    custom = curr_keys[idx] in providers
+                    next_curr_folder = current_folder[curr_keys[idx]]
+                    next_curr_keys = next_curr_folder.keys()
+                    next_past_folder = past_folder[past_keys[idx]]
+                    next_past_keys = next_past_folder.keys()
+                    next_idx = 0
+                    while next_idx < len(next_curr_keys):
+                        if next_curr_keys[next_idx] == next_past_keys[next_idx]:
+                            if custom:
+                                changes = self._compare_folder_contents(next_curr_folder, next_past_folder,
+                                                                        location, attributes_location)
+                                if changes:
+                                    matches = False
+                                    break
+                        else:
+                            matches = False
+                            break
+                        next_idx +=1
+                else:
+                    matches = False
+                    break
+                idx +=1
+        else:
+            matches = False
+        if matches is False:
+            self._messages.add(('WLSDPLY-05716', location.get_folder_path()))
+            comment = "Replace entire Security Provider section "
+            new_folder = PyOrderedDict()
+            _add_comment(comment, new_folder)
+            new_folder.update(current_folder)
+            return new_folder
+        return PyOrderedDict()
 
     def _compare_named_folders(self, current_folder, past_folder, location, attributes_location):
         """
@@ -278,16 +334,6 @@ class ModelComparer(object):
         if (location is None) and (key == KUBERNETES):
             self._logger.info('WLSDPLY-05713', KUBERNETES, class_name=self._class_name, method_name=_method_name)
             return False
-        try:
-            if (location is not None) and (not self._aliases.is_artificial_type_folder(location)) and \
-                    (self._aliases.requires_artificial_type_subfolder_handling(location)):
-                providers = self._aliases.get_model_subfolder_names(location)
-                if key not in providers:
-                    self._logger.warning('WLSDPLY-05716', key,
-                                         class_name=self._class_name, method_name=_method_name)
-                    return False
-        except AliasException:
-            return True
         return True
 
     def _finalize_folder(self, current_folder, past_folder, change_folder, location):
