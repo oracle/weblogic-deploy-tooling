@@ -102,4 +102,4 @@ checkJythonArgs "$@"
 # Java 7 is required, no encryption is used
 javaSetup 7
 
-runJython validate.py
+runJython validate.py $@

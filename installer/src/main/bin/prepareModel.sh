@@ -54,4 +54,4 @@ checkJythonArgs "$@"
 # Java 7 is required, no encryption is used
 javaSetup 7
 
-runJython prepare_model.py
+runJython prepare_model.py $@

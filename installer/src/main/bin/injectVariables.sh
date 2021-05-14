@@ -85,4 +85,4 @@ checkJythonArgs "$@"
 # Java 7 is required, no encryption is used
 javaSetup 7
 
-runJython variable_inject.py
+runJython variable_inject.py $@
