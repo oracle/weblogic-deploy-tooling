@@ -238,7 +238,11 @@ runWlst() {
 
     PY_SCRIPTS_PATH="${WLSDEPLOY_HOME}/lib/python"
     echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript $OHARG \"${OHARG_VALUE}\" ${@:2}"
-    "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" $OHARG "${OHARG_VALUE}" "${@:2}"
+    if [ -z ${OHARG_VALUE} ] ; then
+      "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" "${@:2}"
+    else
+      "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" $OHARG "${OHARG_VALUE}" "${@:2}"
+    fi
 
     RETURN_CODE=$?
     checkExitCode ${RETURN_CODE}
@@ -287,11 +291,19 @@ runJython() {
         org.python.util.jython \
         "${PY_SCRIPTS_PATH}/$jythonScript" ${@:2}
 
+    if [ -z ${OHARG_VALUE} ] ; then
+      "${JAVA_HOME}/bin/java" -cp "$CLASSPATH" \
+          $JAVA_PROPERTIES  \
+          -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
+          org.python.util.jython \
+          "${PY_SCRIPTS_PATH}/$jythonScript" "${@:2}"
+    else
     "${JAVA_HOME}/bin/java" -cp "$CLASSPATH" \
         $JAVA_PROPERTIES  \
         -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
         org.python.util.jython \
         "${PY_SCRIPTS_PATH}/$jythonScript" $OHARG "${OHARG_VALUE}" "${@:2}"
+    fi
 
     RETURN_CODE=$?
     checkExitCode ${RETURN_CODE}
