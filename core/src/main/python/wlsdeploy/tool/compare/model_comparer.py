@@ -2,6 +2,7 @@
 Copyright (c) 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+from java.util import Properties
 
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.util import PyOrderedDict
@@ -97,7 +98,7 @@ class ModelComparer(object):
             idx = 0
             while idx < len(curr_keys):
                 if curr_keys[idx] == past_keys[idx]:
-                    custom = curr_keys[idx] in providers
+                    custom = curr_keys[idx] not in providers
                     next_curr_folder = current_folder[curr_keys[idx]]
                     next_curr_keys = next_curr_folder.keys()
                     next_past_folder = past_folder[past_keys[idx]]
@@ -106,11 +107,14 @@ class ModelComparer(object):
                     while next_idx < len(next_curr_keys):
                         if next_curr_keys[next_idx] == next_past_keys[next_idx]:
                             if custom:
+                                changes = self._compare_folder_sc_contents(next_curr_folder, next_past_folder,
+                                                                           location, attributes_location)
+                            else:
                                 changes = self._compare_folder_contents(next_curr_folder, next_past_folder,
                                                                         location, attributes_location)
-                                if changes:
-                                    matches = False
-                                    break
+                            if changes:
+                                matches = False
+                                break
                         else:
                             matches = False
                             break
@@ -167,6 +171,45 @@ class ModelComparer(object):
                 delete_name = model_helper.get_delete_name(name)
                 change_folder[delete_name] = PyOrderedDict()
 
+        return change_folder
+
+    def _compare_folder_sc_contents(self, current_folder, past_folder, location, attributes_location):
+        """
+        Compare the contents of current and past folders using the specified locations.
+        :param current_folder: a folder in the current model
+        :param past_folder: corresponding folder in the past model
+        :param location: the location for the specified folders
+        :param attributes_location: the attribute location for the specified folders
+        :return: a dictionary of differences between these folders
+        """
+        change_folder = PyOrderedDict()
+
+
+        # check if keys in the current folder are present in the past folder
+        for key in current_folder:
+            if not self._check_key(key, location):
+                continue
+
+            if key in past_folder:
+                current_value = current_folder[key]
+                past_value = past_folder[key]
+
+                self._compare_attribute_sc(current_value, past_value, attributes_location, key, change_folder)
+
+            else:
+                # key is present the current folder, not in the past folder.
+                # just add to the change folder, no further recursion needed.
+                change_folder[key] = current_folder[key]
+
+        # check if keys in the past folder are not in the current folder
+        for key in past_folder:
+            if not self._check_key(key, location):
+                continue
+
+            if key not in current_folder:
+                change_folder[key] = past_folder[key]
+
+        self._finalize_folder(current_folder, past_folder, change_folder, location)
         return change_folder
 
     def _compare_folder_contents(self, current_folder, past_folder, location, attributes_location):
@@ -252,6 +295,38 @@ class ModelComparer(object):
             next_attributes_location = next_location
 
         return next_location, next_attributes_location
+
+    def _compare_attribute_sc(self, current_value, past_value, location, key, change_folder):
+        """
+        Compare values of an attribute from the current and past folders.
+        The change value and any comments will be added to the change folder.
+        :param current_value: the value from the current model
+        :param past_value: the value from the past model
+        :param key: the key of the attribute
+        :param change_folder: the folder in the change model to be updated
+        :param location: the location for attributes in the specified folders
+        """
+        if current_value != past_value:
+            if type(current_value) == list:
+                current_list = list(current_value)
+                previous_list = list(past_value)
+
+                change_list = list(previous_list)
+                for item in current_list:
+                    if item in previous_list:
+                        change_list.remove(item)
+                    else:
+                        change_list.append(item)
+                for item in previous_list:
+                    if item not in current_list:
+                        change_list.remove(item)
+                        change_list.append(model_helper.get_delete_name(item))
+
+            elif isinstance(current_value, Properties):
+                self._compare_properties(current_value, past_value, key, change_folder)
+
+            else:
+                change_folder[key] = current_value
 
     def _compare_attribute(self, current_value, past_value, location, key, change_folder):
         """
