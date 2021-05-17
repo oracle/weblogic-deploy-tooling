@@ -45,7 +45,6 @@ WLSDEPLOY_PROGRAM_NAME="compareModel"; export WLSDEPLOY_PROGRAM_NAME
 
 scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
-scriptArgs=$*
 
 . "$scriptPath/shared.sh"
 
@@ -56,4 +55,4 @@ checkJythonArgs "$@"
 # Java 7 is required, no encryption is used
 javaSetup 7
 
-runJython compare_model.py
+runJython compare_model.py "$@"

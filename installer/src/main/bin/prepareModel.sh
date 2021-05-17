@@ -43,7 +43,6 @@ WLSDEPLOY_PROGRAM_NAME="prepareModel"; export WLSDEPLOY_PROGRAM_NAME
 
 scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
-scriptArgs=$*
 
 . "$scriptPath/shared.sh"
 
@@ -54,4 +53,4 @@ checkJythonArgs "$@"
 # Java 7 is required, no encryption is used
 javaSetup 7
 
-runJython prepare_model.py
+runJython prepare_model.py "$@"

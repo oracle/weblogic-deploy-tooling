@@ -81,7 +81,6 @@ WLSDEPLOY_PROGRAM_NAME="validateModel"; export WLSDEPLOY_PROGRAM_NAME
 
 scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
-scriptArgs=$*
 
 . "$scriptPath/shared.sh"
 
@@ -102,4 +101,4 @@ checkJythonArgs "$@"
 # Java 7 is required, no encryption is used
 javaSetup 7
 
-runJython validate.py
+runJython validate.py "$@"

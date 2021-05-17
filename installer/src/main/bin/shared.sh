@@ -126,7 +126,8 @@ checkJythonArgs() {
         # if -oracle_home argument was not found, but ORACLE_HOME was set in environment,
         # add the -oracle_home argument with the environment value.
         # put it at the beginning to protect trailing arguments.
-        scriptArgs="-oracle_home \"${ORACLE_HOME}\" ${scriptArgs}"
+	      OHARG="-oracle_home "
+	      OHARG_VALUE="${ORACLE_HOME}"
     fi
 
     #
@@ -236,9 +237,13 @@ runWlst() {
     echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
 
     PY_SCRIPTS_PATH="${WLSDEPLOY_HOME}/lib/python"
-    echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript ${scriptArgs}"
-
-    "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" ${scriptArgs}
+    if [ -z "${OHARG_VALUE}" ] ; then
+      echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript ${@:2}"
+      "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" "${@:2}"
+    else
+      echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript $OHARG \"${OHARG_VALUE}\" ${@:2}"
+      "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" $OHARG "${OHARG_VALUE}" "${@:2}"
+    fi
 
     RETURN_CODE=$?
     checkExitCode ${RETURN_CODE}
@@ -263,14 +268,13 @@ runJython() {
     variableSetup
 
     JAVA_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
-    JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.cachedir.skip=true"
-    JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.path=${ORACLE_SERVER_DIR}/common/wlst/modules/jython-modules.jar/Lib"
-    JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.console="
-    JAVA_PROPERTIES="${JAVA_PROPERTIES}  ${WLSDEPLOY_PROPERTIES}"
+    JAVA_PROPERTIES+=" -Dpython.cachedir.skip=true"
+    JAVA_PROPERTIES+=" -Dpython.console="
+    JAVA_PROPERTIES+=" ${WLSDEPLOY_PROPERTIES}"
     export JAVA_PROPERTIES
-
     CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"
-    CLASSPATH="${CLASSPATH}:${ORACLE_SERVER_DIR}/server/lib/weblogic.jar"
+    CLASSPATH+=":"
+    CLASSPATH+="$ORACLE_SERVER_DIR/server/lib/weblogic.jar"
 
     # print the configuration, and run the script
 
@@ -280,16 +284,35 @@ runJython() {
 
     PY_SCRIPTS_PATH="${WLSDEPLOY_HOME}/lib/python"
 
-    echo \
-    ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
-        ${JAVA_PROPERTIES} \
-        org.python.util.jython \
-        "${PY_SCRIPTS_PATH}/$jythonScript" ${scriptArgs}
 
-    "${JAVA_HOME}/bin/java" -cp "${CLASSPATH}" \
-        ${JAVA_PROPERTIES} \
-        org.python.util.jython \
-        "${PY_SCRIPTS_PATH}/$jythonScript" ${scriptArgs}
+
+    if [ -z "${OHARG_VALUE}" ] ; then
+      echo \
+      ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
+          $JAVA_PROPERTIES \
+          -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
+          org.python.util.jython \
+          "${PY_SCRIPTS_PATH}/$jythonScript" ${@:2}
+
+      "${JAVA_HOME}/bin/java" -cp "$CLASSPATH" \
+          $JAVA_PROPERTIES  \
+          -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
+          org.python.util.jython \
+          "${PY_SCRIPTS_PATH}/$jythonScript" "${@:2}"
+    else
+      echo \
+      ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
+          $JAVA_PROPERTIES \
+          -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
+          org.python.util.jython \
+          "${PY_SCRIPTS_PATH}/$jythonScript" $OHARG \"${OHARG_VALUE}\" ${@:2}
+          
+      "${JAVA_HOME}/bin/java" -cp "$CLASSPATH" \
+          $JAVA_PROPERTIES  \
+          -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
+          org.python.util.jython \
+          "${PY_SCRIPTS_PATH}/$jythonScript" $OHARG "${OHARG_VALUE}" "${@:2}"
+    fi
 
     RETURN_CODE=$?
     checkExitCode ${RETURN_CODE}
