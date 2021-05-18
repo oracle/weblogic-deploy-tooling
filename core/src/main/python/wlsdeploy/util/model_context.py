@@ -32,7 +32,7 @@ class ModelContext(object):
     JAVA_HOME_TOKEN = '@@JAVA_HOME@@'
     CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
     TEMP_DIRECTORY_TOKEN = '@@TMP@@'
-
+    TARGET_CONFIGURATION = 'TARGET_CONFIGURATION'
     DB_USER_DEFAULT = 'SYS'
 
     def __init__(self, program_name, arg_map):
@@ -618,7 +618,10 @@ class ModelContext(object):
             configuration_dict = {}
 
             if self._target:
-                target_path = os.path.join('targets', self._target, 'target.json')
+                if self.TARGET_CONFIGURATION in os.environ:
+                    target_path = os.environ[self.TARGET_CONFIGURATION]
+                else:
+                    target_path = os.path.join('targets', self._target, 'target.json')
                 target_configuration_file = path_utils.find_config_path(target_path)
                 if os.path.exists(target_configuration_file):
                     file_handle = open(target_configuration_file)

@@ -13,9 +13,11 @@ WLS_CREDENTIALS_NAME = "wls_credentials_name"
 
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
+JSON_METHOD = 'json'
 
 # put password placeholders in the model, and build a script to create the secrets.
 CONFIG_OVERRIDES_SECRETS_METHOD = 'config_override_secrets'
+CONFIG_OVERRIDES_JSON_METHOD = 'config_override_json'
 
 CREDENTIALS_METHODS = [
     SECRETS_METHOD,
@@ -100,6 +102,13 @@ class TargetConfiguration(object):
         :return: True if secrets are used, False otherwise
         """
         return self.get_credentials_method() in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]
+
+    def uses_json_secrets(self):
+        """
+        Determine if this configuration wants to generate json secrets.
+        :return: True if secrets are used, False otherwise
+        """
+        return self.get_credentials_method() in [JSON_METHOD, CONFIG_OVERRIDES_JSON_METHOD]
 
     def manages_credentials(self):
         """

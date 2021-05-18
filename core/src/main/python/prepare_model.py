@@ -304,6 +304,11 @@ class PrepareModel:
                                                                 self.credential_injector.get_variable_cache(),
                                                                 full_model_dictionary, ExceptionType.VALIDATE)
 
+            if target_config.uses_json_secrets():
+                target_configuration_helper.generate_k8s_json(self.model_context,
+                                                                self.credential_injector.get_variable_cache(),
+                                                                full_model_dictionary, ExceptionType.VALIDATE)
+
             # create any additional outputs from full model dictionary
             target_configuration_helper.create_additional_output(Model(full_model_dictionary), self.model_context,
                                                                  self._aliases, self.credential_injector,
@@ -344,7 +349,7 @@ class PrepareModel:
 
         # include credential properties in the injector map, unless target uses credential secrets
         target_config = model_context.get_target_configuration()
-        if target_config.uses_credential_secrets():
+        if target_config.uses_credential_secrets() or target_config.uses_json_secrets():
             credential_properties = {}
         else:
             credential_properties = self.credential_injector.get_variable_cache()

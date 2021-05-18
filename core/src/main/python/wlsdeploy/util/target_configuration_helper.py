@@ -22,6 +22,7 @@ from wlsdeploy.tool.util.targets import additional_output_helper
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.json.json_translator import PythonToJson
 
 __class_name = 'target_configuration_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
@@ -66,6 +67,7 @@ SECURITY_NM_PATTERN = re.compile('^SecurityConfig.NodeManager')
 SECURITY_NM_REPLACEMENT = 'SecurityConfig.NodeManager.'
 
 K8S_SCRIPT_NAME = 'create_k8s_secrets.sh'
+K8S_SECRET_JSON_NAME = 'k8s_secrets.json'
 K8S_SCRIPT_RESOURCE_PATH = 'oracle/weblogic/deploy/k8s/' + K8S_SCRIPT_NAME
 
 
@@ -93,15 +95,7 @@ def process_target_arguments(argument_map):
             path = os.path.join(output_dir, target_name + "_variable.properties")
             argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = path
 
-
-def generate_k8s_script(model_context, token_dictionary, model_dictionary, exception_type):
-    """
-    Generate a shell script for creating k8s secrets.
-    :param model_context: used to determine output directory
-    :param token_dictionary: contains every token
-    :param model_dictionary: used to determine domain UID
-    :param exception_type: type of exception to throw
-    """
+def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
 
     # determine the domain name and UID
     topology = dictionary_utils.get_dictionary_element(model_dictionary, TOPOLOGY)
@@ -165,12 +159,38 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary, excep
         {'text': exception_helper.get_message('WLSDPLY-01670')}
     ]
     script_hash['longMessageDetails'] = long_messages
+    return script_hash
+
+
+def generate_k8s_script(model_context, token_dictionary, model_dictionary, exception_type):
+    """
+    Generate a shell script for creating k8s secrets.
+    :param model_context: used to determine output directory
+    :param token_dictionary: contains every token
+    :param model_dictionary: used to determine domain UID
+    :param exception_type: type of exception to throw
+    """
+    script_hash = _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary)
 
     file_location = model_context.get_output_dir()
     k8s_file = File(file_location, K8S_SCRIPT_NAME)
     file_template_helper.create_file_from_resource(K8S_SCRIPT_RESOURCE_PATH, script_hash, k8s_file, exception_type)
     FileUtils.chmod(k8s_file.getPath(), 0750)
 
+def generate_k8s_json(model_context, token_dictionary, model_dictionary, exception_type):
+    """
+    Generate a json file.
+    :param model_context: used to determine output directory
+    :param token_dictionary: contains every token
+    :param model_dictionary: used to determine domain UID
+    :param exception_type: type of exception to throw
+    """
+    script_hash = _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary)
+
+    file_location = model_context.get_output_dir()
+    k8s_file = os.path.join(file_location, K8S_SECRET_JSON_NAME)
+    json_object = PythonToJson(script_hash)
+    json_object.write_to_json_file(k8s_file)
 
 def format_as_secret_token(secret_id, target_config):
     """
