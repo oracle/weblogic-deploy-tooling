@@ -7,17 +7,16 @@ from wlsdeploy.util import dictionary_utils
 
 # types for credential method
 CREDENTIALS_METHOD = "credentials_method"
+CREDENTIALS_OUTPUT_METHOD = "credentials_output_method"
 
 # Overrides the Kubernetes secret name for the WebLogic admin user credential
 WLS_CREDENTIALS_NAME = "wls_credentials_name"
 
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
-JSON_METHOD = 'json'
 
 # put password placeholders in the model, and build a script to create the secrets.
 CONFIG_OVERRIDES_SECRETS_METHOD = 'config_override_secrets'
-CONFIG_OVERRIDES_JSON_METHOD = 'config_override_json'
 
 CREDENTIALS_METHODS = [
     SECRETS_METHOD,
@@ -47,6 +46,13 @@ class TargetConfiguration(object):
         :return: the method for handling credentials
         """
         return dictionary_utils.get_element(self.config_dictionary, CREDENTIALS_METHOD)
+
+    def get_credentials_output_method(self):
+        """
+        Returns the method for generating secrets creation method.
+        :return: script or json
+        """
+        return dictionary_utils.get_element(self.config_dictionary, CREDENTIALS_OUTPUT_METHOD)
 
     def get_wls_credentials_name(self):
         """
@@ -103,12 +109,19 @@ class TargetConfiguration(object):
         """
         return self.get_credentials_method() in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]
 
-    def uses_json_secrets(self):
+    def generate_script_for_secrets(self):
         """
-        Determine if this configuration wants to generate json secrets.
-        :return: True if secrets are used, False otherwise
+        Determine if it needs to generate shell script for creating secrets.
+        :return: True if generating script, False otherwise
         """
-        return self.get_credentials_method() in [JSON_METHOD, CONFIG_OVERRIDES_JSON_METHOD]
+        return self.get_credentials_output_method() in ['script']
+
+    def generate_json_for_secrets(self):
+        """
+        Determine if it needs to generate json file for creating secrets.
+        :return: True if generating json file, False otherwise
+        """
+        return self.get_credentials_output_method() in ['json']
 
     def manages_credentials(self):
         """

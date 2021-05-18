@@ -150,7 +150,7 @@ class CredentialInjector(VariableInjector):
         if model_location.get_current_model_folder() == DOMAIN_INFO_ALIAS:
             model_location = LocationContext()
 
-        if target_config.uses_credential_secrets() or target_config.uses_json_secrets():
+        if target_config.uses_credential_secrets():
             # use the secret token name as variable name in the cache, such as jdbc-generic1.password .
             # secret name is the adjusted variable name, with the last element replaced with "username" or "password".
 

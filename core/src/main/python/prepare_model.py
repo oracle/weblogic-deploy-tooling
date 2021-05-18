@@ -299,12 +299,12 @@ class PrepareModel:
                                                           "discover", WlstModes.OFFLINE)
 
             target_config = self.model_context.get_target_configuration()
-            if target_config.uses_credential_secrets():
+            if target_config.generate_script_for_secrets():
                 target_configuration_helper.generate_k8s_script(self.model_context,
                                                                 self.credential_injector.get_variable_cache(),
                                                                 full_model_dictionary, ExceptionType.VALIDATE)
 
-            if target_config.uses_json_secrets():
+            if target_config.generate_json_for_secrets():
                 target_configuration_helper.generate_k8s_json(self.model_context,
                                                                 self.credential_injector.get_variable_cache(),
                                                                 full_model_dictionary)
@@ -349,7 +349,7 @@ class PrepareModel:
 
         # include credential properties in the injector map, unless target uses credential secrets
         target_config = model_context.get_target_configuration()
-        if target_config.uses_credential_secrets() or target_config.uses_json_secrets():
+        if target_config.uses_credential_secrets():
             credential_properties = {}
         else:
             credential_properties = self.credential_injector.get_variable_cache()
