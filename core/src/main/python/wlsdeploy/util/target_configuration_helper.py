@@ -171,13 +171,12 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary, excep
     :param exception_type: type of exception to throw
     """
     script_hash = _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary)
-
     file_location = model_context.get_output_dir()
     k8s_file = File(file_location, K8S_SCRIPT_NAME)
     file_template_helper.create_file_from_resource(K8S_SCRIPT_RESOURCE_PATH, script_hash, k8s_file, exception_type)
     FileUtils.chmod(k8s_file.getPath(), 0750)
 
-def generate_k8s_json(model_context, token_dictionary, model_dictionary, exception_type):
+def generate_k8s_json(model_context, token_dictionary, model_dictionary):
     """
     Generate a json file.
     :param model_context: used to determine output directory

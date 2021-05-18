@@ -450,8 +450,8 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
                                                             ExceptionType.DISCOVER)
 
         if target_configuration.uses_json_secrets():
-            target_configuration_helper.generate_k8s_json(model_context, credential_cache, model.get_model(),
-                                                            ExceptionType.DISCOVER)
+            target_configuration_helper.generate_k8s_json(model_context, credential_cache, model.get_model())
+
         # create additional output after filtering, but before variables have been inserted
         if model_context.is_targetted_config():
             target_configuration_helper.create_additional_output(model, model_context, aliases, credential_injector,
