@@ -200,8 +200,12 @@ class PythonToJson(object):
         for value in alist:
             writer.write(end_line)
             writer.println()
-            writer.write(list_indent)
-            writer.write(_format_json_value(value))
+            if isinstance(value, dict):
+                writer.write(list_indent)
+                self._write_dictionary_to_json_file(value, writer, indent)
+            else:
+                writer.write(list_indent)
+                writer.write(_format_json_value(value))
             end_line = ','
         writer.println()
         writer.write(indent + ']')

@@ -307,7 +307,7 @@ class PrepareModel:
             if target_config.uses_json_secrets():
                 target_configuration_helper.generate_k8s_json(self.model_context,
                                                                 self.credential_injector.get_variable_cache(),
-                                                                full_model_dictionary, ExceptionType.VALIDATE)
+                                                                full_model_dictionary)
 
             # create any additional outputs from full model dictionary
             target_configuration_helper.create_additional_output(Model(full_model_dictionary), self.model_context,
