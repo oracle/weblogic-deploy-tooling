@@ -82,7 +82,9 @@ class ModelComparer(object):
 
     def _compare_security_folders(self, current_folder, past_folder, location, attributes_location):
         """
-        Compare current and past security configuration provider section.
+        Compare current and past security configuration provider section. If a provider section has an entry
+        that is different from the original, the entire provider section will be returned as differences between
+        the two folders.
         :param current_folder: a folder in the current model
         :param past_folder: corresponding folder in the past model
         :param location: the location for the specified folders
@@ -175,7 +177,9 @@ class ModelComparer(object):
 
     def _compare_folder_sc_contents(self, current_folder, past_folder, location, attributes_location):
         """
-        Compare the contents of current and past folders using the specified locations.
+        Compare the contents of current and past folders, looking at attribute changes for a security provider.
+        Return any changes so that calling routine will know changes occurred and the entire section will
+        of the current folder will be marked as changed.
         :param current_folder: a folder in the current model
         :param past_folder: corresponding folder in the past model
         :param location: the location for the specified folders
@@ -183,7 +187,6 @@ class ModelComparer(object):
         :return: a dictionary of differences between these folders
         """
         change_folder = PyOrderedDict()
-
 
         # check if keys in the current folder are present in the past folder
         for key in current_folder:
@@ -299,7 +302,7 @@ class ModelComparer(object):
     def _compare_attribute_sc(self, current_value, past_value, location, key, change_folder):
         """
         Compare values of an attribute from the current and past folders.
-        The change value and any comments will be added to the change folder.
+        The changed value will signal the calling method that the entire new
         :param current_value: the value from the current model
         :param past_value: the value from the past model
         :param key: the key of the attribute
