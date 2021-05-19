@@ -188,8 +188,22 @@ def generate_k8s_json(model_context, token_dictionary, model_dictionary):
 
     file_location = model_context.get_output_dir()
     k8s_file = os.path.join(file_location, K8S_SECRET_JSON_NAME)
+    _cleanup_script_hash(script_hash)
     json_object = PythonToJson(script_hash)
     json_object.write_to_json_file(k8s_file)
+
+def _cleanup_script_hash(script_hash):
+
+    for item in ['longMessageDetails', 'topComment', 'longMessage']:
+        del script_hash[item]
+
+    for node in script_hash['pairedSecrets']:
+        node['username'] = node['user']
+        node['password'] = ''
+        del node['user']
+
+    for node in script_hash['secrets']:
+        node['password'] = ''
 
 def format_as_secret_token(secret_id, target_config):
     """
