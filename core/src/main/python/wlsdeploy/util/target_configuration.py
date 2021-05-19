@@ -112,9 +112,10 @@ class TargetConfiguration(object):
     def generate_script_for_secrets(self):
         """
         Determine if it needs to generate shell script for creating secrets.
-        :return: True if generating script, False otherwise
+        :return: True if it is not equal to json
         """
-        return self.get_credentials_output_method() in ['script']
+        return not self.get_credentials_output_method() in ['json']
+
 
     def generate_json_for_secrets(self):
         """
