@@ -244,10 +244,17 @@ class PrepareModel:
 
         try:
             model_file_list = self.model_files.split(',')
+            target = self.model_context.get_target()
+
             for model_file in model_file_list:
                 if os.path.splitext(model_file)[1].lower() == ".yaml":
                     model_file_name = model_file
-                    FileToPython(model_file_name, True).parse()
+                    
+                if target is not None and os.path.basename(model_file_name) == (target + "-domain.yaml"):
+                    self._logger.severe('WLSDPLY-05802', model_file_name, os.path.basename(model_file_name), target)
+                    return VALIDATION_FAIL
+
+                FileToPython(model_file_name, True).parse()
 
                 aliases = Aliases(model_context=self.model_context, wlst_mode=WlstModes.OFFLINE)
 
