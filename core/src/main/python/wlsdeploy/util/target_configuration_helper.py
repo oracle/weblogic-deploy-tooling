@@ -219,17 +219,6 @@ def _cleanup_script_hash(script_hash):
     result['namespace'] = script_hash['namespace']
     return result
 
-    # for item in ['longMessageDetails', 'topComment', 'longMessage']:
-    #     del script_hash[item]
-    #
-    # for node in script_hash['pairedSecrets']:
-    #     node['username'] = node['user']
-    #     node['password'] = ''
-    #     del node['user']
-    #
-    # for node in script_hash['secrets']:
-    #     node['password'] = ''
-
 def format_as_secret_token(secret_id, target_config):
     """
     Format the secret identifier as an @@SECRET token for use in a model.
