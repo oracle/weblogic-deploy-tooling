@@ -212,6 +212,8 @@ def _cleanup_script_hash(script_hash):
         secret['keys'] = {}
         secret['keys']['password'] = ""
         secret['keys']['username'] = node['user']
+        if secret['secretName'] == 'weblogic-credentials':
+            secret['keys']['username'] = ""
         secrets_array.append(secret)
 
     result['secrets'] = secrets_array
