@@ -214,10 +214,9 @@ def _cleanup_script_hash(script_hash):
         secret['keys']['username'] = node['user']
         secrets_array.append(secret)
 
+    result['secrets'] = secrets_array
     result['domainUID'] = script_hash['domainUid']
     result['namespace'] = script_hash['namespace']
-    result['secrets'] = secrets_array
-    print script_hash
     return result
 
     # for item in ['longMessageDetails', 'topComment', 'longMessage']:
