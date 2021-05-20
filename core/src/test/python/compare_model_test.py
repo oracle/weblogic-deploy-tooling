@@ -122,8 +122,8 @@ class CompareModelTestCase(unittest.TestCase):
 
         self.assertEqual(return_code, 0)
 
-    def testCompareModelSecurityConfigurationAtrribute(self):
-        _method_name = 'testCompareModelSecurityConfigurationAtrribute'
+    def testCompareModelSecurityConfigurationAttribute(self):
+        _method_name = 'testCompareModelSecurityConfigurationAttribute'
 
         _new_model_file = self._resources_dir + '/compare/model-sc1-new.yaml'
         _old_model_file = self._resources_dir + '/compare/model-sc1-old.yaml'
@@ -207,7 +207,7 @@ class CompareModelTestCase(unittest.TestCase):
             self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm'].has_key('myrealm'), True)
             self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm']['myrealm'].has_key('Auditor'), False)
             self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm']['myrealm'].has_key('AuthenticationProvider'), True)
-
+            self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm']['myrealm'].has_key('PasswordValidator'), True)
         except (CompareException, PyWLSTException), te:
             return_code = 2
             self._logger.severe('WLSDPLY-05709',
