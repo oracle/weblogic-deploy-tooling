@@ -243,6 +243,10 @@ class VariableInjector(object):
 
             variable_dictionary = self.get_variable_cache()
             if variable_dictionary is not None and len(variable_dictionary) > 0:
+                # change variable_file_location to output_dir for target operation
+                if self.__model_context.get_target() is not None:
+                    variable_file_location = os.path.join(self.__model_context.get_output_dir(),
+                                                          os.path.basename(variable_file_location))
                 variables_inserted = self._write_variables_file(variable_dictionary, variable_file_location, append)
             if variables_inserted:
                 _logger.info('WLSDPLY-19518', variable_file_location, class_name=_class_name,

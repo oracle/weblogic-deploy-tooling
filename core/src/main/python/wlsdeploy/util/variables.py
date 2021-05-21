@@ -213,7 +213,8 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if key not in variables:
-                _report_token_issue('WLSDPLY-01732', method_name, model_context, key)
+                if model_context.get_target() is None:
+                    _report_token_issue('WLSDPLY-01732', method_name, model_context, key)
                 continue
 
             value = variables[key]
