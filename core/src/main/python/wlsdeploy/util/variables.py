@@ -235,9 +235,10 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, name, key in matches:
             value = _resolve_secret_token(name, key, model_context)
             if value is None:
-                secret_token = name + ':' + key
-                known_tokens = _list_known_secret_tokens()
-                _report_token_issue('WLSDPLY-01739', method_name, model_context, secret_token, known_tokens)
+                if model_context.get_target() is None:
+                    secret_token = name + ':' + key
+                    known_tokens = _list_known_secret_tokens()
+                    _report_token_issue('WLSDPLY-01739', method_name, model_context, secret_token, known_tokens)
                 continue
 
             text = text.replace(token, value)
@@ -260,7 +261,7 @@ def _substitute(text, variables, model_context, attribute_name=None):
 
         # if any @@TOKEN: remains in the value, throw an exception
         matches = _unresolved_token_pattern.findall(text)
-        if matches:
+        if matches and model_context.get_target() is None:
             match = matches[0]
             token = match[1]
             sample = "@@" + token + ":<name>"

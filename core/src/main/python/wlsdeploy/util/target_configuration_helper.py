@@ -188,11 +188,11 @@ def generate_k8s_json(model_context, token_dictionary, model_dictionary):
 
     file_location = model_context.get_output_dir()
     k8s_file = os.path.join(file_location, K8S_SECRET_JSON_NAME)
-    result = _cleanup_script_hash(script_hash)
+    result = _build_json_secrets_result(script_hash)
     json_object = PythonToJson(result)
     json_object.write_to_json_file(k8s_file)
 
-def _cleanup_script_hash(script_hash):
+def _build_json_secrets_result(script_hash):
 
     result = {}
     secrets_array = []
