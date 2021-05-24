@@ -225,7 +225,8 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if not os.environ.has_key(key):
-                _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
+                if model_context.get_target() is None:
+                    _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
                 continue
 
             value = os.environ.get(key)
@@ -236,6 +237,8 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, name, key in matches:
             value = _resolve_secret_token(name, key, model_context)
             if value is None:
+                # does not match, only report for non target case
+                # TODO:  store this existing secret somewhere, so that it will go to the final output??
                 if model_context.get_target() is None:
                     secret_token = name + ':' + key
                     known_tokens = _list_known_secret_tokens()
