@@ -7,7 +7,7 @@ import re
 
 import java.lang.Boolean as Boolean
 import java.lang.IllegalArgumentException as IllegalArgumentException
-import os
+import os, shutil
 
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
 import oracle.weblogic.deploy.json.JsonException as JsonException
@@ -245,8 +245,16 @@ class VariableInjector(object):
             if variable_dictionary is not None and len(variable_dictionary) > 0:
                 # change variable_file_location to output_dir for target operation
                 if self.__model_context.get_target() is not None:
-                    variable_file_location = os.path.join(self.__model_context.get_output_dir(),
-                                                          os.path.basename(variable_file_location))
+                    if os.path.exists(variable_file_location) is not None:
+                        # copy the original file first
+                        new_variable_file_location = os.path.join(self.__model_context.get_output_dir(),
+                                                                  self.__model_context.get_target() +
+                                                                  '-variable.properties')
+                        # TODO: Ideally merge properties, though append accomplish the same effect.
+                        append = True
+                        shutil.copyfile(variable_file_location, new_variable_file_location)
+                        variable_file_location = new_variable_file_location
+
                 variables_inserted = self._write_variables_file(variable_dictionary, variable_file_location, append)
             if variables_inserted:
                 _logger.info('WLSDPLY-19518', variable_file_location, class_name=_class_name,
