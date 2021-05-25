@@ -122,11 +122,11 @@ class CompareModelTestCase(unittest.TestCase):
 
         self.assertEqual(return_code, 0)
 
-    def testCompareModelSecurityConfiguration(self):
-        _method_name = 'testCompareModelSecurityConfiguration'
+    def testCompareModelSecurityConfigurationAttribute(self):
+        _method_name = 'testCompareModelSecurityConfigurationAttribute'
 
-        _new_model_file = self._resources_dir + '/compare/model-a-old.yaml'
-        _old_model_file = self._resources_dir + '/compare/model-a-new.yaml'
+        _new_model_file = self._resources_dir + '/compare/model-sc1-new.yaml'
+        _old_model_file = self._resources_dir + '/compare/model-sc1-old.yaml'
         _temp_dir = os.path.join(tempfile.gettempdir(), _method_name)
 
         if os.path.exists(_temp_dir):
@@ -158,7 +158,56 @@ class CompareModelTestCase(unittest.TestCase):
             self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm'].has_key('myrealm'), True)
             self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm']['myrealm'].has_key('Auditor'), False)
             self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm']['myrealm'].has_key('AuthenticationProvider'), True)
+            self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm']['myrealm'].has_key('PasswordValidator'), False)
 
+        except (CompareException, PyWLSTException), te:
+            return_code = 2
+            self._logger.severe('WLSDPLY-05709',
+                                te.getLocalizedMessage(), error=te,
+                                class_name=self._program_name, method_name=_method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+
+        self.assertEqual(return_code, 0)
+
+    def testCompareModelSecurityConfigurationCustomList(self):
+        _method_name = 'testCompareModelSecurityConfigurationCustomList'
+
+        _new_model_file = self._resources_dir + '/compare/model-sc2-new.yaml'
+        _old_model_file = self._resources_dir + '/compare/model-sc2-old.yaml'
+        _temp_dir = os.path.join(tempfile.gettempdir(), _method_name)
+
+        if os.path.exists(_temp_dir):
+            shutil.rmtree(_temp_dir)
+
+        os.mkdir(_temp_dir)
+
+        mw_home = os.environ['MW_HOME']
+        args_map = {
+            '-oracle_home': mw_home,
+            '-output_dir' : _temp_dir,
+            '-domain_type' : 'WLS',
+            '-trailing_arguments': [ _new_model_file, _old_model_file ]
+        }
+
+        try:
+            model_context = ModelContext('CompareModelTestCase', args_map)
+            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            return_code = obj.compare()
+            self.assertEqual(return_code, 0)
+
+            yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
+            json_result = _temp_dir + os.sep + 'diffed_model.json'
+            stdout_result = obj.get_compare_msgs()
+            model_dictionary = FileToPython(yaml_result).parse()
+            self.assertEqual(model_dictionary.has_key('topology'), True)
+            self.assertEqual(model_dictionary['topology'].has_key('SecurityConfiguration'), True)
+            self.assertEqual(model_dictionary['topology']['SecurityConfiguration'].has_key('Realm'), True)
+            self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm'].has_key('myrealm'), True)
+            self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm']['myrealm'].has_key('Auditor'), False)
+            self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm']['myrealm'].has_key('AuthenticationProvider'), True)
+            self.assertEqual(model_dictionary['topology']['SecurityConfiguration']['Realm']['myrealm'].has_key('PasswordValidator'), True)
         except (CompareException, PyWLSTException), te:
             return_code = 2
             self._logger.severe('WLSDPLY-05709',
