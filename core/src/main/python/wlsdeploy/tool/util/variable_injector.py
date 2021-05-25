@@ -245,15 +245,16 @@ class VariableInjector(object):
             if variable_dictionary is not None and len(variable_dictionary) > 0:
                 # change variable_file_location to output_dir for target operation
                 if self.__model_context.get_target() is not None:
-                    if os.path.exists(variable_file_location) is not None:
+                    new_variable_file_location = os.path.join(self.__model_context.get_output_dir(),
+                                                              self.__model_context.get_target() +
+                                                              '-variable.properties')
+                    if variable_file_location is not None and os.path.exists(variable_file_location):
                         # copy the original file first
-                        new_variable_file_location = os.path.join(self.__model_context.get_output_dir(),
-                                                                  self.__model_context.get_target() +
-                                                                  '-variable.properties')
                         # TODO: Ideally merge properties, though append accomplish the same effect.
                         append = True
                         shutil.copyfile(variable_file_location, new_variable_file_location)
-                        variable_file_location = new_variable_file_location
+
+                    variable_file_location = new_variable_file_location
 
                 variables_inserted = self._write_variables_file(variable_dictionary, variable_file_location, append)
             if variables_inserted:
@@ -401,6 +402,7 @@ class VariableInjector(object):
         variable_value = None
         attribute_value = model[attribute]
         if not _already_property(attribute_value):
+            # TODO: potential change if targeting ??
             variable_name = self.get_variable_name(location, attribute)
             variable_value = _format_variable_value(attribute_value)
 

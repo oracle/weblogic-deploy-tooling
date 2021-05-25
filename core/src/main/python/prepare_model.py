@@ -241,7 +241,6 @@ class PrepareModel:
 
         # create a merged model that is not substituted
         merged_model_dictionary = {}
-
         try:
             model_file_list = self.model_files.split(',')
             target = self.model_context.get_target()
@@ -264,7 +263,7 @@ class PrepareModel:
                 model_dictionary = cla_helper.merge_model_files(model_file_name, None)
 
                 variable_file = self.model_context.get_variable_file()
-                if not os.path.exists(variable_file):
+                if variable_file is not None and not os.path.exists(variable_file):
                     variable_file = None
 
                 return_code = validator.validate_in_tool_mode(model_dictionary,
