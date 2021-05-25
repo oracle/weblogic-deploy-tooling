@@ -12,7 +12,7 @@
     <parent>
         <artifactId>weblogic-deploy</artifactId>
         <groupId>com.oracle.weblogic.lifecycle</groupId>
-        <version>1.9.13</version>
+        <version>1.9.14-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
