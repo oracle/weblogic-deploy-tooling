@@ -69,6 +69,7 @@ from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
+from wlsdeploy.aliases.model_constants import WLS_DEFAULT_AUTHENTICATION
 from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
@@ -83,6 +84,7 @@ from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.credential_map_helper import CredentialMapHelper
+from wlsdeploy.tool.util.default_authenticator_helper import DefaultAuthenticatorHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
@@ -544,8 +546,6 @@ class DomainCreator(Creator):
             self.__configure_fmw_infra_database()
             self.__configure_opss_secrets()
         topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
-
-        self.__create_security_folder()
         topology_folder_list.remove(SECURITY)
 
         resources_dict = self.model.get_model_resources()
@@ -577,6 +577,10 @@ class DomainCreator(Creator):
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.read_domain(domain_home)
+
+        print '******* create security folder'
+        self.__create_security_folder()
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -688,20 +692,17 @@ class DomainCreator(Creator):
 
     def __create_security_folder(self):
         """
-        Create the /Security folder objects, if any.
+        Create the the security objects if any. The security information
+        from the model will be writting to the DefaultAuthenticatorInit.ldift file
         :raises: CreateException: if an error occurs
         """
         _method_name = '__create_security_folder'
-
-        location = LocationContext()
-        domain_name_token = self.aliases.get_name_token(location)
-        location.add_name_token(domain_name_token, self._domain_name)
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
-        security_nodes = dictionary_utils.get_dictionary_element(self._topology, SECURITY)
-        if len(security_nodes) > 0:
-            self._create_mbean(SECURITY, security_nodes, location)
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        security_folder = dictionary_utils.get_dictionary_element(self._topology, SECURITY)
+        if security_folder is not None:
+            helper = DefaultAuthenticatorHelper(self.model_context, ExceptionType.CREATE)
+            helper.create_default_init_file(security_folder)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_log_filters(self, location):
         """

@@ -44,6 +44,26 @@ def create_file_from_resource(resource_path, template_hash, output_file, excepti
     _create_file_from_stream(template_stream, template_hash, output_file)
 
 
+def append_file_from_resource(resource_path, template_hash, output_file, exception_type):
+    """
+    Read the template from the resource stream, perform any substitutions,
+    and write it to the output file.
+    :param resource_path: the resource path of the source template
+    :param template_hash: a dictionary of substitution values
+    :param output_file: the file to write
+    :param exception_type: the type of exception to throw if needed
+    """
+    _method_name = 'append_file_from_resource'
+
+    template_stream = FileUtils.getResourceAsStream(resource_path)
+    if template_stream is None:
+        ex = exception_helper.create_exception(exception_type, 'WLSDPLY-01661', resource_path)
+        __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
+        raise ex
+    FileUtils.validateExistingFile(output_file)
+    _create_file_from_stream(template_stream, template_hash, output_file, 'a')
+
+
 def create_file_from_file(file_path, template_hash, output_file, exception_type):
     """
     Read the template from the template file, perform any substitutions,
@@ -65,9 +85,9 @@ def create_file_from_file(file_path, template_hash, output_file, exception_type)
         raise ex
 
 
-def _create_file_from_stream(template_stream, template_hash, output_file):
+def _create_file_from_stream(template_stream, template_hash, output_file, write_access='w'):
     template_reader = BufferedReader(InputStreamReader(template_stream))
-    file_writer = open(output_file.getPath(), "w")
+    file_writer = open(output_file.getPath(), write_access)
 
     block_key = None
     block_lines = []
