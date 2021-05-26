@@ -211,7 +211,6 @@ def _substitute(text, variables, model_context, attribute_name=None):
     target_configuration = model_context.get_target_configuration()
     if target_configuration:
         validation_method = target_configuration.get_validation_method()
-
     # if _existing_model_secrets is None:
     #     _existing_model_secrets = []
 
@@ -223,7 +222,7 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if key not in variables:
-                if validation_method == 'strict':
+                if validation_method != 'lax':
                     _report_token_issue('WLSDPLY-01732', method_name, model_context, key)
                 continue
 
@@ -235,7 +234,7 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if not os.environ.has_key(key):
-                if validation_method == 'strict':
+                if validation_method != 'lax':
                     _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
                 # else:
                     # Add to user secret list if it is ENV and SECRET as next section reg pattern won't find it
@@ -253,12 +252,12 @@ def _substitute(text, variables, model_context, attribute_name=None):
 
             if value is None:
                 # does not match, only report for non target case
-                # TODO:  store this existing secret somewhere, so that it will go to the final output??
-                if validation_method == 'strict':
+                if validation_method != 'lax':
                     secret_token = name + ':' + key
                     known_tokens = _list_known_secret_tokens()
                     _report_token_issue('WLSDPLY-01739', method_name, model_context, secret_token, known_tokens)
                 # else:
+                # TODO:  store this existing secret somewhere, so that it will go to the final output??
                 #     _existing_model_secrets.append(text)
                 continue
 
@@ -282,7 +281,7 @@ def _substitute(text, variables, model_context, attribute_name=None):
 
         # if any @@TOKEN: remains in the value, throw an exception
         matches = _unresolved_token_pattern.findall(text)
-        if matches and validation_method == 'strict':
+        if matches and validation_method != 'lax':
             match = matches[0]
             token = match[1]
             sample = "@@" + token + ":<name>"
