@@ -317,6 +317,9 @@ def _build_json_secrets_result(script_hash):
         secret['keys'] = {}
         secret['keys']['password'] = ""
         secret['keys']['username'] = node['user']
+        # For ui, empty it now.
+        if secret['keys']['username'].startswith('@@SECRET:'):
+            secret['keys']['username'] = ""
         if secret['secretName'] == 'weblogic-credentials':
             secret['keys']['username'] = ""
         secrets_array.append(secret)
