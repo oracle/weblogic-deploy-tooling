@@ -92,10 +92,6 @@ def process_target_arguments(argument_map):
             __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
             raise ex
 
-        # Set the -variable_file parameter if not present with default
-        # if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in argument_map:
-        #     path = os.path.join(output_dir, target_name + "_variable.properties")
-        #     argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = path
 
 def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
 
@@ -166,6 +162,11 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
 
 
 def _handle_existing_user_secrets(script_hash):
+    """
+    Handle existing user secrets (NOT USED YET).
+    :param script_hash: script hash
+    :return: None
+    """
 
     user_secrets = []
     if variables.get_existing_secrets() is not None:
@@ -207,6 +208,7 @@ def _handle_existing_user_secrets(script_hash):
 
 def _add_user_secret(secrets, property):
     # strip off @@SECRET: and end @@
+    # TODO: future feature
     property = property[9:len(property)-2]
 
     tokens = property.split(':')
