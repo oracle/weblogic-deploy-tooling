@@ -578,7 +578,6 @@ class DomainCreator(Creator):
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.read_domain(domain_home)
 
-        print '******* create security folder'
         self.__create_security_folder()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)

@@ -93,7 +93,6 @@ class DefaultAuthenticatorHelper(object):
 
         template_hash[GROUP_MAPPINGS] = group_mappings
         template_hash[USER_MAPPINGS] = user_mappings
-        print '****** template hash ', template_hash
         return template_hash
 
     def _build_group_mapping_hash(self, group_mapping_section, name):
