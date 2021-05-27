@@ -91,7 +91,8 @@ from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import model as model_helper
+from wlsdeploy.util import model
+from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
 
 
@@ -108,9 +109,9 @@ class DomainCreator(Creator):
 
         # domainInfo section is required to get the admin password, everything else
         # is optional and will use the template defaults
-        if model_helper.get_model_domain_info_key() not in model_dictionary:
+        if model.get_model_domain_info_key() not in model_dictionary:
             ex = exception_helper.create_create_exception('WLSDPLY-12200', self.__program_name,
-                                                          model_helper.get_model_domain_info_key(),
+                                                          model.get_model_domain_info_key(),
                                                           self.model_context.get_model_file())
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -1125,7 +1126,7 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         if APP_DIR in self._domain_info:
             app_dir = self._domain_info[APP_DIR]
-            self.logger.fine('WLSDPLY-12225', model_helper.get_model_domain_info_key(), APP_DIR, app_dir,
+            self.logger.fine('WLSDPLY-12225', model.get_model_domain_info_key(), APP_DIR, app_dir,
                              class_name=self.__class_name, method_name=_method_name)
         else:
             app_parent = self.model_context.get_domain_parent_dir()
@@ -1133,7 +1134,7 @@ class DomainCreator(Creator):
                 app_parent = os.path.dirname(self.model_context.get_domain_home())
 
             app_dir = os.path.join(app_parent, 'applications')
-            self.logger.fine('WLSDPLY-12226', model_helper.get_model_domain_info_key(), APP_DIR, app_dir,
+            self.logger.fine('WLSDPLY-12226', model.get_model_domain_info_key(), APP_DIR, app_dir,
                              class_name=self.__class_name, method_name=_method_name)
 
         self.wlst_helper.set_option_if_needed(SET_OPTION_APP_DIR, app_dir)
@@ -1197,7 +1198,7 @@ class DomainCreator(Creator):
 
         else:
             ex = exception_helper.create_create_exception('WLSDPLY-12228', 'AdminPassword',
-                                                          model_helper.get_model_domain_info_key())
+                                                          model.get_model_domain_info_key())
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return
@@ -1298,6 +1299,8 @@ class DomainCreator(Creator):
         encrypted_username = encryptionService.encrypt(admin_username)
         encrypted_password = encryptionService.encrypt(admin_password)
         for server in servers:
+            if model_helper.is_delete_name(server):
+                continue
             properties = Properties()
             properties.put("username", encrypted_username)
             properties.put("password", encrypted_password)
