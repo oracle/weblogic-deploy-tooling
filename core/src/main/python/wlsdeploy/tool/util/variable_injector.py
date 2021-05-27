@@ -426,7 +426,6 @@ class VariableInjector(object):
         variable_value = None
         attribute_value = model[attribute]
         if not _already_property(attribute_value):
-            # TODO: potential change if targeting ??
             variable_name = self.get_variable_name(location, attribute)
             variable_value = _format_variable_value(attribute_value)
 

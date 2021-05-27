@@ -39,7 +39,7 @@ _secret_dirs_variable = "WDT_MODEL_SECRETS_DIRS"
 _secret_dir_pairs_variable="WDT_MODEL_SECRETS_NAME_DIR_PAIRS"
 
 _secret_token_map = None
-#_existing_model_secrets = None
+
 
 def load_variables(file_path, allow_multiple_files=False):
     """
@@ -150,8 +150,6 @@ def get_variable_names(text):
 
     return names
 
-# def get_existing_secrets():
-#     return _existing_model_secrets
 
 def substitute(dictionary, variables, model_context):
     """
@@ -206,13 +204,10 @@ def _substitute(text, variables, model_context, attribute_name=None):
     :return: the replaced text
     """
     method_name = '_substitute'
-    # global _existing_model_secrets
     validation_method = model_context.get_validation_method()
     target_configuration = model_context.get_target_configuration()
     if target_configuration:
         validation_method = target_configuration.get_validation_method()
-    # if _existing_model_secrets is None:
-    #     _existing_model_secrets = []
 
     # skip lookups for text with no @@
     if '@@' in text:
@@ -236,10 +231,6 @@ def _substitute(text, variables, model_context, attribute_name=None):
             if not os.environ.has_key(key):
                 if validation_method != 'lax':
                     _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
-                # else:
-                    # Add to user secret list if it is ENV and SECRET as next section reg pattern won't find it
-                    # if text.find('@@SECRET:') >= 0:
-                    #     _existing_model_secrets.append(text)
                 continue
 
             value = os.environ.get(key)
@@ -256,9 +247,6 @@ def _substitute(text, variables, model_context, attribute_name=None):
                     secret_token = name + ':' + key
                     known_tokens = _list_known_secret_tokens()
                     _report_token_issue('WLSDPLY-01739', method_name, model_context, secret_token, known_tokens)
-                # else:
-                # TODO:  store this existing secret somewhere, so that it will go to the final output??
-                #     _existing_model_secrets.append(text)
                 continue
 
             text = text.replace(token, value)

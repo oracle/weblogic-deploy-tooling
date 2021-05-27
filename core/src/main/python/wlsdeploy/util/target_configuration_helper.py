@@ -23,7 +23,6 @@ from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.json.json_translator import PythonToJson
-import wlsdeploy.util.variables as variables
 
 
 __class_name = 'target_configuration_helper'
@@ -157,112 +156,6 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
         {'text': exception_helper.get_message('WLSDPLY-01670')}
     ]
     script_hash['longMessageDetails'] = long_messages
-    #_handle_existing_user_secrets(script_hash)
-    return script_hash
-
-
-def _handle_existing_user_secrets(script_hash):
-    """
-    Handle existing user secrets (NOT USED YET).
-    :param script_hash: script hash
-    :return: None
-    """
-
-    user_secrets = []
-    if variables.get_existing_secrets() is not None:
-        for property_name in variables.get_existing_secrets():
-            # if it starts with common pattern
-            orig_property_name = property_name
-            if property_name.find('@@SECRET:@@ENV:DOMAIN_UID@@-') < 0:
-                _add_user_secret(user_secrets, property_name)
-            else:
-                property_name = orig_property_name.split('@@SECRET:@@ENV:DOMAIN_UID@@-')[1]
-                # check if it is already in secrets or paired secrets
-                tokens = property_name.split(':')
-                found = False
-
-                if len(tokens) == 2:
-                    key = tokens[len(tokens) - 1]
-                    name = tokens[len(tokens) - 2]
-                    key = key[0:len(key)-2]
-                    # if it has username and password
-                    for node in script_hash['pairedSecrets']:
-                        if node['secretName'] == name:
-                            found = True
-                            break
-
-                    if found:
-                        if key in ['username', 'password']:
-                            # it's already in the hash
-                            pass
-                        else:
-                            node[key] = ""
-                    else:
-                        _add_user_secret(user_secrets, property_name)
-                else:
-                    _add_user_secret(user_secrets, orig_property_name)
-
-        if user_secrets:
-            script_hash['user_secrets'] = user_secrets
-
-
-def _add_user_secret(secrets, property):
-    # strip off @@SECRET: and end @@
-    # TODO: future feature
-    property = property[9:len(property)-2]
-
-    tokens = property.split(':')
-    prefix = ''
-
-    if len(tokens) == 2:
-        # name:key
-        key = tokens[-1]
-        name = tokens[-2]
-    else:
-        # @@SECRET:@@ENV:FOO@@something:key
-        key = tokens[-1]
-        name = tokens[-2]
-
-        prefix = ":".join(tokens[0:len(tokens)-2])
-        rindex = name.rfind('@@')
-
-        if rindex > 0:
-            prefix += (':' + name[0:rindex+2])
-            remaining_name = name[rindex+2:]
-            i = 0
-            for i in range(len(remaining_name)):
-                if not re.match("[a-z0-9]", remaining_name[i]):
-                    prefix += remaining_name[i]
-                else:
-                    break
-            name = remaining_name[i:]
-    found = False
-    if len(secrets) > 0:
-        # insert into existing places
-        for item in secrets:
-            secret = item
-            # match prefix first
-            if secret.has_key('prefix'):
-                if secret['prefix'] == prefix and secret['secretName'] == name:
-                    secret['keys'][key] = ""
-                    found = True
-                    break
-                else:
-                    continue
-
-            if secret['secretName'] == name:
-                secret['keys'][key] = ""
-                found = True
-                break
-
-    if not found:
-        secret = dict()
-        secret['secretName'] = name
-        secret['keys'] = {}
-        secret['keys'][key] = ""
-        secret['prefix'] = prefix
-
-        secrets.append(secret)
 
 
 def generate_k8s_script(model_context, token_dictionary, model_dictionary, exception_type):
@@ -327,9 +220,6 @@ def _build_json_secrets_result(script_hash):
     result['secrets'] = secrets_array
     result['domainUID'] = script_hash['domainUid']
     result['namespace'] = script_hash['namespace']
-
-    # if script_hash['user_secrets']:
-    #     result['user_secrets'] = script_hash['user_secrets']
 
     return result
 
