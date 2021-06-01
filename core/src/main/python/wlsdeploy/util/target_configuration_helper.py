@@ -156,6 +156,7 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
         {'text': exception_helper.get_message('WLSDPLY-01670')}
     ]
     script_hash['longMessageDetails'] = long_messages
+    return script_hash
 
 
 def generate_k8s_script(model_context, token_dictionary, model_dictionary, exception_type):
