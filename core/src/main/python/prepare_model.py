@@ -249,9 +249,18 @@ class PrepareModel:
                 if os.path.splitext(model_file)[1].lower() == ".yaml":
                     model_file_name = model_file
                     
-                if target is not None and os.path.basename(model_file_name) == (target + "-domain.yaml"):
-                    self._logger.severe('WLSDPLY-05802', model_file_name, os.path.basename(model_file_name), target)
-                    return VALIDATION_FAIL
+                if target is not None and self.model_context.get_target_configuration().get_additional_output_types():
+                    additional_output_types = []
+                    output_types = self.model_context.get_target_configuration().get_additional_output_types()
+                    if isinstance(output_types, list):
+                        additional_output_types.extend(output_types)
+                    else:
+                        additional_output_types.append(output_types)
+
+                    if os.path.basename(model_file_name) in additional_output_types:
+                        self._logger.severe('WLSDPLY-05802', os.path.basename(model_file_name),
+                                            additional_output_types, target)
+                        return VALIDATION_FAIL
 
                 FileToPython(model_file_name, True).parse()
 
