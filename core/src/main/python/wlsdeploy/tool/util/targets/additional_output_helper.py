@@ -87,7 +87,7 @@ def _create_file(template_name, template_hash, model_context, output_dir, except
     target_key = model_context.get_target()
     template_subdir = "targets/" + target_key + "/" + template_name
     template_path = path_utils.find_config_path(template_subdir)
-    output_file = File(output_dir, target_key + '-' + template_name)
+    output_file = File(output_dir, template_name)
 
     __logger.info('WLSDPLY-01662', output_file, class_name=__class_name, method_name=_method_name)
 
