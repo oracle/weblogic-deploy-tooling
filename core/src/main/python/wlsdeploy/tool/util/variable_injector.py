@@ -6,8 +6,11 @@ import copy
 import re
 
 import java.lang.Boolean as Boolean
+import java.io.FileOutputStream as FileOutputStream
+import java.io.FileInputStream as FileInputStream
+import java.util.Properties as Properties
 import java.lang.IllegalArgumentException as IllegalArgumentException
-import os
+import os, shutil
 
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
 import oracle.weblogic.deploy.json.JsonException as JsonException
@@ -243,6 +246,18 @@ class VariableInjector(object):
 
             variable_dictionary = self.get_variable_cache()
             if variable_dictionary is not None and len(variable_dictionary) > 0:
+                # change variable_file_location to output_dir for target operation
+                if self.__model_context.get_target() is not None:
+                    new_variable_file_location = os.path.join(self.__model_context.get_output_dir(),
+                                                              os.path.basename(variable_file_location))
+                    if variable_file_location is not None and os.path.exists(variable_file_location):
+                        # copy the original file first
+                        append = True
+                        shutil.copyfile(variable_file_location, new_variable_file_location)
+                        self._filter_duplicate_properties(new_variable_file_location, variable_dictionary)
+
+                    variable_file_location = new_variable_file_location
+
                 variables_inserted = self._write_variables_file(variable_dictionary, variable_file_location, append)
             if variables_inserted:
                 _logger.info('WLSDPLY-19518', variable_file_location, class_name=_class_name,
@@ -254,6 +269,28 @@ class VariableInjector(object):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_inserted)
         return variables_inserted, return_model, variable_file_location
+
+
+    def _filter_duplicate_properties(self, variable_file_location, variable_dictionary):
+        _method_name = '_filter_duplicate_property'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        try:
+            fis = FileInputStream(variable_file_location)
+            prop = Properties()
+            prop.load(fis)
+            fis.close()
+            for key in variable_dictionary:
+                if prop.get(key) is not None:
+                    prop.remove(key)
+            fos = FileOutputStream(variable_file_location)
+            prop.store(fos, None)
+            fos.close()
+        except IOException, e:
+            _logger.warning('WLSDPLY-05803', e.getLocalizedMessage(),
+                            class_name=_class_name, method_name=_method_name)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+
 
     def inject_variables_keyword_dictionary(self, injector_file_list):
         """

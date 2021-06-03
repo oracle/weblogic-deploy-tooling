@@ -445,9 +445,12 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
         credential_cache = credential_injector.get_variable_cache()
 
         # Generate k8s create secret script
-        if target_configuration.uses_credential_secrets():
+        if target_configuration.generate_script_for_secrets():
             target_configuration_helper.generate_k8s_script(model_context, credential_cache, model.get_model(),
                                                             ExceptionType.DISCOVER)
+
+        if target_configuration.generate_json_for_secrets():
+            target_configuration_helper.generate_k8s_json(model_context, credential_cache, model.get_model())
 
         # create additional output after filtering, but before variables have been inserted
         if model_context.is_targetted_config():

@@ -7,6 +7,7 @@ from wlsdeploy.util import dictionary_utils
 
 # types for credential method
 CREDENTIALS_METHOD = "credentials_method"
+CREDENTIALS_OUTPUT_METHOD = "credentials_output_method"
 
 # Overrides the Kubernetes secret name for the WebLogic admin user credential
 WLS_CREDENTIALS_NAME = "wls_credentials_name"
@@ -45,6 +46,13 @@ class TargetConfiguration(object):
         :return: the method for handling credentials
         """
         return dictionary_utils.get_element(self.config_dictionary, CREDENTIALS_METHOD)
+
+    def get_credentials_output_method(self):
+        """
+        Returns the method for generating secrets creation method.
+        :return: script or json
+        """
+        return dictionary_utils.get_element(self.config_dictionary, CREDENTIALS_OUTPUT_METHOD)
 
     def get_wls_credentials_name(self):
         """
@@ -100,6 +108,21 @@ class TargetConfiguration(object):
         :return: True if secrets are used, False otherwise
         """
         return self.get_credentials_method() in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]
+
+    def generate_script_for_secrets(self):
+        """
+        Determine if it needs to generate shell script for creating secrets.
+        :return: True if it is not equal to json
+        """
+        return not self.get_credentials_output_method() in ['json']
+
+
+    def generate_json_for_secrets(self):
+        """
+        Determine if it needs to generate json file for creating secrets.
+        :return: True if generating json file, False otherwise
+        """
+        return self.get_credentials_output_method() in ['json']
 
     def manages_credentials(self):
         """

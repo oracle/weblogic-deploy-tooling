@@ -204,6 +204,10 @@ def _substitute(text, variables, model_context, attribute_name=None):
     :return: the replaced text
     """
     method_name = '_substitute'
+    validation_method = model_context.get_validation_method()
+    target_configuration = model_context.get_target_configuration()
+    if target_configuration:
+        validation_method = target_configuration.get_validation_method()
 
     # skip lookups for text with no @@
     if '@@' in text:
@@ -213,7 +217,8 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if key not in variables:
-                _report_token_issue('WLSDPLY-01732', method_name, model_context, key)
+                if validation_method != 'lax':
+                    _report_token_issue('WLSDPLY-01732', method_name, model_context, key)
                 continue
 
             value = variables[key]
@@ -224,7 +229,8 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if not os.environ.has_key(key):
-                _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
+                if validation_method != 'lax':
+                    _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
                 continue
 
             value = os.environ.get(key)
@@ -234,10 +240,13 @@ def _substitute(text, variables, model_context, attribute_name=None):
         matches = _secret_pattern.findall(text)
         for token, name, key in matches:
             value = _resolve_secret_token(name, key, model_context)
+
             if value is None:
-                secret_token = name + ':' + key
-                known_tokens = _list_known_secret_tokens()
-                _report_token_issue('WLSDPLY-01739', method_name, model_context, secret_token, known_tokens)
+                # does not match, only report for non target case
+                if validation_method != 'lax':
+                    secret_token = name + ':' + key
+                    known_tokens = _list_known_secret_tokens()
+                    _report_token_issue('WLSDPLY-01739', method_name, model_context, secret_token, known_tokens)
                 continue
 
             text = text.replace(token, value)
@@ -260,7 +269,7 @@ def _substitute(text, variables, model_context, attribute_name=None):
 
         # if any @@TOKEN: remains in the value, throw an exception
         matches = _unresolved_token_pattern.findall(text)
-        if matches:
+        if matches and validation_method != 'lax':
             match = matches[0]
             token = match[1]
             sample = "@@" + token + ":<name>"
