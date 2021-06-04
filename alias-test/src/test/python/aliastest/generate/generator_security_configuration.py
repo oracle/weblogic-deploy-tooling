@@ -3,25 +3,30 @@ Copyright (c) 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
-import java.util.List as List
-import java.lang.reflect.Array as Array
-import java.lang.String
 import aliastest.generate.generator_wlst as generator_wlst
-import aliastest.util.all_utils as all_utils
 
 import oracle.weblogic.deploy.aliases.TypeUtils as TypeUtils
 
 TYPES = 'Types'
+ADJUDICATOR_TYPES = 'AdjudicatorTypes'
 ADJUDICATOR_STRING = 'Adjudicator'
-AUDITOR_STRING = 'Auditor'
-AUTHENTICATION_PROVIDER_STRING = 'AuthenticationProvider'
-AUTHORIZER_STRING = 'Authorizer'
-CERTPATH_PROVIDER_STRING = 'CertPathProvider'
-PASSWORD_VALIDATOR_STRING = 'PasswordValidator'
-ROLE_MAPPER_STRING = 'RoleMapper'
+AUDITOR_TYPES = 'AuditorTypes'
+AUDITOR_STRING = 'Auditors'
+AUTHENTICATION_PROVIDER_TYPES = 'AuthenticationProviderTypes'
+AUTHENTICATION_PROVIDER_STRING = 'AuthenticationProviders'
+AUTHORIZER_TYPES = 'AuthorizerTypes'
+AUTHORIZER_STRING = 'Authorizers'
+CERTPATH_PROVIDER_TYPES = 'CertPathProviderTypes'
+CERTPATH_PROVIDER_STRING = 'CertPathProviders'
+CREDENTIAL_MAPPER_TYPES = 'CredentialMapperTypes'
+CREDENTIAL_MAPPER_STRING = 'CredentialMappers'
+PASSWORD_VALIDATOR_TYPES = 'PasswordValidatorTypes'
+PASSWORD_VALIDATOR_STRING = 'PasswordValidators'
+ROLE_MAPPER_TYPES = 'RoleMapperTypes'
+ROLE_MAPPER_STRING = 'RoleMappers'
 
 PROVIDERS = [ADJUDICATOR_STRING, AUDITOR_STRING, AUTHENTICATION_PROVIDER_STRING, AUTHORIZER_STRING,
-             CERTPATH_PROVIDER_STRING, PASSWORD_VALIDATOR_STRING, ROLE_MAPPER_STRING]
+             CERTPATH_PROVIDER_STRING, CREDENTIAL_MAPPER_STRING, PASSWORD_VALIDATOR_STRING, ROLE_MAPPER_STRING]
 
 providers_map = None
 
@@ -30,19 +35,22 @@ def populate_security_types():
     generator_wlst.connect('weblogic', 'welcome1', 't3://localhost:7001')
     cd_security_configuration()
     provider_map = dict()
-    provider_map[ADJUDICATOR_STRING]  = get_jarray(ADJUDICATOR_STRING + TYPES)
-    provider_map[AUDITOR_STRING] = get_jarray(AUDITOR_STRING + TYPES)
-    provider_map[AUTHENTICATION_PROVIDER_STRING] = get_jarray(AUTHENTICATION_PROVIDER_STRING + TYPES)
-    provider_map[AUTHORIZER_STRING] = get_jarray(AUTHORIZER_STRING + TYPES)
-    provider_map[CERTPATH_PROVIDER_STRING] = get_jarray(CERTPATH_PROVIDER_STRING + TYPES)
-    provider_map[PASSWORD_VALIDATOR_STRING] = get_jarray(PASSWORD_VALIDATOR_STRING + TYPES)
-    provider_map[ROLE_MAPPER_STRING] = get_jarray(ROLE_MAPPER_STRING + TYPES)
+    provider_map[ADJUDICATOR_STRING] = get_jarray(ADJUDICATOR_TYPES)
+    provider_map[AUDITOR_STRING] = get_jarray(AUDITOR_TYPES)
+    provider_map[AUTHENTICATION_PROVIDER_STRING] = get_jarray(AUTHENTICATION_PROVIDER_TYPES)
+    provider_map[AUTHORIZER_STRING] = get_jarray(AUTHORIZER_TYPES)
+    provider_map[CERTPATH_PROVIDER_STRING] = get_jarray(CERTPATH_PROVIDER_TYPES)
+    provider_map[CREDENTIAL_MAPPER_STRING] = get_jarray(CREDENTIAL_MAPPER_TYPES)
+    provider_map[PASSWORD_VALIDATOR_STRING] = get_jarray(PASSWORD_VALIDATOR_TYPES)
+    provider_map[ROLE_MAPPER_STRING] = get_jarray(ROLE_MAPPER_TYPES)
     return provider_map
 
 
 def get_jarray(name):
-    list = generator_wlst.get(name)
-    result = TypeUtils.convertToObjectArray(list[1], None, None)
+    plist = generator_wlst.get(name)
+    if plist is None or len(plist) == 0:
+        return []
+    result = TypeUtils.convertToObjectArray(plist[1], str(plist), ',')
     provider = []
     for item in result:
         provider.append(item)
@@ -50,9 +58,7 @@ def get_jarray(name):
 
 
 def cd_security_configuration():
-    #generator_wlst.cd_mbean('/SecurityConfiguration/system_test_doman/Realms/myrealm')
     generator_wlst.cd_mbean('/SecurityConfiguration')
-    print generator_wlst.lsa()
     generator_wlst.cd_mbean('system_test_domain')
     generator_wlst.cd_mbean('Realms')
     generator_wlst.cd_mbean('myrealm')

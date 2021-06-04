@@ -149,7 +149,7 @@ def get_mbean_proxy(path=None):
         local_cmo = _load_global('cmo')
         mbean_proxy = local_cmo
         if mbean_proxy is None:
-            update_cmo = _load_global('upateCmo')
+            update_cmo = _load_global('updateCmo')
             update_cmo()
             local_cmo = _load_global('cmo')
             mbean_proxy = local_cmo
@@ -253,15 +253,15 @@ def created_security_provider(mbean_type, name, package):
     """
     _method_name = 'created'
     online_wlst_exception = _load_global('WLSTException')
+    result = None
     try:
         local_create = _load_global('create')
-        local_create(name, package, mbean_type)
+        result = local_create(name, package, mbean_type)
     except (online_wlst_exception, offlineWLSTException, ClassCastException, NoSuchMethodException), e:
         __logger.fine('Unable to create MBean {0} with name {1} and provider name {2} at location {3} : {4}',
                       mbean_type, name, package, current_path(), str(e),
                       class_name=__class_name, method_name=_method_name)
-        return False
-    return True
+    return result
 
 
 def cd_proxy(bean_dir):
@@ -492,9 +492,8 @@ def _load_global(global_name):
     if wlst_functions is not None and global_name in wlst_functions:
         member = wlst_functions[global_name]
 
-    if member is None:
-        print '***** global ', global_name, ' ***** ', wlst_functions
-        raise AttributeError(global_name)
+    # if member is None:
+    #     raise AttributeError(global_name)
     return member
 
 

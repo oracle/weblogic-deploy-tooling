@@ -35,7 +35,6 @@ import wlsdeploy.aliases.alias_constants as alias_constants
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-from wlsdeploy.util.model_context import ModelContext
 
 from aliastest.util.verify_context import VerifyContext
 
@@ -305,7 +304,7 @@ def populate_model_context(program_name, wlst_mode, kwargs):
     :return: verify context encapsulating runtime information
     """
     kwargs[CommandLineArgUtil.TARGET_MODE_SWITCH] = WlstModes.from_value(wlst_mode)
-    return ModelContext(program_name, kwargs)
+    return VerifyContext(program_name, kwargs)
 
 
 def str_mode(model_context):

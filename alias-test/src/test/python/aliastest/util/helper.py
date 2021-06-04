@@ -121,7 +121,6 @@ class TestHelper:
                 location.append_location(name)
                 self.__logger.finer('Checking the folder {0} for flattened and type', location.get_folder_path())
                 flattened_info = None
-                print '******* ', location.get_folder_path()
                 if not location.get_folder_path().startswith('/NMProperties') and not location.get_folder_path() == '/':
                     flattened_info = self.__aliases.get_wlst_flattened_folder_info(location)
                 if flattened_info is not None:
