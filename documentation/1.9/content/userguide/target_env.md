@@ -40,16 +40,18 @@ You can define a new or extended target environment with a new `target-name` in 
 Here is an example of a target environment file:
 ```
 {
-  "model_filters" : {
+    "model_filters" : {
         "discover": [
-          { "name": "k8s_prep", "path": "@@TARGET_CONFIG_DIR@@/k8s_operator_filter.py" }
+            { "name": "vz_prep", "path": "@@TARGET_CONFIG_DIR@@/vz_filter.py" }
         ]
-      },
-  "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
-  "validation_method" : "lax",
-  "credentials_method" : "secrets",
-  "wls_credentials_name" : "__weblogic-credentials__",
-  "additional_output" : "binding.yaml,model.yaml"
+    },
+    "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
+    "validation_method" : "lax",
+    "credentials_method" : "secrets",
+    "credentials_output_method" : "script",
+    "wls_credentials_name" : "__weblogic-credentials__",
+    "additional_secrets": "runtime-encryption-secret",
+    "additional_output" : "vz-application.yaml"
 }
 ```
 Each of the fields in this example is optional, and can be customized.
@@ -98,7 +100,7 @@ This target environment can be applied by providing the command-line argument `-
 - Variables will be injected into the model for port, host, and URL attributes
 - `lax` validation will be applied for the resulting model
 - Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
-- An additional Kubernetes resource file, `model.yaml`, will be produced, with cluster and naming information derived from the model
+- An additional Kubernetes resource file, `wko-domain.yaml`, will be produced, with cluster and naming information derived from the model
 
 #### The Verrazzano target
 This target environment can be applied by providing the command-line argument `-target vz`. It will provide this additional processing:
@@ -107,7 +109,7 @@ This target environment can be applied by providing the command-line argument `-
 - Variables will be injected into the model for port, host, and URL attributes
 - `lax` validation will be applied for the resulting model
 - Credentials in the model will be replaced with placeholder values, and a script to create corresponding secrets will be produced
-- Two additional Kubernetes resource files, `model.yaml` and `binding.yaml`, will be produced, with cluster and data source information derived from the model
+- Two additional Kubernetes resource files, `vz-application.yaml`, will be produced, with cluster and data source information derived from the model
 
 #### Generic Kubernetes target
 
