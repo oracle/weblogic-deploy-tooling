@@ -109,7 +109,7 @@ This target environment can be applied by providing the command-line argument `-
 - Variables will be injected into the model for port, host, and URL attributes
 - `lax` validation will be applied for the resulting model
 - Credentials in the model will be replaced with placeholder values, and a script to create corresponding secrets will be produced
-- Two additional Kubernetes resource files, `vz-application.yaml`, will be produced, with cluster and data source information derived from the model
+- One additional Kubernetes resource file, `vz-application.yaml`, will be produced, with cluster and data source information derived from the model
 
 #### Generic Kubernetes target
 
