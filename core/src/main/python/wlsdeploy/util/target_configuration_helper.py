@@ -92,9 +92,9 @@ def process_target_arguments(argument_map):
             raise ex
 
         # Set the -variable_file parameter if not present with default
-        if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in argument_map:
-            path = os.path.join(output_dir, target_name + "_variable.properties")
-            argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = path
+        # if CommandLineArgUtil.VARIABLE_FILE_SWITCH not in argument_map:
+        #     path = os.path.join(output_dir, target_name + "_variable.properties")
+        #     argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = path
 
 
 def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):

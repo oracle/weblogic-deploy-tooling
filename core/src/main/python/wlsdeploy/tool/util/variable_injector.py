@@ -253,7 +253,8 @@ class VariableInjector(object):
                     if variable_file_location is not None and os.path.exists(variable_file_location):
                         # copy the original file first
                         append = True
-                        shutil.copyfile(variable_file_location, new_variable_file_location)
+                        if variable_file_location != new_variable_file_location:
+                            shutil.copyfile(variable_file_location, new_variable_file_location)
                         self._filter_duplicate_properties(new_variable_file_location, variable_dictionary)
 
                     variable_file_location = new_variable_file_location

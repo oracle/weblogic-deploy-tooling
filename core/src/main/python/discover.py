@@ -533,7 +533,7 @@ def main(args):
     aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DISCOVER)
     model = None
     credential_injector = None
-    if model_context.get_variable_file() is not None:
+    if model_context.get_variable_file() is not None or model_context.get_target() is not None:
         credential_injector = CredentialInjector(_program_name, dict(), model_context,
                                                  WebLogicHelper(__logger).get_actual_weblogic_version())
 
