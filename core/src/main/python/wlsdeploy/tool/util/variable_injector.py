@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2018, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -253,7 +253,8 @@ class VariableInjector(object):
                     if variable_file_location is not None and os.path.exists(variable_file_location):
                         # copy the original file first
                         append = True
-                        shutil.copyfile(variable_file_location, new_variable_file_location)
+                        if variable_file_location != new_variable_file_location:
+                            shutil.copyfile(variable_file_location, new_variable_file_location)
                         self._filter_duplicate_properties(new_variable_file_location, variable_dictionary)
 
                     variable_file_location = new_variable_file_location
