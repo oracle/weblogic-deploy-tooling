@@ -23,10 +23,8 @@ spec:
             kind: IngressTrait
             spec:
               rules:
-                - hosts:
-                    - "{{{domainPrefix}}}-appconf.{{{domainUid}}}.example.com"
 {{#hasApplications}}
-                  paths:
+                - paths:
 {{/hasApplications}}
 {{#applications}}
                     # application {{{applicationName}}}
