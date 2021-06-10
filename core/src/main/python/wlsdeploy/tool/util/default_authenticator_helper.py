@@ -2,10 +2,11 @@
 Copyright (c) 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import com.bea.common.security.utils.encoders.BASE64Encoder as BASE64Encoder
+import com.octetstring.vde.util.PasswordEncryptor as PasswordEncryptor
 import com.bea.security.xacml.cache.resource.ResourcePolicyIdUtil as ResourcePolicyIdUtil
 from java.io import File
 from java.lang import String
+import java.util.regex.Pattern as Pattern
 
 import oracle.weblogic.deploy.aliases.TypeUtils as TypeUtils
 
@@ -48,7 +49,6 @@ class DefaultAuthenticatorHelper(object):
         self._logger = PlatformLogger('wlsdeploy.tool.util')
         self._weblogic_helper = WebLogicHelper(self._logger)
         self._resource_escaper = ResourcePolicyIdUtil.getEscaper()
-        self._b64_encoder = BASE64Encoder()
 
     def create_default_init_file(self, security_mapping_nodes):
         """
@@ -135,8 +135,7 @@ class DefaultAuthenticatorHelper(object):
         hash_entry[HASH_DESCRIPTION] = description
         groups = dictionary_utils.get_element(group_attributes, GROUP_MEMBER_OF)
         password = self._get_required_attribute(user_mapping_section, PASSWORD, USER, name)
-        encrypted = self._weblogic_helper.encrypt(password, self._model_context.get_domain_home())
-        password_encoded = self._b64_encoder.encodeBuffer(String(encrypted).getBytes("UTF-8"))
+        password_encoded = self._encode_password(name, password)
         hash_entry[HASH_USER_PASSWORD] = password_encoded
         group_list = []
         group_mappings = list()
@@ -149,6 +148,20 @@ class DefaultAuthenticatorHelper(object):
             hash_entry[HASH_GROUPS] = group_list
 
         return hash_entry
+
+    def _encode_password(self, user, password):
+        pwdPattern = '[\\!a-zA-Z]{1,}'
+        matches = Pattern.matches(pwdPattern, password)
+        if len(password) < 8 or matches:
+            self._logger.warning('WLSDPLY-01902', user)
+            return None
+        try:
+            encryptedPass = PasswordEncryptor.doSSHA256(password)
+            encryptedPass = "{ssha256}" + encryptedPass
+        except Exception, e:
+            self._logger.warning('WLSDPLY-01901', user, e)
+            return None
+        return encryptedPass
 
     def _get_required_attribute(self, dictionary, name, mapping_type, mapping_name):
         """
