@@ -42,74 +42,73 @@ metadata:
   namespace: {{{namespace}}}
 spec:
   workload:
-    apiVersion: weblogic.oracle/v8
-    kind: Domain
-    metadata:
-      name: {{{domainPrefix}}}-domain
-      namespace: {{{namespace}}}
+    apiVersion: oam.verrazzano.io/v1alpha1
+    kind: VerrazzanoWebLogicWorkload
     spec:
-      domainUID: {{{domainUid}}}
+      template:
+        metadata:
+          name: {{{domainPrefix}}}-domain
+          namespace: {{{namespace}}}
+        spec:
+          domainUID: {{{domainUid}}}
 
-      # WebLogic Image Tool provides domainHome, domainHomeSourceType, and imageName
-      domainHome: {{{domainHome}}}
-      domainHomeSourceType: {{{domainHomeSourceType}}}
-      image: {{{imageName}}}
+          # WebLogic Image Tool provides domainHome, domainHomeSourceType, and imageName
+          domainHome: {{{domainHome}}}
+          domainHomeSourceType: {{{domainHomeSourceType}}}
+          image: {{{imageName}}}
 
-      imagePullSecrets:
-        - name: {{{domainPrefix}}}-registry-credentials
-      logHomeEnabled: true
-      includeServerOutInPodLog: true
-      webLogicCredentialsSecret:
-        name: {{{webLogicCredentialsSecret}}}
-      configuration:
-        istio:
-          enabled: false
-        introspectorJobActiveDeadlineSeconds: 900
-        model:
-          configMap: {{{domainPrefix}}}-configmap
-          domainType: {{{domainType}}}
+          imagePullSecrets:
+            - name: {{{domainPrefix}}}-registry-credentials
+          includeServerOutInPodLog: true
+          webLogicCredentialsSecret:
+            name: {{{webLogicCredentialsSecret}}}
+          configuration:
+            introspectorJobActiveDeadlineSeconds: 900
+            model:
+              configMap: {{{domainPrefix}}}-configmap
+              domainType: {{{domainType}}}
 
-          # WebLogic Image Tool provides modelHome
-          modelHome: {{{modelHome}}}
+              # WebLogic Image Tool provides modelHome
+              modelHome: {{{modelHome}}}
 
-          # encryption for the WDT model and the SystemSerializedIni.data file.
-          # used only for model-in-image deployment, can be removed for other types.
-          runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
+              # encryption for the WDT model and the SystemSerializedIni.data file.
+              # used only for model-in-image deployment, can be removed for other types.
+              runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
 {{#hasAdditionalSecrets}}
 
-        secrets:
+            secrets:
 {{/hasAdditionalSecrets}}
 {{#additionalSecrets}}
-          - {{{additionalSecretName}}}
+              - {{{additionalSecretName}}}
 {{/additionalSecrets}}
 {{#hasClusters}}
 
-      clusters:
+          clusters:
 {{/hasClusters}}
 {{#clusters}}
-        - clusterName: {{{clusterName}}}
-          serverPod:
-            affinity:
-              podAntiAffinity:
-                preferredDuringSchedulingIgnoredDuringExecution:
-                  - weight: 100
-                    podAffinityTerm:
-                      labelSelector:
-                        matchExpressions:
-                          - key: "weblogic.clusterName"
-                            operator: In
-                            values:
-                              - $(CLUSTER_NAME)
-                      topologyKey: "kubernetes.io/hostname"
-          replicas: {{{replicas}}}
+            - clusterName: {{{clusterName}}}
+              serverPod:
+                affinity:
+                  podAntiAffinity:
+                    preferredDuringSchedulingIgnoredDuringExecution:
+                      - weight: 100
+                        podAffinityTerm:
+                          labelSelector:
+                            matchExpressions:
+                              - key: "weblogic.clusterName"
+                                operator: In
+                                values:
+                                  - $(CLUSTER_NAME)
+                          topologyKey: "kubernetes.io/hostname"
+              replicas: {{{replicas}}}
 {{/clusters}}
 
-      serverPod:
-        env:
-          - name: JAVA_OPTIONS
-            value: "-Dweblogic.StdoutDebugEnabled=false"
-          - name: USER_MEM_ARGS
-            value: "-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m "
+          serverPod:
+            env:
+              - name: JAVA_OPTIONS
+                value: "-Dweblogic.StdoutDebugEnabled=false"
+              - name: USER_MEM_ARGS
+                value: "-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m "
 ---
 apiVersion: core.oam.dev/v1alpha2
 kind: Component
