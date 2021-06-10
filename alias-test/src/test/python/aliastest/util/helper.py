@@ -114,7 +114,9 @@ class TestHelper:
         location = LocationContext(base_location)
         folder_map = dict()
         for name in model_folder_list:
+            print 'Name in model_folder_list ', name
             if name is None:
+                print 'Have a problem with the list at locaton ', location.get_folder_path()
                 self.__logger.warning('have a problem with the list at location {0} : {1}', location.get_folder_path(),
                                 model_folder_list)
             else:
@@ -132,6 +134,7 @@ class TestHelper:
                     wlst_mbean = self.__aliases.get_wlst_mbean_type(location)
                 if wlst_mbean is None:
                     # create a message for this
+                    print 'MBEAN folder not implemented ', name
                     self.__logger.finer('Mbean folder {0} at location {1} is not implemented in aliases for version {2}}',
                                   name, location.get_folder_path(), self.__model_context.get_target_wls_version())
                 else:

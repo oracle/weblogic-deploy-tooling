@@ -18,7 +18,7 @@ class Verifier(VerifierHelper):
     Verify the generated MBean and attribute information against the aliases.
     """
 
-    IGNORE_DICT_FOLDERS = ['Realm']
+    IGNORE_DICT_FOLDERS = []
     IGNORE_ALIAS_FOLDERS = []
 
     def __init__(self, model_context, dictionary):

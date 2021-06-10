@@ -57,7 +57,6 @@ CMO_DEFAULT = 'cmo_default'
 CREATE = 'create'
 
 ATTRIBUTES = 'attributes'
-TYPE = 'type'
 READ_TYPE = 'read_type'
 CMO_READ_TYPE = 'cmo_read_type'
 READ_ONLY = 'readonly'
@@ -123,7 +122,6 @@ def get_dictionary_from_json_file(json_file_name):
     """
     _method_name = 'get_dictionary_from_json_file'
     __logger.entering(json_file_name, class_name=CLASS_NAME, method_name=_method_name)
-    print 'THE FILE NAME IS ', json_file_name
     json_input_stream = FileInputStream(File(json_file_name))
     json_translator = JsonStreamTranslator(json_file_name, json_input_stream)
     dictionary = None
