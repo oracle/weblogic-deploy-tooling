@@ -69,11 +69,10 @@ usage() {
 
 WLSDEPLOY_PROGRAM_NAME="extractDomainResource"; export WLSDEPLOY_PROGRAM_NAME
 
-scriptName=`basename $0`
+scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
-scriptArgs=$*
 
-. $scriptPath/shared.sh
+. "$scriptPath/shared.sh"
 
 umask 27
 
@@ -87,4 +86,4 @@ fi
 # required Java version is dependent on use of encryption
 javaSetup $minJdkVersion
 
-runJython extract_resource.py
+runJython extract_resource.py "$@"

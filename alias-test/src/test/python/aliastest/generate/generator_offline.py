@@ -203,7 +203,6 @@ class OfflineGenerator(GeneratorHelper):
         folder_dict = all_utils.dict_obj()
         lsc_name = self.__create_offline_mbean(mbean_type, folder_dict)
         success = False
-        # put code here to check for existing mbean
         if lsc_name is None:
             if mbean_helper is not None:
                 lsc_name = mbean_type

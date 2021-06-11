@@ -2,7 +2,9 @@
 Copyright (c) 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+from java.util import Properties
 
+from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.aliases import alias_utils
@@ -64,14 +66,75 @@ class ModelComparer(object):
 
         # determine if the specified location has named folders, such as topology/Server
         has_named_folders = False
+        has_security = False
         if (location is not None) and not self._aliases.is_artificial_type_folder(location):
-            has_named_folders = self._aliases.supports_multiple_mbean_instances(location) or \
-                                self._aliases.requires_artificial_type_subfolder_handling(location)
+            if self._aliases.supports_multiple_mbean_instances(location):
+                has_named_folders = True
+            elif self._aliases.requires_artificial_type_subfolder_handling(location):
+                has_security = True
 
         if has_named_folders:
             return self._compare_named_folders(current_folder, past_folder, location, attributes_location)
+        elif has_security:
+            return self._compare_security_folders(current_folder, past_folder, location, attributes_location)
         else:
             return self._compare_folder_contents(current_folder, past_folder, location, attributes_location)
+
+    def _compare_security_folders(self, current_folder, past_folder, location, attributes_location):
+        """
+        Compare current and past security configuration provider section. If a provider section has an entry
+        that is different from the original, the entire provider section will be returned as differences between
+        the two folders.
+        :param current_folder: a folder in the current model
+        :param past_folder: corresponding folder in the past model
+        :param location: the location for the specified folders
+        :param attributes_location: the attribute location for the specified folders
+        :return: a dictionary of differences between these folders
+        """
+        providers = self._aliases.get_model_subfolder_names(location)
+        matches = True
+        custom = True
+        if len(current_folder) == len(past_folder):
+            curr_keys = current_folder.keys()
+            past_keys = past_folder.keys()
+            idx = 0
+            while idx < len(curr_keys):
+                if curr_keys[idx] == past_keys[idx]:
+                    custom = curr_keys[idx] not in providers
+                    next_curr_folder = current_folder[curr_keys[idx]]
+                    next_curr_keys = next_curr_folder.keys()
+                    next_past_folder = past_folder[past_keys[idx]]
+                    next_past_keys = next_past_folder.keys()
+                    next_idx = 0
+                    while next_idx < len(next_curr_keys):
+                        if next_curr_keys[next_idx] == next_past_keys[next_idx]:
+                            if custom:
+                                changes = self._compare_folder_sc_contents(next_curr_folder, next_past_folder,
+                                                                           location, attributes_location)
+                            else:
+                                changes = self._compare_folder_contents(next_curr_folder, next_past_folder,
+                                                                        location, attributes_location)
+                            if changes:
+                                matches = False
+                                break
+                        else:
+                            matches = False
+                            break
+                        next_idx +=1
+                else:
+                    matches = False
+                    break
+                idx +=1
+        else:
+            matches = False
+        if matches is False:
+            self._messages.add(('WLSDPLY-05716', location.get_folder_path()))
+            comment = "Replace entire Security Provider section "
+            new_folder = PyOrderedDict()
+            _add_comment(comment, new_folder)
+            new_folder.update(current_folder)
+            return new_folder
+        return PyOrderedDict()
 
     def _compare_named_folders(self, current_folder, past_folder, location, attributes_location):
         """
@@ -110,6 +173,46 @@ class ModelComparer(object):
                 delete_name = model_helper.get_delete_name(name)
                 change_folder[delete_name] = PyOrderedDict()
 
+        return change_folder
+
+    def _compare_folder_sc_contents(self, current_folder, past_folder, location, attributes_location):
+        """
+        Compare the contents of current and past folders, looking at attribute changes for a security provider.
+        Return any changes so that calling routine will know changes occurred and the entire section will
+        of the current folder will be marked as changed.
+        :param current_folder: a folder in the current model
+        :param past_folder: corresponding folder in the past model
+        :param location: the location for the specified folders
+        :param attributes_location: the attribute location for the specified folders
+        :return: a dictionary of differences between these folders
+        """
+        change_folder = PyOrderedDict()
+
+        # check if keys in the current folder are present in the past folder
+        for key in current_folder:
+            if not self._check_key(key, location):
+                continue
+
+            if key in past_folder:
+                current_value = current_folder[key]
+                past_value = past_folder[key]
+
+                self._compare_attribute_sc(current_value, past_value, attributes_location, key, change_folder)
+
+            else:
+                # key is present the current folder, not in the past folder.
+                # just add to the change folder, no further recursion needed.
+                change_folder[key] = current_folder[key]
+
+        # check if keys in the past folder are not in the current folder
+        for key in past_folder:
+            if not self._check_key(key, location):
+                continue
+
+            if key not in current_folder:
+                change_folder[key] = past_folder[key]
+
+        self._finalize_folder(current_folder, past_folder, change_folder, location)
         return change_folder
 
     def _compare_folder_contents(self, current_folder, past_folder, location, attributes_location):
@@ -195,6 +298,38 @@ class ModelComparer(object):
             next_attributes_location = next_location
 
         return next_location, next_attributes_location
+
+    def _compare_attribute_sc(self, current_value, past_value, location, key, change_folder):
+        """
+        Compare values of an attribute from the current and past folders.
+        The changed value will signal the calling method that the entire new
+        :param current_value: the value from the current model
+        :param past_value: the value from the past model
+        :param key: the key of the attribute
+        :param change_folder: the folder in the change model to be updated
+        :param location: the location for attributes in the specified folders
+        """
+        if current_value != past_value:
+            if type(current_value) == list:
+                current_list = list(current_value)
+                previous_list = list(past_value)
+
+                change_list = list(previous_list)
+                for item in current_list:
+                    if item in previous_list:
+                        change_list.remove(item)
+                    else:
+                        change_list.append(item)
+                for item in previous_list:
+                    if item not in current_list:
+                        change_list.remove(item)
+                        change_list.append(model_helper.get_delete_name(item))
+
+            elif isinstance(current_value, Properties):
+                self._compare_properties(current_value, past_value, key, change_folder)
+
+            else:
+                change_folder[key] = current_value
 
     def _compare_attribute(self, current_value, past_value, location, key, change_folder):
         """

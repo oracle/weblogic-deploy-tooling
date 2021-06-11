@@ -67,10 +67,9 @@ def create_additional_output(model, model_context, aliases, credential_injector,
 
     # all current output types use this hash, and process a set of template files
     template_hash = _build_template_hash(model, model_context, aliases, credential_injector)
-
-    file_names = model_context.get_target_configuration().get_additional_output_types()
-    for file_name in file_names:
-        _create_file(file_name, template_hash, model_context, output_dir, exception_type)
+    template_names = model_context.get_target_configuration().get_additional_output_types()
+    for template_name in template_names:
+        _create_file(template_name, template_hash, model_context, output_dir, exception_type)
 
 
 def _create_file(template_name, template_hash, model_context, output_dir, exception_type):

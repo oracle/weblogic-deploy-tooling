@@ -69,6 +69,7 @@ from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
+from wlsdeploy.aliases.model_constants import WLS_DEFAULT_AUTHENTICATION
 from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
@@ -83,13 +84,15 @@ from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.credential_map_helper import CredentialMapHelper
+from wlsdeploy.tool.util.default_authenticator_helper import DefaultAuthenticatorHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import model as model_helper
+from wlsdeploy.util import model
+from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
 
 
@@ -106,9 +109,9 @@ class DomainCreator(Creator):
 
         # domainInfo section is required to get the admin password, everything else
         # is optional and will use the template defaults
-        if model_helper.get_model_domain_info_key() not in model_dictionary:
+        if model.get_model_domain_info_key() not in model_dictionary:
             ex = exception_helper.create_create_exception('WLSDPLY-12200', self.__program_name,
-                                                          model_helper.get_model_domain_info_key(),
+                                                          model.get_model_domain_info_key(),
                                                           self.model_context.get_model_file())
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -470,6 +473,7 @@ class DomainCreator(Creator):
 
         resources_dict = self.model.get_model_resources()
         jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+        self.__create_mbeans_used_by_topology_mbeans(topology_folder_list)
         self.__create_machines_clusters_and_servers(delete_now=False)
         self.__configure_fmw_infra_database()
 
@@ -543,12 +547,11 @@ class DomainCreator(Creator):
             self.__configure_fmw_infra_database()
             self.__configure_opss_secrets()
         topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
-
-        self.__create_security_folder()
         topology_folder_list.remove(SECURITY)
 
         resources_dict = self.model.get_model_resources()
         jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
+        self.__create_mbeans_used_by_topology_mbeans(topology_folder_list)
         self.__create_machines_clusters_and_servers(delete_now=False)
 
         server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
@@ -575,6 +578,9 @@ class DomainCreator(Creator):
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.read_domain(domain_home)
+
+        self.__create_security_folder()
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -622,7 +628,8 @@ class DomainCreator(Creator):
 
         topology_folder_list.remove(SECURITY_CONFIGURATION)
 
-        self.__create_mbeans_used_by_topology_mbeans(location, topology_folder_list)
+        self.__create_reliable_delivery_policy(location)
+        topology_folder_list.remove(WS_RELIABLE_DELIVERY_POLICY)
 
         # these deletions were intentionally skipped when these elements are first created.
         self.topology_helper.remove_deleted_clusters_and_servers(location, self._topology)
@@ -663,16 +670,21 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __create_mbeans_used_by_topology_mbeans(self, location, topology_folder_list):
+    def __create_mbeans_used_by_topology_mbeans(self, topology_folder_list):
         """
         Create the entities that are referenced by domain, machine, server and server template attributes.
-        :param location: current location
+        :param topology_folder_list: the model topology folder list to process
         :raises: CreateException: if an error occurs
         """
+        _method_name = '__create_mbeans_used_by_topology_mbeans'
+        location = LocationContext()
+        domain_name_token = self.aliases.get_name_token(location)
+        location.add_name_token(domain_name_token, self._domain_name)
+
+        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
         self.__create_log_filters(location)
         topology_folder_list.remove(LOG_FILTER)
-        self.__create_reliable_delivery_policy(location)
-        topology_folder_list.remove(WS_RELIABLE_DELIVERY_POLICY)
+
         self.__create_xml_entity_cache(location)
         topology_folder_list.remove(XML_ENTITY_CACHE)
         self.__create_xml_registry(location)
@@ -680,20 +692,17 @@ class DomainCreator(Creator):
 
     def __create_security_folder(self):
         """
-        Create the /Security folder objects, if any.
+        Create the the security objects if any. The security information
+        from the model will be writting to the DefaultAuthenticatorInit.ldift file
         :raises: CreateException: if an error occurs
         """
         _method_name = '__create_security_folder'
-
-        location = LocationContext()
-        domain_name_token = self.aliases.get_name_token(location)
-        location.add_name_token(domain_name_token, self._domain_name)
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
-        security_nodes = dictionary_utils.get_dictionary_element(self._topology, SECURITY)
-        if len(security_nodes) > 0:
-            self._create_mbean(SECURITY, security_nodes, location)
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        security_folder = dictionary_utils.get_dictionary_element(self._topology, SECURITY)
+        if security_folder is not None:
+            helper = DefaultAuthenticatorHelper(self.model_context, ExceptionType.CREATE)
+            helper.create_default_init_file(security_folder)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_log_filters(self, location):
         """
@@ -1117,7 +1126,7 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         if APP_DIR in self._domain_info:
             app_dir = self._domain_info[APP_DIR]
-            self.logger.fine('WLSDPLY-12225', model_helper.get_model_domain_info_key(), APP_DIR, app_dir,
+            self.logger.fine('WLSDPLY-12225', model.get_model_domain_info_key(), APP_DIR, app_dir,
                              class_name=self.__class_name, method_name=_method_name)
         else:
             app_parent = self.model_context.get_domain_parent_dir()
@@ -1125,7 +1134,7 @@ class DomainCreator(Creator):
                 app_parent = os.path.dirname(self.model_context.get_domain_home())
 
             app_dir = os.path.join(app_parent, 'applications')
-            self.logger.fine('WLSDPLY-12226', model_helper.get_model_domain_info_key(), APP_DIR, app_dir,
+            self.logger.fine('WLSDPLY-12226', model.get_model_domain_info_key(), APP_DIR, app_dir,
                              class_name=self.__class_name, method_name=_method_name)
 
         self.wlst_helper.set_option_if_needed(SET_OPTION_APP_DIR, app_dir)
@@ -1189,7 +1198,7 @@ class DomainCreator(Creator):
 
         else:
             ex = exception_helper.create_create_exception('WLSDPLY-12228', 'AdminPassword',
-                                                          model_helper.get_model_domain_info_key())
+                                                          model.get_model_domain_info_key())
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return
@@ -1290,6 +1299,8 @@ class DomainCreator(Creator):
         encrypted_username = encryptionService.encrypt(admin_username)
         encrypted_password = encryptionService.encrypt(admin_password)
         for server in servers:
+            if model_helper.is_delete_name(server):
+                continue
             properties = Properties()
             properties.put("username", encrypted_username)
             properties.put("password", encrypted_password)

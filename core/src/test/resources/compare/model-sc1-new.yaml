@@ -1,0 +1,32 @@
+# Copyright (c) 2021, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+# Changing the value of ControlFlag should cause this entire
+# AuthenticationProvider section to be included in the compare result.
+# PasswordValidator providers are identical, this section should not be in the result.
+topology:
+  SecurityConfiguration:
+    Realm:
+      myrealm:
+        # Version 1.9 should be used fixing NPE
+        AuthenticationProvider:
+          DefaultAuthenticator:
+            DefaultAuthenticator:
+              ControlFlag: REQUIRED
+          DefaultIdentityAsserter:
+            DefaultIdentityAsserter:
+              DefaultUserNameMapperAttributeType: CN
+              ActiveType: [ 'AuthenticatedUser', 'X.509' ]
+              DefaultUserNameMapperAttributeDelimiter: ','
+              UseDefaultUserNameMapper: true
+        PasswordValidator:
+          SystemPasswordValidator:
+            SystemPasswordValidator:
+              MinAlphabeticCharacters: 1
+              MinLowercaseCharacters: 1
+              MinNumericCharacters: 1
+              MaxConsecutiveCharacters: 2
+              MinNonAlphanumericCharacters: 1
+              MinUppercaseCharacters: 1
+              RejectEqualOrContainUsername: true
+              MinPasswordLength: 10
+              RejectEqualOrContainReverseUsername: true

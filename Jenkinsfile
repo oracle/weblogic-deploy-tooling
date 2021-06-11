@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     triggers {
-        // timer trigger for "nightly build" on master branch
-        cron( env.BRANCH_NAME.equals('master') ? 'H H(0-3) * * 1-5' : '')
+        // timer trigger for "nightly build" on main branch
+        cron( env.BRANCH_NAME.equals('main') ? 'H H(0-3) * * 1-5' : '')
     }
 
     stages {
@@ -78,10 +78,18 @@ pipeline {
        stage ('Alias Test') {
             // only run this stage when triggered by a cron timer and the commit does not have []skip-ci in the message
             // for example, only run integration tests during the timer triggered nightly build
+<<<<<<< HEAD
             when {
                 allOf {
                     triggeredBy 'TimerTrigger'
                     branch "master"
+=======
+
+            when {
+                allOf {
+                    triggeredBy 'TimerTrigger'
+                    branch "main"
+>>>>>>> main
                 }
             }
             matrix {
@@ -105,6 +113,7 @@ pipeline {
                         steps {
                            sh  '/u01/verify/alias-test/src/test/resources/runIntegrationTest.sh -wls_version ${WLS_VERSION} -testfiles_path /u01/verify/testfiles;cp /u01/verify/testfiles/report* $WORKSPACE'
                         }
+<<<<<<< HEAD
                         post {
                            always {
                              archiveArtifacts artifacts: 'report*', fingerprint: true
@@ -114,17 +123,29 @@ pipeline {
                 }
             }
             // after all sets are complete, the job will continue here.
+=======
+                    }
+                }
+
+            }
+            // after all sets are complete, the job will continue here.
+            post {
+               always {
+                 archiveArtifacts artifacts: 'report*', fingerprint: true
+               }
+            }
+>>>>>>> main
         }
         stage ('Save Nightly Installer'){
             when {
                 allOf {
                     triggeredBy 'TimerTrigger'
-                    branch "master"
+                    branch "main"
                 }
             }
             steps {
                 sh '''
-                    oci os object put --namespace=weblogick8s --bucket-name=wko-system-test-files --config-file=/dev/null --auth=instance_principal --force --file=installer/target/weblogic-deploy.zip --name=weblogic-deploy-master.zip
+                    oci os object put --namespace=weblogick8s --bucket-name=wko-system-test-files --config-file=/dev/null --auth=instance_principal --force --file=installer/target/weblogic-deploy.zip --name=weblogic-deploy-main.zip
                 '''
             }
         }

@@ -214,15 +214,9 @@ class VerifierHelper:
 
             self.check_dictionary_against_model_list(location, dictionary, folder_map)
             for entry in dictionary:
-                print 'ENTRY IN DICTIONARY ', entry
-                if entry == 'Realm':
-                    subfolderr = dictionary[entry].keys()
-                    print 'SUBFOLDER For reAlM ', subfolderr
                 # is a entry is a folder, not in the ignore folders and is implemented
                 folder_map_name = entry
                 if self._do_this_subfolder(dictionary, entry):
-                    if entry == 'Realm':
-                        print 'Realm in do this subfolder '
                     attributes = attribute_list(dictionary[entry])
                     if attributes is None:
                         if all_utils.RECHECK in dictionary[entry]:
@@ -236,7 +230,6 @@ class VerifierHelper:
                                          class_name=CLASS_NAME, method_name=_method_name)
                         continue
                     elif folder_map_name not in folder_map:
-                        print 'folder map name not in folder map  ', folder_map_name
                         next_key = None
                         if len(dictionary[entry]) > 0:
                             key_list = dictionary[entry].keys()
@@ -268,7 +261,6 @@ class VerifierHelper:
                     #     continue
                     location.append_location(folder_map[folder_map_name])
                     this_dictionary = dictionary[entry]
-                    print 'Next folder is ', this_dictionary
                     this_folder_map = folder_map[folder_map_name]
                     flattened_folder = False
                     if self._helper.aliases().get_wlst_flattened_folder_info(location) is not None:
@@ -276,16 +268,11 @@ class VerifierHelper:
                                       method_name=_method_name)
                         self._check_attribute_list_for_flattened(location, attributes)
                         this_dictionary = this_dictionary[this_dictionary.keys()[0]]
-                        print 'this dictionary is ', this_dictionary
-                        if all_utils.TYPE in this_dictionary:
-                            print 'Found type in this dictionary ', this_dictionary
                         attributes = attribute_list(this_dictionary)
                         flattened_folder = True
                     self.check_single_folder(this_dictionary, location, flattened_folder)
                     # make this a message
                     _logger.finer('WLSDPLYST-01210', entry, class_name=CLASS_NAME, method_name=_method_name)
-                    if all_utils.TYPE in this_folder_map:
-                        print 'TYPE IS IN ', this_folder_map
                     self._helper.build_location(location, this_folder_map)
                     self.verify_attributes(attributes, location)
                     subfolder_map = self._helper.get_subfolder_map(location)
@@ -1002,7 +989,6 @@ class VerifierHelper:
                             _logger.fine('WLSDPLYST-01219', mbean_info_name, location.get_folder_path(),
                                          class_name=CLASS_NAME, method_name=_method_name)
                             self.add_error(location, ERROR_USING_REFERENCE_AS_FOLDER, attribute=mbean_info_name)
-                            print 'del mbean_info_name ', mbean_info_name
                             del dictionary[mbean_info_name]
                         elif all_utils.RECHECK in dictionary[mbean_info_name]:
                             message = dictionary[mbean_info_name][all_utils.RECHECK]
@@ -1032,7 +1018,6 @@ class VerifierHelper:
                     # make this a real message
                     _logger.fine('WLSDPLYST-01221', item, location.get_folder_path(),
                                  class_name=CLASS_NAME, method_name=_method_name)
-                    print 'delete dictionary time ', item
                     del dictionary[item]
 
     def _clean_up(self, location):
@@ -1221,8 +1206,6 @@ def attribute_list(dictionary):
     if all_utils.ATTRIBUTES in dictionary:
         attributes = dictionary[all_utils.ATTRIBUTES]
         del dictionary[all_utils.ATTRIBUTES]
-    else:
-        print ' no attributes in dictionary ', dictionary
     return attributes
 
 

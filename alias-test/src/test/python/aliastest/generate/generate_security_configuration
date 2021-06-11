@@ -1,0 +1,43 @@
+"""
+Copyright (c) 2021, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+"""
+
+import aliastest.generate.generator_wlst as generator_wlst
+
+TYPES = 'Types'
+ADJUDICATOR_STRING = 'Adjudicator'
+adjudicator_types = None
+AUDITOR_STRING = 'Auditor'
+auditor_types = None
+AUTHENTICATION_PROVIDER_STRING = 'AuthenticationProvider'
+authentication_provider_types = None
+AUTHORIZER_STRING = 'Authorizer'
+authorizer_types = None
+CERTPATH_PROVIDER_STRING = 'CertPathProvider'
+certpath_provider_types = None
+PASSWORD_VALIDATOR_STRING = 'PasswordValidator'
+password_validator_types = None
+ROLE_MAPPER_STRING = 'RoleMapper'
+role_mapper_types = None
+
+
+def populate_security_types(helper):
+    generator_wlst.connect(helper.admin_user, helper.admin_password, helper.admin_url)
+    cd_security_configuration(helper.domain_name)
+    adjudicator_types = generator_wlst.get(ADJUDICATOR_STRING + TYPES)
+    auditor_types = genearator_wlst.get(AUDITOR_STRING + TYPES)
+    authentication_provider_types = generator_wlst.get(AUTHENTICATION_PROVIDER_STRING + TYPES)
+
+
+def create_security_types(helper, offline):
+    for i in adjudicator_types:
+      if offline
+
+
+def create_security_type(helper, type, name, offline):
+    cd_security_configuration(helper.domain_name)
+
+
+def cd_security_configuration(domain_name)
+    generator_wlst.cd_mbean('/SecurityConfiguration/' + domain_name + '/Realms/myrealm')

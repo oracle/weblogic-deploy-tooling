@@ -492,8 +492,8 @@ def _load_global(global_name):
     if wlst_functions is not None and global_name in wlst_functions:
         member = wlst_functions[global_name]
 
-    # if member is None:
-    #     raise AttributeError(global_name)
+    if member is None:
+        raise AttributeError(global_name)
     return member
 
 

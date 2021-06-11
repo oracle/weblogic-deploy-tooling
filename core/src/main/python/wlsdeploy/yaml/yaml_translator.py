@@ -242,6 +242,10 @@ class PythonToYaml(object):
             result = 'null'
         elif type(value) is int or type(value) is long or type(value) is float:
             result = str(value)
+        elif type(value) is bool:
+            result = 'false'
+            if value:
+                result = 'true'
         elif type(value) is list:
             new_value = '['
             for element in value:

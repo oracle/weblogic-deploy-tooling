@@ -2,7 +2,7 @@ Example Image with a WLS Domain
 ===============================
 This Dockerfile extends the Oracle WebLogic Server image by creating a sample WLS 12.2.1.3 domain and cluster. Utility scripts are copied into the image, enabling users to plug Node Manager automatically into the Administration Server running on another container.
 
-The Dockerfile uses the `createDomain` script from the Oracle WebLogic Deploy Tooling (WDT) to create the domain from a text-based model file. More information about WDT is available in the README file for the WDT project in GitHub:
+The Dockerfile uses the `createDomain` script from the WebLogic Deploy Tooling (WDT) to create the domain from a text-based model file. More information about WDT is available in the README file for the WDT project in GitHub:
 
 `https://github.com/oracle/weblogic-deploy-tooling`
 
@@ -13,7 +13,7 @@ This sample includes a basic WDT model, `simple-topology.yaml`, that describes t
 Another option is to use the WDT `discoverDomain` tool to create a model. This process is also described in the WDT project's README file. A user can use the tool to analyze an existing domain, and create a model based on its configuration. The user may choose to customize the model before using it to create a new Docker image.
 
 The sample model is accompanied by a properties file whose values can be changed to customize a domain. The model's variable tokens are replaced with values from 'simple-topology.properties' when building the docker image. The properties files can be created and modified using a text editor. Select variables in the properties file are used by the Dockerfile during the build to persist ENV variables and expose ports in the image.
- 
+
 Care should be taken to secure the credentials that are present in the model. The ADMIN credential attributes in the sample model have a file token referencing a special property file. Each special property file must only contain a single property and can be created and modified using a text editor. The sample includes the files adminuser.properties and the adminpass.properties in the properties/docker-build directory.
 
 See the README file for more information on using property and file tokens in the WDT model.
@@ -40,7 +40,7 @@ This sample deploys a simple, one-page web application contained in a ZIP archiv
 
     $ ./build-archive.sh
 
-The sample requires the Admin Host, Admin Port and Admin Name. It also requires the Managed Server port and the domain Debug 
+The sample requires the Admin Host, Admin Port and Admin Name. It also requires the Managed Server port and the domain Debug
   Port. The ports will be EXPOSED through Docker. The other arguments are persisted in the image to be used when running a
   container. If an attribute is not provided as a --build-arg on the build command, the following defaults are set.
 
@@ -75,12 +75,12 @@ This will use the model, variable and archive files in the sample directory.
 
 This sample provides a script which will read the model variable file and parse the domain, admin and managed server information
   into a string of --build-arg statements. This build arg string is exported as environment variable BUILD_ARG.
-  The sample script specifically parses the sample variable file. Use it as an example to parse a custom variable file. 
+  The sample script specifically parses the sample variable file. Use it as an example to parse a custom variable file.
   This will insure that the values docker exposes and persists in the image are the same values configured in the domain.
 
 To parse the sample variable file and build the sample, run:
 
-     $ container-scripts/setEnv.sh properties/docker-build/domain.properties 
+     $ container-scripts/setEnv.sh properties/docker-build/domain.properties
 
      $ docker build \
           $BUILD_ARG \
@@ -91,7 +91,7 @@ To parse the sample variable file and build the sample, run:
           -t 12213-domain1-wdt:1.0 .
 
 This sample provides a Derby Data Source that is targeted to the Managed Server cluster. The Derby database is created
-  in the Admin Server container when the container is run. To turn off the database create, set DERBY_FLAG="false" in the 
+  in the Admin Server container when the container is run. To turn off the database create, set DERBY_FLAG="false" in the
   runtime security.properties used on the docker run statement.
 
 The Admin Server and each Managed Server are run in containers from this build image. In the sample, the securities.properties file

@@ -72,11 +72,10 @@ usage() {
 
 WLSDEPLOY_PROGRAM_NAME="injectVariables"; export WLSDEPLOY_PROGRAM_NAME
 
-scriptName=`basename $0`
+scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
-scriptArgs=$*
 
-. $scriptPath/shared.sh
+. "$scriptPath/shared.sh"
 
 umask 27
 
@@ -85,4 +84,4 @@ checkJythonArgs "$@"
 # Java 7 is required, no encryption is used
 javaSetup 7
 
-runJython variable_inject.py
+runJython variable_inject.py "$@"

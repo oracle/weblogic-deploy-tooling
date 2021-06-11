@@ -383,10 +383,8 @@ def _get_merge_match_key(key, variable_map):
     :param variable_map: variable map to use for substitutions
     :return: the key to use for matching
     """
-    if variable_map is not None:
-        match_key = variables.substitute_key(key, variable_map)
-    else:
-        match_key = key
+
+    match_key = variables.substitute_key(key, variable_map)
 
     if model_helper.is_delete_name(match_key):
         match_key = model_helper.get_delete_item_name(match_key)
@@ -405,7 +403,7 @@ def persist_model(model_context, model_dictionary):
     if check_persist_model():
         store_value = os.environ.get(_store_environment_variable)
 
-        if store_value.startswith('/') or store_value.startswith('\\'):
+        if os.path.isabs(store_value):
             file_path = store_value
         elif model_context.get_domain_home() is not None:
             file_path = model_context.get_domain_home() + os.sep + 'wlsdeploy' + os.sep + 'domain_model.json'

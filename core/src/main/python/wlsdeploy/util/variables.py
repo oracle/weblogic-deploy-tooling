@@ -125,14 +125,22 @@ def get_default_variable_file_name(model_context):
     :return: location and file name of variable properties file.
     """
     _method_name = 'get_default_variable_file_name'
-    extract_file_name = model_context.get_model_file()
-    if not extract_file_name:
-        extract_file_name = model_context.get_archive_file_name()
-    default_variable_file = path_utils.get_filename_no_ext_from_path(extract_file_name)
+
+    if model_context.get_target() is not None:
+        default_variable_file = os.path.join(model_context.get_output_dir(), model_context.get_target() +
+                                             "_variable.properties")
+    else:
+        extract_file_name = model_context.get_model_file()
+        if not extract_file_name:
+            extract_file_name = model_context.get_archive_file_name()
+        default_variable_file = path_utils.get_filename_no_ext_from_path(extract_file_name)
+
+        if default_variable_file:
+            default_variable_file = os.path.join(path_utils.get_pathname_from_path(extract_file_name),
+                                                 default_variable_file + '.properties')
     if default_variable_file:
-        default_variable_file = os.path.join(path_utils.get_pathname_from_path(extract_file_name),
-                                             default_variable_file + '.properties')
         _logger.finer('WLSDPLY-01736', default_variable_file, class_name=_class_name, method_name=_method_name)
+
     return default_variable_file
 
 
@@ -204,6 +212,10 @@ def _substitute(text, variables, model_context, attribute_name=None):
     :return: the replaced text
     """
     method_name = '_substitute'
+    validation_method = model_context.get_validation_method()
+    target_configuration = model_context.get_target_configuration()
+    if target_configuration:
+        validation_method = target_configuration.get_validation_method()
 
     # skip lookups for text with no @@
     if '@@' in text:
@@ -213,7 +225,8 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if key not in variables:
-                _report_token_issue('WLSDPLY-01732', method_name, model_context, key)
+                if validation_method != 'lax':
+                    _report_token_issue('WLSDPLY-01732', method_name, model_context, key)
                 continue
 
             value = variables[key]
@@ -224,7 +237,8 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if not os.environ.has_key(key):
-                _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
+                if validation_method != 'lax':
+                    _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
                 continue
 
             value = os.environ.get(key)
@@ -234,10 +248,13 @@ def _substitute(text, variables, model_context, attribute_name=None):
         matches = _secret_pattern.findall(text)
         for token, name, key in matches:
             value = _resolve_secret_token(name, key, model_context)
+
             if value is None:
-                secret_token = name + ':' + key
-                known_tokens = _list_known_secret_tokens()
-                _report_token_issue('WLSDPLY-01739', method_name, model_context, secret_token, known_tokens)
+                # does not match, only report for non target case
+                if validation_method != 'lax':
+                    secret_token = name + ':' + key
+                    known_tokens = _list_known_secret_tokens()
+                    _report_token_issue('WLSDPLY-01739', method_name, model_context, secret_token, known_tokens)
                 continue
 
             text = text.replace(token, value)
@@ -260,7 +277,7 @@ def _substitute(text, variables, model_context, attribute_name=None):
 
         # if any @@TOKEN: remains in the value, throw an exception
         matches = _unresolved_token_pattern.findall(text)
-        if matches:
+        if matches and validation_method != 'lax':
             match = matches[0]
             token = match[1]
             sample = "@@" + token + ":<name>"
@@ -446,11 +463,24 @@ def substitute_key(text, variables):
     :param variables: the variable map
     :return: the substituted text value
     """
-    matches = _property_pattern.findall(text)
+    method_name = "substitute_key"
+
+    if variables is not None:
+        matches = _property_pattern.findall(text)
+        for token, key in matches:
+            if key in variables:
+                value = variables[key]
+                text = text.replace(token, value)
+
+    matches = _environment_pattern.findall(text)
     for token, key in matches:
-        if key in variables:
-            value = variables[key]
-            text = text.replace(token, value)
+        # log, or throw an exception if key is not found.
+        if not os.environ.has_key(key):
+            continue
+
+        value = os.environ.get(key)
+        text = text.replace(token, value)
+
     return text
 
 

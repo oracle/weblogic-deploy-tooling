@@ -1,0 +1,19 @@
+# analytics
+googleAnalytics = "UA-129126578-2"
+
+baseURL = "/weblogic-deploy-tooling/"
+languageCode = "en-us"
+title = "WebLogic Deploy Tooling"
+
+# Change the default theme to be use when building the site with Hugo
+theme = "hugo-theme-learn"
+
+publishDir = "docs"
+
+# For search functionality
+[outputs]
+  home = [ "HTML", "RSS", "JSON"]
+
+[params]
+  # disable the copy to clipboard links
+  disableInlineCopyToClipBoard = true

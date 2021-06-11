@@ -241,13 +241,28 @@ class PrepareModel:
 
         # create a merged model that is not substituted
         merged_model_dictionary = {}
-
         try:
             model_file_list = self.model_files.split(',')
+            target = self.model_context.get_target()
+
             for model_file in model_file_list:
                 if os.path.splitext(model_file)[1].lower() == ".yaml":
                     model_file_name = model_file
-                    FileToPython(model_file_name, True).parse()
+                    
+                if target is not None and self.model_context.get_target_configuration().get_additional_output_types():
+                    additional_output_types = []
+                    output_types = self.model_context.get_target_configuration().get_additional_output_types()
+                    if isinstance(output_types, list):
+                        additional_output_types.extend(output_types)
+                    else:
+                        additional_output_types.append(output_types)
+
+                    if os.path.basename(model_file_name) in additional_output_types:
+                        self._logger.severe('WLSDPLY-05802', os.path.basename(model_file_name),
+                                            additional_output_types, target)
+                        return VALIDATION_FAIL
+
+                FileToPython(model_file_name, True).parse()
 
                 aliases = Aliases(model_context=self.model_context, wlst_mode=WlstModes.OFFLINE)
 
@@ -257,7 +272,7 @@ class PrepareModel:
                 model_dictionary = cla_helper.merge_model_files(model_file_name, None)
 
                 variable_file = self.model_context.get_variable_file()
-                if not os.path.exists(variable_file):
+                if variable_file is not None and not os.path.exists(variable_file):
                     variable_file = None
 
                 return_code = validator.validate_in_tool_mode(model_dictionary,
@@ -299,10 +314,15 @@ class PrepareModel:
                                                           "discover", WlstModes.OFFLINE)
 
             target_config = self.model_context.get_target_configuration()
-            if target_config.uses_credential_secrets():
+            if target_config.generate_script_for_secrets():
                 target_configuration_helper.generate_k8s_script(self.model_context,
                                                                 self.credential_injector.get_variable_cache(),
                                                                 full_model_dictionary, ExceptionType.VALIDATE)
+
+            if target_config.generate_json_for_secrets():
+                target_configuration_helper.generate_k8s_json(self.model_context,
+                                                                self.credential_injector.get_variable_cache(),
+                                                                full_model_dictionary)
 
             # create any additional outputs from full model dictionary
             target_configuration_helper.create_additional_output(Model(full_model_dictionary), self.model_context,

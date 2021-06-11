@@ -63,11 +63,10 @@ usage() {
 
 WLSDEPLOY_PROGRAM_NAME="encryptModel"; export WLSDEPLOY_PROGRAM_NAME
 
-scriptName=`basename $0`
+scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
-scriptArgs=$*
 
-. $scriptPath/shared.sh
+. "$scriptPath/shared.sh"
 
 umask 27
 
@@ -76,4 +75,4 @@ checkJythonArgs "$@"
 # Java 8 is required for encryption library
 javaSetup 8
 
-runJython encrypt.py
+runJython encrypt.py "$@"

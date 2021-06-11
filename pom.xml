@@ -8,7 +8,7 @@
 
     <groupId>com.oracle.weblogic.lifecycle</groupId>
     <artifactId>weblogic-deploy</artifactId>
-    <version>1.9.11-SNAPSHOT</version>
+    <version>1.9.15-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Oracle WebLogic Server Deploy Tooling</name>
@@ -74,6 +74,11 @@
                 <artifactId>guava</artifactId>
                 <version>29.0-jre</version>
             </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -116,7 +121,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.20.1</version>
+                    <version>2.22.2</version>
                     <configuration>
                         <!-- Created by jacoco plugin (inherited configuration) -->
                         <argLine>${surefireArgLine}</argLine>
@@ -145,7 +150,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.7.9</version>
+                    <version>0.8.6</version>
                     <executions>
                         <execution>
                             <id>pre-unit-test</id>
@@ -232,6 +237,22 @@
                             </rules>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>enforce-wlst</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipTests}</skip>
+                            <rules>
+                                <requireProperty>
+                                    <property>unit-test-wlst-dir</property>
+                                    <message>Unable to find WLST in order to run unit tests. Please set the unit-test-wlst-dir System property to point to the directory where wlst.sh lives in the Oracle Home. Or, set WLST_DIR environment variable. An example can be found in .mvn/maven.config-template. Optionally, you may -DskipTests.
+                                    </message>
+                                </requireProperty>
+                            </rules>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -266,6 +287,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
+                    <arguments>-Dunit-test-wlst-dir=${unit-test-wlst-dir}</arguments>
                     <tagNameFormat>release-@{project.version}</tagNameFormat>
                     <!-- Tell release:perform to stop before trying to push to a remote repository -->
                     <goals>install</goals>

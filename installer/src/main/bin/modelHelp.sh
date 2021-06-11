@@ -69,11 +69,10 @@ usage() {
 
 WLSDEPLOY_PROGRAM_NAME="modelHelp"; export WLSDEPLOY_PROGRAM_NAME
 
-scriptName=`basename $0`
+scriptName=$(basename "$0")
 scriptPath=$(dirname "$0")
-scriptArgs=$*
 
-. $scriptPath/shared.sh
+. "$scriptPath/shared.sh"
 
 umask 27
 
@@ -82,4 +81,4 @@ checkJythonArgs "$@"
 # Java 7 is required, no encryption is used
 javaSetup 7
 
-runJython model_help.py
+runJython model_help.py "$@"

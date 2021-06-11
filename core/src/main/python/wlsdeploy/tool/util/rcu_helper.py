@@ -34,7 +34,9 @@ class RCUHelper(Deployer):
         if RCU_DB_INFO in domain_info:
             rcu_db_info = RcuDbInfo(self.model_context, self.aliases, domain_info[RCU_DB_INFO])
             rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
-            rcu_prefix = rcu_db_info.get_rcu_prefix()
+            # upper case the prefix, the user may specify prefix as lower case
+            # but the prefix will always be upper case in the db.
+            rcu_prefix = rcu_db_info.get_rcu_prefix().upper()
 
             location = LocationContext()
             location.append_location(JDBC_SYSTEM_RESOURCE)
@@ -54,6 +56,14 @@ class RCUHelper(Deployer):
             for ds_name in ds_names:
                 location = deployer_utils.get_jdbc_driver_params_location(ds_name, self.aliases)
                 password_location = LocationContext(location)
+                list_path = self.aliases.get_wlst_list_path(location)
+                if not self.wlst_helper.path_exists(list_path):
+                    # For update case when a new custom data source has not been persisted,
+                    # the driver params location is just a placeholder and will result in error
+                    # if we try to get the attribute list from the location.
+                    # Since we only care about rcu stock data sources from the template for changing
+                    # rcu schema password; we can skip for any new custom data source.
+                    continue
 
                 wlst_path = self.aliases.get_wlst_attributes_path(location)
                 self.wlst_helper.cd(wlst_path)

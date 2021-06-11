@@ -1,0 +1,35 @@
+# Copyright (c) 2021, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+# Compare custom list attribute - add an item to list which causes entire AuthenticationProvider to be included
+# Changing the value of RejectEqualOrContainUsername should cause this entire
+# PasswordValidator section to be included in the compare result.
+topology:
+  SecurityConfiguration:
+    Realm:
+      myrealm:
+        # Version 1.9 should be used fixing NPE
+        AuthenticationProvider:
+          MyIdentityAsserterV2:
+            org.asserter.MyIdentityAsserterV2:
+              ExcludedContextPaths: [ '/soa-infra', '/management', '/jolokia' ]
+          DefaultAuthenticator:
+            DefaultAuthenticator:
+              ControlFlag: REQUIRED
+          DefaultIdentityAsserter:
+            DefaultIdentityAsserter:
+              DefaultUserNameMapperAttributeType: CN
+              ActiveType: [ 'AuthenticatedUser', 'X.509' ]
+              DefaultUserNameMapperAttributeDelimiter: ','
+              UseDefaultUserNameMapper: true
+        PasswordValidator:
+          SystemPasswordValidator:
+            SystemPasswordValidator:
+              MinAlphabeticCharacters: 1
+              MinLowercaseCharacters: 1
+              MinNumericCharacters: 1
+              MaxConsecutiveCharacters: 2
+              MinNonAlphanumericCharacters: 1
+              MinUppercaseCharacters: 1
+              RejectEqualOrContainUsername: true
+              MinPasswordLength: 10
+              RejectEqualOrContainReverseUsername: true

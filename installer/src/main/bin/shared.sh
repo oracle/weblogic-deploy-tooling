@@ -27,13 +27,13 @@ javaSetup() {
     fi
 
     if [ -x "${JAVA_HOME}/bin/java" ]; then
-      JAVA_EXE=${JAVA_HOME}/bin/java
+      JAVA_EXE="${JAVA_HOME}/bin/java"
     else
       echo "Java executable at ${JAVA_HOME}/bin/java either does not exist or is not executable" >&2
       exit 2
     fi
 
-    JVM_OUTPUT=`${JAVA_EXE} -version 2>&1`
+    JVM_OUTPUT=`"${JAVA_EXE}" -version 2>&1`
 
     case "${JVM_OUTPUT}" in
       *GraalVM*)
@@ -51,7 +51,7 @@ javaSetup() {
     esac
 
 
-    JVM_FULL_VERSION=`${JAVA_EXE} -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
+    JVM_FULL_VERSION=`"${JAVA_EXE}" -fullversion 2>&1 | awk -F"\"" '{ print $2 }'`
 
     # set JVM version to the major version, unless equal to 1, like 1.8.0, then use the minor version
     JVM_VERSION=`echo ${JVM_FULL_VERSION} | awk -F"." '{ print $1 }'`
@@ -69,7 +69,7 @@ javaSetup() {
 }
 
 setOracleVersion() {
-  ORACLE_VERSION=`${JAVA_HOME}/bin/java -cp $ORACLE_HOME/wlserver/server/lib/weblogic.jar weblogic.version | grep "WebLogic Server" | cut -d " " -f3 2>&1`
+  ORACLE_VERSION=`"${JAVA_HOME}/bin/java" -cp "$ORACLE_HOME/wlserver/server/lib/weblogic.jar" weblogic.version | grep "WebLogic Server" | cut -d " " -f3 2>&1`
   ORACLE_VER_ONE=`echo ${ORACLE_VERSION} | cut -d "." -f1`
   ORACLE_VER_THREE=`echo ${ORACLE_VERSION} | cut -d "." -f3`
   echo ORACLE_VERSION=$ORACLE_VERSION
@@ -88,7 +88,7 @@ checkJythonArgs() {
 
     # if no args were given and print the usage message
     if [ "$#" -eq "0" ]; then
-      usage `basename $0`
+      usage `basename "$0"`
       exit 0
     fi
 
@@ -99,7 +99,7 @@ checkJythonArgs() {
         key="$1"
         case $key in
             -help)
-            usage `basename $0`
+            usage `basename "$0"`
             exit 0
             ;;
             -oracle_home)
@@ -121,12 +121,13 @@ checkJythonArgs() {
     done
 
     if [ -n "${ORACLE_HOME_ARG}" ]; then
-        ORACLE_HOME=${ORACLE_HOME_ARG}
+        ORACLE_HOME="${ORACLE_HOME_ARG}"
     elif [ -n "${ORACLE_HOME}" ]; then
         # if -oracle_home argument was not found, but ORACLE_HOME was set in environment,
         # add the -oracle_home argument with the environment value.
         # put it at the beginning to protect trailing arguments.
-        scriptArgs="-oracle_home ${ORACLE_HOME} ${scriptArgs}"
+	      OHARG="-oracle_home "
+	      OHARG_VALUE="${ORACLE_HOME}"
     fi
 
     #
@@ -135,9 +136,9 @@ checkJythonArgs() {
     #
     if [ -z "${ORACLE_HOME}" ]; then
         echo "-oracle_home not provided, and ORACLE_HOME not set" >&2
-        usage `basename $0`
+        usage `basename "$0"`
         exit 99
-    elif [ ! -d ${ORACLE_HOME} ]; then
+    elif [ ! -d "${ORACLE_HOME}" ]; then
         echo "The specified Oracle home directory does not exist: ${ORACLE_HOME}" >&2
         exit 98
     fi
@@ -149,10 +150,10 @@ variableSetup() {
     # set the WLSDEPLOY_HOME variable. if it was already set, verify that it is valid
 
     if [ -z "${WLSDEPLOY_HOME}" ]; then
-        BASEDIR="$( cd "$( dirname $0 )" && pwd )"
+        BASEDIR="$( cd "$( dirname "$0" )" && pwd )"
         WLSDEPLOY_HOME=`cd "${BASEDIR}/.." ; pwd`
         export WLSDEPLOY_HOME
-    elif [ ! -d ${WLSDEPLOY_HOME} ]; then
+    elif [ ! -d "${WLSDEPLOY_HOME}" ]; then
         echo "Specified WLSDEPLOY_HOME of ${WLSDEPLOY_HOME} does not exist" >&2
         exit 2
     fi
@@ -163,11 +164,11 @@ variableSetup() {
     WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
 
     if [ -z "${WLSDEPLOY_LOG_PROPERTIES}" ]; then
-        WLSDEPLOY_LOG_PROPERTIES=${WLSDEPLOY_HOME}/etc/logging.properties; export WLSDEPLOY_LOG_PROPERTIES
+        WLSDEPLOY_LOG_PROPERTIES="${WLSDEPLOY_HOME}/etc/logging.properties"; export WLSDEPLOY_LOG_PROPERTIES
     fi
 
     if [ -z "${WLSDEPLOY_LOG_DIRECTORY}" ]; then
-        WLSDEPLOY_LOG_DIRECTORY=${WLSDEPLOY_HOME}/logs; export WLSDEPLOY_LOG_DIRECTORY
+        WLSDEPLOY_LOG_DIRECTORY="${WLSDEPLOY_HOME}/logs"; export WLSDEPLOY_LOG_DIRECTORY
     fi
 
     if [ -z "${WLSDEPLOY_LOG_HANDLERS}" ]; then
@@ -186,34 +187,34 @@ runWlst() {
     # if the WLST_PATH_DIR was set, verify and use that value.
 
     if [ -n "${WLST_PATH_DIR}" ]; then
-        if [ ! -d ${WLST_PATH_DIR} ]; then
+        if [ ! -d "${WLST_PATH_DIR}" ]; then
             echo "Specified -wlst_path directory does not exist: ${WLST_PATH_DIR}" >&2
             exit 98
         fi
-        WLST=${WLST_PATH_DIR}/common/bin/wlst.sh
+        WLST="${WLST_PATH_DIR}/common/bin/wlst.sh"
         if [ ! -x "${WLST}" ]; then
             echo "WLST executable ${WLST} not found under -wlst_path directory: ${WLST_PATH_DIR}" >&2
             exit 98
         fi
-        CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-        WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
+        CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export CLASSPATH
+        WLST_EXT_CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export WLST_EXT_CLASSPATH
     else
         # if WLST_PATH_DIR was not set, find the WLST executable in one of the known ORACLE_HOME locations.
 
         WLST=""
-        if [ -x ${ORACLE_HOME}/oracle_common/common/bin/wlst.sh ]; then
-            WLST=${ORACLE_HOME}/oracle_common/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-            WLST_EXT_CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export WLST_EXT_CLASSPATH
-        elif [ -x ${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh ]; then
-            WLST=${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-        elif [ -x ${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh ]; then
-            WLST=${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
-        elif [ -x ${ORACLE_HOME}/wlserver/common/bin/wlst.sh -a -f ${ORACLE_HOME}/wlserver/.product.properties ]; then
-            WLST=${ORACLE_HOME}/wlserver/common/bin/wlst.sh
-            CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar; export CLASSPATH
+        if [ -x "${ORACLE_HOME}/oracle_common/common/bin/wlst.sh" ]; then
+            WLST="${ORACLE_HOME}/oracle_common/common/bin/wlst.sh"
+            CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export CLASSPATH
+            WLST_EXT_CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export WLST_EXT_CLASSPATH
+        elif [ -x "${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh" ]; then
+            WLST="${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh"
+            CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export CLASSPATH
+        elif [ -x "${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh" ]; then
+            WLST="${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh"
+            CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export CLASSPATH
+        elif [ -x "${ORACLE_HOME}/wlserver/common/bin/wlst.sh" -a -f "${ORACLE_HOME}/wlserver/.product.properties" ]; then
+            WLST="${ORACLE_HOME}/wlserver/common/bin/wlst.sh"
+            CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export CLASSPATH
         fi
 
 
@@ -235,10 +236,14 @@ runWlst() {
     echo "CLASSPATH = ${CLASSPATH}"
     echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
 
-    PY_SCRIPTS_PATH=${WLSDEPLOY_HOME}/lib/python
-    echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript ${scriptArgs}"
-
-    "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" ${scriptArgs}
+    PY_SCRIPTS_PATH="${WLSDEPLOY_HOME}/lib/python"
+    if [ -z "${OHARG_VALUE}" ] ; then
+      echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript ${@:2}"
+      "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" "${@:2}"
+    else
+      echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript $OHARG \"${OHARG_VALUE}\" ${@:2}"
+      "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" $OHARG "${OHARG_VALUE}" "${@:2}"
+    fi
 
     RETURN_CODE=$?
     checkExitCode ${RETURN_CODE}
@@ -252,25 +257,24 @@ runJython() {
     # set up Oracle directory, logger, classpath
 
     ORACLE_SERVER_DIR=
-    if [ -x ${ORACLE_HOME}/wlserver_10.3 ]; then
-        ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver_10.3
-    elif [ -x ${ORACLE_HOME}/wlserver_12.1 ]; then
-        ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver_12.1
+    if [ -x "${ORACLE_HOME}/wlserver_10.3" ]; then
+        ORACLE_SERVER_DIR="${ORACLE_HOME}/wlserver_10.3"
+    elif [ -x "${ORACLE_HOME}/wlserver_12.1" ]; then
+        ORACLE_SERVER_DIR="${ORACLE_HOME}/wlserver_12.1"
     else
-        ORACLE_SERVER_DIR=${ORACLE_HOME}/wlserver
+        ORACLE_SERVER_DIR="${ORACLE_HOME}/wlserver"
     fi
 
     variableSetup
 
     JAVA_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
-    JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.cachedir.skip=true"
-    JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.path=${ORACLE_SERVER_DIR}/common/wlst/modules/jython-modules.jar/Lib"
-    JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.console="
-    JAVA_PROPERTIES="${JAVA_PROPERTIES}  ${WLSDEPLOY_PROPERTIES}"
+    JAVA_PROPERTIES+=" -Dpython.cachedir.skip=true"
+    JAVA_PROPERTIES+=" -Dpython.console="
+    JAVA_PROPERTIES+=" ${WLSDEPLOY_PROPERTIES}"
     export JAVA_PROPERTIES
-
-    CLASSPATH=${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar
-    CLASSPATH=${CLASSPATH}:${ORACLE_SERVER_DIR}/server/lib/weblogic.jar
+    CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"
+    CLASSPATH+=":"
+    CLASSPATH+="$ORACLE_SERVER_DIR/server/lib/weblogic.jar"
 
     # print the configuration, and run the script
 
@@ -278,18 +282,37 @@ runJython() {
     echo "CLASSPATH = ${CLASSPATH}"
     echo "JAVA_PROPERTIES = ${JAVA_PROPERTIES}"
 
-    PY_SCRIPTS_PATH=${WLSDEPLOY_HOME}/lib/python
+    PY_SCRIPTS_PATH="${WLSDEPLOY_HOME}/lib/python"
 
-    echo \
-    ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
-        ${JAVA_PROPERTIES} \
-        org.python.util.jython \
-        "${PY_SCRIPTS_PATH}/$jythonScript" ${scriptArgs}
 
-    ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
-        ${JAVA_PROPERTIES} \
-        org.python.util.jython \
-        "${PY_SCRIPTS_PATH}/$jythonScript" ${scriptArgs}
+
+    if [ -z "${OHARG_VALUE}" ] ; then
+      echo \
+      ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
+          $JAVA_PROPERTIES \
+          -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
+          org.python.util.jython \
+          "${PY_SCRIPTS_PATH}/$jythonScript" ${@:2}
+
+      "${JAVA_HOME}/bin/java" -cp "$CLASSPATH" \
+          $JAVA_PROPERTIES  \
+          -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
+          org.python.util.jython \
+          "${PY_SCRIPTS_PATH}/$jythonScript" "${@:2}"
+    else
+      echo \
+      ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
+          $JAVA_PROPERTIES \
+          -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
+          org.python.util.jython \
+          "${PY_SCRIPTS_PATH}/$jythonScript" $OHARG \"${OHARG_VALUE}\" ${@:2}
+          
+      "${JAVA_HOME}/bin/java" -cp "$CLASSPATH" \
+          $JAVA_PROPERTIES  \
+          -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
+          org.python.util.jython \
+          "${PY_SCRIPTS_PATH}/$jythonScript" $OHARG "${OHARG_VALUE}" "${@:2}"
+    fi
 
     RETURN_CODE=$?
     checkExitCode ${RETURN_CODE}

@@ -150,6 +150,9 @@ class TopologyUpdater(Deployer):
         self._process_section(self._topology, folder_list, MIGRATABLE_TARGET, location, delete_now)
 
         # targets may have been inadvertently assigned when clusters were added
+        return jdbc_names
+
+    def clear_placeholder_targeting(self, jdbc_names):
         self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
 
     def warn_set_server_groups(self):

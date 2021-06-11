@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 SET VERSION=12213
 SET WLS_VERSION=12.2.1.3.0
+=======
+SET VERSION=12214
+SET WLS_VERSION=12.2.1.4.0
+>>>>>>> main
 SET PORT=7001
 
 SET TEST_HOME=c:\Users\crountre\workspace\weblogic-deploy-tooling\alias-test\src\test

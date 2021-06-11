@@ -101,14 +101,6 @@ resources:
             PersistentStore: FileStore1
         JMSServer2:
             Target: m2
-            JmsSessionPool:
-                myPool:
-                    ConnectionFactory: myFactory
-                    ListenerClass: myClass
-                    JmsConnectionConsumer:
-                        myConsumer:
-                            MessagesMaximum: 4
-                            Notes: Pool notes
             JmsMessageLogFile:
                 FileCount: 2
                 Notes: message log notes
@@ -120,6 +112,10 @@ resources:
                     Target: JMSServer1
                 JMSServer2Subdeployment:
                     Target: JMSServer2
+                JMSServersSubdeployment:
+                    Target: JMSServer1,JMSServer2
+                SAFSubdeployment:
+                    Target: MySAFagent
             JmsResource:
                 ConnectionFactory:
                     WebAppConnectionFactory:
@@ -149,26 +145,6 @@ resources:
                         KeyType: Double
                         Property: PurchaseAmount
                         SortOrder: Descending
-                DistributedQueue:
-                    MyDistributedQueue:
-                        ForwardDelay: 88
-                        JNDIName: jms/MyDistributedQueue
-                        ResetDeliveryCountOnForward: false
-                        SafExportPolicy: All
-                        DistributedQueueMember:
-                            Queue1:
-                                Weight: 50
-                            Queue2:
-                                Weight: 50
-                DistributedTopic:
-                    MyDistributedTopic:
-                        JNDIName: jms/MyDistributedTopic
-                        SafExportPolicy: None
-                        DistributedTopicMember:
-                            Topic1:
-                                Weight: 50
-                            Topic2:
-                                Weight: 50
                 ForeignServer:
                     MyForeignServer:
                         ConnectionURL: 't3://my.other.cluster:7001'
@@ -261,12 +237,14 @@ resources:
                         JNDIName: jms/myUDQ
                         ResetDeliveryCountOnForward: true
                         SafExportPolicy: All
+                        SubDeploymentName: JMSServersSubdeployment
                 UniformDistributedTopic:
                     MyUniformDistributedTopic:
                         DefaultTargetingEnabled: true
                         JmsCreateDestinationIdentifier: CDI4
                         JNDIName: jms/myUDT
                         SafExportPolicy: None
+                        SubDeploymentName: JMSServersSubdeployment
                 SAFRemoteContext:
                     MyRemoteSAFcontext:
                         SAFLoginContext:
@@ -283,12 +261,14 @@ resources:
                                 MessageLoggingParams:
                                     MessageLoggingEnabled: true
                                     MessageLoggingFormat: '%header%,%properties%'
+                                SubDeploymentName: SAFSubdeployment
                         SAFTopic:
                             MyRemoteSAFtopic:
                                 RemoteJndiName: jms/myUDQ
                                 MessageLoggingParams:
                                     MessageLoggingEnabled: true
                                     MessageLoggingFormat: '%header%,%properties%'
+                                SubDeploymentName: SAFSubdeployment
                         MessageLoggingParams:
                             MessageLoggingEnabled: true
                             MessageLoggingFormat: '%header%,%properties%'
