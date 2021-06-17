@@ -22,8 +22,8 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 import aliastest.generate.generator_wlst as generator_wlst
 import aliastest.generate.generator_helper as generator_helper
 import aliastest.util.all_utils as all_utils
+import aliastest.generate.generator_security_configuration as generator_security_configuration
 from aliastest.generate.generator_online import OnlineGenerator
-
 
 __logger = PlatformLogger('test.aliases.generate', resource_bundle_name='aliastest_rb')
 __logger.set_level(Level.FINEST)
@@ -66,6 +66,17 @@ def generate_online(model_context):
     return online_dictionary
 
 
+def load_provider_map():
+    _method_name = 'load_provider_map'
+    __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
+    dictionary = \
+        all_utils.get_dictionary_from_json_file(all_utils.filename(generator_helper.filename(),
+                                                                   'SC',
+                                                                   generator_wlst.wls_version().replace('.', '')))
+    __logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=len(dictionary))
+    return dictionary
+
+
 def main(args):
     """
     Entry point for generate_online
@@ -87,6 +98,7 @@ def main(args):
     online_model_context = all_utils.populate_model_context('generate_online', WlstModes.ONLINE, kwargs)
     try:
         generator_wlst.wlst_silence()
+        generator_security_configuration.providers_map = load_provider_map()
         online_dictionary = generate_online(online_model_context)
         if len(online_dictionary) == 0:
             __logger.severe('Nothing generated in online - ending with rc={0}', system_exit,

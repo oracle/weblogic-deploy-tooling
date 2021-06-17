@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 SET VERSION=12213
 SET WLS_VERSION=12.2.1.3.0
-=======
-SET VERSION=12214
-SET WLS_VERSION=12.2.1.4.0
->>>>>>> main
 SET PORT=7001
 
 SET TEST_HOME=c:\Users\crountre\workspace\weblogic-deploy-tooling\alias-test\src\test
@@ -29,8 +24,8 @@ SET WLSDEPLOY_HOME=c:\Users\crountre\temp\weblogic-deploy
 rem echo "%TEST_HOME%\resources\doGenerateSC.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%"
 rem CALL %TEST_HOME%\resources\doGenerateSC.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%
 
-rem echo "%TEST_HOME%\resources\doGenerateOnline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%"
-rem CALL %TEST_HOME%\resources\doGenerateOnline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%
+echo "%TEST_HOME%\resources\doGenerateOnline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%"
+CALL %TEST_HOME%\resources\doGenerateOnline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%
 
 rem echo "%TEST_HOME%\resources\doVerifyOnline.cmd -testfiles_path %TESTFILES% -wls_version %WLS_VERSION%"
 rem CALL %TEST_HOME%\resources\doVerifyOnline.cmd -testfiles_path %TESTFILES% -wls_version %WLS_VERSION%
@@ -38,6 +33,6 @@ rem CALL %TEST_HOME%\resources\doVerifyOnline.cmd -testfiles_path %TESTFILES% -w
 rem echo "%TEST_HOME%\resources\doGenerateOffline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%"
 rem CALL %TEST_HOME%\resources\doGenerateOffline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%
 
-echo "%TEST_HOME%\resources\doVerifyOffline.cmd -testfiles_path %TESTFILES% -wls_version %WLS_VERSION%"
-CALL %TEST_HOME%\resources\doVerifyOffline.cmd -testfiles_path %TESTFILES% -wls_version %WLS_VERSION%
+rem echo "%TEST_HOME%\resources\doVerifyOffline.cmd -testfiles_path %TESTFILES% -wls_version %WLS_VERSION%"
+rem CALL %TEST_HOME%\resources\doVerifyOffline.cmd -testfiles_path %TESTFILES% -wls_version %WLS_VERSION%
 

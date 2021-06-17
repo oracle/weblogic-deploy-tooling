@@ -1002,7 +1002,7 @@ class VerifierHelper:
                             print 'delete ', mbean_info_name
                             del dictionary[mbean_info_name]
                         elif all_utils.TYPE in dictionary[mbean_info_name]:
-                            self._process_security_provider(dictionary, mbean_info_name, folder_map, alias_name)
+                            self._process_security_provider(dictionary, mbean_info_name, folder_map, alias_name, location)
                             print 'I have a type for ', mbean_info_name
 
                     elif not self._helper.check_flattened_folder(location, alias_name):
@@ -1019,6 +1019,43 @@ class VerifierHelper:
                     _logger.fine('WLSDPLYST-01221', item, location.get_folder_path(),
                                  class_name=CLASS_NAME, method_name=_method_name)
                     del dictionary[item]
+
+    def _process_security_provider(self, dict, dict_name, alias_map, alias_name, location):
+        del dict[dict_name][all_utils.TYPE]
+        l2 = LocationContext(location)
+        l2.append_location(alias_name)
+        alias_subfolders = self._helper.aliases().get_model_subfolder_names(l2)
+        print 'alias subfolders ', alias_subfolders
+
+        for provider in dict[dict_name].keys():
+            if provider not in alias_subfolders:
+                print 'NOT IN ALiaS MBEAN ', provider
+
+        for sec_subfolder in alias_subfolders:
+            print 'Subfolder name ', sec_subfolder
+            next_loc = LocationContext(l2)
+            next_loc.append_location(sec_subfolder)
+
+            print 'dict name ', dict_name, ' providr ', sec_subfolder
+            if sec_subfolder not in dict[dict_name]:
+                # message heree
+                continue
+            next_dict=dict[dict_name][sec_subfolder]
+            attributes = attribute_list(next_dict)
+            print 'attributes ', attributes
+            if attributes is None or len(attributes) == 0:
+                print 'NO attributes ', next_dict, ' **** ', sec_subfolder
+                continue
+            self._helper.build_location(next_loc, sec_subfolder)
+            self.verify_attributes(attributes, next_loc)
+
+
+
+
+        print ' location of provider ', location.get_folder_path()
+        print ' dict_name is ', dict_name
+        print ' alias_name is ', alias_name
+        print ' dict keys ', dict[dict_name].keys()
 
     def _clean_up(self, location):
         name_token = self._helper.aliases().get_name_token(location)
