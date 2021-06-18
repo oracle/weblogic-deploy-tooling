@@ -309,12 +309,18 @@ class OnlineGenerator(GeneratorHelper):
         dictionary[mbean_type][all_utils.TYPE] = 'Provider'
         types = generator_security_configuration.providers_map[mbean_type]
         curr_path = generator_wlst.current_path()
+        generator_wlst.cd_mbean(curr_path + '/' + mbean_type)
+        existing = generator_wlst.lsc()
+        generator_wlst.cd_mbean(curr_path)
         for item in types:
-            print 'Security item is ', item, ' for mbean type ', mbean_type
             idx = item.rfind('.')
             short = item[idx + 1:]
-            mbean_instance = generator_wlst.created_security_provider(mbean_type, short, item)
             orig = generator_wlst.current_path()
+            if short not in existing:
+                mbean_instance = generator_wlst.created_security_provider(mbean_type, short, item)
+                generator_wlst.cd_mbean(curr_path + '/' + mbean_type + '/' + short)
+            else:
+                mbean_instance = generator_wlst.get_mbean_proxy(curr_path + '/' + mbean_type + '/' + short)
             dictionary[mbean_type][item] = all_utils.dict_obj()
             dictionary[mbean_type][item][all_utils.ATTRIBUTES] = self.__get_attributes(mbean_instance)
             generator_wlst.cd_mbean(orig)
