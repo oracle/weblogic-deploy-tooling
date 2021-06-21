@@ -979,6 +979,7 @@ class VerifierHelper:
             _logger.finest('WLSDPLYST-01218', location.get_folder_path(), keys,
                            class_name=CLASS_NAME, method_name=_method_name)
             if keys is not None:
+                print 'keys are ', keys
                 for alias_name in keys:
                     found, mbean_info_name = self._helper.find_name_in_mbean_with_model_name(alias_name, lower_case_map)
                     if found:
@@ -1023,13 +1024,16 @@ class VerifierHelper:
     def _process_security_provider(self, dict, dict_name, alias_map, alias_name, location):
         del dict[dict_name][all_utils.TYPE]
         l2 = LocationContext(location)
-        l2.append_location(alias_name)
+        model_name = self._helper.aliases().get_model_subfolder_name(l2, alias_name)
+        l2.append_location(model_name)
         alias_subfolders = self._helper.aliases().get_model_subfolder_names(l2)
         print 'alias subfolders ', alias_subfolders
 
         for provider in dict[dict_name].keys():
-            if provider not in alias_subfolders:
+            model_provider = self._helper.aliases().get_model_subfolder_name(l2, provider)
+            if model_provider not in alias_subfolders:
                 print 'NOT IN ALiaS MBEAN ', provider
+                #print a message here
 
         for sec_subfolder in alias_subfolders:
             print 'Subfolder name ', sec_subfolder

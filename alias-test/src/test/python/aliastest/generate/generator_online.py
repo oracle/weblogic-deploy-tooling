@@ -86,6 +86,7 @@ class OnlineGenerator(GeneratorHelper):
             if self._is_valid_folder(attribute_helper):
                 self.__logger.fine('WLSDPLYST-01115', mbean_type, generator_wlst.current_path(),
                                    class_name=self.__class_name__, method_name=_method_name)
+
                 mbean_dictionary[mbean_type] = all_utils.dict_obj()
                 if mbean_type in generator_security_configuration.PROVIDERS:
                     self.generate_security_mbean(mbean_dictionary, mbean_type)
