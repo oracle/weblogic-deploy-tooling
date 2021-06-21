@@ -69,7 +69,7 @@ The output of the tool will look something like this:
 
 Use the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) to determine the valid list of attributes and folders at this model location.
 
-If the model contains variable definitions and the variable file is specified, the Validate Model Tool will validate that all variable references in the model are defined in the variable file.  For example, invoking the tool as shown here:
+If the model contains variable definitions and the variable file or files is specified, the Validate Model Tool will validate that all variable references in the model are defined in the variable files.  For example, invoking the tool as shown here:
 
     $ weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -variable_file InvalidDemoDomain.properties
 
