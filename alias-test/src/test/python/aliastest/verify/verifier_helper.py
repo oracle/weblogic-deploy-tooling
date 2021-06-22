@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -979,7 +979,7 @@ class VerifierHelper:
             _logger.finest('WLSDPLYST-01218', location.get_folder_path(), keys,
                            class_name=CLASS_NAME, method_name=_method_name)
             if keys is not None:
-                for alias_name in folder_map.keys():
+                for alias_name in keys:
                     found, mbean_info_name = self._helper.find_name_in_mbean_with_model_name(alias_name, lower_case_map)
                     if found:
                         _logger.fine('Alias mbean type {0} found in dictionary as {1}', alias_name, mbean_info_name,
@@ -1000,6 +1000,8 @@ class VerifierHelper:
                                          class_name=CLASS_NAME, method_name=_method_name)
                             del folder_map[alias_name]
                             del dictionary[mbean_info_name]
+                        elif all_utils.TYPE in dictionary[mbean_info_name]:
+                            self._process_security_provider(dictionary, mbean_info_name, folder_map, alias_name, location)
 
                     elif not self._helper.check_flattened_folder(location, alias_name):
                         # make this a message
@@ -1015,6 +1017,31 @@ class VerifierHelper:
                     _logger.fine('WLSDPLYST-01221', item, location.get_folder_path(),
                                  class_name=CLASS_NAME, method_name=_method_name)
                     del dictionary[item]
+
+    def _process_security_provider(self, dict, dict_name, alias_map, alias_name, location):
+        del dict[dict_name][all_utils.TYPE]
+        l2 = LocationContext(location)
+        model_name = self._helper.aliases().get_model_subfolder_name(l2, alias_name)
+        l2.append_location(model_name)
+        alias_subfolders = self._helper.aliases().get_model_subfolder_names(l2)
+
+        name_token = self._helper.aliases().get_name_token(l2)
+        for provider in dict[dict_name].keys():
+            l2.add_name_token(name_token, provider)
+            model_provider = provider
+            if '.' in provider:
+                model_provider = provider[provider.rfind('.') + 1:]
+            if model_provider is None or model_provider not in alias_subfolders:
+                self.add_error(location, WARN_ALIAS_FOLDER_NOT_IMPLEMENTED, attribute=provider)
+                continue
+
+            l2.append_location(model_provider)
+            next_dict=dict[dict_name][provider]
+            attributes = attribute_list(next_dict)
+            if attributes is None or len(attributes) == 0:
+                continue
+            self.verify_attributes(attributes, l2)
+            l2.pop_location()
 
     def _clean_up(self, location):
         name_token = self._helper.aliases().get_name_token(location)

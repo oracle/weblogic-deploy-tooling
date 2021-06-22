@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -23,6 +23,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 
 import aliastest.generate.generator_wlst as generator_wlst
 import aliastest.generate.generator_helper as generator_helper
+import aliastest.generate.generator_security_configuration as generator_security_configuration
 import aliastest.util.all_utils as all_utils
 from aliastest.generate.generator_offline import OfflineGenerator
 
@@ -42,6 +43,17 @@ def get_dictionary():
     dictionary = \
         all_utils.get_dictionary_from_json_file(all_utils.filename(generator_helper.filename(),
                                                                    WlstModes.from_value(WlstModes.ONLINE),
+                                                                   generator_wlst.wls_version().replace('.', '')))
+    __logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=len(dictionary))
+    return dictionary
+
+
+def load_provider_map():
+    _method_name = 'load_provider_map'
+    __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
+    dictionary = \
+        all_utils.get_dictionary_from_json_file(all_utils.filename(generator_helper.filename(),
+                                                                   'SC',
                                                                    generator_wlst.wls_version().replace('.', '')))
     __logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=len(dictionary))
     return dictionary
@@ -83,6 +95,7 @@ def main(args):
     offline_model_context = all_utils.populate_model_context('generate_offline', WlstModes.OFFLINE, kwargs)
     try:
         generator_wlst.wlst_silence()
+        generator_security_configuration.providers_map = load_provider_map()
         offline_dictionary = generate_offline(offline_model_context, get_dictionary())
         if len(offline_dictionary) == 0:
             __logger.severe('Nothing generated in online - ending with rc={0}', system_exit,

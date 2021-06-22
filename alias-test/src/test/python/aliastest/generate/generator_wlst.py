@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.lang.Boolean as Boolean
@@ -149,7 +149,7 @@ def get_mbean_proxy(path=None):
         local_cmo = _load_global('cmo')
         mbean_proxy = local_cmo
         if mbean_proxy is None:
-            update_cmo = _load_global('upateCmo')
+            update_cmo = _load_global('updateCmo')
             update_cmo()
             local_cmo = _load_global('cmo')
             mbean_proxy = local_cmo
@@ -242,6 +242,28 @@ def created(mbean_type, name):
     return True
 
 
+def created_security_provider(mbean_type, name, package):
+    """
+    Create the MBean with the provided name at the current wlst location. WLST Exceptions are caught and returned
+    as False from the method.
+    :param mbean_type: MBean type to create
+    :param name: Name of the MBean to create
+    :param package: package name of the security provider to create
+    :return: True if successfully created
+    """
+    _method_name = 'created'
+    online_wlst_exception = _load_global('WLSTException')
+    result = None
+    try:
+        local_create = _load_global('create')
+        result = local_create(name, package, mbean_type)
+    except (online_wlst_exception, offlineWLSTException, ClassCastException, NoSuchMethodException), e:
+        __logger.fine('Unable to create MBean {0} with name {1} and provider name {2} at location {3} : {4}',
+                      mbean_type, name, package, current_path(), str(e),
+                      class_name=__class_name, method_name=_method_name)
+    return result
+
+
 def cd_proxy(bean_dir):
     _method_name = 'cd_proxy'
     __logger.entering(bean_dir, class_name=__class_name, method_name=_method_name)
@@ -261,10 +283,9 @@ def cd_mbean(bean_dir):
     _method_name = 'cd_mbean'
     __logger.entering(bean_dir, class_name=__class_name, method_name=_method_name)
     online_wlst_exception = _load_global('WLSTException')
-    local_cd = _load_global('cd')
     success = True
     try:
-        local_cd(bean_dir)
+        _load_global('cd')(bean_dir)
     except (online_wlst_exception, offlineWLSTException), we:
         __logger.warning('WLSDPLYST-01340', bean_dir, current_path(), we.getLocalizedMessage(),
                          class_name=__class_name, method_name=_method_name)

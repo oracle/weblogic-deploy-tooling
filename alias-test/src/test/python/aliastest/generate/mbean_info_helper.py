@@ -139,7 +139,7 @@ class MBeanInfoHelper(object):
                 type_name = all_utils.get_interface_name(mbean_interface)
                 self.__mbean_info = bean_access.getBeanInfoForInterface(type_name, False, '9.0.0.0')
             if _info_is_not_empty(self.__mbean_info) is False:
-                self.__logger.info('Unable to locate MBeanInfo for MBean interface {0}', type_name,
+                self.__logger.info('Unable to locate MBeanInfo for MBean interface {0}', mbean_interface,
                                    class_name=self.__class_name__, method_name=_method_name)
             self.__logger.exiting(class_name=self.__class_name__, method_name=_method_name,
                                   result=str(self.__mbean_info))

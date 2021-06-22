@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.util.logging.Level as Level
@@ -121,7 +121,6 @@ class TestHelper:
                 location.append_location(name)
                 self.__logger.finer('Checking the folder {0} for flattened and type', location.get_folder_path())
                 flattened_info = None
-                print '******* ', location.get_folder_path()
                 if not location.get_folder_path().startswith('/NMProperties') and not location.get_folder_path() == '/':
                     flattened_info = self.__aliases.get_wlst_flattened_folder_info(location)
                 if flattened_info is not None:

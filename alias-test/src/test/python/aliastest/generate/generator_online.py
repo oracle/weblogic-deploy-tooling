@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -8,6 +8,7 @@ import java.util.logging.Level as Level
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 import aliastest.util.all_utils as all_utils
+import aliastest.generate.generator_security_configuration as generator_security_configuration
 import aliastest.generate.generator_wlst as generator_wlst
 
 from aliastest.generate.generator_helper import GeneratorHelper
@@ -74,6 +75,8 @@ class OnlineGenerator(GeneratorHelper):
                 self.__logger.fine('Child MBean {0} is in the MBI information but not the MBeanInfo information',
                                    mbean_type, class_name=self.__class_name__, method_name=_method_name)
 
+            print 'mbean_type = ', mbean_type
+
             if attribute_helper.is_reference_only():
                 mbean_dictionary[mbean_type] = all_utils.dict_obj()
                 # This non-attribute might have been added as a folder, which it is not
@@ -83,25 +86,29 @@ class OnlineGenerator(GeneratorHelper):
             if self._is_valid_folder(attribute_helper):
                 self.__logger.fine('WLSDPLYST-01115', mbean_type, generator_wlst.current_path(),
                                    class_name=self.__class_name__, method_name=_method_name)
-                mbean_dictionary[mbean_type] = all_utils.dict_obj()
-                attribute_helper.generate_mbean(mbean_dictionary[mbean_type])
-                if mbean_name is None:
-                    mbean_name = generator_wlst.get_singleton_name(mbean_type)
-                if mbean_name is not None:
-                    if mbean_type in generator_wlst.child_mbean_types():
-                        mbean_dictionary[mbean_type][all_utils.INSTANCE_TYPE] = all_utils.MULTIPLE
-                    else:
-                        mbean_dictionary[mbean_type][all_utils.INSTANCE_TYPE] = all_utils.SINGLE
-                    bean_dir = mbean_type + '/' + mbean_name
-                    if not generator_wlst.cd_mbean(bean_dir):
-                        self.__logger.fine('WLSDPLYST-01117', mbean_type, generator_wlst.current_path(), '',
-                                           class_name=self.__class_name__, method_name=_method_name)
-                        mbean_dictionary[mbean_type][all_utils.RECHECK] = \
-                            'cd to mbean and mbean name returned exception'
-                        continue
 
-                    self.__folder_hierarchy(mbean_dictionary[mbean_type], generator_wlst.current_path())
-                    generator_wlst.cd_mbean('../..')
+                mbean_dictionary[mbean_type] = all_utils.dict_obj()
+                if mbean_type in generator_security_configuration.PROVIDERS:
+                    self.generate_security_mbean(mbean_dictionary, mbean_type)
+                else:
+                    attribute_helper.generate_mbean(mbean_dictionary[mbean_type])
+                    if mbean_name is None:
+                        mbean_name = generator_wlst.get_singleton_name(mbean_type)
+                    if mbean_name is not None:
+                        if mbean_type in generator_wlst.child_mbean_types():
+                            mbean_dictionary[mbean_type][all_utils.INSTANCE_TYPE] = all_utils.MULTIPLE
+                        else:
+                            mbean_dictionary[mbean_type][all_utils.INSTANCE_TYPE] = all_utils.SINGLE
+                        bean_dir = mbean_type + '/' + mbean_name
+                        if not generator_wlst.cd_mbean(bean_dir):
+                            self.__logger.fine('WLSDPLYST-01117', mbean_type, generator_wlst.current_path(), '',
+                                               class_name=self.__class_name__, method_name=_method_name)
+                            mbean_dictionary[mbean_type][all_utils.RECHECK] = \
+                                'cd to mbean and mbean name returned exception'
+                            continue
+
+                        self.__folder_hierarchy(mbean_dictionary[mbean_type], generator_wlst.current_path())
+                        generator_wlst.cd_mbean('../..')
             else:
                 # make this a real message
                 self.__logger.warning('Ignore invalid MBean folder {0} containment : {1}, deprecated : {2}',
@@ -298,3 +305,27 @@ class OnlineGenerator(GeneratorHelper):
                             subfolder_list[child_type] = name_list[0]
 
         return subfolder_list
+
+    def generate_security_mbean(self, dictionary, mbean_type):
+        dictionary[mbean_type][all_utils.TYPE] = 'Provider'
+        types = generator_security_configuration.providers_map[mbean_type]
+        curr_path = generator_wlst.current_path()
+        generator_wlst.cd_mbean(curr_path + '/' + mbean_type)
+        existing = generator_wlst.lsc()
+        generator_wlst.cd_mbean(curr_path)
+        for item in types:
+            idx = item.rfind('.')
+            short = item[idx + 1:]
+            orig = generator_wlst.current_path()
+            if short not in existing:
+                mbean_instance = generator_wlst.created_security_provider(mbean_type, short, item)
+                generator_wlst.cd_mbean(curr_path + '/' + mbean_type + '/' + short)
+            else:
+                mbean_instance = generator_wlst.get_mbean_proxy(curr_path + '/' + mbean_type + '/' + short)
+            dictionary[mbean_type][item] = all_utils.dict_obj()
+            dictionary[mbean_type][item][all_utils.ATTRIBUTES] = self.__get_attributes(mbean_instance)
+            generator_wlst.cd_mbean(orig)
+        generator_wlst.cd_mbean(curr_path)
+
+
+

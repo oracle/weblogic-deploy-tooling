@@ -1,5 +1,5 @@
-SET VERSION=12214
-SET WLS_VERSION=12.2.1.4.0
+SET VERSION=12213
+SET WLS_VERSION=12.2.1.3.0
 SET PORT=7001
 
 SET TEST_HOME=c:\Users\crountre\workspace\weblogic-deploy-tooling\alias-test\src\test
@@ -20,6 +20,9 @@ SET ADMIN_USER=weblogic
 SET ADMIN_PASSWORD=welcome1
 SET ADMIN_URL=t3://localhost:7001
 SET WLSDEPLOY_HOME=c:\Users\crountre\temp\weblogic-deploy
+
+echo "%TEST_HOME%\resources\doGenerateSC.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%"
+CALL %TEST_HOME%\resources\doGenerateSC.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%
 
 echo "%TEST_HOME%\resources\doGenerateOnline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%"
 CALL %TEST_HOME%\resources\doGenerateOnline.cmd -oracle_home %ORACLE_HOME% -domain_home %DOMAIN_HOME% -testfiles_path %TESTFILES% -admin_user %ADMIN_USER% -admin_pass %ADMIN_PASSWORD% -admin_url %ADMIN_URL%

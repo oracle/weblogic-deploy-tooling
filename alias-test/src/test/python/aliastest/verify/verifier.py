@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.util.logging.Level as Level
@@ -18,7 +18,7 @@ class Verifier(VerifierHelper):
     Verify the generated MBean and attribute information against the aliases.
     """
 
-    IGNORE_DICT_FOLDERS = ['Realm']
+    IGNORE_DICT_FOLDERS = []
     IGNORE_ALIAS_FOLDERS = []
 
     def __init__(self, model_context, dictionary):

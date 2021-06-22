@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.aliases;
@@ -268,27 +268,31 @@ public final class TypeUtils {
         return c;
     }
 
-    private static Object[] convertToObjectArray(Object value, String strValue, String delimiter)
+    public static Object[] convertToObjectArray(Object value, String strValue, String delimiter)
         throws AliasException {
+        System.out.println("I am in the method" + strValue);
         Object[] result;
         if (Object[].class.isAssignableFrom(value.getClass())) {
+            System.out.println("is assignable " + strValue);
             result = Object[].class.cast(value);
         } else if (value instanceof List) {
+            System.out.println("Is instance of List");
             List list = (List) value;
             if (!list.isEmpty()) {
                 //thanks to Java Generics type erasure in List, need to get element type from list element
                 Class<?> elementClass = list.get(0).getClass();
                 Object[] array = (Object[]) Array.newInstance(elementClass, list.size());
                 @SuppressWarnings( "unchecked" )
-                Object[] rtn = list.toArray( array );
+                Object[] rtn = list.toArray(array);
                 result = rtn;
             } else {
                 result = null;
             }
         } else {
+            System.out.println("Not anything but a string " + strValue);
             result = convertStringToList(strValue, delimiter).toArray(new String[0]);
         }
-        LOGGER.fine("before convert {0} and after convert {1}", value, strValue);
+        LOGGER.fine("before convert {0} and after convert {1}", value, result);
         return result;
     }
 

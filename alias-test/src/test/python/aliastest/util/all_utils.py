@@ -122,7 +122,6 @@ def get_dictionary_from_json_file(json_file_name):
     """
     _method_name = 'get_dictionary_from_json_file'
     __logger.entering(json_file_name, class_name=CLASS_NAME, method_name=_method_name)
-    print 'THE FILE NAME IS ', json_file_name
     json_input_stream = FileInputStream(File(json_file_name))
     json_translator = JsonStreamTranslator(json_file_name, json_input_stream)
     dictionary = None
@@ -432,7 +431,6 @@ def set_domain_home_arg(arg_map, domain_home):
         __logger.info("domain home arg {0}", arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH],
                       class_name=CLASS_NAME, method_name='set_domain_home_arg')
     set_arg(arg_map, CommandLineArgUtil.DOMAIN_HOME_SWITCH, domain_home)
-    print '********************************** domain home ', domain_home
 
 
 def set_arg(arg_map, key, value):
