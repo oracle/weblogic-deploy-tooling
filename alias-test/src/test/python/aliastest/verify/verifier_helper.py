@@ -979,7 +979,6 @@ class VerifierHelper:
             _logger.finest('WLSDPLYST-01218', location.get_folder_path(), keys,
                            class_name=CLASS_NAME, method_name=_method_name)
             if keys is not None:
-                print 'keys are ', keys
                 for alias_name in keys:
                     found, mbean_info_name = self._helper.find_name_in_mbean_with_model_name(alias_name, lower_case_map)
                     if found:
@@ -1000,11 +999,9 @@ class VerifierHelper:
                             _logger.fine('Remove alias folder {0} as it cannot be verified', alias_name,
                                          class_name=CLASS_NAME, method_name=_method_name)
                             del folder_map[alias_name]
-                            print 'delete ', mbean_info_name
                             del dictionary[mbean_info_name]
                         elif all_utils.TYPE in dictionary[mbean_info_name]:
                             self._process_security_provider(dictionary, mbean_info_name, folder_map, alias_name, location)
-                            print 'I have a type for ', mbean_info_name
 
                     elif not self._helper.check_flattened_folder(location, alias_name):
                         # make this a message
@@ -1027,39 +1024,24 @@ class VerifierHelper:
         model_name = self._helper.aliases().get_model_subfolder_name(l2, alias_name)
         l2.append_location(model_name)
         alias_subfolders = self._helper.aliases().get_model_subfolder_names(l2)
-        print 'alias subfolders ', alias_subfolders
 
+        name_token = self._helper.aliases().get_name_token(l2)
         for provider in dict[dict_name].keys():
-            model_provider = self._helper.aliases().get_model_subfolder_name(l2, provider)
-            if model_provider not in alias_subfolders:
-                print 'NOT IN ALiaS MBEAN ', provider
-                #print a message here
-
-        for sec_subfolder in alias_subfolders:
-            print 'Subfolder name ', sec_subfolder
-            next_loc = LocationContext(l2)
-            next_loc.append_location(sec_subfolder)
-
-            print 'dict name ', dict_name, ' providr ', sec_subfolder
-            if sec_subfolder not in dict[dict_name]:
-                # message heree
+            l2.add_name_token(name_token, provider)
+            model_provider = provider
+            if '.' in provider:
+                model_provider = provider[provider.rfind('.') + 1:]
+            if model_provider is None or model_provider not in alias_subfolders:
+                self.add_error(location, WARN_ALIAS_FOLDER_NOT_IMPLEMENTED, attribute=provider)
                 continue
-            next_dict=dict[dict_name][sec_subfolder]
+
+            l2.append_location(model_provider)
+            next_dict=dict[dict_name][provider]
             attributes = attribute_list(next_dict)
-            print 'attributes ', attributes
             if attributes is None or len(attributes) == 0:
-                print 'NO attributes ', next_dict, ' **** ', sec_subfolder
                 continue
-            self._helper.build_location(next_loc, sec_subfolder)
-            self.verify_attributes(attributes, next_loc)
-
-
-
-
-        print ' location of provider ', location.get_folder_path()
-        print ' dict_name is ', dict_name
-        print ' alias_name is ', alias_name
-        print ' dict keys ', dict[dict_name].keys()
+            self.verify_attributes(attributes, l2)
+            l2.pop_location()
 
     def _clean_up(self, location):
         name_token = self._helper.aliases().get_name_token(location)
