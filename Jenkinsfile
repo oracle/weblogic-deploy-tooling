@@ -78,18 +78,10 @@ pipeline {
        stage ('Alias Test') {
             // only run this stage when triggered by a cron timer and the commit does not have []skip-ci in the message
             // for example, only run integration tests during the timer triggered nightly build
-<<<<<<< HEAD
-            when {
-                allOf {
-                    triggeredBy 'TimerTrigger'
-                    branch "master"
-=======
-
             when {
                 allOf {
                     triggeredBy 'TimerTrigger'
                     branch "main"
->>>>>>> main
                 }
             }
             matrix {
@@ -113,17 +105,6 @@ pipeline {
                         steps {
                            sh  '/u01/verify/alias-test/src/test/resources/runIntegrationTest.sh -wls_version ${WLS_VERSION} -testfiles_path /u01/verify/testfiles;cp /u01/verify/testfiles/report* $WORKSPACE'
                         }
-<<<<<<< HEAD
-                        post {
-                           always {
-                             archiveArtifacts artifacts: 'report*', fingerprint: true
-                           }
-                        }
-                    }
-                }
-            }
-            // after all sets are complete, the job will continue here.
-=======
                     }
                 }
 
@@ -134,7 +115,6 @@ pipeline {
                  archiveArtifacts artifacts: 'report*', fingerprint: true
                }
             }
->>>>>>> main
         }
         stage ('Save Nightly Installer'){
             when {
