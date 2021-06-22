@@ -431,7 +431,6 @@ def set_domain_home_arg(arg_map, domain_home):
         __logger.info("domain home arg {0}", arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH],
                       class_name=CLASS_NAME, method_name='set_domain_home_arg')
     set_arg(arg_map, CommandLineArgUtil.DOMAIN_HOME_SWITCH, domain_home)
-    print '********************************** domain home ', domain_home
 
 
 def set_arg(arg_map, key, value):
