@@ -260,7 +260,7 @@ This feature can also remove items that were created by WebLogic Server template
 
 This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling security providers]({{< relref "/samples/securityproviders-model.md" >}}) for detailed information.
 
-This feature can be use to undeploy applications or remove libraries.
+This feature can be used to undeploy applications or remove libraries.
 
 #### Declaring list items to delete
 
