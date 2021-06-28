@@ -227,7 +227,7 @@ One of the primary goals of the WebLogic Deploy Tooling is to support a sparse m
 
 ### Declaring named MBeans to delete
 
-With WebLogic Deploy Tooling release 1.3.0, you can specify named items in the model to be deleted using the Create Domain, Update Domain, and Deploy Applications Tools.  Named items are those that have multiple instances that are distinguished by user-provided names, such as managed servers, data sources, and security realms.  Items to be deleted are prepended with an exclamation point (!) in the model.
+With WebLogic Deploy Tooling, you can specify named items in the model to be deleted using the Create Domain, Update Domain, and Deploy Applications Tools.  Named items are those that have multiple instances that are distinguished by user-provided names, such as managed servers, data sources, and security realms.  Items to be deleted are prepended with an exclamation point (!) in the model.
 
 In this example, the managed server ```obsoleteServer``` will be deleted, and ```newServer``` will be created:
 
@@ -260,7 +260,19 @@ This feature can also remove items that were created by WebLogic Server template
 
 This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See [Modeling security providers]({{< relref "/samples/securityproviders-model.md" >}}) for detailed information.
 
-This feature cannot be use to undeploy applications or remove libraries.
+This feature can be used to undeploy applications or remove libraries.
+
+#### Declaring list items to delete
+
+In addition to deleting named mbeans, you can remove items from a list. Most practically, this would be within a Target list.
+
+```yaml
+  JMSSystemResource:
+      BPMJMSModule:
+          Target: soa_cluster,!AdminServer
+              
+```
+In this example, the BPMJMSModule has the AdminServer target removed from the target list.
 
 ### Using multiple models
 
