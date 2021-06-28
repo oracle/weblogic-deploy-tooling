@@ -15,7 +15,6 @@ from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import UNIX_MACHINE
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.deploy import deployer_utils
@@ -101,8 +100,10 @@ class TopologyUpdater(Deployer):
         self._topology_helper.remove_deleted_clusters_and_servers(location, self._topology)
         folder_list.remove(CLUSTER)
         folder_list.remove(SERVER)
-        folder_list.remove(SERVER_TEMPLATE)
-        folder_list.remove(MIGRATABLE_TARGET)
+        if SERVER_TEMPLATE in folder_list:
+            folder_list.remove(SERVER_TEMPLATE)
+        if MIGRATABLE_TARGET in folder_list:
+            folder_list.remove(MIGRATABLE_TARGET)
 
         # process remaining top-level folders. copy list to avoid concurrent update in loop
         remaining = list(folder_list)
