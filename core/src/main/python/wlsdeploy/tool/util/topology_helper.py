@@ -18,6 +18,7 @@ from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.util import model_helper
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 
@@ -31,7 +32,7 @@ class TopologyHelper(object):
         self.logger = logger
         self.aliases = aliases
         self.wlst_helper = WlstHelper(exception_type)
-
+        self.wl_helper = WebLogicHelper(self.logger)
         self._coherence_cluster_elements = [CLUSTER, SERVER, SERVER_TEMPLATE]
 
     def check_coherence_cluster_references(self, type_name, model_nodes):
@@ -184,7 +185,12 @@ class TopologyHelper(object):
         _method_name = 'remove_deleted_clusters_and_servers'
         self.logger.entering(str(domain_location), class_name=self.__class_name, method_name=_method_name)
 
-        for folder_name in [CLUSTER, SERVER_TEMPLATE, SERVER, MIGRATABLE_TARGET]:
+        folder_names = [CLUSTER, SERVER]
+        if self.wl_helper.is_weblogic_version_or_above('12.1.2'):
+            folder_names.append(SERVER_TEMPLATE)
+        if self.wl_helper.is_weblogic_version_or_above('12.1.3'):
+            folder_names.append(MIGRATABLE_TARGET)
+        for folder_name in folder_names:
             location = LocationContext(domain_location).append_location(folder_name)
             existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
             folder_nodes = dictionary_utils.get_dictionary_element(model_topology, folder_name)
