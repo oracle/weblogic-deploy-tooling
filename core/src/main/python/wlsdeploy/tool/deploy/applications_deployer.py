@@ -667,28 +667,35 @@ class ApplicationsDeployer(Deployer):
                     existing_plan_hash = self.__get_file_hash(plan_path)
                     if model_src_hash == existing_src_hash:
                         if model_plan_hash == existing_plan_hash:
-                            # If model hashes match existing hashes, the application did not change.
-                            # Unless targets were added, there's no need to redeploy.
-                            model_targets = dictionary_utils.get_element(app_dict, TARGET)
-                            model_targets_list = alias_utils.create_list(model_targets, 'WLSDPLY-08000')
-                            model_targets_set = Set(model_targets_list)
+                            if not (os.path.isabs(src_path) and os.path.isabs(model_src_path) and
+                                    FileUtils.getCanonicalPath(src_path) == FileUtils.getCanonicalPath(model_src_path)):
+                                # If model hashes match existing hashes, the application did not change.
+                                # Unless targets were added, there's no need to redeploy.
+                                # If it is an absolute path, there is nothing to compare so assume redeploy
+                                model_targets = dictionary_utils.get_element(app_dict, TARGET)
+                                model_targets_list = alias_utils.create_list(model_targets, 'WLSDPLY-08000')
+                                model_targets_set = Set(model_targets_list)
 
-                            existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
-                            existing_app_targets_set = Set(existing_app_targets)
+                                existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
+                                existing_app_targets_set = Set(existing_app_targets)
 
-                            if existing_app_targets_set.issuperset(model_targets_set):
-                                self.__remove_app_from_deployment(model_apps, app)
+                                if existing_app_targets_set.issuperset(model_targets_set):
+                                    self.__remove_app_from_deployment(model_apps, app)
+                                else:
+                                    # Adjust the targets to only the new targets so that existing apps on
+                                    # already targeted servers are not impacted.
+                                    adjusted_set = model_targets_set.difference(existing_app_targets_set)
+                                    adjusted_targets = ','.join(adjusted_set)
+                                    app_dict['Target'] = adjusted_targets
+
+                                    # For update case, the sparse model may be just changing targets, therefore without sourcepath
+
+                                    if app_dict['SourcePath'] is None and src_path is not None:
+                                        app_dict['SourcePath'] = src_path
                             else:
-                                # Adjust the targets to only the new targets so that existing apps on
-                                # already targeted servers are not impacted.
-                                adjusted_set = model_targets_set.difference(existing_app_targets_set)
-                                adjusted_targets = ','.join(adjusted_set)
-                                app_dict['Target'] = adjusted_targets
-
-                                # For update case, the sparse model may be just changing targets, therefore without sourcepath
-
-                                if app_dict['SourcePath'] is None and src_path is not None:
-                                    app_dict['SourcePath'] = src_path
+                                self.logger.info('WLSDPLY-09336', src_path,
+                                                 class_name=self._class_name, method_name=_method_name)
+                                stop_and_undeploy_app_list.append(versioned_name)
                         else:
                             # updated deployment plan
                             stop_and_undeploy_app_list.append(versioned_name)
