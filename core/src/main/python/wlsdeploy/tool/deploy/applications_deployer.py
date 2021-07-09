@@ -492,9 +492,9 @@ class ApplicationsDeployer(Deployer):
                         ref_attrs = self.wlst_helper.lsa(app_ref)
                         app_type = ref_attrs['Type']
                         app_id = None
-                        if app_type == 'ApplicationRuntime':
+                        if app_type == 'ApplicationRuntime' and 'ApplicationName' in ref_attrs:
                             app_id = ref_attrs['ApplicationName']
-                        if app_type == 'WebAppComponentRuntime':
+                        if app_type == 'WebAppComponentRuntime' and 'ApplicationIdentifier' in ref_attrs:
                             app_id = ref_attrs['ApplicationIdentifier']
 
                         _update_ref_dictionary(existing_libraries, lib, absolute_source_path, lib_hash, config_targets,
