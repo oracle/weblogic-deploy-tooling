@@ -305,7 +305,7 @@ fragment QUOTED_ID_START
 
 fragment QUOTED_ID_CONTINUE
     : ID_CONTINUE
-    | [@*#\-(){}[\]:/]
+    | [@&*#\-(){}[\]:/]
     ;
 
 fragment SQUOTED_STRING_CHARS
