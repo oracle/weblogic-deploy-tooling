@@ -840,13 +840,14 @@ class DomainCreator(Creator):
         if len(server_template_nodes) > 0:
             for template in server_template_nodes:
                 listen_port = dictionary_utils.get_dictionary_element(self._topology[SERVER_TEMPLATE][template], LISTEN_PORT)
-                temp_loc = LocationContext()
-                temp_loc.append_location(SERVER_TEMPLATE)
-                temp_loc.add_name_token(self.aliases.get_name_token(temp_loc), template)
-                attribute_path = self.aliases.get_wlst_attributes_path(temp_loc)
+                if listen_port is not None:
+                    temp_loc = LocationContext()
+                    temp_loc.append_location(SERVER_TEMPLATE)
+                    temp_loc.add_name_token(self.aliases.get_name_token(temp_loc), template)
+                    attribute_path = self.aliases.get_wlst_attributes_path(temp_loc)
 
-                self.wlst_helper.cd(attribute_path)
-                self._set_attribute(temp_loc, LISTEN_PORT, listen_port, [])
+                    self.wlst_helper.cd(attribute_path)
+                    self._set_attribute(temp_loc, LISTEN_PORT, listen_port, [])
 
         self.__create_migratable_targets(location, delete_now=delete_now)
 
