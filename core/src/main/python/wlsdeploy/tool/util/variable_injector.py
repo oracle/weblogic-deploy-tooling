@@ -26,6 +26,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
+from wlsdeploy.aliases.alias_constants import CREDENTIAL
 
 WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
 
@@ -426,7 +427,9 @@ class VariableInjector(object):
         variable_name = None
         variable_value = None
         attribute_value = model[attribute]
-        if not _already_property(attribute_value):
+
+        if not _already_property(attribute_value) or \
+                self.__aliases.get_model_attribute_type(location, attribute) == CREDENTIAL:
             variable_name = self.get_variable_name(location, attribute)
             variable_value = _format_variable_value(attribute_value)
 

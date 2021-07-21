@@ -313,6 +313,9 @@ class PrepareModel:
             full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._aliases,
                                                           "discover", WlstModes.OFFLINE)
 
+            print 'at the end'
+            print self.credential_injector.get_variable_cache()
+
             target_config = self.model_context.get_target_configuration()
             if target_config.generate_script_for_secrets():
                 target_configuration_helper.generate_k8s_script(self.model_context,
