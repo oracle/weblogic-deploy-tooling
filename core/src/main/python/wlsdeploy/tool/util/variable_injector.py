@@ -451,9 +451,6 @@ class VariableInjector(object):
         if _already_property(attribute_value) and attribute_type == CREDENTIAL:
             self.add_key_for_variable_removal(attribute_value[7:len(attribute_value) - 2])
 
-        # variable_name = self.get_variable_name(location, attribute)
-        # variable_value = _format_variable_value(attribute_value)
-        # model[attribute] = self.get_variable_token(attribute, variable_name)
         target_use_credentials = self.__model_context.get_target_configuration().uses_credential_secrets();
 
         if not _already_property(attribute_value) or target_use_credentials:
