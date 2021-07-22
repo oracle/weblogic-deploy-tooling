@@ -291,11 +291,12 @@ class VariableInjector(object):
 
             # remove from the original properties file and then remove from the variable dictionary
             # so that it won't be added back later
-            for key in variable_keys_to_remove:
-                if variable_dictionary.has_key(key):
-                    variable_dictionary.pop(key)
-                if prop.containsKey(key):
-                    prop.remove(key)
+            if variable_keys_to_remove is not None:
+                for key in variable_keys_to_remove:
+                    if variable_dictionary.has_key(key):
+                        variable_dictionary.pop(key)
+                    if prop.containsKey(key):
+                        prop.remove(key)
 
             for key in variable_dictionary:
                 if prop.get(key) is not None:
