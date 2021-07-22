@@ -416,7 +416,14 @@ class Deployer(object):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
 
-    def add_application_attributes(self, model, location):
+    def add_application_attributes_online(self, model, location):
+        """
+        Add attributes for online; the attributes that are added are not set during the online
+        deploy WLST call.
+        :param model: dictionary model
+        :param location: current location
+        """
+
         deploy = dictionary_utils.get_dictionary_element(model.get_model(), APP_DEPLOYMENTS)
         apps_deploy = dictionary_utils.get_dictionary_element(deploy, APPLICATION)
         apps = copy.deepcopy(apps_deploy)
@@ -428,8 +435,9 @@ class Deployer(object):
             new_location.append_location(APPLICATION)
             new_location.add_name_token(self.aliases.get_name_token(new_location), app)
             path = self.aliases.get_wlst_attributes_path(new_location)
-            self.wlst_helper.cd(path)
-            self.set_attributes(new_location, apps_slim, excludes=deploy_info)
+            if self.wlst_helper.path_exists(path):
+                self.wlst_helper.cd(path)
+                self.set_attributes(new_location, apps_slim, excludes=deploy_info)
 
 
     def __process_directory_entry(self, path):
