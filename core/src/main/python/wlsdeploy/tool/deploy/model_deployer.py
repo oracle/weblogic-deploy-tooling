@@ -38,6 +38,11 @@ def deploy_resources(model, model_context, aliases, wlst_mode=WlstModes.OFFLINE)
     return
 
 
+def deploy_app_attributes_online(model, model_context, aliases):
+    applications_deployer = ApplicationsDeployer(model, model_context, aliases, wlst_mode=WlstModes.ONLINE)
+    applications_deployer.add_application_attributes_online(model,LocationContext())
+
+
 def deploy_applications(model, model_context, aliases, wlst_mode=WlstModes.OFFLINE):
     """
     Deploy the applications from the model.

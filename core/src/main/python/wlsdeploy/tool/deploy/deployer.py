@@ -3,11 +3,18 @@ Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
+import copy
 
 from array import array
 from java.lang import Class
 from oracle.weblogic.deploy.util import PyWLSTException
-
+from wlsdeploy.aliases.model_constants import ABSOLUTE_PLAN_PATH
+from wlsdeploy.aliases.model_constants import ABSOLUTE_SOURCE_PATH
+from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
+from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import PLAN_PATH
+from wlsdeploy.aliases.model_constants import SOURCE_PATH
+from wlsdeploy.aliases.model_constants import TARGET
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.exception import exception_helper
@@ -408,6 +415,30 @@ class Deployer(object):
             raise ex
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
+
+    def add_application_attributes_online(self, model, location):
+        """
+        Add attributes for online; the attributes that are added are not set during the online
+        deploy WLST call.
+        :param model: dictionary model
+        :param location: current location
+        """
+
+        deploy = dictionary_utils.get_dictionary_element(model.get_model(), APP_DEPLOYMENTS)
+        apps_deploy = dictionary_utils.get_dictionary_element(deploy, APPLICATION)
+        apps = copy.deepcopy(apps_deploy)
+
+        for app in apps:
+            apps_slim = apps[app]
+            deploy_info = [ PLAN_PATH, ABSOLUTE_PLAN_PATH, SOURCE_PATH, ABSOLUTE_SOURCE_PATH, TARGET]
+            new_location = LocationContext(location)
+            new_location.append_location(APPLICATION)
+            new_location.add_name_token(self.aliases.get_name_token(new_location), app)
+            path = self.aliases.get_wlst_attributes_path(new_location)
+            if self.wlst_helper.path_exists(path):
+                self.wlst_helper.cd(path)
+                self.set_attributes(new_location, apps_slim, excludes=deploy_info)
+
 
     def __process_directory_entry(self, path):
         """
