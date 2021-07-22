@@ -263,8 +263,8 @@ class VariableInjector(object):
                         append = True
                         if variable_file_location != new_variable_file_location:
                             shutil.copyfile(variable_file_location, new_variable_file_location)
-                        self._filter_duplicate_properties(new_variable_file_location, variable_dictionary,
-                                                          variable_keys_to_remove)
+                        self._filter_duplicate_and_unused_properties(new_variable_file_location, variable_dictionary,
+                                                                     variable_keys_to_remove)
                     variable_file_location = new_variable_file_location
 
                 variables_inserted = self._write_variables_file(variable_dictionary, variable_file_location, append)
@@ -280,7 +280,7 @@ class VariableInjector(object):
         return variables_inserted, return_model, variable_file_location
 
 
-    def _filter_duplicate_properties(self, variable_file_location, variable_dictionary, variable_keys_to_remove):
+    def _filter_duplicate_and_unused_properties(self, variable_file_location, variable_dictionary, variable_keys_to_remove):
         _method_name = '_filter_duplicate_property'
         _logger.entering(class_name=_class_name, method_name=_method_name)
         try:
