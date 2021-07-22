@@ -451,18 +451,27 @@ class VariableInjector(object):
         if _already_property(attribute_value) and attribute_type == CREDENTIAL:
             self.add_key_for_variable_removal(attribute_value[7:len(attribute_value) - 2])
 
-        if not _already_property(attribute_value) or attribute_type == CREDENTIAL:
+        variable_name = self.get_variable_name(location, attribute)
+        variable_value = _format_variable_value(attribute_value)
 
-            variable_name = self.get_variable_name(location, attribute)
-            variable_value = _format_variable_value(attribute_value)
+        model[attribute] = self.get_variable_token(attribute, variable_name)
 
-            model[attribute] = self.get_variable_token(attribute, variable_name)
 
-            _logger.fine('WLSDPLY-19525', variable_name, attribute_value, attribute, variable_value,
-                         class_name=_class_name, method_name=_method_name)
-        else:
-            _logger.finer('WLSDPLY-19526', attribute_value, attribute, str(location), class_name=_class_name,
-                          method_name=_method_name)
+        # if not _already_property(attribute_value) or attribute_type == CREDENTIAL:
+        #     print '@@@ value ' + str(attribute_value)
+        #     print self.get_variable_cache()
+        #
+        #     variable_name = self.get_variable_name(location, attribute)
+        #     variable_value = _format_variable_value(attribute_value)
+        #
+        #     model[attribute] = self.get_variable_token(attribute, variable_name)
+        #     print '@@@ set as  ' + str(model[attribute])
+        #
+        #     _logger.fine('WLSDPLY-19525', variable_name, attribute_value, attribute, variable_value,
+        #                  class_name=_class_name, method_name=_method_name)
+        # else:
+        #     _logger.finer('WLSDPLY-19526', attribute_value, attribute, str(location), class_name=_class_name,
+        #                   method_name=_method_name)
 
         if variable_value is not None:
             variable_dict[variable_name] = self._check_replace_variable_value(location, attribute,

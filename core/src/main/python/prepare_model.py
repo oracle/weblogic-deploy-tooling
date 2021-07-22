@@ -25,6 +25,7 @@ from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
 import oracle.weblogic.deploy.util.TranslateException as TranslateException
+import wlsdeploy.util.variables as variables
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
@@ -313,6 +314,15 @@ class PrepareModel:
             full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._aliases,
                                                           "discover", WlstModes.OFFLINE)
 
+            # Just in case the credential cache has @@PROP, we use the original variable files to resolve it
+            # so that the generated files has the property value
+
+            original_variables = variables.load_variables(self.model_context.get_variable_file())
+            credential_caches = self.credential_injector.get_variable_cache()
+            for key in credential_caches:
+                if credential_caches[key].find('@@PROP:') == 0:
+                    credential_caches[key] = variables._substitute(credential_caches[key],
+                                                                   original_variables, self.model_context)
 
             target_config = self.model_context.get_target_configuration()
             if target_config.generate_script_for_secrets():
