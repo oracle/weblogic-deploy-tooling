@@ -313,8 +313,6 @@ class PrepareModel:
             full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._aliases,
                                                           "discover", WlstModes.OFFLINE)
 
-            print 'at the end'
-            print self.credential_injector.get_variable_cache()
 
             target_config = self.model_context.get_target_configuration()
             if target_config.generate_script_for_secrets():
@@ -374,9 +372,10 @@ class PrepareModel:
 
         variable_injector = VariableInjector(_program_name, model, model_context,
                                              WebLogicHelper(self._logger).get_actual_weblogic_version(),
-                                             credential_properties)
+                                             credential_properties, self.credential_injector.get_variable_keys_for_removal())
 
         # update the variable file with any new values
+
         inserted, variable_model, variable_file_name = \
             variable_injector.inject_variables_keyword_file(VARIABLE_FILE_UPDATE)
 

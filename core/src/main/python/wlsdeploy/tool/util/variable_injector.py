@@ -79,7 +79,7 @@ _logger = PlatformLogger('wlsdeploy.tool.util')
 
 class VariableInjector(object):
 
-    def __init__(self, program_name, model, model_context, version=None, variable_dictionary=None):
+    def __init__(self, program_name, model, model_context, version=None, variable_dictionary=None, staged_for_removal=None):
         """
         Construct an instance of the injector with the model and information used by the injector.
         :param program_name: name of the calling tool
@@ -104,6 +104,16 @@ class VariableInjector(object):
         else:
             self.__aliases = Aliases(model_context)
         self.__variable_dictionary = variable_dictionary
+        if staged_for_removal is not None:
+            self.__keys_for_variable_removal = staged_for_removal
+        else:
+            self.__keys_for_variable_removal = []
+
+    def get_variable_removal_keys(self):
+        return self.__keys_for_variable_removal
+
+    def add_key_for_variable_removal(self, key):
+        self.__keys_for_variable_removal.append(key)
 
     def get_variable_cache(self):
         """
@@ -257,7 +267,6 @@ class VariableInjector(object):
                         if variable_file_location != new_variable_file_location:
                             shutil.copyfile(variable_file_location, new_variable_file_location)
                         self._filter_duplicate_properties(new_variable_file_location, variable_dictionary)
-
                     variable_file_location = new_variable_file_location
 
                 variables_inserted = self._write_variables_file(variable_dictionary, variable_file_location, append)
@@ -281,9 +290,20 @@ class VariableInjector(object):
             prop = Properties()
             prop.load(fis)
             fis.close()
+            keys_for_removal = self.get_variable_removal_keys()
+
+            # remove from the original properties file and then remove from the variable dictionary
+            # so that it won't be added back later
+            for key in keys_for_removal:
+                if variable_dictionary.has_key(key):
+                    variable_dictionary.pop(key)
+                if prop.containsKey(key):
+                    prop.remove(key)
+
             for key in variable_dictionary:
                 if prop.get(key) is not None:
                     prop.remove(key)
+
             fos = FileOutputStream(variable_file_location)
             prop.store(fos, None)
             fos.close()
@@ -428,8 +448,13 @@ class VariableInjector(object):
         variable_value = None
         attribute_value = model[attribute]
 
-        if not _already_property(attribute_value) or \
-                self.__aliases.get_model_attribute_type(location, attribute) == CREDENTIAL:
+        attribute_type = self.__aliases.get_model_attribute_type(location, attribute)
+
+        if _already_property(attribute_value) and attribute_type == CREDENTIAL:
+            self.add_key_for_variable_removal(attribute_value[7:len(attribute_value) - 2])
+
+        if not _already_property(attribute_value) or attribute_type == CREDENTIAL:
+
             variable_name = self.get_variable_name(location, attribute)
             variable_value = _format_variable_value(attribute_value)
 
