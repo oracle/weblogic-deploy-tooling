@@ -372,12 +372,13 @@ class PrepareModel:
 
         variable_injector = VariableInjector(_program_name, model, model_context,
                                              WebLogicHelper(self._logger).get_actual_weblogic_version(),
-                                             credential_properties, self.credential_injector.get_variable_keys_for_removal())
+                                             credential_properties)
 
         # update the variable file with any new values
-
+        unused_variable_keys_to_remove = self.credential_injector.get_variable_keys_for_removal();
         inserted, variable_model, variable_file_name = \
-            variable_injector.inject_variables_keyword_file(VARIABLE_FILE_UPDATE)
+            variable_injector.inject_variables_keyword_file(append_option=VARIABLE_FILE_UPDATE,
+                                                            variable_keys_to_remove=unused_variable_keys_to_remove)
 
         # return variable_model - if writing the variables file failed, this will be the original model.
         # a warning is issued in inject_variables_keyword_file() if that was the case.
