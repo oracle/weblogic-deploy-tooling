@@ -314,8 +314,8 @@ class PrepareModel:
             full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._aliases,
                                                           "discover", WlstModes.OFFLINE)
 
-            # Just in case the credential cache has @@PROP, we use the original variable files to resolve it
-            # so that the generated files has the property value
+            # Just in case the credential cache has @@PROP in the value, we use the original variable files to resolve it
+            # so that the generated files has the original property value
 
             original_variables = variables.load_variables(self.model_context.get_variable_file())
             credential_caches = self.credential_injector.get_variable_cache()
