@@ -457,7 +457,8 @@ class VariableInjector(object):
             # This is the case where the original value is @@PROP but replaced with @@SECRET because of the custom
             # injector, we need to clean up the variable file, so add it for later removal.
             #
-            if variable_value.find('@@PROP:') == 0 and model[attribute].find('@@SECRET:') == 0:
+            if target_use_credentials and variable_value.find('@@PROP:') == 0 \
+                    and model[attribute].find('@@SECRET:') == 0:
                 self.add_key_for_variable_removal(attribute_value[7:len(attribute_value) - 2])
 
             _logger.fine('WLSDPLY-19525', variable_name, attribute_value, attribute, variable_value,
