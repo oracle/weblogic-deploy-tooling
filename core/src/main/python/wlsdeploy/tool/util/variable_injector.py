@@ -453,19 +453,14 @@ class VariableInjector(object):
 
         variable_name = self.get_variable_name(location, attribute)
         variable_value = _format_variable_value(attribute_value)
-
         model[attribute] = self.get_variable_token(attribute, variable_name)
 
-
         # if not _already_property(attribute_value) or attribute_type == CREDENTIAL:
-        #     print '@@@ value ' + str(attribute_value)
-        #     print self.get_variable_cache()
         #
         #     variable_name = self.get_variable_name(location, attribute)
         #     variable_value = _format_variable_value(attribute_value)
         #
         #     model[attribute] = self.get_variable_token(attribute, variable_name)
-        #     print '@@@ set as  ' + str(model[attribute])
         #
         #     _logger.fine('WLSDPLY-19525', variable_name, attribute_value, attribute, variable_value,
         #                  class_name=_class_name, method_name=_method_name)
