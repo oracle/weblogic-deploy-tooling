@@ -446,17 +446,20 @@ class VariableInjector(object):
         variable_value = None
         attribute_value = model[attribute]
 
-        attribute_type = self.__aliases.get_model_attribute_type(location, attribute)
+        target_use_credentials = self.__model_context.get_target_configuration().uses_credential_secrets();
 
-        if _already_property(attribute_value) and attribute_type == CREDENTIAL:
-            self.add_key_for_variable_removal(attribute_value[7:len(attribute_value) - 2])
-
-        if not _already_property(attribute_value) or attribute_type == CREDENTIAL:
+        if not _already_property(attribute_value) or target_use_credentials:
 
             variable_name = self.get_variable_name(location, attribute)
             variable_value = _format_variable_value(attribute_value)
-
             model[attribute] = self.get_variable_token(attribute, variable_name)
+
+            # This is the case where the original value is @@PROP but replaced with @@SECRET because of the custom
+            # injector, we need to clean up the variable file, so add it for later removal.
+            #
+            if target_use_credentials and variable_value.find('@@PROP:') == 0 \
+                    and model[attribute].find('@@SECRET:') == 0:
+                self.add_key_for_variable_removal(attribute_value[7:len(attribute_value) - 2])
 
             _logger.fine('WLSDPLY-19525', variable_name, attribute_value, attribute, variable_value,
                          class_name=_class_name, method_name=_method_name)
