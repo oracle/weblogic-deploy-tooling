@@ -132,6 +132,7 @@ def __deploy_online(model, model_context, aliases):
     try:
         model_deployer.deploy_resources(model, model_context, aliases, wlst_mode=__wlst_mode)
         deployer_utils.delete_online_deployment_targets(model, aliases, __wlst_mode)
+        model_deployer.deploy_app_attributes_online(model, model_context, aliases)
     except DeployException, de:
         deployer_utils.release_edit_session_and_disconnect()
         raise de

@@ -170,6 +170,9 @@ class CredentialInjector(VariableInjector):
 
         return VariableInjector.get_variable_name(self, model_location, attribute, suffix=suffix)
 
+    def get_variable_keys_for_removal(self):
+        return VariableInjector.get_variable_removal_keys(self)
+
     def get_variable_token(self, attribute, variable_name):
         """
         Override method to possibly create secret tokens instead of property token.
