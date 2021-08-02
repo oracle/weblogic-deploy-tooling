@@ -41,6 +41,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_kEYSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import LISTEN_PORT
 from wlsdeploy.aliases.model_constants import LOG_FILTER
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
@@ -819,9 +820,11 @@ class DomainCreator(Creator):
         # Now, fully populate the ServerTemplates, if any.
         #
         server_template_nodes = dictionary_utils.get_dictionary_element(self._topology, SERVER_TEMPLATE)
+
         if len(server_template_nodes) > 0:
             self._create_named_mbeans(SERVER_TEMPLATE, server_template_nodes, location, log_created=True,
                                       delete_now=delete_now)
+
 
         #
         # Finally, create/update the servers.
@@ -831,6 +834,20 @@ class DomainCreator(Creator):
         self.topology_helper.create_placeholder_servers_in_cluster(self._topology)
         if len(server_nodes) > 0:
             self._create_named_mbeans(SERVER, server_nodes, location, log_created=True, delete_now=delete_now)
+
+        # Work around for bug in WLST where Server Template Listen Port must be set after Server
+        # Listen Port for 7001 in order to show up in the config.xml
+        if len(server_template_nodes) > 0:
+            for template in server_template_nodes:
+                listen_port = dictionary_utils.get_dictionary_element(self._topology[SERVER_TEMPLATE][template], LISTEN_PORT)
+                if listen_port is not None:
+                    temp_loc = LocationContext()
+                    temp_loc.append_location(SERVER_TEMPLATE)
+                    temp_loc.add_name_token(self.aliases.get_name_token(temp_loc), template)
+                    attribute_path = self.aliases.get_wlst_attributes_path(temp_loc)
+
+                    self.wlst_helper.cd(attribute_path)
+                    self._set_attribute(temp_loc, LISTEN_PORT, listen_port, [])
 
         self.__create_migratable_targets(location, delete_now=delete_now)
 

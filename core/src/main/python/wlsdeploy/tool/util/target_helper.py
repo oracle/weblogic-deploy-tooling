@@ -85,7 +85,7 @@ class TargetHelper(object):
         for ms_name in server_names:
             self.logger.info('WLSDPLY-12233', 'Managed Server', ms_name, class_name=self.__class_name,
                              method_name=_method_name)
-            self.wlst_helper.apply_jrf(ms_name, self.model_context)
+            self.wlst_helper.apply_jrf(ms_name, self.model_context.get_domain_home())
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

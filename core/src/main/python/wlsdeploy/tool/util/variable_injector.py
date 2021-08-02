@@ -26,6 +26,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
+from wlsdeploy.aliases.alias_constants import CREDENTIAL
 
 WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
 
@@ -103,6 +104,13 @@ class VariableInjector(object):
         else:
             self.__aliases = Aliases(model_context)
         self.__variable_dictionary = variable_dictionary
+        self.__keys_for_variable_removal = []
+
+    def get_variable_removal_keys(self):
+        return self.__keys_for_variable_removal
+
+    def add_key_for_variable_removal(self, key):
+        self.__keys_for_variable_removal.append(key)
 
     def get_variable_cache(self):
         """
@@ -174,7 +182,7 @@ class VariableInjector(object):
             variable_dictionary = self._add_variable_info(model, attribute, location, injector_values)
             self.add_to_cache(dictionary=variable_dictionary)
 
-    def inject_variables_keyword_file(self, append_option=None):
+    def inject_variables_keyword_file(self, append_option=None, variable_keys_to_remove=None):
         """
         Replace attribute values with variables and generate a variable dictionary.
         The variable replacement is driven from the values in the model variable helper file.
@@ -255,8 +263,8 @@ class VariableInjector(object):
                         append = True
                         if variable_file_location != new_variable_file_location:
                             shutil.copyfile(variable_file_location, new_variable_file_location)
-                        self._filter_duplicate_properties(new_variable_file_location, variable_dictionary)
-
+                        self._filter_duplicate_and_unused_properties(new_variable_file_location, variable_dictionary,
+                                                                     variable_keys_to_remove)
                     variable_file_location = new_variable_file_location
 
                 variables_inserted = self._write_variables_file(variable_dictionary, variable_file_location, append)
@@ -272,7 +280,7 @@ class VariableInjector(object):
         return variables_inserted, return_model, variable_file_location
 
 
-    def _filter_duplicate_properties(self, variable_file_location, variable_dictionary):
+    def _filter_duplicate_and_unused_properties(self, variable_file_location, variable_dictionary, variable_keys_to_remove):
         _method_name = '_filter_duplicate_property'
         _logger.entering(class_name=_class_name, method_name=_method_name)
         try:
@@ -280,9 +288,20 @@ class VariableInjector(object):
             prop = Properties()
             prop.load(fis)
             fis.close()
+
+            # remove from the original properties file and then remove from the variable dictionary
+            # so that it won't be added back later
+            if variable_keys_to_remove is not None:
+                for key in variable_keys_to_remove:
+                    if variable_dictionary.has_key(key):
+                        variable_dictionary.pop(key)
+                    if prop.containsKey(key):
+                        prop.remove(key)
+
             for key in variable_dictionary:
                 if prop.get(key) is not None:
                     prop.remove(key)
+
             fos = FileOutputStream(variable_file_location)
             prop.store(fos, None)
             fos.close()
@@ -426,11 +445,21 @@ class VariableInjector(object):
         variable_name = None
         variable_value = None
         attribute_value = model[attribute]
-        if not _already_property(attribute_value):
+
+        target_use_credentials = self.__model_context.get_target_configuration().uses_credential_secrets();
+
+        if not _already_property(attribute_value) or target_use_credentials:
+
             variable_name = self.get_variable_name(location, attribute)
             variable_value = _format_variable_value(attribute_value)
-
             model[attribute] = self.get_variable_token(attribute, variable_name)
+
+            # This is the case where the original value is @@PROP but replaced with @@SECRET because of the custom
+            # injector, we need to clean up the variable file, so add it for later removal.
+            #
+            if target_use_credentials and variable_value.find('@@PROP:') == 0 \
+                    and model[attribute].find('@@SECRET:') == 0:
+                self.add_key_for_variable_removal(attribute_value[7:len(attribute_value) - 2])
 
             _logger.fine('WLSDPLY-19525', variable_name, attribute_value, attribute, variable_value,
                          class_name=_class_name, method_name=_method_name)
