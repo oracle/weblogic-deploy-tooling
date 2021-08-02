@@ -97,7 +97,8 @@ class KubernetesValidator(object):
                     self._validate_simple_type(model_value, property_type, key, model_path)
 
             else:
-                self._logger.severe("WLSDPLY-05026", key, len(schema_properties), model_path, class_name=self._class_name,
+                self._logger.severe("WLSDPLY-05026", key, len(schema_properties), model_path,
+                                    '%s' % ', '.join(schema_properties), class_name=self._class_name,
                                     method_name=_method_name)
 
     def _validate_multiple_folder(self, model_value, property_map, schema_path, model_path):
