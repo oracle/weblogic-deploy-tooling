@@ -686,7 +686,6 @@ class AttributeSetter(object):
         elif wlst_value is None:
             self.__logger.info('WLSDPLY-20012', model_key, str(model_value),
                                class_name=self._class_name, method_name=_method_name)
-            self.set_attribute_with_cmo(location, model_key, wlst_value)
         else:
             if self.__logger.is_finer_enabled():
                 print_model_value = model_value
