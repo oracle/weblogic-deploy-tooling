@@ -797,6 +797,38 @@ class Aliases(object):
 
         return lsa_required_attribute_names
 
+    def model_mbean_has_set_method_attribute_name(self, location, model_name):
+        """
+        Determine if the attribute for model_name has the set_method value.
+        :param location: the location
+        :param model_name: the attribute name
+        :return: True if the attribute has the set method value
+        :raises: Tool type exception: if an error occurs
+        """
+        _method_name = 'model_mbean_has_set_method_attribute_name'
+
+        try:
+            model_attributes_dict = dict()
+
+            module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
+            if ATTRIBUTES not in module_folder:
+                ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+            set_method = False
+            for key, value in module_folder[ATTRIBUTES].iteritems():
+                if SET_METHOD in value and value[SET_METHOD].startswith(MBEAN) and key == model_name:
+
+                    set_method = True
+                    break
+
+            return set_method
+        except AliasException, ae:
+
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19017', location.get_folder_path(),
+                          ae.getLocalizedMessage())
+
     def get_model_mbean_set_method_attribute_names_and_types(self, location):
         """
         Get the list of model attribute names and types where the set method requires an MBean.

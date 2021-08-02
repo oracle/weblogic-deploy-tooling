@@ -236,8 +236,14 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if DataSource is not found
         """
-        mbean = self.__find_in_resource_group_or_domain(location, JDBC_SYSTEM_RESOURCE, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not value:
+            mbean = self.__wlst_helper.get_mbean(None)
+            wlst_attr = wlst_param = self.__aliases.get_wlst_attribute_name(location, key)
+            method = getattr(mbean, 'set' + wlst_attr)
+            method(None)
+        else:
+            mbean = self.__find_in_resource_group_or_domain(location, JDBC_SYSTEM_RESOURCE, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
         return
 
     def set_saf_remote_context_mbean(self, location, key, value, wlst_value):
@@ -680,6 +686,7 @@ class AttributeSetter(object):
         elif wlst_value is None:
             self.__logger.info('WLSDPLY-20012', model_key, str(model_value),
                                class_name=self._class_name, method_name=_method_name)
+            self.set_attribute_with_cmo(location, model_key, wlst_value)
         else:
             if self.__logger.is_finer_enabled():
                 print_model_value = model_value
