@@ -8,14 +8,12 @@ including domain resource configuration for WebLogic Kubernetes Operator.
 import re
 
 from wlsdeploy.aliases import alias_utils
-from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SIZE
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import MAX_DYNAMIC_SERVER_COUNT
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import TOPOLOGY
-from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.util import dictionary_utils
 
 
@@ -41,30 +39,24 @@ def get_dns_name(name):
     return result
 
 
-def get_server_count(cluster_name, cluster_values, model_dictionary, aliases):
+def get_server_count(cluster_name, cluster_values, model_dictionary):
     """
     Determine the number of servers associated with a cluster.
     :param cluster_name: the name of the cluster
     :param cluster_values: the value map for the cluster
     :param model_dictionary: the model dictionary
-    :param aliases: aliases instance for validation
     :return: the number of servers
     """
     if DYNAMIC_SERVERS in cluster_values:
         # for dynamic clusters, return the value of DynamicClusterSize
         dynamic_servers_dict = cluster_values[DYNAMIC_SERVERS]
-        location = LocationContext()
-        location.append_location(CLUSTER)
-        location.add_name_token(aliases.get_name_token(location), 'cluster')
-        location.append_location(DYNAMIC_SERVERS)
-        location.add_name_token(aliases.get_name_token(location), 'server')
-        present, __ = aliases.is_valid_model_attribute_name(location, DYNAMIC_CLUSTER_SIZE)
-        if present == ValidationCodes.VALID:
-            cluster_size_value = dictionary_utils.get_element(dynamic_servers_dict, DYNAMIC_CLUSTER_SIZE)
-        else:
-            cluster_size_value = dictionary_utils.get_element(dynamic_servers_dict, MAX_DYNAMIC_SERVER_COUNT)
-        if cluster_size_value is not None:
-            return alias_utils.convert_to_type('integer', cluster_size_value)
+
+        # model may contain DYNAMIC_CLUSTER_SIZE or MAX_DYNAMIC_SERVER_COUNT
+        cluster_size = dictionary_utils.get_element(dynamic_servers_dict, DYNAMIC_CLUSTER_SIZE)
+        if cluster_size is None:
+            cluster_size = dictionary_utils.get_element(dynamic_servers_dict, MAX_DYNAMIC_SERVER_COUNT)
+        if cluster_size is not None:
+            return alias_utils.convert_to_type('integer', cluster_size)
     else:
         # for other clusters, return the number of servers assigned to this cluster
         count = 0

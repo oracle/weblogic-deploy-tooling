@@ -146,7 +146,7 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
         cluster_hash[CLUSTER_NAME] = cluster_name
 
         cluster_values = dictionary_utils.get_dictionary_element(cluster_list, cluster_name)
-        server_count = k8s_helper.get_server_count(cluster_name, cluster_values, model.get_model(), aliases)
+        server_count = k8s_helper.get_server_count(cluster_name, cluster_values, model.get_model())
         cluster_hash[REPLICAS] = str(server_count)
         clusters.append(cluster_hash)
 

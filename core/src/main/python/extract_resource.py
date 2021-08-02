@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the extractDomainResource tool.
@@ -71,17 +71,16 @@ def __process_args(args):
     return model_context
 
 
-def __extract_resource(model, model_context, aliases):
+def __extract_resource(model, model_context):
     """
     Offline deployment orchestration
     :param model: the model
     :param model_context: the model context
-    :param aliases: the aliases object
     :raises: DeployException: if an error occurs
     """
     _method_name = '__extract_resource'
 
-    resource_extractor = DomainResourceExtractor(model, model_context, aliases, __logger)
+    resource_extractor = DomainResourceExtractor(model, model_context, __logger)
     resource_extractor.extract()
     return 0
 
@@ -118,7 +117,7 @@ def main(args):
 
     try:
         model = Model(model_dictionary)
-        exit_code = __extract_resource(model, model_context, aliases)
+        exit_code = __extract_resource(model, model_context)
     except DeployException, ex:
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
