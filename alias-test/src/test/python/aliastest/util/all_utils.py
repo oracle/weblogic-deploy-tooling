@@ -331,7 +331,7 @@ def populate_test_files_location(kwargs):
     """
     Find the test files path from the argument list, for the test file location command. This is
     populated in the global location of the utils file, for use during this instance of the integration test.
-    Any generated json files will be stored and read from this location, and verification reports will be strored
+    Any generated json files will be stored and read from this location, and verification reports will be stored
     at this location.
     :param kwargs: command line argument map
     """
@@ -544,7 +544,7 @@ def _write_dictionary_to_json_file(dictionary, writer, indent=''):
     Write the python dictionary in json syntax using the provided writer stream.
     :param dictionary: python dictionary to convert to json syntax
     :param writer: where to write the dictionary into json syntax
-    :param indent: current string indention of the json syntax. If not provided, indent is an empty string
+    :param indent: current string indentation of the json syntax. If not provided, indent is an empty string
     """
     _method_name = '_write_dictionary_to_json_file'
     _start_dict = '{'

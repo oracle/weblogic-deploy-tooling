@@ -220,7 +220,7 @@ public class WLSDeployZipFile {
      *
      * @param key the beginning part of the entry names to match
      * @return a map of InputStreams keyed by the entry name
-     * @throws WLSDeployArchiveIOException if an IOException occured while rading or writing changes
+     * @throws WLSDeployArchiveIOException if an IOException occurred while rading or writing changes
      */
     public Map<String, InputStream> getZipEntries(String key) throws WLSDeployArchiveIOException {
         final String METHOD = "getZipEntries";

@@ -24,7 +24,7 @@ import org.python.core.PyString;
 
 
 /**
- * This class does all the work to drop and recreate the RCU schemas besed on the domain type definition.
+ * This class does all the work to drop and recreate the RCU schemas based on the domain type definition.
  */
 public class RCURunner {
     private static final String CLASS = RCURunner.class.getName();

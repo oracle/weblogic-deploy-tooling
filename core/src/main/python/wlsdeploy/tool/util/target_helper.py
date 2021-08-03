@@ -527,7 +527,7 @@ class TargetHelper(object):
     def get_dc_to_server_groups_map(self, dynamic_cluster_names, server_groups, dc_sg_targeting_limits):
         """
         Remake the map for each dynamic cluster name and its server groups. If the dynamic cluster is not
-        specifically targeted by the dynamic cluster server group targeting limits, targt any remaining
+        specifically targeted by the dynamic cluster server group targeting limits, target any remaining
         server groups not in the targeting limits, to any remaining typedef dynamic cluster server group targets.
         :param dynamic_cluster_names: list of dynamic clusters in the domain
         :param server_groups: list of dynamic server groups in the typedef

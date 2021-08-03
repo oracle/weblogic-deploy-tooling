@@ -694,7 +694,7 @@ class DomainCreator(Creator):
     def __create_security_folder(self):
         """
         Create the the security objects if any. The security information
-        from the model will be writting to the DefaultAuthenticatorInit.ldift file
+        from the model will be writing to the DefaultAuthenticatorInit.ldift file
         :raises: CreateException: if an error occurs
         """
         _method_name = '__create_security_folder'
@@ -791,7 +791,7 @@ class DomainCreator(Creator):
     def __create_machines_clusters_and_servers(self, delete_now=True):
         """
         Create the /Cluster, /ServerTemplate, and /Server folder objects.
-        :param delete_now: Flag determing whether the delete of the elements will be delayed
+        :param delete_now: Flag determining whether the delete of the elements will be delayed
         :raises: CreateException: if an error occurs
         """
         _method_name = '__create_machines_clusters_and_servers'

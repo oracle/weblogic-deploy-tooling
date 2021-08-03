@@ -183,7 +183,7 @@ class ClaHelperTest(unittest.TestCase):
         # Load model and invoke filter
         model_dictionary = cla_helper.load_model('validateModel', model_context, aliases, "validate", WlstModes.OFFLINE)
 
-        # assert the validate filter made modications and was persisted
+        # assert the validate filter made modifications and was persisted
         self.assertEquals('gumby1234', model_dictionary['domainInfo']['AdminPassword'], "Expected validate filter to have changed AdminPassword to 'gumby1234'")
 
         # check that a single server exists in the result, and its attributes were merged correctly
