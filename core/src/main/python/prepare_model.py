@@ -1,4 +1,4 @@
-# Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+# Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # ------------
@@ -249,7 +249,7 @@ class PrepareModel:
             for model_file in model_file_list:
                 if os.path.splitext(model_file)[1].lower() == ".yaml":
                     model_file_name = model_file
-                    
+
                 if target is not None and self.model_context.get_target_configuration().get_additional_output_types():
                     additional_output_types = []
                     output_types = self.model_context.get_target_configuration().get_additional_output_types()
@@ -316,9 +316,14 @@ class PrepareModel:
 
             # Just in case the credential cache has @@PROP in the model's attribute value,
             # we use the original variable file to resolve it,
-            # so that the generated json/script files have the resolved property value(s) instead of the @@PROP token
+            # so that the generated json/script files have the resolved property value(s) instead of the @@PROP token.
+            # it's possible that the variable file is not specified, or does not exist yet.
 
-            original_variables = variables.load_variables(self.model_context.get_variable_file())
+            original_variables = {}
+            variable_file = self.model_context.get_variable_file()
+            if variable_file is not None and os.path.exists(variable_file):
+                original_variables = variables.load_variables(variable_file)
+
             credential_caches = self.credential_injector.get_variable_cache()
             for key in credential_caches:
                 if credential_caches[key].find('@@PROP:') == 0:
