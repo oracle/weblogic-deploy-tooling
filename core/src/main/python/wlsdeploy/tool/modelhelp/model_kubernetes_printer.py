@@ -155,7 +155,7 @@ class ModelKubernetesPrinter(object):
         """
         Prints a model sample for the attributes in a model location
         :param schema_folder: the schema folder to be printed
-        :param indent_level: the level of indention for this folder
+        :param indent_level: the level of indentation for this folder
         """
         _method_name = '_print_attributes_sample'
 

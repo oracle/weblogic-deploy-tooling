@@ -413,7 +413,7 @@ class GeneratorHelper:
         """
         Use the mbean info map containment type to pluck out (best able) the subfolders
         :param methods_map: contains the methods from the mbean interface
-        :param mbean_info_map: contans the property descriptors from the MBeanInfo
+        :param mbean_info_map: contains the property descriptors from the MBeanInfo
         """
         self._remove_subfolders(methods_map, mbean_info_map)
         self._remove_unused_methods(methods_map)

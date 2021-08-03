@@ -733,7 +733,7 @@ class ModelContext(object):
     def replace_tokens_in_path(self, attribute_name, resource_dict):
         """
         Replace any tokens in a path with the current values.
-        :param attribute_name: the attrribute name
+        :param attribute_name: the attribute name
         :param resource_dict: the dictionary to use to lookup and replace the attribute value
         """
         separator = ':'

@@ -57,7 +57,7 @@ def get_wlst_attribute_name(attribute_info, attribute_value, wlst_mode):
     Returns the corrected WLST attribute name for the specified parameters.
     The "Encrypted" suffix is removed from online dual-password attributes for use with unencrypted values.
     :param attribute_info: the attribute information to be checked
-    :param attribute_value: the vaue to be checked for encryption
+    :param attribute_value: the value to be checked for encryption
     :param wlst_mode: the offline or online type to be checked
     :return: the corrected value, or None if no correction was required
     """

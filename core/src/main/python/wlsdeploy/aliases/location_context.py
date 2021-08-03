@@ -42,7 +42,7 @@ class LocationContext(object):
 
     def pop_location(self, index=None):
         """
-        Pops (or removes) a location from the exising location context
+        Pops (or removes) a location from the existing location context
         :param index: integer Index of list item to pop
         :return: The ``model_folder`` of list item at ``index``
         """

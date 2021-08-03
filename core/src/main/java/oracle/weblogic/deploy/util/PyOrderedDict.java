@@ -156,7 +156,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
 
     /**
      * The internal method that the copy.deepcopy() implementation looks for
-     * to preform a deepcopy on non-built-in types.  Note that this implementation
+     * to perform a deepcopy on non-built-in types.  Note that this implementation
      * has limitations in that it only knows how to deepcopy a limited set of types
      * (NoneType, int, long, float, str, list, dict, and PyOrderedDict).  Any other
      * types encountered will log an error and return the original object without
