@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -64,10 +64,9 @@ class DomainResourceExtractor:
     """
     _class_name = "DomainResourceExtractor"
 
-    def __init__(self, model, model_context, aliases, logger):
+    def __init__(self, model, model_context, logger):
         self._model = model
         self._model_context = model_context
-        self._aliases = aliases
         self._logger = logger
         return
 
@@ -255,7 +254,7 @@ class DomainResourceExtractor:
                         server_count = spec_section[REPLICAS]
                     else:
                         server_count = k8s_helper.get_server_count(cluster_name, cluster_values,
-                                                                   self._model.get_model(), self._aliases)
+                                                                   self._model.get_model())
                     cluster_dict = PyOrderedDict()
                     cluster_dict[CLUSTER_NAME] = cluster_name
                     cluster_dict[REPLICAS] = server_count
