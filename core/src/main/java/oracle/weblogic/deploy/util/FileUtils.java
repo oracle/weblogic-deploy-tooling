@@ -808,7 +808,7 @@ public final class FileUtils {
 
 
     /**
-     * Convert an octal number into Posix File Permissions.
+     * Convert an octal number into Posix File Permisions.
      * @param octals 3 octal digits representing posix file permissions rwxrwxrwx
      * @return a set of Posix file permissions
      */
