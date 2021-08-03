@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import sys
@@ -21,6 +21,7 @@ import oracle.weblogic.deploy.exception.PyKeyErrorException as PyKeyErrorExcepti
 import oracle.weblogic.deploy.exception.PyTypeErrorException as PyTypeErrorException
 import oracle.weblogic.deploy.exception.PyValueErrorException as PyValueErrorException
 import oracle.weblogic.deploy.json.JsonException as JJsonException
+import oracle.weblogic.deploy.prepare.PrepareException as PrepareException
 import oracle.weblogic.deploy.util.CLAException as JCLAException
 import oracle.weblogic.deploy.util.PyWLSTException as PyWLSTException
 import oracle.weblogic.deploy.util.TranslateException as JTranslateException
@@ -225,6 +226,28 @@ def create_compare_exception(key, *args, **kwargs):
             ex = CompareException(key)
     return ex
 
+
+def create_prepare_exception(key, *args, **kwargs):
+    """
+    Create a PrepareException from a message id, list of message parameters and Throwable error.
+    :param key: key to the message in resource bundler or the message itself
+    :param args: list of parameters for the parameters or empty if none needed for the message
+    :param kwargs: contains Throwable or instance if present
+    :return: ValidateException encapsulating the exception information
+    """
+    arg_list, error = _return_exception_params(*args, **kwargs)
+    arg_len = len(arg_list)
+    if error is not None:
+        if arg_len > 0:
+            ex = PrepareException(key, error, arg_list)
+        else:
+            ex = PrepareException(key, error)
+    else:
+        if arg_len > 0:
+            ex = PrepareException(key, arg_list)
+        else:
+            ex = PrepareException(key)
+    return ex
 
 
 def create_pywlst_exception(key, *args, **kwargs):
