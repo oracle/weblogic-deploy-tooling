@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem shared.cmd
 @rem
-@rem Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+@rem Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -127,22 +127,27 @@ GOTO :EOF
     SET WLST_PATH_DIR=
 
     :arg_loop
-    IF "%1" == "-help" (
+    set firstArg=%1
+
+    @REM remove any double quotes (replace with empty string)
+    set firstArg=%firstArg:"=%
+
+    IF "%firstArg%" == "-help" (
       EXIT /B 100
     )
 
-    IF "%1" == "-oracle_home" (
+    IF "%firstArg%" == "-oracle_home" (
       SET ORACLE_HOME_ARG=%2
       SHIFT
       GOTO arg_continue
     )
 
-    IF "%1" == "-use_encryption" (
+    IF "%firstArg%" == "-use_encryption" (
       SET USE_ENCRYPTION=true
       GOTO arg_continue
     )
 
-    IF "%1" == "-wlst_path" (
+    IF "%firstArg%" == "-wlst_path" (
       SET WLST_PATH_DIR=%2
       SHIFT
       GOTO arg_continue
