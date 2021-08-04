@@ -98,7 +98,8 @@ class PrepareTestCase(unittest.TestCase):
 
         topology = pythonDict[TOPOLOGY]
         server = topology[SERVER]
-        self.assertEquals(server['ms1'][LISTEN_PORT], '@@PROP:Server.ms1.ListenPort@@', 'Listen port was tokenized')
+        self.assertEquals(server['ms1'][LISTEN_PORT], '@@PROP:ms1.port@@',
+                          'Listen port remained tokenized')
 
         resources = pythonDict[RESOURCES]
         dsParams = resources[JDBC_SYSTEM_RESOURCE]['ds1'][JDBC_RESOURCE][JDBC_DRIVER_PARAMS]

@@ -11,8 +11,8 @@ topology:
     Server:
         AdminServer:
         ms1:
-            # this should be tokenized
-            ListenPort: 7001
+            # this should remain unchanged
+            ListenPort: '@@PROP:ms1.port@@'
 resources:
     JDBCSystemResource:
         ds1:
