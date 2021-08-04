@@ -29,7 +29,6 @@ from wlsdeploy.yaml.yaml_translator import PythonToYaml
 
 _program_name = 'prepareModel'
 _class_name = 'ModelPreparer'
-__logger = PlatformLogger('wlsdeploy.prepare_model')
 
 
 class ModelPreparer:
