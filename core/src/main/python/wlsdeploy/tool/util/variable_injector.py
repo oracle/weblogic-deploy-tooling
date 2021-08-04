@@ -3,14 +3,16 @@ Copyright (c) 2018, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
+import os
 import re
+import shutil
 
-import java.lang.Boolean as Boolean
-import java.io.FileOutputStream as FileOutputStream
 import java.io.FileInputStream as FileInputStream
-import java.util.Properties as Properties
+import java.io.FileOutputStream as FileOutputStream
+import java.io.IOException as IOException
+import java.lang.Boolean as Boolean
 import java.lang.IllegalArgumentException as IllegalArgumentException
-import os, shutil
+import java.util.Properties as Properties
 
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
 import oracle.weblogic.deploy.json.JsonException as JsonException
@@ -26,7 +28,6 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
-from wlsdeploy.aliases.alias_constants import CREDENTIAL
 
 WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
 
@@ -437,6 +438,14 @@ class VariableInjector(object):
         else:
             return self._process_attribute(model, attribute, location, injector_values)
 
+    def _check_tokenized(self, attribute_value):
+        """
+        Return True if the specified attribute value is already tokenized.
+        Subclasses may perform any additional processing to clean up variables that will be overwritten.
+        :param attribute_value: the value to be checked
+        """
+        return variables.is_variable_string(attribute_value)
+
     def _process_attribute(self, model, attribute, location, injector_values):
         _method_name = '_process_attribute'
         _logger.entering(attribute, location.get_folder_path(), class_name=_class_name,
@@ -445,21 +454,10 @@ class VariableInjector(object):
         variable_name = None
         variable_value = None
         attribute_value = model[attribute]
-
-        target_use_credentials = self.__model_context.get_target_configuration().uses_credential_secrets();
-
-        if not _already_property(attribute_value) or target_use_credentials:
-
+        if not self._check_tokenized(attribute_value):
             variable_name = self.get_variable_name(location, attribute)
             variable_value = _format_variable_value(attribute_value)
             model[attribute] = self.get_variable_token(attribute, variable_name)
-
-            # This is the case where the original value is @@PROP but replaced with @@SECRET because of the custom
-            # injector, we need to clean up the variable file, so add it for later removal.
-            #
-            if target_use_credentials and variable_value.find('@@PROP:') == 0 \
-                    and model[attribute].find('@@SECRET:') == 0:
-                self.add_key_for_variable_removal(attribute_value[7:len(attribute_value) - 2])
 
             _logger.fine('WLSDPLY-19525', variable_name, attribute_value, attribute, variable_value,
                          class_name=_class_name, method_name=_method_name)
@@ -552,11 +550,24 @@ class VariableInjector(object):
     def _find_segment_in_string(self, attribute, attribute_value, location, pattern, suffix):
         variable_name = None
         variable_value = None
-        if not _already_property(attribute_value):
+        if not self._check_tokenized(attribute_value):
             variable_name = self.get_variable_name(location, attribute, suffix=suffix)
-            attribute_value, variable_value = _replace_segment(pattern, _format_variable_value(attribute_value),
+            attribute_value, variable_value = self._replace_segment(pattern, _format_variable_value(attribute_value),
                                                                self.get_variable_token(attribute, variable_name))
         return attribute_value, variable_name, variable_value
+
+    def _replace_segment(self, regexp, variable_value, attribute_value):
+        replaced_value = None
+        replacement_string = variable_value
+        pattern = _compile_pattern(regexp)
+        if pattern:
+            matcher = pattern.search(variable_value)
+            if matcher:
+                temp_value = variable_value[matcher.start():matcher.end()]
+                if not self._check_tokenized(temp_value):
+                    replacement_string = pattern.sub(attribute_value, variable_value)
+                    replaced_value = temp_value
+        return replacement_string, replaced_value
 
     def _process_patterns_list(self, attribute, attribute_value, location, injector_values):
         variable_dict = OrderedDict()
@@ -624,7 +635,7 @@ class VariableInjector(object):
         if pattern:
             replacement = self.get_variable_token(attribute_name, variable_name)
             for entry in attribute_dict:
-                if not _already_property(attribute_dict[entry]):
+                if not self._check_tokenized(attribute_dict[entry]):
                     matcher = pattern.search(entry)
                     if matcher:
                         _logger.finer('WLSDPLY-19527', attribute_name, replacement, class_name=_class_name,
@@ -847,20 +858,6 @@ def _format_variable_value(value):
         return str(value)
 
 
-def _replace_segment(regexp, variable_value, attribute_value):
-    replaced_value = None
-    replacement_string = variable_value
-    pattern = _compile_pattern(regexp)
-    if pattern:
-        matcher = pattern.search(variable_value)
-        if matcher:
-            temp_value = variable_value[matcher.start():matcher.end()]
-            if not _already_property(temp_value):
-                replacement_string = pattern.sub(attribute_value, variable_value)
-                replaced_value = temp_value
-    return replacement_string, replaced_value
-
-
 def _compile_pattern(pattern):
     try:
         return re.compile(pattern)
@@ -868,9 +865,6 @@ def _compile_pattern(pattern):
         _logger.warning('WLSDPLY-19511', pattern, e, class_name=_class_name, method_name='_compile_pattern')
     return None
 
-
-def _already_property(check_string):
-    return isinstance(check_string, basestring) and check_string.startswith('@@PROP:')
 
 def _split_injector(injector_path):
     """
