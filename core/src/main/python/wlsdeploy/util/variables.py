@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -31,6 +31,10 @@ _property_pattern = re.compile("(@@PROP:([\\w.-]+)@@)")
 _environment_pattern = re.compile("(@@ENV:([\\w.-]+)@@)")
 _secret_pattern = re.compile("(@@SECRET:([\\w.-]+):([\\w.-]+)@@)")
 _file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
+
+# these match a string containing ONLY a token
+_property_string_pattern = re.compile("^(@@PROP:([\\w.-]+)@@)$")
+_secret_string_pattern = re.compile("^(@@SECRET:([\\w.-]+):([\\w.-]+)@@)$")
 
 # if this pattern is found, token substitution was incomplete
 _unresolved_token_pattern = re.compile("(@@(PROP|FILE|ENV|SECRET):)")
@@ -502,3 +506,33 @@ def get_variable_matches(text):
     :return: a list of tuples
     """
     return _property_pattern.findall(text)
+
+
+def is_variable_string(value):
+    """
+    Return True if the value contains ONLY a variable token.
+    """
+    if not isinstance(value, basestring):
+        return False
+    return bool(_property_string_pattern.match(value))
+
+
+def get_variable_string_key(value):
+    """
+    Return the variable key if the value contains ONLY a variable token.
+    """
+    if not isinstance(value, basestring):
+        return None
+    matches = _property_string_pattern.findall(value)
+    if len(matches) > 0:
+        return matches[0][1]
+    return None
+
+
+def is_secret_string(value):
+    """
+    Return True if the value contains ONLY a secret token.
+    """
+    if not isinstance(value, basestring):
+        return False
+    return bool(_secret_string_pattern.match(value))

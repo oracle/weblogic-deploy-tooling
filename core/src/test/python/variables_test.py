@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
@@ -144,6 +144,26 @@ class VariablesTestCase(unittest.TestCase):
             pass
         else:
             self.fail('Test must raise VariableException when secret token is not found')
+
+    def test_token_string_match(self):
+        """
+        Test that methods for token string work correctly.
+        """
+        self.assertEqual(variables.is_variable_string('@@PROP:abc@@'), True, 'Should be a variable string')
+        self.assertEqual(variables.is_variable_string('aa@@PROP:abc@@bb'), False, 'Should not be a variable string')
+        self.assertEqual(variables.is_variable_string('@@ENV:abc@@'), False, 'Should not be a variable string')
+        self.assertEqual(variables.is_variable_string('value'), False, 'Should not be a variable string')
+        self.assertEqual(variables.is_variable_string(999), False, 'Should not be a variable string')
+
+        self.assertEqual(variables.is_secret_string('@@SECRET:abc:xyz@@'), True, 'Should be a variable string')
+        self.assertEqual(variables.is_secret_string('x@@SECRET:abc:xyz@@y'), False, 'Should not be a variable string')
+        self.assertEqual(variables.is_secret_string('@@SECRET:oops@@'), False, 'Should not be a variable string')
+        self.assertEqual(variables.is_secret_string('value'), False, 'Should not be a variable string')
+
+        self.assertEqual(variables.get_variable_string_key('@@PROP:abc@@'), 'abc', 'Variable string key should match')
+        self.assertEqual(variables.get_variable_string_key('x@@PROP:abc@@y'), None, 'Variable string key should be None')
+        self.assertEqual(variables.get_variable_string_key('abc'), None, 'Variable string key should be None')
+        self.assertEqual(variables.get_variable_string_key(999), None, 'Variable string key should be None')
 
     def testTokenSyntaxErrors(self):
         """
