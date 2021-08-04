@@ -155,10 +155,10 @@ class VariablesTestCase(unittest.TestCase):
         self.assertEqual(variables.is_variable_string('value'), False, 'Should not be a variable string')
         self.assertEqual(variables.is_variable_string(999), False, 'Should not be a variable string')
 
-        self.assertEqual(variables.is_secret_string('@@SECRET:abc:xyz@@'), True, 'Should be a variable string')
-        self.assertEqual(variables.is_secret_string('x@@SECRET:abc:xyz@@y'), False, 'Should not be a variable string')
-        self.assertEqual(variables.is_secret_string('@@SECRET:oops@@'), False, 'Should not be a variable string')
-        self.assertEqual(variables.is_secret_string('value'), False, 'Should not be a variable string')
+        self.assertEqual(variables.is_secret_string('@@SECRET:abc:xyz@@'), True, 'Should be a secret string')
+        self.assertEqual(variables.is_secret_string('x@@SECRET:abc:xyz@@y'), False, 'Should not be a secret string')
+        self.assertEqual(variables.is_secret_string('@@SECRET:oops@@'), False, 'Should not be a secret string')
+        self.assertEqual(variables.is_secret_string('value'), False, 'Should not be a secret string')
 
         self.assertEqual(variables.get_variable_string_key('@@PROP:abc@@'), 'abc', 'Variable string key should match')
         self.assertEqual(variables.get_variable_string_key('x@@PROP:abc@@y'), None, 'Variable string key should be None')
