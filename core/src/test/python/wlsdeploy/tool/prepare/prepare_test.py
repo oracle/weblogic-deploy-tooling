@@ -5,6 +5,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import os
 import unittest
 
+from java.util.logging import Level
+
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
@@ -33,8 +35,6 @@ class PrepareTestCase(unittest.TestCase):
     OUTPUT_DIR = os.path.join(TESTS_DIR, 'prepare')
 
     def setUp(self):
-        self._logger = PlatformLogger('wlsdeploy.prepare_model')
-
         if not os.path.isdir(self.TESTS_DIR):
             os.mkdir(self.TESTS_DIR)
 
@@ -69,8 +69,21 @@ class PrepareTestCase(unittest.TestCase):
 
         model_context = ModelContext('PrepareModelTestCase', args_map)
 
-        preparer = ModelPreparer(model_files, model_context, self._logger, output_dir)
+        # disable relevant loggers, saving original levels
+        loggers = {'wlsdeploy.prepare_model': None, 'wlsdeploy.util': None, 'wlsdeploy.tool.util': None}
+        for key in loggers:
+            logger = PlatformLogger(key)
+            loggers[key] = logger.get_level()
+            logger.set_level(Level.OFF)
+
+        prepare_logger = PlatformLogger('wlsdeploy.prepare_model')
+        preparer = ModelPreparer(model_files, model_context, prepare_logger, output_dir)
         preparer.prepare_models()
+
+        # Restore original levels to logs
+        for key in loggers:
+            logger = PlatformLogger(key)
+            logger.set_level(loggers[key])
 
         target_model_file = os.path.join(output_dir, 'model-1.yaml')
 
