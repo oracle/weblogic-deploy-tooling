@@ -207,7 +207,7 @@ class ValidationTestCase(unittest.TestCase):
           self._logger.severe('WLSDPLY-20000', self._program_name, ve.getLocalizedMessage(), error=ve,
                         class_name=self._class_name, method_name=_method_name)
 
-        # assert the validate filter made modications and was persisted
+        # assert the validate filter made modifications and was persisted
         self.assertEquals('gumby1234', model_dictionary['domainInfo']['AdminPassword'], "Expected validate filter to have changed AdminPassword to 'gumby1234'")
 
     def deleteFile(self, path):

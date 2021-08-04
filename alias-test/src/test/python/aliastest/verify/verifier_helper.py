@@ -1236,7 +1236,7 @@ def object_type(attribute_info):
     """
     Determine if the attribute is an object or reference type in WLST.
     :param attribute_info: Information gathered about the attribute
-    :return: True if the attribut is an object type in WLST
+    :return: True if the attribute is an object type in WLST
     """
     lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
     return lsa_type == alias_constants.OBJECT or \

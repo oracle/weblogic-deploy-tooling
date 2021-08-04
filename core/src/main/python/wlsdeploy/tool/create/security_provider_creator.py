@@ -192,7 +192,7 @@ class SecurityProviderCreator(Creator):
         """
         Process the model nodes at the specified location.
         Override default behavior to process security configuration and realm sub-folders before attributes.
-        Security configration attribute DefaultRealm needs to get the MBean of the referenced realm.
+        Security configuration attribute DefaultRealm needs to get the MBean of the referenced realm.
         Realm attribute CertPathBuilder needs to get the MBean of the referenced certificate registry.
         :param location: the location where the nodes should be processed
         :param model_nodes: the model dictionary of the nodes to be processed

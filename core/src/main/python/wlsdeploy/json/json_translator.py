@@ -155,7 +155,7 @@ class PythonToJson(object):
         Write the python dictionary in json syntax using the provided writer stream.
         :param dictionary: python dictionary to convert to json syntax
         :param writer: where to write the dictionary into json syntax
-        :param indent: current string indention of the json syntax. If not provided, indent is an empty string
+        :param indent: current string indentation of the json syntax. If not provided, indent is an empty string
         """
         _method_name = '_write_dictionary_to_json_file'
         _start_dict = '{'
@@ -192,7 +192,7 @@ class PythonToJson(object):
         Write the python list in json syntax using the provided writer stream.
         :param alist: python list to convert to json syntax
         :param writer: where to write the list into json syntax
-        :param indent: current string indention of the json syntax. If not provided, indent is an empty string
+        :param indent: current string indentation of the json syntax. If not provided, indent is an empty string
         """
         writer.write('[')
         end_line = ''

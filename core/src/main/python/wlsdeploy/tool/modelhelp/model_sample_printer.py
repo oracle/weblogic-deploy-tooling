@@ -95,7 +95,7 @@ class ModelSamplePrinter(object):
 
         print("")
 
-        # write the parent folders, with indention and any name folders included
+        # write the parent folders, with indentation and any name folders included
 
         indent = 0
         model_location = LocationContext()
