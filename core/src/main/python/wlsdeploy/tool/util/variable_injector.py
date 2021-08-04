@@ -105,13 +105,6 @@ class VariableInjector(object):
         else:
             self.__aliases = Aliases(model_context)
         self.__variable_dictionary = variable_dictionary
-        self.__keys_for_variable_removal = []
-
-    def get_variable_removal_keys(self):
-        return self.__keys_for_variable_removal
-
-    def add_key_for_variable_removal(self, key):
-        self.__keys_for_variable_removal.append(key)
 
     def get_variable_cache(self):
         """
