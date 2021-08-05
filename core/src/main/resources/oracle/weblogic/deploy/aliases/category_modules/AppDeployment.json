@@ -4,7 +4,26 @@
     "wlst_type": "AppDeployment${:s}",
     "child_folders_type": "multiple",
     "short_name": "App",
-    "folders": {},
+    "folders": {
+        "SubDeployment" : {
+            "wlst_type": "SubDeployment${:s}",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "CompatibilityName":   [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "CompatibilityName",       "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string"           } ],
+                "ModuleType":          [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ModuleType",              "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string"           } ],
+                "Notes":               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                   "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string"           } ],
+                "Target":              [ {"version": "[10,)",       "wlst_mode": "offline", "wlst_name": "Target",                  "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans" },
+                    {"version": "[10,)",       "wlst_mode": "online",  "wlst_name": "Targets",                 "wlst_path": "WP002", "value": {"default": "None"   }, "wlst_type": "jarray",          "get_method": "GET", "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+                "Untargeted":          [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "Untargeted",              "wlst_path": "WP001", "value": {"default": "false"  }, "wlst_type": "boolean"          } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/AppDeployment${:s}/%APPLICATIONNAME%/SubDeployment${:s}/%SUBDEPLOYMENT%",
+                "WP002": "/AppDeployment${:s}/%APPLICATIONNAME%/SubDeployment${:s}/%SUBDEPLOYMENT%/Targets"
+            }
+        }
+    },
     "attributes": {
         "AbsoluteAltDescriptorDir":          [ {"version": "[12.2.1,)",    "wlst_mode": "online",  "wlst_name": "AbsoluteAltDescriptorDir",           "wlst_path": "WP001", "value": {"default": "None" },    "wlst_type": "string",          "access": "RO", "uses_path_tokens": "true"    } ],
         "AbsoluteAltDescriptorPath":         [ {"version": "[12.2.1,)",    "wlst_mode": "online",  "wlst_name": "AbsoluteAltDescriptorPath",          "wlst_path": "WP001", "value": {"default": "None" },    "wlst_type": "string",          "access": "RO", "uses_path_tokens": "true"    } ],

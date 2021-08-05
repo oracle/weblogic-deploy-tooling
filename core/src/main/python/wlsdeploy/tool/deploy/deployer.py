@@ -438,6 +438,7 @@ class Deployer(object):
             if self.wlst_helper.path_exists(path):
                 self.wlst_helper.cd(path)
                 self.set_attributes(new_location, apps_slim, excludes=deploy_info)
+                self._add_subfolders(apps_slim, location)
 
 
     def __process_directory_entry(self, path):
