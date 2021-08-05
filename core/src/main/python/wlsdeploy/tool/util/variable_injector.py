@@ -176,7 +176,7 @@ class VariableInjector(object):
             variable_dictionary = self._add_variable_info(model, attribute, location, injector_values)
             self.add_to_cache(dictionary=variable_dictionary)
 
-    def inject_variables_keyword_file(self, append_option=None, variable_keys_to_remove=None):
+    def inject_variables_keyword_file(self, append_option=None):
         """
         Replace attribute values with variables and generate a variable dictionary.
         The variable replacement is driven from the values in the model variable helper file.
@@ -257,8 +257,7 @@ class VariableInjector(object):
                         append = True
                         if variable_file_location != new_variable_file_location:
                             shutil.copyfile(variable_file_location, new_variable_file_location)
-                        self._filter_duplicate_and_unused_properties(new_variable_file_location, variable_dictionary,
-                                                                     variable_keys_to_remove)
+                        self._filter_duplicate_and_unused_properties(new_variable_file_location, variable_dictionary)
                     variable_file_location = new_variable_file_location
 
                 variables_inserted = self._write_variables_file(variable_dictionary, variable_file_location, append)
@@ -273,24 +272,14 @@ class VariableInjector(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_inserted)
         return variables_inserted, return_model, variable_file_location
 
-
-    def _filter_duplicate_and_unused_properties(self, variable_file_location, variable_dictionary, variable_keys_to_remove):
-        _method_name = '_filter_duplicate_property'
+    def _filter_duplicate_and_unused_properties(self, variable_file_location, variable_dictionary):
+        _method_name = '_filter_duplicate_and_unused_properties'
         _logger.entering(class_name=_class_name, method_name=_method_name)
         try:
             fis = FileInputStream(variable_file_location)
             prop = Properties()
             prop.load(fis)
             fis.close()
-
-            # remove from the original properties file and then remove from the variable dictionary
-            # so that it won't be added back later
-            if variable_keys_to_remove is not None:
-                for key in variable_keys_to_remove:
-                    if variable_dictionary.has_key(key):
-                        variable_dictionary.pop(key)
-                    if prop.containsKey(key):
-                        prop.remove(key)
 
             for key in variable_dictionary:
                 if prop.get(key) is not None:

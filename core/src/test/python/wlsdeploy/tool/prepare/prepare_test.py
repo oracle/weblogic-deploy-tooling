@@ -123,6 +123,9 @@ class PrepareTestCase(BaseTestCase):
         self._no_dictionary_key(variables, 'ds.user.name')
         self._no_dictionary_key(variables, 'ds.user.password')
 
+        # this was never used in the original model
+        self._no_dictionary_key(variables, 'unused.xyz')
+
         # Check the secrets file
 
         target_secrets_file = os.path.join(output_dir, 'k8s_secrets.json')

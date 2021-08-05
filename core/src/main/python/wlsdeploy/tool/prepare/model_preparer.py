@@ -1,7 +1,11 @@
-# Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+# Copyright (c) 2021, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 import os
+from java.io import FileInputStream
+from java.io import FileOutputStream
+from java.io import IOException
+from java.util import Properties
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.validate import ValidateException
 
@@ -47,40 +51,10 @@ class ModelPreparer:
         self.current_dict = None
         self.credential_injector = CredentialInjector(_program_name, None, model_context)
 
-    def _apply_filter_and_inject_variable(self, model_dict, model_context):
-        """
-        Applying filter
-        Inject variable for tokens
-        :param model_dict: updated model
-        """
-        _method_name = '_apply_filter_and_inject_variable'
-        self._logger.entering(class_name=_class_name, method_name=_method_name)
-
-        if filter_helper.apply_filters(model_dict, "discover", model_context):
-            self._logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
-
-        # include credential properties in the injector map, unless target uses credential secrets
-        target_config = model_context.get_target_configuration()
-        if target_config.uses_credential_secrets():
-            credential_properties = {}
-        else:
-            credential_properties = self.credential_injector.get_variable_cache()
-
-        variable_injector = VariableInjector(_program_name, model_dict, model_context,
-                                             WebLogicHelper(self._logger).get_actual_weblogic_version(),
-                                             credential_properties)
-
-        # update the variable file with any new values
-        unused_variable_keys_to_remove = self.credential_injector.get_variable_keys_for_removal()
-        inserted, variable_model, variable_file_name = \
-            variable_injector.inject_variables_keyword_file(append_option=VARIABLE_FILE_UPDATE,
-                                                            variable_keys_to_remove=unused_variable_keys_to_remove)
-
-        # return variable_model - if writing the variables file failed, this will be the original model.
-        # a warning is issued in inject_variables_keyword_file() if that was the case.
-        return variable_model
-
     def __walk_model_section(self, model_section_key, model_dict, valid_section_folders):
+        """
+        Tokenize credential attributes in a model section.
+        """
         _method_name = '__walk_model_section'
 
         if model_section_key not in model_dict.keys():
@@ -114,6 +88,9 @@ class ModelPreparer:
                 self.__walk_model_folder(section_dict_value, model_location)
 
     def __walk_model_folder(self, model_node, validation_location):
+        """
+        Tokenize credential attributes in a model folder.
+        """
         _method_name = '__walk_model_folder'
 
         if self._aliases.supports_multiple_mbean_instances(validation_location):
@@ -162,6 +139,9 @@ class ModelPreparer:
             self.__walk_model_node(model_node, validation_location)
 
     def __walk_model_node(self, model_node, validation_location):
+        """
+        Tokenize credential attributes in a model node.
+        """
         _method_name = '__walk_model_node'
 
         valid_folder_keys = self._aliases.get_model_subfolder_names(validation_location)
@@ -187,6 +167,9 @@ class ModelPreparer:
                 self.__walk_attribute(model_node, key, validation_location)
 
     def __walk_attributes(self, attributes_dict, valid_attr_infos, validation_location):
+        """
+        Tokenize credential attributes in a dictionary.
+        """
         _method_name = '__walk_attributes'
 
         for attribute_name, attribute_value in attributes_dict.iteritems():
@@ -194,11 +177,109 @@ class ModelPreparer:
                 self.__walk_attribute(attributes_dict, attribute_name, validation_location)
 
     def __walk_attribute(self, model_dict, attribute_name, attribute_location):
+        """
+        Tokenize an attribute if it is a credential.
+        """
         _method_name = '__walk_attribute'
 
         self.credential_injector.check_and_tokenize(model_dict, attribute_name, attribute_location)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
+
+    def fix_property_secrets(self):
+        # Just in case the credential cache has @@PROP in the model's attribute value,
+        # we use the original variable file to resolve it,
+        # so that the generated json/script files have the resolved property value(s) instead of the @@PROP token.
+        # it's possible that the variable file is not specified, or does not exist yet.
+
+        original_variables = {}
+        variable_file = self.model_context.get_variable_file()
+        if variable_file is not None and os.path.exists(variable_file):
+            original_variables = variables.load_variables(variable_file)
+
+        credential_caches = self.credential_injector.get_variable_cache()
+        for key in credential_caches:
+            if variables.is_variable_string(credential_caches[key]):
+                credential_caches[key] = variables._substitute(credential_caches[key],
+                                                               original_variables, self.model_context)
+
+    def _apply_filter_and_inject_variable(self, model_dict, model_context):
+        """
+        Applying filter
+        Inject variable for tokens
+        :param model_dict: updated model
+        """
+        _method_name = '_apply_filter_and_inject_variable'
+        self._logger.entering(class_name=_class_name, method_name=_method_name)
+
+        if filter_helper.apply_filters(model_dict, "discover", model_context):
+            self._logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
+
+        # include credential properties in the injector map, unless target uses credential secrets
+        target_config = model_context.get_target_configuration()
+        if target_config.uses_credential_secrets():
+            credential_properties = {}
+        else:
+            credential_properties = self.credential_injector.get_variable_cache()
+
+        variable_injector = VariableInjector(_program_name, model_dict, model_context,
+                                             WebLogicHelper(self._logger).get_actual_weblogic_version(),
+                                             credential_properties)
+
+        # update the variable file with any new values
+        inserted, variable_model, variable_file_name = \
+            variable_injector.inject_variables_keyword_file(append_option=VARIABLE_FILE_UPDATE)
+
+        # return variable_model - if writing the variables file failed, this will be the original model.
+        # a warning is issued in inject_variables_keyword_file() if that was the case.
+        return variable_model
+
+    def _add_model_variables(self, model_dictionary, all_variables):
+        """
+        Add any variable values found in the model dictionary to the variables list
+        :param model_dictionary: the dictionary to be examined
+        :param all_variables: the list to be appended
+        """
+        for key in model_dictionary:
+            value = model_dictionary[key]
+            if isinstance(value, dict):
+                self._add_model_variables(value, all_variables)
+            else:
+                key = variables.get_variable_string_key(value)
+                if key:
+                    all_variables.append(key)
+
+    def _clean_property_files(self, merged_model_dictionary):
+        """
+        Remove any unused properties that are not in the merged model from each variable file.
+        :param merged_model_dictionary: a model with every property.
+        """
+        _method_name = '_clean_property_files'
+
+        all_model_variables = []
+        self._add_model_variables(merged_model_dictionary, all_model_variables)
+
+        original_files = self.model_context.get_variable_file()
+        if original_files:
+            for original_file in original_files.split(','):
+                output_file = os.path.join(self.output_dir, os.path.basename(original_file))
+                if os.path.exists(output_file):
+                    try:
+                        fis = FileInputStream(output_file)
+                        prop = Properties()
+                        prop.load(fis)
+                        fis.close()
+
+                        for key in list(prop.keySet()):
+                            if key not in all_model_variables:
+                                prop.remove(key)
+
+                        fos = FileOutputStream(output_file)
+                        prop.store(fos, None)
+                        fos.close()
+                    except IOException, e:
+                        self._logger.warning('WLSDPLY-05803', e.getLocalizedMessage(),
+                                             class_name=_class_name, method_name=_method_name)
 
     def prepare_models(self):
         """
@@ -279,26 +360,14 @@ class ModelPreparer:
             # filter variables or secrets that are no longer in the merged, filtered model
             filter_helper.apply_filters(merged_model_dictionary, "discover", self.model_context)
             self.credential_injector.filter_unused_credentials(merged_model_dictionary)
+            self._clean_property_files(merged_model_dictionary)
 
             # use a merged, substituted, filtered model to get domain name and create additional target output.
             full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._aliases,
                                                           "discover", WlstModes.OFFLINE)
 
-            # Just in case the credential cache has @@PROP in the model's attribute value,
-            # we use the original variable file to resolve it,
-            # so that the generated json/script files have the resolved property value(s) instead of the @@PROP token.
-            # it's possible that the variable file is not specified, or does not exist yet.
-
-            original_variables = {}
-            variable_file = self.model_context.get_variable_file()
-            if variable_file is not None and os.path.exists(variable_file):
-                original_variables = variables.load_variables(variable_file)
-
-            credential_caches = self.credential_injector.get_variable_cache()
-            for key in credential_caches:
-                if variables.is_variable_string(credential_caches[key]):
-                    credential_caches[key] = variables._substitute(credential_caches[key],
-                                                                   original_variables, self.model_context)
+            # correct any secret values that point to @@PROP values
+            self.fix_property_secrets()
 
             target_config = self.model_context.get_target_configuration()
             if target_config.generate_script_for_secrets():

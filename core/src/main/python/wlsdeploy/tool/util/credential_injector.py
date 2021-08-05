@@ -82,9 +82,6 @@ class CredentialInjector(VariableInjector):
                                   variable_dictionary=variable_dictionary)
         self._model_context = model_context
 
-        # a list of keys for @@PROP tokens that are replaced with @@SECRET tokens
-        self.__keys_for_variable_removal = []
-
     def check_and_tokenize(self, model_dict, attribute, location):
         """
         If the specified attribute is a security credential, add it to the injector,
@@ -174,18 +171,6 @@ class CredentialInjector(VariableInjector):
 
         return VariableInjector.get_variable_name(self, model_location, attribute, suffix=suffix)
 
-    def get_variable_keys_for_removal(self):
-        """
-        Return keys for @@PROP tokens that were replaced with @@SECRET tokens
-        """
-        return self.__keys_for_variable_removal
-
-    def add_key_for_variable_removal(self, key):
-        """
-        Add a key for a @@PROP token that was replaced with @@SECRET tokens
-        """
-        self.__keys_for_variable_removal.append(key)
-
     def get_variable_token(self, attribute, variable_name):
         """
         Override method to possibly create secret tokens instead of property token.
@@ -206,17 +191,11 @@ class CredentialInjector(VariableInjector):
     def _check_tokenized(self, attribute_value):
         """
         Override to return true if target uses credentials and the value is formatted like @@SECRET:xyz:abc@@.
-        If the existing value was @@PROP:jkl@@, add that variable to the remove list.
         :param attribute_value: the value to be checked
         """
         target_uses_credentials = self._model_context.get_target_configuration().uses_credential_secrets()
         if target_uses_credentials:
-            # if we're replacing a PROP with a SECRET, add the property key to the remove list
-            property_key = variables.get_variable_string_key(attribute_value)
-            if property_key:
-                self.add_key_for_variable_removal(property_key)
             return variables.is_secret_string(attribute_value)
-
         else:
             return VariableInjector._check_tokenized(self, attribute_value)
 
