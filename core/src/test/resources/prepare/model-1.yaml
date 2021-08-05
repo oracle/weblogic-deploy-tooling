@@ -19,7 +19,7 @@ resources:
             JdbcResource:
                 JDBCDriverParams:
                     # this should be tokenized
-                    URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=slc05til.us.oracle.com)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
+                    URL: 'jdbc:oracle:thin:@host.com:1521/pdborcl'
                     # this should become a secret, with no value in the secrets file
                     PasswordEncrypted: '@@PROP:ds.user.password@@'
                     Properties:

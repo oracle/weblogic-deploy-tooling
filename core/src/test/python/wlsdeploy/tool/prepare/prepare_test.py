@@ -23,6 +23,7 @@ from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.prepare.model_preparer import ModelPreparer
+from wlsdeploy.util import string_utils
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 
@@ -85,27 +86,81 @@ class PrepareTestCase(unittest.TestCase):
             logger = PlatformLogger(key)
             logger.set_level(loggers[key])
 
+        # Check the model file
+
         target_model_file = os.path.join(output_dir, 'model-1.yaml')
-
         translator = FileToPython(target_model_file, use_ordering=True)
-        pythonDict = translator.parse()
+        python_dict = translator.parse()
 
-        domainInfo = pythonDict[DOMAIN_INFO]
-        self.assertEquals(domainInfo[ADMIN_USERNAME], '@@SECRET:__weblogic-credentials__:username@@',
-                          'Admin user ' + domainInfo[ADMIN_USERNAME] + ' should be a secret')
-        self.assertEquals(domainInfo[ADMIN_PASSWORD], '@@SECRET:__weblogic-credentials__:password@@',
-                          'Admin password ' + domainInfo[ADMIN_PASSWORD] + ' should be a secret')
+        domain_info = self._traverse(python_dict, DOMAIN_INFO)
+        self._match(domain_info, ADMIN_USERNAME, '@@SECRET:__weblogic-credentials__:username@@')
+        self._match(domain_info, ADMIN_PASSWORD, '@@SECRET:__weblogic-credentials__:password@@')
 
-        topology = pythonDict[TOPOLOGY]
-        server = topology[SERVER]
-        self.assertEquals(server['ms1'][LISTEN_PORT], '@@PROP:ms1.port@@',
-                          'Listen port remained tokenized')
+        ms1 = self._traverse(python_dict, TOPOLOGY, SERVER, 'ms1')
+        self._match(ms1, LISTEN_PORT, '@@PROP:ms1.port@@')
 
-        resources = pythonDict[RESOURCES]
-        dsParams = resources[JDBC_SYSTEM_RESOURCE]['ds1'][JDBC_RESOURCE][JDBC_DRIVER_PARAMS]
-        self.assertEquals(dsParams[URL], '@@PROP:JDBC.ds1.URL@@', 'DS URL was tokenized')
-        self.assertEquals(dsParams[PASSWORD_ENCRYPTED], '@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-ds1:password@@',
-                          'DS password became a secret')
-        userName = dsParams[PROPERTIES]['user'][DRIVER_PARAMS_PROPERTY_VALUE]
-        self.assertEquals(userName, '@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-ds1:username@@',
-                          'DS user name was tokenized')
+        resources = self._traverse(python_dict, RESOURCES)
+        ds_params = self._traverse(resources, JDBC_SYSTEM_RESOURCE, 'ds1', JDBC_RESOURCE, JDBC_DRIVER_PARAMS)
+        self._match(ds_params, URL, '@@PROP:JDBC.ds1.URL@@')
+        self._match(ds_params, PASSWORD_ENCRYPTED, '@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-ds1:password@@')
+        user = self._traverse(ds_params, PROPERTIES, 'user')
+        self._match(user, DRIVER_PARAMS_PROPERTY_VALUE, '@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-ds1:username@@')
+
+        # Check the variables file
+
+        target_variables_file = os.path.join(output_dir, 'variables-1.properties')
+        variables = string_utils.load_properties(target_variables_file)
+        self._match_variable(variables, 'ms1.port', 7001)
+        self._match_variable(variables, 'JDBC.ds1.URL', 'jdbc:oracle:thin:@host.com:1521/pdborcl')
+
+        # these were changed to secrets, and should not appear
+        self._no_variable(variables, 'wls.user')
+        self._no_variable(variables, 'wls.pass')
+        self._no_variable(variables, 'ds.user.name')
+        self._no_variable(variables, 'ds.user.password')
+
+        # Check the secrets file
+
+        target_secrets_file = os.path.join(output_dir, 'k8s_secrets.json')
+        secrets_translator = FileToPython(target_secrets_file, use_ordering=True)
+        secrets_dict = secrets_translator.parse()
+        secrets_list = secrets_dict['secrets']
+        if not isinstance(secrets_list, list):
+            self.fail('Secrets should be a list')
+
+        # db user secret should retain original value from the variables file
+        db_secret = self._find_secret(secrets_list, 'jdbc-ds1')
+        db_keys = self._traverse(db_secret, 'keys')
+        self._match(db_keys, 'username', 'dsUser9')
+
+    def _match(self, model_dict, key, value):
+        model_value = model_dict[key]
+        self.assertEquals(model_value, value, key + ' equals ' + str(model_value) + ' should be ' + value)
+
+    def _match_variable(self, variables, key, value):
+        if key not in variables:
+            self.fail('Variables should contain ' + key)
+        file_value = variables[key]
+        if file_value != str(value):
+            self.fail('Variable ' + key + ' equals ' + str(file_value) + ', should equal ' + str(value))
+
+    def _no_variable(self, variables, key):
+        if key in variables:
+            self.fail('Variables should not contain ' + key)
+
+    def _traverse(self, model_dict, *args):
+        value = model_dict
+        for arg in args:
+            if not isinstance(value, dict):
+                self.fail('Element ' + arg + ' parent is not a dictionary in ' + ','.join(list(args)))
+            if arg not in value:
+                self.fail('Element ' + arg + ' not found in ' + ','.join(list(args)))
+            value = value[arg]
+        return value
+
+    def _find_secret(self, secrets, name):
+        for secret in secrets:
+            secret_name = self._traverse(secret, 'secretName')
+            if secret_name == name:
+                return secret
+        self.fail('No secret named ' + name)
