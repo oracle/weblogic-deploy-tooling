@@ -428,15 +428,30 @@ class ModelComparer(object):
         if location is not None:
             folder_path = location.get_model_folders()
 
+        app_lib_attributes = [
+            'AltDescriptorDir', 'AltDescriptorPath', 'AltWLSDescriptorPath', 'ApplicationIdentifier',
+            'ApplicationName',  'CacheInAppDirectory',  'CompatibilityName', 'DeploymentOrder',
+            'DeploymentPrincipalName', 'InstallDir', 'ModuleType', 'Notes',
+            'ParallelDeployModules', 'PlanDir', 'PlanStagingMode', 'SecurityDDModel',
+            'SourcePath', 'StagingMode', 'Target', 'ValidateDDSecurityData', 'VersionIdentifier'
+        ]
+
         # Application and Library should include SourcePath if they have any other elements
         if (len(folder_path) == 1) and (folder_path[0] in self.SOURCE_PATH_FOLDERS):
-            if change_folder and (SOURCE_PATH not in change_folder):
-                # if SourcePath not present, past and current folder had matching values
-                source_path = dictionary_utils.get_element(current_folder, SOURCE_PATH)
-                if source_path is not None:
-                    comment = exception_helper.get_message('WLSDPLY-05714', SOURCE_PATH)
-                    _add_comment(comment, change_folder)
-                    change_folder[SOURCE_PATH] = source_path
+            # Handling Application and Library changes but keep the original that has not been changed
+            for key in app_lib_attributes:
+                if key not in change_folder.keys():
+                    key_value = dictionary_utils.get_element(current_folder, key)
+                    if key_value is not None:
+                        change_folder[key] = key_value
+            # if change_folder and (SOURCE_PATH not in change_folder):
+            #     print 'i ma here'
+            #     # if SourcePath not present, past and current folder had matching values
+            #     source_path = dictionary_utils.get_element(current_folder, SOURCE_PATH)
+            #     if source_path is not None:
+            #         comment = exception_helper.get_message('WLSDPLY-05714', SOURCE_PATH)
+            #         _add_comment(comment, change_folder)
+            #         change_folder[SOURCE_PATH] = source_path
 
 
 def _add_comment(comment, dictionary):
