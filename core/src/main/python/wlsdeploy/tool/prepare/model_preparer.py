@@ -35,13 +35,13 @@ class ModelPreparer:
     """
     This class prepares model files for deployment to a target environment.
     """
-    def __init__(self, model_files, model_context, logger, output_dir=None):
+    def __init__(self, model_files, model_context, output_dir=None):
         self.model_files = model_files
         self.output_dir = output_dir
         self.model_context = model_context
         self._aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE,
                                 exception_type=ExceptionType.PREPARE)
-        self._logger = logger
+        self._logger = PlatformLogger('wlsdeploy.prepare_model')
         self._name_tokens_location = LocationContext()
         self._name_tokens_location.add_name_token('DOMAIN', "testdomain")
         self.current_dict = None
