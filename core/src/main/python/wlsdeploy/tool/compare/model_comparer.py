@@ -444,15 +444,6 @@ class ModelComparer(object):
                     key_value = dictionary_utils.get_element(current_folder, key)
                     if key_value is not None:
                         change_folder[key] = key_value
-            # if change_folder and (SOURCE_PATH not in change_folder):
-            #     print 'i ma here'
-            #     # if SourcePath not present, past and current folder had matching values
-            #     source_path = dictionary_utils.get_element(current_folder, SOURCE_PATH)
-            #     if source_path is not None:
-            #         comment = exception_helper.get_message('WLSDPLY-05714', SOURCE_PATH)
-            #         _add_comment(comment, change_folder)
-            #         change_folder[SOURCE_PATH] = source_path
-
 
 def _add_comment(comment, dictionary):
     """
