@@ -14,8 +14,6 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import LIBRARY
-from wlsdeploy.aliases.model_constants import SOURCE_PATH
-from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import COMMENT_MATCH
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
@@ -428,21 +426,14 @@ class ModelComparer(object):
         if location is not None:
             folder_path = location.get_model_folders()
 
-        app_lib_attributes = [
-            'AltDescriptorDir', 'AltDescriptorPath', 'AltWLSDescriptorPath', 'ApplicationIdentifier',
-            'ApplicationName',  'CacheInAppDirectory',  'CompatibilityName', 'DeploymentOrder',
-            'DeploymentPrincipalName', 'InstallDir', 'ModuleType', 'Notes',
-            'ParallelDeployModules', 'PlanDir', 'PlanStagingMode', 'SecurityDDModel',
-            'SourcePath', 'StagingMode', 'Target', 'ValidateDDSecurityData', 'VersionIdentifier'
-        ]
-
         # Application and Library should include SourcePath if they have any other elements
         if (len(folder_path) == 1) and (folder_path[0] in self.SOURCE_PATH_FOLDERS):
             # Handling Application and Library changes but keep the original that has not been changed
             if change_folder:
-                for key in app_lib_attributes:
+                orig_keys = dictionary_utils.get_dictionary_attributes(past_folder)
+                for key in orig_keys:
                     if key not in change_folder.keys():
-                        key_value = dictionary_utils.get_element(current_folder, key)
+                        key_value = dictionary_utils.get_element(past_folder, key)
                         if key_value is not None:
                             change_folder[key] = key_value
 
