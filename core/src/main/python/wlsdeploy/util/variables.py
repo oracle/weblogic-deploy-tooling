@@ -8,12 +8,10 @@ import re
 from java.lang import Boolean
 from java.io import BufferedReader
 from java.io import File
-from java.io import FileInputStream
 from java.io import FileOutputStream
 from java.io import FileReader
 from java.io import PrintWriter
 from java.io import IOException
-from java.util import Properties
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
@@ -40,7 +38,7 @@ _secret_string_pattern = re.compile("^(@@SECRET:([\\w.-]+):([\\w.-]+)@@)$")
 _unresolved_token_pattern = re.compile("(@@(PROP|FILE|ENV|SECRET):)")
 
 _secret_dirs_variable = "WDT_MODEL_SECRETS_DIRS"
-_secret_dir_pairs_variable="WDT_MODEL_SECRETS_NAME_DIR_PAIRS"
+_secret_dir_pairs_variable = "WDT_MODEL_SECRETS_NAME_DIR_PAIRS"
 
 _secret_token_map = None
 
@@ -240,12 +238,12 @@ def _substitute(text, variables, model_context, attribute_name=None):
         matches = _environment_pattern.findall(text)
         for token, key in matches:
             # log, or throw an exception if key is not found.
-            if not os.environ.has_key(key):
+            if not os.environ.has_key(str(key)):
                 if validation_method != 'lax':
                     _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
                 continue
 
-            value = os.environ.get(key)
+            value = os.environ.get(str(key))
             text = text.replace(token, value)
 
         # check secret variables before @@FILE:/dir/@@SECRET:name:key@@.txt@@
@@ -359,7 +357,7 @@ def _init_secret_token_map(model_context):
 
     # add name/key pairs for files in sub-directories of directories in WDT_MODEL_SECRETS_DIRS.
 
-    locations = os.environ.get(_secret_dirs_variable, None)
+    locations = os.environ.get(str(_secret_dirs_variable), None)
     if locations is not None:
         for dir in locations.split(","):
             if not os.path.isdir(dir):
@@ -376,7 +374,7 @@ def _init_secret_token_map(model_context):
     # add name/key pairs for files in directories assigned in WDT_MODEL_SECRETS_NAME_DIR_PAIRS.
     # these pairs will override if they were previously added as sub-directory pairs.
 
-    dir_pairs_text = os.environ.get(_secret_dir_pairs_variable, None)
+    dir_pairs_text = os.environ.get(str(_secret_dir_pairs_variable), None)
     if dir_pairs_text is not None:
         dir_pairs = dir_pairs_text.split(',')
         for dir_pair in dir_pairs:
@@ -479,10 +477,10 @@ def substitute_key(text, variables):
     matches = _environment_pattern.findall(text)
     for token, key in matches:
         # log, or throw an exception if key is not found.
-        if not os.environ.has_key(key):
+        if not os.environ.has_key(str(key)):
             continue
 
-        value = os.environ.get(key)
+        value = os.environ.get(str(key))
         text = text.replace(token, value)
 
     return text
