@@ -79,7 +79,7 @@ def main():
         _outputdir = model_context.get_output_dir()
         model_files = model_context.get_model_file()
 
-        obj = ModelPreparer(model_files, model_context, __logger, _outputdir)
+        obj = ModelPreparer(model_files, model_context, _outputdir)
         obj.prepare_models()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_OK_EXIT_CODE)
 
