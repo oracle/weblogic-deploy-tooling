@@ -439,11 +439,12 @@ class ModelComparer(object):
         # Application and Library should include SourcePath if they have any other elements
         if (len(folder_path) == 1) and (folder_path[0] in self.SOURCE_PATH_FOLDERS):
             # Handling Application and Library changes but keep the original that has not been changed
-            for key in app_lib_attributes:
-                if key not in change_folder.keys():
-                    key_value = dictionary_utils.get_element(current_folder, key)
-                    if key_value is not None:
-                        change_folder[key] = key_value
+            if change_folder:
+                for key in app_lib_attributes:
+                    if key not in change_folder.keys():
+                        key_value = dictionary_utils.get_element(current_folder, key)
+                        if key_value is not None:
+                            change_folder[key] = key_value
 
 def _add_comment(comment, dictionary):
     """
