@@ -1,0 +1,29 @@
+# Copyright (c) 2021, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+domainInfo:
+    # these should be changed to secrets,
+    # and the corresponding properties removed from the properties file.
+    AdminUserName: '@@PROP:wls.user@@'
+    AdminPassword: '@@PROP:wls.pass@@'
+topology:
+    Name: DemoDomain
+    Server:
+        AdminServer:
+        ms1:
+            # these should remain unchanged
+            ListenPort: '@@PROP:ms1.port@@'
+            Notes: '@@PROP:prefix@@-@@PROP:suffix@@'  # allowed
+resources:
+    JDBCSystemResource:
+        ds1:
+            JdbcResource:
+                JDBCDriverParams:
+                    # this should be tokenized
+                    URL: 'jdbc:oracle:thin:@host.com:1521/pdborcl'
+                    # this should become a secret, with no value in the secrets file
+                    PasswordEncrypted: '@@PROP:ds.user.password@@'
+                    Properties:
+                        user:
+                            # this should become a secret, and its value should appear in the secrets file
+                            Value: '@@PROP:ds.user.name@@'

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -23,6 +23,7 @@ from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.variable_injector import VARIABLE_VALUE
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util import target_configuration_helper
+from wlsdeploy.util import variables
 from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
 from wlsdeploy.util.target_configuration import SECRETS_METHOD
 from wlsdeploy.util.target_configuration_helper import SECRET_PASSWORD_KEY
@@ -170,9 +171,6 @@ class CredentialInjector(VariableInjector):
 
         return VariableInjector.get_variable_name(self, model_location, attribute, suffix=suffix)
 
-    def get_variable_keys_for_removal(self):
-        return VariableInjector.get_variable_removal_keys(self)
-
     def get_variable_token(self, attribute, variable_name):
         """
         Override method to possibly create secret tokens instead of property token.
@@ -189,6 +187,17 @@ class CredentialInjector(VariableInjector):
             return target_configuration_helper.format_as_overrides_secret(variable_name)
         else:
             return VariableInjector.get_variable_token(self, attribute, variable_name)
+
+    def _check_tokenized(self, attribute_value):
+        """
+        Override to return true if target uses credentials and the value is formatted like @@SECRET:xyz:abc@@.
+        :param attribute_value: the value to be checked
+        """
+        target_uses_credentials = self._model_context.get_target_configuration().uses_credential_secrets()
+        if target_uses_credentials:
+            return variables.is_secret_string(attribute_value)
+        else:
+            return VariableInjector._check_tokenized(self, attribute_value)
 
     def filter_unused_credentials(self, model_dictionary):
         """

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -8,12 +8,10 @@ import re
 from java.lang import Boolean
 from java.io import BufferedReader
 from java.io import File
-from java.io import FileInputStream
 from java.io import FileOutputStream
 from java.io import FileReader
 from java.io import PrintWriter
 from java.io import IOException
-from java.util import Properties
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
@@ -32,11 +30,15 @@ _environment_pattern = re.compile("(@@ENV:([\\w.-]+)@@)")
 _secret_pattern = re.compile("(@@SECRET:([\\w.-]+):([\\w.-]+)@@)")
 _file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
 
+# these match a string containing ONLY a token
+_property_string_pattern = re.compile("^(@@PROP:([\\w.-]+)@@)$")
+_secret_string_pattern = re.compile("^(@@SECRET:([\\w.-]+):([\\w.-]+)@@)$")
+
 # if this pattern is found, token substitution was incomplete
 _unresolved_token_pattern = re.compile("(@@(PROP|FILE|ENV|SECRET):)")
 
 _secret_dirs_variable = "WDT_MODEL_SECRETS_DIRS"
-_secret_dir_pairs_variable="WDT_MODEL_SECRETS_NAME_DIR_PAIRS"
+_secret_dir_pairs_variable = "WDT_MODEL_SECRETS_NAME_DIR_PAIRS"
 
 _secret_token_map = None
 
@@ -72,22 +74,6 @@ def load_variables(file_path, allow_multiple_files=False):
 
 def write_variables(program_name, variable_map, file_path, append=False):
     """
-    Write the dictionary of variables to the specified file.
-    :param program_name: name of tool that invoked the method which will be written to the variable properties file
-    :param variable_map: the dictionary of variables
-    :param file_path: the file to which to write the properties
-    :param append: defaults to False. Append properties to the end of file
-    :raises VariableException if an error occurs while storing the variables in the file
-    """
-    _method_name = 'write_variables'
-    _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
-    write_ordered_variables(program_name, variable_map, file_path, append)
-    _logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
-
-
-def write_ordered_variables(program_name, variable_map, file_path, append=False):
-    """
     Write variables to file while preserving order of the variables.
     :param program_name: name of the calling program
     :param variable_map: map or variable properties to write to file
@@ -95,7 +81,7 @@ def write_ordered_variables(program_name, variable_map, file_path, append=False)
     :param append: defaults to False. Append properties to the end of file
     :raises VariableException if an error occurs while storing the variables in the file
     """
-    _method_name = 'write_ordered_variables'
+    _method_name = 'write_variables'
     _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
     pw = None
     try:
@@ -112,6 +98,29 @@ def write_ordered_variables(program_name, variable_map, file_path, append=False)
         if pw is not None:
             pw.close()
         raise ex
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+    return
+
+
+def write_sorted_variables(program_name, variable_map, file_path, append=False):
+    """
+    Write the dictionary of variables to the specified file, in alphabetical order by key.
+    :param program_name: name of tool that invoked the method which will be written to the variable properties file
+    :param variable_map: the dictionary of variables
+    :param file_path: the file to which to write the properties
+    :param append: defaults to False. Append properties to the end of file
+    :raises VariableException if an error occurs while storing the variables in the file
+    """
+    _method_name = 'write_sorted_variables'
+    _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
+
+    sorted_keys = variable_map.keys()
+    sorted_keys.sort()
+    sorted_map = OrderedDict()
+    for key in sorted_keys:
+        sorted_map[key] = variable_map[key]
+
+    write_variables(program_name, sorted_map, file_path, append)
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
 
@@ -236,12 +245,12 @@ def _substitute(text, variables, model_context, attribute_name=None):
         matches = _environment_pattern.findall(text)
         for token, key in matches:
             # log, or throw an exception if key is not found.
-            if not os.environ.has_key(key):
+            if not os.environ.has_key(str(key)):
                 if validation_method != 'lax':
                     _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
                 continue
 
-            value = os.environ.get(key)
+            value = os.environ.get(str(key))
             text = text.replace(token, value)
 
         # check secret variables before @@FILE:/dir/@@SECRET:name:key@@.txt@@
@@ -355,7 +364,7 @@ def _init_secret_token_map(model_context):
 
     # add name/key pairs for files in sub-directories of directories in WDT_MODEL_SECRETS_DIRS.
 
-    locations = os.environ.get(_secret_dirs_variable, None)
+    locations = os.environ.get(str(_secret_dirs_variable), None)
     if locations is not None:
         for dir in locations.split(","):
             if not os.path.isdir(dir):
@@ -372,7 +381,7 @@ def _init_secret_token_map(model_context):
     # add name/key pairs for files in directories assigned in WDT_MODEL_SECRETS_NAME_DIR_PAIRS.
     # these pairs will override if they were previously added as sub-directory pairs.
 
-    dir_pairs_text = os.environ.get(_secret_dir_pairs_variable, None)
+    dir_pairs_text = os.environ.get(str(_secret_dir_pairs_variable), None)
     if dir_pairs_text is not None:
         dir_pairs = dir_pairs_text.split(',')
         for dir_pair in dir_pairs:
@@ -475,10 +484,10 @@ def substitute_key(text, variables):
     matches = _environment_pattern.findall(text)
     for token, key in matches:
         # log, or throw an exception if key is not found.
-        if not os.environ.has_key(key):
+        if not os.environ.has_key(str(key)):
             continue
 
-        value = os.environ.get(key)
+        value = os.environ.get(str(key))
         text = text.replace(token, value)
 
     return text
@@ -502,3 +511,33 @@ def get_variable_matches(text):
     :return: a list of tuples
     """
     return _property_pattern.findall(text)
+
+
+def is_variable_string(value):
+    """
+    Return True if the value contains ONLY a variable token.
+    """
+    if not isinstance(value, basestring):
+        return False
+    return bool(_property_string_pattern.match(value))
+
+
+def get_variable_string_key(value):
+    """
+    Return the variable key if the value contains ONLY a variable token.
+    """
+    if not isinstance(value, basestring):
+        return None
+    matches = _property_string_pattern.findall(value)
+    if len(matches) > 0:
+        return matches[0][1]
+    return None
+
+
+def is_secret_string(value):
+    """
+    Return True if the value contains ONLY a secret token.
+    """
+    if not isinstance(value, basestring):
+        return False
+    return bool(_secret_string_pattern.match(value))
