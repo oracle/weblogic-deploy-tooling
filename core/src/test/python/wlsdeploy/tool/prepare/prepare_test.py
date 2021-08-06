@@ -96,28 +96,26 @@ class PrepareTestCase(BaseTestCase):
         translator = FileToPython(target_model_file, use_ordering=True)
         python_dict = translator.parse()
 
-        domain_info = self._traverse(python_dict, DOMAIN_INFO)
-        self._match(domain_info, ADMIN_USERNAME, '@@SECRET:__weblogic-credentials__:username@@')
-        self._match(domain_info, ADMIN_PASSWORD, '@@SECRET:__weblogic-credentials__:password@@')
+        self._match('@@SECRET:__weblogic-credentials__:username@@', python_dict, DOMAIN_INFO, ADMIN_USERNAME)
+        self._match('@@SECRET:__weblogic-credentials__:password@@', python_dict, DOMAIN_INFO, ADMIN_PASSWORD)
 
-        ms1 = self._traverse(python_dict, TOPOLOGY, SERVER, 'ms1')
-        self._match(ms1, LISTEN_PORT, '@@PROP:ms1.port@@')
+        self._match('@@PROP:ms1.port@@', python_dict, TOPOLOGY, SERVER, 'ms1', LISTEN_PORT, )
 
-        resources = self._traverse(python_dict, RESOURCES)
-        ds_params = self._traverse(resources, JDBC_SYSTEM_RESOURCE, 'ds1', JDBC_RESOURCE, JDBC_DRIVER_PARAMS)
-        self._match(ds_params, URL, '@@PROP:JDBC.ds1.URL@@')
-        self._match(ds_params, PASSWORD_ENCRYPTED, '@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-ds1:password@@')
-        user = self._traverse(ds_params, PROPERTIES, 'user')
-        self._match(user, DRIVER_PARAMS_PROPERTY_VALUE, '@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-ds1:username@@')
+        jdbc_resource = self._traverse(python_dict, RESOURCES, JDBC_SYSTEM_RESOURCE, 'ds1', JDBC_RESOURCE)
+        self._match('@@PROP:JDBC.ds1.URL@@', jdbc_resource, JDBC_DRIVER_PARAMS, URL)
+        self._match('@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-ds1:password@@', jdbc_resource, JDBC_DRIVER_PARAMS,
+                    PASSWORD_ENCRYPTED)
+        self._match('@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-ds1:username@@', jdbc_resource, JDBC_DRIVER_PARAMS,
+                    PROPERTIES, 'user', DRIVER_PARAMS_PROPERTY_VALUE)
 
         # Check the variables file
 
         target_variables_file = os.path.join(output_dir, 'variables-1.properties')
         variables = string_utils.load_properties(target_variables_file)
-        self._match(variables, 'ms1.port', 7001)
-        self._match(variables, 'JDBC.ds1.URL', 'jdbc:oracle:thin:@host.com:1521/pdborcl')
-        self._match(variables, 'prefix', 'a')
-        self._match(variables, 'suffix', 'z')
+        self._match(7001, variables, 'ms1.port')
+        self._match('jdbc:oracle:thin:@host.com:1521/pdborcl', variables, 'JDBC.ds1.URL')
+        self._match('a', variables, 'prefix')
+        self._match('z', variables, 'suffix')
 
         # these were changed to secrets, and should not appear
         self._no_dictionary_key(variables, 'wls.user')
@@ -139,8 +137,7 @@ class PrepareTestCase(BaseTestCase):
 
         # db user secret should retain original value from the variables file
         db_secret = self._find_secret(secrets_list, 'jdbc-ds1')
-        db_keys = self._traverse(db_secret, 'keys')
-        self._match(db_keys, 'username', 'dsUser9')
+        self._match('dsUser9', db_secret, 'keys', 'username')
 
     def _find_secret(self, secrets, name):
         for secret in secrets:

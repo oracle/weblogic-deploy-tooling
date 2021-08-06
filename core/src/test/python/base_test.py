@@ -64,12 +64,11 @@ class BaseTestCase(unittest.TestCase):
             logger = PlatformLogger(key)
             logger.set_level(self.log_levels[key])
 
-    def _match(self, dictionary, key, value):
-        if key not in dictionary:
-            self.fail('Dictionary should contain ' + key)
-        dictionary_value = dictionary[key]
+    def _match(self, value, dictionary, *args):
+        dictionary_value = self._traverse(dictionary, *args)
         if dictionary_value != str(value):
-            self.fail('Dictionary ' + key + ' equals ' + str(dictionary_value) + ', should equal ' + str(value))
+            key = '/'.join(list(args))
+            self.fail(key + ' equals ' + str(dictionary_value) + ', should equal ' + str(value))
 
     def _no_dictionary_key(self, dictionary, key):
         if key in dictionary:
@@ -84,9 +83,9 @@ class BaseTestCase(unittest.TestCase):
         value = dictionary
         for arg in args:
             if not isinstance(value, dict):
-                self.fail('Element ' + arg + ' parent is not a dictionary in ' + ','.join(list(args)))
+                self.fail('Element ' + arg + ' parent is not a dictionary in ' + '/'.join(list(args)))
             if arg not in value:
-                self.fail('Element ' + arg + ' not found in ' + ','.join(list(args)))
+                self.fail('Element ' + arg + ' not found in ' + '/'.join(list(args)))
             value = value[arg]
         return value
 
