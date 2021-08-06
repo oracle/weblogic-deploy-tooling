@@ -109,7 +109,7 @@ class CompareModelTestCase(unittest.TestCase):
             self.assertEqual(model_dictionary['resources'].has_key('SingletonService'), True)
             self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jax-rs#2.0@2.22.4.0'), True)
             self.assertEqual(model_dictionary['appDeployments']['Library'].has_key('!jsf#1.2@1.2.9.0'), True)
-            self.assertEqual(model_dictionary['appDeployments']['Application']['myear'].has_key('ModuleType'), False)
+            self.assertEqual(model_dictionary['appDeployments']['Application']['myear'].has_key('ModuleType'), True)
 
         except (CompareException, PyWLSTException), te:
             return_code = 2

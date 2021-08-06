@@ -14,8 +14,6 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import LIBRARY
-from wlsdeploy.aliases.model_constants import SOURCE_PATH
-from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import COMMENT_MATCH
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
@@ -430,14 +428,14 @@ class ModelComparer(object):
 
         # Application and Library should include SourcePath if they have any other elements
         if (len(folder_path) == 1) and (folder_path[0] in self.SOURCE_PATH_FOLDERS):
-            if change_folder and (SOURCE_PATH not in change_folder):
-                # if SourcePath not present, past and current folder had matching values
-                source_path = dictionary_utils.get_element(current_folder, SOURCE_PATH)
-                if source_path is not None:
-                    comment = exception_helper.get_message('WLSDPLY-05714', SOURCE_PATH)
-                    _add_comment(comment, change_folder)
-                    change_folder[SOURCE_PATH] = source_path
-
+            # Handling Application and Library changes but keep the original that has not been changed
+            if change_folder:
+                orig_keys = dictionary_utils.get_dictionary_attributes(past_folder)
+                for key in orig_keys:
+                    if key not in change_folder.keys():
+                        key_value = dictionary_utils.get_element(past_folder, key)
+                        if key_value is not None:
+                            change_folder[key] = key_value
 
 def _add_comment(comment, dictionary):
     """
