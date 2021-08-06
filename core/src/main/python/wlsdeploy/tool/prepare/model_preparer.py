@@ -245,41 +245,40 @@ class ModelPreparer:
             if isinstance(value, dict):
                 self._add_model_variables(value, all_variables)
             else:
-                key = variables.get_variable_string_key(value)
-                if key:
+                matches = variables.get_variable_matches(str(value))
+                for token, key in matches:
                     all_variables.append(key)
 
-    def _clean_property_files(self, merged_model_dictionary):
+    def _clean_variable_files(self, merged_model_dictionary):
         """
-        Remove any unused properties that are not in the merged model from each variable file.
+        Remove any unused variables that are not in the merged model from the variable file.
         :param merged_model_dictionary: a model with every property.
         """
-        _method_name = '_clean_property_files'
+        _method_name = '_clean_variable_files'
 
         all_model_variables = []
         self._add_model_variables(merged_model_dictionary, all_model_variables)
 
-        original_files = self.model_context.get_variable_file()
-        if original_files:
-            for original_file in original_files.split(','):
-                output_file = os.path.join(self.output_dir, os.path.basename(original_file))
-                if os.path.exists(output_file):
-                    try:
-                        fis = FileInputStream(output_file)
-                        prop = Properties()
-                        prop.load(fis)
-                        fis.close()
+        original_file = self.model_context.get_variable_file()
+        if original_file:
+            output_file = os.path.join(self.output_dir, os.path.basename(original_file))
+            if os.path.exists(output_file):
+                try:
+                    fis = FileInputStream(output_file)
+                    prop = Properties()
+                    prop.load(fis)
+                    fis.close()
 
-                        for key in list(prop.keySet()):
-                            if key not in all_model_variables:
-                                prop.remove(key)
+                    for key in list(prop.keySet()):
+                        if key not in all_model_variables:
+                            prop.remove(key)
 
-                        fos = FileOutputStream(output_file)
-                        prop.store(fos, None)
-                        fos.close()
-                    except IOException, e:
-                        self._logger.warning('WLSDPLY-05803', e.getLocalizedMessage(),
-                                             class_name=_class_name, method_name=_method_name)
+                    fos = FileOutputStream(output_file)
+                    prop.store(fos, None)
+                    fos.close()
+                except IOException, e:
+                    self._logger.warning('WLSDPLY-05803', e.getLocalizedMessage(),
+                                         class_name=_class_name, method_name=_method_name)
 
     def prepare_models(self):
         """
@@ -360,7 +359,7 @@ class ModelPreparer:
             # filter variables or secrets that are no longer in the merged, filtered model
             filter_helper.apply_filters(merged_model_dictionary, "discover", self.model_context)
             self.credential_injector.filter_unused_credentials(merged_model_dictionary)
-            self._clean_property_files(merged_model_dictionary)
+            self._clean_variable_files(merged_model_dictionary)
 
             # use a merged, substituted, filtered model to get domain name and create additional target output.
             full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._aliases,

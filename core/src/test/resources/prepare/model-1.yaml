@@ -11,8 +11,9 @@ topology:
     Server:
         AdminServer:
         ms1:
-            # this should remain unchanged
+            # these should remain unchanged
             ListenPort: '@@PROP:ms1.port@@'
+            Notes: '@@PROP:prefix@@-@@PROP:suffix@@'  # allowed
 resources:
     JDBCSystemResource:
         ds1:

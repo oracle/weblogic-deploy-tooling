@@ -116,6 +116,8 @@ class PrepareTestCase(BaseTestCase):
         variables = string_utils.load_properties(target_variables_file)
         self._match(variables, 'ms1.port', 7001)
         self._match(variables, 'JDBC.ds1.URL', 'jdbc:oracle:thin:@host.com:1521/pdborcl')
+        self._match(variables, 'prefix', 'a')
+        self._match(variables, 'suffix', 'z')
 
         # these were changed to secrets, and should not appear
         self._no_dictionary_key(variables, 'wls.user')
