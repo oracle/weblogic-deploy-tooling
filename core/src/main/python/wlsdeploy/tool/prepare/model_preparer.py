@@ -245,8 +245,8 @@ class ModelPreparer:
                 self._add_model_variables(value, all_variables)
             else:
                 matches = variables.get_variable_matches(str(value))
-                for token, key in matches:
-                    all_variables.append(key)
+                for token, variable_key in matches:
+                    all_variables.append(variable_key)
 
     def _clean_variable_files(self, merged_model_dictionary):
         """
