@@ -192,7 +192,7 @@ class ApplicationsDeployer(Deployer):
 
             self.wlst_helper.cd(root_path)
             deployer_utils.create_and_cd(application_location, existing_applications, self.aliases)
-            self.set_attributes(application_location, application)
+            self._set_attributes_and_add_subfolders(application_location, application)
             application_location.remove_name_token(application_token)
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
         return
