@@ -666,9 +666,8 @@ class VariableInjector(object):
 
         written = False
         if variables_dictionary is not None:
-            sort_dictionary = sort_dictionary_by_keys(variables_dictionary)
             try:
-                variables.write_variables(self.__program_name, sort_dictionary, variables_file_name, append)
+                variables.write_sorted_variables(self.__program_name, variables_dictionary, variables_file_name, append)
                 written = True
             except VariableException, ve:
                 _logger.warning('WLSDPLY-19507', variables_file_name, ve.getLocalizedMessage(), class_name=_class_name,
@@ -876,15 +875,6 @@ def _split_injector(injector_path):
                 mbean_list.append(mbean_item[start:end])
     _logger.finer('WLSDPLY-19543', mbean_list, attr, class_name=_class_name, method_name=_method_name)
     return mbean_list, attr
-
-
-def sort_dictionary_by_keys(dictionary):
-    sorted_dict = OrderedDict()
-    sorted_props = dictionary.keys()
-    sorted_props.sort()
-    for prop in sorted_props:
-        sorted_dict[prop] = dictionary[prop]
-    return sorted_dict
 
 
 def __temporary_fix(injector_dictionary):

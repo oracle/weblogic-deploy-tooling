@@ -3,7 +3,6 @@
 
 import os
 from java.io import FileInputStream
-from java.io import FileOutputStream
 from java.io import IOException
 from java.util import Properties
 from oracle.weblogic.deploy.util import VariableException
@@ -265,17 +264,17 @@ class ModelPreparer:
             if os.path.exists(output_file):
                 try:
                     fis = FileInputStream(output_file)
-                    prop = Properties()
-                    prop.load(fis)
+                    properties = Properties()
+                    properties.load(fis)
                     fis.close()
 
-                    for key in list(prop.keySet()):
-                        if key not in all_model_variables:
-                            prop.remove(key)
+                    variable_dict = {}
+                    for key in list(properties.keySet()):
+                        if key in all_model_variables:
+                            variable_dict[key] = properties.get(key)
 
-                    fos = FileOutputStream(output_file)
-                    prop.store(fos, None)
-                    fos.close()
+                    # use this method instead of Properties.store() to maintain order
+                    variables.write_sorted_variables(_program_name, variable_dict, output_file)
                 except IOException, e:
                     self._logger.warning('WLSDPLY-05803', e.getLocalizedMessage(),
                                          class_name=_class_name, method_name=_method_name)

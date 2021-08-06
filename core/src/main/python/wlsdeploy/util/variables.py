@@ -74,22 +74,6 @@ def load_variables(file_path, allow_multiple_files=False):
 
 def write_variables(program_name, variable_map, file_path, append=False):
     """
-    Write the dictionary of variables to the specified file.
-    :param program_name: name of tool that invoked the method which will be written to the variable properties file
-    :param variable_map: the dictionary of variables
-    :param file_path: the file to which to write the properties
-    :param append: defaults to False. Append properties to the end of file
-    :raises VariableException if an error occurs while storing the variables in the file
-    """
-    _method_name = 'write_variables'
-    _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
-    write_ordered_variables(program_name, variable_map, file_path, append)
-    _logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
-
-
-def write_ordered_variables(program_name, variable_map, file_path, append=False):
-    """
     Write variables to file while preserving order of the variables.
     :param program_name: name of the calling program
     :param variable_map: map or variable properties to write to file
@@ -97,7 +81,7 @@ def write_ordered_variables(program_name, variable_map, file_path, append=False)
     :param append: defaults to False. Append properties to the end of file
     :raises VariableException if an error occurs while storing the variables in the file
     """
-    _method_name = 'write_ordered_variables'
+    _method_name = 'write_variables'
     _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
     pw = None
     try:
@@ -114,6 +98,29 @@ def write_ordered_variables(program_name, variable_map, file_path, append=False)
         if pw is not None:
             pw.close()
         raise ex
+    _logger.exiting(class_name=_class_name, method_name=_method_name)
+    return
+
+
+def write_sorted_variables(program_name, variable_map, file_path, append=False):
+    """
+    Write the dictionary of variables to the specified file, in alphabetical order by key.
+    :param program_name: name of tool that invoked the method which will be written to the variable properties file
+    :param variable_map: the dictionary of variables
+    :param file_path: the file to which to write the properties
+    :param append: defaults to False. Append properties to the end of file
+    :raises VariableException if an error occurs while storing the variables in the file
+    """
+    _method_name = 'write_sorted_variables'
+    _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
+
+    sorted_keys = variable_map.keys()
+    sorted_keys.sort()
+    sorted_map = OrderedDict()
+    for key in sorted_keys:
+        sorted_map[key] = variable_map[key]
+
+    write_variables(program_name, sorted_map, file_path, append)
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return
 
