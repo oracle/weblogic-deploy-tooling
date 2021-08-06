@@ -257,7 +257,7 @@ class VariableInjector(object):
                         append = True
                         if variable_file_location != new_variable_file_location:
                             shutil.copyfile(variable_file_location, new_variable_file_location)
-                        self._filter_duplicate_and_unused_properties(new_variable_file_location, variable_dictionary)
+                        self._filter_duplicate_properties(new_variable_file_location, variable_dictionary)
                     variable_file_location = new_variable_file_location
 
                 variables_inserted = self._write_variables_file(variable_dictionary, variable_file_location, append)
@@ -272,8 +272,13 @@ class VariableInjector(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_inserted)
         return variables_inserted, return_model, variable_file_location
 
-    def _filter_duplicate_and_unused_properties(self, variable_file_location, variable_dictionary):
-        _method_name = '_filter_duplicate_and_unused_properties'
+    def _filter_duplicate_properties(self, variable_file_location, variable_dictionary):
+        """
+        Remove the keys of variables that will be re-added to the file, to avoid duplicates.
+        :param variable_file_location: the file to be modified
+        :param variable_dictionary: keys to remove
+        """
+        _method_name = '_filter_duplicate_properties'
         _logger.entering(class_name=_class_name, method_name=_method_name)
         try:
             fis = FileInputStream(variable_file_location)
