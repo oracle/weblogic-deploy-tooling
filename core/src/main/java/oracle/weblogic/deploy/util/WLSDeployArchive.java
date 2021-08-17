@@ -76,6 +76,11 @@ public class WLSDeployArchive {
     public static final String ARCHIVE_CPLIB_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/classpathLibraries";
 
     /**
+     * Top-level archive subdirectory where the classpath JARs/directories are stored and the
+     * subdirectory to which they will be extracted.
+     */
+    public static final String ARCHIVE_CUSTOM_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/custom";
+    /**
      * Top-level archive subdirectory where the $DOMAIN_HOME/bin scripts are stored.
      */
     public static final String ARCHIVE_DOM_BIN_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/domainBin";
@@ -904,6 +909,40 @@ public class WLSDeployArchive {
         validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
 
         extractDirectoryFromZip(ARCHIVE_CPLIB_TARGET_DIR, domainHome);
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Get the list of user custom file names in the archive.
+     *
+     * @return the list of $DOMAIN_HOME/wlsdeploy/custom library names
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive
+     */
+    public List<String> listCustomFiles() throws WLSDeployArchiveIOException {
+        final String METHOD = "listCustomFiles";
+
+        LOGGER.entering(CLASS, METHOD);
+        List<String> result = getZipFile().listZipEntries(ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP);
+        // Remove the top-level directory entry from the list...
+        result.remove(ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP);
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
+     * Extract the user custom files in the archive to the specified domain home directory.
+     *
+     * @param domainHome the domain home directory
+     * @throws WLSDeployArchiveIOException in an error occurs reading the archive or writing the files.
+     * @throws IllegalArgumentException    if the domain home directory is not a valid, existing directory
+     */
+    public void extractCustomFiles(File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractCustomFiles";
+
+        LOGGER.entering(CLASS, METHOD, domainHome);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        extractDirectoryFromZip(ARCHIVE_CUSTOM_TARGET_DIR, domainHome);
         LOGGER.exiting(CLASS, METHOD);
     }
 

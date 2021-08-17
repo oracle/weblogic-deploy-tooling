@@ -112,6 +112,7 @@ class TopologyUpdater(Deployer):
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
+        self.library_helper.extract_custom_files()
         self.library_helper.install_domain_scripts()
 
     def update_machines_clusters_and_servers(self, delete_now=True):

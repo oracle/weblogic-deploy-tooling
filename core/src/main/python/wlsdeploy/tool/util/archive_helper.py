@@ -306,6 +306,33 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=count)
         return count
 
+    def extract_custom_archive(self):
+        """
+        Extract all of the custom files in the archive to the $DOMAIN_HOME/wlsdeploy/custom
+        directory.
+        :return: the number of files extracted
+        :raises: BundleAwareException of the appropriate type: if an error occurs
+        """
+        _method_name = 'extract_custom_archive'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        count = 0
+        for archive_file in self.__archive_files:
+            try:
+                cp_libs = archive_file.listCustomFiles()
+                if cp_libs.size() > 0:
+                    archive_file.extractCustomFiles(self.__domain_home)
+                    count += cp_libs.size()
+            except (WLSDeployArchiveIOException, IllegalArgumentException), e:
+                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19310',
+                                                       self.__archive_files_text, self.__domain_home.getAbsolutePath(),
+                                                       e.getLocalizedMessage(), error=e)
+                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=count)
+        return count
+
     def extract_domain_bin_script(self, script_path):
         """
         Extract the specified domain bin script to the $DOMAIN_HOME/bin directory.
