@@ -73,8 +73,12 @@ __optional_arguments = [
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
     CommandLineArgUtil.OPSS_WALLET_SWITCH,
     CommandLineArgUtil.OPSS_WALLET_PASSPHRASE,
+    CommandLineArgUtil.OPSS_WALLET_FILE_PASSPHRASE,
+    CommandLineArgUtil.OPSS_WALLET_ENV_PASSPHRASE,
     CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH
 ]
 

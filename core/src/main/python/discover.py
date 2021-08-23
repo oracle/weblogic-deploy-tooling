@@ -76,6 +76,8 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_URL_SWITCH,
     CommandLineArgUtil.ADMIN_USER_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
+    CommandLineArgUtil.ADMIN_PASS_FILE_SWITCH,
+    CommandLineArgUtil.ADMIN_PASS_ENV_SWITCH,
     CommandLineArgUtil.TARGET_MODE_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH

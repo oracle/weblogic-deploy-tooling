@@ -77,6 +77,8 @@ ECHO              [-skip_archive]
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
+ECHO              [-admin_pass_env ^<admin_pass_env^>]
+ECHO              [-admin_pass_file ^<admin_pass_file^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO              [-java_home ^<java_home^>]
 ECHO              [-target ^<target^>
@@ -117,6 +119,13 @@ ECHO.
 ECHO         target         - targeting platform (k8s, etc.)
 ECHO.
 ECHO         output_dir     - output directory for -target ^<target^>
+ECHO.
+ECHO.
+ECHO         admin_pass_env  - An alternative to entering the admin password at a prompt. The value is a ENVIRONMENT
+ECHO                           VARIABLE name that WDT will use to retrieve the password.
+ECHO.
+ECHO         admin_pass_file - An alternative to entering the admin password at a prompt. The value is a the name of a
+ECHO                           file that contains a password string that the tool will read to retrieve the password.
 ECHO.
 ECHO         admin_url      - the admin server URL (used for online discovery)
 ECHO.
