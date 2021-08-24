@@ -90,11 +90,11 @@ ECHO         variable_file   - the location and name of the property file contai
 ECHO                           the variable values for all variables used in
 ECHO                           the model(s).
 ECHO.
-ECHO         passphrase_env  - An alternative to entering the encryption psssword at a prompt. The value is a
-ECHO                           ENVIRONMENT VARIABLE name that WDT will use to retrieve the password.
+ECHO         passphrase_env  - An alternative to entering the encryption passphrase at a prompt. The value is a
+ECHO                           ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase.
 ECHO.
-ECHO         passphrase_file - An alternative to entering the encryption psssword at a prompt. The value is a
-ECHO                           the name of a file with a string value which WDT will read to retrieve the password.
+ECHO         passphrase_file - An alternative to entering the encryption passphrase at a prompt. The value is a
+ECHO                           the name of a file with a string value which WDT will read to retrieve the passphrase.
 ECHO.
 ECHO     The -manual switch can be used to run the tool without a model and get
 ECHO     the encrypted value for a single password.

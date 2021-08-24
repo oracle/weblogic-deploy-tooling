@@ -112,11 +112,11 @@ ECHO.
 ECHO         domain_type     - the type of domain (e.g., WLS, JRF).
 ECHO                           Used to locate wlst.cmd if -wlst_path not specified
 ECHO.
-ECHO         passphrase_env  - An alternative to entering the encryption psssword at a prompt. The value is a
-ECHO                           ENVIRONMENT VARIABLE name that WDT will use to retrieve the password.
+ECHO         passphrase_env  - An alternative to entering the encryption passphrase at a prompt. The value is a
+ECHO                           ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase.
 ECHO.
-ECHO         passphrase_file - An alternative to entering the encryption psssword at a prompt. The value is a
-ECHO                           the name of a file with a string value which WDT will read to retrieve the password.
+ECHO         passphrase_file - An alternative to entering the encryption passphrase at a prompt. The value is a
+ECHO                           the name of a file with a string value which WDT will read to retrieve the passphrase.
 ECHO.
 ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa)
