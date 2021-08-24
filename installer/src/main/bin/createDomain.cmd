@@ -122,11 +122,11 @@ ECHO         variable_file   - the location of the property file containing the 
 ECHO                           the model. This can also be specified as a comma-separated list of property files,
 ECHO                           where each successive set of properties layers on top of the previous ones.
 ECHO.
-ECHO         passphrase_env  - An alternative to entering the encryption psssword at a prompt. The value is a
-ECHO                           ENVIRONMENT VARIABLE name that WDT will use to retrieve the password.
+ECHO         passphrase_env  - An alternative to entering the encryption passphrase at a prompt. The value is a
+ECHO                           ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase.
 ECHO.
-ECHO         passphrase_file - An alternative to entering the encryption psssword at a prompt. The value is a
-ECHO                           the name of a file with a string value which WDT will read to retrieve the password.
+ECHO         passphrase_file - An alternative to entering the encryption passphrase at a prompt. The value is a
+ECHO                           the name of a file with a string value which WDT will read to retrieve the passphrase.
 ECHO.
 ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa).
