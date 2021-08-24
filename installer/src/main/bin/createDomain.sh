@@ -89,7 +89,7 @@ usage() {
   echo "                          ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase. "
   echo ""
   echo "        passphrase_file - An alternative to entering the encryption passphrase at a prompt. The value is a "
-  echo "                          the name of a file with a string value which WDT will read to retrieve the password "
+  echo "                          the name of a file with a string value which WDT will read to retrieve the passphrase "
   echo ""
   echo "        opss_wallet_passphrase_file   - An alternative to entering the opss wallet passphrase at a prompt. The value is a "
   echo "                          the name of a file with a string value which WDT will read to retrieve the passphrase "
