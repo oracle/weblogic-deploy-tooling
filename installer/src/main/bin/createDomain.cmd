@@ -81,6 +81,8 @@ ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-passphrase_env ^<passphrase_env^>]
 ECHO              [-passphrase_file ^<passphrase_file^>]
+ECHO              [-opss_wallet_passphrase_env ^<opss_wallet_passphrase_env^>]
+ECHO              [-opss_wallet_passphrase_file ^<opss_wallet_passphrase_file^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO              [-rcu_db ^<rcu_database^>
 ECHO               -rcu_prefix ^<rcu_prefix^>
@@ -126,6 +128,12 @@ ECHO         passphrase_env  - An alternative to entering the encryption passphr
 ECHO                           ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase.
 ECHO.
 ECHO         passphrase_file - An alternative to entering the encryption passphrase at a prompt. The value is a
+ECHO                           the name of a file with a string value which WDT will read to retrieve the passphrase.
+ECHO.
+ECHO         opss_wallet_passphrase_env  - An alternative to entering the opss wallet passphrase at a prompt. The value is a
+ECHO                           ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase.
+ECHO.
+ECHO         opss_wallet_passphrase_file - An alternative to entering the opss wallet passphrase at a prompt. The value is a
 ECHO                           the name of a file with a string value which WDT will read to retrieve the passphrase.
 ECHO.
 ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
