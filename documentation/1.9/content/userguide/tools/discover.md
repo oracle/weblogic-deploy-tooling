@@ -27,7 +27,7 @@ A command line example containing the variable file name:
 
     $ weblogic-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.json -variable_file DiscoverDemoDomain.properties
 
-To discover the domain using online WLST, simply include the admin user name and admin URL on the command line. The tool will prompt for a password to be entered into STDIN. To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command line option -admin_pass_env. Store the password as the only variable in a file. Provide the file name with command line option -admin_pass_file.
+To discover the domain using online WLST, simply include the admin user name and admin URL on the command line. The tool will prompt for a password to be entered into STDIN. To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command line option -admin_pass_env. Store the password value in a file. Provide the file name with command line option -admin_pass_file.
 
 An example of running in online WLST mode:
 

@@ -90,7 +90,7 @@ To run the encryption tool on the model, run the following command:
 
     $ weblogic-deploy\bin\encryptModel.cmd -oracle_home c:\wls12213 -model_file UnencryptedDemoDomain.yaml
 
-The tool will prompt for the encryption passphrase twice and then encrypt any passwords it finds in the model, skipping any password fields that have variable values, to produce a result that looks like the following model. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command line option -passphrase_env. Another option is to create a file with the single value of passphrase. Pass this filename using the command line option -passphrase_file
+The tool will prompt for the encryption passphrase twice and then encrypt any passwords it finds in the model, skipping any password fields that have variable values, to produce a result that looks like the following model. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command line option -passphrase_env. Another option is to create a file containing the passphrase value. Pass this filename using the command line option -passphrase_file
 
 ```yaml
 domainInfo:
