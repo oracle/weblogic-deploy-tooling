@@ -271,19 +271,11 @@ class SecurityProviderCreator(Creator):
     def _check_provider_type(self, type_name, model_nodes):
         """
         Determine if the specified security configuration type should be updated.
-        The adjudicator type cannot currently be updated.
         :param type_name: the model folder type
         :param model_nodes: the model dictionary of the specified model folder type
         :return: True if the provider type should be updated, False if it should be skipped
         """
         _method_name = '_check_provider_type'
-
-        # there are problems re-configuring adjudicators, don't update them
-        if type_name == self.__adjudicator_type:
-            if not self._is_default_adjudicator_configuration(model_nodes):
-                self.logger.warning('WLSDPLY-12137', class_name=self.__class_name, method_name=_method_name)
-
-            return False
 
         return True
 
