@@ -366,7 +366,7 @@ def security_provider_interface_name(mbean_instance, mbean_interface_name):
         result = getter()
         if result.endswith('ProviderMBean'):
             result = mbean_interface_name
-            _logger.warning('WLSDPLY-06779', str(mbean_instance), class_name=_class_name, method_name=_method_name)
+            _logger.fine('WLSDPLY-06779', str(mbean_instance), class_name=_class_name, method_name=_method_name)
     except (Exception, JException):
         _logger.warning('WLSDPLY-06778', mbean_interface_name, class_name=_class_name, method_name=_method_name)
         result = mbean_interface_name
