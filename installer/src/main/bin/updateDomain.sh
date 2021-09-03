@@ -76,7 +76,7 @@ usage() {
   echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)"
   echo ""
-  echo "        passphrase_env  - An alternative to entering the encryption passphrase at a prompt. The value "
+  echo "        passphrase_env  - An alternative to entering the encryption passphrase at a prompt. The value is an "
   echo "                          ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase. "
   echo ""
   echo "        passphrase_file - An alternative to entering the encryption passphrase at a prompt. The value is a "

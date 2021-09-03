@@ -950,13 +950,17 @@ class CommandLineArgUtil(object):
         return value
 
     def _get_from_file_value(self, file_var):
-        _method_name = '_get_from_file_var'
+        _method_name = '_get_from_file_value'
+        ifile = None
         try:
             stream = JFileUtils.getFileAsStream(file_var)
             ifile = BufferedReader(InputStreamReader(stream))
             value = ifile.readLine()
+            ifile.close()
             return value
         except IOException:
+            if ifile:
+                ifile.close()
             ex = exception_helper.create_cla_exception('WLSDPLY-01651', file_var)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)

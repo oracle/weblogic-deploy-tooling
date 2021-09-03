@@ -73,7 +73,7 @@ usage() {
   echo "        domain_type     - the type of domain (e.g., WLS, JRF)."
   echo "                          Used to locate wlst.cmd if -wlst_path not specified"
   echo ""
-  echo "        passphrase_env  - An alternative to entering the encryption passphrase at a prompt. The value "
+  echo "        passphrase_env  - An alternative to entering the encryption passphrase at a prompt. The value is an "
   echo "                          ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase. "
   echo ""
   echo "        passphrase_file - An alternative to entering the encryption passphrase at a prompt. The value is a "
