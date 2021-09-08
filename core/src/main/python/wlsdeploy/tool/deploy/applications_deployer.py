@@ -800,9 +800,13 @@ class ApplicationsDeployer(Deployer):
             else:
                 hash_value = self.archive_helper.get_file_hash(path)
         else:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09310', path)
-            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
+            path =  self.model_context.get_domain_home() + '/' + path
+            if os.path.isabs(path):
+                hash_value = self.__get_file_hash(path)
+            else:
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09310', path)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
         return hash_value
 
     def __get_config_targets(self):
