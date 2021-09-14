@@ -268,13 +268,11 @@ runJython() {
     variableSetup
 
     JAVA_PROPERTIES="-Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
-    JAVA_PROPERTIES+=" -Dpython.cachedir.skip=true"
-    JAVA_PROPERTIES+=" -Dpython.console="
-    JAVA_PROPERTIES+=" ${WLSDEPLOY_PROPERTIES}"
+    JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.cachedir.skip=true"
+    JAVA_PROPERTIES="${JAVA_PROPERTIES} -Dpython.console="
+    JAVA_PROPERTIES="${JAVA_PROPERTIES} ${WLSDEPLOY_PROPERTIES}"
     export JAVA_PROPERTIES
-    CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"
-    CLASSPATH+=":"
-    CLASSPATH+="$ORACLE_SERVER_DIR/server/lib/weblogic.jar"
+    CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:$ORACLE_SERVER_DIR/server/lib/weblogic.jar"
 
     # print the configuration, and run the script
 
