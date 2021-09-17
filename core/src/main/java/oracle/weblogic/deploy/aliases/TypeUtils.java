@@ -270,10 +270,8 @@ public final class TypeUtils {
 
     public static Object[] convertToObjectArray(Object value, String strValue, String delimiter)
         throws AliasException {
-        System.out.println("I am in the method" + strValue);
         Object[] result;
         if (Object[].class.isAssignableFrom(value.getClass())) {
-            System.out.println("is assignable " + strValue);
             result = Object[].class.cast(value);
         } else if (value instanceof List) {
             System.out.println("Is instance of List");
