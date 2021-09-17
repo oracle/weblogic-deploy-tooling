@@ -18,13 +18,23 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
-from wlsdeploy.tool.discover.role_name_list import ROLE_NAME_LIST
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.util import path_utils
 _class_name = 'DomainInfoDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
 
+ROLE_NAME_LIST = {
+    "AppTester": '?weblogic.entitlement.rules.OwnerIDDGroup(AppTesters)',
+    'Operator':  '?weblogic.entitlement.rules.AdministrativeGroup(Operators)',
+    'Admin':  '?weblogic.entitlement.rules.AdministrativeGroup(Administrators)',
+    'Deployer':  '?weblogic.entitlement.rules.AdministrativeGroup(Deployers)',
+    'Monitor':   '?weblogic.entitlement.rules.AdministrativeGroup(Monitors)',
+    'OracleSystemRole': 'Grp(OracleSystemGroup)',
+    'CrossDomainConnector':  '?weblogic.entitlement.rules.OwnerIDDGroup(CrossDomainConnectors)',
+    'Anonymous':  'Grp(everyone)',
+    'AdminChannelUser':  '?weblogic.entitlement.rules.OwnerIDDGroup(AdminChannelUsers)'
 
+}
 class DomainInfoDiscoverer(Discoverer):
     """
     Discover extra information about the domain. This information is not what is stored in domain
