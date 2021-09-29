@@ -36,13 +36,13 @@ WDT provides several single-purpose tools, all exposed as shell scripts (for bot
 WebLogic Deploy Tooling version and release information can be found [here](https://github.com/oracle/weblogic-deploy-tooling/releases).
 ***
 
-# Documentation
+## Documentation
 
 Documentation for WebLogic Deploy Tooling is [available here](https://oracle.github.io/weblogic-deploy-tooling/).
 
 This documentation includes information for users and for developers.
 
-# Related projects
+## Related projects
 
 * [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/)
 * [WebLogic Image Tool](https://github.com/oracle/weblogic-image-tool)
@@ -50,6 +50,22 @@ This documentation includes information for users and for developers.
 * [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
 * [WebLogic Remote Console](https://github.com/oracle/weblogic-remote-console)
 
-# Contributing
+## Contributing
 
-Those who wish to contribute to the WebLogic Deploy Tooling code will find useful information [here](CONTRIBUTING.md).
+<!-- If your project has specific contribution requirements, update the
+    CONTRIBUTING.md file to ensure those requirements are clearly explained. -->
+
+This project welcomes contributions from the community. Before submitting a pull
+request, please [review our contribution guide](./CONTRIBUTING.md).
+
+## Security
+
+Please consult the [security guide](./SECURITY.md) for our responsible security
+vulnerability disclosure process.
+
+## License
+
+Copyright (c) 2021 Oracle and/or its affiliates.
+
+Released under the Universal Permissive License v1.0 as shown at
+<https://oss.oracle.com/licenses/upl/>.
