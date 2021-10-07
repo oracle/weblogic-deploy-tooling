@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import glob
@@ -23,7 +23,18 @@ from wlsdeploy.util import path_utils
 _class_name = 'DomainInfoDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
 
+ROLE_NAME_LIST = {
+    "AppTester": '?weblogic.entitlement.rules.OwnerIDDGroup(AppTesters)',
+    'Operator':  '?weblogic.entitlement.rules.AdministrativeGroup(Operators)',
+    'Admin':  '?weblogic.entitlement.rules.AdministrativeGroup(Administrators)',
+    'Deployer':  '?weblogic.entitlement.rules.AdministrativeGroup(Deployers)',
+    'Monitor':   '?weblogic.entitlement.rules.AdministrativeGroup(Monitors)',
+    'OracleSystemRole': 'Grp(OracleSystemGroup)',
+    'CrossDomainConnector':  '?weblogic.entitlement.rules.OwnerIDDGroup(CrossDomainConnectors)',
+    'Anonymous':  'Grp(everyone)',
+    'AdminChannelUser':  '?weblogic.entitlement.rules.OwnerIDDGroup(AdminChannelUsers)'
 
+}
 class DomainInfoDiscoverer(Discoverer):
     """
     Discover extra information about the domain. This information is not what is stored in domain
@@ -47,6 +58,8 @@ class DomainInfoDiscoverer(Discoverer):
         model_top_folder_name, result = self.get_domain_libs()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, result)
         model_top_folder_name, result = self.get_user_env_scripts()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, result)
+        model_top_folder_name, result = self.get_roles()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, result)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
@@ -124,3 +137,35 @@ class DomainInfoDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=entries)
         return model_constants.DOMAIN_SCRIPTS, entries
+
+    def get_roles(self):
+        _method_name = 'get_roles'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model = dict()
+        model_folder = model_constants.WLS_ROLES
+        if self._wlst_mode == WlstModes.ONLINE:
+            props=[]
+
+            cmo = self._wlst_helper.get_cmo()
+            realms = cmo.getSecurityConfiguration().getRealms()
+            for r in realms:
+                rms=r.getRoleMappers()
+                for rm in rms:
+                    if rm.getName() == 'XACMLRoleMapper':
+                        c=rm.listAllRoles(500)
+
+                        while rm.haveCurrent(c):
+                            props.append(rm.getCurrentProperties(c))
+                            rm.advance(c)
+                        rm.close(c)
+
+            for entry in props:
+                if 'RoleName' in entry and entry['RoleName'] != '**':
+                    role_name = entry['RoleName']
+                    role_expression = entry['Expression']
+                    if role_name not in ROLE_NAME_LIST or ROLE_NAME_LIST[role_name] != role_expression:
+                        # put it in the model
+                        model[role_name] = dict()
+                        model[role_name][model_constants.EXPRESSION] =  role_expression
+            return model_folder, model
+

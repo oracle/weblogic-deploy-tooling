@@ -270,13 +270,10 @@ public final class TypeUtils {
 
     public static Object[] convertToObjectArray(Object value, String strValue, String delimiter)
         throws AliasException {
-        System.out.println("I am in the method" + strValue);
         Object[] result;
         if (Object[].class.isAssignableFrom(value.getClass())) {
-            System.out.println("is assignable " + strValue);
             result = Object[].class.cast(value);
         } else if (value instanceof List) {
-            System.out.println("Is instance of List");
             List list = (List) value;
             if (!list.isEmpty()) {
                 //thanks to Java Generics type erasure in List, need to get element type from list element
@@ -289,7 +286,6 @@ public final class TypeUtils {
                 result = null;
             }
         } else {
-            System.out.println("Not anything but a string " + strValue);
             result = convertStringToList(strValue, delimiter).toArray(new String[0]);
         }
         LOGGER.fine("before convert {0} and after convert {1}", value, result);
