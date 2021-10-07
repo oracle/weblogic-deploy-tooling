@@ -6,7 +6,11 @@ Module that handles command-line argument parsing and common validation.
 """
 import os
 import java.io.File as JFile
+import java.io.BufferedReader as BufferedReader
+import java.io.InputStreamReader as InputStreamReader
+import java.io.IOException as IOException
 import java.lang.IllegalArgumentException as JIllegalArgumentException
+import java.lang.System as System
 import java.net.URI as JURI
 import java.net.URISyntaxException as JURISyntaxException
 
@@ -45,12 +49,16 @@ class CommandLineArgUtil(object):
     ADMIN_USER_SWITCH          = '-admin_user'
     # phony arg used as a key to store the password
     ADMIN_PASS_SWITCH          = '-admin_pass'
+    ADMIN_PASS_FILE_SWITCH     = '-admin_pass_file'
+    ADMIN_PASS_ENV_SWITCH      = '-admin_pass_env'
     ARCHIVE_FILE_SWITCH        = '-archive_file'
     SKIP_ARCHIVE_FILE_SWITCH    = '-skip_archive'
     MODEL_FILE_SWITCH          = '-model_file'
     DISCARD_CURRENT_EDIT_SWITCH   = '-discard_current_edit'
     OPSS_WALLET_SWITCH         = '-opss_wallet'
     OPSS_WALLET_PASSPHRASE     = '-opss_wallet_passphrase'
+    OPSS_WALLET_FILE_PASSPHRASE = '-opss_wallet_passphrase_file'
+    OPSS_WALLET_ENV_PASSPHRASE  = '-opss_wallet_passphrase_env'
     PREVIOUS_MODEL_FILE_SWITCH = '-prev_model_file'
     VARIABLE_FILE_SWITCH       = '-variable_file'
     RCU_DB_SWITCH              = '-rcu_db'
@@ -62,6 +70,8 @@ class CommandLineArgUtil(object):
     RCU_SCHEMA_PASS_SWITCH     = '-rcu_schema_pass'
     # phony arg used as a key to store the encryption passphrase
     PASSPHRASE_SWITCH          = '-passphrase'
+    PASSPHRASE_ENV_SWITCH      = '-passphrase_env'
+    PASSPHRASE_FILE_SWITCH     = '-passphrase_file'
     ENCRYPT_MANUAL_SWITCH      = '-manual'
     # phony arg used as a key to store the password
     ONE_PASS_SWITCH            = '-password'
@@ -230,10 +240,26 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_admin_pass_arg(value)
                 self._add_arg(key, value)
+            elif self.is_admin_pass_env_key(key):
+                env_var, idx = self._get_arg_value(args, idx)
+                value = self._get_env_var_value(env_var)
+                self._add_arg(self.get_admin_pass_key(), value)
+            elif self.is_admin_pass_file_key(key):
+                file_var, idx = self._get_arg_value(args, idx)
+                value = self._get_from_file_value(file_var)
+                self._add_arg(self.get_admin_pass_key(), value)
             elif self.is_archive_file_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 full_path = self._validate_archive_file_arg(value)
                 self._add_arg(key, full_path, True)
+            elif self.is_opss_passphrase_env(key):
+                env_var, idx = self._get_arg_value(args, idx)
+                value = self._get_env_var_value(env_var)
+                self._add_arg(self.get_opss_passphrase_key(), value)
+            elif self.is_opss_passphrase_file(key):
+                file_var, idx = self._get_arg_value(args, idx)
+                value = self._get_from_file_value(file_var)
+                self._add_arg(self.get_opss_passphrase_key(), value)
             elif self.is_opss_passphrase_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_opss_passphrase_arg(value)
@@ -281,6 +307,14 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_passphrase_arg(value)
                 self._add_arg(key, value)
+            elif self.is_passphrase_env_switch(key):
+                env_var, idx = self._get_arg_value(args, idx)
+                value = self._get_env_var_value(env_var)
+                self._add_arg(self.get_passphrase_switch(), value)
+            elif self.is_passphrase_file_switch(key):
+                file_var, idx = self._get_arg_value(args, idx)
+                value = self._get_from_file_value(file_var)
+                self._add_arg(self.get_passphrase_switch(), value)
             elif self.is_one_pass_switch(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_one_pass_arg(value)
@@ -663,6 +697,12 @@ class CommandLineArgUtil(object):
     def is_admin_pass_key(self, key):
         return self.ADMIN_PASS_SWITCH == key
 
+    def is_admin_pass_env_key(self, key):
+        return self.ADMIN_PASS_ENV_SWITCH == key
+
+    def is_admin_pass_file_key(self, key):
+        return self.ADMIN_PASS_FILE_SWITCH == key
+
     def _validate_admin_pass_arg(self, value):
         method_name = '_validate_admin_pass_arg'
 
@@ -709,6 +749,14 @@ class CommandLineArgUtil(object):
 
         return self.OPSS_WALLET_PASSPHRASE == key
 
+    def is_opss_passphrase_env(self, key):
+
+        return self.OPSS_WALLET_ENV_PASSPHRASE == key
+
+    def is_opss_passphrase_file(self, key):
+
+        return self.OPSS_WALLET_FILE_PASSPHRASE == key
+
     def _validate_opss_passphrase_arg(self, value):
         method_name = '_validate_opss_passphrase_arg'
         if value is None or len(value) == 0:
@@ -720,6 +768,12 @@ class CommandLineArgUtil(object):
 
     def get_opss_wallet_key(self):
         return self.OPSS_WALLET_SWITCH
+
+    def get_opss_wallet_env(self):
+        return self.OPSS_WALLET_ENV_SWITCH
+
+    def get_opss_wallet_file(self):
+        return self.OPSS_WALLET__SWITCH
 
     def is_opss_wallet_key(self, key):
         return self.OPSS_WALLET_SWITCH == key
@@ -885,11 +939,44 @@ class CommandLineArgUtil(object):
             raise ex
         return
 
+    def _get_env_var_value(self, env_var):
+        _method_name = '_get_env_var_value'
+        value = System.getenv(env_var)
+        if not value:
+            ex = exception_helper.create_cla_exception('WLSDPLY-01649', env_var)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+        return value
+
+    def _get_from_file_value(self, file_var):
+        _method_name = '_get_from_file_value'
+        ifile = None
+        try:
+            stream = JFileUtils.getFileAsStream(file_var)
+            ifile = BufferedReader(InputStreamReader(stream))
+            value = ifile.readLine()
+            ifile.close()
+            return value
+        except IOException:
+            if ifile:
+                ifile.close()
+            ex = exception_helper.create_cla_exception('WLSDPLY-01651', file_var)
+            ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
     def get_passphrase_switch(self):
         return self.PASSPHRASE_SWITCH
 
     def is_passphrase_switch(self, key):
         return self.PASSPHRASE_SWITCH == key
+
+    def is_passphrase_env_switch(self, key):
+        return self.PASSPHRASE_ENV_SWITCH == key
+
+    def is_passphrase_file_switch(self, key):
+        return self.PASSPHRASE_FILE_SWITCH == key
 
     def _validate_passphrase_arg(self, value):
         method_name = '_validate_passphrase_switch'

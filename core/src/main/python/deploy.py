@@ -55,8 +55,12 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_URL_SWITCH,
     CommandLineArgUtil.ADMIN_USER_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
+    CommandLineArgUtil.ADMIN_PASS_FILE_SWITCH,
+    CommandLineArgUtil.ADMIN_PASS_ENV_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH,
     CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH

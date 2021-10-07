@@ -45,6 +45,8 @@ __optional_arguments = [
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
 ]
 
 
