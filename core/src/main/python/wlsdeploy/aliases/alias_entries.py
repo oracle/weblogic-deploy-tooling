@@ -790,7 +790,6 @@ class AliasEntries(object):
                 result = ValidationCodes.VALID
         else:
             folder_dict = self.__get_dictionary_for_location(location, False)
-
             if folder_dict is None:
                 ex = exception_helper.create_alias_exception('WLSDPLY-08113', model_folder_name,
                                                              location.get_folder_path())

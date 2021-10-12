@@ -440,6 +440,46 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(message, expected)
         return
 
+    def testIsPSUMatch(self):
+        wls_version = '12.2.1.3.33344'
+        arg_map = {
+            CommandLineArgUtil.ORACLE_HOME_SWITCH: '/oracleHome',
+            CommandLineArgUtil.DOMAIN_HOME_SWITCH: '',
+            CommandLineArgUtil.TARGET_VERSION_SWITCH: '12.2.1.3.33344'
+        }
+
+        this_model_context = ModelContext("test", arg_map)
+
+        online_aliases = Aliases(this_model_context, WlstModes.ONLINE, wls_version)
+        location = LocationContext()
+        location.append_location('SecurityConfiguration')
+        location.add_name_token(online_aliases.get_name_token(location), 'domain')
+        location.add_name_token('domain', 'system_test')
+        model_attribute_name = 'RemoteAnonymousRmiiiopEnabled'
+        value, message = online_aliases.is_valid_model_attribute_name(location, model_attribute_name)
+
+        self.assertEqual(value, 2)
+
+        wls_version = '12.2.1.5'
+        arg_map = {
+            CommandLineArgUtil.ORACLE_HOME_SWITCH: '/oracleHome',
+            CommandLineArgUtil.DOMAIN_HOME_SWITCH: '',
+            CommandLineArgUtil.TARGET_VERSION_SWITCH: '12.2.1.5'
+        }
+
+        this_model_context = ModelContext("test", arg_map)
+
+        online_aliases = Aliases(this_model_context, WlstModes.ONLINE, wls_version)
+        location = LocationContext()
+        location.append_location('SecurityConfiguration')
+        location.add_name_token(online_aliases.get_name_token(location), 'domain')
+        location.add_name_token('domain', 'system_test')
+        model_attribute_name = 'RemoteAnonymousRmiiiopEnabled'
+        value, message = online_aliases.is_valid_model_attribute_name(location, model_attribute_name)
+
+        self.assertEqual(value, 1)
+        return
+
     def testPropertyTypes(self):
         expected = Properties()
         expected.put('key1', 'val1')
