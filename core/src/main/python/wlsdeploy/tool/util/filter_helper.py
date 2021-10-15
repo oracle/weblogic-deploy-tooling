@@ -140,6 +140,7 @@ def _apply_path_filter(model, script_path):
         return True
 
     except Exception, ex:
-        __logger.severe('WLSDPLY-20022', str(script_path), error=ex, class_name=__class_name, method_name=_method_name)
+        __logger.severe('WLSDPLY-20022', str(script_path), ex, error=ex, class_name=__class_name,
+                        method_name=_method_name)
 
     return False
