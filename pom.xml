@@ -40,9 +40,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+
+        <java.version.range>11</java.version.range>
+        <maven.version.range>[3.5.2,)</maven.version.range>
+
         <weblogic-deploy-installer-name>weblogic-deploy</weblogic-deploy-installer-name>
         <skipTests>false</skipTests>
-        <antlr.version>4.7.2</antlr.version>
+        <antlr.version>4.9.2</antlr.version>
 
         <sonar.sources>src/main</sonar.sources>
         <sonar.java.source>7</sonar.java.source>
@@ -50,6 +54,17 @@
         <sonar.test.exclusions>src/test/**</sonar.test.exclusions>
         <unit-test-wlst-dir>${env.WLST_DIR}</unit-test-wlst-dir>
         <skip-system-test-execution>false</skip-system-test-execution>
+
+        <maven-enforcer-plugin-version>3.0.0-M3</maven-enforcer-plugin-version>
+        <maven-clean-plugin-version>3.1.0</maven-clean-plugin-version>
+        <maven-compiler-plugin-version>3.8.1</maven-compiler-plugin-version>
+        <maven-deploy-plugin-version>3.0.0-M1</maven-deploy-plugin-version>
+        <maven-install-plugin-version>3.0.0-M1</maven-install-plugin-version>
+        <maven-jar-plugin-version>3.2.0</maven-jar-plugin-version>
+        <maven-resources-plugin-version>3.2.0</maven-resources-plugin-version>
+        <maven-site-plugin-version>3.9.1</maven-site-plugin-version>
+        <maven-assembly-plugin-version>3.3.0</maven-assembly-plugin-version>
+        <maven-surefire-plugin-version>3.0.0-M5</maven-surefire-plugin-version>
     </properties>
 
     <dependencyManagement>
@@ -88,17 +103,62 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>${maven-assembly-plugin-version}</version>
                 </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.0.0-M1</version>
+                    <version>${maven-enforcer-plugin-version}</version>
+                    <executions>
+                        <execution>
+                            <id>enforce-maven</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireMavenVersion>
+                                        <version>${maven.version.range}</version>
+                                    </requireMavenVersion>
+                                    <requireJavaVersion>
+                                        <version>${java.version.range}</version>
+                                    </requireJavaVersion>
+                                    <requirePluginVersions></requirePluginVersions>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${maven-clean-plugin-version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${maven-install-plugin-version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${maven-site-plugin-version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${maven-deploy-plugin-version}</version>
+                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.0.2</version>
+                    <version>${maven-jar-plugin-version}</version>
                     <configuration>
                         <archive>
                             <manifestEntries>
@@ -121,7 +181,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.2</version>
+                    <version>${maven-surefire-plugin-version}</version>
                     <configuration>
                         <!-- Created by jacoco plugin (inherited configuration) -->
                         <argLine>${surefireArgLine}</argLine>
@@ -130,7 +190,7 @@
                 <plugin>
                     <groupId>io.rhpatrick.mojo</groupId>
                     <artifactId>wlst-test-maven-plugin</artifactId>
-                    <version>1.0.4</version>
+                    <version>1.0.5</version>
                 </plugin>
                 <plugin>
                     <groupId>org.antlr</groupId>
@@ -140,12 +200,12 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
-                    <version>1.0.1</version>
+                    <version>1.2.7</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
@@ -178,7 +238,7 @@
                 <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.4.0.905</version>
+                    <version>3.9.0.2155</version>
                 </plugin>
                 <plugin>
                     <groupId>ru.concerteza.buildnumber</groupId>
@@ -200,12 +260,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.6</version>
+                    <version>${maven-resources-plugin-version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.7.0</version>
+                    <version>${maven-compiler-plugin-version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
