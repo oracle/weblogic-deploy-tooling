@@ -41,7 +41,7 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
 
-        <java.version.range>11</java.version.range>
+        <java.version.range>1.8</java.version.range>
         <maven.version.range>[3.5.2,)</maven.version.range>
 
         <weblogic-deploy-installer-name>weblogic-deploy</weblogic-deploy-installer-name>
