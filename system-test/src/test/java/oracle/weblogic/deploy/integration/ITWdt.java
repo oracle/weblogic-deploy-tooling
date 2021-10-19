@@ -512,9 +512,6 @@ public class ITWdt extends BaseTest {
 
         logger.info("executing command: " + cmd);
         ExecResult result = ExecCommand.exec(cmd);
-        logger.info("DEBUG: result rc=" + result.exitValue());
-        logger.info("DEBUG: result stdout" + result.stdout());
-        logger.info("DEBUG: result stderr" + result.stderr());
 
         verifyResult(result, "discoverDomain.sh completed successfully");
 
