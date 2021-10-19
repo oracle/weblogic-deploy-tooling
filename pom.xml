@@ -65,6 +65,7 @@
         <maven-site-plugin-version>3.9.1</maven-site-plugin-version>
         <maven-assembly-plugin-version>3.3.0</maven-assembly-plugin-version>
         <maven-surefire-plugin-version>3.0.0-M5</maven-surefire-plugin-version>
+        <maven-failsafe-plugin-version>3.0.0-M5</maven-failsafe-plugin-version>
     </properties>
 
     <dependencyManagement>
@@ -186,6 +187,11 @@
                         <!-- Created by jacoco plugin (inherited configuration) -->
                         <argLine>${surefireArgLine}</argLine>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven-failsafe-plugin-version}</version>
                 </plugin>
                 <plugin>
                     <groupId>io.rhpatrick.mojo</groupId>
