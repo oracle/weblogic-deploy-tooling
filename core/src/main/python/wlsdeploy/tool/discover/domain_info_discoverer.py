@@ -167,7 +167,5 @@ class DomainInfoDiscoverer(Discoverer):
                         # put it in the model
                         model[role_name] = dict()
                         model[role_name][model_constants.EXPRESSION] =  role_expression
-            return model_folder, model
-        else:
-            return model_folder, model
+        return model_folder, model
 
