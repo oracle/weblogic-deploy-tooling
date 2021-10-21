@@ -539,7 +539,6 @@ class ApplicationsDeployer(Deployer):
                             update_library_list.append(lib_name)
                         else:
                             model_libs.pop(lib)
-                            #top_and_undeploy_app_list.append(lib_name)
                     continue
 
                 # determine the versioned name of the library from the library's MANIFEST
