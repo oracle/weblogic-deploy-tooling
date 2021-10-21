@@ -250,6 +250,10 @@ class ApplicationsDeployer(Deployer):
         deployed_app_list = []
         redeploy_app_list = []
 
+        # Make sure there are no duplicates  (e.g. user has both !x and x  in the model)
+        stop_app_list = list(dict.fromkeys(stop_app_list))
+        stop_and_undeploy_app_list = list(dict.fromkeys(stop_and_undeploy_app_list))
+
         # shared library updated, app referenced must be stopped, redeployed, and started so stop the app first
         for app in stop_app_list:
             self.__stop_app(app)
@@ -532,10 +536,10 @@ class ApplicationsDeployer(Deployer):
                         if lib_name in existing_libs:
                             model_libs.pop(lib)
                             _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib_name)
-                            stop_and_undeploy_app_list.append(lib_name)
+                            update_library_list.append(lib_name)
                         else:
                             model_libs.pop(lib)
-                            stop_and_undeploy_app_list.append(lib_name)
+                            #top_and_undeploy_app_list.append(lib_name)
                     continue
 
                 # determine the versioned name of the library from the library's MANIFEST
@@ -832,7 +836,7 @@ class ApplicationsDeployer(Deployer):
         return
 
     def __remove_app_from_deployment(self, model_dict, app_name):
-        self.logger.info('WLSDPLY-09311', app_name,
+        self.logger.info('WLSDPLY-09337', app_name,
                          class_name=self._class_name, method_name='remove_app_from_deployment')
         model_dict.pop(app_name)
         return
