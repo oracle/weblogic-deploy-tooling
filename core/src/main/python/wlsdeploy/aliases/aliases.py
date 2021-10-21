@@ -73,13 +73,7 @@ class Aliases(object):
         self._exception_type = exception_type
         self._logger = PlatformLogger('wlsdeploy.aliases')
 
-        if wls_version is None:
-            from wlsdeploy.util.weblogic_helper import WebLogicHelper
-            self._wls_helper = WebLogicHelper(self._logger)
-            self._wls_version = self._wls_helper.wl_version_actual
-        else:
-            self._wls_version = wls_version
-
+        self._wls_version = self._model_context.get_target_wls_version()
         self._alias_entries = AliasEntries(wlst_mode, self._wls_version)
         return
 
