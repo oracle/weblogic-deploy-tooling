@@ -33,8 +33,6 @@ When running the tool in WLST online mode, the update operation may require serv
 ### Using an encrypted model
 
 If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the `-use_encryption` flag on the command line to tell the Update Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input.You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command line option -passphrase_env. Another option is to create a file containing the passphrase value. Pass this filename with the command line option -passphrase_file
-+
-0 
 
 ### Using multiple models
 
