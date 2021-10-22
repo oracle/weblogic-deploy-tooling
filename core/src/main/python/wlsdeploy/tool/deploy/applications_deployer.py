@@ -228,7 +228,7 @@ class ApplicationsDeployer(Deployer):
         # stop the app if the referenced shared library is newer or if the source path changes
         stop_app_list = list()
 
-        # applications and libraries (?) to be stopped and undeployed
+        # applications to be stopped and undeployed
         stop_and_undeploy_app_list = list()
 
         # libraries to be undeployed
@@ -238,7 +238,8 @@ class ApplicationsDeployer(Deployer):
         # Go through the model libraries and find existing libraries that are referenced
         # by applications and compute a processing strategy for each library.
         self.__build_library_deploy_strategy(lib_location, model_shared_libraries, existing_lib_refs,
-                                             stop_app_list, update_library_list, stop_and_undeploy_app_list)
+                                             stop_app_list, update_library_list)
+
 
         # Go through the model applications and compute the processing strategy for each application.
         app_location = LocationContext(base_location).append_location(APPLICATION)
@@ -250,17 +251,21 @@ class ApplicationsDeployer(Deployer):
         deployed_app_list = []
         redeploy_app_list = []
 
-        # Make sure there are no duplicates  (e.g. user has both !x and x  in the model)
-        stop_app_list = list(dict.fromkeys(stop_app_list))
-        stop_and_undeploy_app_list = list(dict.fromkeys(stop_and_undeploy_app_list))
-
-        # shared library updated, app referenced must be stopped, redeployed, and started so stop the app first
-        for app in stop_app_list:
-            self.__stop_app(app)
-            # add the referenced app to the redeploy list
-            redeploy_app_list.append(app)
-            # add the referenced app to the start list
-            deployed_app_list.append(app)
+        #  This is too complicated to handle
+        #
+        # shared library updated, app referenced must be stopped, fully undeploy, deploy, and started
+        #
+        #   1.  It needs to be fully undeploy shared library referenced apps
+        #   2.  But if the user only provides a sparse model for library update,  the sparse model will not have the
+        #   original app and it will not be deploy again
+        #   3.  There maybe transitive references by shared library and it will be difficult to handle processing order
+        #   4.  Console doesn't handle this, so we shouldn't be outsmart the console.
+        #
+        # for app in stop_app_list:
+        #     self.__stop_app(app)
+        #     redeploy_app_list.append(app)
+        #     # add the referenced app to the start list
+        #     deployed_app_list.append(app)
 
         # app is updated, it must be stopped and undeployed first
         for app in stop_and_undeploy_app_list:
@@ -273,9 +278,6 @@ class ApplicationsDeployer(Deployer):
 
         self.__deploy_model_libraries(model_shared_libraries, lib_location)
         self.__deploy_model_applications(model_applications, app_location, deployed_app_list)
-
-        for app in redeploy_app_list:
-            self.__redeploy_app(app)
 
         self.__start_all_apps(deployed_app_list, base_location)
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
@@ -508,7 +510,7 @@ class ApplicationsDeployer(Deployer):
         return existing_libraries
 
     def __build_library_deploy_strategy(self, location, model_libs, existing_lib_refs, stop_app_list,
-                                        update_library_list, stop_and_undeploy_app_list):
+                                        update_library_list):
         """
         Update maps and lists to control re-deployment processing.
         :param location: the location of the libraries
@@ -516,7 +518,6 @@ class ApplicationsDeployer(Deployer):
         :param existing_lib_refs: map of information about each existing library
         :param stop_app_list: a list to update with dependent apps to be stopped and undeployed
         :param update_library_list: a list to update with libraries to be stopped before deploying
-        :param stop_and_undeploy_app_list: a list to update with libraries to be stopped and undeployed
         """
         _method_name = '__build_library_deploy_strategy'
 
@@ -535,7 +536,7 @@ class ApplicationsDeployer(Deployer):
                         lib_name = model_helper.get_delete_item_name(lib)
                         if lib_name in existing_libs:
                             model_libs.pop(lib)
-                            _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib_name)
+                            #_add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib_name)
                             update_library_list.append(lib_name)
                         else:
                             model_libs.pop(lib)
@@ -594,8 +595,9 @@ class ApplicationsDeployer(Deployer):
                         if lib_dict['SourcePath'] is None and existing_src_path is not None:
                             lib_dict['SourcePath'] = existing_src_path
 
-                        _add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, versioned_name)
-                        update_library_list.append(versioned_name)
+                        #_add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, versioned_name)
+                        if versioned_name not in update_library_list:
+                            update_library_list.append(versioned_name)
                     else:
                         # If the hashes match, assume that the library did not change so there is no need
                         # to redeploy them ot the referencing applications unless the targets are different.
@@ -611,6 +613,7 @@ class ApplicationsDeployer(Deployer):
                             if lib_dict['SourcePath'] is None and existing_src_path is not None:
                                 lib_dict['SourcePath'] = existing_src_path
         return
+
 
     def __build_app_deploy_strategy(self, location, model_apps, existing_app_refs, stop_and_undeploy_app_list):
         """
@@ -698,13 +701,16 @@ class ApplicationsDeployer(Deployer):
                             else:
                                 self.logger.info('WLSDPLY-09336', src_path,
                                                  class_name=self._class_name, method_name=_method_name)
-                                stop_and_undeploy_app_list.append(versioned_name)
+                                if versioned_name not in stop_and_undeploy_app_list:
+                                    stop_and_undeploy_app_list.append(versioned_name)
                         else:
                             # updated deployment plan
-                            stop_and_undeploy_app_list.append(versioned_name)
+                            if versioned_name not in stop_and_undeploy_app_list:
+                                stop_and_undeploy_app_list.append(versioned_name)
                     else:
                         # updated app
-                        stop_and_undeploy_app_list.append(versioned_name)
+                        if versioned_name not in stop_and_undeploy_app_list:
+                            stop_and_undeploy_app_list.append(versioned_name)
         return
 
     def __remove_delete_targets(self, model_dict, existing_ref):
@@ -1201,17 +1207,18 @@ def _find_deployorder_list(apps_dict, ordered_list, order):
             result.append(app_name)
     return result
 
-def _add_ref_apps_to_stoplist(stop_applist, lib_refs, lib_name):
+def _add_ref_apps_to_stoplist(stop_and_undeploy_applist, lib_refs, lib_name):
     """
     Add the referencing apps for the specified shared library to the stop list.
-    :param stop_applist: the stop list
+    :param stop_and_undeploy_applist: the stop list
     :param lib_refs: the library references
     :param lib_name: the library name
     """
     if lib_refs[lib_name].has_key('referencingApp'):
         apps = lib_refs[lib_name]['referencingApp'].keys()
         for app in apps:
-            stop_applist.append(app)
+            if app not in stop_and_undeploy_applist:
+                stop_and_undeploy_applist.append(app)
     return
 
 def _update_ref_dictionary(ref_dictionary, lib_name, absolute_sourcepath, lib_hash, configured_targets,
