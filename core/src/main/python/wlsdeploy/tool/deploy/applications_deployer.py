@@ -257,7 +257,7 @@ class ApplicationsDeployer(Deployer):
         #
         #   1.  It needs to be fully undeploy shared library referenced apps
         #   2.  But if the user only provides a sparse model for library update,  the sparse model will not have the
-        #   original app and it will not be deploy again
+        #   original app and it will not be deployed again
         #   3.  There maybe transitive references by shared library and it will be difficult to handle processing order
         #   4.  Console doesn't handle this, so we shouldn't be outsmart the console.
         #
