@@ -60,12 +60,10 @@ public class XPathUtil {
         for (String patch_file : patch_files){
             Document doc = readXmlFile(patch_file);
             String descrip = description(doc, "//@description");
-            LOGGER.info("Description {0}", descrip);
             if (descrip.startsWith("WLS PATCH SET UPDATE")) {
                 int idx = descrip.lastIndexOf('.');
                 String psu = descrip.substring(idx+1);
-                LOGGER.info("PSU Is {0}", psu);
-                list.add(psu);
+                 list.add(psu);
                 Collections.sort(list);
                 return list.get(list.size() -1);
             }
