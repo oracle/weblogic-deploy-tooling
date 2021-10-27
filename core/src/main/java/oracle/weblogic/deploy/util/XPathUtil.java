@@ -61,13 +61,16 @@ public class XPathUtil {
             Document doc = readXmlFile(patch_file);
             String descrip = description(doc, "//@description");
             LOGGER.info("Description {0}", descrip);
-            int idx = descrip.lastIndexOf('.');
-            String psu = descrip.substring(idx+1);
-            LOGGER.info("PSU Is {0}", psu);
-            list.add(psu);
+            if (descrip.startsWith("WLS PATCH SET UPDATE")) {
+                int idx = descrip.lastIndexOf('.');
+                String psu = descrip.substring(idx+1);
+                LOGGER.info("PSU Is {0}", psu);
+                list.add(psu);
+                Collections.sort(list);
+                return list.get(list.size() -1);
+            }
         }
-        Collections.sort(list);
-        return list.get(list.size() -1);
+        return null;
     }
 
     /**

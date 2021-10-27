@@ -407,7 +407,13 @@ class AliasesTestCase(unittest.TestCase):
 
     def testIsWlstModelAttributeName(self):
         wls_version = '10.3.6'
-        online_aliases = Aliases(self.model_context, WlstModes.ONLINE, wls_version)
+        arg_map = {
+            CommandLineArgUtil.ORACLE_HOME_SWITCH: '/oracleHome',
+            CommandLineArgUtil.DOMAIN_HOME_SWITCH: '',
+            CommandLineArgUtil.TARGET_VERSION_SWITCH: '10.3.6'
+        }
+        online_model_context = ModelContext("test", arg_map)
+        online_aliases = Aliases(online_model_context, WlstModes.ONLINE, wls_version)
         location = get_jdbc_driver_params_location('my-datasource', self.aliases)
         model_attribute_name = 'QosDegradationAllowed'
         path = self.aliases.get_model_folder_path(location)
@@ -441,11 +447,11 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testIsPSUMatch(self):
-        wls_version = '12.2.1.4.2001'
+        wls_version = '12.2.1.4.0.210930'
         arg_map = {
             CommandLineArgUtil.ORACLE_HOME_SWITCH: '/oracleHome',
             CommandLineArgUtil.DOMAIN_HOME_SWITCH: '',
-            CommandLineArgUtil.TARGET_VERSION_SWITCH: '12.2.1.4.2001'
+            CommandLineArgUtil.TARGET_VERSION_SWITCH: '12.2.1.4.0.210930'
         }
 
         this_model_context = ModelContext("test", arg_map)
@@ -543,9 +549,20 @@ class AliasesTestCase(unittest.TestCase):
     def testVersionFilteredFolders(self):
         old_wls_version = '10.3.6'
         new_wls_version = '12.2.1.3'
-
-        old_aliases = Aliases(self.model_context, WlstModes.OFFLINE, old_wls_version)
-        new_aliases = Aliases(self.model_context, WlstModes.OFFLINE, new_wls_version)
+        arg_map = {
+            CommandLineArgUtil.ORACLE_HOME_SWITCH: '/oracleHome',
+            CommandLineArgUtil.DOMAIN_HOME_SWITCH: '',
+            CommandLineArgUtil.TARGET_VERSION_SWITCH: '10.3.6'
+        }
+        old_model_context = ModelContext("test", arg_map)
+        old_aliases = Aliases(old_model_context, WlstModes.OFFLINE, old_wls_version)
+        arg_map = {
+            CommandLineArgUtil.ORACLE_HOME_SWITCH: '/oracleHome',
+            CommandLineArgUtil.DOMAIN_HOME_SWITCH: '',
+            CommandLineArgUtil.TARGET_VERSION_SWITCH: '12.2.1.3'
+        }
+        new_model_context = ModelContext("test", arg_map)
+        new_aliases = Aliases(new_model_context, WlstModes.OFFLINE, new_wls_version)
         location = LocationContext()
         location.append_location(FOLDERS.PARTITION)
         mbean_type = old_aliases.get_wlst_mbean_type(location)
@@ -565,9 +582,20 @@ class AliasesTestCase(unittest.TestCase):
     def testVersionFilteredFoldersWithFolderParams(self):
         old_wls_version = '10.3.6'
         new_wls_version = '12.2.1.3'
-
-        old_aliases = Aliases(self.model_context, WlstModes.OFFLINE, old_wls_version)
-        new_aliases = Aliases(self.model_context, WlstModes.OFFLINE, new_wls_version)
+        arg_map = {
+            CommandLineArgUtil.ORACLE_HOME_SWITCH: '/oracleHome',
+            CommandLineArgUtil.DOMAIN_HOME_SWITCH: '',
+            CommandLineArgUtil.TARGET_VERSION_SWITCH: '10.3.6'
+        }
+        old_model_context = ModelContext("test", arg_map)
+        old_aliases = Aliases(old_model_context, WlstModes.OFFLINE, old_wls_version)
+        arg_map = {
+            CommandLineArgUtil.ORACLE_HOME_SWITCH: '/oracleHome',
+            CommandLineArgUtil.DOMAIN_HOME_SWITCH: '',
+            CommandLineArgUtil.TARGET_VERSION_SWITCH: '12.2.1.3'
+        }
+        new_model_context =  ModelContext("test", arg_map)
+        new_aliases = Aliases(new_model_context, WlstModes.OFFLINE, new_wls_version)
         location = LocationContext()
         location.append_location(FOLDERS.SAF_AGENT)
         name_token = old_aliases.get_name_token(location)
@@ -814,8 +842,13 @@ class AliasesTestCase(unittest.TestCase):
         location = LocationContext()
         result, message = self.aliases.is_valid_model_folder_name(location, 'ServerTemplate')
         self.assertEqual(result, ValidationCodes.VALID)
-
-        aliases = Aliases(self.model_context, wls_version='12.1.1')
+        arg_map = {
+            CommandLineArgUtil.ORACLE_HOME_SWITCH: '/oracleHome',
+            CommandLineArgUtil.DOMAIN_HOME_SWITCH: '',
+            CommandLineArgUtil.TARGET_VERSION_SWITCH: '12.1.1'
+        }
+        this_model_context = ModelContext("test", arg_map)
+        aliases = Aliases(this_model_context, wls_version='12.1.1')
         result, message = aliases.is_valid_model_folder_name(location, 'ServerTemplate')
         self.assertEqual(result, ValidationCodes.VERSION_INVALID)
 
