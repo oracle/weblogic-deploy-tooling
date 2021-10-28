@@ -179,6 +179,8 @@ variableSetup() {
 runWlst() {
     # run a WLST script.
     wlstScript=$1
+    # remaining arguments, after removing wlstScript (the first argument)
+    new_args="$(echo "$@" | sed 's/^[^ ]* //')"
 
     variableSetup
 
@@ -238,11 +240,11 @@ runWlst() {
 
     PY_SCRIPTS_PATH="${WLSDEPLOY_HOME}/lib/python"
     if [ -z "${OHARG_VALUE}" ] ; then
-      echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript ${@:2}"
-      "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" "${@:2}"
+      echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript ${new_args}"
+      "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" ${new_args}
     else
-      echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript $OHARG \"${OHARG_VALUE}\" ${@:2}"
-      "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" $OHARG "${OHARG_VALUE}" "${@:2}"
+      echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript $OHARG \"${OHARG_VALUE}\" ${new_args}"
+      "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" $OHARG "${OHARG_VALUE}" ${new_args}
     fi
 
     RETURN_CODE=$?
@@ -253,6 +255,8 @@ runWlst() {
 runJython() {
     # run a jython script, without WLST.
     jythonScript=$1
+    # remaining arguments, after removing jythonScript (the first argument)
+    new_args="$(echo "$@" | sed 's/^[^ ]* //')"
 
     # set up Oracle directory, logger, classpath
 
@@ -283,33 +287,33 @@ runJython() {
     PY_SCRIPTS_PATH="${WLSDEPLOY_HOME}/lib/python"
 
 
-
+    new_args="$(echo "$@" | sed 's/^[^ ]* //')"
     if [ -z "${OHARG_VALUE}" ] ; then
       echo \
       ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
           $JAVA_PROPERTIES \
           -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
           org.python.util.jython \
-          "${PY_SCRIPTS_PATH}/$jythonScript" ${@:2}
+          "${PY_SCRIPTS_PATH}/$jythonScript" ${new_args}
 
       "${JAVA_HOME}/bin/java" -cp "$CLASSPATH" \
           $JAVA_PROPERTIES  \
           -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
           org.python.util.jython \
-          "${PY_SCRIPTS_PATH}/$jythonScript" "${@:2}"
+          "${PY_SCRIPTS_PATH}/$jythonScript" ${new_args}
     else
       echo \
       ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
           $JAVA_PROPERTIES \
           -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
           org.python.util.jython \
-          "${PY_SCRIPTS_PATH}/$jythonScript" $OHARG \"${OHARG_VALUE}\" ${@:2}
+          "${PY_SCRIPTS_PATH}/$jythonScript" $OHARG \"${OHARG_VALUE}\" ${new_args}
           
       "${JAVA_HOME}/bin/java" -cp "$CLASSPATH" \
           $JAVA_PROPERTIES  \
           -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
           org.python.util.jython \
-          "${PY_SCRIPTS_PATH}/$jythonScript" $OHARG "${OHARG_VALUE}" "${@:2}"
+          "${PY_SCRIPTS_PATH}/$jythonScript" $OHARG "${OHARG_VALUE}" ${new_args}
     fi
 
     RETURN_CODE=$?
