@@ -243,7 +243,7 @@ runWlst() {
       echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript" "$@"
       "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" "$@"
     else
-      echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript $OHARG \"${OHARG_VALUE}\"" "$@"
+      echo "${WLST} ${PY_SCRIPTS_PATH}/$wlstScript $OHARG ${OHARG_VALUE}" "$@"
       "${WLST}" "${PY_SCRIPTS_PATH}/$wlstScript" $OHARG "${OHARG_VALUE}" "$@"
     fi
 
@@ -288,11 +288,11 @@ runJython() {
 
     if [ -z "${OHARG_VALUE}" ] ; then
       echo \
-      ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
+      "${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
           $JAVA_PROPERTIES \
-          -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
+          -Dpython.path=$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib \
           org.python.util.jython \
-          "${PY_SCRIPTS_PATH}/$jythonScript" "$@"
+          ${PY_SCRIPTS_PATH}/$jythonScript" "$@"
 
       "${JAVA_HOME}/bin/java" -cp "$CLASSPATH" \
           $JAVA_PROPERTIES  \
@@ -301,11 +301,11 @@ runJython() {
           "${PY_SCRIPTS_PATH}/$jythonScript" "$@"
     else
       echo \
-      ${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
+      "${JAVA_HOME}/bin/java -cp ${CLASSPATH} \
           $JAVA_PROPERTIES \
-          -Dpython.path="$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib" \
+          -Dpython.path=$ORACLE_SERVER_DIR/common/wlst/modules/jython-modules.jar/Lib \
           org.python.util.jython \
-          "${PY_SCRIPTS_PATH}/$jythonScript" $OHARG \"${OHARG_VALUE}\" "$@"
+          ${PY_SCRIPTS_PATH}/$jythonScript $OHARG ${OHARG_VALUE}" "$@"
           
       "${JAVA_HOME}/bin/java" -cp "$CLASSPATH" \
           $JAVA_PROPERTIES  \
