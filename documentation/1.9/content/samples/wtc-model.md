@@ -88,7 +88,7 @@ This WDT domain model sample section shows a remote and local queue for a WTC co
            AccessPointId: domain1
 
 ```
-This sample has a startup class that must be collected into the archive file under wlsdeploy/domainLibs. Refer to [Archive structure]({{< relref "/concepts/archive#archive-structure" >}}) .
+This sample has a startup class that must be collected into the archive file under `wlsdeploy/domainLibs`. Refer to [Archive structure]({{< relref "/concepts/archive#archive-structure" >}}) .
 In this configuration, the WTC is queue-based with remote and local access points. To see other WTC configuration options, use the model help as shown in the following.
 
 ```bash
