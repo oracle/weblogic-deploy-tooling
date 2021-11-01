@@ -14,14 +14,19 @@ This WDT domain model sample section shows a remote and local queue for a WTC co
      WtcServerSideHelper:
        Target: admin
        ClassName: wlstest.functional.core.wtc.conversation.common.apps.Helper.WtcServerSideHelperImpl
+   # Main MBean required for a connection between WebLogic and Tuxedo
    WTCServer:
      myWTCServer:
        Target: admin
+       # Used to configure services exported by a local Tuxedo access point.
        WTCExport:
          'WTCExportedService-1':
+           # The remote name of this service.
            ResourceName: QaWls2Conv2
+           # The name used to identify an exported service
            RemoteName: QaWls2Conv2
            EJBName: tuxedo.services.QaTux2wlsConvHome
+           # The name of the local access point that exports this service.
            LocalAccessPoint: LocalAccessPoint2
          'WTCExportedService-2':
            ResourceName: QaWls1Conv2
@@ -33,11 +38,16 @@ This WDT domain model sample section shows a remote and local queue for a WTC co
            RemoteName: QaWlsConvSvc
            EJBName: tuxedo.services.QaTux2wlsConvHome
            LocalAccessPoint: LocalAccessPoint
+       # Used to configure services imported and available on remote domains.
        WTCImport:
          'WTCImportedService-1':
+           # The name used to identify this imported service.
            ResourceName: CONVSVC
+           # The remote name of this service.
            RemoteName: CONVSVC
+           # The comma-separated failover list that identifies the remote domain access points through which resources are imported.
            RemoteAccessPointList: RemoteAccessPoint
+           # The name of the local access point that offers this service.
            LocalAccessPoint: LocalAccessPoint
          'WTCImportedService-2':
            ResourceName: QaTux1Conv2
@@ -49,20 +59,27 @@ This WDT domain model sample section shows a remote and local queue for a WTC co
            RemoteName: QaTux1Conv3
            RemoteAccessPointList: RemoteAccessPoint
            LocalAccessPoint: LocalAccessPoint
+       # Used to configure available remote Tuxedo domains.
        WTCLocalTuxDom:
          LocalAccessPoint:
            NWAddr: '//access-host:2510'
+           # Unique name to identify this local Tuxedo access point
            AccessPoint: LocalAccessPoint
+           # The connection principal name used to identify this local Tuxedo access point when attempting to establish a session connection with remote Tuxedo access points.
            AccessPointId: mydomain1
          LocalAccessPoint2:
            NWAddr: '//access-host:2520'
            AccessPoint: LocalAccessPoint2
            AccessPointId: mydomain2
+       # Used to configure connections to remote Tuxedo domains
        WTCRemoteTuxDom:
          RemoteAccessPoint:
+           # The local domain name from which this remote Tuxedo domain is reached.
            LocalAccessPoint: LocalAccessPoint
            NWAddr: '//access-host:2500'
+           # The unique name used to identify this Tuxedo remote access point
            AccessPoint: RemoteAccessPoint
+           # The connection principal name used to identify this remote domain access point when attempting to establish a session connection to local Tuxedo access points
            AccessPointId: domain1
          RemoteAccessPoint2:
            LocalAccessPoint: LocalAccessPoint2
