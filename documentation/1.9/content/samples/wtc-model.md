@@ -11,11 +11,6 @@ This sample is a java client that invokes methods in EJB which in turn operates 
 
 ```yaml
  resources:
-   StartupClass:
-     WtcServerSideHelper:
-       Target: admin
-       ClassName: wlstest.functional.core.wtc.conversation.common.apps.Helper.WtcServerSideHelperImpl
-   # Main MBean required for a connection between WebLogic and Tuxedo
    WTCServer:
      myWTCServer:
        Target: admin
@@ -48,7 +43,7 @@ This sample is a java client that invokes methods in EJB which in turn operates 
            RemoteName: CONVSVC
            # The comma-separated failover list that identifies the remote domain access points through which resources are imported.
            RemoteAccessPointList: RemoteAccessPoint
-           # The name of the local access point that offers this service.
+           # The name of the local access point that offers this service. Matches the Tuxedo domain
            LocalAccessPoint: LocalAccessPoint
          'WTCImportedService-2':
            ResourceName: QaTux1Conv2
@@ -89,8 +84,7 @@ This sample is a java client that invokes methods in EJB which in turn operates 
            AccessPointId: domain1
 
 ```
-This sample has a startup class that must be collected into the archive file under `wlsdeploy/domainLibs`. Refer to [Archive structure]({{< relref "/concepts/archive#archive-structure" >}}) .
-In this configuration, the WTC is queue-based with remote and local access points. To see other WTC configuration options, use the model help as shown in the following.
+In this configuration, the WTC uses EJB and communicates with remote and local access points. To see other WTC configuration options, use the model help as shown in the following.
 
 ```bash
 $ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/WTCServer
