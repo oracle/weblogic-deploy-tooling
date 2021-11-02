@@ -3,10 +3,11 @@ title: "Modeling a WTC configuration"
 date: 2021-11-01T10:19:24-05:00
 draft: false
 weight: 3
-description: "A domain model with a typical queue based configuration for a WebLogic Tuxedo Connector."
+description: "A domain model with a typical Tuxedo Que configuration for a WebLogic Tuxedo Connector."
 ---
 
-This WDT domain model sample section shows a remote and local queue for a WTC configuration. 
+This WDT domain model sample section shows a remote and local for a WTC configuration. 
+This sample is a java client that invokes methods in EJB which in turn operates with tuxedo services using conversations. A tuxedo client interoperates with EJB services using conversations.
 
 ```yaml
  resources:
