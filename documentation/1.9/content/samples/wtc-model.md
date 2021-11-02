@@ -6,7 +6,7 @@ weight: 3
 description: "A domain model with a typical configuration for a WebLogic Tuxedo Connector."
 ---
 
-This sample models a java client that invokes methods in EJB which in turn operates with Tuxedo services using conversations. A tuxedo client interoperates with EJB services using conversations.
+This sample models a java client that invokes methods in EJB which in turn operates with Tuxedo services using conversations. A Tuxedo client interoperates with EJB services using conversations.
 
 ```yaml
  resources:
