@@ -6,8 +6,7 @@ weight: 3
 description: "A domain model with a typical configuration for a WebLogic Tuxedo Connector."
 ---
 
-This WDT domain model sample section shows a remote and local for a WTC configuration. 
-This example model has a java client that invokes methods in EJB which in turn operates with tuxedo services using conversations. A tuxedo client interoperates with EJB services using conversations.
+This sample models a java client that invokes methods in EJB which in turn operates with tuxedo services using conversations. A tuxedo client interoperates with EJB services using conversations.
 
 ```yaml
  resources:
