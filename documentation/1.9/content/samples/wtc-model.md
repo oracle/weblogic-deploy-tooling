@@ -7,14 +7,15 @@ description: "A domain model with a typical configuration for a WebLogic Tuxedo 
 ---
 
 This WDT domain model sample section shows a remote and local for a WTC configuration. 
-This sample is a java client that invokes methods in EJB which in turn operates with tuxedo services using conversations. A tuxedo client interoperates with EJB services using conversations.
+This example model has a java client that invokes methods in EJB which in turn operates with tuxedo services using conversations. A tuxedo client interoperates with EJB services using conversations.
 
 ```yaml
  resources:
+   # A logical WLS server name for the WLS configuration found on the console under interoperability
    WTCServer:
      myWTCServer:
        Target: admin
-       # Used to configure services exported by a local Tuxedo access point.
+       # Exported EJB services to be consumed by Tuxedo services.
        WTCExport:
          'WTCExportedService-1':
            # The remote name of this service.
@@ -34,7 +35,7 @@ This sample is a java client that invokes methods in EJB which in turn operates 
            RemoteName: QaWlsConvSvc
            EJBName: tuxedo.services.QaTux2wlsConvHome
            LocalAccessPoint: LocalAccessPoint
-       # Used to configure services imported and available on remote domains.
+       # Imported Tuxedo services to be consumed by WLS services.
        WTCImport:
          'WTCImportedService-1':
            # The name used to identify this imported service.
@@ -55,11 +56,12 @@ This sample is a java client that invokes methods in EJB which in turn operates 
            RemoteName: QaTux1Conv3
            RemoteAccessPointList: RemoteAccessPoint
            LocalAccessPoint: LocalAccessPoint
-       # Used to configure available remote Tuxedo domains.
+       # Local access points so that Tuxedo services can act as a client to WLS services.
        WTCLocalTuxDom:
          LocalAccessPoint:
+           # The local listen address on the WLS side
            NWAddr: '//access-host:2510'
-           # Unique name to identify this local Tuxedo access point
+           # A logical and unique name to identify this local Tuxedo access point
            AccessPoint: LocalAccessPoint
            # The connection principal name used to identify this local Tuxedo access point when attempting to establish a session connection with remote Tuxedo access points.
            AccessPointId: mydomain1
@@ -67,16 +69,18 @@ This sample is a java client that invokes methods in EJB which in turn operates 
            NWAddr: '//access-host:2520'
            AccessPoint: LocalAccessPoint2
            AccessPointId: mydomain2
-       # Used to configure connections to remote Tuxedo domains
+       # Remote access points so that WLS can act as a client to Tuxedo services
        WTCRemoteTuxDom:
          RemoteAccessPoint:
            # The local domain name from which this remote Tuxedo domain is reached.
            LocalAccessPoint: LocalAccessPoint
+           # The remote listen address of the Tuxedo domain gateway.
            NWAddr: '//access-host:2500'
-           # The unique name used to identify this Tuxedo remote access point
+           # A logical and unique name used to identify this Tuxedo remote access point
            AccessPoint: RemoteAccessPoint
            # The connection principal name used to identify this remote domain access point when attempting to establish a session connection to local Tuxedo access points
-           AccessPointId: domain1
+          # This ID needs to be configured as a user in the WLS security realm.
+          AccessPointId: domain1
          RemoteAccessPoint2:
            LocalAccessPoint: LocalAccessPoint2
            NWAddr: '//access-host:2500'
