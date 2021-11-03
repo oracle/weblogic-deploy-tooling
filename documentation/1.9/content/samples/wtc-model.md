@@ -6,7 +6,7 @@ weight: 3
 description: "A domain model with a typical configuration for a WebLogic Tuxedo Connector."
 ---
 
-TThis sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) for both importing services from Tuxedo and exporting EJB methods to Tuxedo as services.
+This sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) for both importing services from Tuxedo and exporting EJB methods to Tuxedo as services.
 
 ```yaml
  resources:
