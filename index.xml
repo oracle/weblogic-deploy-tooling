@@ -6,7 +6,7 @@
     <description>Recent content on WebLogic Deploy Tooling</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 01 Nov 2021 10:19:24 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Create Domain Tool</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/</link>
@@ -124,6 +124,16 @@ topology: Cluster: &amp;#39;cluster-1&amp;#39;: ClientCertProxyEnabled: true Aut
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/update/</guid>
       <description>The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode. The update tool will add or re-configure elements from the topology section of the model, and deploy applications and resources from the resources and appDeployments sections, as described in the Deploy Applications Tool.</description>
+    </item>
+    
+    <item>
+      <title>Modeling a WTC configuration</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/wtc-model/</link>
+      <pubDate>Mon, 01 Nov 2021 10:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/wtc-model/</guid>
+      <description>This sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) for both importing services from Tuxedo and exporting EJB methods to Tuxedo as services.
+resources: # A logical WLS server name for the WLS configuration found on the console under interoperability WTCServer: myWTCServer: Target: admin # Exported EJB services to be consumed by Tuxedo services. WTCExport: &amp;#39;WTCExportedService-1&amp;#39;: # The remote name of this service. ResourceName: QaWls2Conv2 # The name used to identify an exported service RemoteName: QaWls2Conv2 EJBName: tuxedo.</description>
     </item>
     
     <item>

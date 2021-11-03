@@ -28,6 +28,16 @@ topology: Cluster: &amp;#39;cluster-1&amp;#39;: ClientCertProxyEnabled: true Aut
     </item>
     
     <item>
+      <title>Modeling a WTC configuration</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/wtc-model/</link>
+      <pubDate>Mon, 01 Nov 2021 10:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/wtc-model/</guid>
+      <description>This sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) for both importing services from Tuxedo and exporting EJB methods to Tuxedo as services.
+resources: # A logical WLS server name for the WLS configuration found on the console under interoperability WTCServer: myWTCServer: Target: admin # Exported EJB services to be consumed by Tuxedo services. WTCExport: &amp;#39;WTCExportedService-1&amp;#39;: # The remote name of this service. ResourceName: QaWls2Conv2 # The name used to identify an exported service RemoteName: QaWls2Conv2 EJBName: tuxedo.</description>
+    </item>
+    
+    <item>
       <title>Modeling a JDBC data source</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/jdbc-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
