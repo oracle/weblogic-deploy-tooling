@@ -4,6 +4,8 @@
   "JMSBridgeDestination.ConnectionURL": {},
   "JMSSystemResource.JmsResource.ForeignServer.ConnectionURL": {},
   "JMSSystemResource.JmsResource.SAFRemoteContext.SAFLoginContext.LoginURL": {},
+  "JoltConnectionPool.PrimaryAddress": {},
+  "JoltConnectionPool.FailoverAddress": {},
   "Partition.ForeignJndiProviderOverride.ProviderUrl": {},
   "SecurityConfiguration.CertRevoc.CertRevocCa.CrlDpUrl": {},
   "SecurityConfiguration.CertRevoc.CertRevocCa.OcspResponderUrl": {},
@@ -20,5 +22,7 @@
   "ServerTemplate.SingleSignOnServices.LoginUrl": {},
   "ServerTemplate.SingleSignOnServices.OrganizationUrl": {},
   "ServerTemplate.SingleSignOnServices.PublishedSiteUrl": {},
-  "WLDFSystemResource.WLDFResource.WatchNotification.RestNotification.EndpointUrl": {}
+  "WLDFSystemResource.WLDFResource.WatchNotification.RestNotification.EndpointUrl": {},
+  "WTCServer.WTCLocalTuxDom.NWAddr": {},
+  "WTCServer.WTCRemoteTuxDom.NWAddr": {}
 }
