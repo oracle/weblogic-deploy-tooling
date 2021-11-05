@@ -12,20 +12,20 @@
     <title>Create Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1635980578" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1635980578" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1635980578" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1635980578" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1635980578" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1635980578" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1635980578" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1635980578" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1635980578" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1635980578" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1636140391" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1636140391" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1636140391" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1636140391" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1636140391" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1636140391" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1636140391" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1636140391" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1636140391" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1636140391" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.6.0.min.js?1635980578"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.6.0.min.js?1636140391"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1635980578"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1635980578"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1636140391"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1636140391"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1635980578"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1636140391"></script>
 
     
   </div>
@@ -1181,7 +1181,7 @@
 <p>It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to <a href="/weblogic-deploy-tooling/rcuinfo/">Specifying RCU connection information in the model</a>.</p>
 <p>To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to <a href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/">Domain type definitions</a>.</p>
 <h3 id="using-an-encrypted-model">Using an encrypted model</h3>
-<p>If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the <code>-use_encryption</code> flag on the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, <code>stdin</code>) to allow the tool to run without any user input.</p>
+<p>If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the <code>-use_encryption</code> flag on the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, <code>stdin</code>) to allow the tool to run without any user input. You can bypass the stdin prompt with two other options. You can bypass the stdin prompt with two other options: store the passphrase in an environment variable, and use the environment variable name with the command-line option -passphrase_env or create a file with the single value of the passphrase. Provide the name of the file with the command-line option -passphrase_file. The passphrase will be read by the tool from the file.</p>
 <h3 id="using-multiple-models">Using multiple models</h3>
 <p>The Create Domain Tool supports the use of multiple models, as described in <a href="/weblogic-deploy-tooling/concepts/model/#using-multiple-models">Using multiple models</a>.</p>
 <h3 id="development-domain-and-bootproperties">Development domain and <code>boot.properties</code></h3>
@@ -1953,19 +1953,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1635980578"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1635980578"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1635980578"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1635980578"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1635980578"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1635980578"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1636140391"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1636140391"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1636140391"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1636140391"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1636140391"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1636140391"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1635980578"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1635980578"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1635980578"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1636140391"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1636140391"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1636140391"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1635980578"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1636140391"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
