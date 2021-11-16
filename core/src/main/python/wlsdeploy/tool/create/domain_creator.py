@@ -90,6 +90,7 @@ from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.targeting_types import TargetingType
+from wlsdeploy.tool.util.topology_profiles import TopologyProfile
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
@@ -506,6 +507,12 @@ class DomainCreator(Creator):
         :raises: CreateException: if an error occurs
         """
         _method_name = '__create_base_domain_with_select_template'
+        
+        topology_profile_text = self._domain_typedef.get_topology_profile()
+        if topology_profile_text in TopologyProfile:
+            self.logger.info('WLSDPLY-12569', topology_profile_text,
+                         class_name=self.__class_name, method_name=_method_name)
+            self.wlst_helper.set_topology_profile(topology_profile_text)
 
         self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
         base_template = self._domain_typedef.get_base_template()

@@ -638,6 +638,25 @@ class WlstHelper(object):
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        
+    def set_topology_profile(self, profile):
+        """
+        Set the topology profile used by domain templates.  This would be
+        either Compact or Expanded
+        :param profile: Compact or Expanded
+        :raises: Exception for the specified tool type: if a WLST error occurs
+        """
+        _method_name = 'set_topology_profile'
+        self.__logger.entering(profile, class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.__load_global('setTopologyProfile')(profile)
+        except offlineWLSTException, e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00128', profile,
+                                                    e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
 
     def select_template(self, template):
         """
