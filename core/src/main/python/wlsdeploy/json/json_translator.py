@@ -248,8 +248,7 @@ def _format_json_value(value):
 
 def _escape_text(text):
     """
-    Escape the specified text for use in a double-quoted string.
-    Escape embedded double quotes with a backslash.
+    Escape the specified text for use in a double-quoted string to become valid json expression.
     :param text: the text to escape
     :return: the escaped text
     """
@@ -259,4 +258,16 @@ def _escape_text(text):
             result = text.replace('\\', '\\\\')
         if '"' in text:
             result = text.replace('"', '\\"')
+        if '\n' in text:
+            result = text.replace("\n", "\\\\n")
+        if '\b' in text:
+            result = text.replace("\b", "\\\\b")
+        if '\f' in text:
+            result = text.replace("\f", "\\\\f")
+        if '\r' in text:
+            result = text.replace("\r", "\\\\r")
+        if '\t' in text:
+            result = text.replace("\t", "\\\\t")
+        if '\/' in text:
+            result = text.replace("\/", "\\\\/")
     return result
