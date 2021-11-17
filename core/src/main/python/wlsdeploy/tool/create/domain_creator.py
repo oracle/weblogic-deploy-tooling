@@ -702,7 +702,7 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         security_folder = dictionary_utils.get_dictionary_element(self._topology, SECURITY)
         if security_folder is not None:
-            helper = DefaultAuthenticatorHelper(self.model_context, ExceptionType.CREATE)
+            helper = DefaultAuthenticatorHelper(self.model_context, self.aliases, ExceptionType.CREATE)
             helper.create_default_init_file(security_folder)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
