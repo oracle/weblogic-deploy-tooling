@@ -649,14 +649,17 @@ class Validator(object):
     def __validate_attributes(self, attributes_dict, valid_attr_infos, validation_location):
         _method_name = '__validate_attributes'
 
-        self._logger.finest('attributes_dict={0}', str(attributes_dict),
+        self._logger.finest('validation_location={0}, attributes_dict={0}', str(validation_location), str(attributes_dict),
                             class_name=_class_name, method_name=_method_name)
+
+        model_folder_path = self._aliases.get_model_folder_path(validation_location)
+        if not isinstance(attributes_dict, dict):
+            self._logger.severe('WLSDPLY-05038', model_folder_path, class_name=_class_name, method_name=_method_name)
+            return
 
         path_tokens_attr_keys = self._aliases.get_model_uses_path_tokens_attribute_names(validation_location)
         self._logger.finer('WLSDPLY-05013', str(validation_location), str(path_tokens_attr_keys),
                            class_name=_class_name, method_name=_method_name)
-
-        model_folder_path = self._aliases.get_model_folder_path(validation_location)
 
         for attribute_name, attribute_value in attributes_dict.iteritems():
             self.__validate_attribute(attribute_name, attribute_value, valid_attr_infos, path_tokens_attr_keys,
