@@ -43,8 +43,9 @@ class DefaultAuthenticatorHelper(object):
     """
     _class_name = 'DefaultAuthenticatorHelper'
 
-    def __init__(self, model_context, exception_type):
+    def __init__(self, model_context, aliases, exception_type):
         self._model_context = model_context
+        self._aliases = aliases
         self._exception_type = exception_type
         self._logger = PlatformLogger('wlsdeploy.tool.util')
         self._weblogic_helper = WebLogicHelper(self._logger)
@@ -135,6 +136,7 @@ class DefaultAuthenticatorHelper(object):
         hash_entry[HASH_DESCRIPTION] = description
         groups = dictionary_utils.get_element(group_attributes, GROUP_MEMBER_OF)
         password = self._get_required_attribute(user_mapping_section, PASSWORD, USER, name)
+        password = self._aliases.decrypt_password(password)
         password_encoded = self._encode_password(name, password)
         hash_entry[HASH_USER_PASSWORD] = password_encoded
         group_list = []
@@ -177,6 +179,7 @@ class DefaultAuthenticatorHelper(object):
         _method_name = '_get_required_attribute'
 
         result = dictionary_utils.get_element(dictionary, name)
+
         if result is None:
             pwe = exception_helper.create_exception(self._exception_type, '-01791', name, mapping_type,
                                                     mapping_name)
