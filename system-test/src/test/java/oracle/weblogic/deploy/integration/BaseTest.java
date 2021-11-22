@@ -270,7 +270,7 @@ public class BaseTest {
 
     protected void verifyModelFileContents(String modelFileName, List<String> textToFind) throws Exception {
         BufferedReader model = inputYaml(modelFileName);
-        List<String> checkList = new ArrayList(textToFind);
+        List<String> checkList = new ArrayList<>(textToFind);
         while (model.ready()) {
             String nextLine = model.readLine();
             if (nextLine != null) {

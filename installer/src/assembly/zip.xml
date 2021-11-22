@@ -111,6 +111,7 @@
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
                 <include>org.antlr:antlr4-runtime</include>
+                <include>org.yaml:snakeyaml</include>
             </includes>
         </dependencySet>
     </dependencySets>
