@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.python.core.PyDictionary;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
+import org.python.core.PyList;
 import org.python.core.PyLong;
 import org.python.core.PyObject;
 import org.python.core.PyString;
@@ -238,7 +239,223 @@ public class YamlTranslatorTest {
         assertEquals(PyOrderedDict.class, value.getClass(), "topology should be a dict");
         PyDictionary dict = (PyDictionary) value;
 
+        System.out.println(dict);
+
         key = new PyString("SecurityConfiguration");
+        assertTrue(dict.has_key(key), "SecurityConfiguration should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "SecurityConfiguration value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "SecurityConfiguration should be a dict");
+        dict = (PyDictionary) value;
+
+        key = new PyString("Realm");
+        assertTrue(dict.has_key(key), "Realm should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "Realm value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "Realm should be a dict");
+        dict = (PyDictionary) value;
+
+        key = new PyString("myrealm");
+        assertTrue(dict.has_key(key), "myrealm should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "myrealm value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "myrealm should be a dict");
+        PyDictionary myrealm = (PyDictionary) value;
+
+        key = new PyString("AuthenticationProvider");
+        assertTrue(myrealm.has_key(key), "AuthenticationProvider should be present");
+        value = myrealm.__getitem__(key);
+        assertNotNull(value, "AuthenticationProvider value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "AuthenticationProvider should be a dict");
+        PyDictionary authenticationProvider = (PyDictionary) value;
+
+        key = new PyString("MyIdentityAsserterV2");
+        assertTrue(authenticationProvider.has_key(key), "MyIdentityAsserterV2 should be present");
+        value = authenticationProvider.__getitem__(key);
+        assertNotNull(value, "MyIdentityAsserterV2 value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "MyIdentityAsserterV2 should be a dict");
+        dict = (PyDictionary) value;
+
+        key = new PyString("org.asserter.MyIdentityAsserterV2");
+        assertTrue(dict.has_key(key), "org.asserter.MyIdentityAsserterV2 should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "org.asserter.MyIdentityAsserterV2 value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "org.asserter.MyIdentityAsserterV2 should be a dict");
+        dict = (PyDictionary) value;
+
+        key = new PyString("ExcludedContextPaths");
+        assertTrue(dict.has_key(key), "ExcludedContextPaths should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "ExcludedContextPaths value should not be null");
+        assertEquals(PyList.class, value.getClass(), "ExcludedContextPaths should be a list");
+        PyList list = (PyList) value;
+        PyObject listItem = list.__getitem__(0);
+        assertNotNull(listItem, "ExcludedContextPaths first element should not be null");
+        assertEquals(PyString.class, listItem.getClass(), "ExcludedContextPaths first element should be a string");
+        assertEquals("/soa-infra", listItem.toString(), "ExcludedContextPaths first element value should be /soa-infra");
+        listItem = list.__getitem__(1);
+        assertNotNull(listItem, "ExcludedContextPaths second element should not be null");
+        assertEquals(PyString.class, listItem.getClass(), "ExcludedContextPaths second element should be a string");
+        assertEquals("/management", listItem.toString(), "ExcludedContextPaths second element value should be /management");
+        listItem = list.__getitem__(2);
+        assertNotNull(listItem, "ExcludedContextPaths third element should not be null");
+        assertEquals(PyString.class, listItem.getClass(), "ExcludedContextPaths third element should be a string");
+        assertEquals("/jolokia", listItem.toString(), "ExcludedContextPaths third element value should be /jolokia");
+
+        key = new PyString("DefaultAuthenticator");
+        assertTrue(authenticationProvider.has_key(key), "DefaultAuthenticator should be present");
+        value = authenticationProvider.__getitem__(key);
+        assertNotNull(value, "DefaultAuthenticator value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "AuthenticationProvider should be a dict");
+        dict = (PyDictionary) value;
+
+        key = new PyString("DefaultAuthenticator");
+        assertTrue(dict.has_key(key), "DefaultAuthenticator should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "DefaultAuthenticator value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "AuthenticationProvider should be a dict");
+        dict = (PyDictionary) value;
+
+        key = new PyString("ControlFlag");
+        assertTrue(dict.has_key(key), "ControlFlag should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "ControlFlag value should not be null");
+        assertEquals(PyString.class, value.getClass(), "ControlFlag should be a string");
+        assertEquals("REQUIRED", value.toString(), "ControlFlag value should be REQUIRED");
+
+        key = new PyString("DefaultIdentityAsserter");
+        assertTrue(authenticationProvider.has_key(key), "DefaultIdentityAsserter should be present");
+        value = authenticationProvider.__getitem__(key);
+        assertNotNull(value, "DefaultIdentityAsserter value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "DefaultIdentityAsserter should be a dict");
+        dict = (PyDictionary) value;
+
+        key = new PyString("DefaultIdentityAsserter");
+        assertTrue(dict.has_key(key), "DefaultIdentityAsserter should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "DefaultIdentityAsserter value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "DefaultIdentityAsserter should be a dict");
+        dict = (PyDictionary) value;
+
+        key = new PyString("DefaultUserNameMapperAttributeType");
+        assertTrue(dict.has_key(key), "DefaultUserNameMapperAttributeType should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "DefaultUserNameMapperAttributeType value should not be null");
+        assertEquals(PyString.class, value.getClass(), "DefaultUserNameMapperAttributeType should be a string");
+        assertEquals("CN", value.toString(), "DefaultUserNameMapperAttributeType value should be CN");
+
+        key = new PyString("ActiveType");
+        assertTrue(dict.has_key(key), "ActiveType should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "ActiveType value should not be null");
+        assertEquals(PyList.class, value.getClass(), "ActiveType should be a list");
+        list = (PyList) value;
+        listItem = list.__getitem__(0);
+        assertNotNull(listItem, "ActiveType first element should not be null");
+        assertEquals(PyString.class, listItem.getClass(), "ActiveType first element should be a string");
+        assertEquals("AuthenticatedUser", listItem.toString(), "ActiveType first element value should be AuthenticatedUser");
+        listItem = list.__getitem__(1);
+        assertNotNull(listItem, "ActiveType second element should not be null");
+        assertEquals(PyString.class, listItem.getClass(), "ActiveType second element should be a string");
+        assertEquals("X.509", listItem.toString(), "ActiveType second element value should be X.509");
+
+        key = new PyString("DefaultUserNameMapperAttributeDelimiter");
+        assertTrue(dict.has_key(key), "DefaultUserNameMapperAttributeDelimiter should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "DefaultUserNameMapperAttributeDelimiter value should not be null");
+        assertEquals(PyString.class, value.getClass(), "DefaultUserNameMapperAttributeDelimiter should be a string");
+        assertEquals(",", value.toString(), "DefaultUserNameMapperAttributeDelimiter value should be ,");
+
+        key = new PyString("UseDefaultUserNameMapper");
+        assertTrue(dict.has_key(key), "UseDefaultUserNameMapper should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "UseDefaultUserNameMapper value should not be null");
+        assertEquals(PyString.class, value.getClass(), "UseDefaultUserNameMapper should be a string");
+        assertEquals("true", value.toString(), "UseDefaultUserNameMapper value should be true");
+
+        key = new PyString("PasswordValidator");
+        assertTrue(myrealm.has_key(key), "PasswordValidator should be present");
+        value = myrealm.__getitem__(key);
+        assertNotNull(value, "PasswordValidator value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "PasswordValidator should be a dict");
+        dict = (PyDictionary) value;
+
+        key = new PyString("SystemPasswordValidator");
+        assertTrue(dict.has_key(key), "SystemPasswordValidator should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "SystemPasswordValidator value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "SystemPasswordValidator should be a dict");
+        dict = (PyDictionary) value;
+
+        key = new PyString("SystemPasswordValidator");
+        assertTrue(dict.has_key(key), "SystemPasswordValidator should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "SystemPasswordValidator value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "SystemPasswordValidator should be a dict");
+        dict = (PyDictionary) value;
+
+        key = new PyString("MinAlphabeticCharacters");
+        assertTrue(dict.has_key(key), "MinAlphabeticCharacters should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "MinAlphabeticCharacters value should not be null");
+        assertEquals(PyInteger.class, value.getClass(), "MinAlphabeticCharacters should be an integer");
+        assertEquals("1", value.toString(), "MinAlphabeticCharacters value should be 1");
+
+        key = new PyString("MinLowercaseCharacters");
+        assertTrue(dict.has_key(key), "MinLowercaseCharacters should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "MinLowercaseCharacters value should not be null");
+        assertEquals(PyInteger.class, value.getClass(), "MinLowercaseCharacters should be an integer");
+        assertEquals("1", value.toString(), "MinLowercaseCharacters value should be 1");
+
+        key = new PyString("MinNumericCharacters");
+        assertTrue(dict.has_key(key), "MinNumericCharacters should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "MinNumericCharacters value should not be null");
+        assertEquals(PyInteger.class, value.getClass(), "MinNumericCharacters should be an integer");
+        assertEquals("1", value.toString(), "MinNumericCharacters value should be 1");
+
+        key = new PyString("MaxConsecutiveCharacters");
+        assertTrue(dict.has_key(key), "MaxConsecutiveCharacters should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "MaxConsecutiveCharacters value should not be null");
+        assertEquals(PyInteger.class, value.getClass(), "MaxConsecutiveCharacters should be an integer");
+        assertEquals("2", value.toString(), "MaxConsecutiveCharacters value should be 2");
+
+        key = new PyString("MinNonAlphanumericCharacters");
+        assertTrue(dict.has_key(key), "MinNonAlphanumericCharacters should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "MinNonAlphanumericCharacters value should not be null");
+        assertEquals(PyInteger.class, value.getClass(), "MinNonAlphanumericCharacters should be an integer");
+        assertEquals("1", value.toString(), "MinNonAlphanumericCharacters value should be 1");
+
+        key = new PyString("MinUppercaseCharacters");
+        assertTrue(dict.has_key(key), "MinUppercaseCharacters should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "MinUppercaseCharacters value should not be null");
+        assertEquals(PyInteger.class, value.getClass(), "MinUppercaseCharacters should be an integer");
+        assertEquals("1", value.toString(), "MinUppercaseCharacters value should be 1");
+
+        key = new PyString("RejectEqualOrContainUsername");
+        assertTrue(dict.has_key(key), "RejectEqualOrContainUsername should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "RejectEqualOrContainUsername value should not be null");
+        assertEquals(PyString.class, value.getClass(), "RejectEqualOrContainUsername should be a string");
+        assertEquals("true", value.toString(), "RejectEqualOrContainUsername value should be true");
+
+        key = new PyString("MinPasswordLength");
+        assertTrue(dict.has_key(key), "MinPasswordLength should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "MinPasswordLength value should not be null");
+        assertEquals(PyInteger.class, value.getClass(), "MinPasswordLength should be an integer");
+        assertEquals("10", value.toString(), "MinPasswordLength value should be 10");
+
+        key = new PyString("RejectEqualOrContainReverseUsername");
+        assertTrue(dict.has_key(key), "RejectEqualOrContainReverseUsername should be present");
+        value = dict.__getitem__(key);
+        assertNotNull(value, "RejectEqualOrContainReverseUsername value should not be null");
+        assertEquals(PyString.class, value.getClass(), "RejectEqualOrContainReverseUsername should be a string");
+        assertEquals("true", value.toString(), "RejectEqualOrContainReverseUsername value should be true");
     }
 
     /**
