@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Map;
 
 import oracle.weblogic.deploy.logging.PlatformLogger;
@@ -54,12 +55,27 @@ public class Runner {
    * @throws InterruptedException if the wait is interrupted before the process completes
    */
   public static CommandResult run(String command, PrintWriter output) throws IOException, InterruptedException {
+    return run(command, output, new HashMap<>());
+  }
+
+  /**
+   * Run the provided shell command, and send stdout/stderr to the PrintWriter.
+   * @param command external command to be executed
+   * @param output PrintWriter to receive stdout
+   * @param environment values to insert into the new process environment
+   * @return result from running the provided command
+   * @throws IOException if process start fails
+   * @throws InterruptedException if the wait is interrupted before the process completes
+   */
+  public static CommandResult run(String command, PrintWriter output, Map<String,String> environment) throws IOException, InterruptedException {
     ProcessBuilder pb = new ProcessBuilder("/bin/sh", "-c", command);
     Process p = null;
 
     try {
       pb.redirectErrorStream(true);
       p = pb.start();
+      Map<String, String> processEnv = pb.environment();
+      processEnv.putAll(environment);
 
       BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(), UTF_8));
       StringBuilder processOut = new StringBuilder();
