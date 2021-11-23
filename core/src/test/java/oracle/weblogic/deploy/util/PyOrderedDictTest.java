@@ -4,29 +4,27 @@
  */
 package oracle.weblogic.deploy.util;
 
-import org.python.core.PyList;
-import org.python.core.PyTuple;
-import org.python.core.PyString;
-import org.python.core.PyInteger;
-import org.python.core.PyObject;
-import org.python.core.PyDictionary;
-
 import org.junit.jupiter.api.Test;
+import org.python.core.PyDictionary;
+import org.python.core.PyInteger;
+import org.python.core.PyList;
+import org.python.core.PyObject;
+import org.python.core.PyString;
+import org.python.core.PyTuple;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PyOrderedDictTest {
     @Test
-    public void testIsInstance() throws Exception {
+    void testIsInstance() {
         PyOrderedDict myOrderedDict = new PyOrderedDict();
         boolean result = (myOrderedDict instanceof PyDictionary);
         assertTrue(result, "isinstance(myOrderedDict, dict) returns true");
     }
 
     @Test
-    public void testSetItem() throws Exception {
+    void testSetItem() {
         PyOrderedDict myOrderedDict = new PyOrderedDict();
 
         myOrderedDict.__setitem__("nba_player", new PyString("Steph Curry"));
@@ -45,7 +43,7 @@ public class PyOrderedDictTest {
     }
 
     @Test
-    public void testKeyOrdering() throws Exception {
+    void testKeyOrdering() {
         PyOrderedDict myOrderedDict = new PyOrderedDict();
 
         myOrderedDict.__setitem__("one", new PyInteger(1));
@@ -72,7 +70,7 @@ public class PyOrderedDictTest {
     }
 
     @Test
-    public void testIteritems() throws Exception {
+    void testIteritems() {
         PyOrderedDict myOrderedDict = new PyOrderedDict();
 
         myOrderedDict.__setitem__("one", new PyInteger(1));
@@ -90,7 +88,7 @@ public class PyOrderedDictTest {
     }
 
     @Test
-    public void testOrderedDictAsValue() throws Exception {
+    void testOrderedDictAsValue() {
         PyOrderedDict myOrderedDict = new PyOrderedDict();
         PyOrderedDict anotherOrderedDict = new PyOrderedDict();
         anotherOrderedDict.__setitem__("nested_key", new PyString("nested_value"));
@@ -100,7 +98,7 @@ public class PyOrderedDictTest {
     }
 
     @Test
-    public void testCopyConstructor() throws Exception {
+    void testCopyConstructor() {
         PyOrderedDict myOrderedDict = new PyOrderedDict();
 
         myOrderedDict.__setitem__("foo", new PyString("bar"));
@@ -109,7 +107,7 @@ public class PyOrderedDictTest {
     }
 
     @Test
-    public void testUpdate() throws Exception {
+    void testUpdate() {
         PyOrderedDict myOrderedDict = new PyOrderedDict();
         myOrderedDict.__setitem__("network_type", new PyString("ETHERNET"));
 

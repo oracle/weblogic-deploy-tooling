@@ -14,9 +14,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WLSDeployZipFileTest {
     public static final String UNIT_TEST_SOURCE_DIR = "src" + File.separator + "test" + File.separator + "resources";
@@ -67,8 +72,8 @@ public class WLSDeployZipFileTest {
     private static final String REALLY_MATCHES_BADDIR_ENTRY3 = "application/myapp(123)s";
     private static final String REALLY_MATCHES_BADDIR_ENTRY4 = "application/myapp()/";
 
-    @Before
-    public void initialize() throws Exception {
+    @BeforeAll
+    static void initialize() throws Exception {
         File unitTest = new File(UNIT_TEST_TARGET_DIR);
         unitTest.mkdirs();
         copyFile(ZIP_FILE_EXISTING_FILE);
@@ -80,45 +85,45 @@ public class WLSDeployZipFileTest {
     }
 
     @Test
-    public void testNewZipFile() throws Exception {
+    void testNewZipFile() throws Exception {
         testEmptyFile(ZIP_FILE_NEW_FILE);
     }
 
     @Test
-    public void testExistingEmptyFile() throws Exception {
+    void testExistingEmptyFile() throws Exception {
         testEmptyFile(ZIP_FILE_EXISTING_EMPTY_FILE);
     }
 
     @Test
-    public void testExistingFile() throws Exception {
+    void testExistingFile() throws Exception {
         File f = new File(UNIT_TEST_TARGET_DIR + File.separator + ZIP_FILE_EXISTING_FILE);
-        Assert.assertTrue("Test setup failed to copy file " + f.getAbsolutePath(), f.exists());
+        assertTrue(f.exists(), "Test setup failed to copy file " + f.getAbsolutePath());
         WLSDeployZipFile zf = new WLSDeployZipFile(f);
-        Assert.assertTrue("Creating WLSDeployZiFile deleted file " + f.getAbsolutePath(), f.exists());
-        Assert.assertNotNull("Expected a valid WLSDeployZipFile object", zf);
-        Assert.assertTrue("Unexpected zip file name returned", zf.getFileName().endsWith(ZIP_FILE_EXISTING_FILE));
-        Assert.assertTrue("WLSDeployZiFile.getFileName() deleted file " + f.getAbsolutePath(), f.exists());
+        assertTrue(f.exists(), "Creating WLSDeployZiFile deleted file " + f.getAbsolutePath());
+        assertNotNull(zf, "Expected a valid WLSDeployZipFile object");
+        assertTrue(zf.getFileName().endsWith(ZIP_FILE_EXISTING_FILE), "Unexpected zip file name returned");
+        assertTrue(f.exists(), "WLSDeployZiFile.getFileName() deleted file " + f.getAbsolutePath());
 
         InputStream stream = zf.getZipEntry(ZIP_FILE_EXISTING_FILE_KEYS[1]);
-        Assert.assertTrue("WLSDeployZiFile.getZipEntry() deleted file " + f.getAbsolutePath(), f.exists());
-        Assert.assertNotNull("Expected a non-null InputStream", stream);
+        assertTrue(f.exists(), "WLSDeployZiFile.getZipEntry() deleted file " + f.getAbsolutePath());
+        assertNotNull(stream, "Expected a non-null InputStream");
         long bytesRead = readInputStream(stream);
         stream.close();
-        Assert.assertEquals("unexpected file size: " + bytesRead, ZIP_FILE_EXISTING_FILE_SIZE, bytesRead);
+        assertEquals(ZIP_FILE_EXISTING_FILE_SIZE, bytesRead, "unexpected file size: " + bytesRead);
         zf.close();
 
         Map<String, InputStream> zipEntries = zf.getZipEntries();
-        Assert.assertEquals("Unexpected number of entries", ZIP_FILE_EXISTING_FILE_KEYS.length, zipEntries.size());
+        assertEquals(ZIP_FILE_EXISTING_FILE_KEYS.length, zipEntries.size(), "Unexpected number of entries");
         Iterator<String> keys = zipEntries.keySet().iterator();
         while (keys.hasNext()) {
             String key = keys.next();
-            Assert.assertTrue("unexpected key: " + key, key.contains(ZIP_FILE_EXISTING_FILE_KEYS[0]));
+            assertTrue(key.contains(ZIP_FILE_EXISTING_FILE_KEYS[0]), "unexpected key: " + key);
             InputStream s = zipEntries.get(key);
-            Assert.assertNotNull("unexpected null stream returned from zip file", s);
+            assertNotNull(s, "unexpected null stream returned from zip file");
             if (key.equals(ZIP_FILE_EXISTING_FILE_KEYS[1])) {
                 bytesRead = readInputStream(s);
                 stream.close();
-                Assert.assertEquals("unexpected file size: " + bytesRead, ZIP_FILE_EXISTING_FILE_SIZE, bytesRead);
+                assertEquals(ZIP_FILE_EXISTING_FILE_SIZE, bytesRead, "unexpected file size: " + bytesRead);
             } else {
                 s.close();
             }
@@ -127,58 +132,56 @@ public class WLSDeployZipFileTest {
     }
 
     @Test
-    public void testModelFileRemove() throws Exception {
+    void testModelFileRemove() throws Exception {
         File f = new File(UNIT_TEST_TARGET_DIR + File.separator + ZIP_FILE_EXISTING_MODEL_FILE);
         WLSDeployZipFile zf = new WLSDeployZipFile(f);
-        Assert.assertNotNull("Expected a valid WLSDeployZipFile object", zf);
-        Assert.assertTrue("Unexpected zip file name returned", zf.getFileName().endsWith(ZIP_FILE_EXISTING_MODEL_FILE));
+        assertNotNull(zf, "Expected a valid WLSDeployZipFile object");
+        assertTrue(zf.getFileName().endsWith(ZIP_FILE_EXISTING_MODEL_FILE), "Unexpected zip file name returned");
 
         boolean removed = zf.removeZipEntry("foobar");
-        Assert.assertFalse("expected no entry to be removed", removed);
+        assertFalse(removed, "expected no entry to be removed");
         removed = zf.removeZipEntry(ZIP_FILE_MODEL_ENTRY_TO_REMOVE);
-        Assert.assertTrue("expected to remove entry", removed);
+        assertTrue(removed, "expected to remove entry");
         InputStream stream = zf.getZipEntry(ZIP_FILE_MODEL_ENTRY_TO_REMOVE);
-        Assert.assertNull("expected removed entry to return null InputStream", stream);
+        assertNull(stream, "expected removed entry to return null InputStream");
         removed = zf.removeZipEntries(ZIP_FILE_MODEL_DIR_TO_REMOVE);
-        Assert.assertTrue("expected to remove entries", removed);
+        assertTrue(removed, "expected to remove entries");
         Map<String, InputStream> map = zf.getZipEntries(ZIP_FILE_MODEL_DIR_TO_REMOVE);
-        Assert.assertNotNull("Expected a non-null map object to be returned", map);
-        Assert.assertEquals("expected no entries to be returned", 0, map.size());
+        assertNotNull(map, "Expected a non-null map object to be returned");
+        assertEquals(0, map.size(), "expected no entries to be returned");
         zf.close();  // closes the zip file and thus, closes all of the returned InputStreams
     }
 
     @Test
-    public void testModelFileRemoveEntries() throws Exception {
+    void testModelFileRemoveEntries() throws Exception {
         File f = new File(UNIT_TEST_TARGET_DIR + File.separator + ZIP_FILE_SIMPLE_APPS_MODEL_FILE);
         WLSDeployZipFile zf = new WLSDeployZipFile(f);
-        Assert.assertNotNull("Expected a valid WLSDeployZipFile object", zf);
-        Assert.assertTrue("Unexpected zip file name returned",
-            zf.getFileName().endsWith(ZIP_FILE_SIMPLE_APPS_MODEL_FILE));
+        assertNotNull(zf, "Expected a valid WLSDeployZipFile object");
+        assertTrue(            zf.getFileName().endsWith(ZIP_FILE_SIMPLE_APPS_MODEL_FILE), "Unexpected zip file name returned");
 
         boolean removed = zf.removeZipEntries("foobar");
-        Assert.assertFalse("expected no entry to be removed", removed);
+        assertFalse(removed, "expected no entry to be removed");
         removed = zf.removeZipEntries(ZIP_FILE_MODEL_DIR_TO_REMOVE);
-        Assert.assertTrue("expected to remove entries", removed);
+        assertTrue(removed, "expected to remove entries");
         Map<String, InputStream> map = zf.getZipEntries(ZIP_FILE_MODEL_DIR_TO_REMOVE);
-        Assert.assertEquals("expected no entries to be returned", 0, map.size());
+        assertEquals(0, map.size(), "expected no entries to be returned");
         zf.close();
     }
 
     @Test
-    public void testGetEntries() throws Exception {
+    void testGetEntries() throws Exception {
         File f = new File(UNIT_TEST_TARGET_DIR + File.separator + ZIP_FILE_SIMPLE_APPS_MODEL_FILE2);
         WLSDeployZipFile zf = new WLSDeployZipFile(f);
-        Assert.assertNotNull("Expected a valid WLSDeployZipFile object", zf);
-        Assert.assertTrue("Unexpected zip file name returned",
-            zf.getFileName().endsWith(ZIP_FILE_SIMPLE_APPS_MODEL_FILE2));
+        assertNotNull(zf, "Expected a valid WLSDeployZipFile object");
+        assertTrue(            zf.getFileName().endsWith(ZIP_FILE_SIMPLE_APPS_MODEL_FILE2), "Unexpected zip file name returned");
 
         Map<String, InputStream> map = zf.getZipEntries("model/");
-        Assert.assertEquals("expected 2 entries to be returned", 2, map.size());
+        assertEquals(2, map.size(), "expected 2 entries to be returned");
         List<String> expectedList = Arrays.asList(ZIP_FILE_SIMPLE_APPS_MODEL_FILE2_ENTRIES);
         iterateOverMap(map, expectedList);
 
         map = zf.getZipEntries("wlsdeploy/applications");
-        Assert.assertEquals("expected 2 entries to be returned", 2, map.size());
+        assertEquals(2, map.size(), "expected 2 entries to be returned");
         expectedList = Arrays.asList(ZIP_FILE_SIMPLE_APPS_MODEL_FILE2_APSS_ENTRIES);
         iterateOverMap(map, expectedList);
         zf.close();
@@ -188,80 +191,79 @@ public class WLSDeployZipFileTest {
     public void testAddEntry() throws Exception {
         File f = new File(UNIT_TEST_TARGET_DIR + File.separator + ZIP_FILE_SIMPLE_APPS_MODEL_FILE3);
         WLSDeployZipFile zf = new WLSDeployZipFile(f);
-        Assert.assertNotNull("Expected a valid WLSDeployZipFile object", zf);
-        Assert.assertTrue("Unexpected zip file name returned",
-            zf.getFileName().endsWith(ZIP_FILE_SIMPLE_APPS_MODEL_FILE3));
+        assertNotNull(zf, "Expected a valid WLSDeployZipFile object");
+        assertTrue(            zf.getFileName().endsWith(ZIP_FILE_SIMPLE_APPS_MODEL_FILE3), "Unexpected zip file name returned");
 
         File logPropertiesFile = new File(LOG_PROPERTIES_SOURCE_LOCATION);
         FileInputStream inputStream = new FileInputStream(logPropertiesFile);
         boolean added = zf.addZipEntry("model/logging/log.properties", inputStream);
-        Assert.assertTrue("expected entry to be added", added);
+        assertTrue(added, "expected entry to be added");
         Map<String, InputStream> map = zf.getZipEntries("model/logging");
-        Assert.assertNotNull("expected map to be returned", map);
-        Assert.assertEquals("expected 1 entry to be returned", 1, map.size());
+        assertNotNull(map, "expected map to be returned");
+        assertEquals(1, map.size(), "expected 1 entry to be returned");
         InputStream stream = map.get("model/logging/log.properties");
-        Assert.assertNotNull("expected non-null InputStream to be returned", stream);
+        assertNotNull(stream, "expected non-null InputStream to be returned");
         int available = stream.available();
-        Assert.assertTrue("expected log.properties to have more than 0 bytes available", available > 0);
+        assertTrue(available > 0, "expected log.properties to have more than 0 bytes available");
         zf.close();
     }
 
     @Test
-    public void testReallyMatches() throws Exception {
+    void testReallyMatches() {
         File f = new File(UNIT_TEST_TARGET_DIR + File.separator + ZIP_FILE_EXISTING_EMPTY_FILE);
         WLSDeployZipFile zf = new WLSDeployZipFile(f);
 
         boolean result = zf.entryReallyMatches(REALLY_MATCHES_NORMAL_ENTRY1, REALLY_MATCHES_NORMAL_BASENAME,
             REALLY_MATCHES_NORMAL_EXTENSION);
-        Assert.assertTrue("expected match", result);
+        assertTrue(result, "expected match");
         result = zf.entryReallyMatches(REALLY_MATCHES_NORMAL_ENTRY2, REALLY_MATCHES_NORMAL_BASENAME,
             REALLY_MATCHES_NORMAL_EXTENSION);
-        Assert.assertTrue("expected match", result);
+        assertTrue(result, "expected match");
 
         result = zf.entryReallyMatches(REALLY_MATCHES_NORMAL_ENTRY2, REALLY_MATCHES_NORMAL_BASENAME,
             REALLY_MATCHES_WRONG_EXTENSION);
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
         result = zf.entryReallyMatches(REALLY_MATCHES_NORMAL_ENTRY2, REALLY_MATCHES_NORMAL_BASENAME, "");
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
         result = zf.entryReallyMatches(REALLY_MATCHES_NORMAL_ENTRY2, REALLY_MATCHES_NORMAL_BASENAME, null);
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
 
         result = zf.entryReallyMatches(REALLY_MATCHES_NOMATCH_ENTRY1, REALLY_MATCHES_NORMAL_BASENAME,
             REALLY_MATCHES_NORMAL_EXTENSION);
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
         result = zf.entryReallyMatches(REALLY_MATCHES_NOMATCH_ENTRY2, REALLY_MATCHES_NORMAL_BASENAME,
             REALLY_MATCHES_NORMAL_EXTENSION);
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
         result = zf.entryReallyMatches(REALLY_MATCHES_NOMATCH_ENTRY3, REALLY_MATCHES_NORMAL_BASENAME,
             REALLY_MATCHES_NORMAL_EXTENSION);
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
         result = zf.entryReallyMatches(REALLY_MATCHES_NOMATCH_ENTRY4, REALLY_MATCHES_NORMAL_BASENAME,
             REALLY_MATCHES_NORMAL_EXTENSION);
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
         result = zf.entryReallyMatches(REALLY_MATCHES_NOMATCH_ENTRY5, REALLY_MATCHES_NORMAL_BASENAME,
             REALLY_MATCHES_NORMAL_EXTENSION);
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
         result = zf.entryReallyMatches(REALLY_MATCHES_NOMATCH_ENTRY6, REALLY_MATCHES_NORMAL_BASENAME,
             REALLY_MATCHES_NORMAL_EXTENSION);
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
 
         result = zf.entryReallyMatches(REALLY_MATCHES_DIR_ENTRY1, REALLY_MATCHES_NORMAL_BASENAME, "");
-        Assert.assertTrue("expected match", result);
+        assertTrue(result, "expected match");
         result = zf.entryReallyMatches(REALLY_MATCHES_DIR_ENTRY2, REALLY_MATCHES_NORMAL_BASENAME, "");
-        Assert.assertTrue("expected match", result);
+        assertTrue(result, "expected match");
         result = zf.entryReallyMatches(REALLY_MATCHES_DIR_ENTRY3, REALLY_MATCHES_NORMAL_BASENAME, "");
-        Assert.assertTrue("expected match", result);
+        assertTrue(result, "expected match");
         result = zf.entryReallyMatches(REALLY_MATCHES_DIR_ENTRY4, REALLY_MATCHES_NORMAL_BASENAME, "");
-        Assert.assertTrue("expected match", result);
+        assertTrue(result, "expected match");
 
         result = zf.entryReallyMatches(REALLY_MATCHES_BADDIR_ENTRY1, REALLY_MATCHES_NORMAL_BASENAME, "");
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
         result = zf.entryReallyMatches(REALLY_MATCHES_BADDIR_ENTRY2, REALLY_MATCHES_NORMAL_BASENAME, "");
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
         result = zf.entryReallyMatches(REALLY_MATCHES_BADDIR_ENTRY3, REALLY_MATCHES_NORMAL_BASENAME, "");
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
         result = zf.entryReallyMatches(REALLY_MATCHES_BADDIR_ENTRY4, REALLY_MATCHES_NORMAL_BASENAME, "");
-        Assert.assertFalse("expected no match", result);
+        assertFalse(result, "expected no match");
         zf.close();
     }
 
@@ -283,10 +285,10 @@ public class WLSDeployZipFileTest {
     private void testEmptyFile(String name) throws Exception {
         File f = new File(UNIT_TEST_TARGET_DIR + File.separator + name);
         WLSDeployZipFile zf = new WLSDeployZipFile(f);
-        Assert.assertNotNull("Expected a valid WLSDeployZipFile object", zf);
-        Assert.assertTrue("Unexpected zip file name returned", zf.getFileName().endsWith(name));
+        assertNotNull(zf, "Expected a valid WLSDeployZipFile object");
+        assertTrue(zf.getFileName().endsWith(name), "Unexpected zip file name returned");
         InputStream stream = zf.getZipEntry(ZIP_FILE_EXISTING_FILE_KEYS[1]);
-        Assert.assertNull("Expected a null InputStream", stream);
+        assertNull(stream, "Expected a null InputStream");
         zf.close();
     }
 
@@ -294,14 +296,14 @@ public class WLSDeployZipFileTest {
         Iterator<String> keysIterator = map.keySet().iterator();
         while (keysIterator.hasNext()) {
             String key = keysIterator.next();
-            Assert.assertTrue("excepted key to be in expected key list", expectedList.contains(key));
+            assertTrue(expectedList.contains(key), "excepted key to be in expected key list");
             InputStream stream = map.get(key);
-            Assert.assertNotNull("Expected non-null InputStream", stream);
+            assertNotNull(stream, "Expected non-null InputStream");
             int available = stream.available();
             if (key.endsWith("/")) {
-                Assert.assertEquals("expected directory entry to have 0 available bytes", 0, available);
+                assertEquals(0, available, "expected directory entry to have 0 available bytes");
             } else {
-                Assert.assertTrue("expected file entries to have more than 0 available bytes", available > 0);
+                assertTrue(available > 0, "expected file entries to have more than 0 available bytes");
             }
             stream.close();
         }
