@@ -12,8 +12,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import oracle.weblogic.deploy.util.PyOrderedDict;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
+
 import org.python.core.PyDictionary;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
@@ -22,6 +23,10 @@ import org.python.core.PyObject;
 import org.python.core.PyString;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class YamlTranslatorTest {
 
@@ -32,153 +37,146 @@ public class YamlTranslatorTest {
 
         PyDictionary actual = yamlTranslator.parse();
 
-        Assert.assertNotNull("dict should not be null", actual);
+        assertNotNull(actual, "dict should not be null");
 
         PyString key = new PyString("field1");
-        Assert.assertTrue("field1 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field1 should be present");
         PyObject value = actual.__getitem__(key);
-        Assert.assertEquals("field1 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field1 value should be string", "string", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field1 should be a string");
+        assertEquals("string", value.toString(), "field1 value should be string");
 
         key = new PyString("field2");
-        Assert.assertTrue("field2 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field2 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field2 should be an integer", PyInteger.class, value.getClass());
-        Assert.assertEquals("field2 value should be 123", 123,
-            ((PyInteger)value).getValue());
+        assertEquals(PyInteger.class, value.getClass(), "field2 should be an integer");
+        assertEquals(123, ((PyInteger)value).getValue(), "field2 value should be 123");
 
         key = new PyString("field3");
-        Assert.assertTrue("field3 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field3 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field3 should be a long", PyLong.class, value.getClass());
-        Assert.assertEquals("field3 value should be 123456789012345",
-            new BigInteger("123456789012345"), ((PyLong)value).getValue());
+        assertEquals(PyLong.class, value.getClass(), "field3 should be a long");
+        assertEquals(new BigInteger("123456789012345"), ((PyLong)value).getValue(), "field3 value should be 123456789012345");
 
         key = new PyString("field4");
-        Assert.assertTrue("field4 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field4 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field4 should be a float", PyFloat.class, value.getClass());
-        Assert.assertEquals("field4 value should be 123.456",123.456,
-            ((PyFloat)value).getValue(), 0.0000000001);
+        assertEquals(PyFloat.class, value.getClass(), "field4 should be a float");
+        assertEquals(123.456, ((PyFloat)value).getValue(), 0.0000000001, "field4 value should be 123.456");
 
         key = new PyString("field5");
-        Assert.assertTrue("field5 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field5 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field5 should be a float", PyFloat.class, value.getClass());
-        Assert.assertEquals("field5 value should be 0.12345678901234567890",
-            0.12345678901234567890, ((PyFloat)value).getValue(), 0.0000000001);
+        assertEquals(PyFloat.class, value.getClass(), "field5 should be a float");
+        assertEquals(0.12345678901234567890, ((PyFloat)value).getValue(), 0.0000000001,
+            "field5 value should be 0.12345678901234567890");
 
         key = new PyString("field6");
-        Assert.assertTrue("field6 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field6 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field6 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field6 value should be true", "true", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field6 should be a string");
+        assertEquals("true", value.toString(), "field6 value should be true");
 
         key = new PyString("field7");
-        Assert.assertTrue("field7 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field7 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field7 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field7 value should be true", "true", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field7 should be a string");
+        assertEquals("true", value.toString(), "field7 value should be true");
 
         key = new PyString("field8");
-        Assert.assertTrue("field8 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field8 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field8 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field8 value should be false", "false", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field8 should be a string");
+        assertEquals("false", value.toString(), "field8 value should be false");
 
         key = new PyString("field9");
-        Assert.assertTrue("field9 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field9 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field9 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field9 value should be false", "false", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field9 should be a string");
+        assertEquals("false", value.toString(), "field9 value should be false");
 
         key = new PyString("field10");
-        Assert.assertTrue("field10 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field10 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field10 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field10 value should be string", "string", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field10 should be a string");
+        assertEquals("string", value.toString(), "field10 value should be string");
 
         key = new PyString("field11");
-        Assert.assertTrue("field11 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field11 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field11 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field11 value should be string", "string", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field11 should be a string");
+        assertEquals("string", value.toString(), "field11 value should be string");
 
         key = new PyString("field12");
-        Assert.assertTrue("field12 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field12 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field12 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field12 value should be 123", "123", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field12 should be a string");
+        assertEquals("123", value.toString(), "field12 value should be 123");
 
         key = new PyString("field13");
-        Assert.assertTrue("field13 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field13 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field13 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field13 value should be 123", "123", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field13 should be a string");
+        assertEquals( "123", value.toString(), "field13 value should be 123");
 
         key = new PyString("field14");
-        Assert.assertTrue("field14 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field14 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field14 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field14 value should be 123456789012345",
-            "123456789012345", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field14 should be a string");
+        assertEquals("123456789012345", value.toString(), "field14 value should be 123456789012345");
 
         key = new PyString("field15");
-        Assert.assertTrue("field15 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field15 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field15 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field15 value should be 123456789012345",
-            "123456789012345", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field15 should be a string");
+        assertEquals("123456789012345", value.toString(), "field15 value should be 123456789012345");
 
         key = new PyString("field16");
-        Assert.assertTrue("field16 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field16 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field16 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field16 value should be 123.456", "123.456", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field16 should be a string");
+        assertEquals("123.456", value.toString(), "field16 value should be 123.456");
 
         key = new PyString("field17");
-        Assert.assertTrue("field17 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field17 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field17 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field17 value should be 123.456", "123.456", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field17 should be a string");
+        assertEquals("123.456", value.toString(), "field17 value should be 123.456");
 
         key = new PyString("field18");
-        Assert.assertTrue("field18 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field18 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field18 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field18 value should be 0.12345678901234567890",
-            "0.12345678901234567890", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field18 should be a string");
+        assertEquals("0.12345678901234567890", value.toString(), "field18 value should be 0.12345678901234567890");
 
         key = new PyString("field19");
-        Assert.assertTrue("field19 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field19 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field19 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field19 value should be 0.12345678901234567890",
-            "0.12345678901234567890", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field19 should be a string");
+        assertEquals("0.12345678901234567890", value.toString(), "field19 value should be 0.12345678901234567890");
 
         key = new PyString("field20");
-        Assert.assertTrue("field20 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field20 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field20 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field20 value should be true", "true", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field20 should be a string");
+        assertEquals("true", value.toString(), "field20 value should be true");
 
         key = new PyString("field21");
-        Assert.assertTrue("field21 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field21 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field21 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field21 value should be True", "True", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field21 should be a string");
+        assertEquals("True", value.toString(), "field21 value should be True");
 
         key = new PyString("field22");
-        Assert.assertTrue("field22 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field22 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field22 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field22 value should be false", "false", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field22 should be a string");
+        assertEquals("false", value.toString(), "field22 value should be false");
 
         key = new PyString("field23");
-        Assert.assertTrue("field23 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "field23 should be present");
         value = actual.__getitem__(key);
-        Assert.assertEquals("field23 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field23 value should be False", "False", value.toString());
+        assertEquals(PyString.class, value.getClass(), "field23 should be a string");
+        assertEquals("False", value.toString(), "field23 value should be False");
     }
 
     @Test
@@ -187,42 +185,42 @@ public class YamlTranslatorTest {
         YamlTranslator yamlTranslator = new YamlTranslator(yamlFile.getAbsolutePath(), true);
 
         PyDictionary actual = yamlTranslator.parse();
-        Assert.assertNotNull("dict should not be null", actual);
+        assertNotNull(actual, "dict should not be null");
 
         PyString key = new PyString("level1");
-        Assert.assertTrue("level1 should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "level1 should be present");
         PyObject value = actual.__getitem__(key);
-        Assert.assertNotNull("level1 value should not be null", value);
-        Assert.assertEquals("level1 should be a dict", PyOrderedDict.class, value.getClass());
+        assertNotNull(value, "level1 value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "level1 should be a dict");
         PyDictionary dict = (PyDictionary) value;
 
         key = new PyString("level2");
-        Assert.assertTrue("level2 should be present", dict.has_key(key));
+        assertTrue(dict.has_key(key), "level2 should be present");
         value = dict.__getitem__(key);
-        Assert.assertNotNull("level2 value should not be null", value);
-        Assert.assertEquals("level2 should be a dict", PyOrderedDict.class, value.getClass());
+        assertNotNull(value, "level2 value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "level2 should be a dict");
         dict = (PyDictionary) value;
 
         key = new PyString("level3");
-        Assert.assertTrue("level3 should be present", dict.has_key(key));
+        assertTrue(dict.has_key(key), "level3 should be present");
         value = dict.__getitem__(key);
-        Assert.assertNotNull("level3 value should not be null", value);
-        Assert.assertEquals("level3 should be a dict", PyOrderedDict.class, value.getClass());
+        assertNotNull(value, "level3 value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "level3 should be a dict");
         dict = (PyDictionary) value;
 
         key = new PyString("field1");
-        Assert.assertTrue("field1 should be present", dict.has_key(key));
+        assertTrue(dict.has_key(key), "field1 should be present");
         value = dict.__getitem__(key);
-        Assert.assertNotNull("field1 value should not be null", value);
-        Assert.assertEquals("field1 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field1 value should be abc", "abc", value.toString());
+        assertNotNull(value, "field1 value should not be null");
+        assertEquals(PyString.class, value.getClass(), "field1 should be a string");
+        assertEquals("abc", value.toString(), "field1 value should be abc");
 
         key = new PyString("field2");
-        Assert.assertTrue("field2 should be present", dict.has_key(key));
+        assertTrue(dict.has_key(key), "field2 should be present");
         value = dict.__getitem__(key);
-        Assert.assertNotNull("field2 value should not be null", value);
-        Assert.assertEquals("field2 should be a string", PyString.class, value.getClass());
-        Assert.assertEquals("field2 value should be def", "def", value.toString());
+        assertNotNull(value, "field2 value should not be null");
+        assertEquals(PyString.class, value.getClass(), "field2 should be a string");
+        assertEquals("def", value.toString(), "field2 value should be def");
     }
 
     @Test
@@ -231,16 +229,16 @@ public class YamlTranslatorTest {
         YamlTranslator yamlTranslator = new YamlTranslator(yamlFile.getAbsolutePath(), true);
 
         PyDictionary actual = yamlTranslator.parse();
-
-        Assert.assertNotNull("dict should not be null", actual);
+        assertNotNull(actual, "dict should not be null");
 
         PyString key = new PyString("topology");
-        Assert.assertTrue("topology should be present", actual.has_key(key));
+        assertTrue(actual.has_key(key), "topology should be present");
         PyObject value = actual.__getitem__(key);
-        Assert.assertNotNull("topology value should not be null", value);
-        Assert.assertEquals("topology should be a dict", PyOrderedDict.class, value.getClass());
+        assertNotNull(value, "topology value should not be null");
+        assertEquals(PyOrderedDict.class, value.getClass(), "topology should be a dict");
         PyDictionary dict = (PyDictionary) value;
 
+        key = new PyString("SecurityConfiguration");
     }
 
     /**
@@ -260,8 +258,9 @@ public class YamlTranslatorTest {
             String text = "abc:\n  xyz: - aa-bb\n";
             InputStream stream = new ByteArrayInputStream(text.getBytes(UTF_8));
             YamlStreamTranslator translator = new YamlStreamTranslator("String", stream);
+            System.out.println("translator = " + translator.toString());
             translator.parse();
-            Assert.fail("Test must raise YamlException when model has a lexical error");
+            fail("Test must raise YamlException when model has a lexical error");
 
         } catch(YamlException e) {
             // expected result
