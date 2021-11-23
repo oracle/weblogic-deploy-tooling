@@ -20,7 +20,8 @@ class KubernetesSchemaTest(unittest.TestCase):
     def setUp(self):
         self.schema_map = wko_schema_helper.get_domain_resource_schema()
 
-        os.mkdir(self._model_dir)
+        if not os.path.exists(self._model_dir):
+            os.makedirs(self._model_dir)
         file_path = self._model_dir + "/model.yaml"
         self.out_file = open(file_path, "w")
 
