@@ -532,12 +532,12 @@ public class ITWdt extends BaseTest {
     private void verifyFDiscoverDomainWithRequiredArgument(String expectedModelFile) throws Exception {
          List<String> checkContents = new ArrayList<>();
          checkContents.add("domainInfo:");
-         checkContents.add("AdminUserName: '--FIX ME--'");
+         checkContents.add("AdminUserName: --FIX ME--");
          checkContents.add("CoherenceClusterSystemResource: defaultCoherenceCluster");
          checkContents.add("PublicAddress: kubernetes");
          checkContents.add("Trust Service Identity Asserter:");
          checkContents.add("appDeployments:");
-         checkContents.add("SourcePath: 'wlsdeploy/applications/simple-app.war'");
+         checkContents.add("SourcePath: wlsdeploy/applications/simple-app.war");
         verifyModelFileContents(expectedModelFile, checkContents);
     }
 
