@@ -22,7 +22,7 @@ from wlsdeploy.aliases.model_constants import DEPLOYMENT_ORDER
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PLAN_PATH
-from wlsdeploy.aliases.model_constants import PLAN_STAGE_MODE
+from wlsdeploy.aliases.model_constants import PLAN_STAGING_MODE
 from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
@@ -1159,7 +1159,7 @@ def _get_deploy_options(model_apps, app_name, library_module):
     """
     deploy_options = OrderedDict()
     # not sure about altDD, altWlsDD
-    for option in [DEPLOYMENT_ORDER, SECURITY_DD_MODEL, PLAN_STAGE_MODE, STAGE_MODE]:
+    for option in [DEPLOYMENT_ORDER, SECURITY_DD_MODEL, PLAN_STAGING_MODE, STAGE_MODE]:
         app = dictionary_utils.get_dictionary_element(model_apps, app_name)
         value = dictionary_utils.get_element(app, option)
 
@@ -1168,7 +1168,7 @@ def _get_deploy_options(model_apps, app_name, library_module):
             option_name = 'deploymentOrder'
         elif option == SECURITY_DD_MODEL:
             option_name = 'securityModel'
-        elif option == PLAN_STAGE_MODE:
+        elif option == PLAN_STAGING_MODE:
             option_name = 'planStageMode'
         elif option == STAGE_MODE:
             option_name = 'stageMode'
