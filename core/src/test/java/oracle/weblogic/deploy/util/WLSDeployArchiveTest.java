@@ -43,6 +43,11 @@ public class WLSDeployArchiveTest {
     static void setup() throws Exception {
         File unitTestDir = new File(WLSDeployZipFileTest.UNIT_TEST_TARGET_DIR).getCanonicalFile();
         unitTestDir.mkdirs();
+
+        File appsArchiveFile = new File(APPS_ARCHIVE_FILE_NAME).getCanonicalFile();
+        if (appsArchiveFile.exists()) {
+            appsArchiveFile.delete();
+        }
     }
 
     @Test

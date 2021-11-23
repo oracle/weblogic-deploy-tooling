@@ -15,6 +15,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -129,7 +130,7 @@ public class FileUtilsTest {
        since this creates a file overwrite security vulnerability (zip slip).
      */
     void testZipVulnerability() throws Exception {
-        String extractPath = UNIT_TEST_TARGET_DIR.getPath();
+        final String extractPath = UNIT_TEST_TARGET_DIR.getPath();
 
         // an entry with a simple name or path works fine
         File zipFile = buildWalletArchiveZip("info.txt");
@@ -140,9 +141,13 @@ public class FileUtilsTest {
         zipFile = buildWalletArchiveZip("../info.txt");
         final WLSDeployArchive deployArchive2 = new WLSDeployArchive(zipFile.getPath());
         assertThrows(IllegalArgumentException.class,
-            () -> FileUtils.extractZipFileContent(deployArchive2, WALLET_PATH, extractPath),
+            new Executable() {
+                @Override
+                public void execute() throws Throwable {
+                    FileUtils.extractZipFileContent(deployArchive2, WALLET_PATH, extractPath);
+                }
+            },
             "Exception not thrown for zip entry outside extract directory");
-
     }
 
     /* Build an archive zip containing a wallet zip.

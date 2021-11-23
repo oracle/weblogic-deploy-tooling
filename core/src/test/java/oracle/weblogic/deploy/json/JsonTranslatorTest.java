@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,8 +30,13 @@ public class JsonTranslatorTest {
         // JSON { "abc": "xyz"\ } causes lexical error
         String text = "{ \"abc\": \"xyz\"/ }";
         InputStream stream = new ByteArrayInputStream(text.getBytes(UTF_8));
-        JsonStreamTranslator translator = new JsonStreamTranslator("String", stream);
-        assertThrows(JsonException.class, translator::parse, "Test must raise JsonException when model has a lexical error");
+        final JsonStreamTranslator translator = new JsonStreamTranslator("String", stream);
+        assertThrows(JsonException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                translator.parse();
+            }
+        }, "Test must raise JsonException when model has a lexical error");
 
         logger.setLevel(originalLevel);
     }

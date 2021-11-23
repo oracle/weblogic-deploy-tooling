@@ -239,8 +239,6 @@ public class YamlTranslatorTest {
         assertEquals(PyOrderedDict.class, value.getClass(), "topology should be a dict");
         PyDictionary dict = (PyDictionary) value;
 
-        System.out.println(dict);
-
         key = new PyString("SecurityConfiguration");
         assertTrue(dict.has_key(key), "SecurityConfiguration should be present");
         value = dict.__getitem__(key);
