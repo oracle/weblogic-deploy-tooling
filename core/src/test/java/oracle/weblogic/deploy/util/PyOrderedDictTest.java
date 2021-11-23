@@ -11,15 +11,18 @@ import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PyDictionary;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PyOrderedDictTest {
     @Test
     public void testIsInstance() throws Exception {
         PyOrderedDict myOrderedDict = new PyOrderedDict();
         boolean result = (myOrderedDict instanceof PyDictionary);
-        Assert.assertTrue("isinstance(myOrderedDict, dict) returns true", result);
+        assertTrue(result, "isinstance(myOrderedDict, dict) returns true");
     }
 
     @Test
@@ -38,7 +41,7 @@ public class PyOrderedDictTest {
         PyObject key = new PyString("nba_mvp_count");
         PyObject value = myOrderedDict.get(key);
 
-        Assert.assertEquals("myOrderedDict.get(key) returned PyInteger(1)", ((PyInteger)value).getValue(), 1);
+        assertEquals(((PyInteger)value).getValue(), 1, "myOrderedDict.get(key) returned PyInteger(1)");
     }
 
     @Test
@@ -64,7 +67,7 @@ public class PyOrderedDictTest {
         // exact order that they were inserted
         PyList myOrderedDictKeys = myOrderedDict.keys();
         for (int i = 0; i < myOrderedDict.__len__(); i++) {
-            Assert.assertEquals("expected.get(" + i + ") == myOrderedDictKeys.get(" + i +")", expected.get(i), myOrderedDictKeys.get(i));
+            assertEquals(expected.get(i), myOrderedDictKeys.get(i), "expected.get(" + i + ") == myOrderedDictKeys.get(" + i +")");
         }
     }
 
@@ -102,7 +105,7 @@ public class PyOrderedDictTest {
 
         myOrderedDict.__setitem__("foo", new PyString("bar"));
         PyOrderedDict anotherOrderedDict = new PyOrderedDict(myOrderedDict);
-        Assert.assertEquals("", myOrderedDict.keys(), anotherOrderedDict.keys());
+        assertEquals(myOrderedDict.keys(), anotherOrderedDict.keys());
     }
 
     @Test
@@ -123,6 +126,6 @@ public class PyOrderedDictTest {
 
         PyList myOrderedDictKeys = myOrderedDict.keys();
 
-        Assert.assertEquals("", myOrderedDictKeys, expected);
+        assertEquals(myOrderedDictKeys, expected);
     }
 }

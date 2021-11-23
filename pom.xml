@@ -40,6 +40,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.testSource>1.8</maven.compiler.testSource>
+        <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
         <weblogic-deploy-installer-name>weblogic-deploy</weblogic-deploy-installer-name>
         <skipTests>false</skipTests>
         <antlr.version>4.7.2</antlr.version>
@@ -49,7 +51,7 @@
         <sonar.exclusions>.flattened-pom.xml,target/**</sonar.exclusions>
         <sonar.test.exclusions>src/test/**</sonar.test.exclusions>
         <unit-test-wlst-dir>${env.WLST_DIR}</unit-test-wlst-dir>
-        <skip-system-test-execution>false</skip-system-test-execution>
+        <skipITs>true</skipITs>
     </properties>
 
     <dependencyManagement>
@@ -65,9 +67,9 @@
                 <version>2.2.1</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.13.1</version>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>5.8.1</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -296,41 +298,9 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>core</module>
-                <module>installer</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>system-test</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>core</module>
-                <module>installer</module>
-                <module>system-test</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>release</id>
-            <properties>
-                <skip-system-test-execution>true</skip-system-test-execution>
-            </properties>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>core</module>
-                <module>installer</module>
-                <module>system-test</module>
-            </modules>
-        </profile>
-    </profiles>
+    <modules>
+        <module>core</module>
+        <module>installer</module>
+        <module>system-test</module>
+    </modules>
 </project>

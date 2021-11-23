@@ -4,15 +4,15 @@
  */
 package oracle.weblogic.deploy.json;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.jupiter.api.Test;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class JsonTranslatorTest {
 
@@ -26,19 +26,12 @@ public class JsonTranslatorTest {
         Level originalLevel  = logger.getLevel();
         logger.setLevel(Level.OFF);
 
-        try {
-            // JSON { "abc": "xyz"\ } causes lexical error
-            String text = "{ \"abc\": \"xyz\"/ }";
-            InputStream stream = new ByteArrayInputStream(text.getBytes(UTF_8));
-            JsonStreamTranslator translator = new JsonStreamTranslator("String", stream);
-            translator.parse();
-            Assert.fail("Test must raise JsonException when model has a lexical error");
+        // JSON { "abc": "xyz"\ } causes lexical error
+        String text = "{ \"abc\": \"xyz\"/ }";
+        InputStream stream = new ByteArrayInputStream(text.getBytes(UTF_8));
+        JsonStreamTranslator translator = new JsonStreamTranslator("String", stream);
+        assertThrows(JsonException.class, translator::parse, "Test must raise JsonException when model has a lexical error");
 
-        } catch(JsonException e) {
-            // expected result
-
-        } finally {
-            logger.setLevel(originalLevel);
-        }
+        logger.setLevel(originalLevel);
     }
 }

@@ -11,53 +11,54 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.python.core.PyDictionary;
 import org.python.core.PyLong;
 import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PyTuple;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.powermock.utils.Asserts.assertNotNull;
 
 public class TypeUtilsTest {
     @Test
     public void convertToType() throws Exception {
-        assertEquals("Integer conversion failed", 123, TypeUtils.convertToType("integer", "123"));
-        assertEquals("Long conversion failed", 123L, TypeUtils.convertToType( "long", "123"));
-        assertEquals("Double conversion failed", 123.45D, TypeUtils.convertToType( "double", "123.45"));
-        assertEquals("Boolean conversion failed", "true", TypeUtils.convertToType( "boolean", "true"));
-        assertEquals("Boolean conversion failed", "false", TypeUtils.convertToType( "boolean", 0));
+        assertEquals(123, TypeUtils.convertToType("integer", "123"), "Integer conversion failed");
+        assertEquals(123L, TypeUtils.convertToType( "long", "123"), "Long conversion failed");
+        assertEquals(123.45D, TypeUtils.convertToType( "double", "123.45"), "Double conversion failed");
+        assertEquals("true", TypeUtils.convertToType( "boolean", "true"), "Boolean conversion failed");
+        assertEquals("false", TypeUtils.convertToType( "boolean", 0), "Boolean conversion failed");
 
-        assertEquals("String conversion failed", "222", TypeUtils.convertToType( "string", 222));
-        assertEquals("Password conversion failed", "abcdef", TypeUtils.convertToType( "password", "abcdef"));
-        assertEquals("String conversion failed", "222", TypeUtils.convertToType( "string", "222".toCharArray()));
+        assertEquals("222", TypeUtils.convertToType( "string", 222), "String conversion failed");
+        assertEquals("abcdef", TypeUtils.convertToType( "password", "abcdef"), "Password conversion failed");
+        assertEquals("222", TypeUtils.convertToType( "string", "222".toCharArray()), "String conversion failed");
 
         String[] strings = {"one", "two", "three"};
-        assertEquals("List conversion failed",
-            Arrays.asList(strings),
-            TypeUtils.convertToType( "list", "one, two, three"));
+        assertEquals(Arrays.asList(strings), TypeUtils.convertToType( "list", "one, two, three"), "List conversion failed");
     }
 
-    @Test(expected = AliasException.class)
-    public void convertToTypeInvalidStringType() throws Exception {
-        TypeUtils.convertToType( "fancy", "123" );
+    @Test
+    public void convertToTypeInvalidStringType() {
+        assertThrows(AliasException.class, () -> TypeUtils.convertToType("fancy", "123"));
     }
 
-    @Test(expected = AliasException.class)
-    public void convertToTypeInvalidPrimitiveType() throws Exception {
-        TypeUtils.convertToType( int.class, "123" );
+    @Test
+    public void convertToTypeInvalidPrimitiveType() {
+        assertThrows(AliasException.class, () -> TypeUtils.convertToType(int.class, "123"));
     }
 
-    @Test(expected = AliasException.class)
-    public void convertInvalidInteger() throws Exception {
-        TypeUtils.convertToType(Integer.class, "this is a string");
+    @Test
+    public void convertInvalidInteger() {
+        assertThrows(AliasException.class, () -> TypeUtils.convertToType(Integer.class, "this is a string"));
     }
 
     @Test
     public void convertToTypeNullTest() throws Exception {
-        assertEquals("String null conversion failed", null, TypeUtils.convertToType( String.class, null ));;
-        assertEquals("Character null conversion failed", null, TypeUtils.convertToType( Character.class, "" ));;
+        assertNull(TypeUtils.convertToType(String.class, null), "String null conversion failed");
+        assertNull(TypeUtils.convertToType(Character.class, ""), "Character null conversion failed");
     }
 
     @Test
@@ -95,10 +96,10 @@ public class TypeUtilsTest {
         expected.put("key2", "value2");
         expected.put("key3", "value3");
         expected.put("key4", "value4");
-        assertEquals("String to Map conversion failed", expected, TypeUtils.convertStringToMap(str, ","));
-        assertEquals("JSON to Map conversion failed", expected, TypeUtils.convertStringToMap(json, ","));
-        assertEquals("String to Map conversion failed", expected, TypeUtils.convertToType(Map.class, str, ","));
-        assertEquals("Map to Map conversion failed", expected, TypeUtils.convertToType(Map.class, expected));
+        assertEquals(expected, TypeUtils.convertStringToMap(str, ","), "String to Map conversion failed");
+        assertEquals(expected, TypeUtils.convertStringToMap(json, ","), "JSON to Map conversion failed");
+        assertEquals(expected, TypeUtils.convertToType(Map.class, str, ","), "String to Map conversion failed");
+        assertEquals(expected, TypeUtils.convertToType(Map.class, expected), "Map to Map conversion failed");
     }
 
     @Test
@@ -108,9 +109,8 @@ public class TypeUtilsTest {
         list.add("two");
         list.add("three");
         Object result = TypeUtils.convertToType(String[].class, list);
-        if ( result == null )
-            fail("convertToType returned null for List conversion to String[]");
-        assertEquals("List conversion failed", String[].class, result.getClass());
+        assertNotNull(result, "convertToType returned null for List conversion to String[]");
+        assertEquals(String[].class, result.getClass(), "List conversion failed");
 
     }
 
@@ -118,11 +118,11 @@ public class TypeUtilsTest {
     public void convertToList() throws Exception {
         String[] array = { "one", "two", "three" };
         List<String> expected = Arrays.asList(array);
-        assertEquals("List from array conversion failed", expected, TypeUtils.convertToType(List.class, array));
+        assertEquals(expected, TypeUtils.convertToType(List.class, array), "List from array conversion failed");
         String str = "one, two, three";
-        assertEquals("List from string conversion failed", expected, TypeUtils.convertToType(List.class, str));
+        assertEquals(expected, TypeUtils.convertToType(List.class, str), "List from string conversion failed");
         String[] empty = {};
-        assertEquals("List from empty list conversion failed", null, TypeUtils.convertToType(List.class, empty));
+        assertNull(TypeUtils.convertToType(List.class, empty), "List from empty list conversion failed");
     }
 
     @Test
@@ -132,12 +132,12 @@ public class TypeUtilsTest {
         Properties expected = new Properties();
         expected.put("key1", "value1");
         expected.put("key2", "value2");
-        assertEquals("Properties from String failed", expected, TypeUtils.convertToType(Properties.class, str, ";"));
+        assertEquals(expected, TypeUtils.convertToType(Properties.class, str, ";"), "Properties from String failed");
 
         Map<String, String> map = new HashMap<>();
         map.put("key1", "value1");
         map.put("key2", "value2");
-        assertEquals("Properties from Map failed", expected, TypeUtils.convertToType(Properties.class, map, ";"));
+        assertEquals(expected, TypeUtils.convertToType(Properties.class, map, ";"), "Properties from Map failed");
 
     }
 
@@ -154,6 +154,6 @@ public class TypeUtilsTest {
         expected.put("mail.smtp.port", "25");
         expected.put("mail.smtp.host", "192.168.56.1");
 
-        assertEquals("Properties from dict failed", expected, result);
+        assertEquals(expected, result, "Properties from dict failed");
     }
 }

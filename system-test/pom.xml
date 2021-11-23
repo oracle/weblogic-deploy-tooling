@@ -18,23 +18,23 @@
 
     <properties>
         <mw_home>${env.ORACLE_HOME}</mw_home>
+        <db.use.container.network>false</db.use.container.network>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <artifactId>weblogic-deploy-core</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
          <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.7</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -76,7 +76,6 @@
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <failIfNoTests>false</failIfNoTests>
-                    <skipITs>${skip-system-test-execution}</skipITs>
                     <argLine>
                         -Xmx1024m -XX:MaxPermSize=256m
                     </argLine>
@@ -88,6 +87,10 @@
                         <property>
                             <name>MW_HOME</name>
                             <value>${mw_home}</value>
+                        </property>
+                        <property>
+                            <name>db.use.container.network</name>
+                            <value>${db.use.container.network}</value>
                         </property>
                     </systemProperties>
                 </configuration>
@@ -101,7 +104,7 @@
                         <phase>integration-test</phase>
                         <configuration>
                             <systemPropertyVariables>
-                                <java.util.logging.SimpleFormatter.format>%1$tm-%1$td-%1$tY %1$tH:%1$tM:%1$tS %4$-6s %2$s %5$s%6$s%n</java.util.logging.SimpleFormatter.format>
+                                <java.util.logging.SimpleFormatter.format>&lt;%1$tm-%1$td-%1$tY %1$tH:%1$tM:%1$tS&gt; &lt;%4$s&gt; &lt;%2$s&gt; &lt;%5$s%6$s&gt;%n</java.util.logging.SimpleFormatter.format>
                             </systemPropertyVariables>
                             <trimStackTrace>false</trimStackTrace>
                         </configuration>
@@ -118,7 +121,7 @@
                             <goal>enforce</goal>
                         </goals>
                         <configuration>
-                            <skip>${skip-system-test-execution}</skip>
+                            <skip>${skipITs}</skip>
                             <rules>
                                 <requireProperty>
                                     <property>mw_home</property>
