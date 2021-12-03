@@ -12,7 +12,6 @@ import java.util.Map;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 
-import org.omg.CORBA.portable.OutputStream;
 import org.python.core.PyDictionary;
 
 /**
