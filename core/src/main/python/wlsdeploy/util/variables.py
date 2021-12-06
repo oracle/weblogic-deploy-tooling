@@ -310,19 +310,16 @@ def _read_value_from_file(file_path, model_context):
     :raises BundleAwareException if an error occurs while reading the value
     """
     method_name = '_read_value_from_file'
-
+    line = None
     try:
         file_reader = BufferedReader(FileReader(file_path))
         line = file_reader.readLine()
         file_reader.close()
     except IOException, e:
         _report_token_issue('WLSDPLY-01733', method_name, model_context, file_path, e.getLocalizedMessage())
-        line = ''
 
     if line is None:
-        ex = exception_helper.create_variable_exception('WLSDPLY-01734', file_path)
-        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-        raise ex
+        line = ''
 
     return str(line).strip()
 
