@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import imp
@@ -7,6 +7,7 @@ import os
 import sys
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.filters import wko_filter
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 from wlsdeploy.util.model_translator import FileToPython
@@ -17,7 +18,7 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 TARGET_CONFIG_TOKEN = '@@TARGET_CONFIG_DIR@@'
 
 __id_filter_map = {
-    # 'filterId': filter_method
+    'wko_filter': wko_filter.filter_model
 }
 
 
