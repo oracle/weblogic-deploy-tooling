@@ -7,6 +7,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -60,8 +61,8 @@ public class XPathUtil {
         for (String patch_file : patch_files){
             Document doc = readXmlFile(patch_file);
             String descrip = description(doc, "//@description");
-            LOGGER.info("Description {0}", descrip);
-            if (descrip.startsWith("WLS PATCH SET UPDATE")) {
+            LOGGER.fine("Description {0}", descrip);
+            if (descrip != null && descrip.startsWith("WLS PATCH SET UPDATE")) {
                 int idx = descrip.lastIndexOf('.');
                 String psu = descrip.substring(idx+1);
                 LOGGER.info("PSU Is {0}", psu);
@@ -79,8 +80,7 @@ public class XPathUtil {
      */
     public List<String> findPatchFiles() {
         List<String> patch_files = new ArrayList<String>();
-        try {
-            DirectoryStream<Path> stream = Files.newDirectoryStream(new File(patches_home).toPath());
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(new File(patches_home).toPath())){
             for (Path path : stream) {
                 patch_files.add(path.toString());
             }
@@ -97,6 +97,16 @@ public class XPathUtil {
      */
     public Document readXmlFile(String path) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        try {
+            dbf.setXIncludeAware(false);
+            dbf.setExpandEntityReferences(false);
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch (ParserConfigurationException pce) {
+            LOGGER.warning("Unable to set feature in DocumentBuilderFactory : {0}");
+        }
 
         Document doc = null;
         try {

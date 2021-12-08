@@ -113,7 +113,6 @@ class ModelContext(object):
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
             psu = XPathUtil(self._oracle_home).getPSU()
-            self._logger.info("PSU is {0}", psu)
             if psu is not None:
                 self._wl_version += '.' + psu
                 self._logger.info('WLSDPLY-01050', self._wl_version, class_name=self._class_name,
