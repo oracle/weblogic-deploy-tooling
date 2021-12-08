@@ -66,7 +66,7 @@ class Aliases(object):
         :param model_context: used for tokenizing and encryption
         :param wlst_mode: offline or online, default is offline
         :param wls_version: the WLS version to use, default is to Oracle Home version
-        :param exception_type: the exception type to be thrownN
+        :param exception_type: the exception type to be thrown
         """
         self._model_context = model_context
         self._wlst_mode = wlst_mode

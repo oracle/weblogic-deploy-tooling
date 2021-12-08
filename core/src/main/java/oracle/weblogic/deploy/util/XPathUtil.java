@@ -65,8 +65,7 @@ public class XPathUtil {
             if (descrip != null && descrip.startsWith("WLS PATCH SET UPDATE")) {
                 int idx = descrip.lastIndexOf('.');
                 String psu = descrip.substring(idx+1);
-                LOGGER.info("PSU Is {0}", psu);
-                list.add(psu);
+                 list.add(psu);
                 Collections.sort(list);
                 return list.get(list.size() -1);
             }
