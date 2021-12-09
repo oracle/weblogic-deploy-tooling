@@ -618,8 +618,7 @@ class ModelContext(object):
             configuration_dict = {}
 
             if self._target:
-                target_path = os.path.join('targets', self._target, 'target.json')
-                target_configuration_file = path_utils.find_config_path(target_path)
+                target_configuration_file = self.get_target_configuration_file()
                 if os.path.exists(target_configuration_file):
                     file_handle = open(target_configuration_file)
                     configuration_dict = eval(file_handle.read())
@@ -627,6 +626,12 @@ class ModelContext(object):
             self._target_configuration = TargetConfiguration(configuration_dict)
 
         return self._target_configuration
+
+    def get_target_configuration_file(self):
+        if self._target:
+            target_path = os.path.join('targets', self._target, 'target.json')
+            return path_utils.find_config_path(target_path)
+        return None
 
     def get_target(self):
         return self._target
