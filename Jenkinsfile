@@ -67,7 +67,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'mvn -DskipITs=false -Dmw_home=${ORACLE_HOME} verify'
+                sh 'mvn -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true verify'
             }
             post {
                 always {
