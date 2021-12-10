@@ -28,6 +28,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -38,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @IntegrationTest
-@TestMethodOrder(MethodOrderer.MethodName.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ITWdt extends BaseTest {
     @TestingLogger
     private static final Logger logger = Logger.getLogger("integration.tests");
@@ -105,6 +106,7 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 1: createDomain bad arguments")
+    @Order(1)
     @Tag("gate")
     @Test
     public void test1CreateDomainNoDomainHome(TestInfo testInfo) throws Exception {
@@ -121,6 +123,7 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 2: createDomain bad arguments")
+    @Order(2)
     @Tag("gate")
     @Test
     public void test2CreateDomainNoDomainHome(TestInfo testInfo) throws Exception {
@@ -138,6 +141,7 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 3: createDomain bad arguments")
+    @Order(3)
     @Tag("gate")
     @Test
     public void test3CreateDomainNoModelfile(TestInfo testInfo) throws Exception {
@@ -155,6 +159,7 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if output file could not be created or written
      */
     @DisplayName("Test 4: createDomain without archive file")
+    @Order(4)
     @Tag("gate")
     @Test
     public void test4CreateDomainNoArchivefile(TestInfo testInfo) throws Exception {
@@ -173,6 +178,7 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 5: createDomain with domain_parent")
+    @Order(5)
     @Tag("gate")
     @Test
     public void test5CreateDomain(TestInfo testInfo) throws Exception {
@@ -193,6 +199,7 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 6: createDomain with domain_home")
+    @Order(6)
     @Tag("gate")
     @Test
     public void test6CreateDomainDifferentDomainName(TestInfo testInfo) throws Exception {
@@ -212,6 +219,7 @@ public class ITWdt extends BaseTest {
      * test createDomain.sh with WLS domain_type
      * @throws Exception -if any error occurs
      */
+    @Order(7)
     @Tag("gate")
     @Test
     public void test7CreateDomainWLSType(TestInfo testInfo) throws Exception {
@@ -231,6 +239,7 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 8: createDomain but needs variable file")
+    @Order(8)
     @Tag("gate")
     @Test
     public void test8CreateDomainNoVariableFile(TestInfo testInfo) throws Exception {
@@ -250,6 +259,7 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 9: createDomain with variable file")
+    @Order(9)
     @Tag("gate")
     @Test
     public void test9CreateDomainWithVariableFile(TestInfo testInfo) throws Exception {
@@ -269,9 +279,10 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 10: createDomain with WLS wlst_path")
+    @Order(10)
     @Tag("gate")
     @Test
-    public void testACreateDomainWithWlstPath(TestInfo testInfo) throws Exception {
+    public void test10CreateDomainWithWlstPath(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
             domainParentDir + FS + "domain2 -model_file " +
                 getSampleModelFile("1") + " -archive_file " + getSampleArchiveFile() +
@@ -289,9 +300,10 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 11: createDomain with oracle_commmon wlst_path")
+    @Order(11)
     @Tag("gate")
     @Test
-    public void testBCreateDomainWithOracleCommonWlstPath(TestInfo testInfo) throws Exception {
+    public void test11CreateDomainWithOracleCommonWlstPath(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
             domainParentDir + FS + "domain2 -model_file " +
                 getSampleModelFile("1") + " -archive_file " + getSampleArchiveFile() +
@@ -309,9 +321,10 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 12: createDomain JRF domain without DB")
+    @Order(12)
     @Tag("gate")
     @Test
-    public void testCCreateJRFDomainNoRunRCU(TestInfo testInfo) throws Exception {
+    public void test12CreateJRFDomainNoRunRCU(TestInfo testInfo) throws Exception {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path source = Paths.get(getSampleModelFile("2"));
             Path modelOut = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "2.yaml");
@@ -333,9 +346,10 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 13: createDomain JRF domain and run RCU")
+    @Order(13)
     @Tag("gate")
     @Test
-    public void testDCreateJRFDomainRunRCU(TestInfo testInfo) throws Exception {
+    public void test13CreateJRFDomainRunRCU(TestInfo testInfo) throws Exception {
         waitForDatabase();
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path source = Paths.get(getSampleModelFile("2"));
@@ -361,9 +375,10 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 14: Update JRF domain that requires restart")
+    @Order(14)
     @Tag("gate")
     @Test
-    public void testDOnlineUpdate1(TestInfo testInfo) throws Exception {
+    public void test14OnlineUpdate1(TestInfo testInfo) throws Exception {
         assumeTrue(rcuDomainCreated, "testDOnlineUpdate skipped because testDCreateJRFDomainRunRCU failed");
 
         // Setup boot.properties
@@ -405,9 +420,10 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 15: Update JRF domain that requires restart, but cancel changes")
+    @Order(15)
     @Tag("gate")
     @Test
-    public void testDOnlineUpdate2(TestInfo testInfo) throws Exception {
+    public void test15OnlineUpdate2(TestInfo testInfo) throws Exception {
         assumeTrue(rcuDomainCreated, "testDOnlineUpdate2 skipped because testDCreateJRFDomainRunRCU failed");
 
         String domainHome = domainParentDir + FS + "jrfDomain1";
@@ -445,9 +461,10 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 16: create restricted JRF domain")
+    @Order(16)
     @Tag("gate")
     @Test
-    public void testECreateRestrictedJRFDomain(TestInfo testInfo) throws Exception {
+    public void test16CreateRestrictedJRFDomain(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
             domainParentDir + FS + "restrictedJRFD1 -model_file " +
                 getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
@@ -465,9 +482,10 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 17: Discover domain restrictedJRFD1")
+    @Order(17)
     @Tag("gate")
     @Test
-    public void testFDiscoverDomainWithRequiredArgument(TestInfo testInfo) throws Exception {
+    public void test17DiscoverDomainWithRequiredArgument(TestInfo testInfo) throws Exception {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
             String cmd = discoverDomainScript
@@ -507,9 +525,10 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 18: Discover domain restrictedJRFD1 using model_file arg")
+    @Order(18)
     @Tag("gate")
     @Test
-    public void testGDiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
+    public void test18DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
         Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
         Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
         String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
@@ -530,9 +549,10 @@ public class ITWdt extends BaseTest {
    * @throws Exception - if any error occurs
    */
   @DisplayName("Test 19: Discover domain restrictedJRFD1 using variable file")
+  @Order(19)
   @Tag("gate")
   @Test
-  public void testGDiscoverDomainWithVariableFile(TestInfo testInfo) throws Exception {
+  public void test19DiscoverDomainWithVariableFile(TestInfo testInfo) throws Exception {
       Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
       Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
       Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.properties");
@@ -566,10 +586,13 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 20: Discover domain domain_type JRF")
+    @Order(20)
     @Tag("gate")
     @Test
-    public void testHDiscoverDomainJRFDomainType(TestInfo testInfo) throws Exception {
-        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+    public void test20DiscoverDomainJRFDomainType(TestInfo testInfo) throws Exception {
+      assumeTrue(rcuDomainCreated, "testHDiscoverDomainJRFDomainType skipped because testDCreateJRFDomainRunRCU failed");
+
+      try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
             Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredJRFD1.yaml");
             String cmd = discoverDomainScript
@@ -605,9 +628,10 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 21: Update domain dynamic server count")
+    @Order(21)
     @Tag("gate")
     @Test
-    public void testIUpdateDomain(TestInfo testInfo) throws Exception {
+    public void test21UpdateDomain(TestInfo testInfo) throws Exception {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path source = Paths.get(getSampleVariableFile());
             Path variableFile = getTestOutputPath(testInfo).resolve(SAMPLE_VARIABLE_FILE);
@@ -640,9 +664,10 @@ public class ITWdt extends BaseTest {
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 22: Deploy App negative test")
+    @Order(22)
     @Tag("gate")
     @Test
-    public void testJDeployAppWithoutModelfile(TestInfo testInfo) throws Exception {
+    public void test22DeployAppWithoutModelfile(TestInfo testInfo) throws Exception {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             String cmd = deployAppScript
                 + " -oracle_home " + mwhome_12213
@@ -657,10 +682,11 @@ public class ITWdt extends BaseTest {
      * Test deployApps.
      * @throws Exception - if any error occurs
      */
-    @DisplayName("Test 22: Deploy App")
+    @DisplayName("Test 23: Deploy App")
+    @Order(23)
     @Tag("gate")
     @Test
-    public void testKDeployAppWithModelfile(TestInfo testInfo) throws Exception {
+    public void test23DeployAppWithModelfile(TestInfo testInfo) throws Exception {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             String cmd = deployAppScript
                 + " -oracle_home " + mwhome_12213
@@ -676,10 +702,11 @@ public class ITWdt extends BaseTest {
      * test validateModel.sh with -oracle_home only
      * @throws Exception - if any error occurs
      */
-    @DisplayName("Test 23: Validate model negative (no model)")
+    @DisplayName("Test 24: Validate model negative (no model)")
+    @Order(24)
     @Tag("gate")
     @Test
-    public void testLValidateModelWithOracleHomeOnly(TestInfo testInfo) throws Exception {
+    public void test24ValidateModelWithOracleHomeOnly(TestInfo testInfo) throws Exception {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             String cmd = validateModelScript + " -oracle_home " + mwhome_12213;
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
@@ -691,10 +718,11 @@ public class ITWdt extends BaseTest {
      * test validateModel.sh with -oracle_home and -model_file
      * @throws Exception - if any error occurs
      */
-    @DisplayName("Test 24: Validate model negative (no archive)")
+    @DisplayName("Test 25: Validate model negative (no archive)")
+    @Order(25)
     @Tag("gate")
     @Test
-    public void testMValidateModelWithOracleHomeModelFile(TestInfo testInfo) throws Exception {
+    public void test25ValidateModelWithOracleHomeModelFile(TestInfo testInfo) throws Exception {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             String cmd = validateModelScript + " -oracle_home " + mwhome_12213 + " -model_file " +
                 getSampleModelFile("-constant");
@@ -707,10 +735,11 @@ public class ITWdt extends BaseTest {
      * test validateModel.sh without -variable_file
      * @throws Exception - if any error occurs
      */
-    @DisplayName("Test 25: Validate model negative (no variable file)")
+    @DisplayName("Test 26: Validate model negative (no variable file)")
+    @Order(26)
     @Tag("gate")
     @Test
-    public void testNValidateModelWithoutVariableFile(TestInfo testInfo) throws Exception {
+    public void test26ValidateModelWithoutVariableFile(TestInfo testInfo) throws Exception {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             String cmd = validateModelScript
                 + " -oracle_home " + mwhome_12213
@@ -724,10 +753,11 @@ public class ITWdt extends BaseTest {
      * test compareModel.sh with only attribute difference.  The files existences test whether it impacts WKO operation
      * @throws Exception - if any error occurs
      */
-    @DisplayName("Test 26: Compare model")
+    @DisplayName("Test 27: Compare model")
+    @Order(27)
     @Tag("gate")
     @Test
-    public void testCompareModelRemoveAttribute(TestInfo testInfo) throws Exception {
+    public void test27CompareModelRemoveAttribute(TestInfo testInfo) throws Exception {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path outputDir = getTestOutputPath(testInfo).resolve("wdt_temp_output");
             Files.createDirectories(outputDir);
@@ -748,10 +778,11 @@ public class ITWdt extends BaseTest {
      * test validateModel.sh with invalid model file
      * @throws Exception - if any error occurs
      */
-    @DisplayName("Test 27: Validate model negative (invalid model)")
+    @DisplayName("Test 28: Validate model negative (invalid model)")
+    @Order(28)
     @Tag("gate")
     @Test
-    public void testOValidateModelWithInvalidModelfile(TestInfo testInfo) throws Exception {
+    public void test28ValidateModelWithInvalidModelfile(TestInfo testInfo) throws Exception {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             String cmd = validateModelScript
                 + " -oracle_home " + mwhome_12213
@@ -762,10 +793,11 @@ public class ITWdt extends BaseTest {
         }
     }
 
-    @DisplayName("Test 28: Encrypt model")
+    @DisplayName("Test 29: Encrypt model")
+    @Order(29)
     @Tag("gate")
     @Test
-    public void testPEncryptModel(TestInfo testInfo) throws Exception {
+    public void test29EncryptModel(TestInfo testInfo) throws Exception {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path source = Paths.get(getSampleModelFile("-constant"));
             Path model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-constant.yaml");
@@ -851,7 +883,7 @@ public class ITWdt extends BaseTest {
         throws Exception {
 
         File adminSecurityDir = new File(domainHome + FS + "servers" + FS + server + FS + "security");
-        adminSecurityDir.mkdirs();
+        assertTrue(adminSecurityDir.mkdirs(), "mkdir for boot.properties failed");
         try (PrintWriter pw = new PrintWriter(adminSecurityDir + FS + "boot.properties")) {
             pw.println("username=" + username);
             pw.println("password=" + password);
