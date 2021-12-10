@@ -109,7 +109,7 @@ public class ITWdt extends BaseTest {
     @Order(1)
     @Tag("gate")
     @Test
-    public void test1CreateDomainNoDomainHome(TestInfo testInfo) throws Exception {
+    public void test01CreateDomainNoDomainHome(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
@@ -126,7 +126,7 @@ public class ITWdt extends BaseTest {
     @Order(2)
     @Tag("gate")
     @Test
-    public void test2CreateDomainNoDomainHome(TestInfo testInfo) throws Exception {
+    public void test02CreateDomainNoDomainHome(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_type WLS";
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
@@ -144,7 +144,7 @@ public class ITWdt extends BaseTest {
     @Order(3)
     @Tag("gate")
     @Test
-    public void test3CreateDomainNoModelfile(TestInfo testInfo) throws Exception {
+    public void test03CreateDomainNoModelfile(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_parent " + domainParentDir;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
@@ -162,7 +162,7 @@ public class ITWdt extends BaseTest {
     @Order(4)
     @Tag("gate")
     @Test
-    public void test4CreateDomainNoArchivefile(TestInfo testInfo) throws Exception {
+    public void test04CreateDomainNoArchivefile(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_parent " + domainParentDir +
                 " -model_file " + getSampleModelFile("-constant") ;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -181,7 +181,7 @@ public class ITWdt extends BaseTest {
     @Order(5)
     @Tag("gate")
     @Test
-    public void test5CreateDomain(TestInfo testInfo) throws Exception {
+    public void test05CreateDomain(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_parent " + domainParentDir +
                 " -model_file " + getSampleModelFile("-constant") +
                 " -archive_file " + getSampleArchiveFile();
@@ -202,7 +202,7 @@ public class ITWdt extends BaseTest {
     @Order(6)
     @Tag("gate")
     @Test
-    public void test6CreateDomainDifferentDomainName(TestInfo testInfo) throws Exception {
+    public void test06CreateDomainDifferentDomainName(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript
             + " -oracle_home " + mwhome_12213
             + " -domain_home " + domainParentDir + FS + "domain2"
@@ -222,7 +222,7 @@ public class ITWdt extends BaseTest {
     @Order(7)
     @Tag("gate")
     @Test
-    public void test7CreateDomainWLSType(TestInfo testInfo) throws Exception {
+    public void test07CreateDomainWLSType(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
             domainParentDir + FS + "domain2 -model_file " +
                 getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
@@ -242,7 +242,7 @@ public class ITWdt extends BaseTest {
     @Order(8)
     @Tag("gate")
     @Test
-    public void test8CreateDomainNoVariableFile(TestInfo testInfo) throws Exception {
+    public void test08CreateDomainNoVariableFile(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_parent " + domainParentDir +
                 " -model_file " + getSampleModelFile("1") +
                 " -archive_file " + getSampleArchiveFile()  ;
@@ -262,7 +262,7 @@ public class ITWdt extends BaseTest {
     @Order(9)
     @Tag("gate")
     @Test
-    public void test9CreateDomainWithVariableFile(TestInfo testInfo) throws Exception {
+    public void test09CreateDomainWithVariableFile(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
             domainParentDir + FS + "domain2 -model_file " +
                 getSampleModelFile("1") + " -archive_file " + getSampleArchiveFile() +
