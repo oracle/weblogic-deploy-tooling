@@ -38,7 +38,8 @@ class ModelTraverse:
             valid_attr_infos = self._aliases.get_model_attribute_names_and_types(attribute_location)
 
         model_section_dict = model_dict[model_section_key]
-        for section_dict_key, section_dict_value in model_section_dict.iteritems():
+        # use items(), not iteritems(), to avoid ConcurrentModificationException if dict is modified
+        for section_dict_key, section_dict_value in model_section_dict.items():
             # section_dict_key is the name of a folder or attribute in the section.
 
             if section_dict_key in valid_attr_infos:
@@ -91,7 +92,8 @@ class ModelTraverse:
         valid_folder_keys = self._aliases.get_model_subfolder_names(model_location)
         valid_attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
 
-        for key, value in model_node.iteritems():
+        # use items(), not iteritems(), to avoid ConcurrentModificationException if node is modified
+        for key, value in model_node.items():
             if key in valid_folder_keys:
                 new_location = LocationContext(model_location).append_location(key)
                 self.traverse_folder(value, new_location)
