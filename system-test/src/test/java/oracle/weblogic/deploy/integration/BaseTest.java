@@ -6,21 +6,24 @@ package oracle.weblogic.deploy.integration;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import oracle.weblogic.deploy.integration.annotations.Logger;
+import oracle.weblogic.deploy.integration.annotations.TestingLogger;
 import oracle.weblogic.deploy.integration.utils.CommandResult;
 import oracle.weblogic.deploy.integration.utils.Runner;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
-import oracle.weblogic.deploy.util.FileUtils;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BaseTest {
-    @Logger
+    @TestingLogger
     private static final PlatformLogger logger = WLSDeployLogFactory.getLogger("integration.tests");
     protected static final String FS = File.separator;
     private static final String SAMPLE_ARCHIVE_FILE = "archive.zip";
@@ -28,9 +31,8 @@ public class BaseTest {
     private static final String WDT_HOME_DIR = "weblogic-deploy";
     protected static final String SAMPLE_MODEL_FILE_PREFIX = "simple-topology";
     protected static final String SAMPLE_VARIABLE_FILE = "domain.properties";
-    private static int maxIterations = 50;
-    private static int waitTime = 5;
-    private static String projectRoot = "";
+    private static final int maxIterations = 50;
+    private static final int waitTime = 5;
     protected static String mwhome_12213 = "";
     protected static String createDomainScript = "";
     protected static String compareModelScript = "";
@@ -39,7 +41,7 @@ public class BaseTest {
     protected static String deployAppScript = "";
     protected static String encryptModelScript = "";
     protected static String validateModelScript = "";
-    protected static String domainParent12213 = "";
+    protected static String domainParentDir = "";
     protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
     private static final String DB_CONTAINER_NAME = "InfraDB";
@@ -47,9 +49,6 @@ public class BaseTest {
     protected static void initialize() {
 
         logger.info("Initializing the tests ...");
-        projectRoot = System.getProperty("user.dir");
-        logger.info("DEBUG: projectRoot=" + projectRoot);
-
         mwhome_12213 = System.getProperty("MW_HOME");
 
         createDomainScript = getWDTScriptsHome() + FS + "createDomain.sh";
@@ -60,7 +59,7 @@ public class BaseTest {
         validateModelScript = getWDTScriptsHome() + FS + "validateModel.sh";
         compareModelScript = getWDTScriptsHome() + FS + "compareModel.sh";
 
-        domainParent12213 = "." + FS + "domains";
+        domainParentDir = "." + FS + "target" + FS + "domains";
     }
 
     protected static void setup() throws Exception {
@@ -74,40 +73,21 @@ public class BaseTest {
         executeAndVerify(cmd);
 
         // create domain_parent directory if not existing
-        File domainParentDir = new File(domainParent12213);
+        File domainParentDir = new File(BaseTest.domainParentDir);
         if(!domainParentDir.exists()) {
-            domainParentDir.mkdir();
+            assertTrue(domainParentDir.mkdir(), "Setup failed to create Domain parent directory");
         }
-
-        chmodScriptFiles(createDomainScript, discoverDomainScript, updateDomainScript, deployAppScript,
-                encryptModelScript, validateModelScript);
-
     }
 
     protected static void cleanup() throws Exception {
         logger.info("cleaning up the test environment ...");
 
-        // remove WDT script home directory
-        String cmd = "rm -rf " + getTargetDir() + FS + WDT_HOME_DIR;
-        Runner.run(cmd);
-
         String command = "docker rm -f " + DB_CONTAINER_NAME;
         Runner.run(command);
-
-        // delete the domain directory created by the tests
-        File domainParentDir = new File(domainParent12213);
-
-        if(domainParentDir.exists()) {
-            FileUtils.deleteDirectory(domainParentDir);
-        }
     }
 
-    protected static String getProjectRoot() {
-        return projectRoot;
-    }
-
-    protected static String getTargetDir() {
-        return getProjectRoot() + FS + "target";
+    protected static Path getTargetDir() {
+        return Paths.get("target");
     }
 
     protected static void chmodScriptFiles(String... filenames) throws Exception {
@@ -127,9 +107,8 @@ public class BaseTest {
     private static void pullDockerImage(String imagename, String imagetag) throws Exception {
 
         String cmd = "docker pull " + imagename + ":" + imagetag;
-        logger.info("executing command: " + cmd);
         CommandResult result = Runner.run(cmd);
-        logger.info("DEBUG: result.stdout=" + result.stdout() );
+        assertEquals(0, result.exitValue(), "Docker pull failed for " + imagename);
 
         // verify the docker image is pulled
         result = Runner.run("docker images | grep " + imagename  + " | grep " +
@@ -169,7 +148,6 @@ public class BaseTest {
 
     protected void verifyModelFile(String modelFile) throws Exception {
         String cmd = "ls " + modelFile + " | wc -l";
-        logger.info("executing command: " + cmd);
         CommandResult result = Runner.run(cmd);
         if(Integer.parseInt(result.stdout().trim()) != 1) {
             throw new Exception("no model file is created as expected");
@@ -188,8 +166,8 @@ public class BaseTest {
       }
     }
 
-    protected static String getResourcePath() {
-        return getProjectRoot() + FS + "src" + FS + "test" + FS + "resources";
+    protected static Path getResourcePath() {
+        return Paths.get("src", "test", "resources");
     }
 
     protected static String getGeneratedResourcePath() {
@@ -210,8 +188,8 @@ public class BaseTest {
         return getResourcePath() + FS + SAMPLE_MODEL_FILE_PREFIX + suffix + ".yaml";
     }
 
-    protected static String getInstallerTargetDir() {
-        return getProjectRoot() + FS + ".." + FS + "installer" + FS + "target";
+    protected static Path getInstallerTargetDir() {
+        return Paths.get("..", "installer", "target");
     }
 
     protected static String getSampleVariableFile() {
@@ -224,30 +202,28 @@ public class BaseTest {
         Runner.run(command);
 
         String exposePort = "";
-        System.out.println("***********\n\n\n**********\n\n\n********\n "
-            + System.getProperty("db.use.container.network")
-            + "\n**************\n\n********");
         if (System.getProperty("db.use.container.network").equals("false")) {
-            exposePort = " -p1521:1521 ";
+            exposePort = " -p1521:1521 -p5500:5500 ";
         }
 
         command = "docker run -d --name " + DB_CONTAINER_NAME + " --env=\"DB_PDB=InfraPDB1\"" +
                 " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + exposePort
             + ORACLE_DB_IMG + ":" + ORACLE_DB_IMG_TAG;
         Runner.run(command);
-
-        // wait for the db is ready
-        command = "docker ps | grep " + DB_CONTAINER_NAME;
-        checkCmdInLoop(command, "healthy");
     }
 
-    protected static void replaceStringInFile(String filename, String originalString, String newString)
-            throws Exception {
-        Path path = Paths.get(filename);
+    static void waitForDatabase() throws IOException, InterruptedException {
+        // Wait for the database container to be healthy before continuing
+        String command = "docker inspect --format='{{json .State.Health}}' " + DB_CONTAINER_NAME;
+        checkCmdInLoop(command, "\"Status\":\"healthy");
+    }
 
-        String content = new String(Files.readAllBytes(path));
+    protected static void replaceStringInFile(Path original, Path output, String originalString, String newString)
+            throws Exception {
+
+        String content = new String(Files.readAllBytes(original));
         content = content.replaceAll(originalString, newString);
-        Files.write(path, content.getBytes());
+        Files.write(output, content.getBytes());
     }
 
     protected String getDBContainerIP() throws Exception {
@@ -289,22 +265,21 @@ public class BaseTest {
     }
 
     private static CommandResult executeAndVerify(String command) throws Exception {
-        logger.info("Executing command: " + command);
         CommandResult result = Runner.run(command);
         verifyExitValue(result, command);
         return result;
     }
 
-    private static void checkCmdInLoop(String cmd, String matchStr)
-            throws Exception {
+    private static void checkCmdInLoop(String cmd, String matchStr) throws IOException, InterruptedException {
         int i = 0;
         while (i < maxIterations) {
             CommandResult result = Runner.run(cmd);
 
             // pod might not have been created or if created loop till condition
             if (result.exitValue() != 0
-                    || (result.exitValue() == 0 && !result.stdout().contains(matchStr))) {
-                logger.info("Output for " + cmd + "\n" + result.stdout() + "\n " + result.stdout());
+                || (result.exitValue() == 0 && !result.stdout().contains(matchStr))) {
+
+                logger.info("Output for '" + cmd + "'\n" + result.stdout() + "\n " + result.stdout());
                 // check for last iteration
                 if (i == (maxIterations - 1)) {
                     throw new RuntimeException(
@@ -323,7 +298,7 @@ public class BaseTest {
                 Thread.sleep(waitTime * 1000);
                 i++;
             } else {
-                logger.info("get the expected String " + matchStr);
+                logger.info("Found expected result: " + matchStr);
                 break;
             }
         }

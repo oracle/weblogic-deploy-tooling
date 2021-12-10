@@ -1,37 +1,23 @@
 package oracle.weblogic.deploy.integration.extensions;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import oracle.weblogic.deploy.integration.annotations.Logger;
-import oracle.weblogic.deploy.logging.PlatformLogger;
+import oracle.weblogic.deploy.integration.annotations.TestingLogger;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.platform.commons.support.AnnotationSupport;
 
-public class LoggingExtension implements BeforeTestExecutionCallback, AfterTestExecutionCallback {
+public class LoggingExtension implements BeforeTestExecutionCallback {
 
   @Override
-  public void beforeTestExecution(ExtensionContext context) throws Exception {
+  public void beforeTestExecution(ExtensionContext context) {
     getLogger(context.getRequiredTestClass())
-        .info("========== Starting test [{0}] method={1} ==========",
+        .log(Level.INFO, () -> String.format("========== Starting test [%s] method=%s ==========",
             context.getDisplayName(),
-            context.getRequiredTestMethod().getName());
-  }
-
-
-  @Override
-  public void afterTestExecution(ExtensionContext context) throws Exception {
-    boolean testFailed = context.getExecutionException().isPresent();
-    PlatformLogger logger = getLogger((context.getRequiredTestClass()));
-    if (testFailed) {
-      logger.severe("========== FAILED test [{0}] method={1} ==========",
-          context.getDisplayName(), context.getRequiredTestMethod().getName());
-      logger.severe(context.getExecutionException().get().getMessage());
-    } else {
-      logger.info("========== Finished test [{0}] method={1} ==========",
-          context.getDisplayName(), context.getRequiredTestMethod().getName());
-    }
+            context.getRequiredTestMethod().getName()));
   }
 
 
@@ -40,14 +26,14 @@ public class LoggingExtension implements BeforeTestExecutionCallback, AfterTestE
    * @param testClass JUnit5 test class
    * @return LoggingFacade instance from the test class
    */
-  public static PlatformLogger getLogger(Class<?> testClass) {
-    List<PlatformLogger> loggers = AnnotationSupport
-        .findAnnotatedFieldValues(testClass, Logger.class, PlatformLogger.class);
+  public static Logger getLogger(Class<?> testClass) {
+    List<Logger> loggers = AnnotationSupport
+        .findAnnotatedFieldValues(testClass, TestingLogger.class, Logger.class);
     if (loggers == null || loggers.isEmpty()) {
-      throw new IllegalStateException("Test class does not have an annotated LoggingFacade with @Logger : "
+      throw new IllegalStateException("Test class does not have an annotated LoggingFacade with @TestingLogger : "
           + testClass.getName());
     } else if (loggers.size() > 1) {
-      throw new IllegalStateException("Test class should not have more than one @Logger annotation: "
+      throw new IllegalStateException("Test class should not have more than one @TestingLogger annotation: "
           + testClass.getName());
     }
 
