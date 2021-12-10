@@ -6,10 +6,21 @@
 # ------------
 # WDT filters to prepare a model for use with WKO, using the createDomain or prepareModel tools.
 # These operations can be invoked as a single call, or independently of each other.
+
+from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases.model_constants import CALCULATED_LISTEN_PORTS
+from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
+from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.filters.model_traverse import ModelTraverse
+from wlsdeploy.util import dictionary_utils
+
+_class_name = 'wko_filter'
+_logger = PlatformLogger('wlsdeploy.aliases')
 
 
 def filter_model(model, model_context):
@@ -41,14 +52,27 @@ def check_clustered_server_ports(model, model_context):
     :param model: the model to be filtered
     :param model_context: unused, passed by filter_helper if called independently
     """
-    print("CHECK_CLUSTERED SERVER PORTS")
+    _method_name = 'check_clustered_server_ports'
+
+    topology_folder = dictionary_utils.get_dictionary_element(model, TOPOLOGY)
+
+    # be sure every dynamic cluster has DynamicServers/CalculatedListenPorts set to false
+
+    clusters_folder = dictionary_utils.get_dictionary_element(topology_folder, CLUSTER)
+    for cluster_name, cluster_fields in clusters_folder.items():
+        dynamic_folder = cluster_fields[DYNAMIC_SERVERS]
+        if dynamic_folder:
+            calculated_listen_ports = dynamic_folder[CALCULATED_LISTEN_PORTS]
+            if (calculated_listen_ports is None) or alias_utils.convert_boolean(calculated_listen_ports):
+                _logger.info('WLSDPLY-20036', CALCULATED_LISTEN_PORTS, cluster_name, class_name=_class_name,
+                             method_name=_method_name)
+                dynamic_folder[CALCULATED_LISTEN_PORTS] = False
 
 
 class OnlineAttributeFilter(ModelTraverse):
     """
     Traverse the model and remove any online-only attributes.
     """
-    _class_name = 'OnlineAttributeFilter'
 
     def __init__(self, model_context, exception_type):
         # use OFFLINE regardless of tool configuration
@@ -65,5 +89,5 @@ class OnlineAttributeFilter(ModelTraverse):
         result, message = self._aliases.is_valid_model_attribute_name(model_location, key)
         if result == ValidationCodes.VERSION_INVALID:
             path = self._aliases.get_model_folder_path(model_location)
-            self._logger.info('WLSDPLY-20033', key, path, class_name=self._class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-20033', key, path, class_name=_class_name, method_name=_method_name)
             del model_dict[key]
