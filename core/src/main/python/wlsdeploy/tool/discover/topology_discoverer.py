@@ -238,7 +238,7 @@ class TopologyDiscoverer(Discoverer):
                 self._discover_subfolders(result[machine], location)
                 location.remove_name_token(name_token)
 
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+        _logger.exiting(class_name=_cjlass_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
     def get_machines(self, unix_machines=None):
