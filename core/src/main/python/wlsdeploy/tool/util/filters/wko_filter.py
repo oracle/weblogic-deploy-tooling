@@ -11,6 +11,8 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import CALCULATED_LISTEN_PORTS
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
+from wlsdeploy.aliases.model_constants import LISTEN_PORT
+from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -64,9 +66,35 @@ def check_clustered_server_ports(model, model_context):
         if dynamic_folder:
             calculated_listen_ports = dynamic_folder[CALCULATED_LISTEN_PORTS]
             if (calculated_listen_ports is None) or alias_utils.convert_boolean(calculated_listen_ports):
-                _logger.info('WLSDPLY-20036', CALCULATED_LISTEN_PORTS, cluster_name, class_name=_class_name,
+                _logger.info('WLSDPLY-20202', CALCULATED_LISTEN_PORTS, CLUSTER, cluster_name, class_name=_class_name,
                              method_name=_method_name)
                 dynamic_folder[CALCULATED_LISTEN_PORTS] = False
+
+    # be sure every server assigned to a cluster has the same listen port
+
+    server_port_map = {}
+    servers_folder = dictionary_utils.get_dictionary_element(topology_folder, SERVER)
+    for server_name, server_fields in servers_folder.items():
+        server_cluster = server_fields[CLUSTER]
+        server_port = server_fields[LISTEN_PORT]
+
+        if server_cluster and (server_port is not None):
+            server_port_text = str(server_port)
+            if '@@' in server_port_text:
+                # prepareModel filters the model before and after it is tokenized,
+                # so disregard variable values in the tokenized pass
+                continue
+
+            if server_cluster in server_port_map:
+                cluster_info = server_port_map[server_cluster]
+                first_server = cluster_info["firstServer"]
+                cluster_port = cluster_info["serverPort"]
+                if server_port_text != cluster_port:
+                    _logger.warning('WLSDPLY-20203', SERVER, first_server, server_name, CLUSTER, server_cluster,
+                                    LISTEN_PORT, cluster_port, server_port_text, class_name=_class_name,
+                                    method_name=_method_name)
+            else:
+                server_port_map[server_cluster] = {"firstServer": server_name, "serverPort": server_port_text}
 
 
 class OnlineAttributeFilter(ModelTraverse):
@@ -89,5 +117,5 @@ class OnlineAttributeFilter(ModelTraverse):
         result, message = self._aliases.is_valid_model_attribute_name(model_location, key)
         if result == ValidationCodes.VERSION_INVALID:
             path = self._aliases.get_model_folder_path(model_location)
-            _logger.info('WLSDPLY-20033', key, path, class_name=_class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-20201', key, path, class_name=_class_name, method_name=_method_name)
             del model_dict[key]

@@ -95,7 +95,7 @@ def _apply_filter(model, the_filter, model_context, filter_file_location):
     path = dictionary_utils.get_element(the_filter, 'path')
     if path is not None:
         name = dictionary_utils.get_element(the_filter, 'name')
-        __logger.info('WLSDPLY-20035', name, class_name=__class_name, method_name=_method_name)
+        __logger.info('WLSDPLY-20033', name, class_name=__class_name, method_name=_method_name)
         return _apply_path_filter(model, path)
 
     __logger.severe('WLSDPLY-20019', str(filter_file_location), class_name=__class_name, method_name=_method_name)
