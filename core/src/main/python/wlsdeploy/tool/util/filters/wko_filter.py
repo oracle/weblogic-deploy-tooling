@@ -47,12 +47,12 @@ def filter_online_attributes(model, model_context):
     online_filter.traverse_model(model)
 
 
-def check_clustered_server_ports(model, model_context):
+def check_clustered_server_ports(model, _model_context):
     """
     Set the CalculatedListenPorts attribute to false for dynamic clusters in the specified model.
     Warn if servers in a static cluster have different ports in the specified model.
     :param model: the model to be filtered
-    :param model_context: unused, passed by filter_helper if called independently
+    :param _model_context: unused, passed by filter_helper if called independently
     """
     _method_name = 'check_clustered_server_ports'
 
