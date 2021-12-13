@@ -22,7 +22,7 @@ from wlsdeploy.tool.util.filters.model_traverse import ModelTraverse
 from wlsdeploy.util import dictionary_utils
 
 _class_name = 'wko_filter'
-_logger = PlatformLogger('wlsdeploy.aliases')
+_logger = PlatformLogger('wlsdeploy.tool.util')
 
 
 def filter_model(model, model_context):
