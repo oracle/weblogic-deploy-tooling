@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.util import FileUtils
@@ -15,9 +15,15 @@ DOMAIN_RESOURCE_SCHEMA_FILE = 'domain-crd-schema-v8.json'
 DOMAIN_RESOURCE_SCHEMA_PATH = 'oracle/weblogic/deploy/wko/' + DOMAIN_RESOURCE_SCHEMA_FILE
 
 SIMPLE_TYPES = [
+    'integer',
     'number',
     'string',
     'boolean'
+]
+
+OBJECT_TYPES = [
+    'object',
+    None
 ]
 
 UNSUPPORTED_FOLDERS = [
@@ -63,7 +69,7 @@ def is_single_folder(schema_map):
     :return: True if the map identifies a single folder
     """
     property_type = get_type(schema_map)
-    if property_type == "object":
+    if property_type in OBJECT_TYPES:
         return get_map_element_type(schema_map) is None
     return False
 
@@ -76,7 +82,7 @@ def is_multiple_folder(schema_map):
     """
     property_type = get_type(schema_map)
     if property_type == "array":
-        return get_array_element_type(schema_map) == "object"
+        return get_array_element_type(schema_map) in OBJECT_TYPES
     return False
 
 
@@ -91,7 +97,7 @@ def is_simple_map(schema_map):
     :return: True if the map identifies a simple map
     """
     property_type = get_type(schema_map)
-    if property_type == "object":
+    if property_type in OBJECT_TYPES:
         return get_map_element_type(schema_map) is not None
     return False
 
@@ -104,7 +110,7 @@ def is_simple_array(schema_map):
     """
     property_type = get_type(schema_map)
     if property_type == "array":
-        return get_array_element_type(schema_map) != "object"
+        return get_array_element_type(schema_map) not in OBJECT_TYPES
     return False
 
 
@@ -123,7 +129,8 @@ def get_array_item_info(schema_map):
 
 
 def get_properties(schema_map):
-    return dictionary_utils.get_element(schema_map, "properties")
+    properties = dictionary_utils.get_element(schema_map, "properties")
+    return properties or {}
 
 
 def get_type(schema_map):

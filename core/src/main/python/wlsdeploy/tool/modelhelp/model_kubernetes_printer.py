@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.exception import exception_helper
@@ -200,9 +200,10 @@ class ModelKubernetesPrinter(object):
 def _get_properties(schema_folder):
     # in array elements, the properties are under "items"
     if wko_schema_helper.is_multiple_folder(schema_folder):
-        return schema_folder['items']['properties']
+        item_info = wko_schema_helper.get_array_item_info(schema_folder)
+        return wko_schema_helper.get_properties(item_info)
     else:
-        return schema_folder['properties']
+        return wko_schema_helper.get_properties(schema_folder)
 
 
 def _get_folder_names(schema_properties):

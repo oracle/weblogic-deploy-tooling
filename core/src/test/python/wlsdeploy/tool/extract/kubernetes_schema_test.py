@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -45,9 +45,7 @@ class KubernetesSchemaTest(unittest.TestCase):
         self._write_line("\n" + indent + label + ":")
         indent = indent + "  "
 
-        properties = folder["properties"]
-        if not properties:
-            self.fail('No properties in schema path ' + path)
+        properties = wko_schema_helper.get_properties(folder)
 
         multi_key = None
         if is_multiple:
@@ -72,7 +70,7 @@ class KubernetesSchemaTest(unittest.TestCase):
 
             property_type = dictionary_utils.get_element(property_map, "type")
 
-            if property_type == "object":
+            if property_type in wko_schema_helper.OBJECT_TYPES:
                 additional = dictionary_utils.get_dictionary_element(property_map, "additionalProperties")
                 additional_type = dictionary_utils.get_element(additional, "type")
                 if additional_type:
@@ -88,8 +86,8 @@ class KubernetesSchemaTest(unittest.TestCase):
 
             elif property_type == "array":
                 array_items = dictionary_utils.get_dictionary_element(property_map, "items")
-                array_type = dictionary_utils.get_dictionary_element(array_items, "type")
-                if array_type == "object":
+                array_type = dictionary_utils.get_element(array_items, "type")
+                if array_type in wko_schema_helper.OBJECT_TYPES:
                     # multiple object instances
                     sub_folders[property_name] = array_items
                     multi_sub_folders.append(property_name)
