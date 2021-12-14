@@ -122,7 +122,7 @@ def __perform_model_file_validation(model_file_name, model_context):
         # substitute variables before filtering
         variables.substitute(model_dictionary, variable_map, model_context)
         # apply filters to merged model
-        if filter_helper.apply_filters(model_dictionary, "validate"):
+        if filter_helper.apply_filters(model_dictionary, "validate", model_context):
             # persist model after filtering
             cla_helper.persist_model(model_context, model_dictionary)
 

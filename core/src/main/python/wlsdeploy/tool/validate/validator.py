@@ -18,6 +18,7 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
@@ -40,6 +41,7 @@ from wlsdeploy.aliases.model_constants import WLS_ROLES
 
 _class_name = 'Validator'
 _logger = ValidatorLogger('wlsdeploy.validate')
+_info_logger = PlatformLogger('wlsdeploy.validate')
 _ModelNodeTypes = Enum(['FOLDER_TYPE', 'NAME_TYPE', 'ATTRIBUTE', 'ARTIFICIAL_TYPE'])
 _ValidationModes = Enum(['STANDALONE', 'TOOL'])
 _ROOT_LEVEL_VALIDATION_AREA = validation_utils.format_message('WLSDPLY-05000')
@@ -412,8 +414,7 @@ class Validator(object):
                     result, message = self._aliases.is_valid_model_folder_name(validation_location,
                                                                                     section_dict_key)
                     if result == ValidationCodes.VERSION_INVALID:
-                        # key is a VERSION_INVALID folder
-                        self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
+                        self._log_version_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         self._logger.severe('WLSDPLY-05026', section_dict_key, 'folder', model_folder_path,
                                             '%s' % ', '.join(valid_section_folders), class_name=_class_name,
@@ -423,8 +424,7 @@ class Validator(object):
                     result, message = self._aliases.is_valid_model_attribute_name(attribute_location,
                                                                                        section_dict_key)
                     if result == ValidationCodes.VERSION_INVALID:
-                        self._logger.warning('WLSDPLY-05027', message, class_name=_class_name,
-                                             method_name=_method_name)
+                        self._log_version_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         self._logger.severe('WLSDPLY-05029', section_dict_key, model_folder_path,
                                             '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
@@ -440,7 +440,7 @@ class Validator(object):
 
         result, message = self._aliases.is_version_valid_location(validation_location)
         if result == ValidationCodes.VERSION_INVALID:
-            self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
+            self._log_version_invalid(message, _method_name)
             return
         elif result == ValidationCodes.INVALID:
             self._logger.severe('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
@@ -623,8 +623,7 @@ class Validator(object):
                     # See if it's a version invalid folder
                     result, message = self._aliases.is_valid_model_folder_name(validation_location, key)
                     if result == ValidationCodes.VERSION_INVALID:
-                        # key is a VERSION_INVALID folder
-                        self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
+                        self._log_version_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID folder
                         self._logger.severe('WLSDPLY-05026', key, 'folder', model_folder_path,
@@ -638,8 +637,7 @@ class Validator(object):
                     # See if it's a version invalid attribute
                     result, message = self._aliases.is_valid_model_attribute_name(validation_location, key)
                     if result == ValidationCodes.VERSION_INVALID:
-                        # key is a VERSION_INVALID attribute
-                        self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
+                        self._log_version_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID attribute
                         self._logger.severe('WLSDPLY-05029', key, model_folder_path,
@@ -695,7 +693,7 @@ class Validator(object):
         else:
             result, message = self._aliases.is_valid_model_attribute_name(validation_location, attribute_name)
             if result == ValidationCodes.VERSION_INVALID:
-                self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
+                self._log_version_invalid(message, _method_name)
             elif result == ValidationCodes.INVALID:
                 self._logger.severe('WLSDPLY-05029', attribute_name, model_folder_path,
                                     '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
@@ -935,3 +933,18 @@ class Validator(object):
         for token in tokens:
             self._logger.severe('WLSDPLY-05030', model_folder_path, token,
                                 class_name=_class_name, method_name=_method_name)
+
+    def _log_version_invalid(self, message, method_name):
+        """
+        Log a message indicating that an attribute is not valid for the current WLS version and WLST mode.
+        Log INFO if validation method is "lax", otherwise log WARNING.
+        """
+        if self._model_context.is_targetted_config():
+            validation_method = self._model_context.get_target_configuration().get_validation_method()
+        else:
+            validation_method = self._model_context.get_validation_method()
+
+        log_method = self._logger.warning
+        if validation_method == 'lax':
+            log_method = _info_logger.info
+        log_method('WLSDPLY-05027', message, class_name=_class_name, method_name=method_name)

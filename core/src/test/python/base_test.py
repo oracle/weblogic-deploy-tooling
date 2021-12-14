@@ -66,7 +66,7 @@ class BaseTestCase(unittest.TestCase):
 
     def _match(self, value, dictionary, *args):
         dictionary_value = self._traverse(dictionary, *args)
-        if dictionary_value != str(value):
+        if str(dictionary_value) != str(value):
             key = '/'.join(list(args))
             self.fail(key + ' equals ' + str(dictionary_value) + ', should equal ' + str(value))
 

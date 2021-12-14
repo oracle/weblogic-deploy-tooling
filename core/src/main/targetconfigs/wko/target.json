@@ -1,7 +1,8 @@
 {
   "model_filters" : {
         "discover": [
-          { "name": "wko_prep", "path": "@@TARGET_CONFIG_DIR@@/wko_operator_filter.py" }
+          { "name": "wko_prep", "path": "@@TARGET_CONFIG_DIR@@/wko_operator_filter.py" },
+          { "id": "wko_filter" }
         ]
       },
   "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
