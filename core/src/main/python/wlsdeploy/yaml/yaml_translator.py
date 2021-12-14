@@ -22,6 +22,7 @@ import oracle.weblogic.deploy.yaml.YamlTranslator as JYamlTranslator
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util.boolean_value import BooleanValue
 
 
 class YamlToPython(object):
@@ -165,6 +166,8 @@ class PythonToJava(object):
             result = JLong(JString(str(py_value)))
         elif type(py_value) is float:
             result = JDouble(py_value)
+        elif isinstance(py_value, BooleanValue):
+            result = JBoolean(py_value.get_value())
         else:
             yaml_ex = exception_helper.create_yaml_exception('WLSDPLY-18201', type(py_value))
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)
@@ -182,8 +185,6 @@ class PythonToYaml(object):
         # Fix error handling for None
         self._dictionary = dictionary
         self._logger = PlatformLogger('wlsdeploy.yaml')
-        # No-op
-        self._hyphenate_lists = False
         return
 
     def write_to_yaml_file(self, file_name):
@@ -222,9 +223,6 @@ class PythonToYaml(object):
             raise yaml_ex
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
-
-    def set_hyphenate_lists(self, hyphenate_lists):
-        self._hyphenate_lists = hyphenate_lists
 
     def _write_dictionary_to_yaml_file(self, dictionary, writer, file_name='<None>'):
         """

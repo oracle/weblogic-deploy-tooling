@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -111,14 +111,12 @@ class KubernetesValidator(object):
         :param model_path: the path of model elements (including multi-element names), used for logging
         """
         _method_name = '_validate_multiple_folder'
-        if not isinstance(model_value, dict):
-            self._logger.severe("WLSDPLY-05039", model_path, class_name=self._class_name, method_name=_method_name)
+        if not isinstance(model_value, list):
+            self._logger.severe("WLSDPLY-05040", model_path, class_name=self._class_name, method_name=_method_name)
             return
 
-        for name in model_value:
-            name_map = model_value[name]
-            next_model_path = model_path + "/" + name
-            self.validate_folder(name_map, property_map, schema_path, next_model_path)
+        for name_map in model_value:
+            self.validate_folder(name_map, property_map, schema_path, model_path)
 
     def _validate_simple_map(self, model_value, property_name, model_path):
         _method_name = '_validate_simple_map'
