@@ -86,7 +86,7 @@ class ModelKubernetesPrinter(object):
             _print_indent(token + ":", indent)
             indent += 1
 
-            if wko_schema_helper.is_multiple_folder(current_folder):
+            if wko_schema_helper.is_object_array(current_folder):
                 name = token + '-1'
                 _print_indent(name + ":", indent)
                 indent += 1
@@ -119,10 +119,10 @@ class ModelKubernetesPrinter(object):
             property_map = folder_info[key]
 
             if property_map is not None:
-                if wko_schema_helper.is_single_folder(property_map):
+                if wko_schema_helper.is_single_object(property_map):
                     folder_map[key] = property_map
 
-                elif wko_schema_helper.is_multiple_folder(property_map):
+                elif wko_schema_helper.is_object_array(property_map):
                     folder_map[key] = wko_schema_helper.get_array_item_info(property_map)
                     multi_folders.append(key)
 
@@ -173,7 +173,7 @@ class ModelKubernetesPrinter(object):
                     # array of simple type
                     attribute_map[key] = 'list of ' + wko_schema_helper.get_array_element_type(property_map)
 
-                elif not wko_schema_helper.is_folder(property_map):
+                elif not wko_schema_helper.is_object_type(property_map):
                     type_text = wko_schema_helper.get_type(property_map)
                     enum_values = wko_schema_helper.get_enum_values(property_map)
                     if enum_values:
@@ -199,7 +199,7 @@ class ModelKubernetesPrinter(object):
 
 def _get_properties(schema_folder):
     # in array elements, the properties are under "items"
-    if wko_schema_helper.is_multiple_folder(schema_folder):
+    if wko_schema_helper.is_object_array(schema_folder):
         item_info = wko_schema_helper.get_array_item_info(schema_folder)
         return wko_schema_helper.get_properties(item_info)
     else:
@@ -216,7 +216,7 @@ def _get_folder_names(schema_properties):
     for key in schema_properties:
         property_map = schema_properties[key]
         if property_map is not None:
-            if wko_schema_helper.is_single_folder(property_map) or wko_schema_helper.is_multiple_folder(property_map):
+            if wko_schema_helper.is_object_type(property_map):
                 folder_names.append(key)
     return folder_names
 

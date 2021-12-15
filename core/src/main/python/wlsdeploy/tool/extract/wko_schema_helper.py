@@ -62,11 +62,11 @@ def get_domain_resource_schema(exception_type=ExceptionType.DEPLOY):
     return schema
 
 
-def is_single_folder(schema_map):
+def is_single_object(schema_map):
     """
-    Return True if the schema map describes a single folder.
+    Return True if the schema map describes a single object.
     :param schema_map: the schema map to be examined
-    :return: True if the map identifies a single folder
+    :return: True if the map identifies a single object
     """
     property_type = get_type(schema_map)
     if property_type in OBJECT_TYPES:
@@ -74,11 +74,11 @@ def is_single_folder(schema_map):
     return False
 
 
-def is_multiple_folder(schema_map):
+def is_object_array(schema_map):
     """
-    Return True if the schema map identifies a multiple folder.
+    Return True if the schema map identifies an object array.
     :param schema_map: the schema map to be examined
-    :return: True if the map identifies a multiple folder
+    :return: True if the map identifies an object array
     """
     property_type = get_type(schema_map)
     if property_type == "array":
@@ -86,8 +86,13 @@ def is_multiple_folder(schema_map):
     return False
 
 
-def is_folder(schema_map):
-    return is_single_folder(schema_map) or is_multiple_folder(schema_map)
+def is_object_type(schema_map):
+    """
+    Return True is the schema map identifies an object or object array.
+    :param schema_map: the schema map to be examined
+    :return: True if the map identifies an object or object array
+    """
+    return is_single_object(schema_map) or is_object_array(schema_map)
 
 
 def is_simple_map(schema_map):
@@ -112,6 +117,16 @@ def is_simple_array(schema_map):
     if property_type == "array":
         return get_array_element_type(schema_map) not in OBJECT_TYPES
     return False
+
+
+def is_simple_type(schema_map):
+    """
+    Return True if the schema map describes a simple type.
+    :param schema_map: the schema map to be examined
+    :return: True if the map identifies a simple type
+    """
+    property_type = get_type(schema_map)
+    return property_type in SIMPLE_TYPES
 
 
 def get_array_element_type(schema_map):

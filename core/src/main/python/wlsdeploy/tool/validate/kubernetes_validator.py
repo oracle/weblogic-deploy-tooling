@@ -61,7 +61,7 @@ class KubernetesValidator(object):
 
             if properties is not None:
 
-                if wko_schema_helper.is_single_folder(properties):
+                if wko_schema_helper.is_single_object(properties):
                     # single object instance
                     self._log_debug('  ' + key + ': folder')
                     next_schema_path = wko_schema_helper.append_path(schema_path, key)
@@ -69,8 +69,7 @@ class KubernetesValidator(object):
                     if self._check_folder_path(next_schema_path, next_model_path):
                         self.validate_folder(model_value, properties, next_schema_path, next_model_path)
 
-                elif wko_schema_helper.is_multiple_folder(properties):
-                    # multiple object instances
+                elif wko_schema_helper.is_object_array(properties):
                     self._log_debug('  ' + key + ': multiple folder')
                     next_schema_path = wko_schema_helper.append_path(schema_path, key)
                     next_model_path = model_path + "/" + key

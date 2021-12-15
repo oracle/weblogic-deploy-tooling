@@ -123,16 +123,14 @@ class DomainResourceExtractor:
         for key, model_value in model_dict.items():
             properties = folder_properties[key]
 
-            if wko_schema_helper.is_single_folder(properties):
-                # single object instance
+            if wko_schema_helper.is_single_object(properties):
                 next_schema_path = wko_schema_helper.append_path(schema_path, key)
                 if not wko_schema_helper.is_unsupported_folder(next_schema_path):
                     next_target_dict = PyOrderedDict()
                     target_dict[key] = next_target_dict
                     self._process_folder(model_value, properties, next_target_dict, next_schema_path)
 
-            elif wko_schema_helper.is_multiple_folder(properties):
-                # multiple object instances
+            elif wko_schema_helper.is_object_array(properties):
                 next_schema_path = wko_schema_helper.append_path(schema_path, key)
                 if not wko_schema_helper.is_unsupported_folder(next_schema_path):
                     item_info = wko_schema_helper.get_array_item_info(properties)
