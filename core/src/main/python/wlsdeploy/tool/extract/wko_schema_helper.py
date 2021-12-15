@@ -76,7 +76,7 @@ def is_single_object(schema_map):
 
 def is_object_array(schema_map):
     """
-    Return True if the schema map identifies an object array.
+    Return True if the schema map describes an object array.
     :param schema_map: the schema map to be examined
     :return: True if the map identifies an object array
     """
@@ -88,7 +88,7 @@ def is_object_array(schema_map):
 
 def is_object_type(schema_map):
     """
-    Return True is the schema map identifies an object or object array.
+    Return True if the schema map describes an object or object array.
     :param schema_map: the schema map to be examined
     :return: True if the map identifies an object or object array
     """
