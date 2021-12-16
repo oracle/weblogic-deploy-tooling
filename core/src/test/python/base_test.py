@@ -70,6 +70,9 @@ class BaseTestCase(unittest.TestCase):
             key = '/'.join(list(args))
             self.fail(key + ' equals ' + str(dictionary_value) + ', should equal ' + str(value))
 
+    def _match_values(self, description, actual, expected):
+        self.assertEqual(actual, expected, description + " equals " + str(actual) + ", should equal " + str(expected))
+
     def _no_dictionary_key(self, dictionary, key):
         if key in dictionary:
             self.fail('Dictionary should not contain ' + key)
