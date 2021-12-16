@@ -75,7 +75,7 @@ class KubernetesValidator(object):
                     next_model_path = model_path + "/" + key
                     if self._check_folder_path(next_schema_path, next_model_path):
                         item_info = wko_schema_helper.get_array_item_info(properties)
-                        self._validate_multiple_folder(model_value, item_info, next_schema_path, next_model_path)
+                        self._validate_object_array(model_value, item_info, next_schema_path, next_model_path)
 
                 elif wko_schema_helper.is_simple_map(properties):
                     # map of key / value pairs
@@ -100,10 +100,9 @@ class KubernetesValidator(object):
                                     '%s' % ', '.join(schema_properties), class_name=self._class_name,
                                     method_name=_method_name)
 
-    def _validate_multiple_folder(self, model_value, property_map, schema_path, model_path):
+    def _validate_object_array(self, model_value, property_map, schema_path, model_path):
         """
-        Validate the contents of this multiple-element model section.
-        There should be a dictionary of names, each containing a sub-folder.
+        Validate the contents of this object array.
         :param model_value: the model contents for a folder
         :param property_map: describes the contents of the sub-folder for each element
         :param schema_path: the path of schema elements (no multi-element names), used for supported check
