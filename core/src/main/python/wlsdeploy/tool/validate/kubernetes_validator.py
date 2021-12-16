@@ -108,7 +108,7 @@ class KubernetesValidator(object):
         :param schema_path: the path of schema elements (no multi-element names), used for supported check
         :param model_path: the path of model elements (including multi-element names), used for logging
         """
-        _method_name = '_validate_multiple_folder'
+        _method_name = '_validate_object_array'
         if not isinstance(model_value, list):
             self._logger.severe("WLSDPLY-05040", model_path, class_name=self._class_name, method_name=_method_name)
             return
