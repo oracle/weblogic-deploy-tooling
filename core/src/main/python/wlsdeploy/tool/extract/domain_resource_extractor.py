@@ -50,11 +50,6 @@ DEFAULT_IMAGE = PASSWORD_TOKEN
 DEFAULT_IMAGE_PULL_SECRETS = PASSWORD_TOKEN
 DEFAULT_SOURCE_TYPE = 'Image'
 
-MULTI_KEYS = {
-    'spec/adminServer/adminService/channels': 'channelName',
-    'spec/clusters': 'clusterName'
-}
-
 _secret_pattern = re.compile("@@SECRET:([\\w.-]+):[\\w.-]+@@")
 
 
@@ -107,10 +102,10 @@ class DomainResourceExtractor:
 
         schema = wko_schema_helper.get_domain_resource_schema(ExceptionType.DEPLOY)
 
-        self._process_folder(kubernetes_map, schema, resource_dict, None)
+        self._process_object(kubernetes_map, schema, resource_dict, None)
         return resource_dict
 
-    def _process_folder(self, model_dict, schema_folder, target_dict, schema_path):
+    def _process_object(self, model_dict, schema_folder, target_dict, schema_path):
         """
         Transfer folders and attributes from the model dictionary to the target domain resource dictionary.
         :param model_dict: the source model dictionary
@@ -128,14 +123,14 @@ class DomainResourceExtractor:
                 if not wko_schema_helper.is_unsupported_folder(next_schema_path):
                     next_target_dict = PyOrderedDict()
                     target_dict[key] = next_target_dict
-                    self._process_folder(model_value, properties, next_target_dict, next_schema_path)
+                    self._process_object(model_value, properties, next_target_dict, next_schema_path)
 
             elif wko_schema_helper.is_object_array(properties):
                 next_schema_path = wko_schema_helper.append_path(schema_path, key)
                 if not wko_schema_helper.is_unsupported_folder(next_schema_path):
                     item_info = wko_schema_helper.get_array_item_info(properties)
                     target_dict[key] = \
-                        self._process_multiple_folder(model_value, item_info, next_schema_path)
+                        self._process_object_array(model_value, item_info, next_schema_path)
 
             elif wko_schema_helper.is_simple_map(properties):
                 # map of key / value pairs
@@ -146,18 +141,17 @@ class DomainResourceExtractor:
                 property_type = wko_schema_helper.get_type(properties)
                 target_dict[key] = _get_target_value(model_value, property_type)
 
-    def _process_multiple_folder(self, model_value, item_info, schema_path):
+    def _process_object_array(self, model_value, item_info, schema_path):
         """
-        Process a multiple-element model section.
-        There should be a list of objects, each representing a sub-folder.
+        Process an array of objects.
         :param model_value: the model contents for a folder
         :param item_info: describes the contents of the sub-folder for each element
         :param schema_path: the path of schema elements (no multi-element names), used for supported check
         """
         child_list = list()
-        for name_map in model_value:
+        for object_map in model_value:
             next_target_dict = PyOrderedDict()
-            self._process_folder(name_map, item_info, next_target_dict, schema_path)
+            self._process_object(object_map, item_info, next_target_dict, schema_path)
             child_list.append(next_target_dict)
         return child_list
 
