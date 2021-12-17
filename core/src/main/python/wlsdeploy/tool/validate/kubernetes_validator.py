@@ -43,8 +43,8 @@ class KubernetesValidator(object):
         Validate the specified model folder against the specified schema folder
         :param model_folder: the model folder to validate
         :param schema_folder: the schema folder to validate against
-        :param schema_path: the path of schema elements (no multi-element names), used for supported check
-        :param model_path: the path of model elements (including multi-element names), used for logging
+        :param schema_path: the path of schema elements (no array indices), used for supported check
+        :param model_path: the path of model elements (including array indices), used for logging
         """
         _method_name = 'validate_folder'
         self._log_debug(str(model_path))
@@ -63,14 +63,14 @@ class KubernetesValidator(object):
 
                 if wko_schema_helper.is_single_object(properties):
                     # single object instance
-                    self._log_debug('  ' + key + ': folder')
+                    self._log_debug('  ' + key + ': single object')
                     next_schema_path = wko_schema_helper.append_path(schema_path, key)
                     next_model_path = model_path + "/" + key
                     if self._check_folder_path(next_schema_path, next_model_path):
                         self.validate_folder(model_value, properties, next_schema_path, next_model_path)
 
                 elif wko_schema_helper.is_object_array(properties):
-                    self._log_debug('  ' + key + ': multiple folder')
+                    self._log_debug('  ' + key + ': object array')
                     next_schema_path = wko_schema_helper.append_path(schema_path, key)
                     next_model_path = model_path + "/" + key
                     if self._check_folder_path(next_schema_path, next_model_path):
