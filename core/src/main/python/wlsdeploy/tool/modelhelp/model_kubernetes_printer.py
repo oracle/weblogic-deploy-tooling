@@ -113,7 +113,7 @@ class ModelKubernetesPrinter(object):
 
         folder_info = _get_properties(schema_folder)
         folder_map = dict()
-        multi_folders = []
+        object_array_keys = []
 
         for key in folder_info:
             property_map = folder_info[key]
@@ -124,7 +124,7 @@ class ModelKubernetesPrinter(object):
 
                 elif wko_schema_helper.is_object_array(property_map):
                     folder_map[key] = wko_schema_helper.get_array_item_info(property_map)
-                    multi_folders.append(key)
+                    object_array_keys.append(key)
 
         folder_keys = list(folder_map.keys())
         folder_keys.sort()
@@ -143,7 +143,7 @@ class ModelKubernetesPrinter(object):
             next_path = path + "/" + key
             if control_option == ControlOptions.RECURSIVE:
                 # Call this method recursively
-                child_in_object_array = key in multi_folders
+                child_in_object_array = key in object_array_keys
                 self._print_subfolders_sample(folder_info, control_option, child_level, path,
                                               child_in_object_array)
             else:
@@ -213,7 +213,7 @@ def _get_properties(schema_folder):
 
 def _get_folder_names(schema_properties):
     """
-    Return the folder names (single and multiple) described by the schema properties.
+    Return the object keys (single or array) described by the schema properties.
     :param schema_properties: the properties to be examined
     :return: a list of folder names
     """
