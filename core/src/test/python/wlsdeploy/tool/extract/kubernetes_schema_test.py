@@ -32,20 +32,18 @@ class KubernetesSchemaTest(unittest.TestCase):
         self._write_line(KUBERNETES + ":")
         self._write_folder(self.schema_map, False, "", "  ")
 
-    def _write_folder(self, folder, is_multiple, path, indent):
-        # for a multiple (object list) type, the first field is prefixed with a hyphen
-        plain_indent = indent
-        hyphen_indent = indent[:-2] + "- "
-        this_indent = plain_indent
-        if is_multiple:
-            this_indent = hyphen_indent
+    def _write_folder(self, folder, in_array, path, indent):
+        # for an object in an array, the first field is prefixed with a hyphen
+        this_indent = plain_indent = indent
+        if in_array:
+            this_indent = indent[:-2] + "- "
 
         properties = wko_schema_helper.get_properties(folder)
         property_names = list(properties.keys())
         property_names.sort()
 
         sub_folders = PyOrderedDict()
-        multi_sub_folders = []
+        object_array_keys = []
         for property_name in property_names:
             property_map = properties[property_name]
             property_type = wko_schema_helper.get_type(property_map)
@@ -67,7 +65,7 @@ class KubernetesSchemaTest(unittest.TestCase):
             elif wko_schema_helper.is_object_array(property_map):
                 array_items = wko_schema_helper.get_array_item_info(property_map)
                 sub_folders[property_name] = array_items
-                multi_sub_folders.append(property_name)
+                object_array_keys.append(property_name)
 
             elif wko_schema_helper.is_simple_array(property_map):
                 array_type = wko_schema_helper.get_array_element_type(property_map)
@@ -98,9 +96,9 @@ class KubernetesSchemaTest(unittest.TestCase):
                 self._write_line(this_indent + property_name + ":")
                 this_indent = plain_indent
                 subfolder = sub_folders[property_name]
-                is_multiple = property_name in multi_sub_folders
+                in_array = property_name in object_array_keys
                 child_indent = this_indent + "  "
-                self._write_folder(subfolder, is_multiple, next_path, child_indent)
+                self._write_folder(subfolder, in_array, next_path, child_indent)
 
     def _write_line(self, text):
         self.out_file.write(text + "\n")
