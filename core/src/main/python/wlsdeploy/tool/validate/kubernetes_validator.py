@@ -105,16 +105,19 @@ class KubernetesValidator(object):
         Validate the contents of this object array.
         :param model_value: the model contents for a folder
         :param property_map: describes the contents of the sub-folder for each element
-        :param schema_path: the path of schema elements (no multi-element names), used for supported check
-        :param model_path: the path of model elements (including multi-element names), used for logging
+        :param schema_path: the path of schema elements (no array indices), used for supported check
+        :param model_path: the path of model elements (including array indices), used for logging
         """
         _method_name = '_validate_object_array'
         if not isinstance(model_value, list):
             self._logger.severe("WLSDPLY-05040", model_path, class_name=self._class_name, method_name=_method_name)
             return
 
+        index = 0
         for name_map in model_value:
-            self.validate_folder(name_map, property_map, schema_path, model_path)
+            index_path = '%s[%s]' % (model_path, index)
+            self.validate_folder(name_map, property_map, schema_path, index_path)
+            index += 1
 
     def _validate_simple_map(self, model_value, property_name, model_path):
         _method_name = '_validate_simple_map'

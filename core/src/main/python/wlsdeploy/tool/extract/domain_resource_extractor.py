@@ -66,9 +66,6 @@ class DomainResourceExtractor:
         return
 
     def extract(self):
-        """
-        Deploy resource model elements at the domain level, including multi-tenant elements.
-        """
         _method_name = 'extract'
 
         resource_file = self._model_context.get_domain_resource_file()
@@ -111,7 +108,7 @@ class DomainResourceExtractor:
         :param model_dict: the source model dictionary
         :param schema_folder: the schema for this folder
         :param target_dict: the target dictionary for the domain resource file.
-        :param schema_path: the path of schema elements (no multi-element names), used for supported check
+        :param schema_path: the path of schema elements, used for supported check
         """
         folder_properties = schema_folder["properties"]
 
@@ -146,7 +143,7 @@ class DomainResourceExtractor:
         Process an array of objects.
         :param model_value: the model contents for a folder
         :param item_info: describes the contents of the sub-folder for each element
-        :param schema_path: the path of schema elements (no multi-element names), used for supported check
+        :param schema_path: the path of schema elements, used for supported check
         """
         child_list = list()
         for object_map in model_value:
