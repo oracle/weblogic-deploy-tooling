@@ -447,11 +447,11 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testIsPSUMatch(self):
-        wls_version = '12.2.1.4.0.210930'
+        wls_version = '12.2.1.4.210930'
         arg_map = {
             CommandLineArgUtil.ORACLE_HOME_SWITCH: '/oracleHome',
             CommandLineArgUtil.DOMAIN_HOME_SWITCH: '',
-            CommandLineArgUtil.TARGET_VERSION_SWITCH: '12.2.1.4.0.210930'
+            CommandLineArgUtil.TARGET_VERSION_SWITCH: '12.2.1.4.210930'
         }
 
         this_model_context = ModelContext("test", arg_map)
