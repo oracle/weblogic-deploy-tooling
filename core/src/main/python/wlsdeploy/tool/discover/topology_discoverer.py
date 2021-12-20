@@ -223,7 +223,8 @@ class TopologyDiscoverer(Discoverer):
         _method_name = 'get_unix_machines'
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
-        model_top_folder_name = model_constants.UNIX_MACHINE
+        model_top_folder_name = model_constants.MACHINE
+        unix_location = LocationContext(self._base_location)
         location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         machines = self._find_names_in_folder(location)
@@ -238,7 +239,7 @@ class TopologyDiscoverer(Discoverer):
                 self._discover_subfolders(result[machine], location)
                 location.remove_name_token(name_token)
 
-        _logger.exiting(class_name=_cjlass_name, method_name=_method_name, result=result)
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
     def get_machines(self, unix_machines=None):
