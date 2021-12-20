@@ -74,7 +74,7 @@ public class XPathUtil {
     }
 
     /**
-     * Locate the patch files in the Oracle hom
+     * Locate the patch files in the Oracle home
      * @return list of patch file names.
      */
     public List<String> findPatchFiles() {
