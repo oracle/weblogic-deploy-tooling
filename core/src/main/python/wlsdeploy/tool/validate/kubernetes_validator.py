@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -43,8 +43,8 @@ class KubernetesValidator(object):
         Validate the specified model folder against the specified schema folder
         :param model_folder: the model folder to validate
         :param schema_folder: the schema folder to validate against
-        :param schema_path: the path of schema elements (no multi-element names), used for supported check
-        :param model_path: the path of model elements (including multi-element names), used for logging
+        :param schema_path: the path of schema elements (no array indices), used for supported check
+        :param model_path: the path of model elements (including array indices), used for logging
         """
         _method_name = 'validate_folder'
         self._log_debug(str(model_path))
@@ -61,22 +61,21 @@ class KubernetesValidator(object):
 
             if properties is not None:
 
-                if wko_schema_helper.is_single_folder(properties):
+                if wko_schema_helper.is_single_object(properties):
                     # single object instance
-                    self._log_debug('  ' + key + ': folder')
+                    self._log_debug('  ' + key + ': single object')
                     next_schema_path = wko_schema_helper.append_path(schema_path, key)
                     next_model_path = model_path + "/" + key
                     if self._check_folder_path(next_schema_path, next_model_path):
                         self.validate_folder(model_value, properties, next_schema_path, next_model_path)
 
-                elif wko_schema_helper.is_multiple_folder(properties):
-                    # multiple object instances
-                    self._log_debug('  ' + key + ': multiple folder')
+                elif wko_schema_helper.is_object_array(properties):
+                    self._log_debug('  ' + key + ': object array')
                     next_schema_path = wko_schema_helper.append_path(schema_path, key)
                     next_model_path = model_path + "/" + key
                     if self._check_folder_path(next_schema_path, next_model_path):
                         item_info = wko_schema_helper.get_array_item_info(properties)
-                        self._validate_multiple_folder(model_value, item_info, next_schema_path, next_model_path)
+                        self._validate_object_array(model_value, item_info, next_schema_path, next_model_path)
 
                 elif wko_schema_helper.is_simple_map(properties):
                     # map of key / value pairs
@@ -101,24 +100,35 @@ class KubernetesValidator(object):
                                     '%s' % ', '.join(schema_properties), class_name=self._class_name,
                                     method_name=_method_name)
 
-    def _validate_multiple_folder(self, model_value, property_map, schema_path, model_path):
+    def _validate_object_array(self, model_value, property_map, schema_path, model_path):
         """
-        Validate the contents of this multiple-element model section.
-        There should be a dictionary of names, each containing a sub-folder.
+        Validate the contents of this object array.
         :param model_value: the model contents for a folder
         :param property_map: describes the contents of the sub-folder for each element
-        :param schema_path: the path of schema elements (no multi-element names), used for supported check
-        :param model_path: the path of model elements (including multi-element names), used for logging
+        :param schema_path: the path of schema elements (no array indices), used for supported check
+        :param model_path: the path of model elements (including array indices), used for logging
         """
-        _method_name = '_validate_multiple_folder'
-        if not isinstance(model_value, dict):
-            self._logger.severe("WLSDPLY-05039", model_path, class_name=self._class_name, method_name=_method_name)
+        _method_name = '_validate_object_array'
+
+        # deprecated "named object list" format
+        if isinstance(model_value, dict):
+            self._logger.warning("WLSDPLY-05091", model_path, class_name=self._class_name, method_name=_method_name)
+            for name in model_value:
+                object_map = model_value[name]
+                next_model_path = model_path + "/" + name
+                self.validate_folder(object_map, property_map, schema_path, next_model_path)
+            return
+        # end deprecated
+
+        if not isinstance(model_value, list):
+            self._logger.severe("WLSDPLY-05040", model_path, class_name=self._class_name, method_name=_method_name)
             return
 
-        for name in model_value:
-            name_map = model_value[name]
-            next_model_path = model_path + "/" + name
-            self.validate_folder(name_map, property_map, schema_path, next_model_path)
+        index = 0
+        for object_map in model_value:
+            index_path = '%s[%s]' % (model_path, index)
+            self.validate_folder(object_map, property_map, schema_path, index_path)
+            index += 1
 
     def _validate_simple_map(self, model_value, property_name, model_path):
         _method_name = '_validate_simple_map'
