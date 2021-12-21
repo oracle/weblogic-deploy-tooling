@@ -1,0 +1,21 @@
+# Copyright (c) 2021, Oracle Corporation and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+# Test model for extractDomainResource.
+# This will test that the deprecated "named object list" format is still supported in WDT 2.0
+
+kubernetes:
+    spec:
+        serverPod:
+            env:
+                JAVA_OPTIONS:
+                    value: -good_java
+                USER_MEM_ARGS:
+                    value: '-XX:+UseContainerSupport -Djava.security.egd=file:/dev/./urandom '
+        clusters:
+            CLUSTER_1:
+                serverStartState: RUNNING
+                replicas: 1
+            CLUSTER_2:
+                serverStartState: RUNNING
+                replicas: 4

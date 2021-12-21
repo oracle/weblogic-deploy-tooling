@@ -50,6 +50,12 @@ DEFAULT_IMAGE = PASSWORD_TOKEN
 DEFAULT_IMAGE_PULL_SECRETS = PASSWORD_TOKEN
 DEFAULT_SOURCE_TYPE = 'Image'
 
+# deprecated - used for "named object list" format
+OBJECT_NAME_ATTRIBUTES = {
+    'spec/adminServer/adminService/channels': 'channelName',
+    'spec/clusters': 'clusterName'
+}
+
 _secret_pattern = re.compile("@@SECRET:([\\w.-]+):[\\w.-]+@@")
 
 
@@ -146,6 +152,23 @@ class DomainResourceExtractor:
         :param schema_path: the path of schema elements, used for supported check
         """
         child_list = list()
+
+        # deprecated "named object list" format - warning was issued in validator
+        if isinstance(model_value, dict):
+            for name in model_value:
+                object_map = model_value[name]
+                next_target_dict = PyOrderedDict()
+                self._process_object(object_map, item_info, next_target_dict, schema_path)
+
+                # see if the model name should become an attribute in the target dict
+                mapped_name = get_mapped_key(schema_path)
+                properties = wko_schema_helper.get_properties(item_info)
+                if (mapped_name in properties.keys()) and (mapped_name not in next_target_dict.keys()):
+                    _add_to_top(next_target_dict, mapped_name, name)
+                child_list.append(next_target_dict)
+            return child_list
+        # end deprecated
+
         for object_map in model_value:
             next_target_dict = PyOrderedDict()
             self._process_object(object_map, item_info, next_target_dict, schema_path)
@@ -307,6 +330,22 @@ def _add_secrets(folder, secrets, domain_uid):
             for secret_name in matches:
                 if secret_name not in secrets:
                     secrets.append(secret_name)
+
+
+# deprecated
+def get_mapped_key(schema_path):
+    """
+    For the deprecated "named object list format", the name of each item in a
+    multiple folder sometimes corresponds to one of its attributes, usually "name".
+    If a different attribute name is used for the path, return that name.
+    If the default 'name' is returned, caller should verify that it is an available attribute.
+    :param schema_path: the slash-delimited path of the elements (no multi-element names)
+    :return: the attribute key to be used
+    """
+    mapped_key = dictionary_utils.get_element(OBJECT_NAME_ATTRIBUTES, schema_path)
+    if mapped_key is not None:
+        return mapped_key
+    return 'name'
 
 
 def _add_to_top(dictionary, key, item):

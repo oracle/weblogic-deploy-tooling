@@ -109,14 +109,25 @@ class KubernetesValidator(object):
         :param model_path: the path of model elements (including array indices), used for logging
         """
         _method_name = '_validate_object_array'
+
+        # deprecated "named object list" format
+        if isinstance(model_value, dict):
+            self._logger.warning("WLSDPLY-05091", model_path, class_name=self._class_name, method_name=_method_name)
+            for name in model_value:
+                object_map = model_value[name]
+                next_model_path = model_path + "/" + name
+                self.validate_folder(object_map, property_map, schema_path, next_model_path)
+            return
+        # end deprecated
+
         if not isinstance(model_value, list):
             self._logger.severe("WLSDPLY-05040", model_path, class_name=self._class_name, method_name=_method_name)
             return
 
         index = 0
-        for name_map in model_value:
+        for object_map in model_value:
             index_path = '%s[%s]' % (model_path, index)
-            self.validate_folder(name_map, property_map, schema_path, index_path)
+            self.validate_folder(object_map, property_map, schema_path, index_path)
             index += 1
 
     def _validate_simple_map(self, model_value, property_name, model_path):
