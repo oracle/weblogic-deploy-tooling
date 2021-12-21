@@ -1,0 +1,5 @@
+Languages: Std_Admin
+
+core/src/main/resources/oracle/weblogic/deploy/messages
+    wlsdeploy_rb%j.properties FileType: Javaproperties
+
