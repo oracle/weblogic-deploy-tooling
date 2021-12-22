@@ -24,11 +24,11 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
-_file_variable_pattern = re.compile("@@FILE:[\w.\\\/:-]+@@")
+_file_variable_pattern = re.compile("(@@FILE:([\w.\\\/:-]+)@@)")
 _property_pattern = re.compile("(@@PROP:([\\w.-]+)@@)")
 _environment_pattern = re.compile("(@@ENV:([\\w.-]+)@@)")
 _secret_pattern = re.compile("(@@SECRET:([\\w.-]+):([\\w.-]+)@@)")
-_file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
+_file_nested_variable_pattern = re.compile("(@@FILE:(@@[\w]+@@[\w.\\\/:-]+)@@)")
 
 # these match a string containing ONLY a token
 _property_string_pattern = re.compile("^(@@PROP:([\\w.-]+)@@)$")
@@ -265,23 +265,25 @@ def _substitute(text, variables, model_context, attribute_name=None):
                 continue
             text = text.replace(token, value)
 
-        tokens = _file_variable_pattern.findall(text)
-        if tokens:
-            for token in tokens:
-                path = token[7:-2]
-                allow_missing = validation_config.allow_missing_file_variables()
-                value = _read_value_from_file(path, allow_missing)
-                text = text.replace(token, value)
+        matches = _file_variable_pattern.findall(text)
+        for token, path in matches:
+            allow_missing = validation_config.allow_missing_file_variables()
+            value = _read_value_from_file(path, allow_missing)
+            if value is None:
+                problem_found = True
+                continue
+            text = text.replace(token, value)
 
         # special case for @@FILE:@@ORACLE_HOME@@/dir/name.txt@@
-        tokens = _file_nested_variable_pattern.findall(text)
-        if tokens:
-            for token in tokens:
-                path = token[7:-2]
-                path = model_context.replace_token_string(path)
-                allow_missing = validation_config.allow_missing_file_variables()
-                value = _read_value_from_file(path, allow_missing)
-                text = text.replace(token, value)
+        matches = _file_nested_variable_pattern.findall(text)
+        for token, path in matches:
+            path = model_context.replace_token_string(path)
+            allow_missing = validation_config.allow_missing_file_variables()
+            value = _read_value_from_file(path, allow_missing)
+            if value is None:
+                problem_found = True
+                continue
+            text = text.replace(token, value)
 
         # if any @@TOKEN: remains in the value, log an error.
         # if previous problems were found, don't perform this check.
@@ -320,9 +322,9 @@ def _read_value_from_file(file_path, allow_missing):
         file_reader.close()
     except IOException, e:
         _report_token_issue('WLSDPLY-01733', method_name, allow_missing, file_path, e.getLocalizedMessage())
-        line = ''
+        return None
 
-    if line is None:
+    if line is None:  # empty file
         _report_token_issue('WLSDPLY-01734', method_name, allow_missing, file_path)
         return line
 
