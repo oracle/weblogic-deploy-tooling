@@ -40,6 +40,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.compare.model_comparer import ModelComparer
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import validate_configuration
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
@@ -111,7 +112,7 @@ class ModelFileDiffer:
                 model_file_name = self.past_dict_file
                 FileToPython(model_file_name, True).parse()
 
-            self.model_context.set_validation_method('lax')
+            self.model_context.set_validation_method(validate_configuration.LAX_METHOD)
 
             aliases = Aliases(model_context=self.model_context, wlst_mode=WlstModes.OFFLINE,
                               exception_type=ExceptionType.COMPARE)
