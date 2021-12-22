@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -11,11 +11,13 @@ import java.net.URI as URI
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging import platform_logger
+from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
 from wlsdeploy.util.model_config import ModelConfiguration
 from wlsdeploy.util.target_configuration import TargetConfiguration
+from wlsdeploy.util.validate_configuration import ValidateConfiguration
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -81,11 +83,12 @@ class ModelContext(object):
         self._opss_wallet = None
         self._update_rcu_schema_pass = False
         self._validation_method = None
+        self._validate_configuration = None  # lazy load
         self._cancel_changes_if_restart_required = None
         self._domain_resource_file = None
         self._output_dir = None
         self._target = None
-        self._target_configuration = None
+        self._target_configuration = None  # lazy load
         self._variable_injector_file = None
         self._variable_keywords_file = None
         self._variable_properties_file = None
@@ -501,6 +504,20 @@ class ModelContext(object):
         :param method: validation method
         """
         self._validation_method = method
+
+    def get_validate_configuration(self):
+        """
+        Get the validation method object, creating if necessary
+        :return: the validation method object
+        """
+        if not self._validate_configuration:
+            method_key = self.get_validation_method()
+            if self._target:
+                method_key = self.get_target_configuration().get_validation_method()
+            if not method_key:
+                method_key = validate_configuration.STRICT_METHOD
+            self._validate_configuration = ValidateConfiguration(method_key)
+        return self._validate_configuration
 
     def get_archive_file(self):
         """

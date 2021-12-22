@@ -221,10 +221,8 @@ def _substitute(text, variables, model_context, attribute_name=None):
     :return: the replaced text
     """
     method_name = '_substitute'
-    validation_method = model_context.get_validation_method()
-    target_configuration = model_context.get_target_configuration()
-    if target_configuration:
-        validation_method = target_configuration.get_validation_method()
+    validation_config = model_context.get_validate_configuration()
+    problem_found = False
 
     # skip lookups for text with no @@
     if '@@' in text:
@@ -234,8 +232,9 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if key not in variables:
-                if validation_method != 'lax':
-                    _report_token_issue('WLSDPLY-01732', method_name, model_context, key)
+                allow_missing = validation_config.allow_missing_variables()
+                _report_token_issue('WLSDPLY-01732', method_name, allow_missing, key)
+                problem_found = True
                 continue
 
             value = variables[key]
@@ -244,12 +243,11 @@ def _substitute(text, variables, model_context, attribute_name=None):
         # check environment variables before @@FILE:/dir/@@ENV:name@@.txt@@
         matches = _environment_pattern.findall(text)
         for token, key in matches:
-            # log, or throw an exception if key is not found.
             if not os.environ.has_key(str(key)):
-                if validation_method != 'lax':
-                    _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
+                allow_missing = validation_config.allow_missing_environment_variables()
+                _report_token_issue('WLSDPLY-01737', method_name, allow_missing, key)
+                problem_found = True
                 continue
-
             value = os.environ.get(str(key))
             text = text.replace(token, value)
 
@@ -257,22 +255,22 @@ def _substitute(text, variables, model_context, attribute_name=None):
         matches = _secret_pattern.findall(text)
         for token, name, key in matches:
             value = _resolve_secret_token(name, key, model_context)
-
             if value is None:
                 # does not match, only report for non target case
-                if validation_method != 'lax':
-                    secret_token = name + ':' + key
-                    known_tokens = _list_known_secret_tokens()
-                    _report_token_issue('WLSDPLY-01739', method_name, model_context, secret_token, known_tokens)
+                allow_missing = validation_config.allow_missing_environment_variables()
+                secret_token = name + ':' + key
+                known_tokens = _list_known_secret_tokens()
+                _report_token_issue('WLSDPLY-01739', method_name, allow_missing, secret_token, known_tokens)
+                problem_found = True
                 continue
-
             text = text.replace(token, value)
 
         tokens = _file_variable_pattern.findall(text)
         if tokens:
             for token in tokens:
                 path = token[7:-2]
-                value = _read_value_from_file(path, model_context)
+                allow_missing = validation_config.allow_missing_file_variables()
+                value = _read_value_from_file(path, allow_missing)
                 text = text.replace(token, value)
 
         # special case for @@FILE:@@ORACLE_HOME@@/dir/name.txt@@
@@ -281,12 +279,14 @@ def _substitute(text, variables, model_context, attribute_name=None):
             for token in tokens:
                 path = token[7:-2]
                 path = model_context.replace_token_string(path)
-                value = _read_value_from_file(path, model_context)
+                allow_missing = validation_config.allow_missing_file_variables()
+                value = _read_value_from_file(path, allow_missing)
                 text = text.replace(token, value)
 
-        # if any @@TOKEN: remains in the value, throw an exception
+        # if any @@TOKEN: remains in the value, log an error.
+        # if previous problems were found, don't perform this check.
         matches = _unresolved_token_pattern.findall(text)
-        if matches and validation_method != 'lax':
+        if matches and not problem_found:
             match = matches[0]
             token = match[1]
             sample = "@@" + token + ":<name>"
@@ -294,18 +294,21 @@ def _substitute(text, variables, model_context, attribute_name=None):
                 sample += ":<key>"
             sample += "@@"
 
+            # always log SEVERE, these are syntax errors in the value
+            allow_missing = False
             if attribute_name is None:
-                _report_token_issue("WLSDPLY-01745", method_name, model_context, text, sample)
+                _report_token_issue("WLSDPLY-01745", method_name, allow_missing, text, sample)
             else:
-                _report_token_issue("WLSDPLY-01746", method_name, model_context, attribute_name, text, sample)
+                _report_token_issue("WLSDPLY-01746", method_name, allow_missing, attribute_name, text, sample)
 
     return text
 
 
-def _read_value_from_file(file_path, model_context):
+def _read_value_from_file(file_path, allow_missing):
     """
     Read a single text value from the first line in the specified file.
     :param file_path: the file from which to read the value
+    :param allow_missing: if True, log INFO instead of SEVERE for lookup failures
     :return: the text value
     :raises BundleAwareException if an error occurs while reading the value
     """
@@ -316,13 +319,12 @@ def _read_value_from_file(file_path, model_context):
         line = file_reader.readLine()
         file_reader.close()
     except IOException, e:
-        _report_token_issue('WLSDPLY-01733', method_name, model_context, file_path, e.getLocalizedMessage())
+        _report_token_issue('WLSDPLY-01733', method_name, allow_missing, file_path, e.getLocalizedMessage())
         line = ''
 
     if line is None:
-        ex = exception_helper.create_variable_exception('WLSDPLY-01734', file_path)
-        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-        raise ex
+        _report_token_issue('WLSDPLY-01734', method_name, allow_missing, file_path)
+        return line
 
     return str(line).strip()
 
@@ -356,9 +358,9 @@ def _init_secret_token_map(model_context):
     method_name = '_init_secret_token_map'
     global _secret_token_map
 
-    log_method = _logger.info
-    if model_context.get_validation_method() == 'strict':
-        log_method = _logger.warning
+    log_method = _logger.warning
+    if model_context.get_validate_configuration().allow_missing_secrets():
+        log_method = _logger.info
 
     _secret_token_map = dict()
 
@@ -422,7 +424,8 @@ def _add_file_secrets_to_map(dir, name, model_context):
         file_path = os.path.join(dir, file_name)
         if os.path.isfile(file_path):
             token = name + ":" + file_name
-            _secret_token_map[token] = _read_value_from_file(file_path, model_context)
+            allow_missing = model_context.get_validate_configuration().allow_missing_secrets()
+            _secret_token_map[token] = _read_value_from_file(file_path, allow_missing)
 
 
 def _list_known_secret_tokens():
@@ -442,26 +445,20 @@ def _list_known_secret_tokens():
     return ret
 
 
-def _report_token_issue(message_key, method_name, model_context, *args):
+def _report_token_issue(message_key, method_name, allow_missing, *args):
     """
     Log a message at the level corresponding to the validation method (SEVERE for strict, INFO otherwise).
-    Throw a variable exception if the level is strict.
     The lax validation method can be used to verify the model without resolving tokens.
     :param message_key: the message key to be logged and used for exceptions
     :param method_name: the name of the calling method for logging
-    :param model_context: used to determine the validation method
+    :param allow_missing: if True, log INFO instead of SEVERE for lookup failures
     :param args: arguments for use in the message
     """
-    log_method = _logger.info
-    if model_context.get_validation_method() == 'strict':
-        log_method = _logger.severe
+    log_method = _logger.severe
+    if allow_missing:
+        log_method = _logger.info
 
     log_method(message_key, class_name=_class_name, method_name=method_name, *args)
-
-    if model_context.get_validation_method() == 'strict':
-        ex = exception_helper.create_variable_exception(message_key, *args)
-        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-        raise ex
 
 
 def substitute_key(text, variables):

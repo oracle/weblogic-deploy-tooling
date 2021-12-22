@@ -20,6 +20,7 @@ from wlsdeploy.tool.extract.domain_resource_extractor import DomainResourceExtra
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import tool_exit
+from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_EXTRACT
 from wlsdeploy.util.model import Model
@@ -67,7 +68,7 @@ def __process_args(args):
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
     cla_helper.process_encryption_args(argument_map)
 
-    argument_map[CommandLineArgUtil.VALIDATION_METHOD] = CommandLineArgUtil.LAX_VALIDATION_METHOD
+    argument_map[CommandLineArgUtil.VALIDATION_METHOD] = validate_configuration.LAX_METHOD
     model_context = model_context_helper.create_context(_program_name, argument_map)
     model_context.set_ignore_missing_archive_entries(True)
     return model_context

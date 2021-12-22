@@ -28,6 +28,7 @@ from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import tool_exit
+from wlsdeploy.util import validate_configuration
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -84,7 +85,7 @@ def __process_model_args(argument_map):
     except CLAException, ce:
         # in lax validation mode, if no model is found, log at INFO and exit
         method = dictionary_utils.get_element(argument_map, CommandLineArgUtil.VALIDATION_METHOD)
-        if method == CommandLineArgUtil.LAX_VALIDATION_METHOD:
+        if method == validate_configuration.LAX_METHOD:
             __logger.info('WLSDPLY-20032', _program_name, class_name=_class_name, method_name=_method_name)
             model_context = model_context_helper.create_exit_context(_program_name)
             tool_exit.end(model_context, CommandLineArgUtil.PROG_OK_EXIT_CODE)

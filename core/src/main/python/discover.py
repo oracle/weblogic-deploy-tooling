@@ -434,11 +434,6 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     # target config always present in model context, default config if not declared
     target_configuration = model_context.get_target_configuration()
 
-    # if target config declared, use the validation method it contains (lax, etc.)
-    if model_context.is_targetted_config():
-        validation_method = target_configuration.get_validation_method()
-        model_context.set_validation_method(validation_method)
-
     credential_cache = None
     if credential_injector is not None:
         # filter variables or secrets that are no longer in the model

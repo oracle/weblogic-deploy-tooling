@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -761,9 +761,9 @@ class Validator(object):
                     # FIXME(mwooten) - the cla_utils should be fixing all windows paths to use forward slashes already
                     # assuming that the value is not None
 
-                    logger_method = self._logger.info
-                    if self._model_context.get_validation_method() == 'strict':
-                        logger_method = self._logger.warning
+                    logger_method = self._logger.warning
+                    if self._model_context.get_validate_configuration().allow_missing_variables():
+                        logger_method = self._logger.info
 
                     variables_file_name = self._model_context.get_variable_file()
                     if variables_file_name is None:
@@ -937,14 +937,9 @@ class Validator(object):
     def _log_version_invalid(self, message, method_name):
         """
         Log a message indicating that an attribute is not valid for the current WLS version and WLST mode.
-        Log INFO if validation method is "lax", otherwise log WARNING.
+        Log INFO or WARNING, depending on validation mode.
         """
-        if self._model_context.is_targetted_config():
-            validation_method = self._model_context.get_target_configuration().get_validation_method()
-        else:
-            validation_method = self._model_context.get_validation_method()
-
         log_method = self._logger.warning
-        if validation_method == 'lax':
+        if self._model_context.get_validate_configuration().allow_version_invalid_attributes():
             log_method = _info_logger.info
         log_method('WLSDPLY-05027', message, class_name=_class_name, method_name=method_name)
