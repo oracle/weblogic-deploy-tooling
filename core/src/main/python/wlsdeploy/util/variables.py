@@ -168,22 +168,35 @@ def get_variable_names(text):
     return names
 
 
+def substitute_value(text, variables, model_context):
+    return _substitute(text, variables, model_context, {})
+
+
 def substitute(dictionary, variables, model_context):
     """
     Substitute fields in the specified dictionary with variable values.
+    If errors occur during substitution, throw a single VariableException.
     :param dictionary: the dictionary in which to substitute variables
     :param variables: a dictionary of variables for substitution
     :param model_context: used to resolve variables in file paths
     """
-    _process_node(dictionary, variables, model_context)
+    method_name = '_substitute'
+    error_info = {'errorCount': 0}
+    _process_node(dictionary, variables, model_context, error_info)
+    error_count = error_info['errorCount']
+    if error_count:
+        ex = exception_helper.create_variable_exception("WLSDPLY-01740", error_count)
+        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+        raise ex
 
 
-def _process_node(nodes, variables, model_context):
+def _process_node(nodes, variables, model_context, error_info):
     """
     Process variables in the node.
     :param nodes: the dictionary to process
     :param variables: the variables to use
     :param model_context: used to resolve variables in file paths
+    :param error_info: collects information about errors encountered
     """
     # iterate over copy to avoid concurrent change for add/delete
     if isinstance(nodes, OrderedDict):
@@ -194,30 +207,31 @@ def _process_node(nodes, variables, model_context):
         value = nodes[key]
 
         # if the key changes with substitution, remove old key and map value to new key
-        new_key = _substitute(key, variables, model_context)
+        new_key = _substitute(key, variables, model_context, error_info)
         if new_key is not key:
             del nodes[key]
             nodes[new_key] = value
 
         if isinstance(value, dict):
-            _process_node(value, variables, model_context)
+            _process_node(value, variables, model_context, error_info)
 
         elif isinstance(value, list):
             for member in value:
                 if type(member) in [str, unicode]:
                     index = value.index(member)
-                    value[index] = _substitute(member, variables, model_context, key)
+                    value[index] = _substitute(member, variables, model_context, error_info, key)
 
         elif type(value) in [str, unicode]:
-            nodes[key] = _substitute(value, variables, model_context, key)
+            nodes[key] = _substitute(value, variables, model_context, error_info, key)
 
 
-def _substitute(text, variables, model_context, attribute_name=None):
+def _substitute(text, variables, model_context, error_info, attribute_name=None):
     """
     Substitute token placeholders with their derived values.
     :param text: the text to process for token placeholders
     :param variables: the variables to use
     :param model_context: used to determine the validation method (strict, lax, etc.)
+    :param error_info: collects information about errors encountered
     :return: the replaced text
     """
     method_name = '_substitute'
@@ -234,6 +248,7 @@ def _substitute(text, variables, model_context, attribute_name=None):
             if key not in variables:
                 allow_missing = validation_config.allow_missing_variables()
                 _report_token_issue('WLSDPLY-01732', method_name, allow_missing, key)
+                _increment_error_count(error_info, allow_missing)
                 problem_found = True
                 continue
 
@@ -246,6 +261,7 @@ def _substitute(text, variables, model_context, attribute_name=None):
             if not os.environ.has_key(str(key)):
                 allow_missing = validation_config.allow_missing_environment_variables()
                 _report_token_issue('WLSDPLY-01737', method_name, allow_missing, key)
+                _increment_error_count(error_info, allow_missing)
                 problem_found = True
                 continue
             value = os.environ.get(str(key))
@@ -261,6 +277,7 @@ def _substitute(text, variables, model_context, attribute_name=None):
                 secret_token = name + ':' + key
                 known_tokens = _list_known_secret_tokens()
                 _report_token_issue('WLSDPLY-01739', method_name, allow_missing, secret_token, known_tokens)
+                _increment_error_count(error_info, allow_missing)
                 problem_found = True
                 continue
             text = text.replace(token, value)
@@ -270,6 +287,7 @@ def _substitute(text, variables, model_context, attribute_name=None):
             allow_missing = validation_config.allow_missing_file_variables()
             value = _read_value_from_file(path, allow_missing)
             if value is None:
+                _increment_error_count(error_info, allow_missing)
                 problem_found = True
                 continue
             text = text.replace(token, value)
@@ -281,6 +299,7 @@ def _substitute(text, variables, model_context, attribute_name=None):
             allow_missing = validation_config.allow_missing_file_variables()
             value = _read_value_from_file(path, allow_missing)
             if value is None:
+                _increment_error_count(error_info, allow_missing)
                 problem_found = True
                 continue
             text = text.replace(token, value)
@@ -302,8 +321,14 @@ def _substitute(text, variables, model_context, attribute_name=None):
                 _report_token_issue("WLSDPLY-01745", method_name, allow_missing, text, sample)
             else:
                 _report_token_issue("WLSDPLY-01746", method_name, allow_missing, attribute_name, text, sample)
+                _increment_error_count(error_info, allow_missing)
 
     return text
+
+
+def _increment_error_count(error_info, allow_missing):
+    if not allow_missing:
+        error_info['errorCount'] = error_info['errorCount'] + 1
 
 
 def _read_value_from_file(file_path, allow_missing):

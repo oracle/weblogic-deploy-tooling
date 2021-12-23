@@ -199,8 +199,8 @@ class ModelPreparer:
         credential_caches = self.credential_injector.get_variable_cache()
         for key in credential_caches:
             if variables.is_variable_string(credential_caches[key]):
-                credential_caches[key] = variables._substitute(credential_caches[key],
-                                                               original_variables, self.model_context)
+                credential_caches[key] = variables.substitute_value(credential_caches[key],
+                                                                    original_variables, self.model_context)
 
     def _apply_filter_and_inject_variable(self, model_dict, model_context):
         """
