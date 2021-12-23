@@ -68,10 +68,9 @@ def __process_args(args):
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
     cla_helper.process_encryption_args(argument_map)
 
+    # allow unresolved tokens and archive entries
     argument_map[CommandLineArgUtil.VALIDATION_METHOD] = validate_configuration.LAX_METHOD
-    model_context = model_context_helper.create_context(_program_name, argument_map)
-    model_context.set_ignore_missing_archive_entries(True)
-    return model_context
+    return model_context_helper.create_context(_program_name, argument_map)
 
 
 def __extract_resource(model, model_context):

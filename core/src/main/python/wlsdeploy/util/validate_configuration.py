@@ -25,6 +25,7 @@ class ValidateConfiguration(object):
         self._key = key
 
         # defaults are values for STRICT mode
+        self._allow_unresolved_archive_references = False
         self._allow_unresolved_environment_tokens = False
         self._allow_unresolved_file_tokens = False
         self._allow_unresolved_secret_tokens = False
@@ -32,6 +33,8 @@ class ValidateConfiguration(object):
         self._allow_version_invalid_attributes = False
 
         if key == LAX_METHOD:
+            # almost no checks on archive, tokens, etc.
+            self._allow_unresolved_archive_references = False
             self._allow_unresolved_environment_tokens = True
             self._allow_unresolved_file_tokens = True
             self._allow_unresolved_secret_tokens = True
@@ -39,12 +42,20 @@ class ValidateConfiguration(object):
             self._allow_version_invalid_attributes = True
 
         elif key == WKTUI_METHOD:
-            # similar to LAX_METHOD, but validate variable tokens.
-            # secrets, files and environment variables may not be present in the UI environment.
+            # allow unresolved secret, file and environment tokens,
+            # since they may not be present in the UI environment.
+            # allow version-invalid attributes, since they are not applied.
             self._allow_unresolved_environment_tokens = True
             self._allow_unresolved_file_tokens = True
             self._allow_unresolved_secret_tokens = True
             self._allow_version_invalid_attributes = True
+
+    def allow_unresolved_archive_references(self):
+        """
+        Returns True if unresolved archive references should be allowed during validation.
+        Callers may reduce some message levels to INFO, or avoid throwing some exceptions.
+        """
+        return self._allow_unresolved_archive_references
 
     def allow_unresolved_environment_tokens(self):
         """
@@ -82,3 +93,12 @@ class ValidateConfiguration(object):
         Callers may reduce some message levels to INFO, or avoid throwing some exceptions.
         """
         return self._allow_version_invalid_attributes
+
+    # set methods - use with caution
+
+    def set_allow_unresolved_archive_references(self, allow):
+        """
+        Override the pre-defined setting to allow unresolved archive references.
+        For use by tools that use non-lax validation mode, but don't consider archive files.
+        """
+        self._allow_unresolved_archive_references = allow

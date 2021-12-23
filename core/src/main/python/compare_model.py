@@ -76,9 +76,7 @@ def __process_args(args):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     argument_map = cla_util.process_args(args, trailing_arg_count=2)
 
-    model_context = ModelContext(_program_name, argument_map)
-    model_context.set_ignore_missing_archive_entries(True)
-    return model_context
+    return ModelContext(_program_name, argument_map)
 
 
 class ModelFileDiffer:
@@ -112,6 +110,7 @@ class ModelFileDiffer:
                 model_file_name = self.past_dict_file
                 FileToPython(model_file_name, True).parse()
 
+            # allow unresolved tokens and archive entries
             self.model_context.set_validation_method(validate_configuration.LAX_METHOD)
 
             aliases = Aliases(model_context=self.model_context, wlst_mode=WlstModes.OFFLINE,

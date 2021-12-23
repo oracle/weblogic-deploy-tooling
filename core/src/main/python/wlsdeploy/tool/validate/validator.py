@@ -62,6 +62,7 @@ class Validator(object):
 
     def __init__(self, model_context, aliases=None, logger=None, wlst_mode=None, domain_name='base_domain'):
         self._model_context = model_context
+        self._validate_configuration = model_context.get_validate_configuration()
 
         if logger is None:
             # No logger specified, so use the one declared at the module level
@@ -762,8 +763,8 @@ class Validator(object):
                     # assuming that the value is not None
 
                     logger_method = self._logger.warning
-                    if self._model_context.get_validate_configuration().allow_unresolved_variable_tokens():
-                        logger_method = self._logger.info
+                    if self._validate_configuration.allow_unresolved_variable_tokens():
+                        logger_method = _info_logger.info
 
                     variables_file_name = self._model_context.get_variable_file()
                     if variables_file_name is None:
@@ -827,15 +828,13 @@ class Validator(object):
                     self._logger.severe('WLSDPLY-05024', attribute_name, model_folder_path, path,
                                         self._archive_file_name, class_name=_class_name, method_name=_method_name)
             else:
-                # If running in STANDALONE mode, or configured to ignore missing archive entries,
+                # If the validate configuration allows unresolved archive references,
                 # log an INFO message identifying missing entries, and allow validation to succeed.
-                # In TOOL mode, unless the ignore flag is set, log a SEVERE message that will cause
-                # validation to fail.
-                ignore_missing_entries = self._model_context.get_ignore_missing_archive_entries()
-                if self._validation_mode == _ValidationModes.STANDALONE or ignore_missing_entries:
-                    self._logger.info('WLSDPLY-05025', attribute_name, model_folder_path, path,
+                # Otherwise, log a SEVERE message that will cause validation to fail.
+                if self._validate_configuration.allow_unresolved_archive_references():
+                    _info_logger.info('WLSDPLY-05025', attribute_name, model_folder_path, path,
                                       class_name=_class_name, method_name=_method_name)
-                elif self._validation_mode == _ValidationModes.TOOL:
+                else:
                     self._logger.severe('WLSDPLY-05025', attribute_name, model_folder_path, path,
                                         class_name=_class_name, method_name=_method_name)
         else:
@@ -940,6 +939,6 @@ class Validator(object):
         Log INFO or WARNING, depending on validation mode.
         """
         log_method = self._logger.warning
-        if self._model_context.get_validate_configuration().allow_version_invalid_attributes():
+        if self._validate_configuration.allow_version_invalid_attributes():
             log_method = _info_logger.info
         log_method('WLSDPLY-05027', message, class_name=_class_name, method_name=method_name)

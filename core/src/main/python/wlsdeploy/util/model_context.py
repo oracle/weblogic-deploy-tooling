@@ -95,7 +95,6 @@ class ModelContext(object):
         self._rcu_db_user = self.DB_USER_DEFAULT
         self._discard_current_edit = False
         self._model_config = None
-        self._ignore_missing_archive_entries = False
 
         self._trailing_args = []
 
@@ -332,9 +331,7 @@ class ModelContext(object):
         if self._variable_properties_file is not None:
             arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH] = self._variable_properties_file
 
-        model_context = ModelContext(self._program_name, arg_map)
-        model_context._ignore_missing_archive_entries = self._ignore_missing_archive_entries
-        return model_context
+        return ModelContext(self._program_name, arg_map)
 
     def get_model_config(self):
         """
@@ -723,20 +720,6 @@ class ModelContext(object):
         :return: the trailing argument
         """
         return self._trailing_args[index]
-
-    def get_ignore_missing_archive_entries(self):
-        """
-        Determine if the tool should ignore missing archive entries during validation.
-        :return: True if the tool should ignore missing entries
-        """
-        return self._ignore_missing_archive_entries
-
-    def set_ignore_missing_archive_entries(self, ignore):
-        """
-        Configure the tool to ignore missing archive entries during validation.
-        :param ignore: True if the tool should ignore missing entries, False otherwise
-        """
-        self._ignore_missing_archive_entries = ignore
 
     def is_wlst_online(self):
         """
