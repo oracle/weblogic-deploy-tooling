@@ -762,7 +762,7 @@ class Validator(object):
                     # assuming that the value is not None
 
                     logger_method = self._logger.warning
-                    if self._model_context.get_validate_configuration().allow_missing_variables():
+                    if self._model_context.get_validate_configuration().allow_unresolved_variable_tokens():
                         logger_method = self._logger.info
 
                     variables_file_name = self._model_context.get_variable_file()

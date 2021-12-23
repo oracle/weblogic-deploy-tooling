@@ -6,8 +6,9 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 # validation method keys
 STRICT_METHOD = "strict"
 LAX_METHOD = "lax"
+WKTUI_METHOD = "wktui"
 
-VALIDATION_METHODS = [STRICT_METHOD, LAX_METHOD]
+VALIDATION_METHODS = [STRICT_METHOD, LAX_METHOD, WKTUI_METHOD]
 
 
 class ValidateConfiguration(object):
@@ -24,52 +25,60 @@ class ValidateConfiguration(object):
         self._key = key
 
         # defaults are values for STRICT mode
-        self._allow_missing_environment_variables = False
-        self._allow_missing_file_variables = False
-        self._allow_missing_secrets = False
-        self._allow_missing_variables = False
+        self._allow_unresolved_environment_tokens = False
+        self._allow_unresolved_file_tokens = False
+        self._allow_unresolved_secret_tokens = False
+        self._allow_unresolved_variable_tokens = False
         self._allow_version_invalid_attributes = False
 
         if key == LAX_METHOD:
-            self._allow_missing_environment_variables = True
-            self._allow_missing_file_variables = True
-            self._allow_missing_secrets = True
-            self._allow_missing_variables = True
+            self._allow_unresolved_environment_tokens = True
+            self._allow_unresolved_file_tokens = True
+            self._allow_unresolved_secret_tokens = True
+            self._allow_unresolved_variable_tokens = True
             self._allow_version_invalid_attributes = True
 
-    def allow_missing_environment_variables(self):
-        """
-        Returns True if missing environment variables should be overlooked during validation.
-        Callers may reduce some WARNING or SEVERE messages to INFO.
-        """
-        return self._allow_missing_environment_variables
+        elif key == WKTUI_METHOD:
+            # similar to LAX_METHOD, but validate variable tokens.
+            # secrets, files and environment variables may not be present in the UI environment.
+            self._allow_unresolved_environment_tokens = True
+            self._allow_unresolved_file_tokens = True
+            self._allow_unresolved_secret_tokens = True
+            self._allow_version_invalid_attributes = True
 
-    def allow_missing_file_variables(self):
+    def allow_unresolved_environment_tokens(self):
         """
-        Returns True if missing file variables should be overlooked during validation.
-        This includes empty variable files.
-        Callers may reduce some WARNING or SEVERE messages to INFO.
+        Returns True if unresolved environment tokens should be allowed during validation.
+        Callers may reduce some message levels to INFO, or avoid throwing some exceptions.
         """
-        return self._allow_missing_file_variables
+        return self._allow_unresolved_environment_tokens
 
-    def allow_missing_variables(self):
+    def allow_unresolved_file_tokens(self):
         """
-        Returns True if missing variables should be overlooked during validation.
-        Callers may reduce some WARNING or SEVERE messages to INFO.
+        Returns True if unresolved file tokens should be allowed during validation.
+        This includes references to missing or empty token files.
+        Callers may reduce some message levels to INFO, or avoid throwing some exceptions.
         """
-        return self._allow_missing_variables
+        return self._allow_unresolved_file_tokens
 
-    def allow_missing_secrets(self):
+    def allow_unresolved_variable_tokens(self):
         """
-        Returns True if missing secrets should be overlooked during validation.
-        This includes declaring secrets directories that don't exist, or empty secrets files.
-        Callers may reduce some WARNING or SEVERE messages to INFO.
+        Returns True if unresolved variable tokens should be allowed during validation.
+        Callers may reduce some message levels to INFO, or avoid throwing some exceptions.
         """
-        return self._allow_missing_secrets
+        return self._allow_unresolved_variable_tokens
+
+    def allow_unresolved_secret_tokens(self):
+        """
+        Returns True if unresolved secret tokens should be allowed during validation.
+        This includes configured secrets directories that don't exist, or missing or empty secrets files.
+        Callers may reduce some message levels to INFO, or avoid throwing some exceptions.
+        """
+        return self._allow_unresolved_secret_tokens
 
     def allow_version_invalid_attributes(self):
         """
         Returns True if version-invalid attributes should be overlooked during validation.
-        Callers may reduce some WARNING or SEVERE messages to INFO.
+        Callers may reduce some message levels to INFO, or avoid throwing some exceptions.
         """
         return self._allow_version_invalid_attributes

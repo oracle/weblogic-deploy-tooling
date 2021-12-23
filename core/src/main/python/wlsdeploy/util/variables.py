@@ -169,7 +169,22 @@ def get_variable_names(text):
 
 
 def substitute_value(text, variables, model_context):
-    return _substitute(text, variables, model_context, {})
+    """
+    Perform token substitutions on a single text value.
+    If errors occur during substitution, throw a single VariableException.
+    :param text: the original text
+    :param variables: a dictionary of variables for substitution
+    :param model_context: used to resolve variables in file paths
+    """
+    method_name = 'substitute_value'
+    error_info = {'errorCount': 0}
+    result = _substitute(text, variables, model_context, error_info)
+    error_count = error_info['errorCount']
+    if error_count:
+        ex = exception_helper.create_variable_exception("WLSDPLY-01740", error_count)
+        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+        raise ex
+    return result
 
 
 def substitute(dictionary, variables, model_context):
@@ -246,9 +261,9 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if key not in variables:
-                allow_missing = validation_config.allow_missing_variables()
-                _report_token_issue('WLSDPLY-01732', method_name, allow_missing, key)
-                _increment_error_count(error_info, allow_missing)
+                allow_unresolved = validation_config.allow_unresolved_variable_tokens()
+                _report_token_issue('WLSDPLY-01732', method_name, allow_unresolved, key)
+                _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
 
@@ -259,9 +274,9 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
         matches = _environment_pattern.findall(text)
         for token, key in matches:
             if not os.environ.has_key(str(key)):
-                allow_missing = validation_config.allow_missing_environment_variables()
-                _report_token_issue('WLSDPLY-01737', method_name, allow_missing, key)
-                _increment_error_count(error_info, allow_missing)
+                allow_unresolved = validation_config.allow_unresolved_environment_tokens()
+                _report_token_issue('WLSDPLY-01737', method_name, allow_unresolved, key)
+                _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
             value = os.environ.get(str(key))
@@ -273,21 +288,21 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
             value = _resolve_secret_token(name, key, model_context)
             if value is None:
                 # does not match, only report for non target case
-                allow_missing = validation_config.allow_missing_environment_variables()
+                allow_unresolved = validation_config.allow_unresolved_environment_tokens()
                 secret_token = name + ':' + key
                 known_tokens = _list_known_secret_tokens()
-                _report_token_issue('WLSDPLY-01739', method_name, allow_missing, secret_token, known_tokens)
-                _increment_error_count(error_info, allow_missing)
+                _report_token_issue('WLSDPLY-01739', method_name, allow_unresolved, secret_token, known_tokens)
+                _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
             text = text.replace(token, value)
 
         matches = _file_variable_pattern.findall(text)
         for token, path in matches:
-            allow_missing = validation_config.allow_missing_file_variables()
-            value = _read_value_from_file(path, allow_missing)
+            allow_unresolved = validation_config.allow_unresolved_file_tokens()
+            value = _read_value_from_file(path, allow_unresolved)
             if value is None:
-                _increment_error_count(error_info, allow_missing)
+                _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
             text = text.replace(token, value)
@@ -296,10 +311,10 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
         matches = _file_nested_variable_pattern.findall(text)
         for token, path in matches:
             path = model_context.replace_token_string(path)
-            allow_missing = validation_config.allow_missing_file_variables()
-            value = _read_value_from_file(path, allow_missing)
+            allow_unresolved = validation_config.allow_unresolved_file_tokens()
+            value = _read_value_from_file(path, allow_unresolved)
             if value is None:
-                _increment_error_count(error_info, allow_missing)
+                _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
             text = text.replace(token, value)
@@ -316,26 +331,26 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
             sample += "@@"
 
             # always log SEVERE, these are syntax errors in the value
-            allow_missing = False
+            allow_unresolved = False
             if attribute_name is None:
-                _report_token_issue("WLSDPLY-01745", method_name, allow_missing, text, sample)
+                _report_token_issue("WLSDPLY-01745", method_name, allow_unresolved, text, sample)
             else:
-                _report_token_issue("WLSDPLY-01746", method_name, allow_missing, attribute_name, text, sample)
-                _increment_error_count(error_info, allow_missing)
+                _report_token_issue("WLSDPLY-01746", method_name, allow_unresolved, attribute_name, text, sample)
+                _increment_error_count(error_info, allow_unresolved)
 
     return text
 
 
-def _increment_error_count(error_info, allow_missing):
-    if not allow_missing:
+def _increment_error_count(error_info, allow_unresolved):
+    if not allow_unresolved:
         error_info['errorCount'] = error_info['errorCount'] + 1
 
 
-def _read_value_from_file(file_path, allow_missing):
+def _read_value_from_file(file_path, allow_unresolved):
     """
     Read a single text value from the first line in the specified file.
     :param file_path: the file from which to read the value
-    :param allow_missing: if True, log INFO instead of SEVERE for lookup failures
+    :param allow_unresolved: if True, log INFO instead of SEVERE for lookup failures
     :return: the text value
     :raises BundleAwareException if an error occurs while reading the value
     """
@@ -346,11 +361,11 @@ def _read_value_from_file(file_path, allow_missing):
         line = file_reader.readLine()
         file_reader.close()
     except IOException, e:
-        _report_token_issue('WLSDPLY-01733', method_name, allow_missing, file_path, e.getLocalizedMessage())
+        _report_token_issue('WLSDPLY-01733', method_name, allow_unresolved, file_path, e.getLocalizedMessage())
         return None
 
     if line is None:  # empty file
-        _report_token_issue('WLSDPLY-01734', method_name, allow_missing, file_path)
+        _report_token_issue('WLSDPLY-01734', method_name, allow_unresolved, file_path)
         return line
 
     return str(line).strip()
@@ -386,7 +401,7 @@ def _init_secret_token_map(model_context):
     global _secret_token_map
 
     log_method = _logger.warning
-    if model_context.get_validate_configuration().allow_missing_secrets():
+    if model_context.get_validate_configuration().allow_unresolved_secret_tokens():
         log_method = _logger.info
 
     _secret_token_map = dict()
@@ -451,8 +466,8 @@ def _add_file_secrets_to_map(dir, name, model_context):
         file_path = os.path.join(dir, file_name)
         if os.path.isfile(file_path):
             token = name + ":" + file_name
-            allow_missing = model_context.get_validate_configuration().allow_missing_secrets()
-            _secret_token_map[token] = _read_value_from_file(file_path, allow_missing)
+            allow_unresolved = model_context.get_validate_configuration().allow_unresolved_secret_tokens()
+            _secret_token_map[token] = _read_value_from_file(file_path, allow_unresolved)
 
 
 def _list_known_secret_tokens():
@@ -472,17 +487,17 @@ def _list_known_secret_tokens():
     return ret
 
 
-def _report_token_issue(message_key, method_name, allow_missing, *args):
+def _report_token_issue(message_key, method_name, allow_unresolved, *args):
     """
     Log a message at the level corresponding to the validation method (SEVERE for strict, INFO otherwise).
     The lax validation method can be used to verify the model without resolving tokens.
     :param message_key: the message key to be logged and used for exceptions
     :param method_name: the name of the calling method for logging
-    :param allow_missing: if True, log INFO instead of SEVERE for lookup failures
+    :param allow_unresolved: if True, log INFO instead of SEVERE for lookup failures
     :param args: arguments for use in the message
     """
     log_method = _logger.severe
-    if allow_missing:
+    if allow_unresolved:
         log_method = _logger.info
 
     log_method(message_key, class_name=_class_name, method_name=method_name, *args)
