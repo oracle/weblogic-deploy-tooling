@@ -132,8 +132,6 @@ def __perform_model_file_validation(model_file_name, model_context):
                                                         model_context.get_archive_file_name())
 
     except (TranslateException, VariableException), te:
-        __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
-                        error=te, class_name=_class_name, method_name=_method_name)
         ex = exception_helper.create_validate_exception(te.getLocalizedMessage(), error=te)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
@@ -168,9 +166,9 @@ def main(args):
         model_context = model_context_helper.create_exit_context(_program_name)
         tool_exit.end(model_context, exit_code)
 
-    try:
-        model_file_name = model_context.get_model_file()
+    model_file_name = model_context.get_model_file()
 
+    try:
         if model_file_name is not None:
             __perform_model_file_validation(model_file_name, model_context)
 
@@ -183,10 +181,9 @@ def main(args):
                     exit_code = CommandLineArgUtil.PROG_WARNING_EXIT_CODE
 
     except ValidateException, ve:
+        exit_code = CommandLineArgUtil.PROG_ERROR_EXIT_CODE
         __logger.severe('WLSDPLY-20000', _program_name, ve.getLocalizedMessage(), error=ve,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     cla_helper.clean_up_temp_files()
 
