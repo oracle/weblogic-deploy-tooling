@@ -727,7 +727,7 @@ public class ITWdt extends BaseTest {
             String cmd = validateModelScript + " -oracle_home " + mwhome_12213 + " -model_file " +
                 getSampleModelFile("-constant");
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-            verifyResult(result, "the archive file was not provided");
+            verifyErrorMsg(result, "the archive file was not provided");
         }
     }
 
