@@ -34,7 +34,7 @@ class ValidateConfiguration(object):
 
         if key == LAX_METHOD:
             # almost no checks on archive, tokens, etc.
-            self._allow_unresolved_archive_references = False
+            self._allow_unresolved_archive_references = True
             self._allow_unresolved_environment_tokens = True
             self._allow_unresolved_file_tokens = True
             self._allow_unresolved_secret_tokens = True
