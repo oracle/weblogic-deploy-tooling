@@ -822,21 +822,21 @@ class Validator(object):
         #     token to make that explicit in the model.
         #
         if WLSDeployArchive.isPathIntoArchive(path):
+            # If the validate configuration allows unresolved archive references,
+            # log INFO messages identifying missing entries, and allow validation to succeed.
+            # Otherwise, log SEVERE messages that will cause validation to fail.
+            log_method = self._logger.severe
+            if self._validate_configuration.allow_unresolved_archive_references():
+                log_method = _info_logger.info
+
             if self._archive_helper is not None:
                 archive_has_file = self._archive_helper.contains_file_or_path(path)
                 if not archive_has_file:
-                    self._logger.severe('WLSDPLY-05024', attribute_name, model_folder_path, path,
-                                        self._archive_file_name, class_name=_class_name, method_name=_method_name)
+                    log_method('WLSDPLY-05024', attribute_name, model_folder_path, path,
+                               self._archive_file_name, class_name=_class_name, method_name=_method_name)
             else:
-                # If the validate configuration allows unresolved archive references,
-                # log an INFO message identifying missing entries, and allow validation to succeed.
-                # Otherwise, log a SEVERE message that will cause validation to fail.
-                if self._validate_configuration.allow_unresolved_archive_references():
-                    _info_logger.info('WLSDPLY-05025', attribute_name, model_folder_path, path,
-                                      class_name=_class_name, method_name=_method_name)
-                else:
-                    self._logger.severe('WLSDPLY-05025', attribute_name, model_folder_path, path,
-                                        class_name=_class_name, method_name=_method_name)
+                log_method('WLSDPLY-05025', attribute_name, model_folder_path, path,
+                           class_name=_class_name, method_name=_method_name)
         else:
             tokens = validation_utils.extract_path_tokens(path)
             self._logger.finest('tokens={0}', str(tokens), class_name=_class_name, method_name=_method_name)
