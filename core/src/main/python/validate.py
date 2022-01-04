@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The WLS Deploy tooling entry point for the validateModel tool.
@@ -28,6 +28,7 @@ from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import tool_exit
+from wlsdeploy.util import validate_configuration
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -84,7 +85,7 @@ def __process_model_args(argument_map):
     except CLAException, ce:
         # in lax validation mode, if no model is found, log at INFO and exit
         method = dictionary_utils.get_element(argument_map, CommandLineArgUtil.VALIDATION_METHOD)
-        if method == CommandLineArgUtil.LAX_VALIDATION_METHOD:
+        if method == validate_configuration.LAX_METHOD:
             __logger.info('WLSDPLY-20032', _program_name, class_name=_class_name, method_name=_method_name)
             model_context = model_context_helper.create_exit_context(_program_name)
             tool_exit.end(model_context, CommandLineArgUtil.PROG_OK_EXIT_CODE)
@@ -131,8 +132,6 @@ def __perform_model_file_validation(model_file_name, model_context):
                                                         model_context.get_archive_file_name())
 
     except (TranslateException, VariableException), te:
-        __logger.severe('WLSDPLY-20009', _program_name, model_file_name, te.getLocalizedMessage(),
-                        error=te, class_name=_class_name, method_name=_method_name)
         ex = exception_helper.create_validate_exception(te.getLocalizedMessage(), error=te)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
@@ -167,9 +166,9 @@ def main(args):
         model_context = model_context_helper.create_exit_context(_program_name)
         tool_exit.end(model_context, exit_code)
 
-    try:
-        model_file_name = model_context.get_model_file()
+    model_file_name = model_context.get_model_file()
 
+    try:
         if model_file_name is not None:
             __perform_model_file_validation(model_file_name, model_context)
 
@@ -182,10 +181,9 @@ def main(args):
                     exit_code = CommandLineArgUtil.PROG_WARNING_EXIT_CODE
 
     except ValidateException, ve:
+        exit_code = CommandLineArgUtil.PROG_ERROR_EXIT_CODE
         __logger.severe('WLSDPLY-20000', _program_name, ve.getLocalizedMessage(), error=ve,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     cla_helper.clean_up_temp_files()
 

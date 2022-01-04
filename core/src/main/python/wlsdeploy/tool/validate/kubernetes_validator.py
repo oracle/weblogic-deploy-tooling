@@ -1,12 +1,12 @@
 """
-Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract import wko_schema_helper
-from wlsdeploy.tool.validate.validator_logger import ValidatorLogger
 from wlsdeploy.util import dictionary_utils
 
 
@@ -15,7 +15,7 @@ class KubernetesValidator(object):
     Class for validating the kubernetes section of a model file
     """
     _class_name = 'KubernetesValidator'
-    _logger = ValidatorLogger('wlsdeploy.validate')
+    _logger = PlatformLogger('wlsdeploy.validate')
 
     def __init__(self, model_context):
         self._model_context = model_context

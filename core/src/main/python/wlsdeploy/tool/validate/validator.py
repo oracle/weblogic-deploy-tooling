@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -62,6 +62,7 @@ class Validator(object):
 
     def __init__(self, model_context, aliases=None, logger=None, wlst_mode=None, domain_name='base_domain'):
         self._model_context = model_context
+        self._validate_configuration = model_context.get_validate_configuration()
 
         if logger is None:
             # No logger specified, so use the one declared at the module level
@@ -761,9 +762,9 @@ class Validator(object):
                     # FIXME(mwooten) - the cla_utils should be fixing all windows paths to use forward slashes already
                     # assuming that the value is not None
 
-                    logger_method = self._logger.info
-                    if self._model_context.get_validation_method() == 'strict':
-                        logger_method = self._logger.warning
+                    logger_method = self._logger.warning
+                    if self._validate_configuration.allow_unresolved_variable_tokens():
+                        logger_method = _info_logger.info
 
                     variables_file_name = self._model_context.get_variable_file()
                     if variables_file_name is None:
@@ -821,23 +822,21 @@ class Validator(object):
         #     token to make that explicit in the model.
         #
         if WLSDeployArchive.isPathIntoArchive(path):
+            # If the validate configuration allows unresolved archive references,
+            # log INFO messages identifying missing entries, and allow validation to succeed.
+            # Otherwise, log SEVERE messages that will cause validation to fail.
+            log_method = self._logger.severe
+            if self._validate_configuration.allow_unresolved_archive_references():
+                log_method = _info_logger.info
+
             if self._archive_helper is not None:
                 archive_has_file = self._archive_helper.contains_file_or_path(path)
                 if not archive_has_file:
-                    self._logger.severe('WLSDPLY-05024', attribute_name, model_folder_path, path,
-                                        self._archive_file_name, class_name=_class_name, method_name=_method_name)
+                    log_method('WLSDPLY-05024', attribute_name, model_folder_path, path,
+                               self._archive_file_name, class_name=_class_name, method_name=_method_name)
             else:
-                # If running in STANDALONE mode, or configured to ignore missing archive entries,
-                # log an INFO message identifying missing entries, and allow validation to succeed.
-                # In TOOL mode, unless the ignore flag is set, log a SEVERE message that will cause
-                # validation to fail.
-                ignore_missing_entries = self._model_context.get_ignore_missing_archive_entries()
-                if self._validation_mode == _ValidationModes.STANDALONE or ignore_missing_entries:
-                    self._logger.info('WLSDPLY-05025', attribute_name, model_folder_path, path,
-                                      class_name=_class_name, method_name=_method_name)
-                elif self._validation_mode == _ValidationModes.TOOL:
-                    self._logger.severe('WLSDPLY-05025', attribute_name, model_folder_path, path,
-                                        class_name=_class_name, method_name=_method_name)
+                log_method('WLSDPLY-05025', attribute_name, model_folder_path, path,
+                           class_name=_class_name, method_name=_method_name)
         else:
             tokens = validation_utils.extract_path_tokens(path)
             self._logger.finest('tokens={0}', str(tokens), class_name=_class_name, method_name=_method_name)
@@ -937,14 +936,9 @@ class Validator(object):
     def _log_version_invalid(self, message, method_name):
         """
         Log a message indicating that an attribute is not valid for the current WLS version and WLST mode.
-        Log INFO if validation method is "lax", otherwise log WARNING.
+        Log INFO or WARNING, depending on validation mode.
         """
-        if self._model_context.is_targetted_config():
-            validation_method = self._model_context.get_target_configuration().get_validation_method()
-        else:
-            validation_method = self._model_context.get_validation_method()
-
         log_method = self._logger.warning
-        if validation_method == 'lax':
+        if self._validate_configuration.allow_version_invalid_attributes():
             log_method = _info_logger.info
         log_method('WLSDPLY-05027', message, class_name=_class_name, method_name=method_name)

@@ -1,4 +1,4 @@
-// Copyright 2019, 2021, Oracle Corporation and/or its affiliates.
+// Copyright 2019, 2022, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at
 // http://oss.oracle.com/licenses/upl.
 
@@ -727,7 +727,7 @@ public class ITWdt extends BaseTest {
             String cmd = validateModelScript + " -oracle_home " + mwhome_12213 + " -model_file " +
                 getSampleModelFile("-constant");
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-            verifyResult(result, "the archive file was not provided");
+            verifyErrorMsg(result, "the archive file was not provided");
         }
     }
 

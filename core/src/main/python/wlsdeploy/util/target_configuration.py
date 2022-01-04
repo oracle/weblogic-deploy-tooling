@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -8,6 +8,9 @@ from wlsdeploy.util import dictionary_utils
 # types for credential method
 CREDENTIALS_METHOD = "credentials_method"
 CREDENTIALS_OUTPUT_METHOD = "credentials_output_method"
+
+# type for validation method
+VALIDATION_METHOD = "validation_method"
 
 # Overrides the Kubernetes secret name for the WebLogic admin user credential
 WLS_CREDENTIALS_NAME = "wls_credentials_name"
@@ -76,7 +79,7 @@ class TargetConfiguration(object):
         Return the validation method for this target environment.
         :return: the validation method, or None
         """
-        return dictionary_utils.get_element(self.config_dictionary, 'validation_method')
+        return dictionary_utils.get_element(self.config_dictionary, VALIDATION_METHOD)
 
     def get_model_filters(self):
         """
