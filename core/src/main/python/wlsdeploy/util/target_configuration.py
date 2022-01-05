@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -76,7 +76,13 @@ class TargetConfiguration(object):
         Return the validation method for this target environment.
         :return: the validation method, or None
         """
-        return dictionary_utils.get_element(self.config_dictionary, 'validation_method')
+        validation_method = dictionary_utils.get_element(self.config_dictionary, 'validation_method')
+
+        # temporary for WDT 1.9: allow WDT 2.0 method, just interpret as lax
+        if validation_method == 'wktui':
+            validation_method = 'lax'
+
+        return validation_method
 
     def get_model_filters(self):
         """

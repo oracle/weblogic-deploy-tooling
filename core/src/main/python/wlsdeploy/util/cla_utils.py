@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module that handles command-line argument parsing and common validation.
@@ -841,6 +841,10 @@ class CommandLineArgUtil(object):
 
     def _validate_validate_method_arg(self, value):
         method_name = '_validate_validate_method_arg'
+
+        # temporary for WDT 1.9: allow WDT 2.0 method, just interpret as lax
+        if value == 'wktui':
+            return self.LAX_VALIDATION_METHOD
 
         if value is None or len(value) == 0:
             ex = exception_helper.create_cla_exception('WLSDPLY-20029')
