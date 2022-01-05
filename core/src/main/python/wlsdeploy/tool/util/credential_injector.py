@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -119,8 +119,11 @@ class CredentialInjector(VariableInjector):
 
             # for discover, value is a string at this point
             if is_string:
+                split_value = ';'
+                if self._model_context.is_wlst_online():
+                    split_value = ','
                 model_dict[attribute] = OrderedDict()
-                split = value.split(';')
+                split = value.split(split_value)
                 for assign in split:
                     halves = assign.split('=')
                     model_dict[attribute][halves[0]] = halves[1]
