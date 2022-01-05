@@ -118,10 +118,10 @@ class CredentialInjector(VariableInjector):
             is_string = isinstance(value, str)
 
             # for discover, value is a string at this point
+            split_value = ';'
+            if self._model_context.is_wlst_online():
+                split_value = ','
             if is_string:
-                split_value = ';'
-                if self._model_context.is_wlst_online():
-                    split_value = ','
                 model_dict[attribute] = OrderedDict()
                 split = value.split(split_value)
                 for assign in split:
@@ -136,7 +136,7 @@ class CredentialInjector(VariableInjector):
                 assigns = []
                 for key in properties:
                     assigns.append('%s=%s' % (key, properties[key]))
-                model_dict[attribute] = ';'.join(assigns)
+                model_dict[attribute] = split_value.join(assigns)
 
     def get_variable_name(self, attribute_location, attribute, suffix=None):
         """
