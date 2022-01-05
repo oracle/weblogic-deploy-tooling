@@ -16,6 +16,7 @@ from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import KSS_KEYSTORE_FILE_INDICATOR
+from wlsdeploy.aliases.model_constants import UNIX_MACHINE_ATTRIBUTE
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -224,6 +225,7 @@ class TopologyDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.UNIX_MACHINE
+        unix_location = LocationContext(self._base_location)
         location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         machines = self._find_names_in_folder(location)
@@ -231,8 +233,14 @@ class TopologyDiscoverer(Discoverer):
             _logger.info('WLSDPLY-06609', len(machines), class_name=_class_name, method_name=_method_name)
             name_token = self._aliases.get_name_token(location)
             for machine in machines:
-                _logger.info('WLSDPLY-06610', machine, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, machine)
+                wlst_path = self._aliases.get_wlst_attributes_path(location)
+                self.wlst_cd(wlst_path, location)
+                wlst_lsa_params = self._get_attributes_for_current_location(location)
+                if not UNIX_MACHINE_ATTRIBUTE in wlst_lsa_params:
+                    location.remove_name_token(name_token)
+                    continue
+                _logger.info('WLSDPLY-06610', machine, class_name=_class_name, method_name=_method_name)
                 result[machine] = OrderedDict()
                 self._populate_model_parameters(result[machine], location)
                 self._discover_subfolders(result[machine], location)
