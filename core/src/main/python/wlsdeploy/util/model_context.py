@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -9,6 +9,7 @@ import tempfile
 
 import java.net.URI as URI
 
+from oracle.weblogic.deploy.util import XPathUtil
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -99,6 +100,7 @@ class ModelContext(object):
         if self._wl_version is None:
             self._wl_version = self._wls_helper.get_actual_weblogic_version()
 
+
         if self._wlst_mode is None:
             self._wlst_mode = WlstModes.OFFLINE
 
@@ -107,8 +109,14 @@ class ModelContext(object):
         return
 
     def __copy_from_args(self, arg_map):
+        _method_name = '__copy_from_args'
         if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
+            psu = XPathUtil(self._oracle_home).getPSU()
+            if psu is not None:
+                self._wl_version += '.' + psu
+                self._logger.info('WLSDPLY-01050', self._wl_version, class_name=self._class_name,
+                method_name=_method_name)
             self._wl_home = self._wls_helper.get_weblogic_home(self._oracle_home)
 
         if CommandLineArgUtil.JAVA_HOME_SWITCH in arg_map:

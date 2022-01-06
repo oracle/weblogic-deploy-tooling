@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import String
@@ -74,9 +74,7 @@ class Aliases(object):
         self._logger = PlatformLogger('wlsdeploy.aliases')
 
         if wls_version is None:
-            from wlsdeploy.util.weblogic_helper import WebLogicHelper
-            self._wls_helper = WebLogicHelper(self._logger)
-            self._wls_version = self._wls_helper.wl_version_actual
+            self._wls_version = self._model_context.get_target_wls_version()
         else:
             self._wls_version = wls_version
 
