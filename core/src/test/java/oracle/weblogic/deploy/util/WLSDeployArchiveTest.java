@@ -5,16 +5,14 @@
 package oracle.weblogic.deploy.util;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static oracle.weblogic.deploy.util.WLSDeployArchive.ARCHIVE_MODEL_TARGET_DIR;
-import static oracle.weblogic.deploy.util.WLSDeployArchive.ZIP_SEP;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WLSDeployArchiveTest {
 
@@ -41,45 +39,50 @@ public class WLSDeployArchiveTest {
     private static final String BINARIES_MODEL_ZIP_TARGET_NAME = WLSDeployZipFileTest.UNIT_TEST_TARGET_DIR +
         '/' + ZIP_FILE_EXISTING_BINARIES_FILE;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeAll
+    static void setup() throws Exception {
         File unitTestDir = new File(WLSDeployZipFileTest.UNIT_TEST_TARGET_DIR).getCanonicalFile();
         unitTestDir.mkdirs();
+
+        File appsArchiveFile = new File(APPS_ARCHIVE_FILE_NAME).getCanonicalFile();
+        if (appsArchiveFile.exists()) {
+            appsArchiveFile.delete();
+        }
     }
 
     @Test
-    public void testAddEnvModelWithDirectory() throws Exception {
+    void testAddEnvModelWithDirectory() throws Exception {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
-        Assert.assertNotNull("expected archive object to not be null", archive);
+        assertNotNull(archive, "expected archive object to not be null");
         File modelFile = new File(APPS_MODEL);
-        Assert.assertTrue("expected model file to exist", modelFile.exists());
-        Assert.assertFalse("expected model not to be a directory", modelFile.isDirectory());
+        assertTrue(modelFile.exists(), "expected model file to exist");
+        assertFalse(modelFile.isDirectory(), "expected model not to be a directory");
         archive.addModel(modelFile);
         String appName = archive.addApplication(new File(APP1_TO_ADD));
-        Assert.assertEquals("unexpected app name: " + appName, APP1_ENTRY_NAME1, appName);
+        assertEquals(APP1_ENTRY_NAME1, appName, "unexpected app name: " + appName);
         appName = archive.addApplication(new File(APP1_TO_ADD));
-        Assert.assertEquals("unexpected app name: " + appName, APP1_ENTRY_NAME2, appName);
+        assertEquals(APP1_ENTRY_NAME2, appName, "unexpected app name: " + appName);
         appName = archive.addApplication(new File(APP1_TO_ADD));
-        Assert.assertEquals("unexpected app name: " + appName, APP1_ENTRY_NAME3, appName);
+        assertEquals(APP1_ENTRY_NAME3, appName, "unexpected app name: " + appName);
         appName = archive.addApplication(new File(APP1_TO_ADD));
-        Assert.assertEquals("unexpected app name: " + appName, APP1_ENTRY_NAME4, appName);
+        assertEquals(APP1_ENTRY_NAME4, appName, "unexpected app name: " + appName);
         appName = archive.addApplication(new File(APP2_TO_ADD));
-        Assert.assertEquals("unexpected app name: " + appName, APP2_ENTRY_NAME1, appName);
+        assertEquals(APP2_ENTRY_NAME1, appName, "unexpected app name: " + appName);
         appName = archive.addApplication(new File(APP2_TO_ADD));
-        Assert.assertEquals("unexpected app name: " + appName, APP2_ENTRY_NAME2, appName);
+        assertEquals(APP2_ENTRY_NAME2, appName, "unexpected app name: " + appName);
         appName = archive.addApplication(new File(APP2_TO_ADD));
-        Assert.assertEquals("unexpected app name: " + appName, APP2_ENTRY_NAME3, appName);
+        assertEquals(APP2_ENTRY_NAME3, appName, "unexpected app name: " + appName);
         archive.close();
     }
 
     @Test
-    public void testAddRemoveModelWithEmptyZip() throws Exception {
+    void testAddRemoveModelWithEmptyZip() throws Exception {
         WLSDeployZipFileTest.copyFile(ZIP_FILE_EXISTING_EMPTY_FILE);
         WLSDeployArchive archive = new WLSDeployArchive(EMPTY_MODEL_ZIP_TARGET_NAME);
-        Assert.assertNotNull("expected archive object to not be null", archive);
+        assertNotNull(archive, "expected archive object to not be null");
         File modelFile = new File(APPS_MODEL);
-        Assert.assertTrue("expected model file to exist", modelFile.exists());
-        Assert.assertFalse("expected model file not to be a directory", modelFile.isDirectory());
+        assertTrue(modelFile.exists(), "expected model file to exist");
+        assertFalse(modelFile.isDirectory(), "expected model file not to be a directory");
         archive.addModel(modelFile);
         File extractDir =
             new File(WLSDeployZipFileTest.UNIT_TEST_TARGET_DIR + File.separator + "extracted").getCanonicalFile();
@@ -87,67 +90,65 @@ public class WLSDeployArchiveTest {
         archive.extractModel(extractDir);
         String modelFileName = modelFile.getName();
         File extractedModelFile = new File(extractDir, "model/" + modelFileName);
-        Assert.assertTrue("expected extracted model file to exist", extractedModelFile.exists());
-        Assert.assertFalse("expected extracted model file not to be a directory", extractedModelFile.isDirectory());
+        assertTrue(extractedModelFile.exists(), "expected extracted model file to exist");
+        assertFalse(extractedModelFile.isDirectory(), "expected extracted model file not to be a directory");
         archive.close();
     }
 
     @Test
-    public void testAddDirectory() throws Exception {
+    void testAddDirectory() throws Exception {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
         String appName = archive.addApplication(new File(APP_DIR_TO_ADD));
-        Assert.assertEquals("unexpected app name: " + appName, APP_DIR_ENTRY_NAME, appName);
+        assertEquals(APP_DIR_ENTRY_NAME, appName, "unexpected app name: " + appName);
         archive.close();
     }
 
     @Test
-    public void testAddDirectoryNoArchive() throws Exception {
+    void testAddDirectoryNoArchive() throws Exception {
         WLSDeployArchive archive = WLSDeployArchive.noArchiveFile();
         File file = new File(APP_DIR_TO_ADD);
         String appName = archive.addApplication(file);
-        Assert.assertEquals("unexpected app name: " + appName, file.getPath(), appName);
+        assertEquals(file.getPath(), appName, "unexpected app name: " + appName);
         archive.close();
     }
 
     @Test
-    public void testIsAFile() throws Exception {
+    void testIsAFile() throws Exception {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
         archive.addApplication(new File(APP1_TO_ADD));
-        Assert.assertTrue("File not found in archive: " + APP1_ENTRY_NAME1, archive.containsFile(APP1_ENTRY_NAME1));
-        Assert.assertTrue("File not found in archive: "
-                + APP1_ENTRY_NAME1, archive.containsFileOrPath(APP1_ENTRY_NAME1));
-        Assert.assertFalse("Is not a File", archive.containsFile(APP_DIR_ENTRY_NAME));
-        Assert.assertFalse("File should not exist", archive.containsFileOrPath(INVALID_APP_ENTRY_NAME));
+        assertTrue(archive.containsFile(APP1_ENTRY_NAME1), "File not found in archive: " + APP1_ENTRY_NAME1);
+        assertTrue(archive.containsFileOrPath(APP1_ENTRY_NAME1), "File not found in archive: " + APP1_ENTRY_NAME1);
+        assertFalse(archive.containsFile(APP_DIR_ENTRY_NAME), "Is not a File");
+        assertFalse(archive.containsFileOrPath(INVALID_APP_ENTRY_NAME), "File should not exist");
         archive.close();
     }
 
     @Test
-    public void testIsAPath() throws Exception {
+    void testIsAPath() throws Exception {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
         archive.addApplication(new File(APP_DIR_TO_ADD));
-        Assert.assertTrue("Path not found in archive: " + APP_DIR_ENTRY_NAME, archive.containsPath(APP_DIR_ENTRY_NAME));
-        Assert.assertTrue("Path not found in archive: " + APP_DIR_ENTRY_NAME,
-                archive.containsFileOrPath(APP_DIR_ENTRY_NAME));
-        Assert.assertFalse("Is not a Path", archive.containsPath(APP1_ENTRY_NAME1));
-        Assert.assertFalse("Path should not exist", archive.containsFileOrPath(INVALID_DIR_ENTRY_NAME));
+        assertTrue(archive.containsPath(APP_DIR_ENTRY_NAME), "Path not found in archive: " + APP_DIR_ENTRY_NAME);
+        assertTrue(                archive.containsFileOrPath(APP_DIR_ENTRY_NAME), "Path not found in archive: " + APP_DIR_ENTRY_NAME);
+        assertFalse(archive.containsPath(APP1_ENTRY_NAME1), "Is not a Path");
+        assertFalse(archive.containsFileOrPath(INVALID_DIR_ENTRY_NAME), "Path should not exist");
     }
 
     @Test
-    public void testClearAllBinariesWithEmptyZip() throws Exception {
+    void testClearAllBinariesWithEmptyZip() throws Exception {
         WLSDeployZipFileTest.copyFile(ZIP_FILE_EXISTING_BINARIES_FILE);
         WLSDeployArchive archive = new WLSDeployArchive(BINARIES_MODEL_ZIP_TARGET_NAME);
         archive.removeAllBinaries();
         File archiveFile = new File(BINARIES_MODEL_ZIP_TARGET_NAME);
-        Assert.assertTrue("expected archive file to exist", archiveFile.exists());
-        Assert.assertFalse("expected archive file not to be a directory", archiveFile.isDirectory());
-        Assert.assertNotNull("expected archive object to not be null", archive);
+        assertTrue(archiveFile.exists(), "expected archive file to exist");
+        assertFalse(archiveFile.isDirectory(), "expected archive file not to be a directory");
+        assertNotNull(archive, "expected archive object to not be null");
         String appName = archive.addApplication(new File(APP1_TO_ADD));
-        Assert.assertFalse("expected appName to be not empty", StringUtils.isEmpty(appName));
+        assertFalse(StringUtils.isEmpty(appName), "expected appName to be not empty");
         archive.close();
     }
 
     @Test
-    public void testClearAllBinariesNoArchive() throws Exception {
+    void testClearAllBinariesNoArchive() throws Exception {
         WLSDeployArchive archive = WLSDeployArchive.noArchiveFile();
         archive.removeAllBinaries();
     }

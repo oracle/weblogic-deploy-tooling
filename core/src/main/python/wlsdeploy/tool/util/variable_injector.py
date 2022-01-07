@@ -190,14 +190,17 @@ class VariableInjector(object):
         _method_name = 'inject_variables_keyword_file'
         _logger.entering(class_name=_class_name, method_name=_method_name)
 
-        # check for file location overrides from command line
-
-        injector_file_override = self.__model_context.get_variable_injector_file()
-        if injector_file_override is not None:
-            variable_injector_location_file = injector_file_override
-            _logger.info('WLSDPLY-19600', injector_file_override, class_name=_class_name, method_name=_method_name)
+        if self.__model_context.is_targetted_config():
+            # this is mostly used for logging, so put the target config path here
+            variable_injector_location_file = self.__model_context.get_target_configuration_file()
         else:
-            variable_injector_location_file = path_utils.find_config_path(VARIABLE_INJECTOR_FILE_NAME)
+            # check for file location overrides from command line
+            injector_file_override = self.__model_context.get_variable_injector_file()
+            if injector_file_override is not None:
+                variable_injector_location_file = injector_file_override
+                _logger.info('WLSDPLY-19600', injector_file_override, class_name=_class_name, method_name=_method_name)
+            else:
+                variable_injector_location_file = path_utils.find_config_path(VARIABLE_INJECTOR_FILE_NAME)
 
         keywords_file_override = self.__model_context.get_variable_keywords_file()
         if keywords_file_override is not None:

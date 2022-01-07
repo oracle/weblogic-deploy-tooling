@@ -6,7 +6,9 @@ package oracle.weblogic.deploy.yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
@@ -41,8 +43,8 @@ public class YamlTranslator extends AbstractYamlTranslator {
      * @throws IllegalArgumentException if the file name is null or does not point to a valid, existing file.
      */
     public YamlTranslator(String fileName, boolean useOrderedDict) {
+        super(fileName, useOrderedDict);
         this.yamlFile = FileUtils.validateExistingFile(fileName);
-        this.useOrderedDict = useOrderedDict;
     }
     /**
      * This method triggers parsing of the file and conversion into the Python dictionary.
@@ -57,10 +59,9 @@ public class YamlTranslator extends AbstractYamlTranslator {
         LOGGER.entering(CLASS, METHOD);
         PyDictionary result;
         try (FileInputStream fis = new FileInputStream(yamlFile)) {
-            result = parseInternal(yamlFile.getPath(), fis);
+            result = parseInternal(fis);
         } catch (IOException ioe) {
-            YamlException ex = new YamlException("WLSDPLY-18007", ioe, "YAML", yamlFile.getPath(),
-                ioe.getLocalizedMessage());
+            YamlException ex = new YamlException("WLSDPLY-18108", ioe, yamlFile.getPath(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ex);
             throw ex;
         }
@@ -68,6 +69,21 @@ public class YamlTranslator extends AbstractYamlTranslator {
         // don't log the model on exit, it may contain passwords
         LOGGER.exiting(CLASS, METHOD);
         return result;
+    }
+
+    public void dump(Map<String, Object> data) throws YamlException {
+        final String METHOD = "dump";
+
+        // Don't log the data since it is big and could contain credentials.
+        LOGGER.entering(CLASS, METHOD);
+        try (FileWriter fileWriter = new FileWriter(yamlFile)) {
+            dumpInternal(data, fileWriter);
+        } catch (IOException ioe) {
+            YamlException ex = new YamlException("WLSDPLY-18109", ioe, yamlFile.getPath(), ioe.getLocalizedMessage());
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+        LOGGER.exiting(CLASS, METHOD);
     }
 
     @Override

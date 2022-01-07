@@ -7,16 +7,19 @@ package oracle.weblogic.deploy.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.file.attribute.PosixFilePermission;
 import java.text.MessageFormat;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FileUtilsTest {
     private static final String FILE_ERR_FORMAT = "Unexpected {0}: got {1}, expected {2}";
@@ -60,15 +63,15 @@ public class FileUtilsTest {
     private static final File UNIT_TEST_TARGET_DIR = new File(WLSDeployZipFileTest.UNIT_TEST_TARGET_DIR, "fileutils");
     private static final String WALLET_PATH = "wlsdeploy/wallet.zip";
 
-    @Before
-    public void initialize() throws Exception {
+    @BeforeAll
+    static void initialize() throws Exception {
         if(!UNIT_TEST_TARGET_DIR.exists() && !UNIT_TEST_TARGET_DIR.mkdirs()) {
             throw new Exception("Unable to create unit test directory: " + UNIT_TEST_TARGET_DIR);
         }
     }
 
     @Test
-    public void testNormalFile_parseFileName() throws Exception {
+    void testNormalFile_parseFileName() {
         File f = new File(FILE1);
         String[] nameComponents = FileUtils.parseFileName(f);
         assertMatch("filename", nameComponents[0], FILE1_EXPECTED_NAME);
@@ -111,7 +114,7 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testHashing() throws Exception {
+    void testHashing() throws Exception {
         File archiveFile = FileUtils.getCanonicalFile(new File(ARCHIVE_FILE_NAME));
         WLSDeployArchive archive = new WLSDeployArchive(archiveFile.getAbsolutePath());
         String archiveHash = archive.getFileHash(APP_PATH);
@@ -119,15 +122,15 @@ public class FileUtilsTest {
         File appFile = FileUtils.getCanonicalFile(new File(APP_FILE_NAME));
         String appHash = FileUtils.computeHash(appFile.getAbsolutePath());
 
-        Assert.assertEquals(appHash, archiveHash);
+        assertEquals(appHash, archiveHash);
     }
 
     @Test
     /* A wallet zip inside the archive must not contain an entry such as ../info.txt,
        since this creates a file overwrite security vulnerability (zip slip).
      */
-    public void testZipVulnerability() throws Exception {
-        String extractPath = UNIT_TEST_TARGET_DIR.getPath();
+    void testZipVulnerability() throws Exception {
+        final String extractPath = UNIT_TEST_TARGET_DIR.getPath();
 
         // an entry with a simple name or path works fine
         File zipFile = buildWalletArchiveZip("info.txt");
@@ -135,15 +138,16 @@ public class FileUtilsTest {
         FileUtils.extractZipFileContent(deployArchive, WALLET_PATH, extractPath);
 
         // an entry with parent directory notation should throw an exception
-        try {
-            zipFile = buildWalletArchiveZip("../info.txt");
-            deployArchive = new WLSDeployArchive(zipFile.getPath());
-            FileUtils.extractZipFileContent(deployArchive, WALLET_PATH, extractPath);
-            Assert.fail("Exception not thrown for zip entry outside extract directory");
-
-        } catch(IllegalArgumentException e) {
-            // expected behavior
-        }
+        zipFile = buildWalletArchiveZip("../info.txt");
+        final WLSDeployArchive deployArchive2 = new WLSDeployArchive(zipFile.getPath());
+        assertThrows(IllegalArgumentException.class,
+            new Executable() {
+                @Override
+                public void execute() throws Throwable {
+                    FileUtils.extractZipFileContent(deployArchive2, WALLET_PATH, extractPath);
+                }
+            },
+            "Exception not thrown for zip entry outside extract directory");
     }
 
     /* Build an archive zip containing a wallet zip.
@@ -174,19 +178,18 @@ public class FileUtilsTest {
     }
 
     private void assertMatch(String name, String got, String expected) {
-        Assert.assertTrue(MessageFormat.format(FILE_ERR_FORMAT, name, got, expected),
-            got.equals(expected));
+        assertEquals(expected, got, MessageFormat.format(FILE_ERR_FORMAT, name, got, expected));
     }
 
     @Test
-    public void posixPermissions() throws IOException {
+    void posixPermissions() {
         Set<PosixFilePermission> perms = FileUtils.getPermissions(0700);
-        Assert.assertTrue(perms.contains(PosixFilePermission.OWNER_READ));
-        Assert.assertTrue(perms.contains(PosixFilePermission.OWNER_WRITE));
-        Assert.assertTrue(perms.contains(PosixFilePermission.OWNER_EXECUTE));
+        assertTrue(perms.contains(PosixFilePermission.OWNER_READ));
+        assertTrue(perms.contains(PosixFilePermission.OWNER_WRITE));
+        assertTrue(perms.contains(PosixFilePermission.OWNER_EXECUTE));
 
         Set<PosixFilePermission> perms2 = FileUtils.getPermissions(0006);
-        Assert.assertTrue(perms2.contains(PosixFilePermission.OTHERS_READ));
-        Assert.assertTrue(perms2.contains(PosixFilePermission.OTHERS_WRITE));
+        assertTrue(perms2.contains(PosixFilePermission.OTHERS_READ));
+        assertTrue(perms2.contains(PosixFilePermission.OTHERS_WRITE));
     }
 }

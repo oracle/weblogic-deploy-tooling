@@ -4,8 +4,11 @@
  */
 package oracle.weblogic.deploy.aliases;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class VersionUtilsTest {
     private static final String VERSION_1033 = "10.3.3.0";
@@ -29,229 +32,229 @@ public class VersionUtilsTest {
     public void testClientGreaterThanServer() throws Exception {
         String clientVersion = "0.7.4";
         String serverVersion = "0.7.3";
-        Assert.assertTrue("Expected client " + clientVersion + " to be newer than server " + serverVersion,
-                          VersionUtils.compareVersions(clientVersion, serverVersion) > 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+            "Expected client " + clientVersion + " to be newer than server " + serverVersion);
 
         clientVersion = "0.8";
         serverVersion = "0.7.4";
-        Assert.assertTrue("Expected client " + clientVersion + " to be newer than server " + serverVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) > 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+            "Expected client " + clientVersion + " to be newer than server " + serverVersion);
 
         clientVersion = "1.2.3";
         serverVersion = "1.2";
-        Assert.assertTrue("Expected client " + clientVersion + " to be newer than server " + serverVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) > 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+            "Expected client " + clientVersion + " to be newer than server " + serverVersion);
 
         clientVersion = "1.2.3";
         serverVersion = "1.2.3-SNAPSHOT";
-        Assert.assertTrue("Expected client " + clientVersion + " to be newer than server " + serverVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) > 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+            "Expected client " + clientVersion + " to be newer than server " + serverVersion);
 
         clientVersion = "1.2.3-BETA1";
         serverVersion = "1.2.3-ALPHA3";
-        Assert.assertTrue("Expected client " + clientVersion + " to be newer than server " + serverVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) > 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+            "Expected client " + clientVersion + " to be newer than server " + serverVersion);
 
         clientVersion = "1.2.3-SNAPSHOT";
         serverVersion = "1.2.2";
-        Assert.assertTrue("Expected client " + clientVersion + " to be newer than server " + serverVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) > 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+            "Expected client " + clientVersion + " to be newer than server " + serverVersion);
     }
 
     @Test
     public void testServerGreaterThanClient() throws Exception {
         String clientVersion = "0.7.3";
         String serverVersion = "0.7.4";
-        Assert.assertTrue("Expected server " + serverVersion + " to be newer than client " + clientVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) < 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) < 0,
+            "Expected server " + serverVersion + " to be newer than client " + clientVersion);
 
         clientVersion = "0.7.4";
         serverVersion = "1";
-        Assert.assertTrue("Expected server " + serverVersion + " to be newer than client " + clientVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) < 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) < 0,
+            "Expected server " + serverVersion + " to be newer than client " + clientVersion);
 
         clientVersion = "1.2";
         serverVersion = "1.2.3";
-        Assert.assertTrue("Expected server " + serverVersion + " to be newer than client " + clientVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) < 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) < 0,
+            "Expected server " + serverVersion + " to be newer than client " + clientVersion);
 
         clientVersion = "1.2.3-SNAPSHOT";
         serverVersion = "1.2.3";
-        Assert.assertTrue("Expected server " + serverVersion + " to be newer than client " + clientVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) < 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) < 0,
+            "Expected server " + serverVersion + " to be newer than client " + clientVersion);
 
         clientVersion = "1.2.3-ALPHA4";
         serverVersion = "1.2.3-ALPHA5";
-        Assert.assertTrue("Expected server " + serverVersion + " to be newer than client " + clientVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) < 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) < 0,
+            "Expected server " + serverVersion + " to be newer than client " + clientVersion);
 
         clientVersion = "1.2.1";
         serverVersion = "1.2.2-SNAPSHOT";
-        Assert.assertTrue("Expected server " + serverVersion + " to be newer than client " + clientVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) < 0);
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) < 0,
+            "Expected server " + serverVersion + " to be newer than client " + clientVersion);
     }
 
     @Test
     public void testServerToEqualClient() throws Exception {
         String clientVersion = "0.7.4";
         String serverVersion = "0.7.4";
-        Assert.assertTrue("Expected server " + serverVersion + " to be the same as client " + clientVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) == 0);
+        assertEquals(0, VersionUtils.compareVersions(clientVersion, serverVersion),
+            "Expected server " + serverVersion + " to be the same as client " + clientVersion);
 
         clientVersion = "1";
         serverVersion = "1";
-        Assert.assertTrue("Expected server " + serverVersion + " to be the same as client " + clientVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) == 0);
+        assertEquals(0, VersionUtils.compareVersions(clientVersion, serverVersion),
+            "Expected server " + serverVersion + " to be the same as client " + clientVersion);
 
         clientVersion = "1.2.3-ALPHA1";
         serverVersion = "1.2.3-ALPHA1";
-        Assert.assertTrue("Expected server " + serverVersion + " to be the same as client " + clientVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) == 0);
+        assertEquals(0, VersionUtils.compareVersions(clientVersion, serverVersion),
+            "Expected server " + serverVersion + " to be the same as client " + clientVersion);
 
         clientVersion = "1.2.3.4.5.6.7.8.9";
         serverVersion = "1.2.3.4.5.6.7.8.9";
-        Assert.assertTrue("Expected server " + serverVersion + " to be the same as client " + clientVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) == 0);
+        assertEquals(0, VersionUtils.compareVersions(clientVersion, serverVersion),
+            "Expected server " + serverVersion + " to be the same as client " + clientVersion);
 
         clientVersion = "0.7.4-SNAPSHOT";
         serverVersion = "0.7.4-SNAPSHOT";
-        Assert.assertTrue("Expected server " + serverVersion + " to be the same as client " + clientVersion,
-            VersionUtils.compareVersions(clientVersion, serverVersion) == 0);
+        assertEquals(0, VersionUtils.compareVersions(clientVersion, serverVersion),
+            "Expected server " + serverVersion + " to be the same as client " + clientVersion);
     }
 
 
     @Test
     public void testVersionsInRangeAll() throws Exception {
         boolean answer = VersionUtils.isVersionInRange(VERSION_1036, RANGE_ALL_VERSIONS);
-        Assert.assertTrue("expected " + VERSION_1036 + " to be in range " + RANGE_ALL_VERSIONS, answer);
+        assertTrue(answer, "expected " + VERSION_1036 + " to be in range " + RANGE_ALL_VERSIONS);
 
         answer = VersionUtils.isVersionInRange(VERSION_1211, RANGE_ALL_VERSIONS);
-        Assert.assertTrue("expected " + VERSION_1211 + " to be in range " + RANGE_ALL_VERSIONS, answer);
+        assertTrue(answer, "expected " + VERSION_1211 + " to be in range " + RANGE_ALL_VERSIONS);
 
         answer = VersionUtils.isVersionInRange(VERSION_1212, RANGE_ALL_VERSIONS);
-        Assert.assertTrue("expected " + VERSION_1212 + " to be in range " + RANGE_ALL_VERSIONS, answer);
+        assertTrue(answer, "expected " + VERSION_1212 + " to be in range " + RANGE_ALL_VERSIONS);
 
         answer = VersionUtils.isVersionInRange(VERSION_1213, RANGE_ALL_VERSIONS);
-        Assert.assertTrue("expected " + VERSION_1213 + " to be in range " + RANGE_ALL_VERSIONS, answer);
+        assertTrue(answer, "expected " + VERSION_1213 + " to be in range " + RANGE_ALL_VERSIONS);
 
         answer = VersionUtils.isVersionInRange(VERSION_1221, RANGE_ALL_VERSIONS);
-        Assert.assertTrue("expected " + VERSION_1221 + " to be in range " + RANGE_ALL_VERSIONS, answer);
+        assertTrue(answer, "expected " + VERSION_1221 + " to be in range " + RANGE_ALL_VERSIONS);
 
         answer = VersionUtils.isVersionInRange(VERSION_12211, RANGE_ALL_VERSIONS);
-        Assert.assertTrue("expected " + VERSION_12211 + " to be in range " + RANGE_ALL_VERSIONS, answer);
+        assertTrue(answer, "expected " + VERSION_12211 + " to be in range " + RANGE_ALL_VERSIONS);
 
         answer = VersionUtils.isVersionInRange(VERSION_12212, RANGE_ALL_VERSIONS);
-        Assert.assertTrue("expected " + VERSION_12212 + " to be in range " + RANGE_ALL_VERSIONS, answer);
+        assertTrue(answer, "expected " + VERSION_12212 + " to be in range " + RANGE_ALL_VERSIONS);
 
         answer = VersionUtils.isVersionInRange(VERSION_12213, RANGE_ALL_VERSIONS);
-        Assert.assertTrue("expected " + VERSION_12213 + " to be in range " + RANGE_ALL_VERSIONS, answer);
+        assertTrue(answer, "expected " + VERSION_12213 + " to be in range " + RANGE_ALL_VERSIONS);
 
         answer = VersionUtils.isVersionInRange(VERSION_1231, RANGE_ALL_VERSIONS);
-        Assert.assertTrue("expected " + VERSION_1231 + " to be in range " + RANGE_ALL_VERSIONS, answer);
+        assertTrue(answer, "expected " + VERSION_1231 + " to be in range " + RANGE_ALL_VERSIONS);
 
         answer = VersionUtils.isVersionInRange(VERSION_18, RANGE_ALL_VERSIONS);
-        Assert.assertTrue("expected " + VERSION_18 + " to be in range " + RANGE_ALL_VERSIONS, answer);
+        assertTrue(answer, "expected " + VERSION_18 + " to be in range " + RANGE_ALL_VERSIONS);
     }
 
     @Test
     public void testVersionsInRange1036AndHigher() throws Exception {
         boolean answer = VersionUtils.isVersionInRange(VERSION_1033, RANGE_1036_AND_NEWER);
-        Assert.assertFalse("expected " + VERSION_1033 + " to not be in range " + RANGE_1036_AND_NEWER, answer);
+        assertFalse(answer, "expected " + VERSION_1033 + " to not be in range " + RANGE_1036_AND_NEWER);
 
         answer = VersionUtils.isVersionInRange(VERSION_1036, RANGE_1036_AND_NEWER);
-        Assert.assertTrue("expected " + VERSION_1036 + " to be in range " + RANGE_1036_AND_NEWER, answer);
+        assertTrue(answer, "expected " + VERSION_1036 + " to be in range " + RANGE_1036_AND_NEWER);
 
         answer = VersionUtils.isVersionInRange(VERSION_1211, RANGE_1036_AND_NEWER);
-        Assert.assertTrue("expected " + VERSION_1211 + " to be in range " + RANGE_1036_AND_NEWER, answer);
+        assertTrue(answer, "expected " + VERSION_1211 + " to be in range " + RANGE_1036_AND_NEWER);
 
         answer = VersionUtils.isVersionInRange(VERSION_1212, RANGE_1036_AND_NEWER);
-        Assert.assertTrue("expected " + VERSION_1212 + " to be in range " + RANGE_1036_AND_NEWER, answer);
+        assertTrue(answer, "expected " + VERSION_1212 + " to be in range " + RANGE_1036_AND_NEWER);
 
         answer = VersionUtils.isVersionInRange(VERSION_1213, RANGE_1036_AND_NEWER);
-        Assert.assertTrue("expected " + VERSION_1213 + " to be in range " + RANGE_1036_AND_NEWER, answer);
+        assertTrue(answer, "expected " + VERSION_1213 + " to be in range " + RANGE_1036_AND_NEWER);
 
         answer = VersionUtils.isVersionInRange(VERSION_1221, RANGE_1036_AND_NEWER);
-        Assert.assertTrue("expected " + VERSION_1221 + " to be in range " + RANGE_1036_AND_NEWER, answer);
+        assertTrue(answer, "expected " + VERSION_1221 + " to be in range " + RANGE_1036_AND_NEWER);
 
         answer = VersionUtils.isVersionInRange(VERSION_12211, RANGE_1036_AND_NEWER);
-        Assert.assertTrue("expected " + VERSION_12211 + " to be in range " + RANGE_1036_AND_NEWER, answer);
+        assertTrue(answer, "expected " + VERSION_12211 + " to be in range " + RANGE_1036_AND_NEWER);
 
         answer = VersionUtils.isVersionInRange(VERSION_12212, RANGE_1036_AND_NEWER);
-        Assert.assertTrue("expected " + VERSION_12212 + " to be in range " + RANGE_1036_AND_NEWER, answer);
+        assertTrue(answer, "expected " + VERSION_12212 + " to be in range " + RANGE_1036_AND_NEWER);
 
         answer = VersionUtils.isVersionInRange(VERSION_12213, RANGE_1036_AND_NEWER);
-        Assert.assertTrue("expected " + VERSION_12213 + " to be in range " + RANGE_1036_AND_NEWER, answer);
+        assertTrue(answer, "expected " + VERSION_12213 + " to be in range " + RANGE_1036_AND_NEWER);
 
         answer = VersionUtils.isVersionInRange(VERSION_1231, RANGE_1036_AND_NEWER);
-        Assert.assertTrue("expected " + VERSION_1231 + " to be in range " + RANGE_1036_AND_NEWER, answer);
+        assertTrue(answer, "expected " + VERSION_1231 + " to be in range " + RANGE_1036_AND_NEWER);
 
         answer = VersionUtils.isVersionInRange(VERSION_18, RANGE_1036_AND_NEWER);
-        Assert.assertTrue("expected " + VERSION_18 + " to be in range " + RANGE_1036_AND_NEWER, answer);
+        assertTrue(answer, "expected " + VERSION_18 + " to be in range " + RANGE_1036_AND_NEWER);
     }
 
     @Test
     public void testVersionsInRangeLessThan1212() throws Exception {
         boolean answer = VersionUtils.isVersionInRange(VERSION_1036, RANGE_LESS_THAN_1212);
-        Assert.assertTrue("expected " + VERSION_1036 + " to be in range " + RANGE_LESS_THAN_1212, answer);
+        assertTrue(answer, "expected " + VERSION_1036 + " to be in range " + RANGE_LESS_THAN_1212);
 
         answer = VersionUtils.isVersionInRange(VERSION_1211, RANGE_LESS_THAN_1212);
-        Assert.assertTrue("expected " + VERSION_1211 + " to be in range " + RANGE_LESS_THAN_1212, answer);
+        assertTrue(answer, "expected " + VERSION_1211 + " to be in range " + RANGE_LESS_THAN_1212);
 
         answer = VersionUtils.isVersionInRange(VERSION_1212, RANGE_LESS_THAN_1212);
-        Assert.assertFalse("expected " + VERSION_1212 + " to not be in range " + RANGE_LESS_THAN_1212, answer);
+        assertFalse(answer, "expected " + VERSION_1212 + " to not be in range " + RANGE_LESS_THAN_1212);
 
         answer = VersionUtils.isVersionInRange(VERSION_1213, RANGE_LESS_THAN_1212);
-        Assert.assertFalse("expected " + VERSION_1213 + " to not be in range " + RANGE_LESS_THAN_1212, answer);
+        assertFalse(answer, "expected " + VERSION_1213 + " to not be in range " + RANGE_LESS_THAN_1212);
 
         answer = VersionUtils.isVersionInRange(VERSION_1221, RANGE_LESS_THAN_1212);
-        Assert.assertFalse("expected " + VERSION_1221 + " to not be in range " + RANGE_LESS_THAN_1212, answer);
+        assertFalse(answer, "expected " + VERSION_1221 + " to not be in range " + RANGE_LESS_THAN_1212);
 
         answer = VersionUtils.isVersionInRange(VERSION_12211, RANGE_LESS_THAN_1212);
-        Assert.assertFalse("expected " + VERSION_12211 + " to not be in range " + RANGE_LESS_THAN_1212, answer);
+        assertFalse(answer, "expected " + VERSION_12211 + " to not be in range " + RANGE_LESS_THAN_1212);
 
         answer = VersionUtils.isVersionInRange(VERSION_12212, RANGE_LESS_THAN_1212);
-        Assert.assertFalse("expected " + VERSION_12212 + " to not be in range " + RANGE_LESS_THAN_1212, answer);
+        assertFalse(answer, "expected " + VERSION_12212 + " to not be in range " + RANGE_LESS_THAN_1212);
 
         answer = VersionUtils.isVersionInRange(VERSION_12213, RANGE_LESS_THAN_1212);
-        Assert.assertFalse("expected " + VERSION_12213 + " to not be in range " + RANGE_LESS_THAN_1212, answer);
+        assertFalse(answer, "expected " + VERSION_12213 + " to not be in range " + RANGE_LESS_THAN_1212);
 
         answer = VersionUtils.isVersionInRange(VERSION_1231, RANGE_LESS_THAN_1212);
-        Assert.assertFalse("expected " + VERSION_1231 + " to not be in range " + RANGE_LESS_THAN_1212, answer);
+        assertFalse(answer, "expected " + VERSION_1231 + " to not be in range " + RANGE_LESS_THAN_1212);
 
         answer = VersionUtils.isVersionInRange(VERSION_18, RANGE_LESS_THAN_1212);
-        Assert.assertFalse("expected " + VERSION_18 + " to not be in range " + RANGE_LESS_THAN_1212, answer);
+        assertFalse(answer, "expected " + VERSION_18 + " to not be in range " + RANGE_LESS_THAN_1212);
     }
 
     @Test
     public void testVersionsInRangeBetween1212and12213() throws Exception {
         boolean answer = VersionUtils.isVersionInRange(VERSION_1036, RANGE_BETWEEN_1212_AND_12213);
-        Assert.assertFalse("expected " + VERSION_1036 + " to not be in range " + RANGE_BETWEEN_1212_AND_12213, answer);
+        assertFalse(answer, "expected " + VERSION_1036 + " to not be in range " + RANGE_BETWEEN_1212_AND_12213);
 
         answer = VersionUtils.isVersionInRange(VERSION_1211, RANGE_BETWEEN_1212_AND_12213);
-        Assert.assertFalse("expected " + VERSION_1211 + " to not be in range " + RANGE_BETWEEN_1212_AND_12213, answer);
+        assertFalse(answer, "expected " + VERSION_1211 + " to not be in range " + RANGE_BETWEEN_1212_AND_12213);
 
         answer = VersionUtils.isVersionInRange(VERSION_1212, RANGE_BETWEEN_1212_AND_12213);
-        Assert.assertTrue("expected " + VERSION_1212 + " to be in range " + RANGE_BETWEEN_1212_AND_12213, answer);
+        assertTrue(answer, "expected " + VERSION_1212 + " to be in range " + RANGE_BETWEEN_1212_AND_12213);
 
         answer = VersionUtils.isVersionInRange(VERSION_1213, RANGE_BETWEEN_1212_AND_12213);
-        Assert.assertTrue("expected " + VERSION_1213 + " to be in range " + RANGE_BETWEEN_1212_AND_12213, answer);
+        assertTrue(answer, "expected " + VERSION_1213 + " to be in range " + RANGE_BETWEEN_1212_AND_12213);
 
         answer = VersionUtils.isVersionInRange(VERSION_1221, RANGE_BETWEEN_1212_AND_12213);
-        Assert.assertTrue("expected " + VERSION_1221 + " to be in range " + RANGE_BETWEEN_1212_AND_12213, answer);
+        assertTrue(answer, "expected " + VERSION_1221 + " to be in range " + RANGE_BETWEEN_1212_AND_12213);
 
         answer = VersionUtils.isVersionInRange(VERSION_12211, RANGE_BETWEEN_1212_AND_12213);
-        Assert.assertTrue("expected " + VERSION_12211 + " to be in range " + RANGE_BETWEEN_1212_AND_12213, answer);
+        assertTrue(answer, "expected " + VERSION_12211 + " to be in range " + RANGE_BETWEEN_1212_AND_12213);
 
         answer = VersionUtils.isVersionInRange(VERSION_12212, RANGE_BETWEEN_1212_AND_12213);
-        Assert.assertTrue("expected " + VERSION_12212 + " to be in range " + RANGE_BETWEEN_1212_AND_12213, answer);
+        assertTrue(answer, "expected " + VERSION_12212 + " to be in range " + RANGE_BETWEEN_1212_AND_12213);
 
         answer = VersionUtils.isVersionInRange(VERSION_12213, RANGE_BETWEEN_1212_AND_12213);
-        Assert.assertTrue("expected " + VERSION_12213 + " to be in range " + RANGE_BETWEEN_1212_AND_12213, answer);
+        assertTrue(answer, "expected " + VERSION_12213 + " to be in range " + RANGE_BETWEEN_1212_AND_12213);
 
         answer = VersionUtils.isVersionInRange(VERSION_1231, RANGE_BETWEEN_1212_AND_12213);
-        Assert.assertFalse("expected " + VERSION_1231 + " to not be in range " + RANGE_BETWEEN_1212_AND_12213, answer);
+        assertFalse(answer, "expected " + VERSION_1231 + " to not be in range " + RANGE_BETWEEN_1212_AND_12213);
 
         answer = VersionUtils.isVersionInRange(VERSION_18, RANGE_BETWEEN_1212_AND_12213);
-        Assert.assertFalse("expected " + VERSION_18 + " to not be in range " + RANGE_BETWEEN_1212_AND_12213, answer);
+        assertFalse(answer, "expected " + VERSION_18 + " to not be in range " + RANGE_BETWEEN_1212_AND_12213);
     }
 }

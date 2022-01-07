@@ -243,7 +243,7 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
         clean_up_temp_files()
         tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    filter_helper.apply_filters(model_dictionary, filter_type)
+    filter_helper.apply_filters(model_dictionary, filter_type, model_context)
 
     persist_model(model_context, model_dictionary)
 

@@ -67,7 +67,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'mvn -P system-test -Dmw_home=${ORACLE_HOME} test-compile failsafe:integration-test'
+                sh 'mvn -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true verify'
             }
             post {
                 always {

@@ -20,15 +20,17 @@ import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
+from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.target_configuration import CREDENTIALS_METHOD
 from wlsdeploy.util.target_configuration import CREDENTIALS_METHODS
 from wlsdeploy.util.target_configuration import TargetConfiguration
+from wlsdeploy.util.target_configuration import VALIDATION_METHOD
+from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
 
 # tool type may indicate variations in argument processing
 TOOL_TYPE_CREATE = "create"
 TOOL_TYPE_DEFAULT = "default"
 TOOL_TYPE_EXTRACT = "extract"
-
 
 
 class CommandLineArgUtil(object):
@@ -84,8 +86,6 @@ class CommandLineArgUtil(object):
     TRAILING_ARGS_SWITCH       = '-trailing_arguments'
     ATTRIBUTES_ONLY_SWITCH     = '-attributes_only'
     FOLDERS_ONLY_SWITCH        = '-folders_only'
-    # deprecated
-    MODEL_SAMPLE_SWITCH        = '-model_sample'
     RECURSIVE_SWITCH           = '-recursive'
     UPDATE_RCU_SCHEMA_PASS_SWITCH = '-updateRCUSchemaPassword'
     VALIDATION_METHOD          = '-method'
@@ -105,7 +105,6 @@ class CommandLineArgUtil(object):
         ATTRIBUTES_ONLY_SWITCH,
         ENCRYPT_MANUAL_SWITCH,
         FOLDERS_ONLY_SWITCH,
-        MODEL_SAMPLE_SWITCH,
         SKIP_ARCHIVE_FILE_SWITCH,
         RECURSIVE_SWITCH,
         CANCEL_CHANGES_IF_RESTART_REQ_SWITCH,
@@ -122,10 +121,6 @@ class CommandLineArgUtil(object):
 
     ARCHIVE_FILES_SEPARATOR = ','
     MODEL_FILES_SEPARATOR = ','
-
-    LAX_VALIDATION_METHOD = 'lax'
-    STRICT_VALIDATION_METHOD = 'strict'
-    VALIDATION_METHODS = [LAX_VALIDATION_METHOD, STRICT_VALIDATION_METHOD]
 
     HELP_EXIT_CODE                 = 100
     USAGE_ERROR_EXIT_CODE          = 99
@@ -842,17 +837,13 @@ class CommandLineArgUtil(object):
     def _validate_validate_method_arg(self, value):
         method_name = '_validate_validate_method_arg'
 
-        # temporary for WDT 1.9: allow WDT 2.0 method, just interpret as lax
-        if value == 'wktui':
-            return self.LAX_VALIDATION_METHOD
-
         if value is None or len(value) == 0:
             ex = exception_helper.create_cla_exception('WLSDPLY-20029')
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
-        elif value not in self.VALIDATION_METHODS:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20030', value, self.VALIDATION_METHODS)
+        elif value not in VALIDATION_METHODS:
+            ex = exception_helper.create_cla_exception('WLSDPLY-20030', value, VALIDATION_METHODS)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -1170,8 +1161,11 @@ class CommandLineArgUtil(object):
                 config_dictionary = eval(file_handle.read())
                 target_configuration = TargetConfiguration(config_dictionary)
                 validation_method = target_configuration.get_validation_method()
-                if (validation_method is not None) and (validation_method not in self.VALIDATION_METHODS):
-                    ex = exception_helper.create_cla_exception('WLSDPLY-01645', target_configuration_file)
+                if (validation_method is not None) and \
+                        (validation_method not in validate_configuration.VALIDATION_METHODS):
+                    ex = exception_helper.create_cla_exception('WLSDPLY-01648', target_configuration_file,
+                                                               validation_method, VALIDATION_METHOD,
+                                                               ', '.join(validate_configuration.VALIDATION_METHODS))
                     ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
                     self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
                     raise ex

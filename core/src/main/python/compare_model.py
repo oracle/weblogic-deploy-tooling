@@ -1,4 +1,4 @@
-# Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+# Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # ------------
@@ -40,6 +40,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.compare.model_comparer import ModelComparer
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import validate_configuration
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
@@ -75,9 +76,7 @@ def __process_args(args):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     argument_map = cla_util.process_args(args, trailing_arg_count=2)
 
-    model_context = ModelContext(_program_name, argument_map)
-    model_context.set_ignore_missing_archive_entries(True)
-    return model_context
+    return ModelContext(_program_name, argument_map)
 
 
 class ModelFileDiffer:
@@ -111,7 +110,8 @@ class ModelFileDiffer:
                 model_file_name = self.past_dict_file
                 FileToPython(model_file_name, True).parse()
 
-            self.model_context.set_validation_method('lax')
+            # allow unresolved tokens and archive entries
+            self.model_context.set_validation_method(validate_configuration.LAX_METHOD)
 
             aliases = Aliases(model_context=self.model_context, wlst_mode=WlstModes.OFFLINE,
                               exception_type=ExceptionType.COMPARE)

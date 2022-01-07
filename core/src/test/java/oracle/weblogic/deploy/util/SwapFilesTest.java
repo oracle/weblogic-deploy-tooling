@@ -8,12 +8,13 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
-
 import javax.xml.bind.DatatypeConverter;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class SwapFilesTest {
@@ -26,19 +27,19 @@ public class SwapFilesTest {
 
     private WLSDeployArchive archive;
 
-    @Before
-    public void init() throws Exception {
+    @BeforeEach
+    void init() {
         File folder = new File(UNIT_TEST_TARGET_DIR);
         File archiveFile = new File(folder, "swapFileTests.zip");
 
         if ( !folder.exists() ) {
-            Assert.assertTrue("Could not create directory " + folder.getPath(), folder.mkdirs());
+            assertTrue(folder.mkdirs(), "Could not create directory " + folder.getPath());
         }
         archive = new WLSDeployArchive( archiveFile.getAbsolutePath() );
     }
 
     @Test
-    public void updateTwoThings() throws Exception {
+    void updateTwoThings() throws Exception {
         File sourceModel = new File(SOURCE_MODEL_FILE);
         archive.addModel(sourceModel);
 
@@ -46,10 +47,10 @@ public class SwapFilesTest {
         archive.extractModel(unitTestDir);
         File targetModel = new File(TARGET_MODEL_FILE);
 
-        Assert.assertTrue("Target model file does not exist", targetModel.exists());
+        assertTrue(targetModel.exists(), "Target model file does not exist");
         String sourceHash = getMD5Hash(sourceModel);
         String targetHash = getMD5Hash(targetModel);
-        Assert.assertEquals("source and target models are different", sourceHash, targetHash);
+        assertEquals(sourceHash, targetHash, "source and target models are different");
 
         archive.removeAllBinaries();
         File sourceApp = new File(SOURCE_APP_FILE);
@@ -57,15 +58,15 @@ public class SwapFilesTest {
         archive.extractFileFromZip(TARGET_APP_ARCHIVE_LOCATION, unitTestDir);
         File targetApp = new File(TARGET_APP_FILE);
 
-        Assert.assertTrue("Target app file does not exist", targetApp.exists());
+        assertTrue(targetApp.exists(), "Target app file does not exist");
         sourceHash = getMD5Hash(sourceApp);
         targetHash = getMD5Hash(targetApp);
-        Assert.assertEquals("source and target apps are different", sourceHash, targetHash);
+        assertEquals(sourceHash, targetHash, "source and target apps are different");
         archive.close();
     }
 
     @Test
-    public void updateModel() throws Exception {
+    void updateModel() throws Exception {
         File sourceModel = new File(SOURCE_MODEL_FILE);
         archive.addModel(sourceModel);
 
@@ -73,15 +74,15 @@ public class SwapFilesTest {
         archive.extractModel(unitTestDir);
         File targetModel = new File(TARGET_MODEL_FILE);
 
-        Assert.assertTrue("Target model file does not exist", targetModel.exists());
+        assertTrue(targetModel.exists(), "Target model file does not exist");
         String sourceHash = getMD5Hash(sourceModel);
         String targetHash = getMD5Hash(targetModel);
-        Assert.assertEquals("source and target models are different", sourceHash, targetHash);
+        assertEquals(sourceHash, targetHash, "source and target models are different");
         archive.close();
     }
 
     @Test
-    public void updateApp() throws Exception {
+    void updateApp() throws Exception {
         File unitTestDir = new File(UNIT_TEST_TARGET_DIR);
 
         archive.removeAllBinaries();
@@ -90,10 +91,10 @@ public class SwapFilesTest {
         archive.extractFileFromZip(TARGET_APP_ARCHIVE_LOCATION, unitTestDir);
         File targetApp = new File(TARGET_APP_FILE);
 
-        Assert.assertTrue("Target app file does not exist", targetApp.exists());
+        assertTrue(targetApp.exists(), "Target app file does not exist");
         String sourceHash = getMD5Hash(sourceApp);
         String targetHash = getMD5Hash(targetApp);
-        Assert.assertEquals("source and target apps are different", sourceHash, targetHash);
+        assertEquals(sourceHash, targetHash, "source and target apps are different");
         archive.close();
     }
 

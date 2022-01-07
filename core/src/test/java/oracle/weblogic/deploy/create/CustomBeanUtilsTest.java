@@ -4,91 +4,120 @@
  */
 package oracle.weblogic.deploy.create;
 
-import oracle.weblogic.deploy.create.CustomBeanUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class CustomBeanUtilsTest {
 
     @Test
-    public void testSimpleTypes() {
-        Object result;
-
-        // boolean to boolean
-        result = CustomBeanUtils.convertValue(Boolean.TRUE, Boolean.class);
-        Assert.assertEquals("Boolean result does not match", Boolean.TRUE, result);
-
-        // string to boolean
-        result = CustomBeanUtils.convertValue("true", Boolean.class);
-        Assert.assertEquals("String to boolean result does not match", Boolean.TRUE, result);
-
-        // character to character
-        result = CustomBeanUtils.convertValue('x', Character.class);
-        Assert.assertEquals("Character result does not match",'x', result);
-
-        // string to character
-        result = CustomBeanUtils.convertValue("x", Character.class);
-        Assert.assertEquals("String to character result does not match", 'x', result);
-
-        // string to double
-        result = CustomBeanUtils.convertValue("123.4", Double.class);
-        Assert.assertEquals("String to double result does not match", 123.4, result);
-
-        // string to float
-        result = CustomBeanUtils.convertValue("123.4", Float.class);
-        Assert.assertEquals("String to float result does not match", 123.4f, result);
-
-        // string to integer
-        result = CustomBeanUtils.convertValue("1234", Integer.class);
-        Assert.assertEquals("String to integer does not match", 1234, result);
-
-        // string to long
-        result = CustomBeanUtils.convertValue("1234", Long.class);
-        Assert.assertEquals("Boolean text result does not match", 1234L, result);
-
-        // string to string
-        String sourceText = "textValue";
-        result = CustomBeanUtils.convertValue(sourceText, String.class);
-        Assert.assertEquals("String result does not match", sourceText, result);
-
-        // fail with bad numeric value
-        try {
-            CustomBeanUtils.convertValue("1234X", Integer.class);
-            Assert.fail("Numeric conversion should have failed");
-        } catch(IllegalArgumentException e) {
-            // pass, skipped over Assert.fail()
-        }
+    public void testBooleanValueToBooleanConversion() {
+        Object result = CustomBeanUtils.convertValue(Boolean.TRUE, Boolean.class);
+        assertEquals(Boolean.TRUE, result, "Boolean result does not match");
     }
 
     @Test
-    public void testArrayTypes() {
-        Object result;
+    public void testStringToBooleanConversion() {
+        Object result = CustomBeanUtils.convertValue("true", Boolean.class);
+        assertEquals(Boolean.TRUE, result, "String to boolean result does not match");
+    }
 
-        // string[] to string[]
+    @Test
+    public void testCharacterConversion() {
+        Object result = CustomBeanUtils.convertValue('x', Character.class);
+        assertEquals('x', result, "Character result does not match");
+    }
+
+    @Test
+    public void testStringToCharacterConversion() {
+        Object result = CustomBeanUtils.convertValue("x", Character.class);
+        assertEquals('x', result, "String to character result does not match");
+    }
+
+    @Test
+    public void testStringToIntegerConversion() {
+        Object result = CustomBeanUtils.convertValue("1234", Integer.class);
+        assertEquals(1234, result, "String to integer does not match");
+    }
+
+    @Test
+    public void testStringToLongConversion() {
+        Object result = CustomBeanUtils.convertValue("1234", Long.class);
+        assertEquals(1234L, result, "Boolean text result does not match");
+    }
+
+    @Test
+    public void testStringToFloatConversion() {
+        Object result = CustomBeanUtils.convertValue("123.4", Float.class);
+        assertEquals(123.4f, result, "String to float result does not match");
+    }
+
+    @Test
+    public void testStringToDoubleConversion() {
+        Object result = CustomBeanUtils.convertValue("123.4", Double.class);
+        assertEquals(123.4, result, "String to double result does not match");
+    }
+
+    @Test
+    public void testStringToStringConversion() {
+        String sourceText = "textValue";
+        Object result = CustomBeanUtils.convertValue(sourceText, String.class);
+        assertEquals(sourceText, result, "String result does not match");
+    }
+
+    @Test
+    public void testBadStringToIntegerConversionThrowsException() {
+        assertThrows(IllegalArgumentException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                CustomBeanUtils.convertValue("1234X", Integer.class);
+            }
+        });
+    }
+
+    @Test
+    public void testStringArrayToStringArrayConversion() {
         String[] sourceTexts = { "textValue", "textValue2" };
-        result = CustomBeanUtils.convertValue(sourceTexts, String[].class);
-        Assert.assertTrue("String array result does not match", arraysMatch(sourceTexts, (String[]) result));
+        Object result = CustomBeanUtils.convertValue(sourceTexts, String[].class);
+        assertTrue(arraysMatch(sourceTexts, (String[]) result), "String array result does not match");
+    }
 
-        // delimited string to string[]
+    @Test
+    public void testDelimitedStringToStringArrayConversion() {
         String sourceDelimited = "textValue,textValue2";
-        result = CustomBeanUtils.convertValue(sourceDelimited, String[].class);
-        Assert.assertTrue("Delimited string array result does not match", arraysMatch(sourceTexts, (String[]) result));
+        String[] sourceTexts = { "textValue", "textValue2" };
 
-        // integer[] to integer[]
+        Object result = CustomBeanUtils.convertValue(sourceDelimited, String[].class);
+        assertTrue(arraysMatch(sourceTexts, (String[]) result), "Delimited string array result does not match");
+    }
+
+    @Test
+    public void testIntegerArrayToIntegerArrayConversion() {
         Integer[] sourceInts = { 123, 456 };
-        result = CustomBeanUtils.convertValue(sourceInts, Integer[].class);
-        Assert.assertTrue("String array result does not match", arraysMatch(sourceInts, (Integer[]) result));
+        Object result = CustomBeanUtils.convertValue(sourceInts, Integer[].class);
+        assertTrue(arraysMatch(sourceInts, (Integer[]) result), "String array result does not match");
+    }
 
-        // string[] to integer[]
+    @Test
+    public void testStringArrayToIntegerArrayConversion() {
         String[] sourceTextInts = { "123", "456" };
-        result = CustomBeanUtils.convertValue(sourceTextInts, Integer[].class);
-        Assert.assertTrue("Integer string array result does not match", arraysMatch(sourceInts, (Integer[]) result));
+        Integer[] sourceInts = { 123, 456 };
 
-        // delimited string to string[]
+        Object result = CustomBeanUtils.convertValue(sourceTextInts, Integer[].class);
+        assertTrue(arraysMatch(sourceInts, (Integer[]) result), "Integer string array result does not match");
+    }
+
+    @Test
+    public void testDelimitedStringToIntegerArrayConversion() {
         String sourceDelimitedInts = "123,456";
-        result = CustomBeanUtils.convertValue(sourceDelimitedInts, Integer[].class);
-        Assert.assertTrue("Delimited integer array result does not match", arraysMatch(sourceInts, (Integer[]) result));
+        Integer[] sourceInts = { 123, 456 };
+
+        Object result = CustomBeanUtils.convertValue(sourceDelimitedInts, Integer[].class);
+        assertTrue(arraysMatch(sourceInts, (Integer[]) result), "Delimited integer array result does not match");
     }
 
     private boolean arraysMatch(Object[] array1, Object[] array2) {
@@ -101,7 +130,6 @@ public class CustomBeanUtilsTest {
                 return false;
             }
         }
-
         return true;
     }
 }

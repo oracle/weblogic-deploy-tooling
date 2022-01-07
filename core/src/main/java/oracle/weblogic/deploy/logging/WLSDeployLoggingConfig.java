@@ -36,10 +36,6 @@ public class WLSDeployLoggingConfig {
     private static final String HANDLERS_PROP = "handlers";
     private static final String CONFIG_PROP = "config";
 
-    // Deprecated
-    private static final String WLSDEPLOY_CONSOLE_HANDLER =
-            "oracle.weblogic.deploy.logging.WLSDeployLoggingConsoleHandler";
-
     private static final String WLSDEPLOY_STDOUT_CONSOLE_HANDLER =
             "oracle.weblogic.deploy.logging.WLSDeployLoggingStdoutHandler";
     private static final String WLSDEPLOY_STDERR_CONSOLE_HANDLER =
@@ -170,16 +166,6 @@ public class WLSDeployLoggingConfig {
 
     public static synchronized File getLoggingPropertiesFile() {
         return new File(loggingPropertiesFile.getAbsolutePath());
-    }
-
-    /**
-     * @deprecated as of 1.2.1. Replace call with {@link #getStdoutHandler()}
-     *
-     * @return ConsoleHandler implementation
-     */
-    @Deprecated
-    public static String getConsoleHandler() {
-        return WLSDEPLOY_CONSOLE_HANDLER;
     }
 
     /**

@@ -4,21 +4,25 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 Module to handle translating between Yaml files and Python dictionaries.
 """
-import re
-
 import java.io.FileNotFoundException as JFileNotFoundException
-import java.io.FileOutputStream as JFileOutputStream
+import java.io.FileWriter as JFileWriter
 import java.io.IOException as JIOException
-import java.io.PrintWriter as JPrintWriter
+import java.lang.Boolean as JBoolean
+import java.lang.Double as JDouble
 import java.lang.IllegalArgumentException as JIllegalArgumentException
+import java.lang.Integer as JInteger
+import java.lang.Long as JLong
+import java.lang.String as JString
+import java.util.ArrayList as JArrayList
+import java.util.LinkedHashMap as JLinkedHashMap
 
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 import oracle.weblogic.deploy.yaml.YamlStreamTranslator as JYamlStreamTranslator
 import oracle.weblogic.deploy.yaml.YamlTranslator as JYamlTranslator
 
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.json.json_translator import COMMENT_MATCH
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util.boolean_value import BooleanValue
 
 
 class YamlToPython(object):
@@ -95,20 +99,92 @@ class YamlStreamToPython(object):
         return result_dict
 
 
+class PythonToJava(object):
+    """
+    A class that converts a Python dictionary and its contents to the Java types expected by snakeyaml.
+    """
+    _class_name = 'PythonToJava'
+
+    def __init__(self, dictionary):
+        self._dictionary = dictionary
+        self._logger = PlatformLogger('wlsdeploy.yaml')
+
+    def convert_to_java(self):
+        _method_name = 'convert_to_java'
+
+        if self._dictionary is None:
+            return None
+        if isinstance(self._dictionary, dict):
+            return self.convert_dict_to_java_map(self._dictionary)
+        else:
+            yaml_ex = exception_helper.create_yaml_exception('WLSDPLY-18200')
+            self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)
+            raise yaml_ex
+
+    def convert_dict_to_java_map(self, dictionary):
+        result = JLinkedHashMap()
+        for key, value in dictionary.iteritems():
+            java_key = JString(key)
+            if isinstance(value, dict):
+                java_value = self.convert_dict_to_java_map(value)
+                result.put(java_key, java_value)
+            elif isinstance(value, list):
+                java_value = self.convert_list_to_java_list(value)
+                result.put(java_key, java_value)
+            else:
+                java_value = self.convert_scalar_to_java_type(value)
+                result.put(java_key, java_value)
+        return result
+
+    def convert_list_to_java_list(self, py_list):
+        result = JArrayList()
+        for value in py_list:
+            if isinstance(value, dict):
+                java_value = self.convert_dict_to_java_map(value)
+                result.add(java_value)
+            elif isinstance(value, list):
+                java_value = self.convert_list_to_java_list(value)
+                result.add(java_value)
+            else:
+                java_value = self.convert_scalar_to_java_type(value)
+                result.add(java_value)
+        return result
+
+    def convert_scalar_to_java_type(self, py_value):
+        _method_name = 'convert_scalar_to_java_type'
+
+        result = None
+        if py_value is None:
+            result = None
+        elif type(py_value) is bool:
+            result = JBoolean(py_value is True)
+        elif type(py_value) is str:
+            result = JString(py_value)
+        elif type(py_value) is int:
+            result = JInteger(py_value)
+        elif type(py_value) is long:
+            result = JLong(JString(str(py_value)))
+        elif type(py_value) is float:
+            result = JDouble(py_value)
+        elif isinstance(py_value, BooleanValue):
+            result = JBoolean(py_value.get_value())
+        else:
+            yaml_ex = exception_helper.create_yaml_exception('WLSDPLY-18201', type(py_value))
+            self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)
+            raise yaml_ex
+        return result
+
+
 class PythonToYaml(object):
     """
     A class that converts a Python dictionary into Yaml and writes the output to a file.
     """
     _class_name = 'PythonToYaml'
-    # 4 spaces
-    _indent_unit = '    '
-    _requires_quotes_chars_regex = '[\r\n:{}\[\],&*#?|<>=!%@`-]'
 
     def __init__(self, dictionary):
         # Fix error handling for None
         self._dictionary = dictionary
         self._logger = PlatformLogger('wlsdeploy.yaml')
-        self._hyphenate_lists = False
         return
 
     def write_to_yaml_file(self, file_name):
@@ -129,182 +205,47 @@ class PythonToYaml(object):
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)
             raise yaml_ex
 
-        fos = None
         writer = None
         try:
-            fos = JFileOutputStream(yaml_file, False)
-            writer = JPrintWriter(fos, True)
-            self._write_dictionary_to_yaml_file(self._dictionary, writer)
-
+            writer = JFileWriter(yaml_file)
+            self._write_dictionary_to_yaml_file(self._dictionary, writer, file_name)
         except JFileNotFoundException, fnfe:
             yaml_ex = exception_helper.create_yaml_exception('WLSDPLY-18010', file_name,
                                                              fnfe.getLocalizedMessage(), error=fnfe)
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)
-            self._close_streams(fos, writer)
+            self._close_writer(writer)
             raise yaml_ex
         except JIOException, ioe:
             yaml_ex = exception_helper.create_yaml_exception('WLSDPLY-18011', file_name,
                                                              ioe.getLocalizedMessage(), error=ioe)
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)
-            self._close_streams(fos, writer)
+            self._close_writer(writer)
             raise yaml_ex
 
-        self._close_streams(fos, writer)
-        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=yaml_file)
-        return yaml_file
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name)
 
-    def set_hyphenate_lists(self, hyphenate_lists):
-        self._hyphenate_lists = hyphenate_lists
-
-    def _write_dictionary_to_yaml_file(self, dictionary, writer, indent=''):
+    def _write_dictionary_to_yaml_file(self, dictionary, writer, file_name='<None>'):
         """
-        Do the actual heavy lifting of converting a dictionary and writing it to the file.  This method is
-        called recursively when a value of the dictionary entry is itself a dictionary.
+        Do the actual heavy lifting of converting a dictionary and writing it to the file.
         :param dictionary: the Python dictionary to convert
-        :param writer: the java.io.PrintWriter for the output file
-        :param indent: the amount of indent to use (based on the level of recursion)
-        :raises: IOException: if an error occurs while writing the output
+        :param writer: the java.io.Writer for the output file
+        :param file_name: the file_name for the output file
+        :raises: YamlException: if an error occurs while writing the output
         """
         if dictionary is None:
             return
 
-        for key, value in dictionary.iteritems():
-            quoted_key = self._quotify_string(key)
-            if key.startswith(COMMENT_MATCH):
-                writer.println(indent + "# " + str(value))
-            elif isinstance(value, list) and self._hyphenate_lists:
-                writer.println(indent + quoted_key + ':')
-                self._write_hyphen_list_to_yaml_file(value, writer, indent)
-            elif isinstance(value, dict):
-                writer.println(indent + quoted_key + ':')
-                self._write_dictionary_to_yaml_file(value, writer, indent + self._indent_unit)
-            else:
-                writer.println(indent + quoted_key + ': ' + self._get_value_string(value))
-
+        java_object = PythonToJava(dictionary).convert_to_java()
+        yaml_stream_translator = JYamlStreamTranslator(file_name, writer)
+        yaml_stream_translator.dump(java_object)
         return
 
-    def _write_hyphen_list_to_yaml_file(self, item_list, writer, indent=''):
-        """
-        Hyphen list is a special case for YAML. The result should look like:
-
-        items:
-        -   value1
-        -   value2
-        -   value3
-
-        If items are dictionaries:
-
-        items:
-        -   key1: value1
-            key2: value2
-        -   key1: value1
-            key2: value2
-
-        :param item_list: the list to convert
-        :param writer: the java.io.PrintWriter for the output file
-        :param indent: the amount of indent to use (based on the level of recursion)
-        :raises: IOException: if an error occurs while writing the output
-        """
-        if item_list is None:
-            return
-
-        for item in item_list:
-            if isinstance(item, dict):
-                first = True
-                for key, value in item.items():
-                    quoted_key = self._quotify_string(key)
-                    this_indent = indent + self._indent_unit
-                    if first:
-                        this_indent = indent + "-   "
-
-                    if isinstance(value, dict):
-                        writer.println(this_indent + quoted_key + ':')
-                        self._write_dictionary_to_yaml_file(value, writer, indent + self._indent_unit
-                                                            + self._indent_unit)
-                    elif isinstance(value, list):
-                        writer.println(this_indent + quoted_key + ':')
-                        self._write_hyphen_list_to_yaml_file(value, writer, indent + self._indent_unit)
-                    else:
-                        writer.println(this_indent + quoted_key + ': ' + self._get_value_string(value))
-
-                    first = False
-            else:
-                this_indent = indent + "-   "
-                writer.println(this_indent + self._get_value_string(item))
-
-    def _get_value_string(self, value):
-        """
-        Convert the Python value into the proper Yaml value
-        :param value: the Python value
-        :return: the Yaml value
-        """
-        if value is None:
-            result = 'null'
-        elif type(value) is int or type(value) is long or type(value) is float:
-            result = str(value)
-        elif type(value) is bool:
-            result = 'false'
-            if value:
-                result = 'true'
-        elif type(value) is list:
-            new_value = '['
-            for element in value:
-                new_value += ' ' + self._get_value_string(element) + ','
-            if len(new_value) > 1:
-                new_value = new_value[:-1]
-            new_value += ' ]'
-            result = str(new_value)
-        else:
-            result = self._quotify_string(str(value))
-        return result
-
-    def _close_streams(self, fos, writer):
+    def _close_writer(self, writer):
         """
         Method used to simplify closing output streams since WLST Jython does not support finally blocks...
-        :param fos: the output stream
         :param writer: the print writer
         """
-        _method_name = '_close_streams'
 
-        # closing the writer also closes the fos...
         if writer is not None:
             writer.close()
-        elif fos is not None:
-            try:
-                fos.close()
-            except JIOException, ioe:
-                self._logger.fine('WLSDPLY-18012', ioe, ioe.getLocalizedMessage(),
-                                  class_name=self._class_name, method_name=_method_name)
         return
-
-    def _quotify_string(self, text):
-        """
-        Insert quotes around the string value if it contains Yaml special characters that require it,
-        or if the string is zero length.
-        :param text: the input string
-        :return: the quoted string, or the original string if no quoting was required
-        """
-        if text.startswith('#'):
-            # this is a comment so don't quote
-            return text
-        if bool(re.search(self._requires_quotes_chars_regex, text)):
-            result = '\'' + _quote_embedded_quotes(text) + '\''
-        elif len(text) == 0:
-            result = '\'\''
-        else:
-            result = _quote_embedded_quotes(text)
-        return result
-
-
-def _quote_embedded_quotes(text):
-    """
-    Replace any embedded quotes with two quotes.
-    :param text:  the text to quote
-    :return:  the quoted text
-    """
-    result = text
-    if '\'' in text:
-        result = result.replace('\'', '\'\'')
-    if '"' in text:
-        result = result.replace('"', '""')
-    return result
