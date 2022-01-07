@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module to handle translating between Yaml files and Python dictionaries.
@@ -158,7 +158,7 @@ class PythonToJava(object):
             result = None
         elif type(py_value) is bool:
             result = JBoolean(py_value is True)
-        elif type(py_value) is str:
+        elif type(py_value) in [str, unicode]:
             result = JString(py_value)
         elif type(py_value) is int:
             result = JInteger(py_value)
