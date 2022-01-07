@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -24,11 +24,11 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
-_file_variable_pattern = re.compile("@@FILE:[\w.\\\/:-]+@@")
+_file_variable_pattern = re.compile("(@@FILE:([\w.\\\/:-]+)@@)")
 _property_pattern = re.compile("(@@PROP:([\\w.-]+)@@)")
 _environment_pattern = re.compile("(@@ENV:([\\w.-]+)@@)")
 _secret_pattern = re.compile("(@@SECRET:([\\w.-]+):([\\w.-]+)@@)")
-_file_nested_variable_pattern = re.compile("@@FILE:@@[\w]+@@[\w.\\\/:-]+@@")
+_file_nested_variable_pattern = re.compile("(@@FILE:(@@[\w]+@@[\w.\\\/:-]+)@@)")
 
 # these match a string containing ONLY a token
 _property_string_pattern = re.compile("^(@@PROP:([\\w.-]+)@@)$")
@@ -168,22 +168,50 @@ def get_variable_names(text):
     return names
 
 
+def substitute_value(text, variables, model_context):
+    """
+    Perform token substitutions on a single text value.
+    If errors occur during substitution, throw a single VariableException.
+    :param text: the original text
+    :param variables: a dictionary of variables for substitution
+    :param model_context: used to resolve variables in file paths
+    """
+    method_name = 'substitute_value'
+    error_info = {'errorCount': 0}
+    result = _substitute(text, variables, model_context, error_info)
+    error_count = error_info['errorCount']
+    if error_count:
+        ex = exception_helper.create_variable_exception("WLSDPLY-01740", error_count)
+        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+        raise ex
+    return result
+
+
 def substitute(dictionary, variables, model_context):
     """
     Substitute fields in the specified dictionary with variable values.
+    If errors occur during substitution, throw a single VariableException.
     :param dictionary: the dictionary in which to substitute variables
     :param variables: a dictionary of variables for substitution
     :param model_context: used to resolve variables in file paths
     """
-    _process_node(dictionary, variables, model_context)
+    method_name = '_substitute'
+    error_info = {'errorCount': 0}
+    _process_node(dictionary, variables, model_context, error_info)
+    error_count = error_info['errorCount']
+    if error_count:
+        ex = exception_helper.create_variable_exception("WLSDPLY-01740", error_count)
+        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
+        raise ex
 
 
-def _process_node(nodes, variables, model_context):
+def _process_node(nodes, variables, model_context, error_info):
     """
     Process variables in the node.
     :param nodes: the dictionary to process
     :param variables: the variables to use
     :param model_context: used to resolve variables in file paths
+    :param error_info: collects information about errors encountered
     """
     # iterate over copy to avoid concurrent change for add/delete
     if isinstance(nodes, OrderedDict):
@@ -194,37 +222,36 @@ def _process_node(nodes, variables, model_context):
         value = nodes[key]
 
         # if the key changes with substitution, remove old key and map value to new key
-        new_key = _substitute(key, variables, model_context)
+        new_key = _substitute(key, variables, model_context, error_info)
         if new_key is not key:
             del nodes[key]
             nodes[new_key] = value
 
         if isinstance(value, dict):
-            _process_node(value, variables, model_context)
+            _process_node(value, variables, model_context, error_info)
 
         elif isinstance(value, list):
             for member in value:
                 if type(member) in [str, unicode]:
                     index = value.index(member)
-                    value[index] = _substitute(member, variables, model_context, key)
+                    value[index] = _substitute(member, variables, model_context, error_info, key)
 
         elif type(value) in [str, unicode]:
-            nodes[key] = _substitute(value, variables, model_context, key)
+            nodes[key] = _substitute(value, variables, model_context, error_info, key)
 
 
-def _substitute(text, variables, model_context, attribute_name=None):
+def _substitute(text, variables, model_context, error_info, attribute_name=None):
     """
     Substitute token placeholders with their derived values.
     :param text: the text to process for token placeholders
     :param variables: the variables to use
     :param model_context: used to determine the validation method (strict, lax, etc.)
+    :param error_info: collects information about errors encountered
     :return: the replaced text
     """
     method_name = '_substitute'
-    validation_method = model_context.get_validation_method()
-    target_configuration = model_context.get_target_configuration()
-    if target_configuration:
-        validation_method = target_configuration.get_validation_method()
+    validation_config = model_context.get_validate_configuration()
+    problem_found = False
 
     # skip lookups for text with no @@
     if '@@' in text:
@@ -234,8 +261,10 @@ def _substitute(text, variables, model_context, attribute_name=None):
         for token, key in matches:
             # log, or throw an exception if key is not found.
             if key not in variables:
-                if validation_method != 'lax':
-                    _report_token_issue('WLSDPLY-01732', method_name, model_context, key)
+                allow_unresolved = validation_config.allow_unresolved_variable_tokens()
+                _report_token_issue('WLSDPLY-01732', method_name, allow_unresolved, key)
+                _increment_error_count(error_info, allow_unresolved)
+                problem_found = True
                 continue
 
             value = variables[key]
@@ -244,12 +273,12 @@ def _substitute(text, variables, model_context, attribute_name=None):
         # check environment variables before @@FILE:/dir/@@ENV:name@@.txt@@
         matches = _environment_pattern.findall(text)
         for token, key in matches:
-            # log, or throw an exception if key is not found.
             if not os.environ.has_key(str(key)):
-                if validation_method != 'lax':
-                    _report_token_issue('WLSDPLY-01737', method_name, model_context, key)
+                allow_unresolved = validation_config.allow_unresolved_environment_tokens()
+                _report_token_issue('WLSDPLY-01737', method_name, allow_unresolved, key)
+                _increment_error_count(error_info, allow_unresolved)
+                problem_found = True
                 continue
-
             value = os.environ.get(str(key))
             text = text.replace(token, value)
 
@@ -257,36 +286,43 @@ def _substitute(text, variables, model_context, attribute_name=None):
         matches = _secret_pattern.findall(text)
         for token, name, key in matches:
             value = _resolve_secret_token(name, key, model_context)
-
             if value is None:
                 # does not match, only report for non target case
-                if validation_method != 'lax':
-                    secret_token = name + ':' + key
-                    known_tokens = _list_known_secret_tokens()
-                    _report_token_issue('WLSDPLY-01739', method_name, model_context, secret_token, known_tokens)
+                allow_unresolved = validation_config.allow_unresolved_environment_tokens()
+                secret_token = name + ':' + key
+                known_tokens = _list_known_secret_tokens()
+                _report_token_issue('WLSDPLY-01739', method_name, allow_unresolved, secret_token, known_tokens)
+                _increment_error_count(error_info, allow_unresolved)
+                problem_found = True
                 continue
-
             text = text.replace(token, value)
 
-        tokens = _file_variable_pattern.findall(text)
-        if tokens:
-            for token in tokens:
-                path = token[7:-2]
-                value = _read_value_from_file(path, model_context)
-                text = text.replace(token, value)
+        matches = _file_variable_pattern.findall(text)
+        for token, path in matches:
+            allow_unresolved = validation_config.allow_unresolved_file_tokens()
+            value = _read_value_from_file(path, allow_unresolved)
+            if value is None:
+                _increment_error_count(error_info, allow_unresolved)
+                problem_found = True
+                continue
+            text = text.replace(token, value)
 
         # special case for @@FILE:@@ORACLE_HOME@@/dir/name.txt@@
-        tokens = _file_nested_variable_pattern.findall(text)
-        if tokens:
-            for token in tokens:
-                path = token[7:-2]
-                path = model_context.replace_token_string(path)
-                value = _read_value_from_file(path, model_context)
-                text = text.replace(token, value)
+        matches = _file_nested_variable_pattern.findall(text)
+        for token, path in matches:
+            path = model_context.replace_token_string(path)
+            allow_unresolved = validation_config.allow_unresolved_file_tokens()
+            value = _read_value_from_file(path, allow_unresolved)
+            if value is None:
+                _increment_error_count(error_info, allow_unresolved)
+                problem_found = True
+                continue
+            text = text.replace(token, value)
 
-        # if any @@TOKEN: remains in the value, throw an exception
+        # if any @@TOKEN: remains in the value, log an error.
+        # if previous problems were found, don't perform this check.
         matches = _unresolved_token_pattern.findall(text)
-        if matches and validation_method != 'lax':
+        if matches and not problem_found:
             match = matches[0]
             token = match[1]
             sample = "@@" + token + ":<name>"
@@ -294,29 +330,39 @@ def _substitute(text, variables, model_context, attribute_name=None):
                 sample += ":<key>"
             sample += "@@"
 
+            # always log SEVERE, these are syntax errors in the value
+            allow_unresolved = False
             if attribute_name is None:
-                _report_token_issue("WLSDPLY-01745", method_name, model_context, text, sample)
+                _report_token_issue("WLSDPLY-01745", method_name, allow_unresolved, text, sample)
             else:
-                _report_token_issue("WLSDPLY-01746", method_name, model_context, attribute_name, text, sample)
+                _report_token_issue("WLSDPLY-01746", method_name, allow_unresolved, attribute_name, text, sample)
+                _increment_error_count(error_info, allow_unresolved)
 
     return text
 
 
-def _read_value_from_file(file_path, model_context):
+def _increment_error_count(error_info, allow_unresolved):
+    if not allow_unresolved:
+        error_info['errorCount'] = error_info['errorCount'] + 1
+
+
+def _read_value_from_file(file_path, allow_unresolved):
     """
     Read a single text value from the first line in the specified file.
     :param file_path: the file from which to read the value
+    :param allow_unresolved: if True, log INFO instead of SEVERE for lookup failures
     :return: the text value
     :raises BundleAwareException if an error occurs while reading the value
     """
     method_name = '_read_value_from_file'
-    line = None
+
     try:
         file_reader = BufferedReader(FileReader(file_path))
         line = file_reader.readLine()
         file_reader.close()
     except IOException, e:
-        _report_token_issue('WLSDPLY-01733', method_name, model_context, file_path, e.getLocalizedMessage())
+        _report_token_issue('WLSDPLY-01733', method_name, allow_unresolved, file_path, e.getLocalizedMessage())
+        return None
 
     if line is None:
         line = ''
@@ -353,9 +399,9 @@ def _init_secret_token_map(model_context):
     method_name = '_init_secret_token_map'
     global _secret_token_map
 
-    log_method = _logger.info
-    if model_context.get_validation_method() == 'strict':
-        log_method = _logger.warning
+    log_method = _logger.warning
+    if model_context.get_validate_configuration().allow_unresolved_secret_tokens():
+        log_method = _logger.info
 
     _secret_token_map = dict()
 
@@ -419,7 +465,8 @@ def _add_file_secrets_to_map(dir, name, model_context):
         file_path = os.path.join(dir, file_name)
         if os.path.isfile(file_path):
             token = name + ":" + file_name
-            _secret_token_map[token] = _read_value_from_file(file_path, model_context)
+            allow_unresolved = model_context.get_validate_configuration().allow_unresolved_secret_tokens()
+            _secret_token_map[token] = _read_value_from_file(file_path, allow_unresolved)
 
 
 def _list_known_secret_tokens():
@@ -439,26 +486,20 @@ def _list_known_secret_tokens():
     return ret
 
 
-def _report_token_issue(message_key, method_name, model_context, *args):
+def _report_token_issue(message_key, method_name, allow_unresolved, *args):
     """
     Log a message at the level corresponding to the validation method (SEVERE for strict, INFO otherwise).
-    Throw a variable exception if the level is strict.
     The lax validation method can be used to verify the model without resolving tokens.
     :param message_key: the message key to be logged and used for exceptions
     :param method_name: the name of the calling method for logging
-    :param model_context: used to determine the validation method
+    :param allow_unresolved: if True, log INFO instead of SEVERE for lookup failures
     :param args: arguments for use in the message
     """
-    log_method = _logger.info
-    if model_context.get_validation_method() == 'strict':
-        log_method = _logger.severe
+    log_method = _logger.severe
+    if allow_unresolved:
+        log_method = _logger.info
 
     log_method(message_key, class_name=_class_name, method_name=method_name, *args)
-
-    if model_context.get_validation_method() == 'strict':
-        ex = exception_helper.create_variable_exception(message_key, *args)
-        _logger.throwing(ex, class_name=_class_name, method_name=method_name)
-        raise ex
 
 
 def substitute_key(text, variables):

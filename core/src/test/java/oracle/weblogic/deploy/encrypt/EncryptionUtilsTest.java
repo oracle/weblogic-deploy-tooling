@@ -1,12 +1,15 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.encrypt;
 
-import oracle.weblogic.deploy.encrypt.EncryptionUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EncryptionUtilsTest {
     private static final char[] PASSPHRASE = "My dog is a rottweiler".toCharArray();
@@ -20,29 +23,28 @@ public class EncryptionUtilsTest {
     @Test
     public void encryptStringTest() throws Exception {
         String result = EncryptionUtils.encryptString(PASSWORD1, PASSPHRASE);
-        Assert.assertNotNull("Expected an encrypted password not null", result);
-        Assert.assertTrue("Excepted encrypted password to start with " + CIPHER_TEXT_PREFIX + " marker",
-            result.startsWith(CIPHER_TEXT_PREFIX));
+        assertNotNull(result, "Expected an encrypted password not null");
+        assertTrue(result.startsWith(CIPHER_TEXT_PREFIX), "Excepted encrypted password to start with " + CIPHER_TEXT_PREFIX + " marker");
 
         char[] password = EncryptionUtils.decryptString(result, PASSPHRASE);
-        Assert.assertNotNull("Excepted non-empty decrypted password", password);
-        Assert.assertNotEquals("expected non-zero length password", 0, password.length);
+        assertNotNull(password, "Excepted non-empty decrypted password");
+        assertNotEquals(0, password.length, "expected non-zero length password");
         result = new String(password);
-        Assert.assertEquals("Excepted decrypted password to match", PASSWORD1, result);
+        assertEquals(PASSWORD1, result, "Excepted decrypted password to match");
     }
 
     @Test
     public void decryptOldStringTest() throws Exception {
         char[] password = EncryptionUtils.decryptString(ENCRYPTED_PASSWORD1_1, PASSPHRASE);
-        Assert.assertNotNull("Excepted non-empty decrypted password", password);
-        Assert.assertNotEquals("expected non-zero length password", 0, password.length);
+        assertNotNull(password, "Excepted non-empty decrypted password");
+        assertNotEquals(0, password.length, "expected non-zero length password");
         String result = new String(password);
-        Assert.assertEquals("Excepted decrypted password to match", PASSWORD1, result);
+        assertEquals(PASSWORD1, result, "Excepted decrypted password to match");
 
         password = EncryptionUtils.decryptString(ENCRYPTED_PASSWORD1_2, PASSPHRASE);
-        Assert.assertNotNull("Excepted non-empty decrypted password", password);
-        Assert.assertNotEquals("expected non-zero length password", 0, password.length);
+        assertNotNull(password, "Excepted non-empty decrypted password");
+        assertNotEquals(0, password.length, "expected non-zero length password");
         result = new String(password);
-        Assert.assertEquals("Excepted decrypted password to match", PASSWORD1, result);
+        assertEquals(PASSWORD1, result, "Excepted decrypted password to match");
     }
 }

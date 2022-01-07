@@ -117,11 +117,11 @@ resources:
                 JDBCDriverParams:
                     Properties:
                         oracle.jdbc.ReadTimeout:
-                            Value: 30000
+                            Value: '30000'
                         user:
                             Value: admin
                         oracle.net.CONNECT_TIMEOUT:
-                            Value: 5000
+                            Value: '5000'
                     URL: 'jdbc:oracle:thin:@//den00chv.us.oracle.com:1521/PDBORCL'
                     PasswordEncrypted: '--FIX ME--'
                     DriverName: oracle.jdbc.xa.client.OracleXADataSource
@@ -132,11 +132,11 @@ resources:
                 JDBCDriverParams:
                     Properties:
                         oracle.jdbc.ReadTimeout:
-                            Value: 30000
+                            Value: '30000'
                         user:
                             Value: sys as dba
                         oracle.net.CONNECT_TIMEOUT:
-                            Value: 5000
+                            Value: '5000'
                     URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=slc05til.us.oracle.com)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
                     PasswordEncrypted: '--FIX ME--'
                     DriverName: oracle.jdbc.xa.client.OracleXADataSource

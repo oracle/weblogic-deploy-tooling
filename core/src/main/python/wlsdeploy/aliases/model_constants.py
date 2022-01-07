@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -41,6 +41,7 @@ ATP_ADMIN_USER = 'atp.admin.user'
 AUDITOR = 'Auditor'
 AUTHENTICATION_PROVIDER = 'AuthenticationProvider'
 AUTHORIZER = 'Authorizer'
+CALCULATED_LISTEN_PORTS = 'CalculatedListenPorts'
 CAPACITY = 'Capacity'
 CDI_CONTAINER = 'CdiContainer'
 CERT_PATH_PROVIDER = 'CertPathProvider'

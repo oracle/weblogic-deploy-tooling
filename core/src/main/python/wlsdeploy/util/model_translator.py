@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.io.File as JFile
@@ -93,7 +93,6 @@ class PythonToFile(object):
     def __init__(self, dictionary):
         self.dictionary = dictionary
         self.logger = platform_logger.PlatformLogger('wlsdeploy.translator')
-        self._hyphenate_yaml_lists = False
 
     def write_to_file(self, file_name):
         """
@@ -113,9 +112,6 @@ class PythonToFile(object):
         # called method already logged the return_file. don't log again
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
         return return_file
-
-    def set_yaml_hyphenate_yaml_lists(self, hyphenate):
-        self._hyphenate_yaml_lists = hyphenate
 
     def _write_to_json_file(self, file_name):
         """
@@ -147,7 +143,6 @@ class PythonToFile(object):
         self.logger.finer('WLSDPLY-01712', 'YAML', file_name, class_name=self._class_name, method_name=_method_name)
         try:
             writer = JPythonToYaml(self.dictionary)
-            writer.set_hyphenate_lists(self._hyphenate_yaml_lists)
             writer.write_to_yaml_file(file_name)
         except JYamlException, ye:
             translate_ex = exception_helper.create_translate_exception('WLSDPLY-01713', file_name,

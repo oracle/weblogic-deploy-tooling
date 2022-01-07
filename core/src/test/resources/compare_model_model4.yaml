@@ -77,8 +77,8 @@ resources:
                             AllowCloseInOnMessage: true
                             MessagesMaximum: 1
                         DefaultDeliveryParams:
-                            DefaultTimeToDeliver: 3
-                            DefaultTimeToLive: 3600
+                            DefaultTimeToDeliver: '3'
+                            DefaultTimeToLive: '3600'
                         FlowControlParams:
                             FlowControlEnabled: false
                         LoadBalancingParams:

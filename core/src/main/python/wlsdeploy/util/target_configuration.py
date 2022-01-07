@@ -9,6 +9,9 @@ from wlsdeploy.util import dictionary_utils
 CREDENTIALS_METHOD = "credentials_method"
 CREDENTIALS_OUTPUT_METHOD = "credentials_output_method"
 
+# type for validation method
+VALIDATION_METHOD = "validation_method"
+
 # Overrides the Kubernetes secret name for the WebLogic admin user credential
 WLS_CREDENTIALS_NAME = "wls_credentials_name"
 
@@ -76,13 +79,7 @@ class TargetConfiguration(object):
         Return the validation method for this target environment.
         :return: the validation method, or None
         """
-        validation_method = dictionary_utils.get_element(self.config_dictionary, 'validation_method')
-
-        # temporary for WDT 1.9: allow WDT 2.0 method, just interpret as lax
-        if validation_method == 'wktui':
-            validation_method = 'lax'
-
-        return validation_method
+        return dictionary_utils.get_element(self.config_dictionary, VALIDATION_METHOD)
 
     def get_model_filters(self):
         """

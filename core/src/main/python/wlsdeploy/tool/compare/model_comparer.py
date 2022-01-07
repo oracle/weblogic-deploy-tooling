@@ -444,5 +444,6 @@ def _add_comment(comment, dictionary):
     :param dictionary: the dictionary to be appended
     """
     # make comment key unique, key will not appear in output
-    comment_key = COMMENT_MATCH + comment
-    dictionary[comment_key] = comment
+    # comment_key = COMMENT_MATCH + comment
+    # dictionary[comment_key] = comment
+    pass

@@ -12,11 +12,13 @@ import java.net.URI as URI
 from oracle.weblogic.deploy.util import XPathUtil
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging import platform_logger
+from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
 from wlsdeploy.util.model_config import ModelConfiguration
 from wlsdeploy.util.target_configuration import TargetConfiguration
+from wlsdeploy.util.validate_configuration import ValidateConfiguration
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -82,18 +84,18 @@ class ModelContext(object):
         self._opss_wallet = None
         self._update_rcu_schema_pass = False
         self._validation_method = None
+        self._validate_configuration = None  # lazy load
         self._cancel_changes_if_restart_required = None
         self._domain_resource_file = None
         self._output_dir = None
         self._target = None
-        self._target_configuration = None
+        self._target_configuration = None  # lazy load
         self._variable_injector_file = None
         self._variable_keywords_file = None
         self._variable_properties_file = None
         self._rcu_db_user = self.DB_USER_DEFAULT
         self._discard_current_edit = False
         self._model_config = None
-        self._ignore_missing_archive_entries = False
 
         self._trailing_args = []
 
@@ -337,9 +339,7 @@ class ModelContext(object):
         if self._variable_properties_file is not None:
             arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH] = self._variable_properties_file
 
-        model_context = ModelContext(self._program_name, arg_map)
-        model_context._ignore_missing_archive_entries = self._ignore_missing_archive_entries
-        return model_context
+        return ModelContext(self._program_name, arg_map)
 
     def get_model_config(self):
         """
@@ -510,6 +510,20 @@ class ModelContext(object):
         """
         self._validation_method = method
 
+    def get_validate_configuration(self):
+        """
+        Get the validation method object, creating if necessary
+        :return: the validation method object
+        """
+        if not self._validate_configuration:
+            method_key = self.get_validation_method()
+            if self._target:
+                method_key = self.get_target_configuration().get_validation_method()
+            if not method_key:
+                method_key = validate_configuration.STRICT_METHOD
+            self._validate_configuration = ValidateConfiguration(method_key)
+        return self._validate_configuration
+
     def get_archive_file(self):
         """
         Get the archive file.
@@ -626,8 +640,7 @@ class ModelContext(object):
             configuration_dict = {}
 
             if self._target:
-                target_path = os.path.join('targets', self._target, 'target.json')
-                target_configuration_file = path_utils.find_config_path(target_path)
+                target_configuration_file = self.get_target_configuration_file()
                 if os.path.exists(target_configuration_file):
                     file_handle = open(target_configuration_file)
                     configuration_dict = eval(file_handle.read())
@@ -635,6 +648,12 @@ class ModelContext(object):
             self._target_configuration = TargetConfiguration(configuration_dict)
 
         return self._target_configuration
+
+    def get_target_configuration_file(self):
+        if self._target:
+            target_path = os.path.join('targets', self._target, 'target.json')
+            return path_utils.find_config_path(target_path)
+        return None
 
     def get_target(self):
         return self._target
@@ -709,20 +728,6 @@ class ModelContext(object):
         :return: the trailing argument
         """
         return self._trailing_args[index]
-
-    def get_ignore_missing_archive_entries(self):
-        """
-        Determine if the tool should ignore missing archive entries during validation.
-        :return: True if the tool should ignore missing entries
-        """
-        return self._ignore_missing_archive_entries
-
-    def set_ignore_missing_archive_entries(self, ignore):
-        """
-        Configure the tool to ignore missing archive entries during validation.
-        :param ignore: True if the tool should ignore missing entries, False otherwise
-        """
-        self._ignore_missing_archive_entries = ignore
 
     def is_wlst_online(self):
         """
