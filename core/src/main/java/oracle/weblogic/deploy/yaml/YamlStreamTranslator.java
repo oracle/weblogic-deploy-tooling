@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.yaml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
+import java.util.Map;
 
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
@@ -21,6 +23,7 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
 
     private String streamFileName;
     private InputStream yamlStream;
+    private Writer yamlOutputWriter;
 
     /**
      * The constructor.
@@ -40,9 +43,23 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
      * @param useOrderedDict whether or not to use an ordered dictionary to maintain the order
      */
     public YamlStreamTranslator(String streamFileName, InputStream yamlStream, boolean useOrderedDict) {
+        super(streamFileName, useOrderedDict);
         this.streamFileName = streamFileName;
         this.yamlStream = yamlStream;
-        this.useOrderedDict = useOrderedDict;
+        this.yamlOutputWriter = null;
+    }
+
+    /**
+     * The constructor for writing YAML output.
+     *
+     * @param streamFileName   the name of the file used to create the OutputStream (used only for logging purposes)
+     * @param yamlOutputWriter the Writer to use for writing the YAML output
+     */
+    public YamlStreamTranslator(String streamFileName, Writer yamlOutputWriter) {
+        super(streamFileName, true);
+        this.streamFileName = streamFileName;
+        this.yamlStream = null;
+        this.yamlOutputWriter = yamlOutputWriter;
     }
 
     /**
@@ -60,7 +77,7 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
         PyDictionary result = null;
         if (yamlStream != null) {
             try {
-                result = parseInternal(streamFileName, yamlStream);
+                result = parseInternal(yamlStream);
             } finally {
                 try {
                     yamlStream.close();
@@ -72,6 +89,25 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
         }
         LOGGER.exiting(CLASS, METHOD);
         return result;
+    }
+
+    public void dump(Map<String, Object> data) throws YamlException {
+        final String METHOD = "dump";
+
+        LOGGER.entering(CLASS, METHOD);
+        if (yamlOutputWriter != null) {
+            try {
+                dumpInternal(data, yamlOutputWriter);
+            } finally {
+                try {
+                    yamlOutputWriter.close();
+                } catch (IOException ioe) {
+                    LOGGER.warning("WLSDPLY-18110", ioe, streamFileName, ioe.getLocalizedMessage());
+                }
+                yamlOutputWriter = null;
+            }
+        }
+        LOGGER.exiting(CLASS, METHOD);
     }
 
     @Override

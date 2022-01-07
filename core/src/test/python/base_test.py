@@ -66,9 +66,12 @@ class BaseTestCase(unittest.TestCase):
 
     def _match(self, value, dictionary, *args):
         dictionary_value = self._traverse(dictionary, *args)
-        if dictionary_value != str(value):
+        if str(dictionary_value) != str(value):
             key = '/'.join(list(args))
             self.fail(key + ' equals ' + str(dictionary_value) + ', should equal ' + str(value))
+
+    def _match_values(self, description, actual, expected):
+        self.assertEqual(actual, expected, description + " equals " + str(actual) + ", should equal " + str(expected))
 
     def _no_dictionary_key(self, dictionary, key):
         if key in dictionary:

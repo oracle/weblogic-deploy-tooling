@@ -72,7 +72,7 @@ class TranslatorTestCase(unittest.TestCase):
         pythonDict = dict()
         pythonDict['foo'] = 'test \'legal\' yaml'
         pythonDict['bar'] = 'test "legal" yaml'
-        pythonDict['baz'] = 'test \'legal\' yaml'
+        pythonDict['baz'] = '\'test \'legal\' yaml\''
         pythonDict['newline'] = 'test embedded\nnewline yaml'
 
         translator = PythonToFile(pythonDict)
@@ -86,11 +86,7 @@ class TranslatorTestCase(unittest.TestCase):
         self.assertEqual('baz' in newPythonDict, True)
         self.assertEquals('newline' in newPythonDict, True)
 
-        quotedValue = newPythonDict['foo']
-        self.assertEqual(quotedValue, 'test \'legal\' yaml')
-        quotedValue = newPythonDict['bar']
-        self.assertEqual(quotedValue, 'test "legal" yaml')
-        quotedValue = newPythonDict['baz']
-        self.assertEqual(quotedValue, 'test \'legal\' yaml')
-        quotedValue = newPythonDict['newline']
-        self.assertEqual(quotedValue, 'test embedded\nnewline yaml')
+        self.assertEqual(newPythonDict['foo'], pythonDict['foo'])
+        self.assertEqual(newPythonDict['bar'], pythonDict['bar'])
+        self.assertEqual(newPythonDict['baz'], pythonDict['baz'])
+        self.assertEqual(newPythonDict['newline'], pythonDict['newline'])

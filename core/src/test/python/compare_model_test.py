@@ -304,7 +304,7 @@ class CompareModelTestCase(unittest.TestCase):
         self.assertNotEqual(return_code, 0)
 
     def testDeleteModelAppDeployments(self):
-        _method_name = 'testCompareModelFull'
+        _method_name = 'testDeleteModelAppDeployments'
 
         _variables_file = self._resources_dir + '/compare_model_model1.10.properties'
         _new_model_file = self._resources_dir + '/compare_model_model5.yaml'
@@ -502,7 +502,7 @@ class CompareModelTestCase(unittest.TestCase):
                 .has_key('maxFileSize'), True)
             self.assertEqual(
                 model_dictionary['resources']['ODLConfiguration']['config']['Handler']['odl-handler']
-                ['Properties']['maxFileSize'], 14857620)
+                ['Properties']['maxFileSize'], '14857620')
 
 
             self.assertEqual(model_dictionary['resources']['ODLConfiguration']['config'].has_key('Logger'),

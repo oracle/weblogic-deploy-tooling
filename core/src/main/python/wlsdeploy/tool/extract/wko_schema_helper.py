@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.util import FileUtils
@@ -15,9 +15,15 @@ DOMAIN_RESOURCE_SCHEMA_FILE = 'domain-crd-schema-v8.json'
 DOMAIN_RESOURCE_SCHEMA_PATH = 'oracle/weblogic/deploy/wko/' + DOMAIN_RESOURCE_SCHEMA_FILE
 
 SIMPLE_TYPES = [
+    'integer',
     'number',
     'string',
     'boolean'
+]
+
+OBJECT_TYPES = [
+    'object',
+    None
 ]
 
 UNSUPPORTED_FOLDERS = [
@@ -56,32 +62,37 @@ def get_domain_resource_schema(exception_type=ExceptionType.DEPLOY):
     return schema
 
 
-def is_single_folder(schema_map):
+def is_single_object(schema_map):
     """
-    Return True if the schema map describes a single folder.
+    Return True if the schema map describes a single object.
     :param schema_map: the schema map to be examined
-    :return: True if the map identifies a single folder
+    :return: True if the map identifies a single object
     """
     property_type = get_type(schema_map)
-    if property_type == "object":
+    if property_type in OBJECT_TYPES:
         return get_map_element_type(schema_map) is None
     return False
 
 
-def is_multiple_folder(schema_map):
+def is_object_array(schema_map):
     """
-    Return True if the schema map identifies a multiple folder.
+    Return True if the schema map describes an object array.
     :param schema_map: the schema map to be examined
-    :return: True if the map identifies a multiple folder
+    :return: True if the map identifies an object array
     """
     property_type = get_type(schema_map)
     if property_type == "array":
-        return get_array_element_type(schema_map) == "object"
+        return get_array_element_type(schema_map) in OBJECT_TYPES
     return False
 
 
-def is_folder(schema_map):
-    return is_single_folder(schema_map) or is_multiple_folder(schema_map)
+def is_object_type(schema_map):
+    """
+    Return True if the schema map describes an object or object array.
+    :param schema_map: the schema map to be examined
+    :return: True if the map identifies an object or object array
+    """
+    return is_single_object(schema_map) or is_object_array(schema_map)
 
 
 def is_simple_map(schema_map):
@@ -91,7 +102,7 @@ def is_simple_map(schema_map):
     :return: True if the map identifies a simple map
     """
     property_type = get_type(schema_map)
-    if property_type == "object":
+    if property_type in OBJECT_TYPES:
         return get_map_element_type(schema_map) is not None
     return False
 
@@ -104,8 +115,18 @@ def is_simple_array(schema_map):
     """
     property_type = get_type(schema_map)
     if property_type == "array":
-        return get_array_element_type(schema_map) != "object"
+        return get_array_element_type(schema_map) not in OBJECT_TYPES
     return False
+
+
+def is_simple_type(schema_map):
+    """
+    Return True if the schema map describes a simple type.
+    :param schema_map: the schema map to be examined
+    :return: True if the map identifies a simple type
+    """
+    property_type = get_type(schema_map)
+    return property_type in SIMPLE_TYPES
 
 
 def get_array_element_type(schema_map):
@@ -123,7 +144,8 @@ def get_array_item_info(schema_map):
 
 
 def get_properties(schema_map):
-    return dictionary_utils.get_element(schema_map, "properties")
+    properties = dictionary_utils.get_element(schema_map, "properties")
+    return properties or {}
 
 
 def get_type(schema_map):

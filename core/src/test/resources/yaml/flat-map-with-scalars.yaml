@@ -1,0 +1,27 @@
+# Copyright (c) 2021, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+---
+field1: string
+field2: 123
+field3: 123456789012345
+field4: 123.456
+field5: 0.12345678901234567890
+field6: true
+field7: True
+field8: false
+field9: False
+field10: "string"
+field11: 'string'
+field12: "123"
+field13: '123'
+field14: "123456789012345"
+field15: '123456789012345'
+field16: "123.456"
+field17: '123.456'
+field18: "0.12345678901234567890"
+field19: '0.12345678901234567890'
+field20: 'true'
+field21: "True"
+field22: "false"
+field23: 'False'
+...

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.lang.Exception as JException
@@ -217,7 +217,7 @@ class WebLogicHelper(object):
                     wl_home = oracle_home + '/' + dirs[0]
                 else:
                     wl_home = None
-                
+
         return wl_home
 
     def is_weblogic_version_or_above(self, str_version, use_actual_version=False):
@@ -298,13 +298,13 @@ class WebLogicHelper(object):
 
         system_ini = SerializedSystemIni.getEncryptionService(domain_home)
         if system_ini is None:
-            ex = exception_helper.create_encryption_exception('WLSDPLY-01740')
+            ex = exception_helper.create_encryption_exception('WLSDPLY-01840')
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
         encryption_service = ClearOrEncryptedService(system_ini)
         if encryption_service is None:
-            ex = exception_helper.create_encryption_exception('WLSDPLY-01741')
+            ex = exception_helper.create_encryption_exception('WLSDPLY-01841')
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
         return encryption_service

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -35,10 +35,6 @@ public class WLSDeployLoggingConfig {
 
     private static final String HANDLERS_PROP = "handlers";
     private static final String CONFIG_PROP = "config";
-
-    // Deprecated
-    private static final String WLSDEPLOY_CONSOLE_HANDLER =
-            "oracle.weblogic.deploy.logging.WLSDeployLoggingConsoleHandler";
 
     private static final String WLSDEPLOY_STDOUT_CONSOLE_HANDLER =
             "oracle.weblogic.deploy.logging.WLSDeployLoggingStdoutHandler";
@@ -170,16 +166,6 @@ public class WLSDeployLoggingConfig {
 
     public static synchronized File getLoggingPropertiesFile() {
         return new File(loggingPropertiesFile.getAbsolutePath());
-    }
-
-    /**
-     * @deprecated as of 1.2.1. Replace call with {@link #getStdoutHandler()}
-     *
-     * @return ConsoleHandler implementation
-     */
-    @Deprecated
-    public static String getConsoleHandler() {
-        return WLSDEPLOY_CONSOLE_HANDLER;
     }
 
     /**
