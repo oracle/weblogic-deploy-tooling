@@ -123,7 +123,18 @@ class WebLogicHelper(object):
         :param rcu_connect_string: the RCU connect string
         :return: the JDBC URL
         """
-        return 'jdbc:oracle:thin:@' + rcu_connect_string
+        jdbc_url = rcu_connect_string
+        if not rcu_connect_string.startswith('jdbc:oracle:'):
+            if rcu_connect_string.startswith('('):
+                # Long format
+                jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
+            elif rcu_connect_string.rfind('/') != -1:
+                # host:port/service format
+                jdbc_url = 'jdbc:oracle:thin:@//' + rcu_connect_string
+            else:
+                # host:port:sid format
+                jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
+        return jdbc_url
 
     def get_stb_data_source_jdbc_driver_name(self):
         """
