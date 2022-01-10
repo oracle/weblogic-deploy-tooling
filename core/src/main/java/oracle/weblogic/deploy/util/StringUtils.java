@@ -66,7 +66,7 @@ public final class StringUtils {
     }
 
     /**
-     * String surrounding quotes from the string, if they are present.
+     * Strip surrounding quotes from the string, if they are present.
      *
      * @param string the string from which to remove the surround quotes
      * @return the string without any surrounding quotes or the string itself if no quotes were present
@@ -78,6 +78,24 @@ public final class StringUtils {
             char last = string.charAt(string.length() - 1);
             if ((first == '"' && last == '"') || (first == '\'' && last == '\'')) {
                 result = string.substring(1, string.length() - 1);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Add surrounding quotes to the string, if not already present.
+     *
+     * @param string the string to surround with double quotes
+     * @return the string with surrounding double quotes or the string itself is single or double quotes were present
+     */
+    public static String quoteString(String string) {
+        String result = "\"" + string + "\"";
+        if (!StringUtils.isEmpty(string) && string.length() > 1) {
+            char first = string.charAt(0);
+            char last = string.charAt(string.length() - 1);
+            if ((first == '"' && last == '"') || (first == '\'' && last == '\'')) {
+                result = string;
             }
         }
         return result;
