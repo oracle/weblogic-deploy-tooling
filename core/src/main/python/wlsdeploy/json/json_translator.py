@@ -254,20 +254,20 @@ def _escape_text(text):
     """
     result = text
     if isinstance(text, types.StringTypes):
-        if '\\' in text:
-            result = text.replace('\\', '\\\\')
-        if '"' in text:
-            result = text.replace('"', '\\"')
-        if '\n' in text:
-            result = text.replace("\n", "\\\\n")
-        if '\b' in text:
-            result = text.replace("\b", "\\\\b")
-        if '\f' in text:
-            result = text.replace("\f", "\\\\f")
-        if '\r' in text:
-            result = text.replace("\r", "\\\\r")
-        if '\t' in text:
-            result = text.replace("\t", "\\\\t")
-        if '\/' in text:
-            result = text.replace("\/", "\\\\/")
+        if '\\' in result:
+            result = result.replace('\\', '\\\\')
+        if '"' in result:
+            result = result.replace('"', '\\"')
+        if '\n' in result:
+            result = result.replace("\n", "\\\\n")
+        if '\b' in result:
+            result = result.replace("\b", "\\\\b")
+        if '\f' in result:
+            result = result.replace("\f", "\\\\f")
+        if '\r' in result:
+            result = result.replace("\r", "\\\\r")
+        if '\t' in result:
+            result = result.replace("\t", "\\\\t")
+        if '\/' in result:
+            result = result.replace("\/", "\\\\/")
     return result
