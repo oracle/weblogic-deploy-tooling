@@ -5,11 +5,13 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 import copy
 import os
+import re
 import tempfile
 
 import java.net.URI as URI
 
 from oracle.weblogic.deploy.util import XPathUtil
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import validate_configuration
@@ -898,14 +900,17 @@ class ModelContext(object):
         """
         Replace known types of directories with a tokens that represent the directory.
 
-        :param classpath: containing a string of directories separated by environment specific classpath separator
+        :param classpath: containing a string of directories separated by commas
         :return: tokenized classpath string
         """
-        cp_elements, separator = path_utils.split_classpath(classpath)
+        cp_elements = classpath.split(MODEL_LIST_DELIMITER)
         for index, value in enumerate(cp_elements):
+            path_is_windows = '\\' in value or re.match('^[a-zA-Z][:]', value)
+            if path_is_windows:
+                value = path_utils.fixup_path(value)
             cp_elements[index] = self.tokenize_path(value)
 
-        return separator.join(cp_elements)
+        return MODEL_LIST_DELIMITER.join(cp_elements)
 
     def copy(self, arg_map):
         model_context_copy = copy.copy(self)
