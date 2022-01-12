@@ -152,11 +152,9 @@ class ApplicationsDeployer(Deployer):
         root_path = self.aliases.get_wlst_subfolders_path(self._base_location)
         application_location = LocationContext(self._base_location).append_location(APPLICATION)
         application_token = self.aliases.get_name_token(application_location)
-        existing_applications = deployer_utils.get_existing_object_list(application_location, self.aliases)
 
         for application_name in applications:
-            self.logger.info('WLSDPLY-09301', APPLICATION, application_name, self._parent_type, self._parent_name,
-                             class_name=self._class_name, method_name=_method_name)
+            existing_applications = deployer_utils.get_existing_object_list(application_location, self.aliases)
 
             if model_helper.is_delete_name(application_name):
                 if self.__verify_delete_versioned_app(application_name, existing_applications, type='app'):
@@ -165,6 +163,9 @@ class ApplicationsDeployer(Deployer):
                     existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
                     deployer_utils.delete_named_element(location, application_name, existing_names, self.aliases)
                 continue
+            else:
+                self.logger.info('WLSDPLY-09301', APPLICATION, application_name, self._parent_type, self._parent_name,
+                                 class_name=self._class_name, method_name=_method_name)
 
             application = \
                 copy.deepcopy(dictionary_utils.get_dictionary_element(applications, application_name))
