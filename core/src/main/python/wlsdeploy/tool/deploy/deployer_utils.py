@@ -590,7 +590,7 @@ def online_check_save_activate(model_context):
         _wlst_helper.silence()
         if model_context.is_cancel_changes_if_restart_required() and restart_required:
             _wlst_helper.cancel_edit()
-            _logger.warning('WLSDPLY_09015', is_restartreq_output)
+            _logger.warning('WLSDPLY-09018', is_restartreq_output)
             exit_code = CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE
             list_non_dynamic_changes(model_context, is_restartreq_output)
         else:
