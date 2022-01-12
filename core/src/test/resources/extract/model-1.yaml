@@ -1,0 +1,27 @@
+# Copyright (c) 2021, Oracle Corporation and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+# Test model for extractDomainResource.
+# This will test that default values and information from the model
+# are incorporated into the resulting domain resource file.
+
+topology:
+    Name: DemoDomain
+    Cluster:
+        cluster1:
+            # should get a replicas value of 3, since 3 servers are assigned
+        cluster2:
+            # should get a replicas value of 12, based on dynamic cluster size
+            DynamicServers:
+                DynamicClusterSize: 12
+    Server:
+        AdminServer:
+            Cluster: cluster1
+        m1:
+            Cluster: cluster1
+            # secrets should be listed in domain resource
+            SystemPasswordEncrypted: '@@SECRET:@@ENV:DOMAIN_UID@@-m1-system:password@@'
+        m2:
+            Cluster: cluster1
+            # secrets should be listed in domain resource
+            SystemPasswordEncrypted: '@@SECRET:@@ENV:DOMAIN_UID@@-m2-system:password@@'

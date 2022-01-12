@@ -7,6 +7,7 @@ import os
 import sys
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.filters import wko_filter
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 from wlsdeploy.util.model_translator import FileToPython
@@ -17,24 +18,22 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 TARGET_CONFIG_TOKEN = '@@TARGET_CONFIG_DIR@@'
 
 __id_filter_map = {
-    # temporary - allow WDT 1.9 to specify no-op WDT 2.0 filter
-    'wko_filter': lambda x: x
+    'wko_filter': wko_filter.filter_model
 }
 
 
-def apply_filters(model, tool_type, model_context=None):
+def apply_filters(model, tool_type, model_context):
     """
     Apply any filters configured for the specified tool type to the specified model.
     :param model: the model to be filtered
     :param tool_type: the name of the filter tool type
-    :param model_context: optional, used to find target filters
+    :param model_context: used to find target filters
     :return: True if any filter was applied, False otherwise
     :raises: BundleAwareException of the specified type: if an error occurs
     """
     _method_name = 'apply_filters'
-    global __filter_file_location
 
-    __filter_file_location = path_utils.find_config_path('model_filters.json')
+    __filter_file_location = None
     filter_applied = False
 
     try:
@@ -42,6 +41,7 @@ def apply_filters(model, tool_type, model_context=None):
 
         # if target specified in model context, use the filters from target config
         if model_context and model_context.get_target():
+            __filter_file_location = model_context.get_target_configuration_file()
             filters_dictionary = model_context.get_target_configuration().get_model_filters()
             target_path = os.path.join('targets', model_context.get_target())
 
@@ -53,15 +53,18 @@ def apply_filters(model, tool_type, model_context=None):
                         filter_path = target_path + filter_path.replace(TARGET_CONFIG_TOKEN, '')
                         current_filter['path'] = path_utils.find_config_path(filter_path)
 
-        elif os.path.isfile(__filter_file_location):
-            filters_dictionary = FileToPython(__filter_file_location).parse()
         else:
-            __logger.info('WLSDPLY-20017', __filter_file_location, class_name=__class_name, method_name=_method_name)
+            __filter_file_location = path_utils.find_config_path('model_filters.json')
+            if os.path.isfile(__filter_file_location):
+                filters_dictionary = FileToPython(__filter_file_location).parse()
+            else:
+                __logger.info('WLSDPLY-20017', __filter_file_location, class_name=__class_name,
+                              method_name=_method_name)
 
         if tool_type in filters_dictionary:
             filter_list = filters_dictionary[tool_type]
             for filter in filter_list:
-                filter_applied = _apply_filter(model, filter) or filter_applied
+                filter_applied = _apply_filter(model, filter, model_context, __filter_file_location) or filter_applied
         else:
             __logger.info('WLSDPLY-20016', tool_type, __filter_file_location, class_name=__class_name,
                           method_name=_method_name)
@@ -72,34 +75,39 @@ def apply_filters(model, tool_type, model_context=None):
     return filter_applied
 
 
-def _apply_filter(model, the_filter):
+def _apply_filter(model, the_filter, model_context, filter_file_location):
     """
     Apply the specified filter to the specified model.
     :param model: the model to be filtered
     :param the_filter: a dictionary containing the filter parameters
+    :param model_context: may be used by internal (ID) filters
+    :param filter_file_location: used for logging
     :return: True if the specified filter was applied, False otherwise
     :raises: BundleAwareException of the specified type: if an error occurs
     """
     _method_name = '_apply_filter'
-    global __filter_file_location
 
     id = dictionary_utils.get_element(the_filter, 'id')
     if id is not None:
-        return _apply_id_filter(model, id)
+        __logger.info('WLSDPLY-20034', id, class_name=__class_name, method_name=_method_name)
+        return _apply_id_filter(model, id, model_context)
 
     path = dictionary_utils.get_element(the_filter, 'path')
     if path is not None:
+        name = dictionary_utils.get_element(the_filter, 'name')
+        __logger.info('WLSDPLY-20033', name, class_name=__class_name, method_name=_method_name)
         return _apply_path_filter(model, path)
 
-    __logger.severe('WLSDPLY-20019', str(__filter_file_location), class_name=__class_name, method_name=_method_name)
+    __logger.severe('WLSDPLY-20019', str(filter_file_location), class_name=__class_name, method_name=_method_name)
     return False
 
 
-def _apply_id_filter(model, id):
+def _apply_id_filter(model, id, model_context):
     """
     Apply the specified ID filter to the specified model.
     :param model: the model to be filtered
     :param id: the ID of the filter to be applied
+    :param model_context: may be used by filters
     :return: True if the specified filter was applied, False otherwise
     :raises: BundleAwareException of the specified type: if an error occurs
     """
@@ -110,7 +118,7 @@ def _apply_id_filter(model, id):
         __logger.severe('WLSDPLY-20020', str(id), class_name=__class_name, method_name=_method_name)
         return False
     else:
-        filter_method(model)
+        filter_method(model, model_context)
         return True
 
 

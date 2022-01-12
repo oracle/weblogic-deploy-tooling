@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -11,7 +11,6 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
-from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.exception import exception_helper
@@ -19,6 +18,7 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.extract import wko_schema_helper
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util.boolean_value import BooleanValue
 from wlsdeploy.util.model_translator import PythonToFile
 
 API_VERSION = 'apiVersion'
@@ -50,7 +50,8 @@ DEFAULT_IMAGE = PASSWORD_TOKEN
 DEFAULT_IMAGE_PULL_SECRETS = PASSWORD_TOKEN
 DEFAULT_SOURCE_TYPE = 'Image'
 
-MULTI_KEYS = {
+# deprecated - used for "named object list" format
+OBJECT_NAME_ATTRIBUTES = {
     'spec/adminServer/adminService/channels': 'channelName',
     'spec/clusters': 'clusterName'
 }
@@ -71,9 +72,6 @@ class DomainResourceExtractor:
         return
 
     def extract(self):
-        """
-        Deploy resource model elements at the domain level, including multi-tenant elements.
-        """
         _method_name = 'extract'
 
         resource_file = self._model_context.get_domain_resource_file()
@@ -93,7 +91,6 @@ class DomainResourceExtractor:
 
         # write the resource file structure to the output file
         writer = PythonToFile(resource_dict)
-        writer.set_yaml_hyphenate_yaml_lists(True)
         writer.write_to_file(resource_file)
         return
 
@@ -108,42 +105,35 @@ class DomainResourceExtractor:
 
         schema = wko_schema_helper.get_domain_resource_schema(ExceptionType.DEPLOY)
 
-        model_path = KUBERNETES + ":"
-        self._process_folder(kubernetes_map, schema, resource_dict, None, model_path)
+        self._process_object(kubernetes_map, schema, resource_dict, None)
         return resource_dict
 
-    def _process_folder(self, model_dict, schema_folder, target_dict, schema_path, model_path):
+    def _process_object(self, model_dict, schema_folder, target_dict, schema_path):
         """
         Transfer folders and attributes from the model dictionary to the target domain resource dictionary.
         :param model_dict: the source model dictionary
         :param schema_folder: the schema for this folder
         :param target_dict: the target dictionary for the domain resource file.
-        :param schema_path: the path of schema elements (no multi-element names), used for supported check
-        :param model_path: the path of model elements (including multi-element names), used for logging
+        :param schema_path: the path of schema elements, used for supported check
         """
         folder_properties = schema_folder["properties"]
 
         for key, model_value in model_dict.items():
             properties = folder_properties[key]
 
-            if wko_schema_helper.is_single_folder(properties):
-                # single object instance
+            if wko_schema_helper.is_single_object(properties):
                 next_schema_path = wko_schema_helper.append_path(schema_path, key)
-                next_model_path = model_path + "/" + key
                 if not wko_schema_helper.is_unsupported_folder(next_schema_path):
                     next_target_dict = PyOrderedDict()
                     target_dict[key] = next_target_dict
-                    self._process_folder(model_value, properties, next_target_dict, next_schema_path,
-                                         next_model_path)
+                    self._process_object(model_value, properties, next_target_dict, next_schema_path)
 
-            elif wko_schema_helper.is_multiple_folder(properties):
-                # multiple object instances
+            elif wko_schema_helper.is_object_array(properties):
                 next_schema_path = wko_schema_helper.append_path(schema_path, key)
-                next_model_path = model_path + "/" + key
                 if not wko_schema_helper.is_unsupported_folder(next_schema_path):
                     item_info = wko_schema_helper.get_array_item_info(properties)
                     target_dict[key] = \
-                        self._process_multiple_folder(model_value, item_info, next_schema_path, next_model_path)
+                        self._process_object_array(model_value, item_info, next_schema_path)
 
             elif wko_schema_helper.is_simple_map(properties):
                 # map of key / value pairs
@@ -154,30 +144,35 @@ class DomainResourceExtractor:
                 property_type = wko_schema_helper.get_type(properties)
                 target_dict[key] = _get_target_value(model_value, property_type)
 
-    def _process_multiple_folder(self, model_value, item_info, schema_path, model_path):
+    def _process_object_array(self, model_value, item_info, schema_path):
         """
-        Process a multiple-element model section.
-        There should be a dictionary of names, each containing a sub-folder.
+        Process an array of objects.
         :param model_value: the model contents for a folder
         :param item_info: describes the contents of the sub-folder for each element
-        :param schema_path: the path of schema elements (no multi-element names), used for supported check
-        :param model_path: the path of model elements (including multi-element names), used for logging
+        :param schema_path: the path of schema elements, used for supported check
         """
         child_list = list()
-        for name in model_value:
-            name_map = model_value[name]
+
+        # deprecated "named object list" format - warning was issued in validator
+        if isinstance(model_value, dict):
+            for name in model_value:
+                object_map = model_value[name]
+                next_target_dict = PyOrderedDict()
+                self._process_object(object_map, item_info, next_target_dict, schema_path)
+
+                # see if the model name should become an attribute in the target dict
+                mapped_name = get_mapped_key(schema_path)
+                properties = wko_schema_helper.get_properties(item_info)
+                if (mapped_name in properties.keys()) and (mapped_name not in next_target_dict.keys()):
+                    _add_to_top(next_target_dict, mapped_name, name)
+                child_list.append(next_target_dict)
+            return child_list
+        # end deprecated
+
+        for object_map in model_value:
             next_target_dict = PyOrderedDict()
-            next_model_path = model_path + "/" + name
-            self._process_folder(name_map, item_info, next_target_dict, schema_path, next_model_path)
-
-            # see if the model name should become an attribute in the target dict
-            mapped_name = get_mapped_key(schema_path)
-            properties = wko_schema_helper.get_properties(item_info)
-            if (mapped_name in properties.keys()) and (mapped_name not in next_target_dict.keys()):
-                _add_to_top(next_target_dict, mapped_name, name)
-
+            self._process_object(object_map, item_info, next_target_dict, schema_path)
             child_list.append(next_target_dict)
-
         return child_list
 
     def _update_resource_dictionary(self, resource_dict):
@@ -304,7 +299,7 @@ def _get_target_value(model_value, type_name):
     if type_name == 'boolean':
         # the model values can be true, false, 1, 0, etc.
         # target boolean values must be 'true' or 'false'
-        return alias_utils.convert_to_type('boolean', model_value)
+        return BooleanValue(model_value)
 
     if type_name == 'array':
         # the model values can be 'abc,123'.
@@ -337,16 +332,17 @@ def _add_secrets(folder, secrets, domain_uid):
                     secrets.append(secret_name)
 
 
+# deprecated
 def get_mapped_key(schema_path):
     """
-    Because the WDT model does not support hyphenated lists, the name of each item in a
+    For the deprecated "named object list format", the name of each item in a
     multiple folder sometimes corresponds to one of its attributes, usually "name".
     If a different attribute name is used for the path, return that name.
     If the default 'name' is returned, caller should verify that it is an available attribute.
     :param schema_path: the slash-delimited path of the elements (no multi-element names)
     :return: the attribute key to be used
     """
-    mapped_key = dictionary_utils.get_element(MULTI_KEYS, schema_path)
+    mapped_key = dictionary_utils.get_element(OBJECT_NAME_ATTRIBUTES, schema_path)
     if mapped_key is not None:
         return mapped_key
     return 'name'

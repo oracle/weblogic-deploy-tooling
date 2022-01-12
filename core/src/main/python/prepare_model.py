@@ -1,4 +1,4 @@
-# Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+# Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # ------------
@@ -55,7 +55,8 @@ def __process_args(args):
     target_configuration_helper.process_target_arguments(argument_map)
 
     model_context = ModelContext(_program_name, argument_map)
-    model_context.set_ignore_missing_archive_entries(True)
+    # override this check, since archive file is not supplied here
+    model_context.get_validate_configuration().set_allow_unresolved_archive_references(True)
     return model_context
 
 

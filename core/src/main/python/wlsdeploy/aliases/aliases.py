@@ -476,10 +476,8 @@ class Aliases(object):
 
             if attribute_info and not self.__is_wlst_attribute_read_only(location, attribute_info):
                 wlst_attribute_name = attribute_info[WLST_NAME]
-
-                if self._model_context and USES_PATH_TOKENS in attribute_info and \
-                        string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
-                    model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
+                uses_path_tokens = USES_PATH_TOKENS in attribute_info and \
+                    string_utils.to_boolean(attribute_info[USES_PATH_TOKENS])
 
                 data_type = attribute_info[WLST_TYPE]
                 if data_type == 'password':
@@ -514,6 +512,11 @@ class Aliases(object):
                             model_val = alias_utils.convert_to_type(LIST, model_attribute_value,
                                                                     delimiter=MODEL_LIST_DELIMITER)
 
+                            if uses_path_tokens:
+                                for index, item in enumerate(model_val):
+                                    item_value = self._model_context.replace_token_string(str(item))
+                                    model_val[index] = item_value
+
                             _read_type, read_delimiter = \
                                 alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(
                                     attribute_info, existing_wlst_value)
@@ -539,6 +542,9 @@ class Aliases(object):
                             wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value,
                                                                                delimiter=MODEL_LIST_DELIMITER)
                     else:
+                        if uses_path_tokens:
+                            model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
+
                         wlst_attribute_value = alias_utils.convert_to_type(data_type, model_attribute_value,
                                                                            delimiter=MODEL_LIST_DELIMITER)
 

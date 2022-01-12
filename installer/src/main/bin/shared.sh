@@ -19,7 +19,7 @@ javaSetup() {
     minJdkVersion=$1
 
     if [ -z "${JAVA_HOME}" ]; then
-      echo "Please set the JAVA_HOME environment variable to point to a Java $minJdkVersion installation" >&2
+      echo "Please set the JAVA_HOME environment variable to point to a Java $minJdkVersion (or higher) installation" >&2
       exit 2
     elif [ ! -d "${JAVA_HOME}" ]; then
       echo "Your JAVA_HOME environment variable to points to a non-existent directory: ${JAVA_HOME}" >&2

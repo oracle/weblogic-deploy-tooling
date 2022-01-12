@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 import os
@@ -199,8 +199,8 @@ class ModelPreparer:
         credential_caches = self.credential_injector.get_variable_cache()
         for key in credential_caches:
             if variables.is_variable_string(credential_caches[key]):
-                credential_caches[key] = variables._substitute(credential_caches[key],
-                                                               original_variables, self.model_context)
+                credential_caches[key] = variables.substitute_value(credential_caches[key],
+                                                                    original_variables, self.model_context)
 
     def _apply_filter_and_inject_variable(self, model_dict, model_context):
         """

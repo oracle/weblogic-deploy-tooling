@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -116,7 +116,8 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
     """
     retval = False
     if expected_data_type == 'string':
-        retval = (actual_data_type in ["<type 'str'>", "<type 'long'>", "<type 'float'>", "<type 'unicode'>"])
+        retval = (actual_data_type in ["<type 'str'>", "<type 'int'>", "<type 'long'>", "<type 'float'>",
+                                       "<type 'unicode'>"])
     elif expected_data_type == 'integer':
         retval = (actual_data_type in ["<type 'int'>", "<type 'long'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type == 'long':

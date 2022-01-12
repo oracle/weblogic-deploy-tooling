@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the discoverDomain tool.
@@ -433,11 +433,6 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
 
     # target config always present in model context, default config if not declared
     target_configuration = model_context.get_target_configuration()
-
-    # if target config declared, use the validation method it contains (lax, etc.)
-    if model_context.is_targetted_config():
-        validation_method = target_configuration.get_validation_method()
-        model_context.set_validation_method(validation_method)
 
     credential_cache = None
     if credential_injector is not None:

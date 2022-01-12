@@ -94,7 +94,11 @@ public class RCURunner {
 
         this.oracleHome = validateExistingDirectory(oracleHome, "ORACLE_HOME");
         this.javaHome = validateExistingDirectory(javaHome, "JAVA_HOME");
-        this.rcuDb = validateNonEmptyString(rcuDb, "rcu_db");
+
+        // The rcu_db string could be in the long format so quote the argument to prevent the shell
+        // from trying to interpret the parens...
+        //
+        this.rcuDb = quoteStringForCommandLine(rcuDb, "rcu_db");
         this.rcuPrefix = validateNonEmptyString(rcuPrefix, "rcu_prefix");
         this.rcuSchemas = validateNonEmptyListOfStrings(rcuSchemas, "rcu_schema_list");
         this.rcuVariables = rcuVariables;
@@ -381,6 +385,11 @@ public class RCURunner {
         }
         LOGGER.exiting(CLASS, METHOD, result);
         return result;
+    }
+
+    private static String quoteStringForCommandLine(String text, String textTypeName) throws CreateException {
+        String result = validateNonEmptyString(text, textTypeName);
+        return StringUtils.quoteString(result);
     }
 
     private static String validateNonEmptyString(String text, String textTypeName) throws CreateException {
