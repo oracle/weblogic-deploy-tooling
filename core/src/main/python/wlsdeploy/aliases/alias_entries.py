@@ -110,6 +110,7 @@ class AliasEntries(object):
         'VirtualHost',
         'VirtualTarget',
         'WSReliableDeliveryPolicy',
+        'WebserviceSecurity',
         'XMLEntityCache',
         'XMLRegistry'
     ]
@@ -644,13 +645,13 @@ class AliasEntries(object):
         :raises AliasException: if an error occurs
         """
         _method_name = 'get_wlst_mbean_type_for_location'
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
 
         # some callers use this method to check for location valid.
         # they should call is_model_location_valid(location) directly instead.
         if not self.is_model_location_valid(location):
             return None
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
         if folder_dict is None:
             wlst_type = None
