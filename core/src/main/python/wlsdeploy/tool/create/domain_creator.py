@@ -90,6 +90,7 @@ from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.targeting_types import TargetingType
+from wlsdeploy.tool.util.topology_profiles import TopologyProfile
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
@@ -508,6 +509,12 @@ class DomainCreator(Creator):
         _method_name = '__create_base_domain_with_select_template'
 
         self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
+
+        topology_profile = self._domain_typedef.get_topology_profile()
+        if topology_profile in TopologyProfile:
+            self.logger.info('WLSDPLY-12569', topology_profile, class_name=self.__class_name, method_name=_method_name)
+            self.wlst_helper.set_topology_profile(topology_profile)
+
         base_template = self._domain_typedef.get_base_template()
         self.logger.info('WLSDPLY-12210', base_template,
                          class_name=self.__class_name, method_name=_method_name)

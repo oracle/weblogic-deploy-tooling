@@ -13,6 +13,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targeting_types import TargetingType
+from wlsdeploy.tool.util.topology_profiles import TopologyProfile
 from wlsdeploy.util import path_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -81,6 +82,8 @@ class DomainTypedef(object):
         else:
             self._system_elements = {}
 
+        self._topology_profile = self._resolve_topology_profile()
+
         return
 
     def set_model_context(self, model_context):
@@ -100,6 +103,13 @@ class DomainTypedef(object):
         :return: the name of the domain type
         """
         return self._domain_type
+
+    def get_topology_profile(self):
+        """
+        Get the topology profile for the domain type, if any.
+        :return: the topology profile or None if no topology profile is specified
+        """
+        return self._topology_profile
 
     def has_jrf_resources(self):
         """
@@ -474,3 +484,31 @@ class DomainTypedef(object):
             raise ex
 
         return TargetingType[targeting_text]
+
+    def _resolve_topology_profile(self):
+        """
+        Determine the topology profile based on the value in the typedef file.
+
+        :return: the matching topology profile enum value
+        :raises: ClaException: if there are problems or incompatibilities
+        """
+        _method_name = '_resolve_topology_profile'
+
+        if 'topologyProfile' not in self._domain_typedefs_dict:
+            return None
+        topology_profile = self._domain_typedefs_dict['topologyProfile'];
+
+        # there are no valid topology profiles for versions 12.1.x and below
+        if not self.wls_helper.is_topology_profile_supported():
+            ex = exception_helper.create_cla_exception('WLSDPLY-12314', topology_profile, self._domain_typedef_filename,
+                                                       self.wls_helper.get_weblogic_version())
+            self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        # if specified, toppology profile must be one of the known types
+        if topology_profile not in TopologyProfile:
+            ex = exception_helper.create_cla_exception('WLSDPLY-12315', topology_profile, self._domain_typedef_filename)
+            self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        return topology_profile
