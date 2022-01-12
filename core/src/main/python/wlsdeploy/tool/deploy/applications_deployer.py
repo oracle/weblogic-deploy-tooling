@@ -84,11 +84,9 @@ class ApplicationsDeployer(Deployer):
         root_path = self.aliases.get_wlst_subfolders_path(self._base_location)
         shared_library_location = LocationContext(self._base_location).append_location(LIBRARY)
         shared_library_token = self.aliases.get_name_token(shared_library_location)
-        existing_shared_libraries = deployer_utils.get_existing_object_list(shared_library_location, self.aliases)
 
         for shared_library_name in shared_libraries:
-            self.logger.info('WLSDPLY-09608', LIBRARY, shared_library_name, self._parent_type, self._parent_name,
-                             class_name=self._class_name, method_name=_method_name)
+            existing_shared_libraries = deployer_utils.get_existing_object_list(shared_library_location, self.aliases)
 
             if model_helper.is_delete_name(shared_library_name):
                 if self.__verify_delete_versioned_app(shared_library_name, existing_shared_libraries, type='lib'):
@@ -97,6 +95,9 @@ class ApplicationsDeployer(Deployer):
                     existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
                     deployer_utils.delete_named_element(location, shared_library_name, existing_names, self.aliases)
                 continue
+            else:
+                self.logger.info('WLSDPLY-09608', LIBRARY, shared_library_name, self._parent_type, self._parent_name,
+                                 class_name=self._class_name, method_name=_method_name)
 
             #
             # In WLST offline mode, the shared library name must match the fully qualified name, including
