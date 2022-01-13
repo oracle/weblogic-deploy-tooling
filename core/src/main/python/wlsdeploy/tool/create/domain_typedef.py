@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -31,7 +31,7 @@ class DomainTypedef(object):
 
     __domain_typedef_extension = '.json'
 
-    JRF_TEMPLATE_REGEX = "^(.*jrf_template[0-9._]*\\.jar)|(Oracle JRF WebServices Asynchronous services)$"
+    JRF_TEMPLATE_REGEX = "^(.*jrf_template[0-9._]*\\.jar)|^(Oracle JRF)$"
     RESTRICTED_JRF_TEMPLATE_REGEX = "^(Oracle Restricted JRF)$"
     JRF_SERVER_GROUP = 'JRF-MAN-SVR'
 
