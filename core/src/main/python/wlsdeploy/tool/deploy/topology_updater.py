@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -96,8 +96,9 @@ class TopologyUpdater(Deployer):
         self._process_section(self._topology, folder_list, ADMIN_CONSOLE, location)
         self._process_section(self._topology, folder_list, CDI_CONTAINER, location)
 
-        # these deletions were intentionally skipped when these elements are first created.
-        self._topology_helper.remove_deleted_clusters_and_servers(location, self._topology)
+        # this second pass will re-establish any attributes that were changed by templates,
+        # and process deletes and re-adds of named elements in the model order.
+        self.update_machines_clusters_and_servers()
         folder_list.remove(CLUSTER)
         folder_list.remove(SERVER)
         if SERVER_TEMPLATE in folder_list:

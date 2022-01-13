@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from javax.management import ObjectName
@@ -16,6 +16,7 @@ from wlsdeploy.aliases.model_constants import COHERENCE_CLUSTER_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import CONTEXT_REQUEST_CLASS
 from wlsdeploy.aliases.model_constants import DISTRIBUTED_QUEUE
 from wlsdeploy.aliases.model_constants import DISTRIBUTED_TOPIC
+from wlsdeploy.aliases.model_constants import ENABLED
 from wlsdeploy.aliases.model_constants import FAIR_SHARE_REQUEST_CLASS
 from wlsdeploy.aliases.model_constants import FILE_STORE
 from wlsdeploy.aliases.model_constants import HEAP_DUMP_ACTION
@@ -655,6 +656,24 @@ class AttributeSetter(object):
         result = alias_utils.convert_to_type(BOOLEAN, value)
         result = result == 'true'
         self.set_attribute(location, key, result, wlst_merge_value=wlst_value, use_raw_value=True)
+        return
+
+    def set_with_ssl_enabled(self, location, key, value, wlst_value):
+        """
+        Set the specified attribute with SSL enabled in the current location.
+        Restore SSL enabled status value after setting value.
+        Currently, only Server/SSL/ListenPort offline has this requirement.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the new attribute value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if target is not found
+        """
+        wlst_enabled_attribute = self.__aliases.get_wlst_attribute_name(location, ENABLED)
+        was_enabled = self.__wlst_helper.get(wlst_enabled_attribute)
+        self.set_attribute(location, ENABLED, True)
+        self.set_attribute(location, key, value, wlst_merge_value=wlst_value)
+        self.set_attribute(location, ENABLED, was_enabled)
         return
 
     #

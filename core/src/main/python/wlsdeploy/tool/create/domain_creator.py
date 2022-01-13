@@ -70,7 +70,6 @@ from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
-from wlsdeploy.aliases.model_constants import WLS_DEFAULT_AUTHENTICATION
 from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
@@ -640,8 +639,9 @@ class DomainCreator(Creator):
         self.__create_reliable_delivery_policy(location)
         topology_folder_list.remove(WS_RELIABLE_DELIVERY_POLICY)
 
-        # these deletions were intentionally skipped when these elements are first created.
-        self.topology_helper.remove_deleted_clusters_and_servers(location, self._topology)
+        # this second pass will re-establish any attributes that were changed by templates,
+        # and process deletes and re-adds of named elements in the model order.
+        self.__create_machines_clusters_and_servers()
         topology_folder_list.remove(MACHINE)
         topology_folder_list.remove(UNIX_MACHINE)
         topology_folder_list.remove(CLUSTER)
