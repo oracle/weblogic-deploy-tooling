@@ -27,4 +27,7 @@ objectclass: wlsUser
 {{#groups}}
 wlsMemberOf: cn={{{groupMemberOf}}},ou=groups,ou=@realm@,dc=@domain@
 {{/groups}}
+{{#userattr}}
+{{{attribute}}}
+{{/userattr}}
 {{/user}}

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import com.octetstring.vde.util.PasswordEncryptor as PasswordEncryptor
@@ -15,6 +15,7 @@ from wlsdeploy.aliases.model_constants import GROUP
 from wlsdeploy.aliases.model_constants import GROUP_MEMBER_OF
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import USER
+from wlsdeploy.aliases.model_constants import USER_ATTRIBUTES
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets import file_template_helper
@@ -33,6 +34,8 @@ HASH_DESCRIPTION = 'description'
 HASH_GROUPS = 'groups'
 HASH_GROUP = 'groupMemberOf'
 HASH_USER_PASSWORD = 'password'
+HASH_ATTRIBUTES = 'userattr'
+HASH_ATTRIBUTE = 'attribute'
 
 
 class DefaultAuthenticatorHelper(object):
@@ -121,6 +124,23 @@ class DefaultAuthenticatorHelper(object):
 
         return hash_entry
 
+    def _user_attributes(self, user_mapping_section, user_attributes):
+        """
+        Build a template hash map from the user attributes found under the
+        user attribute folder in the model.
+        :param user_mapping_section: The security user section from the model
+        :param name: user_attributes model section
+        :return: template
+        """
+        hash_entry = list()
+        if len(user_attributes) == 0:
+           return
+
+        for attribute in user_attributes:
+            hash_entry.append({HASH_ATTRIBUTE: attribute + ': ' + user_attributes[attribute]})
+
+        return hash_entry
+
     def _build_user_mapping_hash(self, user_mapping_section, name):
         """
         Build a template hash map from the security user data from the model.
@@ -148,7 +168,10 @@ class DefaultAuthenticatorHelper(object):
             hash_entry[HASH_GROUPS] = group_mappings
         else:
             hash_entry[HASH_GROUPS] = group_list
-
+        attribute_folder = dictionary_utils.get_element(group_attributes, USER_ATTRIBUTES)
+        dict_hash = self._user_attributes(user_mapping_section, attribute_folder)
+        if len(dict_hash) > 0:
+            hash_entry[HASH_ATTRIBUTES] = dict_hash
         return hash_entry
 
     def _encode_password(self, user, password):
