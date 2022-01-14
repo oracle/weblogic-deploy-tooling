@@ -18,6 +18,8 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 TARGET_CONFIG_TOKEN = '@@TARGET_CONFIG_DIR@@'
 
 __id_filter_map = {
+    'k8s_filter': wko_filter.filter_model,
+    'vz_filter': wko_filter.filter_model,
     'wko_filter': wko_filter.filter_model
 }
 
