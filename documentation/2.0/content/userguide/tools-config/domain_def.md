@@ -142,7 +142,7 @@ weight: 2
 
  If there are any server groups in the custom template that should be targeted to managed servers, they should be specified in the `serverGroupsToTarget` attribute, similar to `MY_MAN_SVR` in the example above.
 
- #### Using Compact Profile
+ #### Using compact profile
 
  The `topologyProfile` field can be used to create a domain using a specific profile for each of the templates. This partial example will apply the compact profile for each of the specified templates.
 ```json
