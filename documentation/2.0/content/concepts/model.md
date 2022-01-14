@@ -252,7 +252,7 @@ This feature can also remove items that were created by WebLogic Server template
     SecurityConfiguration:
         DefaultRealm: newrealm
         Realm:
-            !myrealm:
+            '!myrealm':
             newrealm:
                 AuthenticationProvider:
                 ...
@@ -333,7 +333,7 @@ and Model 2 looks like:
 ```yaml
 topology:
     Server:
-        !m2:
+        '!m2':
 ```
 The resulting model would be:
 ```yaml
@@ -348,7 +348,7 @@ Similarly, an element without delete notation will completely replace an element
 ```yaml
 topology:
     Server:
-        !m1:
+        '!m1':
 ```
 and Model 2 looks like:
 ```yaml
