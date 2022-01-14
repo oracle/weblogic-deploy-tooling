@@ -44,3 +44,22 @@ This example configures two filters for the Create Domain Tool: `fix-password.py
   ]
 }
 ```
+### Internal Filters
+
+Internal filters are provided by WebLogic Deploy Tooling to perform modifications to the domain model. They are referenced by ID in the target configuration file. This example shows use of the internal filter `wko_filter` and a user-defined filter `fix-password` for use with the Create Domain Tool.
+```json
+{
+  "create": [
+    { "name": "fixPassword", "path": "/home/user/fix-password.py" },
+    { "id": "wko_filter" }
+  ]
+}
+```
+Internal filters cannot be copied modified like other types of filters.  
+
+#### Internal filter `wko_filter`
+
+This filter prepares the domain model for use with WebLogic Kubernetes Operator. It performs the following modifications:
+- Remove any attributes that can only be deployed in online mode
+- Set the `CalculatedListenPorts` attribute to false for dynamic clusters
+- Warn if servers in a static cluster have different listen ports
