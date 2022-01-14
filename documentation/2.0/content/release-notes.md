@@ -38,6 +38,6 @@ java.lang.IllegalArgumentException: In production mode, it's not allowed to set 
 
 #### Problems setting `RotateLogOnStartup` attribute
 
-**ISSUE**: For WLS versions up to and including 14.1.2, there is a problem setting the `RotateLogOnStartup` attribute in various log file folders. The value is not persisted correctly, and the assignment will not be present when the domain is started.
+**ISSUE**: For existing WLS versions, there is a problem setting the `RotateLogOnStartup` attribute in various log file folders. The value is not persisted correctly, and the assignment will not be present when the domain is started.
 
 **ACTION**: Contact Oracle Support to obtain the patch for bug number 29547985 for your WebLogic Server version before running the tool.
