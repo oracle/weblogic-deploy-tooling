@@ -142,6 +142,21 @@ weight: 2
 
  If there are any server groups in the custom template that should be targeted to managed servers, they should be specified in the `serverGroupsToTarget` attribute, similar to `MY_MAN_SVR` in the example above.
 
+ #### Using compact profile
+
+ The `topologyProfile` field can be used to create a domain using a specific profile for each of the templates. This partial example will apply the compact profile for each of the specified templates.
+```json
+{
+  "copyright": "Copyright (c) 2022, Oracle Corporation and/or its affiliates.  All rights reserved.",
+  "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+  "name": "JRF-Compact",
+  "description": "JRF type domain with a compact profile definitions",
+  "topologyProfile": "Compact",
+  ...
+}
+```
+ WebLogic Deploy Tooling provides the `JRF-Compact.json` type definition file that can be used to create a JRF domain using the compact profile.
+
  #### Targeting in earlier WebLogic Server versions
 
  Templates in WebLogic Server versions prior to 12.2.1 may require the use of the `applyJRF` WLST command to correctly target resources to the correct clusters and servers. The default behavior for WebLogic Deploy Tooling is to invoke `applyJRF` only when the `extensionTemplates` list includes JRF templates.
