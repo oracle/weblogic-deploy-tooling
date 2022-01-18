@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -100,6 +100,9 @@ class TopologyDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
         model_folder_name, folder_result = self._get_reliable_delivery_policies()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
+        model_folder_name, folder_result = self._get_virtual_hosts()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
         model_folder_name, folder_result = self._get_xml_entity_caches()
@@ -466,6 +469,31 @@ class TopologyDiscoverer(Discoverer):
                 location.add_name_token(name_token, policy)
                 result[policy] = OrderedDict()
                 self._populate_model_parameters(result[policy], location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
+    def _get_virtual_hosts(self):
+        """
+        Discover the virtual hosts that are present in the domain.
+        :return: model name for the folder: dictionary containing the discovered virtual hosts
+        """
+        _method_name = '_get_virtual_hosts'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.VIRTUAL_HOST
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        vhosts = self._find_names_in_folder(location)
+        if vhosts is not None:
+            _logger.info('WLSDPLY-06647', len(vhosts), class_name=_class_name, method_name=_method_name)
+            name_token = self._aliases.get_name_token(location)
+            for vhost in vhosts:
+                _logger.info('WLSDPLY-06648', vhost, class_name=_class_name, method_name=_method_name)
+                location.add_name_token(name_token, vhost)
+                result[vhost] = OrderedDict()
+                self._populate_model_parameters(result[vhost], location)
                 location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
