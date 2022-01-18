@@ -138,7 +138,7 @@ class Discoverer(object):
                     _logger.info('WLSDPLY-06154', wlst_extra_param, location.get_folder_path(),
                                  class_name=_class_name, method_name=_method_name)
                 else:
-                    _logger.info('WLSDPLY-06153', wlst_extra_param, location.get_folder_path(),
+                    _logger.fine('WLSDPLY-06153', wlst_extra_param, location.get_folder_path(),
                                  class_name=_class_name, method_name=_method_name)
 
     def _get_attribute_value_with_get(self, wlst_get_param, wlst_path):
