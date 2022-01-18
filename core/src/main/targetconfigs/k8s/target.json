@@ -2,7 +2,7 @@
   "model_filters" : {
         "discover": [
           { "name": "k8s_prep", "path": "@@TARGET_CONFIG_DIR@@/k8s_operator_filter.py" },
-          { "id": "wko_filter" }
+          { "id": "k8s_filter" }
         ]
       },
   "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},

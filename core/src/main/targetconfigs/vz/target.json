@@ -2,7 +2,7 @@
     "model_filters" : {
         "discover": [
             { "name": "vz_prep", "path": "@@TARGET_CONFIG_DIR@@/vz_filter.py" },
-            { "id": "wko_filter" }
+            { "id": "vz_filter" }
         ]
     },
     "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},

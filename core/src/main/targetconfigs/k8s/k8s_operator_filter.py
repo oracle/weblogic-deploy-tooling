@@ -1,4 +1,4 @@
-# Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+# Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # ------------
@@ -56,15 +56,3 @@ def __cleanup_topology(model):
                 for delthis in ['ServerStart']:
                     if server_templates[server_template].has_key(delthis):
                         del server_templates[server_template][delthis]
-        else:
-            topology['ServerTemplate'] = {}
-            server_templates = topology['ServerTemplate']
-            if topology.has_key('Cluster'):
-                clusters = topology['Cluster']
-                for cluster in clusters:
-                    server_templates[cluster] = {}
-                    server_template = server_templates[cluster]
-                    server_template['Cluster'] = cluster
-                    server_template['AutoMigrationEnabled'] = False
-
-

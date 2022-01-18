@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 from wlsdeploy.aliases.aliases import Aliases
@@ -7,6 +7,7 @@ from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import TOPOLOGY
+from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 _class_name = 'ModelTraverse'
@@ -71,6 +72,9 @@ class ModelTraverse:
             self.traverse_node(model_node, model_location)
 
     def traverse_node(self, model_node, model_location):
+        result, message = self._aliases.is_version_valid_location(model_location)
+        if result == ValidationCodes.VERSION_INVALID:
+            return
         valid_folder_names = self._aliases.get_model_subfolder_names(model_location)
         valid_attribute_names = self._aliases.get_model_attribute_names(model_location)
         self.traverse_node_elements(model_node, model_location, valid_folder_names, valid_attribute_names)
