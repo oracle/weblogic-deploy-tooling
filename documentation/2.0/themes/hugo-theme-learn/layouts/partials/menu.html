@@ -10,10 +10,19 @@
         {{ partial "search.html" . }}
     {{end}}
   </div>
+  {{if not .Site.Params.disableLandingPageButton }}
+    <section id="homelinks">
+      <ul>
+        <li>
+            <a class="padding" href='{{ .Site.BaseURL }}'>{{ safeHTML (cond (ne .Site.Params.landingPageName nil) .Site.Params.landingPageName "<i class='fas fa-home'></i> Home") }}</a>
+        </li>
+      </ul>
+    </section>
+  {{end}}
 
     <div class="highlightable">
     <ul class="topics">
-      <li><a  class="padding" href="{{ .Site.BaseURL }}">Home</a></li>
+
         {{if eq .Site.Params.ordersectionsby "title"}}
           {{range .Site.Home.Sections.ByTitle}}
           {{ template "section-tree-nav" dict "sect" . "currentnode" $currentNode "showvisitedlinks" $showvisitedlinks}}
@@ -23,7 +32,6 @@
           {{ template "section-tree-nav" dict "sect" . "currentnode" $currentNode "showvisitedlinks" $showvisitedlinks}}
           {{end}}
         {{end}}
-      <li><a  class="padding" href="{{ .Site.BaseURL }}/release-notes">Release Notes</a></li>
     </ul>
 
     {{ $disableShortcutsTitle := .Site.Params.DisableShortcutsTitle}}
