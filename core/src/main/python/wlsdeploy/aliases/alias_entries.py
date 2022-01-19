@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -17,6 +17,7 @@ from wlsdeploy.aliases.alias_constants import CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.alias_constants import CONTAINS
 from wlsdeploy.aliases.alias_constants import DEFAULT_NAME_VALUE
+from wlsdeploy.aliases.alias_constants import DEFAULT_VALUE
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
 from wlsdeploy.aliases.alias_constants import FOLDER_ORDER
 from wlsdeploy.aliases.alias_constants import FOLDER_PARAMS
@@ -26,6 +27,7 @@ from wlsdeploy.aliases.alias_constants import GET_METHOD
 from wlsdeploy.aliases.alias_constants import MODEL_NAME
 from wlsdeploy.aliases.alias_constants import NAME_VALUE
 from wlsdeploy.aliases.alias_constants import NONE_CHILD_FOLDERS_TYPE
+from wlsdeploy.aliases.alias_constants import NULL_VALUE_KEY
 from wlsdeploy.aliases.alias_constants import PATH_TOKEN
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
@@ -890,7 +892,7 @@ class AliasEntries(object):
     def get_folders_in_order_for_location(self, location):
         """
         Find the folders that are ordered (greater than zero) at the specified location and
-        return the list in order of the 
+        return the list in ascending order
         :param location:
         :return:
         """
@@ -1467,6 +1469,9 @@ class AliasEntries(object):
                 result[key] = self.__resolve_attribute(attr)
             else:
                 result[key] = self._resolve_curly_braces(attr)
+                # resolve null key in curly brace values, such as "${__NULL__,Online}"
+                if key == DEFAULT_VALUE and result[key] == NULL_VALUE_KEY:
+                    result[key] = None
 
         for key in [GET_METHOD, SET_METHOD, GET_MBEAN_TYPE, SET_MBEAN_TYPE]:
             if key in result and len(result[key]) == 0:

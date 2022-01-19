@@ -16,7 +16,7 @@ from wlsdeploy.aliases.alias_constants import ALIAS_LIST_TYPES
 from wlsdeploy.aliases.alias_constants import ALIAS_MAP_TYPES
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
-from wlsdeploy.aliases.alias_constants import DEFAULT
+from wlsdeploy.aliases.alias_constants import DEFAULT_VALUE
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
 from wlsdeploy.aliases.alias_constants import FOLDERS
 from wlsdeploy.aliases.alias_constants import GET
@@ -38,7 +38,6 @@ from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import STRING
 from wlsdeploy.aliases.alias_constants import USES_PATH_TOKENS
-from wlsdeploy.aliases.alias_constants import VALUE
 from wlsdeploy.aliases.alias_constants import WLST_NAME
 from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
@@ -990,20 +989,21 @@ class Aliases(object):
                                                                     delimiter=delimiter)
 
                 model_attribute_name = attribute_info[MODEL_NAME]
-                default_value = attribute_info[VALUE][DEFAULT]
+                default_value = attribute_info[DEFAULT_VALUE]
 
                 #
                 # The logic below to compare the str() representation of the converted value and the default value
                 # only works for lists/maps if both the converted value and the default value are the same data type...
                 #
                 if (model_type in ALIAS_LIST_TYPES or model_type in ALIAS_MAP_TYPES) \
-                        and not (default_value == '[]' or default_value == 'None'):
+                        and not (default_value == '[]' or default_value is None):
                     # always the model delimiter
                     default_value = alias_utils.convert_to_type(model_type, default_value,
                                                                 delimiter=MODEL_LIST_DELIMITER)
 
                 if attribute_info[WLST_TYPE] == STRING:
-                    default_value = alias_utils.replace_tokens_in_path(location, default_value)
+                    if default_value:
+                        default_value = alias_utils.replace_tokens_in_path(location, default_value)
 
                 if model_type == 'password':
                     if string_utils.is_empty(wlst_attribute_value) or converted_value == default_value:
@@ -1021,7 +1021,7 @@ class Aliases(object):
 
                 elif (model_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES) and \
                         (converted_value is None or len(converted_value) == 0):
-                    if default_value == '[]' or default_value == 'None':
+                    if default_value == '[]' or default_value is None:
                         model_attribute_value = None
 
                 elif self._model_context is not None and USES_PATH_TOKENS in attribute_info:
@@ -1031,6 +1031,10 @@ class Aliases(object):
                         model_attribute_value = self._model_context.tokenize_classpath(converted_value)
                     if model_attribute_value == default_value:
                         model_attribute_value = None
+
+                elif default_value is None:
+                    model_attribute_value = converted_value
+
                 elif str(converted_value) != str(default_value):
                     if _strings_are_empty(converted_value, default_value):
                         model_attribute_value = None
@@ -1199,15 +1203,12 @@ class Aliases(object):
             default_value = None
             attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
             if attribute_info is not None:
-                default_value = attribute_info[VALUE][DEFAULT]
-                if default_value == 'None':
-                    default_value = None
-                else:
-                    data_type, delimiter = \
-                        alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(
-                            attribute_info, default_value)
+                default_value = attribute_info[DEFAULT_VALUE]
+                data_type, delimiter = \
+                    alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(
+                        attribute_info, default_value)
 
-                    default_value = alias_utils.convert_to_type(data_type, default_value, delimiter=delimiter)
+                default_value = alias_utils.convert_to_type(data_type, default_value, delimiter=delimiter)
             self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=default_value)
             return default_value
         except AliasException, ae:
