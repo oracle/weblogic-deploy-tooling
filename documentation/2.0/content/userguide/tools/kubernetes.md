@@ -58,21 +58,20 @@ kubernetes:
     spec:
         image: 'my.repo/my-image:2.0'
         imagePullSecrets:
-            WEBLOGIC_IMAGE_PULL_SECRET_NAME:
+            -   name: WEBLOGIC_IMAGE_PULL_SECRET_NAME
         webLogicCredentialsSecret:
             name: '@@PROP:mySecret@@'
         configuration:
             model:
                 domainType: 'WLS'
-            secrets: [
-              'secret1',
-              'secret2'
-            ]
+            secrets:
+                -   secret1
+                -   secret2
         serverPod:
             env:
-                USER_MEM_ARGS:
+                -   name: USER_MEM_ARGS
                     value: '-XX:+UseContainerSupport -Djava.security.egd=file:/dev/./urandom'
-                JAVA_OPTIONS:
+                -   name: JAVA_OPTIONS
                     value: '-Dmydir=/home/me'
 ```
 This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the `kubernetes` section of the model. More details about using model variables can be found [here]({{< relref "/concepts/model#simple-example" >}}).
@@ -109,8 +108,6 @@ spec:
     -   clusterName: mycluster3
         replicas: 4
 ```
-
-The syntax of the `spec/serverPod/env` and other list sections in the WDT model are different from the syntax in the target file. The WDT tools do not recognize the hyphenated list syntax, so these elements are specified in a similar manner to other model lists.
 
 If clusters are specified in the `kubernetes/spec` section of the model, those clusters will be configured in the domain resource file, and clusters from the `topology` section will be disregarded.
 
