@@ -33,21 +33,24 @@ This may require some changes to existing models in order to be parsed correctly
 
 - Object lists in the `kubernetes` section of the model now should be specified in a hyphenated list format,
 similar to how they appear in the domain resource file produced for [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/domain-resource/).
-```yaml
-    clusters:
-    - clusterName: 'cluster1'
-      allowReplicasBelowMinDynClusterSize: true
-    - clusterName: 'cluster2'
-      allowReplicasBelowMinDynClusterSize: true
-```
-- The "named object list" format is deprecated now, and will cause warning messages to be displayed.
-```yaml
-    clusters:
-      'cluster1':
-        allowReplicasBelowMinDynClusterSize: true
-      'cluster2':
-        allowReplicasBelowMinDynClusterSize: true
-```
+
+   ```yaml
+       clusters:
+       - clusterName: 'cluster1'
+         allowReplicasBelowMinDynClusterSize: true
+       - clusterName: 'cluster2'
+         allowReplicasBelowMinDynClusterSize: true
+   ```
+
+   - The "named object list" format is deprecated now, and will cause warning messages to be displayed.
+   ```yaml
+       clusters:
+         'cluster1':
+           allowReplicasBelowMinDynClusterSize: true
+         'cluster2':
+           allowReplicasBelowMinDynClusterSize: true
+   ```
+
 
 - The deprecated argument `-model_sample` has been removed from the Model Help Tool.
 The Model Help Tool has used model sample format by default since release 1.9.2.
