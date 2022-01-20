@@ -953,11 +953,6 @@ class DomainCreator(Creator):
         rcu_database, error = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
                                                          rcu_db_info.get_atp_entry())
 
-        if rcu_database is None:
-            ex = exception_helper.create_create_exception('WLSDPLY-12571', error)
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
         keystore_pwd = rcu_db_info.get_keystore_password()
         truststore_pwd = rcu_db_info.get_truststore_password()
 
