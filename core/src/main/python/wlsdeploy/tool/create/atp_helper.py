@@ -6,7 +6,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import re
 from xml.dom.minidom import parse
-
+from wlsdeploy.exception import exception_helper
 
 def set_ssl_properties(xmlDoc, atp_creds_path, keystore_password, truststore_password):
     '''
@@ -63,7 +63,6 @@ def fix_jps_config(rcu_db_info, model_context):
 
 
 def get_atp_connect_string(tnsnames_ora_path, tns_sid_name):
-
     try:
         f = open(tnsnames_ora_path, "r+")
         try:
@@ -76,17 +75,21 @@ def get_atp_connect_string(tnsnames_ora_path, tns_sid_name):
         pattern = tns_sid_name + '\s*=\s*([(].*\n.*)'
         match = re.search(pattern, text)
         if match:
-            str = match.group(1)
-            tnsConnectString=str.replace('\r','').replace('\n','')
-            str = format_connect_string(tnsConnectString)
-            return str
-    except:
-        pass
+            connect_string = match.group(1)
+            tnsConnectString = connect_string.replace('\r','').replace('\n','')
+            connect_string = cleanup_connect_string(tnsConnectString)
+            return connect_string, None
+        else:
+            ex = exception_helper.create_create_exception("WLSDPLY-12563", tns_sid_name)
+            return None, ex
+    except IOError, ioe:
+        ex = exception_helper.create_create_exception("WLSDPLY-12570", str(ioe))
+        return None, ex
+    except Exception, ex:
+        ex = exception_helper.create_create_exception("WLSDPLY-12570", str(ex))
+        return None, ex
 
-    return None
-
-
-def format_connect_string(connect_string):
+def cleanup_connect_string(connect_string):
     """
     Formats connect string for ATP DB by removing unwanted whitespaces.
     Input:
@@ -109,5 +112,5 @@ def format_connect_string(connect_string):
         part3 = match.group(3)
         part4 = match.group(4).replace(' ', '')
         connect_string = "%s%s%s%s" % (part1, part2, part3, part4)
-
+    # if no match then return original one
     return connect_string
