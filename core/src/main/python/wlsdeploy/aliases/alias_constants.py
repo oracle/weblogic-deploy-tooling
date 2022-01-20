@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 These constants are internal to the aliases module and should not be used, as they are not part of the public API.
@@ -10,8 +10,8 @@ ACCESS = 'access'
 ATTRIBUTES = 'attributes'
 CHILD_FOLDERS_TYPE = 'child_folders_type'
 CONTAINS = 'contains'
-DEFAULT = 'default'
 DEFAULT_NAME_VALUE = 'default_name_value'
+DEFAULT_VALUE = 'default_value'
 FLATTENED_FOLDER_DATA = 'flattened_folder_data'
 FOLDERS = 'folders'
 FOLDER_ORDER = 'folder_order'
@@ -31,7 +31,6 @@ SHORT_NAME = 'short_name'
 UNRESOLVED_ATTRIBUTES_MAP = '__unresolved_attributes__'
 UNRESOLVED_FOLDERS_MAP = '__unresolved_folders__'
 USES_PATH_TOKENS = 'uses_path_tokens'
-VALUE = 'value'
 # VERSION is used for folder versioning
 VERSION = 'version'
 # VERSION_RAGE is used for attribute versioning
@@ -69,6 +68,9 @@ MBEAN = 'MBEAN'
 RO = 'RO'           # Read only
 ROD = 'ROD'         # Read only but discover
 RW = 'RW'           # Default Read WRITE
+
+# used when DEFAULT_VALUE has curly-brace value that resolves to null
+NULL_VALUE_KEY = '__NULL__'
 
 # attribute wlst_type values
 BOOLEAN = 'boolean'
