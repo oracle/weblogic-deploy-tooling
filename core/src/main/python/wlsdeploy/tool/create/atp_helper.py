@@ -8,6 +8,10 @@ import re
 from xml.dom.minidom import parse
 from wlsdeploy.exception import exception_helper
 
+from wlsdeploy.logging.platform_logger import PlatformLogger
+
+_logger = PlatformLogger('wlsdeploy.create')
+
 def set_ssl_properties(xmlDoc, atp_creds_path, keystore_password, truststore_password):
     '''
     Add SSL config properties to the specified XML document.
@@ -81,13 +85,16 @@ def get_atp_connect_string(tnsnames_ora_path, tns_sid_name):
             return connect_string, None
         else:
             ex = exception_helper.create_create_exception("WLSDPLY-12563", tns_sid_name)
-            return None, ex
+            _logger.throwing(ex, class_name='atp_helper', method_name='get_atp_connect_string')
+            raise ex
     except IOError, ioe:
         ex = exception_helper.create_create_exception("WLSDPLY-12570", str(ioe))
-        return None, ex
+        _logger.throwing(ex, class_name='atp_helper', method_name='get_atp_connect_string')
+        raise ex
     except Exception, ex:
         ex = exception_helper.create_create_exception("WLSDPLY-12570", str(ex))
-        return None, ex
+        _logger.throwing(ex, class_name='atp_helper', method_name='get_atp_connect_string')
+        raise ex
 
 def cleanup_connect_string(connect_string):
     """
