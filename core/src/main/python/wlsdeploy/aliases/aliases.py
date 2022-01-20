@@ -511,7 +511,7 @@ class Aliases(object):
                             model_val = alias_utils.convert_to_type(LIST, model_attribute_value,
                                                                     delimiter=MODEL_LIST_DELIMITER)
 
-                            if uses_path_tokens:
+                            if uses_path_tokens and model_val is not None:
                                 for index, item in enumerate(model_val):
                                     item_value = self._model_context.replace_token_string(str(item))
                                     model_val[index] = item_value
