@@ -117,6 +117,13 @@ class WebLogicHelper(object):
         """
         return self.is_weblogic_version_or_above('12.2.1.4')
 
+    def is_topology_profile_supported(self):
+        """
+        Is topology profile supported in domain extension templates?
+        :return: true if version is within the range supporting topology profiles, false otherwise
+        """
+        return self.is_weblogic_version_or_above('12.2.1')
+
     def get_jdbc_url_from_rcu_connect_string(self, rcu_connect_string):
         """
         Get the JDBC URL from the RCU connect string.

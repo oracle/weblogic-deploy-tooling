@@ -39,6 +39,7 @@ The model allows for the definition of a set of users and groups that will be lo
 
 The user password can be specified with a placeholder or encrypted with the [Encrypt Tool]({{< relref "/userguide/tools/encrypt.md" >}}). An example `Security` section that adds an additional group `AppMonitors`, adds two new users and places the users into groups is as follows:
 
+You can add user attributes that are defined for the DefaultAuthenticator. This is a limited set of attributes that go under a separate folder `UserAttribute` in the model under the `User` section.
 ```yaml
 topology:
   Security:
@@ -52,6 +53,8 @@ topology:
       joe:
          Password: welcome1
          GroupMemberOf: [ AppMonitors ]
+         UserAttribute:
+             mail: joe@mycompany.com
 ```
 
 #### Known limitations

@@ -31,7 +31,7 @@ A target environment is configured in a JSON file at this location:
 $WLSDEPLOY_HOME/lib/target/<target-name>/target.json
 ```
 The `<target-name>` value corresponds to the value of the `-target` argument on the tool's command line. The WLS installation includes three pre-defined targets:
- - [Weblogic Kubernetes Operator](#the-weblogic-kubernetes-operator-target) (named `wko`)
+ - [WebLogic Kubernetes Operator](#the-weblogic-kubernetes-operator-target) (named `wko`)
  - [Verrazzano](#the-verrazzano-target) (named `vz`)
  - [Kubernetes](#generic-kubernetes-target) (named `k8s`)
 
@@ -42,7 +42,8 @@ Here is an example of a target environment file:
 {
     "model_filters" : {
         "discover": [
-            { "name": "vz_prep", "path": "@@TARGET_CONFIG_DIR@@/vz_filter.py" }
+            { "name": "vz_prep", "path": "@@TARGET_CONFIG_DIR@@/vz_filter.py" },
+            { "id": "wko_filter" }
         ]
     },
     "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},

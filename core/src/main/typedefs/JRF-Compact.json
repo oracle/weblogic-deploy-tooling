@@ -1,0 +1,161 @@
+{
+    "copyright": "Copyright (c) 2022, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "name": "JRF-Compact",
+    "description": "JRF type domain with a compact profile definitions",
+    "topologyProfile": "Compact",
+    "versions": {
+        "10.3.6":   "NOT_SUPPORTED",
+        "12.1.2":   "NOT_SUPPORTED",
+        "12.1.3":   "NOT_SUPPORTED",
+        "12.2.1":   "JRF_12CR2_FIRST",
+        "12.2.1.1": "JRF_12CR2",
+        "12.2.1.3": "JRF_12CR2",
+        "12.2.1.4": "JRF_12CR2_LAST",
+        "12.2.1.5": "JRF_12CR2_LAST",
+        "14.1":     "NOT_SUPPORTED"
+    },
+    "definitions": {
+        "JRF_12CR2_FIRST": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [
+                "Oracle JRF",
+                "Oracle JRF WebServices Asynchronous services",
+                "Oracle WSM Policy Manager",
+                "Oracle Enterprise Manager"
+            ],
+            "customExtensionTemplates": [ ],
+            "serverGroupsToTarget": [ ],
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB" ]
+        },
+        "JRF_12CR2": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [
+                "Oracle JRF",
+                "Oracle JRF WebServices Asynchronous services",
+                "Oracle WSM Policy Manager",
+                "Oracle Enterprise Manager"
+            ],
+            "customExtensionTemplates": [ ],
+            "serverGroupsToTarget": [ ],
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB" ]
+        },
+        "JRF_12CR2_LAST": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [
+                "Oracle JRF",
+                "Oracle JRF WebServices Asynchronous services",
+                "Oracle WSM Policy Manager",
+                "Oracle Enterprise Manager"
+            ],
+            "customExtensionTemplates": [ ],
+            "serverGroupsToTarget": [ ],
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB" ]
+        }
+    },
+    "system-elements": {
+        "apps": [
+            "^coherence-transaction-rar$",
+            "^DMS Application.*",
+            "^em$",
+            "^FMW Welcome Page Application.*",
+            "^opss-rest$",
+            "^state-management-provider-memory-rar.*",
+            "^wsil-wls.*",
+            "^wsm-pm$"
+        ],
+        "coherence-clusters": [
+            "^defaultCoherenceCluster$"
+        ],
+        "datasources": [
+            ".*LocalSvcTblDataSource$",
+            ".*mds-owsm$",
+            ".*opss-audit-DBDS$",
+            ".*opss-audit-viewDS$",
+            ".*opss-data-source$",
+            ".*opss-ds$",
+            ".*WLSSchemaDataSource$"
+        ],
+        "file-stores": [
+            "^JRFWSAsyncFileStore$",
+            "^mds-owsm$"
+        ],
+        "jms": [
+            "^JRFWSAsyncJmsModule$"
+        ],
+        "jms-servers": [
+            "^JRFWSAsyncJmsServer$"
+        ],
+        "shared-libraries": [
+            "^adf\\.oracle\\.businesseditor.*",
+            "^adf\\.oracle\\.domain.*",
+            "^adf\\.oracle\\.domain\\.webapp.*",
+            "^em_common.*",
+            "^em_core_ppc_pojo_jar$",
+            "^em_error.*",
+            "^em_sdkcore_ppc_public_pojo_jar$",
+            "^emagentsdk_jar.*",
+            "^emagentsdkimpl_jar.*",
+            "^emagentsdkimplpriv_jar.*",
+            "^emas$",
+            "^emcore$",
+            "^emcore_jar$",
+            "^emcoreclient_jar$",
+            "^emcorecommon_jar$",
+            "^emcoreconsole_jar$",
+            "^emcoreintsdk_jar.*",
+            "^emcorepbs_jar$",
+            "^emcoresdk_jar.*",
+            "^emcoresdkimpl_jar.*",
+            "^jsf.*",
+            "^jstl.*",
+            "^log4j_jar.*",
+            "^odl\\.clickhistory.*",
+            "^odl\\.clickhistory\\.webapp.*",
+            "^ohw-rcf.*",
+            "^ohw-uix.*",
+            "^oracle\\.adf\\.dconfigbeans.*",
+            "^oracle\\.adf\\.desktopintegration.*",
+            "^oracle\\.adf\\.desktopintegration\\.model.*",
+            "^oracle\\.adf\\.management.*",
+            "^oracle\\.bi\\.adf\\.model\\.slib.*",
+            "^oracle\\.bi\\.adf\\.view\\.slib.*",
+            "^oracle\\.bi\\.adf\\.webcenter\\.slib.*",
+            "^oracle\\.bi\\.composer.*",
+            "^oracle\\.bi\\.jbips.*",
+            "^oracle\\.dconfig-infra.*",
+            "^oracle\\.jrf\\.system\\.filter$",
+            "^oracle\\.jsp\\.next.*",
+            "^oracle\\.pwdgen.*",
+            "^oracle\\.sdp\\.client.*",
+            "^oracle\\.sdp\\.messaging.*",
+            "^oracle\\.webcenter\\.composer.*",
+            "^oracle\\.webcenter\\.skin.*",
+            "^oracle\\.wsm\\.console.*",
+            "^oracle\\.wsm\\.idmrest.*",
+            "^oracle\\.wsm\\.seedpolicies.*",
+            "^orai18n-adf.*",
+            "^owasp\\.esapi.*",
+            "^UIX.*"
+        ],
+        "shutdown-classes": [
+            "^DMSShutdown$",
+            "^JOC-Shutdown$"
+        ],
+        "startup-classes": [
+            "^JMX Framework Startup Class$",
+            "^JOC-Startup$",
+            "^JPS Startup Class$",
+            "^JPS Startup Post-Activation Class$",
+            "^WSM Startup Class$",
+            "^Web Services Startup Class$",
+            "^JRF Startup Class$",
+            "^ODL-Startup$",
+            "^DMS-Startup$",
+            "^AWT Application Context Startup Class$"
+        ],
+        "wldf": [
+            "^Module-FMWDFW$"
+        ]
+    }
+}

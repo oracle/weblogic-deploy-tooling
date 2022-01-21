@@ -23,7 +23,7 @@ No elements in the `domainInfo` section of the model are represented in the alia
 
 This example, from the file `JDBCSystemResource.json`, will be used as a reference in the descriptions below:
 
-```yaml
+```json
 {
     "copyright": "Copyright (c) 2017, 2018, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
@@ -41,14 +41,14 @@ This example, from the file `JDBCSystemResource.json`, will be used as a referen
                                                  "wlst_mode": "both",
                                                  "wlst_name": "CapacityIncrement",
                                                  "wlst_path": "WP001",
-                                                 "value": {"default": "${None:1}"},
+                                                 "default_value": "${__NULL__:1}",
                                                  "wlst_type": "integer",
                                                  "get_method": "LSA"} ],
                         "ConnectionCreationRetryFrequencySeconds": [ {"version": "[10,)",
                                                                      "wlst_mode": "both",
                                                                      "wlst_name": "ConnectionCreationRetryFrequencySeconds",
                                                                      "wlst_path": "WP001",
-                                                                     "value": {"default": "${None:0}"},
+                                                                     "default_value": "${__NULL__:0}",
                                                                      "wlst_type": "integer",
                                                                      "get_method": "LSA"} ]
                     },
@@ -145,11 +145,19 @@ This key element specifies the preferred data type that should be used to put da
 
 This key element specifies the name of the path expression used for navigating to the MBean attribute's folder. This name maps to an entry in the parent folder's `"wlst_paths": { }` list.
 
-#### `value`
+#### `default_value`
 
-This key element is used to specify the default value of the MBean attribute. For example:
+This key element specifies the default value of the MBean attribute. For example:
 
-`"value": {"default": "${None:1}"}`
+`"default_value": "text"`
+
+`"default_value": 99`
+
+`"default_value": null`
+
+`"default_value": "${__NULL__:1}"`
+
+The `__NULL__` key represents a `null` value when `"${a:b}"` notation is used to specify offline and online values.
 
 #### `set_method`
 

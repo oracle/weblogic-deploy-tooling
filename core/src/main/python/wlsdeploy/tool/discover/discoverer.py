@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -98,6 +98,7 @@ class Discoverer(object):
             return
 
         wlst_lsa_params = self._get_attributes_for_current_location(location)
+        wlst_did_get = list()
         _logger.finest('WLSDPLY-06102', self._wlst_helper.get_pwd(), wlst_lsa_params, class_name=_class_name,
                        method_name=_method_name)
         wlst_get_params = self._get_required_attributes(location)
@@ -107,6 +108,7 @@ class Discoverer(object):
             for wlst_lsa_param in wlst_lsa_params:
                 if wlst_lsa_param in wlst_get_params:
                     success, wlst_value = self._get_attribute_value_with_get(wlst_lsa_param, wlst_path)
+                    wlst_did_get.append(wlst_lsa_param)
                     if not success:
                         continue
                 else:
@@ -121,25 +123,13 @@ class Discoverer(object):
 
                 self._add_to_dictionary(dictionary, location, wlst_lsa_param, wlst_value, wlst_path)
 
-        # These will come after the lsa / get params in the ordered dictionary
-        wlst_extra_params = self._get_additional_parameters(location)
-        _logger.finest('WLSDPLY-06149', str(location), wlst_extra_params,
-                       class_name=_class_name, method_name=_method_name)
-        if wlst_extra_params is not None:
-            for wlst_extra_param in wlst_extra_params:
-                if wlst_extra_param in wlst_get_params:
-                    success, wlst_value = self._get_attribute_value_with_get(wlst_extra_param, wlst_path)
-                    if success:
-                        self._add_to_dictionary(dictionary, location, wlst_extra_param, wlst_value, wlst_path)
-                    else:
-                        _logger.info('WLSDPLY-06152', wlst_extra_param, location.get_folder_path(),
-                                     class_name=_class_name, method_name=_method_name)
-                elif self._is_defined_attribute(location, wlst_extra_param):
-                    _logger.info('WLSDPLY-06154', wlst_extra_param, location.get_folder_path(),
-                                 class_name=_class_name, method_name=_method_name)
-                else:
-                    _logger.info('WLSDPLY-06153', wlst_extra_param, location.get_folder_path(),
-                                 class_name=_class_name, method_name=_method_name)
+        # These will come after the lsa params in the ordered dictionary
+        # Find the attributes that are not in the LSA wlst map but are in the alias definitions with GET access
+        get_attributes = [get_param for get_param in wlst_get_params if not get_param in wlst_did_get]
+        for get_attribute in get_attributes:
+            success, wlst_value = self._get_attribute_value_with_get(wlst_extra_param, wlst_path)
+            if success:
+                self._add_to_dictionary(dictionary, location, wlst_extra_param, wlst_value, wlst_path)
 
     def _get_attribute_value_with_get(self, wlst_get_param, wlst_path):
         _method_name = '_get_attribute_value_with_get'
