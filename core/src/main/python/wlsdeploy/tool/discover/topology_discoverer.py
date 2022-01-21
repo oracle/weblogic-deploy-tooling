@@ -490,10 +490,10 @@ class TopologyDiscoverer(Discoverer):
         location.append_location(model_top_folder_name)
         vhosts = self._find_names_in_folder(location)
         if vhosts is not None:
-            _logger.info('WLSDPLY-06647', len(vhosts), class_name=_class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-06649', len(vhosts), class_name=_class_name, method_name=_method_name)
             name_token = self._aliases.get_name_token(location)
             for vhost in vhosts:
-                _logger.info('WLSDPLY-06648', vhost, class_name=_class_name, method_name=_method_name)
+                _logger.info('WLSDPLY-06650', vhost, class_name=_class_name, method_name=_method_name)
                 location.add_name_token(name_token, vhost)
                 result[vhost] = OrderedDict()
                 self._populate_model_parameters(result[vhost], location)
