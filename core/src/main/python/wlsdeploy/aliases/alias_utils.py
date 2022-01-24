@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -52,6 +52,7 @@ from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.util import model_helper
+from wlsdeploy.util.boolean_value import BooleanValue
 
 _class_name = 'alias_utils'
 _logger = PlatformLogger('wlsdeploy.aliases')
@@ -533,6 +534,8 @@ def convert_boolean(value):
                 result = True
             elif value.lower() == 'false':
                 result = False
+        elif isinstance(value, BooleanValue):
+            result = value.get_value()
     return result
 
 

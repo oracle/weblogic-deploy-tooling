@@ -1,10 +1,11 @@
 """
-Copyright (c) 2021, Oracle and/or its affiliates.
+Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 
 from base_test import BaseTestCase
+from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import AUTHENTICATION_PROVIDER
@@ -68,8 +69,10 @@ class WkoFilterTestCase(BaseTestCase):
 
         # Dynamic clusters should have "CalculatedListenPorts" set to false
 
-        self._match(0, model, TOPOLOGY, CLUSTER, 'dynamicCluster', DYNAMIC_SERVERS, CALCULATED_LISTEN_PORTS)
-        self._match(0, model, TOPOLOGY, CLUSTER, 'dynamicCluster2', DYNAMIC_SERVERS, CALCULATED_LISTEN_PORTS)
+        for name in ['dynamicCluster', 'dynamicCluster2']:
+            is_calc = self._traverse(model, TOPOLOGY, CLUSTER, name, DYNAMIC_SERVERS)[CALCULATED_LISTEN_PORTS]
+            self.assertEqual(False, alias_utils.convert_boolean(is_calc),
+                             CALCULATED_LISTEN_PORTS + ' for ' + name + ' is ' + str(is_calc) + ', should be false')
 
         # Online-only attributes should be removed from the model
 
