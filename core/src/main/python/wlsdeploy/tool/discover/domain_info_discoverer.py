@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import glob
@@ -109,6 +109,7 @@ class DomainInfoDiscoverer(Discoverer):
     def get_user_env_scripts(self):
         """
         Look for the user overrides scripts run in setDomainEnv in the domain bin directory
+        If discover is running with the -target <type> do not collect the domainBin scripts
         :raise: DiscoverException: an unexpected exception occurred writing a jar file to the archive file
         """
         _method_name = 'get_user_env_scripts'
