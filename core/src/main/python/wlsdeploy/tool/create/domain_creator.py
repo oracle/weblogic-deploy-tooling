@@ -847,7 +847,7 @@ class DomainCreator(Creator):
         # Listen Port for 7001 in order to show up in the config.xml
         if len(server_template_nodes) > 0:
             for template in server_template_nodes:
-                listen_port = dictionary_utils.get_dictionary_element(self._topology[SERVER_TEMPLATE][template], LISTEN_PORT)
+                listen_port = dictionary_utils.get_element(self._topology[SERVER_TEMPLATE][template], LISTEN_PORT)
                 if listen_port is not None:
                     temp_loc = LocationContext()
                     temp_loc.append_location(SERVER_TEMPLATE)
