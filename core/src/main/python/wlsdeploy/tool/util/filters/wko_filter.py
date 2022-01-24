@@ -20,6 +20,7 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.filters.model_traverse import ModelTraverse
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util.boolean_value import BooleanValue
 
 _class_name = 'wko_filter'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -68,7 +69,7 @@ def check_clustered_server_ports(model, _model_context):
             if (calculated_listen_ports is None) or alias_utils.convert_boolean(calculated_listen_ports):
                 _logger.info('WLSDPLY-20202', CALCULATED_LISTEN_PORTS, CLUSTER, cluster_name, class_name=_class_name,
                              method_name=_method_name)
-                dynamic_folder[CALCULATED_LISTEN_PORTS] = False
+                dynamic_folder[CALCULATED_LISTEN_PORTS] = BooleanValue(False)
 
     # be sure every server assigned to a cluster has the same listen port
 

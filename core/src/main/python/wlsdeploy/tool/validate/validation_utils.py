@@ -123,7 +123,8 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
     elif expected_data_type == 'long':
         retval = (actual_data_type in ["<type 'int'>", "<type 'long'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type in ['boolean', 'java.lang.Boolean']:
-        retval = (actual_data_type in ["<type 'int'>", "<type 'str'>", "<type 'long'>", "<type 'unicode'>"])
+        retval = (actual_data_type in ["<type 'int'>", "<type 'str'>", "<type 'long'>", "<type 'unicode'>",
+                                       "<type 'bool'>", "<class 'wlsdeploy.util.boolean_value.BooleanValue'>"])
     elif expected_data_type in ['float', 'double']:
         retval = (actual_data_type in ["<type 'float'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type == 'properties' or expected_data_type == 'dict':

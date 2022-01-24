@@ -99,15 +99,6 @@ class YamlStreamToPython(object):
         return result_dict
 
 
-def _string_value_is_boolean(value):
-    result = False
-    if value is not None:
-        _lower_case_value = value.lower()
-        if _lower_case_value == 'true' or _lower_case_value == 'false':
-            result = True
-    return result
-
-
 class PythonToJava(object):
     """
     A class that converts a Python dictionary and its contents to the Java types expected by snakeyaml.
@@ -168,14 +159,7 @@ class PythonToJava(object):
         elif type(py_value) is bool:
             result = JBoolean(py_value is True)
         elif type(py_value) in [str, unicode]:
-            # If the string is a legal boolean value, convert to a java.lang.Boolean
-            # to allow the SnakeYAML dump function to write the value without quotes.
-            #
-            if _string_value_is_boolean(py_value):
-                is_true = py_value.lower() == 'true'
-                result = JBoolean(is_true)
-            else:
-                result = JString(py_value)
+            result = JString(py_value)
         elif type(py_value) is int:
             result = JInteger(py_value)
         elif type(py_value) is long:
