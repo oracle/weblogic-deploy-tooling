@@ -36,7 +36,8 @@ __required_arguments = [
 ]
 
 __optional_arguments = [
-    CommandLineArgUtil.VARIABLE_FILE_SWITCH
+    CommandLineArgUtil.VARIABLE_FILE_SWITCH,
+    CommandLineArgUtil.ARCHIVE_FILE_SWITCH
 ]
 
 
@@ -55,8 +56,9 @@ def __process_args(args):
     target_configuration_helper.process_target_arguments(argument_map)
 
     model_context = ModelContext(_program_name, argument_map)
-    # override this check, since archive file is not supplied here
-    model_context.get_validate_configuration().set_allow_unresolved_archive_references(True)
+    if model_context.get_archive_file_name() is None:
+        # override this check, if archive file is not supplied
+        model_context.get_validate_configuration().set_allow_unresolved_archive_references(True)
     return model_context
 
 
