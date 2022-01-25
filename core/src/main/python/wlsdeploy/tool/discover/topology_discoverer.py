@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -12,6 +12,7 @@ from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
+from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
@@ -559,8 +560,9 @@ class TopologyDiscoverer(Discoverer):
             short_name = self._credential_injector.get_folder_short_name(location)
         if model_constants.SECURITY_CONFIGURATION_PASSWORD in result:
             # default is false
-            if model_constants.SECURITY_CONFIGURATION_CD_ENABLED not in result or \
-                    Boolean.valueOf(result[model_constants.SECURITY_CONFIGURATION_CD_ENABLED]) == Boolean.FALSE:
+            cd_enabled_raw = dictionary_utils.get_element(result, model_constants.SECURITY_CONFIGURATION_CD_ENABLED)
+            cd_enabled = alias_utils.convert_boolean(cd_enabled_raw)
+            if not cd_enabled:
                 # Hard code it here or hard code it later. The target code will bypass tokenize of variable
                 cache_name = short_name + VARIABLE_SEP + model_constants.SECURITY_CONFIGURATION_PASSWORD
                 if cache_name in pass_cache:

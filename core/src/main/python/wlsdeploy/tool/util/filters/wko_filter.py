@@ -1,4 +1,4 @@
-# Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
+# Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # ------------
@@ -6,7 +6,7 @@
 # ------------
 # WDT filters to prepare a model for use with WKO, using the createDomain or prepareModel tools.
 # These operations can be invoked as a single call, or independently of each other.
-
+from oracle.weblogic.deploy.util import PyRealBoolean
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import CALCULATED_LISTEN_PORTS
 from wlsdeploy.aliases.model_constants import CLUSTER
@@ -20,7 +20,6 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.filters.model_traverse import ModelTraverse
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util.boolean_value import BooleanValue
 
 _class_name = 'wko_filter'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -69,7 +68,7 @@ def check_clustered_server_ports(model, _model_context):
             if (calculated_listen_ports is None) or alias_utils.convert_boolean(calculated_listen_ports):
                 _logger.info('WLSDPLY-20202', CALCULATED_LISTEN_PORTS, CLUSTER, cluster_name, class_name=_class_name,
                              method_name=_method_name)
-                dynamic_folder[CALCULATED_LISTEN_PORTS] = BooleanValue(False)
+                dynamic_folder[CALCULATED_LISTEN_PORTS] = PyRealBoolean(False)
 
     # be sure every server assigned to a cluster has the same listen port
 

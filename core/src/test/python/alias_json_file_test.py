@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -12,6 +12,7 @@ import unittest
 from oracle.weblogic.deploy.json import JsonStreamTranslator
 from oracle.weblogic.deploy.util import FileUtils
 
+from oracle.weblogic.deploy.util import PyRealBoolean
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.alias_constants import PATH_TOKEN
 from wlsdeploy.aliases.alias_constants import SINGLE
@@ -666,6 +667,8 @@ class ListTestCase(unittest.TestCase):
             else:
                 pass
         elif type(alias_attribute_value) is bool:
+            pass
+        elif isinstance(alias_attribute_value, PyRealBoolean):
             pass
         else:
             result.append(self._get_invalid_attribute_boolean_type_message(folder_name, attribute_name,

@@ -19,10 +19,10 @@ import java.util.LinkedHashMap as JLinkedHashMap
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 import oracle.weblogic.deploy.yaml.YamlStreamTranslator as JYamlStreamTranslator
 import oracle.weblogic.deploy.yaml.YamlTranslator as JYamlTranslator
+from oracle.weblogic.deploy.util import PyRealBoolean
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util.boolean_value import BooleanValue
 
 
 class YamlToPython(object):
@@ -166,8 +166,8 @@ class PythonToJava(object):
             result = JLong(JString(str(py_value)))
         elif type(py_value) is float:
             result = JDouble(py_value)
-        elif isinstance(py_value, BooleanValue):
-            result = JBoolean(py_value.get_value())
+        elif isinstance(py_value, PyRealBoolean):
+            result = JBoolean(py_value.getValue())
         else:
             yaml_ex = exception_helper.create_yaml_exception('WLSDPLY-18201', type(py_value))
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)

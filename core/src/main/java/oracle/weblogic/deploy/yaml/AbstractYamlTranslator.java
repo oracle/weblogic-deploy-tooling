@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2022, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.yaml;
@@ -15,6 +15,7 @@ import java.util.Map;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.util.PyOrderedDict;
 
+import oracle.weblogic.deploy.util.PyRealBoolean;
 import org.python.core.Py;
 import org.python.core.PyDictionary;
 import org.python.core.PyFloat;
@@ -233,12 +234,7 @@ public abstract class AbstractYamlTranslator {
                     break;
 
                 case "java.lang.Boolean":
-                    boolean booleanValue = (Boolean) object;
-                    if (booleanValue) {
-                        result = new PyString("true");
-                    } else {
-                        result = new PyString("false");
-                    }
+                    result = new PyRealBoolean((Boolean) object);
                     break;
 
                 case "java.lang.Integer":
