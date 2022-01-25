@@ -50,6 +50,7 @@ Here is an example of a target environment file:
     "validation_method" : "lax",
     "credentials_method" : "secrets",
     "credentials_output_method" : "script",
+    "exclude_domain_bin_contents": true,
     "wls_credentials_name" : "__weblogic-credentials__",
     "additional_secrets": "runtime-encryption-secret",
     "additional_output" : "vz-application.yaml"
@@ -78,6 +79,10 @@ This field specifies how credentials in the model should be handled. There are t
 - `config_override_secrets` - the credentials in the model are replaced with placeholder values, such as `password1`, and a UNIX script to create corresponding Kubernetes secrets is produced.
 
 In both these cases, the script to create the Kubernetes secrets is written to `<output-directory>/create_k8s_secrets.sh`. You will need to update this script with credential values before executing
+
+#### `exclude_domain_bin_contents`
+
+This field specifies how the domain's bin directory contents should be handled.  If set to `true`, discovery will skip over the domain's bin directory resulting in a model and archive file without any references to any scripts that might normally be collected (e.g., `setUserOverrides.sh`).
 
 #### `wls_credentials_name`
 
