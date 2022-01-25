@@ -48,6 +48,12 @@ public class PyRealBoolean extends PyObject {
     }
 
     @Override
+    // for Python boolean check, such as bool(abc), or if abc...
+    public boolean __nonzero__() {
+        return isTrue;
+    }
+
+    @Override
     public boolean equals(Object other) {
         if(other instanceof PyRealBoolean) {
             return isTrue == ((PyRealBoolean) other).isTrue;
