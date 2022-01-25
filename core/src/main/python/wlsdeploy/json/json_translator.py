@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 This model provider translation classes that convert between JSON and Python Dictionaries.
@@ -18,7 +18,6 @@ import oracle.weblogic.deploy.json.JsonStreamTranslator as JJsonStreamTranslator
 import oracle.weblogic.deploy.json.JsonTranslator as JJsonTranslator
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util.boolean_value import BooleanValue
 import wlsdeploy.exception.exception_helper as exception_helper
 
 # Unlike with yaml files, JSON files do not allow comments. remove from file
@@ -240,8 +239,6 @@ def _format_json_value(value):
     builder = StringBuilder()
     if type(value) == bool:
         builder.append(JBoolean.toString(value))
-    elif isinstance(value, BooleanValue):
-        builder.append(value.get_string_value())
     elif isinstance(value, types.StringTypes):
         builder.append('"').append(_escape_text(value.strip())).append('"')
     else:

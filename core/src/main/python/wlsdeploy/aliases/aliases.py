@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import String
@@ -768,8 +768,8 @@ class Aliases(object):
 
             for key, value in module_folder[ATTRIBUTES].iteritems():
                 if RESTART_REQUIRED in value:
-                    restart_required_value = value[RESTART_REQUIRED]
-                    if "true" == restart_required_value.lower():
+                    restart_required = alias_utils.convert_boolean(value[RESTART_REQUIRED])
+                    if restart_required:
                         restart_attribute_names.append(key)
 
             return restart_attribute_names

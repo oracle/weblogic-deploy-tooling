@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2020, 2022, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.yaml;
@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import oracle.weblogic.deploy.util.PyOrderedDict;
 
+import oracle.weblogic.deploy.util.PyRealBoolean;
 import org.junit.jupiter.api.Test;
 
 import org.python.core.PyDictionary;
@@ -74,26 +75,26 @@ public class YamlTranslatorTest {
         key = new PyString("field6");
         assertTrue(actual.has_key(key), "field6 should be present");
         value = actual.__getitem__(key);
-        assertEquals(PyString.class, value.getClass(), "field6 should be a string");
-        assertEquals("true", value.toString(), "field6 value should be true");
+        assertEquals(PyRealBoolean.class, value.getClass(), "field6 should be a PyRealBoolean");
+        assertEquals(true, ((PyRealBoolean) value).getValue(), "field6 value should be true");
 
         key = new PyString("field7");
         assertTrue(actual.has_key(key), "field7 should be present");
         value = actual.__getitem__(key);
-        assertEquals(PyString.class, value.getClass(), "field7 should be a string");
-        assertEquals("true", value.toString(), "field7 value should be true");
+        assertEquals(PyRealBoolean.class, value.getClass(), "field7 should be a PyRealBoolean");
+        assertEquals(true, ((PyRealBoolean) value).getValue(), "field7 value should be true");
 
         key = new PyString("field8");
         assertTrue(actual.has_key(key), "field8 should be present");
         value = actual.__getitem__(key);
-        assertEquals(PyString.class, value.getClass(), "field8 should be a string");
-        assertEquals("false", value.toString(), "field8 value should be false");
+        assertEquals(PyRealBoolean.class, value.getClass(), "field8 should be a PyRealBoolean");
+        assertEquals(false, ((PyRealBoolean) value).getValue(), "field8 value should be false");
 
         key = new PyString("field9");
         assertTrue(actual.has_key(key), "field9 should be present");
         value = actual.__getitem__(key);
-        assertEquals(PyString.class, value.getClass(), "field9 should be a string");
-        assertEquals("false", value.toString(), "field9 value should be false");
+        assertEquals(PyRealBoolean.class, value.getClass(), "field9 should be a PyRealBoolean");
+        assertEquals(false, ((PyRealBoolean) value).getValue(), "field9 value should be false");
 
         key = new PyString("field10");
         assertTrue(actual.has_key(key), "field10 should be present");
@@ -368,8 +369,8 @@ public class YamlTranslatorTest {
         assertTrue(dict.has_key(key), "UseDefaultUserNameMapper should be present");
         value = dict.__getitem__(key);
         assertNotNull(value, "UseDefaultUserNameMapper value should not be null");
-        assertEquals(PyString.class, value.getClass(), "UseDefaultUserNameMapper should be a string");
-        assertEquals("true", value.toString(), "UseDefaultUserNameMapper value should be true");
+        assertEquals(PyRealBoolean.class, value.getClass(), "UseDefaultUserNameMapper should be a PyRealBoolean");
+        assertTrue(((PyRealBoolean) value).getValue(), "UseDefaultUserNameMapper value should be true");
 
         key = new PyString("PasswordValidator");
         assertTrue(myrealm.has_key(key), "PasswordValidator should be present");
@@ -438,8 +439,8 @@ public class YamlTranslatorTest {
         assertTrue(dict.has_key(key), "RejectEqualOrContainUsername should be present");
         value = dict.__getitem__(key);
         assertNotNull(value, "RejectEqualOrContainUsername value should not be null");
-        assertEquals(PyString.class, value.getClass(), "RejectEqualOrContainUsername should be a string");
-        assertEquals("true", value.toString(), "RejectEqualOrContainUsername value should be true");
+        assertEquals(PyRealBoolean.class, value.getClass(), "RejectEqualOrContainUsername should be a PyRealBoolean");
+        assertTrue(((PyRealBoolean) value).getValue(), "RejectEqualOrContainUsername value should be true");
 
         key = new PyString("MinPasswordLength");
         assertTrue(dict.has_key(key), "MinPasswordLength should be present");
@@ -452,8 +453,8 @@ public class YamlTranslatorTest {
         assertTrue(dict.has_key(key), "RejectEqualOrContainReverseUsername should be present");
         value = dict.__getitem__(key);
         assertNotNull(value, "RejectEqualOrContainReverseUsername value should not be null");
-        assertEquals(PyString.class, value.getClass(), "RejectEqualOrContainReverseUsername should be a string");
-        assertEquals("true", value.toString(), "RejectEqualOrContainReverseUsername value should be true");
+        assertEquals(PyRealBoolean.class, value.getClass(), "RejectEqualOrContainReverseUsername should be a PyRealBoolean");
+        assertTrue(((PyRealBoolean) value).getValue(), "RejectEqualOrContainReverseUsername value should be true");
     }
 
     /**

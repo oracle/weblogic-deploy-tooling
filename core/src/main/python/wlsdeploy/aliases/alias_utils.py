@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -18,10 +18,12 @@ from java.lang import String
 from java.util import Properties
 from javax.management import ObjectName
 
+from oracle.weblogic.deploy.util import PyRealBoolean
 from oracle.weblogic.deploy.aliases import TypeUtils
 from oracle.weblogic.deploy.aliases import VersionException
 from oracle.weblogic.deploy.aliases import VersionUtils
 
+from wlsdeploy.aliases.alias_constants import BOOLEAN
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.exception import exception_helper
@@ -533,6 +535,8 @@ def convert_boolean(value):
                 result = True
             elif value.lower() == 'false':
                 result = False
+        elif isinstance(value, PyRealBoolean):
+            result = value.getValue()
     return result
 
 
@@ -845,6 +849,8 @@ def _convert_value_to_model_type(data_type, value, delimiter):
     try:
         if data_type == JAVA_LANG_BOOLEAN:
             converted = Boolean(converted)
+        elif data_type == BOOLEAN:
+            converted = PyRealBoolean('true' == converted)
         elif data_type == JARRAY:
             converted = _create_array(converted, delimiter)
         # elif data_type == PROPERTIES:
