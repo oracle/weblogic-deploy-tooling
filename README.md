@@ -44,6 +44,7 @@ This documentation includes information for users and for developers.
 
 ## Related projects
 
+* [WebLogic Kubernetes Toolkit UI](https://github.com/oracle/weblogic-toolkit-ui)
 * [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/)
 * [WebLogic Image Tool](https://github.com/oracle/weblogic-image-tool)
 * [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
@@ -65,7 +66,7 @@ vulnerability disclosure process.
 
 ## License
 
-Copyright (c) 2021 Oracle and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 
 Released under the Universal Permissive License v1.0 as shown at
 <https://oss.oracle.com/licenses/upl/>.
