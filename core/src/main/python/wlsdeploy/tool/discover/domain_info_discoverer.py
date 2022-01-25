@@ -115,7 +115,7 @@ class DomainInfoDiscoverer(Discoverer):
         _method_name = 'get_user_env_scripts'
         _logger.entering(class_name=_class_name, method_name=_method_name)
         entries = []
-        if self._model_context.is_targetted_config():
+        if self._model_context.get_target_configuration().exclude_domain_bin_contents():
             _logger.fine('WLSDPLY-06427', class_name=_class_name, method_name=_method_name)
         else:
             archive_file = self._model_context.get_archive_file()

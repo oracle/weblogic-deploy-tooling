@@ -36,6 +36,7 @@ usage() {
   echo "          -target <target_name>  name of target configuration, such as k8s"
   echo "          -output_dir <output_dir>  write the outputs to the directory specified"
   echo "          [-variable_file <variable file>  variable file used for macro substitution]"
+  echo "          [-archive_file <archive file>  archive file used for validation and filtering based on specified target]"
   echo ""
 }
 

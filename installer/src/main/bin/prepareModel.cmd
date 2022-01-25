@@ -71,6 +71,7 @@ ECHO           -model_file ^<model file^>  model files
 ECHO           -target ^<target_name^>  name of target configuration, such as k8s
 ECHO           -output_dir ^<output_dir^>  write the outputs to the directory specified
 ECHO           [-variable_file ^<variable file^>  variable file used for macro substitution]
+ECHO           [-archive_file ^<archive file^>  archive file used for validation and filtering based on specified target]
 ECHO.
 
 :exit_script
