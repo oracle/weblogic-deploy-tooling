@@ -112,6 +112,9 @@ class TopologyDiscoverer(Discoverer):
         model_folder_name, folder_result = self._get_xml_registries()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
+        model_folder_name, folder_result = self._get_ws_securities()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
 
@@ -545,6 +548,32 @@ class TopologyDiscoverer(Discoverer):
                 location.add_name_token(name_token, registry)
                 result[registry] = OrderedDict()
                 self._populate_model_parameters(result[registry], location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
+    def _get_ws_securities(self):
+        """
+        Discover the Webservice Security configuration for the domain
+        :return: model name for the folder: dictionary containing the discovered webservice security
+        """
+        _method_name = '_get_ws_securities'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.WEB_SERVICE_SECURITY
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        wssecurities = self._find_names_in_folder(location)
+        if wssecurities is not None:
+            _logger.info('WLSDPLY-06649', len(wssecurities), class_name=_class_name, method_name=_method_name)
+            name_token = self._aliases.get_name_token(location)
+            for wssecurity in wssecurities:
+                _logger.info('WLSDPLY-06650', wssecurity, class_name=_class_name, method_name=_method_name)
+                location.add_name_token(name_token, wssecurity)
+                result[wssecurity] = OrderedDict()
+                self._populate_model_parameters(result[wssecurity], location)
+                self._discover_subfolders(result[wssecurity], location)
                 location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)

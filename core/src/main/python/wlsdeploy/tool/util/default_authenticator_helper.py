@@ -133,7 +133,7 @@ class DefaultAuthenticatorHelper(object):
         :return: template
         """
         hash_entry = list()
-        if len(user_attributes) == 0:
+        if user_attributes is None or len(user_attributes) == 0:
            return
 
         for attribute in user_attributes:
@@ -170,7 +170,7 @@ class DefaultAuthenticatorHelper(object):
             hash_entry[HASH_GROUPS] = group_list
         attribute_folder = dictionary_utils.get_element(group_attributes, USER_ATTRIBUTES)
         dict_hash = self._user_attributes(user_mapping_section, attribute_folder)
-        if len(dict_hash) > 0:
+        if dict_hash is not None and len(dict_hash) > 0:
             hash_entry[HASH_ATTRIBUTES] = dict_hash
         return hash_entry
 

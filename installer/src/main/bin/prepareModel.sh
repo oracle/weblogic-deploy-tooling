@@ -2,7 +2,7 @@
 # *****************************************************************************
 # prepareModel.sh
 #
-# Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+# Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -36,6 +36,7 @@ usage() {
   echo "          -target <target_name>  name of target configuration, such as k8s"
   echo "          -output_dir <output_dir>  write the outputs to the directory specified"
   echo "          [-variable_file <variable file>  variable file used for macro substitution]"
+  echo "          [-archive_file <archive file>  archive file used for validation and filtering based on specified target]"
   echo ""
 }
 

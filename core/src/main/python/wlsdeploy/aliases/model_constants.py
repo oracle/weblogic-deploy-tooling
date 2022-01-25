@@ -314,6 +314,7 @@ WEB_SERVICE_PERSISTENCE = 'WebServicePersistence'
 WEB_SERVICE_PHYSICAL_STORE = 'WebServicePhysicalStore'
 WEB_SERVICE_REQUEST_BUFFERING_QUEUE = 'WebServiceRequestBufferingQueue'
 WEB_SERVICE_RESPONSE_BUFFERING_QUEUE = 'WebServiceResponseBufferingQueue'
+WEB_SERVICE_SECURITY = 'WebserviceSecurity'
 WEBLOGIC_CERT_PATH_PROVIDER = 'WebLogicCertPathProvider'
 WORK_MANAGER = "WorkManager"
 WLDF_INSTRUMENTATION_MONITOR = "WLDFInstrumentationMonitor"

@@ -15,6 +15,9 @@ VALIDATION_METHOD = "validation_method"
 # Overrides the Kubernetes secret name for the WebLogic admin user credential
 WLS_CREDENTIALS_NAME = "wls_credentials_name"
 
+# Determines whether the domainBin contents should be excluded
+EXCLUDE_DOMAIN_BIN_CONTENTS = "exclude_domain_bin_contents"
+
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
 
@@ -134,3 +137,15 @@ class TargetConfiguration(object):
         :return: True if credential values are managed, False otherwise
         """
         return self.get_credentials_method() in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]
+
+    def exclude_domain_bin_contents(self):
+        """
+        Determine if the contents of the domain's bin directory should be
+        excluded from the model and archive.  If True, these files will be
+        excluded and not go into the model or archive file.
+        :return: True if the domain bin contents should be excluded, False otherwise
+        """
+        result = dictionary_utils.get_element(self.config_dictionary, EXCLUDE_DOMAIN_BIN_CONTENTS)
+        if result is None:
+            result = False
+        return result
