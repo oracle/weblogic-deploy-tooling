@@ -44,12 +44,12 @@ This documentation includes information for users and for developers.
 
 ## Related projects
 
-* [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/)
-* [WebLogic Image Tool](https://oracle.github.io/weblogic-image-tool/)
-* [WebLogic Kubernetes Toolkit UI](https://oracle.github.io/weblogic-toolkit-ui/)
+* [WebLogic Kubernetes Operator](https://github.com/oracle/weblogic-kubernetes-operator)
+* [WebLogic Image Tool](https://github.com/oracle/weblogic-image-tool)
+* [WebLogic Kubernetes Toolkit UI](https://github.com/oracle/weblogic-toolkit-ui)
 * [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
 * [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
-* [WebLogic Remote Console](https://oracle.github.io/weblogic-remote-console/)
+* [WebLogic Remote Console](https://github.com/oracle/weblogic-remote-console)
 
 ## Contributing
 
