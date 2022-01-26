@@ -12,20 +12,20 @@
     <title>Alias definitions :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643150700" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643157930" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.6.0.min.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643157930"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,21 +59,30 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643150700"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643150700"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643157930"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643157930"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643150700"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643157930"></script>
 
     
   </div>
+  
+    <section id="homelinks">
+      <ul>
+        <li>
+            <a class="padding" href='https://oracle.github.io/weblogic-deploy-tooling'><i class='fas fa-home'></i> Home</a>
+        </li>
+      </ul>
+    </section>
+  
 
     <div class="highlightable">
     <ul class="topics">
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling">Home</a></li>
+
         
           
           
@@ -1063,8 +1072,31 @@
  
 
           
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
         
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling/release-notes">Release Notes</a></li>
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/release-notes/">
+          <b> </b>Release Notes
+          
+      </a>
+      
+      
+    </li>
+  
+ 
+
+          
+        
     </ul>
 
     
@@ -1170,40 +1202,40 @@
 <p>Top-level elements such as <code>topology</code> and <code>resources</code> are for organizational purposes, and are not represented in the alias definition files.</p>
 <p>No elements in the <code>domainInfo</code> section of the model are represented in the alias definitions, because they don&rsquo;t correspond directly to WLST elements.</p>
 <p>This example, from the file <code>JDBCSystemResource.json</code>, will be used as a reference in the descriptions below:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">{
-    <span style="color:#f92672">&#34;copyright&#34;: </span><span style="color:#e6db74">&#34;Copyright (c) 2017, 2018, Oracle Corporation and/or its affiliates.  All rights reserved.&#34;</span>,
-    <span style="color:#f92672">&#34;license&#34;: </span><span style="color:#e6db74">&#34;Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl&#34;</span>,
-    <span style="color:#f92672">&#34;wlst_type&#34;: </span><span style="color:#e6db74">&#34;JDBCSystemResource${:s}&#34;</span>,
-    <span style="color:#f92672">&#34;child_folders_type&#34;: </span><span style="color:#e6db74">&#34;multiple&#34;</span>,
-    <span style="color:#f92672">&#34;folders&#34;: </span>{
-        <span style="color:#e6db74">&#34;JdbcResource&#34;</span> : {
-            <span style="color:#f92672">&#34;wlst_type&#34;: </span><span style="color:#e6db74">&#34;${Jdbc:JDBC}Resource&#34;</span>,
-            <span style="color:#f92672">&#34;folders&#34;: </span>{
-                <span style="color:#f92672">&#34;JDBCConnectionPoolParams&#34;: </span>{
-                    <span style="color:#f92672">&#34;wlst_type&#34;: </span><span style="color:#e6db74">&#34;JDBCConnectionPoolParams&#34;</span>,
-                    <span style="color:#f92672">&#34;folders&#34;: </span>{},
-                    <span style="color:#f92672">&#34;attributes&#34;: </span>{
-                        <span style="color:#f92672">&#34;CapacityIncrement&#34;:  [ {&#34;version&#34;: </span><span style="color:#e6db74">&#34;[10,)&#34;</span>,
-                                                 <span style="color:#f92672">&#34;wlst_mode&#34;: </span><span style="color:#e6db74">&#34;both&#34;</span>,
-                                                 <span style="color:#f92672">&#34;wlst_name&#34;: </span><span style="color:#e6db74">&#34;CapacityIncrement&#34;</span>,
-                                                 <span style="color:#f92672">&#34;wlst_path&#34;: </span><span style="color:#e6db74">&#34;WP001&#34;</span>,
-                                                 <span style="color:#f92672">&#34;value&#34;: {&#34;default&#34;: </span><span style="color:#e6db74">&#34;${None:1}&#34;</span>},
-                                                 <span style="color:#f92672">&#34;wlst_type&#34;: </span><span style="color:#e6db74">&#34;integer&#34;</span>,
-                                                 <span style="color:#f92672">&#34;get_method&#34;: </span><span style="color:#e6db74">&#34;LSA&#34;</span>} ],
-                        <span style="color:#f92672">&#34;ConnectionCreationRetryFrequencySeconds&#34;: [ {&#34;version&#34;: </span><span style="color:#e6db74">&#34;[10,)&#34;</span>,
-                                                                     <span style="color:#f92672">&#34;wlst_mode&#34;: </span><span style="color:#e6db74">&#34;both&#34;</span>,
-                                                                     <span style="color:#f92672">&#34;wlst_name&#34;: </span><span style="color:#e6db74">&#34;ConnectionCreationRetryFrequencySeconds&#34;</span>,
-                                                                     <span style="color:#f92672">&#34;wlst_path&#34;: </span><span style="color:#e6db74">&#34;WP001&#34;</span>,
-                                                                     <span style="color:#f92672">&#34;value&#34;: {&#34;default&#34;: </span><span style="color:#e6db74">&#34;${None:0}&#34;</span>},
-                                                                     <span style="color:#f92672">&#34;wlst_type&#34;: </span><span style="color:#e6db74">&#34;integer&#34;</span>,
-                                                                     <span style="color:#f92672">&#34;get_method&#34;: </span><span style="color:#e6db74">&#34;LSA&#34;</span>} ]
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#f92672">&#34;copyright&#34;</span>: <span style="color:#e6db74">&#34;Copyright (c) 2017, 2018, Oracle Corporation and/or its affiliates.  All rights reserved.&#34;</span>,
+    <span style="color:#f92672">&#34;license&#34;</span>: <span style="color:#e6db74">&#34;Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl&#34;</span>,
+    <span style="color:#f92672">&#34;wlst_type&#34;</span>: <span style="color:#e6db74">&#34;JDBCSystemResource${:s}&#34;</span>,
+    <span style="color:#f92672">&#34;child_folders_type&#34;</span>: <span style="color:#e6db74">&#34;multiple&#34;</span>,
+    <span style="color:#f92672">&#34;folders&#34;</span>: {
+        <span style="color:#f92672">&#34;JdbcResource&#34;</span> : {
+            <span style="color:#f92672">&#34;wlst_type&#34;</span>: <span style="color:#e6db74">&#34;${Jdbc:JDBC}Resource&#34;</span>,
+            <span style="color:#f92672">&#34;folders&#34;</span>: {
+                <span style="color:#f92672">&#34;JDBCConnectionPoolParams&#34;</span>: {
+                    <span style="color:#f92672">&#34;wlst_type&#34;</span>: <span style="color:#e6db74">&#34;JDBCConnectionPoolParams&#34;</span>,
+                    <span style="color:#f92672">&#34;folders&#34;</span>: {},
+                    <span style="color:#f92672">&#34;attributes&#34;</span>: {
+                        <span style="color:#f92672">&#34;CapacityIncrement&#34;</span>:  [ {<span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#e6db74">&#34;[10,)&#34;</span>,
+                                                 <span style="color:#f92672">&#34;wlst_mode&#34;</span>: <span style="color:#e6db74">&#34;both&#34;</span>,
+                                                 <span style="color:#f92672">&#34;wlst_name&#34;</span>: <span style="color:#e6db74">&#34;CapacityIncrement&#34;</span>,
+                                                 <span style="color:#f92672">&#34;wlst_path&#34;</span>: <span style="color:#e6db74">&#34;WP001&#34;</span>,
+                                                 <span style="color:#f92672">&#34;default_value&#34;</span>: <span style="color:#e6db74">&#34;${__NULL__:1}&#34;</span>,
+                                                 <span style="color:#f92672">&#34;wlst_type&#34;</span>: <span style="color:#e6db74">&#34;integer&#34;</span>,
+                                                 <span style="color:#f92672">&#34;get_method&#34;</span>: <span style="color:#e6db74">&#34;LSA&#34;</span>} ],
+                        <span style="color:#f92672">&#34;ConnectionCreationRetryFrequencySeconds&#34;</span>: [ {<span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#e6db74">&#34;[10,)&#34;</span>,
+                                                                     <span style="color:#f92672">&#34;wlst_mode&#34;</span>: <span style="color:#e6db74">&#34;both&#34;</span>,
+                                                                     <span style="color:#f92672">&#34;wlst_name&#34;</span>: <span style="color:#e6db74">&#34;ConnectionCreationRetryFrequencySeconds&#34;</span>,
+                                                                     <span style="color:#f92672">&#34;wlst_path&#34;</span>: <span style="color:#e6db74">&#34;WP001&#34;</span>,
+                                                                     <span style="color:#f92672">&#34;default_value&#34;</span>: <span style="color:#e6db74">&#34;${__NULL__:0}&#34;</span>,
+                                                                     <span style="color:#f92672">&#34;wlst_type&#34;</span>: <span style="color:#e6db74">&#34;integer&#34;</span>,
+                                                                     <span style="color:#f92672">&#34;get_method&#34;</span>: <span style="color:#e6db74">&#34;LSA&#34;</span>} ]
                     },
-                    <span style="color:#f92672">&#34;wlst_attributes_path&#34;: </span><span style="color:#e6db74">&#34;WP001&#34;</span>,
-                    <span style="color:#f92672">&#34;wlst_paths&#34;: </span>{
-                        <span style="color:#f92672">&#34;WP001&#34;: </span><span style="color:#e6db74">&#34;/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCConnectionPoolParams/${NO_NAME_0:%DATASOURCE%}&#34;</span>
+                    <span style="color:#f92672">&#34;wlst_attributes_path&#34;</span>: <span style="color:#e6db74">&#34;WP001&#34;</span>,
+                    <span style="color:#f92672">&#34;wlst_paths&#34;</span>: {
+                        <span style="color:#f92672">&#34;WP001&#34;</span>: <span style="color:#e6db74">&#34;/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCConnectionPoolParams/${NO_NAME_0:%DATASOURCE%}&#34;</span>
                     }
                 },
-...
+<span style="color:#960050;background-color:#1e0010">...</span>
 </code></pre></div><h3 id="conventions">Conventions</h3>
 <p>Notations similar to <code>${Jdbc:JDBC}Resource</code> appear throughout this example, and other alias definition files. It is shorthand for the common situation where a value is different between offline and online WLST. The value before the colon is used in offline processing, and the value after is used for online. In this example, the value for <code>wlst_type</code> is <code>JdbcResource</code> in offline, and <code>JDBCResource</code> in online. This notation can be used for values in most places in the model. It cannot be used for key values, such as <code>wlst_type</code>.</p>
 <h3 id="keys-for-top-level-and-folders-elements">Keys for top level and <code>folders</code> elements</h3>
@@ -1258,9 +1290,13 @@
 <p>This key element specifies the preferred data type that should be used to put data in the model during discovery. As an example, list values can be represented in the model as comma-separated text, such as <code>&quot;value1, value2&quot;</code>, or as a YAML list, such as <code>[&quot;value1&quot;, &quot;value2&quot;]</code>. If the list values can contain commas, it is preferred to use a YAML list.</p>
 <h4 id="wlst_path"><code>wlst_path</code></h4>
 <p>This key element specifies the name of the path expression used for navigating to the MBean attribute&rsquo;s folder. This name maps to an entry in the parent folder&rsquo;s <code>&quot;wlst_paths&quot;: { }</code> list.</p>
-<h4 id="value"><code>value</code></h4>
-<p>This key element is used to specify the default value of the MBean attribute. For example:</p>
-<p><code>&quot;value&quot;: {&quot;default&quot;: &quot;${None:1}&quot;}</code></p>
+<h4 id="default_value"><code>default_value</code></h4>
+<p>This key element specifies the default value of the MBean attribute. For example:</p>
+<p><code>&quot;default_value&quot;: &quot;text&quot;</code></p>
+<p><code>&quot;default_value&quot;: 99</code></p>
+<p><code>&quot;default_value&quot;: null</code></p>
+<p><code>&quot;default_value&quot;: &quot;${__NULL__:1}&quot;</code></p>
+<p>The <code>__NULL__</code> key represents a <code>null</code> value when <code>&quot;${a:b}&quot;</code> notation is used to specify offline and online values.</p>
 <h4 id="set_method"><code>set_method</code></h4>
 <p>For cases where attributes cannot be set with simple types, it may be necessary to use a custom method to set the value. For example, most <code>Target</code> attributes require their values to be set as lists of MBeans, in online mode. This may be defined as:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">&#34;attributes&#34;: </span>{
@@ -2004,6 +2040,22 @@
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
 
@@ -2026,19 +2078,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643157930"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643157930"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643150700"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643157930"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

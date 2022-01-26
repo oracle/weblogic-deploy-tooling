@@ -12,20 +12,20 @@
     <title>Modeling WebLogic users, groups, and roles :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643150700" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643157930" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.6.0.min.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643157930"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,21 +59,30 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643150700"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643150700"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643157930"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643157930"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643150700"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643157930"></script>
 
     
   </div>
+  
+    <section id="homelinks">
+      <ul>
+        <li>
+            <a class="padding" href='https://oracle.github.io/weblogic-deploy-tooling'><i class='fas fa-home'></i> Home</a>
+        </li>
+      </ul>
+    </section>
+  
 
     <div class="highlightable">
     <ul class="topics">
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling">Home</a></li>
+
         
           
           
@@ -1063,8 +1072,31 @@
  
 
           
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
         
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling/release-notes">Release Notes</a></li>
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/release-notes/">
+          <b> </b>Release Notes
+          
+      </a>
+      
+      
+    </li>
+  
+ 
+
+          
+        
     </ul>
 
     
@@ -1181,6 +1213,7 @@
 <h4 id="weblogic-users-and-groups">WebLogic users and groups</h4>
 <p>The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP Server (for example, <code>DefaultAuthenticator</code>). New groups can be specified and users can be added as members of the new groups or existing groups such as the <code>Administrators</code> group which is defaulted to be in the WebLogic <code>Admin</code> global role. Please see Known Limitations below for additional information on users and groups.</p>
 <p>The user password can be specified with a placeholder or encrypted with the <a href="/weblogic-deploy-tooling/userguide/tools/encrypt/">Encrypt Tool</a>. An example <code>Security</code> section that adds an additional group <code>AppMonitors</code>, adds two new users and places the users into groups is as follows:</p>
+<p>You can add user attributes that are defined for the DefaultAuthenticator. This is a limited set of attributes that go under a separate folder <code>UserAttribute</code> in the model under the <code>User</code> section.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
   <span style="color:#f92672">Security</span>:
     <span style="color:#f92672">Group</span>:
@@ -1193,6 +1226,8 @@
       <span style="color:#f92672">joe</span>:
          <span style="color:#f92672">Password</span>: <span style="color:#ae81ff">welcome1</span>
          <span style="color:#f92672">GroupMemberOf</span>: [ <span style="color:#ae81ff">AppMonitors ]</span>
+         <span style="color:#f92672">UserAttribute</span>:
+             <span style="color:#f92672">mail</span>: <span style="color:#ae81ff">joe@mycompany.com</span>
 </code></pre></div><h4 id="known-limitations">Known limitations</h4>
 <ul>
 <li>The processing of users, groups, and roles will only take place when using the <a href="/weblogic-deploy-tooling/userguide/tools/create/">Create Domain Tool</a>.</li>
@@ -1933,6 +1968,22 @@
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
 
@@ -1955,19 +2006,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643157930"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643157930"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643150700"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643157930"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

@@ -12,20 +12,20 @@
     <title>Extract Domain Resource Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643150700" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643157930" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.6.0.min.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643157930"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,21 +59,30 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643150700"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643150700"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643157930"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643157930"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643150700"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643157930"></script>
 
     
   </div>
+  
+    <section id="homelinks">
+      <ul>
+        <li>
+            <a class="padding" href='https://oracle.github.io/weblogic-deploy-tooling'><i class='fas fa-home'></i> Home</a>
+        </li>
+      </ul>
+    </section>
+  
 
     <div class="highlightable">
     <ul class="topics">
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling">Home</a></li>
+
         
           
           
@@ -1063,8 +1072,31 @@
  
 
           
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
         
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling/release-notes">Release Notes</a></li>
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/release-notes/">
+          <b> </b>Release Notes
+          
+      </a>
+      
+      
+    </li>
+  
+ 
+
+          
+        
     </ul>
 
     
@@ -1204,21 +1236,20 @@
     <span style="color:#f92672">spec</span>:
         <span style="color:#f92672">image</span>: <span style="color:#e6db74">&#39;my.repo/my-image:2.0&#39;</span>
         <span style="color:#f92672">imagePullSecrets</span>:
-            <span style="color:#f92672">WEBLOGIC_IMAGE_PULL_SECRET_NAME</span>:
+            -   <span style="color:#f92672">name</span>: <span style="color:#ae81ff">WEBLOGIC_IMAGE_PULL_SECRET_NAME</span>
         <span style="color:#f92672">webLogicCredentialsSecret</span>:
             <span style="color:#f92672">name</span>: <span style="color:#e6db74">&#39;@@PROP:mySecret@@&#39;</span>
         <span style="color:#f92672">configuration</span>:
             <span style="color:#f92672">model</span>:
                 <span style="color:#f92672">domainType</span>: <span style="color:#e6db74">&#39;WLS&#39;</span>
-            <span style="color:#f92672">secrets</span>: [
-              <span style="color:#e6db74">&#39;secret1&#39;</span>,
-              <span style="color:#e6db74">&#39;secret2&#39;</span>
-            ]
+            <span style="color:#f92672">secrets</span>:
+                -   <span style="color:#ae81ff">secret1</span>
+                -   <span style="color:#ae81ff">secret2</span>
         <span style="color:#f92672">serverPod</span>:
             <span style="color:#f92672">env</span>:
-                <span style="color:#f92672">USER_MEM_ARGS</span>:
+                -   <span style="color:#f92672">name</span>: <span style="color:#ae81ff">USER_MEM_ARGS</span>
                     <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#39;-XX:+UseContainerSupport -Djava.security.egd=file:/dev/./urandom&#39;</span>
-                <span style="color:#f92672">JAVA_OPTIONS</span>:
+                -   <span style="color:#f92672">name</span>: <span style="color:#ae81ff">JAVA_OPTIONS</span>
                     <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#39;-Dmydir=/home/me&#39;</span>
 </code></pre></div><p>This example uses <code>@@PROP:mySecret@@</code> to pull the value for <code>webLogicCredentialsSecret</code> from the variables file specified on the command line. This can be done with any of the values in the <code>kubernetes</code> section of the model. More details about using model variables can be found <a href="/weblogic-deploy-tooling/concepts/model/#simple-example">here</a>.</p>
 <p>For this example, the resulting domain resource file would contain:</p>
@@ -1251,8 +1282,7 @@
         <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">2</span>
     -   <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">mycluster3</span>
         <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">4</span>
-</code></pre></div><p>The syntax of the <code>spec/serverPod/env</code> and other list sections in the WDT model are different from the syntax in the target file. The WDT tools do not recognize the hyphenated list syntax, so these elements are specified in a similar manner to other model lists.</p>
-<p>If clusters are specified in the <code>kubernetes/spec</code> section of the model, those clusters will be configured in the domain resource file, and clusters from the <code>topology</code> section will be disregarded.</p>
+</code></pre></div><p>If clusters are specified in the <code>kubernetes/spec</code> section of the model, those clusters will be configured in the domain resource file, and clusters from the <code>topology</code> section will be disregarded.</p>
 <p>If the WDT model has a value of <code>Never</code> for <code>spec/imagePullPolicy</code>, the <code>imagePullSecrets</code> default value will not be added.</p>
 <p>A full list of sections and variables supported by the WebLogic Kubernetes Operator is available <a href="https://github.com/oracle/weblogic-kubernetes-operator/blob/master/docs/domains/Domain.md">here</a>.</p>
 <p>The Extract Domain Resource Tool supports a subset of these sections, including <code>metadata</code>, <code>serverPod</code>, and <code>spec</code>.</p>
@@ -1996,6 +2026,22 @@
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
 
@@ -2018,19 +2064,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643157930"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643157930"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643150700"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643157930"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

@@ -9,23 +9,23 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title> :: WebLogic Deploy Tooling</title>
+    <title>Release Notes :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643150700" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643157930" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.6.0.min.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643157930"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,21 +59,30 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643150700"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643150700"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643157930"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643157930"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643150700"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643157930"></script>
 
     
   </div>
+  
+    <section id="homelinks">
+      <ul>
+        <li>
+            <a class="padding" href='https://oracle.github.io/weblogic-deploy-tooling'><i class='fas fa-home'></i> Home</a>
+        </li>
+      </ul>
+    </section>
+  
 
     <div class="highlightable">
     <ul class="topics">
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling">Home</a></li>
+
         
           
           
@@ -1063,8 +1072,31 @@
  
 
           
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
+        parent
+        active
         
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling/release-notes">Release Notes</a></li>
+        ">
+      <a href="/weblogic-deploy-tooling/release-notes/">
+          <b> </b>Release Notes
+          
+      </a>
+      
+      
+    </li>
+  
+ 
+
+          
+        
     </ul>
 
     
@@ -1111,7 +1143,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > 
+            <a href='/weblogic-deploy-tooling/'></a> > Release Notes
           
         
           
@@ -1124,9 +1156,9 @@
     <div class="wrapper">
 <nav id="TableOfContents">
   <ul>
-    <li>
+    <li><a href="#known-issues-for-weblogic-deploy-tooling">Known issues for WebLogic Deploy Tooling</a>
       <ul>
-        <li><a href="#known-issues-for-weblogic-deploy-tooling">Known issues for WebLogic Deploy Tooling</a></li>
+        <li></li>
       </ul>
     </li>
   </ul>
@@ -1146,14 +1178,60 @@
           
             <h1>
               
-              
+              Release Notes
             </h1>
           
 
         
 
 
-<h3 id="known-issues-for-weblogic-deploy-tooling">Known issues for WebLogic Deploy Tooling</h3>
+
+	<p>Review the following release notes for recent changes to WebLogic Deploy Tooling and known issues.</p>
+<ul>
+<li>
+<p>WebLogic Deploy Tooling now incorporates the SnakeYAML parser for reading and writing model files.
+This may require some changes to existing models in order to be parsed correctly.</p>
+<ul>
+<li>Model elements that use <a href="/weblogic-deploy-tooling/concepts/model/#declaring-named-mbeans-to-delete">delete notation</a> need to be escaped in single or double quotation marks.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
+    <span style="color:#f92672">Server</span>:
+        <span style="color:#f92672">&#39;!ms1&#39;</span>:
+        <span style="color:#f92672">ms2</span>:
+</code></pre></div><ul>
+<li>Model elements under the same parent should be indented to the exact same level. The previous YAML parser did not enforce this restriction,
+but it is standard for YAML. In this example, each cluster is indented four spaces.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
+    <span style="color:#f92672">Cluster</span>:
+        <span style="color:#f92672">cluster1</span>:
+            <span style="color:#f92672">ClientCertProxyEnabled</span>: <span style="color:#66d9ef">True</span>
+        <span style="color:#f92672">cluster2</span>:
+            <span style="color:#f92672">WeblogicPluginEnabled</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div></li>
+<li>
+<p>Object lists in the <code>kubernetes</code> section of the model now should be specified in a hyphenated list format,
+similar to how they appear in the domain resource file produced for <a href="https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/domain-resource/">WebLogic Kubernetes Operator</a>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">clusters</span>:
+    - <span style="color:#f92672">clusterName</span>: <span style="color:#e6db74">&#39;cluster1&#39;</span>
+      <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+    - <span style="color:#f92672">clusterName</span>: <span style="color:#e6db74">&#39;cluster2&#39;</span>
+      <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div><ul>
+<li>The &ldquo;named object list&rdquo; format is deprecated now, and will cause warning messages to be displayed.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">clusters</span>:
+      <span style="color:#f92672">&#39;cluster1&#39;</span>:
+        <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">&#39;cluster2&#39;</span>:
+        <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div></li>
+<li>
+<p>The deprecated argument <code>-model_sample</code> has been removed from the Model Help Tool.
+The Model Help Tool has used model sample format by default since release 1.9.2.</p>
+</li>
+</ul>
+<h2 id="known-issues-for-weblogic-deploy-tooling">Known issues for WebLogic Deploy Tooling</h2>
 <p>The following list contains known issues. Each issue may contain a workaround or an associated issue number.</p>
 <h4 id="discover-domain-tool-severe-messages">Discover Domain Tool <code>SEVERE</code> messages</h4>
 <p><strong>ISSUE</strong>:
@@ -1174,9 +1252,15 @@ Run the WLS <code>rcu</code> command before executing <code>createDomain</code> 
 <h4 id="assigning-security-groups-to-users">Assigning security groups to users</h4>
 <p><strong>ISSUE</strong>: For WLS versions prior to 14.1.1, there is a problem setting the <code>GroupMemberOf</code> attribute in the <code>topology/Security/User</code> folder. The value is not persisted correctly, and the assignment will not be present when the domain is started.</p>
 <p><strong>ACTION</strong>: Contact Oracle Support to obtain the patch for bug number 30319071 for your WebLogic Server version before running the tool.</p>
+<h4 id="problems-setting-rotatelogonstartup-attribute">Problems setting <code>RotateLogOnStartup</code> attribute</h4>
+<p><strong>ISSUE</strong>: For existing WLS versions, there is a problem setting the <code>RotateLogOnStartup</code> attribute in various log file folders. The value is not persisted correctly, and the assignment will not be present when the domain is started.</p>
+<p><strong>ACTION</strong>: Contact Oracle Support to obtain the patch for bug number 29547985 for your WebLogic Server version before running the tool.</p>
 
 
-<footer class="footline">
+
+
+
+<footer class=" footline" >
 	
 </footer>
 
@@ -1899,6 +1983,23 @@ Run the WLS <code>rcu</code> command before executing <code>createDomain</code> 
             
         
                     
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
 
@@ -1907,6 +2008,8 @@ Run the WLS <code>rcu</code> command before executing <code>createDomain</code> 
 
 	 
 	 
+		
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT"> <i class="fa fa-chevron-left"></i></a>
 		
 		
 			<a class="nav nav-next" href="/weblogic-deploy-tooling/concepts/" title="Concepts" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
@@ -1919,19 +2022,19 @@ Run the WLS <code>rcu</code> command before executing <code>createDomain</code> 
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643157930"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643157930"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643150700"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643157930"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
@@ -1941,4 +2044,3 @@ Run the WLS <code>rcu</code> command before executing <code>createDomain</code> 
 
   </body>
 </html>
-

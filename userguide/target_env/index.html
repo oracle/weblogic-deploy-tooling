@@ -12,20 +12,20 @@
     <title>Target environments :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1643150700" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643150700" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1643157930" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643157930" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.6.0.min.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643157930"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,21 +59,30 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643150700"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643150700"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643157930"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643157930"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643150700"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643157930"></script>
 
     
   </div>
+  
+    <section id="homelinks">
+      <ul>
+        <li>
+            <a class="padding" href='https://oracle.github.io/weblogic-deploy-tooling'><i class='fas fa-home'></i> Home</a>
+        </li>
+      </ul>
+    </section>
+  
 
     <div class="highlightable">
     <ul class="topics">
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling">Home</a></li>
+
         
           
           
@@ -1063,8 +1072,31 @@
  
 
           
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
         
-      <li><a  class="padding" href="https://oracle.github.io/weblogic-deploy-tooling/release-notes">Release Notes</a></li>
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/release-notes/">
+          <b> </b>Release Notes
+          
+      </a>
+      
+      
+    </li>
+  
+ 
+
+          
+        
     </ul>
 
     
@@ -1179,7 +1211,7 @@
 <pre><code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;/target.json
 </code></pre><p>The <code>&lt;target-name&gt;</code> value corresponds to the value of the <code>-target</code> argument on the tool&rsquo;s command line. The WLS installation includes three pre-defined targets:</p>
 <ul>
-<li><a href="#the-weblogic-kubernetes-operator-target">Weblogic Kubernetes Operator</a> (named <code>wko</code>)</li>
+<li><a href="#the-weblogic-kubernetes-operator-target">WebLogic Kubernetes Operator</a> (named <code>wko</code>)</li>
 <li><a href="#the-verrazzano-target">Verrazzano</a> (named <code>vz</code>)</li>
 <li><a href="#generic-kubernetes-target">Kubernetes</a> (named <code>k8s</code>)</li>
 </ul>
@@ -1188,13 +1220,15 @@
 <pre><code>{
     &quot;model_filters&quot; : {
         &quot;discover&quot;: [
-            { &quot;name&quot;: &quot;vz_prep&quot;, &quot;path&quot;: &quot;@@TARGET_CONFIG_DIR@@/vz_filter.py&quot; }
+            { &quot;name&quot;: &quot;vz_prep&quot;, &quot;path&quot;: &quot;@@TARGET_CONFIG_DIR@@/vz_filter.py&quot; },
+            { &quot;id&quot;: &quot;wko_filter&quot; }
         ]
     },
     &quot;variable_injectors&quot; : {&quot;PORT&quot;: {},&quot;HOST&quot;: {},&quot;URL&quot;: {}},
     &quot;validation_method&quot; : &quot;lax&quot;,
     &quot;credentials_method&quot; : &quot;secrets&quot;,
     &quot;credentials_output_method&quot; : &quot;script&quot;,
+    &quot;exclude_domain_bin_contents&quot;: true,
     &quot;wls_credentials_name&quot; : &quot;__weblogic-credentials__&quot;,
     &quot;additional_secrets&quot;: &quot;runtime-encryption-secret&quot;,
     &quot;additional_output&quot; : &quot;vz-application.yaml&quot;
@@ -1214,6 +1248,8 @@
 <li><code>config_override_secrets</code> - the credentials in the model are replaced with placeholder values, such as <code>password1</code>, and a UNIX script to create corresponding Kubernetes secrets is produced.</li>
 </ul>
 <p>In both these cases, the script to create the Kubernetes secrets is written to <code>&lt;output-directory&gt;/create_k8s_secrets.sh</code>. You will need to update this script with credential values before executing</p>
+<h4 id="exclude_domain_bin_contents"><code>exclude_domain_bin_contents</code></h4>
+<p>This field specifies how the domain&rsquo;s bin directory contents should be handled.  If set to <code>true</code>, discovery will skip over the domain&rsquo;s bin directory resulting in a model and archive file without any references to any scripts that might normally be collected (e.g., <code>setUserOverrides.sh</code>).</p>
 <h4 id="wls_credentials_name"><code>wls_credentials_name</code></h4>
 <p>This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the <code>&lt;directory&gt;/&lt;name&gt;/&lt;key&gt;</code> convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model tokens</a>.</p>
 <h4 id="additional_output"><code>additional_output</code></h4>
@@ -1980,6 +2016,22 @@
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
 
@@ -2002,19 +2054,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643157930"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1643150700"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643150700"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1643157930"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643157930"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643150700"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643157930"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

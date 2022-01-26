@@ -313,7 +313,7 @@ resources: ODLConfiguration: config1: Servers: &amp;#34;m1, m2&amp;#34; AddJvmNu
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/prepare/</guid>
       <description>The Prepare Model Tool prepares WDT model files for deploying to specific target environments. These customizations include:
- Removing sections from the model that are not compatible with the environment Replacing credential and attribute values with WDT macros Generating a UNIX shell script that will help with creating any required Kubernetes secrets Generating a variable properties file to customize attribute values Generating any additional configuration files to configure the target environment Updating the model file(s)  To use the Prepare Model Tool, simply run the prepareModel shell script with the correct arguments.</description>
+ Removing sections from the model that are not compatible with the environment Removing files from the archive that are not compatible with the environment Updating model file(s) to set parameters required by the environment Replacing credential and attribute values with WDT macros Generating a UNIX shell script that will help with creating any required Kubernetes secrets Generating a variable properties file to customize attribute values Generating any additional configuration files to configure the target environment  To use the Prepare Model Tool, simply run the prepareModel shell script with the correct arguments.</description>
     </item>
     
     <item>
@@ -385,16 +385,6 @@ The Model Help Tool is new in WebLogic Deploy Tooling 1.8. The -model_sample arg
       <guid>https://oracle.github.io/weblogic-deploy-tooling/rcuinfo/</guid>
       <description>Specifying RCU connection information in the model During creating or updating a domain, there is new section RCUDbInfo in the model, under the domainInfo section, for specifying RCU database connection information without using the command-line arguments -rcu_db and -rcu_prefix. Use this to support a database where the connection string is more complex and requires extra options.
 For example, in order to use the Oracle Autonomous Transaction Processing Cloud Database for the JRF domain, specify the following information in the model:</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/</guid>
-      <description>Known issues for WebLogic Deploy Tooling The following list contains known issues. Each issue may contain a workaround or an associated issue number.
-Discover Domain Tool SEVERE messages ISSUE: The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1.0 domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present in a domain. When it tests an MBean that is not present, an error message is logged by WLST.</description>
     </item>
     
   </channel>

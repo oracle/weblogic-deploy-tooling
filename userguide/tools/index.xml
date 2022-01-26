@@ -81,7 +81,7 @@ To use the Compare Model Tool, simply run the compareModel shell script with the
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/prepare/</guid>
       <description>The Prepare Model Tool prepares WDT model files for deploying to specific target environments. These customizations include:
- Removing sections from the model that are not compatible with the environment Replacing credential and attribute values with WDT macros Generating a UNIX shell script that will help with creating any required Kubernetes secrets Generating a variable properties file to customize attribute values Generating any additional configuration files to configure the target environment Updating the model file(s)  To use the Prepare Model Tool, simply run the prepareModel shell script with the correct arguments.</description>
+ Removing sections from the model that are not compatible with the environment Removing files from the archive that are not compatible with the environment Updating model file(s) to set parameters required by the environment Replacing credential and attribute values with WDT macros Generating a UNIX shell script that will help with creating any required Kubernetes secrets Generating a variable properties file to customize attribute values Generating any additional configuration files to configure the target environment  To use the Prepare Model Tool, simply run the prepareModel shell script with the correct arguments.</description>
     </item>
     
     <item>
