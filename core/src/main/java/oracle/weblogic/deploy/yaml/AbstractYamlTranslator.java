@@ -68,6 +68,8 @@ public abstract class AbstractYamlTranslator {
                 }
                 if (docCount == 1) {
                     firstDoc = convertJavaDataStructureToPython(docToConvert);
+                } else if (docCount == 0) {
+                    firstDoc = getNewDictionary();
                 }
             } catch (Exception ex) {
                 YamlException pex = new YamlException("WLSDPLY-18100", ex, this.fileName, ex.getLocalizedMessage());
