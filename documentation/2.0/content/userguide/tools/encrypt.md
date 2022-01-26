@@ -219,3 +219,14 @@ The variable file will now look something like the following:
     db.url=mydb.example.com:1539/PDBORCL
     db.password={AES}czFXMkNFWNG9jNTNYd0hRL2R1anBnb0hDUlp4K1liQWFBdVM4UTlvMnE0NU1aMUZ5UVhiK25oaWFBc2lIQ20\=
     mymailsession.password={AES}RW9nRnUzcE41WGNMdnEzNDdRQVVNWm1LMGhidkFBVXg6OUN3aXcyci82cmh3cnpNQTpmY2UycUp5YWl4UT0\=
+
+## Parameter table for encrypt tool
+
+| Parameter | Definition | Default |
+| ---- | ---- | ---- |
+| -manual | Run without a model and get an encrypted value for a single password. |    |
+| -model_file | The location of a model file or a set of model files. |    |
+| -oracle_home | The existing Oracle Home directory for the domain. This is required unless the ORACLE_HOME environment variable is set.|    |
+| -passphrase_env | An alternative to entering the encryption passphrase at a prompt. The value is a ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase. |    |
+| -passphrase_file | An alternative to entering the encryption passphrase at a prompt. The value is a the name of a file with a string value which WDT will read to retrieve the passphrase. |    |
+| -variable_file | The location and name of the property file containing the variable values for all variables used in the model(s). |    |

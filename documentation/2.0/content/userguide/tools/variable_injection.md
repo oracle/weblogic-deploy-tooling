@@ -214,3 +214,13 @@ A custom injector for the Administration Server SSL listen port is:
 ### Variable injector sample
 
 A sample of a `model_variable_injector.json` file and a custom injector JSON file are installed in the `WLSDEPLOY/samples` directory.
+
+## Parameter table for injectVariables
+
+| Parameter | Definition | Default |
+| ---- | ---- | ---- |
+| -archive_file | The path to the archive file that contains a model in which the variables will be injected. If the -model_file argument is used, this argument will be ignored. The archive file must contain a valid model. |    |
+| -model_file | The location of the model file in which variables will be injected. If not specified, the tool will look for the model in the archive file. Either the model_file or the archive_file argument must be provided. |    |
+| -oracle_home | The existing Oracle Home directory with the correct version for the model. This is required unless the ORACLE_HOME environment variable is set. |    |
+| -variable_injector_file | The location of the variable injector file which contains the variable injector keywords for this model injection run. If this argument is not provided, the model_variable_injector.json file must exist in the lib directory in the WLSDEPLOY_HOME location. |    |
+| -variable_properties_file | The location of the property file in which to store any variable names injected into the model. If this command line argument is not specified, the variable will be located and named based on the model file or archive file name and location. If the file exists, the file will be updated with new variable values. |    |

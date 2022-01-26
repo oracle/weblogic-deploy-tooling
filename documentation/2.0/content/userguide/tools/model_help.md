@@ -126,3 +126,9 @@ resources:
             SubDeployment:
                 'SubDeployment-1':
 ```
+## Parameter table for model_help
+
+| Parameter | Definition | Default |
+| ---- | ---- | ---- | 
+| -model_path | The path to the model element to be examined. The format is [^<section^>:][/^<folder^>]... |    |
+| -oracle_home | An existing Oracle Home directory. This is required unless the ORACLE_HOME environment variable is set. |    |

@@ -99,3 +99,15 @@ Results in output similar to that shown below, if the `simpleear.ear` file is no
 ### Using multiple models
 
 The Validate Model Tool supports the use of multiple models, as described in [Using multiple models]({{< relref "/concepts/model#using-multiple-models" >}}).
+
+## Parameter table for validateModel
+
+| Parameter | Definition | Default |
+| ---- | ---- | ---- |
+| -archive_file | The path to the archive file to use.  If the archive file is not provided, validation will only validate the artifacts provided.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list. |    |
+| -domain_type | The type of domain. | WLS |
+| -model_file | The location of the model file to use.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. If not specified, the tool will look for the model in the archive. If the model is not found, validation will only validate the artifacts provided. |    |
+| -oracle_home | The existing Oracle Home directory for the domain. This is required unless the ORACLE_HOME environment variable is set. |    |
+| -target_mode | The target WLST mode that the tool should use to validate the model content.  The only valid values are online or offline. | offline |
+| -target_version | The target version of WebLogic Server the tool should use to validate the model content.  This version number can be different than the version being used to run the tool. If not specified, the tool will validate against the version being used to run the tool. |    |
+| -variable_file | The location of the property file containing the variable values for all variables used in the model. If the variable file is not provided, validation will only validate the artifacts provided. |    |

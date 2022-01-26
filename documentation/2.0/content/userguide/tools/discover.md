@@ -76,3 +76,23 @@ The following environment variables may be set.
 ### Opening an issue against Discover Domain
 
 Please provide the `STDOUT` and `STDERR` log streams in the GitHub Issue. If the summary is not listed (unhandled exception stack trace occurs), be sure and include the Oracle and WDT install versions and whether the tool was run in online or offline WLST mode. If possible, provide the model, variable and archive files, and the log file, `discoverDomain.log`, from location `<install home>\weblogic-deploy\log`.
+
+## Parameter table for discoverDomain
+
+| Parameter | Definition | Default |
+| ---- | ---- | ---- |
+| -archive_file | The path to the archive file |    |
+| -admin_pass_env | An alternative to entering the admin password at a prompt. The value is a ENVIRONMENT VARIABLE name that WDT will use to retrieve the password. |    |
+| -admin_pass_file | An alternative to entering the admin password at a prompt. The value is a ENVIRONMENT VARIABLE name that WDT will use to retrieve the password. |    |
+| -admin_url | The admin server URL used for online discovery. |    |
+| -admin_user | The admin user used for online discovery. |    |
+| -domain_home | (Required). The domain home directory to discover. |    |
+| -domain_type | The domain type. | WLS |
+| -java_home | Overrides the JAVA_HOME value when discovering domain values to be replaced with the java home global token. |    |
+| -model_file | Location and name to write the model file to archive. |    |
+| -oracle_home | The existing Oracle Home directory for the domain. This is required unless the ORACLE_HOME environment variable is set. |    |
+| -output_dir | Output directory required for -target. |    |
+| -skip_archive | Do not generate an archive file. The archive_file option will be ignored. |    |
+| -target | Targeting platform - k8s, wko, vz. |    |
+| -variable_file | The location to write properties for attributes that have been replaced with tokens by the variable injector. If this is included, all credentials will automatically be replaced by tokens and the property written to this file. |    |
+
