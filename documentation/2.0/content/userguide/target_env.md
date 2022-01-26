@@ -82,7 +82,7 @@ In both these cases, the script to create the Kubernetes secrets is written to `
 
 #### `exclude_domain_bin_contents`
 
-This field specifies how the domain's bin directory contents should be handled.  If set to `true`, discovery will skip over the domain's bin directory resulting in a model and archive file without any references to any scripts that might normally be collected (e.g., `setUserOverrides.sh`).
+This field specifies how the domain's `bin` directory contents should be handled.  If set to `true`, then discovery will skip over the domain's `bin` directory resulting in a model and archive file without any references to any scripts that might typically be collected (for example, `setUserOverrides.sh`).
 
 #### `wls_credentials_name`
 
