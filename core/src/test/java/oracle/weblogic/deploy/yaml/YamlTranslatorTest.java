@@ -33,6 +33,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class YamlTranslatorTest {
 
     @Test
+    public void testEmptyModelReturnsPyDictionary() throws Exception {
+        File yamlFile = new File("src/test/resources/yaml/empty.yaml").getAbsoluteFile();
+        YamlTranslator yamlTranslator = new YamlTranslator(yamlFile.getAbsolutePath(), true);
+
+        PyDictionary actual = yamlTranslator.parse();
+
+        assertNotNull(actual, "empty model file should return dict");
+    }
+
+    @Test
     public void testFlatMapScalarTypes() throws Exception {
         File yamlFile = new File("src/test/resources/yaml/flat-map-with-scalars.yaml").getAbsoluteFile();
         YamlTranslator yamlTranslator = new YamlTranslator(yamlFile.getAbsolutePath(), true);
