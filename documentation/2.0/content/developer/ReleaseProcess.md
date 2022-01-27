@@ -34,8 +34,8 @@ releaseVersion=1.9.11
 developmentVersion=1.9.12-SNAPSHOT
 ```
 
-3. In the `weblogic-deploy-tooling` project directory, run the `mvn -B -P release release:prepare release:perform` command.  If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.  Failure to enter it in a timely manner may result in a failure.
-4. If the build fails, run the `mvn -B -P release release:rollback` command to undo it and start over from Step 2., after correcting the issue.
+3. In the `weblogic-deploy-tooling` project directory, run the `mvn -B release:prepare release:perform` command.  If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.  Failure to enter it in a timely manner may result in a failure.
+4. If the build fails, run the `mvn -B release:rollback` command to undo it and start over from Step 2., after correcting the issue.
 5. After the software has been released, move on to the GitHub Release Process.
 
 ### GitHub release process
