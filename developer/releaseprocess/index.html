@@ -12,20 +12,20 @@
     <title>WDT project release process :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643210849" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643210849" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643210849" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643210849" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643210849" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643210849" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643210849" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1643210849" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1643210849" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643210849" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643298997" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643298997" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643298997" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643298997" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643298997" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643298997" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643298997" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1643298997" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1643298997" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643298997" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643210849"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643298997"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643210849"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643210849"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643298997"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643298997"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643210849"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643298997"></script>
 
     
   </div>
@@ -1217,8 +1217,8 @@
 releaseVersion=1.9.11
 developmentVersion=1.9.12-SNAPSHOT
 </code></pre><ol start="3">
-<li>In the <code>weblogic-deploy-tooling</code> project directory, run the <code>mvn -B -P release release:prepare release:perform</code> command.  If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.  Failure to enter it in a timely manner may result in a failure.</li>
-<li>If the build fails, run the <code>mvn -B -P release release:rollback</code> command to undo it and start over from Step 2., after correcting the issue.</li>
+<li>In the <code>weblogic-deploy-tooling</code> project directory, run the <code>mvn -B release:prepare release:perform</code> command.  If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.  Failure to enter it in a timely manner may result in a failure.</li>
+<li>If the build fails, run the <code>mvn -B release:rollback</code> command to undo it and start over from Step 2., after correcting the issue.</li>
 <li>After the software has been released, move on to the GitHub Release Process.</li>
 </ol>
 <h3 id="github-release-process">GitHub release process</h3>
@@ -1999,19 +1999,19 @@ developmentVersion=1.9.12-SNAPSHOT
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643210849"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643210849"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643210849"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643210849"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643210849"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643210849"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643298997"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643298997"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643298997"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643298997"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643298997"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643298997"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643210849"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1643210849"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643210849"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643298997"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1643298997"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643298997"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643210849"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643298997"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
