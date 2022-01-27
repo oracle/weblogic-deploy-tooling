@@ -52,16 +52,16 @@ You can use the information above to construct this model section:
 ```yaml
 resources:
     JDBCSystemResource:
-        CompatibilityName: 'myName'
-        DeploymentOrder: 5
-        Target: 'ms1,ms2'
         'JDBC-1':
-            # JdbcSystemResource attributes and folders
-        SubDeployment:
-            deployment1:
-                # SubDeployment attributes and folders
-            deployment2:
-                # SubDeployment attributes and folders
+            # JDBCSystemResource attributes and folders
+            CompatibilityName: 'myName'
+            DeploymentOrder: 5
+            Target: 'ms1,ms2'
+            SubDeployment:
+                deployment1:
+                    # SubDeployment attributes and folders
+                deployment2:
+                    # SubDeployment attributes and folders
 ```
 If you are copying elements from the sample model to create a full domain model, you should exclude any attributes or sub-folders that you do not intend to declare or override.
 
