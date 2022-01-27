@@ -43,7 +43,7 @@ For more information about additional target environments and options, see [Targ
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
 | -model_file | (Required). Location of the model file. This can also be specified as a comma-separated list of models, where each successive model layers on top of the previous ones. |    |
-| -oracle_home | An existing Oracle home. This is required unless the ORACLE_HOME ENVIRONMENT is set' |    |
+| -oracle_home | Home directory of the Oracle WebLogic Installation. Required if ORACLE_HOME environment variable is not set. |    |
 | -output_dir | (Required) Location where to write the output files. |    |
 | -target | (Required) Name of the target configuration such as wko, vz, k8s. |    |
 | -variable_file | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |    |

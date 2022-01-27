@@ -297,6 +297,6 @@ Comparing the new and old models:
 
 | Parameter | Definition | Default |
 | --- | --- | --- |
-| -oracle_home | Home directory of the Oracle installation. Required if ORACLE_HOME environment variable is not set |    |
-| -output_directory | (Required) Directory in which to store the output. |    |
+| -oracle_home | Home directory of the Oracle installation. Required if ORACLE_HOME environment variable is not set. |    |
+| -output_dir | (Required) Directory in which to store the output. |    |
 | -variable_file | Variable file used for token substitution. |    |

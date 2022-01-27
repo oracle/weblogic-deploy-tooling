@@ -130,5 +130,5 @@ resources:
 
 | Parameter | Definition | Default |
 | ---- | ---- | ---- | 
-| -model_path | The path to the model element to be examined. The format is [^<section^>:][/^<folder^>]... |    |
-| -oracle_home | An existing Oracle Home directory. This is required unless the ORACLE_HOME environment variable is set. |    |
+| -oracle_home | Home directory of the Oracle WebLogic Installation. Required if ORACLE_HOME environment variable is not set. |    |
+| <model_path> | The path to the model element to be examined. The format is [^<section^>:][/^<folder^>]... |    |

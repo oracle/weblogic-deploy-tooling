@@ -132,5 +132,5 @@ The content in the `kubernetes` section is not generated when a model is discove
 | -domain_home | (Required) The domain home directory. |    |
 | -domain_resource_file | (Required) The location of the extracted domain resource file. |    |
 | -model_file | The location of the model file.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
-| -oracle_home | The existing Oracle Home directory for the domain. This is required unless the ORACLE_HOME environment variable is set. |    |
+| -oracle_home | Home directory of the Oracle WebLogic Installation. Required if ORACLE_HOME environment variable is not set. |    |
 | -variable_file | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |    |

@@ -64,10 +64,10 @@ topology:
 | -archive_file | The path to the archive file to use.  If the -model_file argument is not specified, the model file in this archive will be used.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list. |    |
 | -domain_home | Required if -domain_parent is not used. The full directory and name where the domain should be created.
 | -domain_parent | Required if -domain_home is not used. The parent directory where the domain should be created. The name is the domain name in the model. |    |
-| -domain_type | The type of domain (e.g., WLS, JRF).  This controls the domain templates and template resource targeting. | WLS |
+| -domain_type | The type of domain (e.g., WLS, JRF). | WLS |
 | -java_home | The Java Home to use for the new domain. If not specified, it defaults to the value of the JAVA_HOME environment variable. |    |
-| -model_file | The location of the model file to use.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
-| -oracle_home | The existing Oracle Home directory for the domain. This is required unless the ORACLE_HOME environment variable is set. |    |
+| -model_file | The location of the model file.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
+| -oracle_home | Home directory of the Oracle WebLogic Installation. Required if ORACLE_HOME environment variable is not set.|    |
 | -opss_wallet_passphrase_env | An alternative to entering the OPSS wallet passphrase at a prompt. The value is an ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase. |    |
 | -opss_wallet_passphrase_file | An alternative to entering the OPSS wallet passphrase at a prompt. The value is the name of a file with a string value which WDT will read to retrieve the passphrase.
 | -passphrase_env | An alternative to entering the encryption passphrase at a prompt. The value is an ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase. |    |

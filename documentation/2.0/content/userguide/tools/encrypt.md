@@ -225,8 +225,8 @@ The variable file will now look something like the following:
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
 | -manual | Run without a model and get an encrypted value for a single password. |    |
-| -model_file | The location of a model file or a set of model files. |    |
-| -oracle_home | The existing Oracle Home directory for the domain. This is required unless the ORACLE_HOME environment variable is set.|    |
+| -model_file | The location of the model file or a set of model files. |    |
+| -oracle_home | Home directory of the Oracle WebLogic Installation. Required if ORACLE_HOME environment variable is not set. |    |
 | -passphrase_env | An alternative to entering the encryption passphrase at a prompt. The value is a ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase. |    |
 | -passphrase_file | An alternative to entering the encryption passphrase at a prompt. The value is a the name of a file with a string value which WDT will read to retrieve the passphrase. |    |
 | -variable_file | The location and name of the property file containing the variable values for all variables used in the model(s). |    |
