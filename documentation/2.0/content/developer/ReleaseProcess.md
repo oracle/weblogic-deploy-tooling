@@ -11,7 +11,7 @@ This document describes the process that should be followed to create a WebLogic
 - A local installation of WebLogic Server 12.2.1.x must be available.
 - The person running the release process must have admin privileges on the [WebLogic Deploy Tooling GitHub repo](https://github.com/oracle/weblogic-deploy-tooling) because the release process pushes to the master branch directly.
 - The person running the release process needs to create a GitHub Personal Access Token for the repository with (at least) the `repo:status`, `repo_deployment`, `public_repo`, and `security_events` privileges.
-- The person running the release needs a server added to their Maven `settings.xml` file, where the GitHub Personal Access Token is stored, as shown below.  Note that this token can either be stored in plain text or encrypted using [Maven password encryption](https://maven.apache.org/guides/mini/guide-encryption.html).
+- The person running the release process needs a server added to their Maven `settings.xml` file, where the GitHub Personal Access Token is stored, as shown below.  Note that this token can either be stored in plain text or encrypted using [Maven password encryption](https://maven.apache.org/guides/mini/guide-encryption.html).
 
 ```xml
   <servers>
@@ -20,6 +20,21 @@ This document describes the process that should be followed to create a WebLogic
       <passphrase>store plain text or encrypted token here</passphrase>
     </server>
   </servers>
+```
+
+- If the machine from which the release process is being run requires a proxy server to access the Internet, the person running the release process needs an active proxy configured in their Maven `settings.xml` file.
+
+```xml
+  <proxies>
+    <proxy>
+      <active>true</active>
+      <id>my-proxy</id>
+      <protocol>http</protocol>
+      <host>proxy server DNS name</host>
+      <port>proxy server port</port>
+      <nonProxyHosts>list of DNS names/patterns separated by |</nonProxyHosts>
+    </proxy>
+  </proxies>
 ```
 
 ### Software release process
