@@ -20,8 +20,6 @@ import oracle.weblogic.deploy.json.JsonTranslator as JJsonTranslator
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.exception.exception_helper as exception_helper
 
-# Unlike with yaml files, JSON files do not allow comments. remove from file
-COMMENT_MATCH = '# - '
 
 class JsonToPython(object):
     """
@@ -170,18 +168,15 @@ class PythonToJson(object):
 
         indent += self._indent_unit
         for key, value in dictionary.iteritems():
-            if isinstance(key, basestring) and key.startswith(COMMENT_MATCH):
-                self._logger.finer('WLSDPLY-01714', key, class_name=self._class_name, method_name=_method_name)
+            writer.println(end_line)
+            end_line = ','
+            writer.write(indent + '"' + _escape_text(key) + '" : ')
+            if isinstance(value, dict):
+                self._write_dictionary_to_json_file(value, writer, indent)
+            elif isinstance(value, list):
+                self._write_list_to_json_file(value, writer, indent)
             else:
-                writer.println(end_line)
-                end_line = ','
-                writer.write(indent + '"' + _escape_text(key) + '" : ')
-                if isinstance(value, dict):
-                    self._write_dictionary_to_json_file(value, writer, indent)
-                elif isinstance(value, list):
-                    self._write_list_to_json_file(value, writer, indent)
-                else:
-                    writer.write(_format_json_value(value))
+                writer.write(_format_json_value(value))
         writer.println()
         writer.write(end_indent + _end_dict)
 
