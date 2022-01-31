@@ -483,6 +483,10 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         return commentMap;
     }
 
+    public void addComment(String key, String comment) {
+        commentMap.addComment(key, comment);
+    }
+
     // private methods
 
     private static PyObject dictFromKeys(PyType type, PyObject keys, PyObject value) {
