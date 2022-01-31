@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -276,6 +276,7 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
     private Handler getConsoleHandler() {
         Handler handler = LoggingUtils.getHandlerInstance(WLSDeployLoggingConfig.getStdoutHandler());
         handler.setFilter(null);
+        handler.setLevel(Level.INFO);
         return handler;
     }
 
