@@ -12,20 +12,20 @@
     <title>WDT project release process :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643298997" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643298997" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643298997" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643298997" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643298997" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643298997" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643298997" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1643298997" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1643298997" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643298997" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643666472" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643666472" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643666472" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643666472" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643666472" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643666472" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643666472" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1643666472" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1643666472" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643666472" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643298997"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643666472"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643298997"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643298997"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643666472"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643666472"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643298997"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643666472"></script>
 
     
   </div>
@@ -1199,7 +1199,7 @@
 <li>A local installation of WebLogic Server 12.2.1.x must be available.</li>
 <li>The person running the release process must have admin privileges on the <a href="https://github.com/oracle/weblogic-deploy-tooling">WebLogic Deploy Tooling GitHub repo</a> because the release process pushes to the master branch directly.</li>
 <li>The person running the release process needs to create a GitHub Personal Access Token for the repository with (at least) the <code>repo:status</code>, <code>repo_deployment</code>, <code>public_repo</code>, and <code>security_events</code> privileges.</li>
-<li>The person running the release needs a server added to their Maven <code>settings.xml</code> file, where the GitHub Personal Access Token is stored, as shown below.  Note that this token can either be stored in plain text or encrypted using <a href="https://maven.apache.org/guides/mini/guide-encryption.html">Maven password encryption</a>.</li>
+<li>The person running the release process needs a server added to their Maven <code>settings.xml</code> file, where the GitHub Personal Access Token is stored, as shown below.  Note that this token can either be stored in plain text or encrypted using <a href="https://maven.apache.org/guides/mini/guide-encryption.html">Maven password encryption</a>.</li>
 </ul>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">  <span style="color:#f92672">&lt;servers&gt;</span>
     <span style="color:#f92672">&lt;server&gt;</span>
@@ -1207,6 +1207,19 @@
       <span style="color:#f92672">&lt;passphrase&gt;</span>store plain text or encrypted token here<span style="color:#f92672">&lt;/passphrase&gt;</span>
     <span style="color:#f92672">&lt;/server&gt;</span>
   <span style="color:#f92672">&lt;/servers&gt;</span>
+</code></pre></div><ul>
+<li>If the machine from which the release process is being run requires a proxy server to access the Internet, the person running the release process needs an active proxy configured in their Maven <code>settings.xml</code> file.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">  <span style="color:#f92672">&lt;proxies&gt;</span>
+    <span style="color:#f92672">&lt;proxy&gt;</span>
+      <span style="color:#f92672">&lt;active&gt;</span>true<span style="color:#f92672">&lt;/active&gt;</span>
+      <span style="color:#f92672">&lt;id&gt;</span>my-proxy<span style="color:#f92672">&lt;/id&gt;</span>
+      <span style="color:#f92672">&lt;protocol&gt;</span>http<span style="color:#f92672">&lt;/protocol&gt;</span>
+      <span style="color:#f92672">&lt;host&gt;</span>proxy server DNS name<span style="color:#f92672">&lt;/host&gt;</span>
+      <span style="color:#f92672">&lt;port&gt;</span>proxy server port<span style="color:#f92672">&lt;/port&gt;</span>
+      <span style="color:#f92672">&lt;nonProxyHosts&gt;</span>list of DNS names/patterns separated by |<span style="color:#f92672">&lt;/nonProxyHosts&gt;</span>
+    <span style="color:#f92672">&lt;/proxy&gt;</span>
+  <span style="color:#f92672">&lt;/proxies&gt;</span>
 </code></pre></div><h3 id="software-release-process">Software release process</h3>
 <p>The best practice is to write the release notes that will be published to GitHub prior to starting the steps below.</p>
 <ol>
@@ -1999,19 +2012,19 @@ developmentVersion=1.9.12-SNAPSHOT
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643298997"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643298997"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643298997"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643298997"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643298997"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643298997"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643666472"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643666472"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643666472"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643666472"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643666472"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643666472"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643298997"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1643298997"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643298997"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643666472"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1643666472"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643666472"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643298997"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643666472"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
