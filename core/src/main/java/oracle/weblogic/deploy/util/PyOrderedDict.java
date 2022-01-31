@@ -37,6 +37,8 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
 
     private final LinkedHashMap<PyObject, PyObject> linkedHashMap;
 
+    private final CommentMap commentMap = new CommentMap();
+
     /**
      * The no-args constructor.
      */
@@ -475,6 +477,10 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         java.util.Vector<PyObject> v = new java.util.Vector<>(values.size());
         v.addAll(values);
         return new PyList(v.toArray(new PyObject[0]));
+    }
+
+    public CommentMap getCommentMap() {
+        return commentMap;
     }
 
     // private methods
