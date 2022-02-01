@@ -5,10 +5,19 @@ draft: false
 weight: 2
 ---
 
+### Contents
+
+- [Overview](#overview)
+- [Specifying a target environment](#specifying-a-target-environment)
+- [Pre-configured target environments](#pre-configured-target-environments)
+- [Using secret credentials in the model](#using-secret-credentials-in-the-model)
+- [Target configuration files](#target-environment-configuration-files)
+
+### Overview
 
 The [Discover Domain]({{< relref "/userguide/tools/discover.md" >}}) and [Prepare Model]({{< relref "/userguide/tools/prepare.md" >}}) Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
 - Using model tokens for some attributes in the model. See [Model tokens]({{< relref "/concepts/model#model-tokens" >}}).
-- Using Kubernetes secrets for credentials in the model.
+- Using Kubernetes secrets for credentials in the model. See [Using secret credentials in the model](#using-secret-credentials-in-the-model).
 - Applying filters to the model. See [Model filters]({{< relref "/userguide/tools-config/model_filters.md" >}}).
 - Creating additional configuration files for the target system.
 
@@ -24,7 +33,73 @@ This example would apply the `k8s` target type to the discovery result, and plac
 
 If a variable file is specified on the tool's command line using the `-variable_file` argument, any injected variables will be added to that file. If no variable file is specified, injected variables will be written to the file `<output-directory>/<target_name>_variable.properties`.
 
-### The target configuration file
+### Pre-configured target environments
+
+These target environment configurations are included in the WebLogic Deploy Tooling installation.
+
+#### The WebLogic Kubernetes Operator target
+
+This target environment can be applied by providing the command-line argument `-target wko`. It will provide this additional processing:
+
+- The `wko_operator_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
+- Variables will be injected into the model for port, host, and URL attributes
+- `lax` validation will be applied for the resulting model
+- Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
+- An additional Kubernetes resource file, `wko-domain.yaml`, will be produced, with cluster and naming information derived from the model
+
+#### The Verrazzano target
+
+This target environment can be applied by providing the command-line argument `-target vz`. It will provide this additional processing:
+
+- The `vz_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
+- Variables will be injected into the model for port, host, and URL attributes
+- `lax` validation will be applied for the resulting model
+- Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
+- One additional Kubernetes resource file, `vz-application.yaml`, will be produced, with cluster and data source information derived from the model
+
+#### Generic Kubernetes target
+
+This target environment can be applied by providing the command-line argument `-target k8s`. It will provide this additional processing:
+
+- The `k8s_operator_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
+- Variables will be injected into the model for port, host, and URL attributes
+- `lax` validation will be applied for the resulting model
+- Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
+
+### Using secret credentials in the model
+
+If a target environment is configured to use Kubernetes secrets for credential attribute values, each of those values is replaced with a token using the format `@@SECRET:@@ENV:DOMAIN_UID@@<secret-suffix>:<key>`. For example:
+```yaml
+PasswordEncrypted: '@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-generic1:password@@'
+```
+When a domain is created or updated using a model with these tokens, the environment variable `DOMAIN_UID` should be set to the domain's UID, and secrets with corresponding names should have been created. See [Model Tokens]({{< relref "/concepts/model#model-tokens" >}}) for more details about using secret tokens.
+
+The WebLogic admin credentials use a variation of this token format. For example:
+```yaml
+domainInfo:
+    AdminUserName: '@@SECRET:__weblogic-credentials__:username@@'
+    AdminPassword: '@@SECRET:__weblogic-credentials__:password@@'
+```
+The token `__weblogic-credentials__` allows these attributes to reference secrets in a specific location. The `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` environment variable should be set to associate `__weblogic-credentials__` to this location. For example:
+```shell
+WDT_MODEL_SECRETS_NAME_DIR_PAIRS=__weblogic-credentials__=/etc/my-secrets
+```
+See [Model Tokens]({{< relref "/concepts/model#model-tokens" >}}) for more details about using the `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` environment variable.
+
+In WebLogic Kubernetes Operator environments, the environment variable `DOMAIN_UID` is automatically set from the value in the domain resource file. The variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is automatically set to the directory containing WebLogic admin credentials.
+
+#### The create secrets script
+
+For target environments that use Kubernetes secret tokens, a shell script is created to generate the required secrets. The script is named `create_k8s_secrets.sh`, and is created in the target output directory. The script has commands to create each secret, for example: 
+```shell
+# Update <user> and <password> for weblogic-credentials
+create_paired_k8s_secret weblogic-credentials <user> <password>
+```
+The script should be updated with correct `<user>` and `<password>` values as required. It may be necessary to change the `NAMESPACE` and `DOMAIN_UID` variables at the top of the script if they are different in the target environment.
+
+The script performs a check to determine if any generated secret names are more than 63 characters in length, since that will prevent them from being mounted correctly in the Kubernetes environment. If any secret names exceed this limit, they will need to be shortened in this script, in the model files, and in the domain resource file. Each shortened name should be distinct from other secret names.   
+
+### Target environment configuration files
 
 A target environment is configured in a JSON file at this location:
 ```
@@ -93,35 +168,3 @@ This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS en
 This field can be used to create additional output for use in the target environment. The value is a comma-separated list of template files in the `$WLSDEPLOY_HOME/lib/target/<target-name>` directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.
 
 Template files can be customized for specific environments. The recommended method is to copy the original template to a custom configuration directory as described above, such as `$WDT_CUSTOM_CONFIG/target/<target-name>/model.yaml`. The copied file can then be edited as needed, while maintaining the original for reference.
-
-### Pre-configured target environments
-
-These target environment configurations are included in the WebLogic Deploy Tooling installation.
-
-#### The WebLogic Kubernetes Operator target
-
-This target environment can be applied by providing the command-line argument `-target wko`. It will provide this additional processing:
-
-- The `wko_operator_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
-- Variables will be injected into the model for port, host, and URL attributes
-- `lax` validation will be applied for the resulting model
-- Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
-- An additional Kubernetes resource file, `wko-domain.yaml`, will be produced, with cluster and naming information derived from the model
-
-#### The Verrazzano target
-This target environment can be applied by providing the command-line argument `-target vz`. It will provide this additional processing:
-
-- The `vz_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
-- Variables will be injected into the model for port, host, and URL attributes
-- `lax` validation will be applied for the resulting model
-- Credentials in the model will be replaced with placeholder values, and a script to create corresponding secrets will be produced
-- One additional Kubernetes resource file, `vz-application.yaml`, will be produced, with cluster and data source information derived from the model
-
-#### Generic Kubernetes target
-
-This target environment can be applied by providing the command-line argument `-target k8s`. It will provide this additional processing:
-
-- The `k8s_operator_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
-- Variables will be injected into the model for port, host, and URL attributes
-- `lax` validation will be applied for the resulting model
-- Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
