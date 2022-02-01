@@ -92,7 +92,8 @@ public abstract class AbstractYamlTranslator {
 
         if (outputWriter != null) {
             DumperOptions dumperOptions = getDefaultDumperOptions();
-            Yaml yaml = new Yaml(dumperOptions);
+            YamlRepresenter representer = new YamlRepresenter();
+            Yaml yaml = new Yaml(representer, dumperOptions);
 
             try {
                 yaml.dump(replaceNoneInMap(data), outputWriter);
