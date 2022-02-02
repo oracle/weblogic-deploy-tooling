@@ -74,19 +74,19 @@ PasswordEncrypted: '@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-generic1:password@@'
 ```
 When a domain is created or updated using a model with these tokens, the environment variable `DOMAIN_UID` should be set to the domain's UID, and secrets with corresponding names should have been created. For more details about using secret tokens, see [Model Tokens]({{< relref "/concepts/model#model-tokens" >}}).
 
-The WebLogic admin credentials use a variation of this token format. For example:
+For some target environments, the WebLogic admin credentials use a variation of this token format. For example:
 ```yaml
 domainInfo:
     AdminUserName: '@@SECRET:__weblogic-credentials__:username@@'
     AdminPassword: '@@SECRET:__weblogic-credentials__:password@@'
 ```
-The token `__weblogic-credentials__` allows these attributes to reference secrets in a specific location. The `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` environment variable should be set to associate `__weblogic-credentials__` to this location. For example:
+In this case, the token `__weblogic-credentials__` allows these attributes to reference secrets in a specific location. The `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` environment variable should be set to associate `__weblogic-credentials__` to this location. For example:
 ```shell
 WDT_MODEL_SECRETS_NAME_DIR_PAIRS=__weblogic-credentials__=/etc/my-secrets
 ```
 For more details about using the `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` environment variable, see [Model Tokens]({{< relref "/concepts/model#model-tokens" >}}) .
 
-In WebLogic Kubernetes Operator environments, the environment variable `DOMAIN_UID` is automatically set from the value in the domain resource file. The variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is automatically set to the directory containing WebLogic admin credentials.
+In WebLogic Kubernetes Operator "Model in Image" environments, the environment variable `DOMAIN_UID` is automatically set from the value in the domain resource file. The variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is automatically set to the directory containing WebLogic admin credentials.
 
 #### The create secrets script
 
