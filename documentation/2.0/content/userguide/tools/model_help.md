@@ -126,9 +126,9 @@ resources:
             SubDeployment:
                 'SubDeployment-1':
 ```
-## Parameter table for model_help
 
+### Parameter table for model_help
 | Parameter | Definition | Default |
 | ---- | ---- | ---- | 
-| -oracle_home | Home directory of the Oracle WebLogic Installation. Required if ORACLE_HOME environment variable is not set. |    |
+| -oracle_home | Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set. |    |
 | <model_path> | The path to the model element to be examined. The format is [^<section^>:][/^<folder^>]... |    |

@@ -77,8 +77,7 @@ The following environment variables may be set.
 
 Please provide the `STDOUT` and `STDERR` log streams in the GitHub Issue. If the summary is not listed (unhandled exception stack trace occurs), be sure and include the Oracle and WDT install versions and whether the tool was run in online or offline WLST mode. If possible, provide the model, variable and archive files, and the log file, `discoverDomain.log`, from location `<install home>\weblogic-deploy\log`.
 
-## Parameter table for discoverDomain
-
+### Parameter table for discoverDomain
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
 | -archive_file | The path to the archive file. |    |
@@ -87,10 +86,10 @@ Please provide the `STDOUT` and `STDERR` log streams in the GitHub Issue. If the
 | -admin_url | The admin server URL used for online discovery. |    |
 | -admin_user | The admin user used for online discovery. |    |
 | -domain_home | (Required). The location of the existing domain home. |    |
-| -domain_type | The type of domain.  (e.g., WLS, JRF) | WLS |
+| -domain_type | The type of domain.  (for example, WLS, JRF) | WLS |
 | -java_home | Overrides the JAVA_HOME value when discovering domain values to be replaced with the java home global token. |    |
 | -model_file | The path to the model file. If not present, model file will be stored in archive file. |    |
-| -oracle_home | Home directory of the Oracle WebLogic Installation. Required if ORACLE_HOME environment variable is not set. |    |
+| -oracle_home | Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set. |    |
 | -output_dir | Output directory required for -target. |    |
 | -skip_archive | Do not generate an archive file. The archive_file option will be ignored. |    |
 | -target | Targeting platform - k8s, wko, vz. |    |

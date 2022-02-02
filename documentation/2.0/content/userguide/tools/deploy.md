@@ -42,8 +42,7 @@ If the model or variables file contains passwords encrypted with the WDT Encrypt
 
 The Deploy Applications Tool supports the use of multiple models, as described in [Using multiple models]({{< relref "/concepts/model#using-multiple-models" >}}).
 
-## Parameter table for deployApps
-
+### Parameter table for deployApps
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
 | -admin_pass_env | An alternative to entering the admin password at a prompt. The value is an ENVIRONMENT VARIABLE name that WDT will use to retrieve the password. |    |
@@ -54,11 +53,11 @@ The Deploy Applications Tool supports the use of multiple models, as described i
 | -cancel_changes_if_restart_required | Cancel the changes if the update requires domain restart. |    |
 | -discard_current_edit | Discard all current domain edits before starting update. |    |
 | -domain_home | (Required). The location of the existing domain home. |    |
-| -domain_type | The type of domain.  (e.g., WLS, JRF) | WLS |
+| -domain_type | The type of domain.  (for example, WLS, JRF) | WLS |
 | -model_file | The location of the model file. This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
-| -oracle_home | Home directory of the Oracle WebLogic Installation. Required if ORACLE_HOME environment variable is not set.|    |
+| -oracle_home | Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set.|    |
 | -output_dir | If present, write restart information to this directory as restart.file, or, if cancel_changes_if_restart_required used, write non dynamic changes information to file. |    |
 | -passphrase_env | An alternative to entering the encryption passphrase at a prompt. The value is an ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase. |    |
 | -passphrase_file | An alternative to entering the encryption passphrase at a prompt. The value is the name of a file with a string value which WDT will read to retrieve the passphrase. |    |
-| -use_encryption | One or more of the passwords in the model or variables file(s) are encrypted and must be decrypted. Java 8 or higher required for this feature. |    |
+| -use_encryption | One or more of the passwords in the model or variables file(s) are encrypted and must be decrypted. Java 8 or later required for this feature. |    |
 | -variable_file | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |    |

@@ -293,8 +293,7 @@ Comparing the new and old models:
     diffed_model.yaml
     compare_model_stdout
 
-## Parameter table for compareModel.
-
+### Parameter table for compareModel
 | Parameter | Definition | Default |
 | --- | --- | --- |
 | -oracle_home | Home directory of the Oracle installation. Required if ORACLE_HOME environment variable is not set. |    |
