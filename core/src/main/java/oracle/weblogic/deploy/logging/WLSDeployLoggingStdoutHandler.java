@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -8,12 +8,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;
 
 /**
- /**
- * This Class extends the StreamHandler to write log records to STDOUT. The "wlsdeploy" Logger
- * is configured with an instance of this Handler class and an instance of Class @WLSDeployStderrHandler@
- * to log records to the STDOUT and STDERR output streams.
- * <p>
- * Attach a logger or filter to this Handler to direct log records to the STDOUT output stream
+ * This Class extends the StreamHandler to write log records to STDOUT.
  */
 public class WLSDeployLoggingStdoutHandler extends StreamHandler {
 

@@ -33,10 +33,10 @@ import oracle.weblogic.deploy.util.WebLogicDeployToolingVersion;
  * @see WLSDeployCustomizeLoggingConfig
  * @see oracle.weblogic.deploy.util.WLSDeployExit
  */
-public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
-    private static final String WLSDEPLOY_SUMMARY_STDOUT =
-            "oracle.weblogic.deploy.logging.WLSDeploySummaryStdoutHandler";
+public class SummaryHandler extends WLSDeployLogEndHandler {
     private static final String CLASS = SummaryHandler.class.getName();
+    private static final String WLSDEPLOY_SUMMARY_STDOUT_HANDLER =
+        "oracle.weblogic.deploy.logging.WLSDeploySummaryStdoutHandler";
     private static final String LEVEL_PROPERTY = "level";
     private static final String TARGET_PROPERTY = "target";
     private static final String FORMATTER_PROPERTY = "formatter";
@@ -295,7 +295,7 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
     }
 
     private String getStdoutHandler() {
-        return WLSDEPLOY_SUMMARY_STDOUT;
+        return WLSDEPLOY_SUMMARY_STDOUT_HANDLER;
     }
 
 }

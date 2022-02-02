@@ -7,7 +7,9 @@ package oracle.weblogic.deploy.logging;
 import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;
 
-
+/**
+ * This Class extends the StreamHandler to write log records to STDOUT for the Summary Handler.
+ */
 public class WLSDeploySummaryStdoutHandler extends StreamHandler {
 
     public WLSDeploySummaryStdoutHandler() {

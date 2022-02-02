@@ -11,7 +11,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -24,14 +23,14 @@ import oracle.weblogic.deploy.util.FileUtils;
 import oracle.weblogic.deploy.util.StringUtils;
 
 /**
- * The logging config class for use by wls-deploy and friends.
+ * The logging config class that configures the wlsdeploy tool logging.
  */
 public class WLSDeployLoggingConfig {
     private static final String DEFAULT_PROGRAM_NAME = "unknown-test";
     private static final List<String> WLSDEPLOY_ROOT_LOGGERS =
         Collections.singletonList("oracle.weblogic.deploy");
     private static final String DEFAULT_LOG_CONFIG_FILE_NAME = "logging.properties";
-    private static final String LOG_NAME_PATTERN = "%s.log";
+    private static final String LOG_NAME_PATTERN = "%s%s%s.log";
 
     private static final String HANDLERS_PROP = "handlers";
     private static final String CONFIG_PROP = "config";
@@ -39,8 +38,19 @@ public class WLSDeployLoggingConfig {
     private static final String WLSDEPLOY_STDOUT_CONSOLE_HANDLER =
             "oracle.weblogic.deploy.logging.WLSDeployLoggingStdoutHandler";
     private static final String WLSDEPLOY_STDERR_CONSOLE_HANDLER =
-            "oracle.weblogic.deploy.logging.WLSDeployLoggingStderrHandler";
+        "oracle.weblogic.deploy.logging.WLSDeployLoggingStderrHandler";
+    private static final String WLSDEPLOY_SUMMARY_HANDLER = "oracle.weblogic.deploy.logging.SummaryHandler";
+    private static final String WLSDEPLOY_SUMMARY_STDOUT_HANDLER =
+        "oracle.weblogic.deploy.logging.WLSDeployLoggingSummaryStdoutHandler";
     private static final String FILE_HANDLER = "java.util.logging.FileHandler";
+    private static final List<String> DEFAULT_HANDLERS = Arrays.asList(
+        WLSDEPLOY_STDOUT_CONSOLE_HANDLER,
+        WLSDEPLOY_STDERR_CONSOLE_HANDLER,
+        WLSDEPLOY_SUMMARY_HANDLER,
+        WLSDEPLOY_SUMMARY_STDOUT_HANDLER,
+        FILE_HANDLER
+    );
+
     public static final String WLSDEPLOY_LOGGER_NAME = "wlsdeploy";
 
     private static final String HANDLER_LEVEL_PROP = ".level";
@@ -54,8 +64,10 @@ public class WLSDeployLoggingConfig {
     private static final String LOGGER_LEVEL_PROP = HANDLER_LEVEL_PROP;
 
     private static final String DEFAULT_FILE_HANDLER_LEVEL = Level.ALL.toString();
-    private static final String DEFAULT_CONSOLE_HANDLER_LEVEL = Level.INFO.toString();
-    private static final String DEFAULT_WLSLCM_ROOT_LOGGER_LEVEL = Level.INFO.toString();
+    private static final String DEFAULT_STDOUT_HANDLER_LEVEL = Level.INFO.toString();
+    private static final String DEFAULT_STDERR_HANDLER_LEVEL = Level.INFO.toString();
+    private static final String DEFAULT_SUMMARY_HANDLER_LEVEL = Level.INFO.toString();
+    private static final String DEFAULT_WLSDEPLOY_ROOT_LOGGER_LEVEL = Level.INFO.toString();
     private static final String DEFAULT_CONSOLE_FORMATTER_PROP =
             "oracle.weblogic.deploy.logging.WLSDeployConsoleFormatter";
     private static final String DEFAULT_STDOUT_FILTER_PROP =
@@ -137,9 +149,7 @@ public class WLSDeployLoggingConfig {
         }
         setLoggingPropertiesFile(loggingConfigFile);
 
-        InputStream logPropertiesStream = null;
-        try {
-            logPropertiesStream = processLoggingPropertiesFile(programName, loggingConfigFile);
+        try (InputStream logPropertiesStream = processLoggingPropertiesFile(programName, loggingConfigFile)) {
             LogManager.getLogManager().readConfiguration(logPropertiesStream);
         } catch (IOException ioe) {
             String message = MessageFormat.format("Failed to process {0}: {1}", loggingConfigFile.getAbsolutePath(),
@@ -147,14 +157,6 @@ public class WLSDeployLoggingConfig {
             System.err.println(message);
             ioe.printStackTrace(System.err);
             System.exit(ERROR_EXIT_CODE);
-        } finally {
-            if (logPropertiesStream != null) {
-                try {
-                    logPropertiesStream.close();
-                } catch (IOException ignore) {
-                    // nothing to do...
-                }
-            }
         }
         PlatformLogger logger = WLSDeployLogFactory.getLogger(WLSDEPLOY_LOGGER_NAME);   // make sure that this is the first logger
         logger.info("The {0} program will write its log to {1}", programName, logFileName);
@@ -221,59 +223,98 @@ public class WLSDeployLoggingConfig {
 
     private void augmentLoggingProperties(String programName, Properties logProps) {
         Set<String> keys = logProps.stringPropertyNames();
-        List<String> handlers = new ArrayList<>();
+        List<String> handlers = null;
         for (String key : keys) {
             if (HANDLERS_PROP.equals(key)) {
                 String val = logProps.getProperty(key);
                 handlers = Arrays.asList(StringUtils.splitCommaSeparatedList(val));
-            } else if (isKeyKnownHandlerProperty(key) || CONFIG_PROP.equals(key)) {
+            } else if (isFilteredHandlerProperty(key, logProps) || CONFIG_PROP.equals(key)) {
                 logProps.remove(key);
             }
         }
 
+        String handlersEnvVar = System.getenv(WLSDEPLOY_LOG_HANDLERS_ENV_VARIABLE);
+        if (handlersEnvVar != null) {
+            handlers = Arrays.asList(StringUtils.splitCommaSeparatedList(handlersEnvVar));
+        } else if (handlers == null){
+            // If the handlers were not explicitly listed in the logging.properties file,
+            // add the default handlers to the list.
+            //
+            handlers = DEFAULT_HANDLERS;
+        }
+
         // At this point, we should have a properties object with any
-        // handler configuration we care about removed so we can safely
+        // handler configuration we care about removed, so we can safely
         // add our configuration.
         //
-        String consoleHandler = getStdoutHandler();
-        if (!handlers.contains(consoleHandler)) {
-            handlers.add(consoleHandler);
-        }
-        consoleHandler = getStderrHandler();
-        if (!handlers.contains(consoleHandler)) {
-            handlers.add(consoleHandler);
-        }
-        if (!handlers.contains(FILE_HANDLER)) {
-            handlers.add(FILE_HANDLER);
+        for (String handler : DEFAULT_HANDLERS) {
+            if (handlers.contains(handler)) {
+                configureHandler(programName, handler, logProps);
+            } else {
+                // TODO - is this really necessary?
+                disableHandler(handler, logProps);
+            }
         }
         String handlersListString = StringUtils.getCommaSeparatedListString(handlers);
         logProps.setProperty(HANDLERS_PROP, handlersListString);
 
-        customizeLoggingProperties(programName, logProps);
-
-        logFileName = configureFileHandler(programName, logProps);
-        configureConsoleHandler(logProps);
+        LoggingUtils.printLogProperties(logProps, "XXX:  ");
 
         for (String loggerName : WLSDEPLOY_ROOT_LOGGERS) {
             String loggerLevelProp = loggerName + LOGGER_LEVEL_PROP;
             if (!logProps.containsKey(loggerLevelProp)) {
-                logProps.setProperty(loggerLevelProp, DEFAULT_WLSLCM_ROOT_LOGGER_LEVEL);
+                logProps.setProperty(loggerLevelProp, DEFAULT_WLSDEPLOY_ROOT_LOGGER_LEVEL);
             }
         }
+        LoggingUtils.printLogProperties(logProps, "YYY:  ");
         // Uncomment to debug log properties that will be passed to the LogManager
         // LoggingUtils.printLogProperties(logProps, "Final log properties :  ");
     }
 
-    private static boolean isKeyKnownHandlerProperty(String key) {
-        return key.startsWith(getStdoutHandler()) ||
-                key.startsWith(getStderrHandler()) ||
-                key.startsWith(FILE_HANDLER);
+    private void configureHandler(String programName, String handler, Properties logProps) {
+        switch(handler) {
+            case WLSDEPLOY_STDOUT_CONSOLE_HANDLER:
+                configureStdoutConsoleHandler(logProps);
+                break;
+
+            case WLSDEPLOY_STDERR_CONSOLE_HANDLER:
+                configureStderrConsoleHandler(logProps);
+                break;
+
+            case WLSDEPLOY_SUMMARY_HANDLER:
+                configureSummaryHandler(logProps);
+                break;
+
+            case FILE_HANDLER:
+                logFileName = configureFileHandler(programName, logProps);
+                break;
+
+            default:
+                String message = MessageFormat.format("{0} failed to configure unrecognized log handler {1}",
+                    programName, handler);
+                System.err.println(message);
+                System.exit(ERROR_EXIT_CODE);
+        }
+    }
+
+    private void disableHandler(String handler, Properties logProps) {
+        String handlerLevel = handler + HANDLER_LEVEL_PROP;
+        logProps.setProperty(handlerLevel, "OFF");
+    }
+
+    private static boolean isFilteredHandlerProperty(String key, Properties logProps) {
+        boolean result = false;
+        for (String handler : DEFAULT_HANDLERS) {
+            if (key.startsWith(handler)) {
+                result = !key.equals(handler + LOGGER_LEVEL_PROP) || !"OFF".equals(logProps.getProperty(key));
+            }
+        }
+        return result;
     }
 
     private static String configureFileHandler(String programName, Properties logProps) {
         File logDir = findLoggingDirectory(programName);
-        String pattern = String.format(logDir.getAbsolutePath() + File.separator +
-            LOG_NAME_PATTERN, programName);
+        String pattern = String.format(LOG_NAME_PATTERN, logDir.getAbsolutePath(), File.separator, programName);
         logProps.setProperty(FILE_HANDLER + HANDLER_PATTERN_PROP, pattern);
         logProps.setProperty(FILE_HANDLER + HANDLER_FORMATTER_PROP, LOG_FORMATTER);
         logProps.setProperty(FILE_HANDLER + HANDLER_LEVEL_PROP, DEFAULT_FILE_HANDLER_LEVEL);
@@ -283,28 +324,51 @@ public class WLSDeployLoggingConfig {
         return pattern;
     }
 
-    private static void configureConsoleHandler(Properties logProps) {
-        configureStderrConsoleHandler(logProps);
-        configureStdoutConsoleHandler(logProps);
-    }
-
     private static void configureStdoutConsoleHandler(Properties logProps) {
-        String consoleHandler = getStdoutHandler();
-        String debugToStdoutString = System.getProperty(WLSDEPLOY_DEBUG_TO_STDOUT_PROP, DEFAULT_DEBUG_TO_STDOUT);
-        if (Boolean.parseBoolean(debugToStdoutString)) {
-            logProps.setProperty(consoleHandler + HANDLER_LEVEL_PROP, Level.ALL.toString());
-        } else {
-            logProps.setProperty(consoleHandler + HANDLER_LEVEL_PROP, DEFAULT_CONSOLE_HANDLER_LEVEL);
+        String stdoutHandler = getStdoutHandler();
+        String stdoutHandlerLevel = stdoutHandler + HANDLER_LEVEL_PROP;
+
+        // If the log properties already has the level set, don't bother changing it since
+        // currently, the only way this happens is if the value is OFF.
+        //
+        if (logProps.getProperty(stdoutHandlerLevel) == null) {
+            String debugToStdoutString = System.getProperty(WLSDEPLOY_DEBUG_TO_STDOUT_PROP, DEFAULT_DEBUG_TO_STDOUT);
+            if (Boolean.parseBoolean(debugToStdoutString)) {
+                logProps.setProperty(stdoutHandlerLevel, Level.ALL.toString());
+            } else {
+                logProps.setProperty(stdoutHandlerLevel, DEFAULT_STDOUT_HANDLER_LEVEL);
+            }
         }
-        logProps.setProperty(consoleHandler + HANDLER_FORMATTER_PROP, DEFAULT_CONSOLE_FORMATTER_PROP);
-        logProps.setProperty(consoleHandler + HANDLER_FILTER_PROP, DEFAULT_STDOUT_FILTER_PROP);
+        logProps.setProperty(stdoutHandler + HANDLER_FORMATTER_PROP, DEFAULT_CONSOLE_FORMATTER_PROP);
+        logProps.setProperty(stdoutHandler + HANDLER_FILTER_PROP, DEFAULT_STDOUT_FILTER_PROP);
     }
 
     private static void configureStderrConsoleHandler(Properties logProps) {
-        String consoleHandler = getStderrHandler();
-        logProps.setProperty(consoleHandler + HANDLER_LEVEL_PROP, DEFAULT_CONSOLE_HANDLER_LEVEL);
-        logProps.setProperty(consoleHandler + HANDLER_FORMATTER_PROP, DEFAULT_CONSOLE_FORMATTER_PROP);
-        logProps.setProperty(consoleHandler + HANDLER_FILTER_PROP, DEFAULT_STDERR_FILTER_PROP);
+        String stderrHandler = getStderrHandler();
+        String stderrHandlerLevel = stderrHandler + HANDLER_LEVEL_PROP;
+
+        // If the log properties already has the level set, don't bother changing it since
+        // currently, the only way this happens is if the value is OFF.
+        //
+        if (logProps.getProperty(stderrHandlerLevel) == null) {
+            logProps.setProperty(stderrHandlerLevel, DEFAULT_STDERR_HANDLER_LEVEL);
+        }
+        logProps.setProperty(stderrHandler + HANDLER_FORMATTER_PROP, DEFAULT_CONSOLE_FORMATTER_PROP);
+        logProps.setProperty(stderrHandler + HANDLER_FILTER_PROP, DEFAULT_STDERR_FILTER_PROP);
+    }
+
+    private static void configureSummaryHandler(Properties logProps) {
+        String summaryHandler = WLSDEPLOY_SUMMARY_HANDLER;
+        String summaryHandlerLevel = summaryHandler + HANDLER_LEVEL_PROP;
+
+        // We do not allow turning off the SummaryHandler.  To turn off the
+        // SummaryHandler's output, turn off the SummaryStdoutHandler's level.
+        //
+        logProps.setProperty(summaryHandlerLevel, DEFAULT_SUMMARY_HANDLER_LEVEL);
+    }
+
+    private static void configureSummaryStdoutHandler(Properties logProps) {
+
     }
 
     private static File findLoggingDirectory(String programName) {
@@ -363,5 +427,4 @@ public class WLSDeployLoggingConfig {
             loggingPropertiesFile = logPropsFile;
         }
     }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -98,13 +98,18 @@ public class WLSDeployExit {
         List<Logger> parents = new ArrayList<>();
         if (loggers.size() > 0) {
             for (Logger logger : loggers) {
+                LOGGER.info("Logger = {0}", logger.getName());
                 if (logger.getUseParentHandlers()) {
+                    LOGGER.info("Logger getUseParentHandler() == true");
                     for (Handler handler : logger.getHandlers()) {
+                        LOGGER.info("Logger {0} handler = ", handler.getClass().getName());
                         if (WLSDeployLogEndHandler.class.isAssignableFrom(handler.getClass())) {
+                            LOGGER.info("Adding handler to list");
                             handlerList.add(handler);
                         }
                         Logger parent = logger.getParent();
                         if (parent != null) {
+                            LOGGER.info("Adding parent logger {0} to parent list", parent.getName());
                             parents.add(parent);
                         }
                     }
@@ -112,6 +117,7 @@ public class WLSDeployExit {
             }
             handlerList = traverseHandlers(parents, handlerList);
         }
+        LOGGER.info("exiting traverseHandlers with a list with that has {0} handlers", handlerList.size());
         return handlerList;
     }
 

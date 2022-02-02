@@ -197,17 +197,13 @@ GOTO :EOF
 
     @REM set up logger configuration, see WLSDeployLoggingConfig.java
 
-    SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
-    SET WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
+    SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
 
     IF NOT DEFINED WLSDEPLOY_LOG_PROPERTIES (
       SET WLSDEPLOY_LOG_PROPERTIES=%WLSDEPLOY_HOME%\etc\logging.properties
     )
     IF NOT DEFINED WLSDEPLOY_LOG_DIRECTORY (
       SET WLSDEPLOY_LOG_DIRECTORY=%WLSDEPLOY_HOME%\logs
-    )
-    IF NOT DEFINED WLSDEPLOY_LOG_HANDLERS (
-      SET WLSDEPLOY_LOG_HANDLERS=%WLSDEPLOY_LOG_HANDLER%
     )
 GOTO :EOF
 
