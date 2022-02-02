@@ -34,6 +34,8 @@ import oracle.weblogic.deploy.util.WebLogicDeployToolingVersion;
  * @see oracle.weblogic.deploy.util.WLSDeployExit
  */
 public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
+    private static final String WLSDEPLOY_SUMMARY_STDOUT =
+            "oracle.weblogic.deploy.logging.WLSDeploySummaryStdoutHandler";
     private static final String CLASS = SummaryHandler.class.getName();
     private static final String LEVEL_PROPERTY = "level";
     private static final String TARGET_PROPERTY = "target";
@@ -260,6 +262,7 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
         LogManager manager = LogManager.getLogManager();
         topTarget = getConsoleHandler();
         topTarget.setFormatter(new TotalFormatter());
+        topTarget.setLevel(Level.INFO);
         bufferSize = getSize(manager.getProperty(getClass().getName() + "." + SIZE_PROPERTY));
     }
 
@@ -274,9 +277,8 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
     }
 
     private Handler getConsoleHandler() {
-        Handler handler = LoggingUtils.getHandlerInstance(WLSDeployLoggingConfig.getStdoutHandler());
+        Handler handler = LoggingUtils.getHandlerInstance(getStdoutHandler());
         handler.setFilter(null);
-        handler.setLevel(Level.INFO);
         return handler;
     }
 
@@ -290,6 +292,10 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
         record.setSourceMethodName("");
         record.setResourceBundle(LOGGER.getUnderlyingLogger().getResourceBundle());
         return record;
+    }
+
+    private String getStdoutHandler() {
+        return WLSDEPLOY_SUMMARY_STDOUT;
     }
 
 }

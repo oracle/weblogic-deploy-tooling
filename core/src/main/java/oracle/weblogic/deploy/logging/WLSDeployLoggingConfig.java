@@ -107,11 +107,6 @@ public class WLSDeployLoggingConfig {
      */
     public static final String WLSDEPLOY_DEBUG_TO_STDOUT_PROP = WLSDEPLOY_LOGGER_NAME + ".debugToStdout";
 
-    /**
-     * The environment variable used to minimize console log statements.
-     */
-    public static final String WLSDEPLOY_TURN_OFF_CONSOLE = "WLSDEPLOY_TURN_OFF_CONSOLE";
-
     private static File loggingDirectory;
     private static File loggingPropertiesFile;
 
@@ -295,16 +290,11 @@ public class WLSDeployLoggingConfig {
 
     private static void configureStdoutConsoleHandler(Properties logProps) {
         String consoleHandler = getStdoutHandler();
-        Boolean noOutputToStdoutString = new Boolean(System.getenv(WLSDEPLOY_TURN_OFF_CONSOLE));
-        if (noOutputToStdoutString) {
-            logProps.setProperty(consoleHandler + HANDLER_LEVEL_PROP, Level.OFF.toString());
+        String debugToStdoutString = System.getProperty(WLSDEPLOY_DEBUG_TO_STDOUT_PROP, DEFAULT_DEBUG_TO_STDOUT);
+        if (Boolean.parseBoolean(debugToStdoutString)) {
+            logProps.setProperty(consoleHandler + HANDLER_LEVEL_PROP, Level.ALL.toString());
         } else {
-            String debugToStdoutString = System.getProperty(WLSDEPLOY_DEBUG_TO_STDOUT_PROP, DEFAULT_DEBUG_TO_STDOUT);
-            if (Boolean.parseBoolean(debugToStdoutString)) {
-                logProps.setProperty(consoleHandler + HANDLER_LEVEL_PROP, Level.ALL.toString());
-            } else {
-                logProps.setProperty(consoleHandler + HANDLER_LEVEL_PROP, DEFAULT_CONSOLE_HANDLER_LEVEL);
-            }
+            logProps.setProperty(consoleHandler + HANDLER_LEVEL_PROP, DEFAULT_CONSOLE_HANDLER_LEVEL);
         }
         logProps.setProperty(consoleHandler + HANDLER_FORMATTER_PROP, DEFAULT_CONSOLE_FORMATTER_PROP);
         logProps.setProperty(consoleHandler + HANDLER_FILTER_PROP, DEFAULT_STDOUT_FILTER_PROP);
