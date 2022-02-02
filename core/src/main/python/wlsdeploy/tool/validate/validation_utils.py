@@ -65,6 +65,8 @@ def get_python_data_type(value):
         types.FloatType: 'float',
         types.DictionaryType: 'properties',
         "<type 'PyOrderedDict'>": 'properties',
+        "<type 'PyRealBoolean'>": 'boolean',
+        "<type 'oracle.weblogic.deploy.util.PyRealBoolean'>": 'boolean',
         types.TupleType: 'list',
         types.ListType: 'list'
     }
@@ -74,7 +76,7 @@ def get_python_data_type(value):
     elif str(data_type) in data_types_map:
         rtnval = data_types_map[str(data_type)]
     else:
-        rtnval = data_type
+        rtnval = str(data_type)
 
     return rtnval
 
@@ -117,13 +119,16 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
     retval = False
     if expected_data_type == 'string':
         retval = (actual_data_type in ["<type 'str'>", "<type 'int'>", "<type 'long'>", "<type 'float'>",
-                                       "<type 'unicode'>"])
+                                       "<type 'unicode'>", "<type 'bool'>", "<type 'PyRealBoolean'>",
+                                       "<type 'oracle.weblogic.deploy.util.PyRealBoolean'>"])
     elif expected_data_type == 'integer':
         retval = (actual_data_type in ["<type 'int'>", "<type 'long'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type == 'long':
         retval = (actual_data_type in ["<type 'int'>", "<type 'long'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type in ['boolean', 'java.lang.Boolean']:
-        retval = (actual_data_type in ["<type 'int'>", "<type 'str'>", "<type 'long'>", "<type 'unicode'>"])
+        retval = (actual_data_type in ["<type 'int'>", "<type 'str'>", "<type 'long'>", "<type 'unicode'>",
+                                       "<type 'bool'>", "<type 'PyRealBoolean'>",
+                                       "<type 'oracle.weblogic.deploy.util.PyRealBoolean'>"])
     elif expected_data_type in ['float', 'double']:
         retval = (actual_data_type in ["<type 'float'>", "<type 'str'>", "<type 'unicode'>"])
     elif expected_data_type == 'properties' or expected_data_type == 'dict':

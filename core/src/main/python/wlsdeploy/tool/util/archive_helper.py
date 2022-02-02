@@ -1,7 +1,10 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os
+import shutil
+
 from java.io import File
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
@@ -359,6 +362,25 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
+    def remove_domain_scripts(self):
+        """
+        Remove any domain bin scripts from the archive.
+        :raises: BundleAwareException of the appropriate type: if an error occurs
+        """
+        _method_name = 'remove_domain_scripts'
+
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        for archive_file in self.__archive_files:
+            try:
+                archive_file.removeDomainBinScripts()
+            except (WLSDeployArchiveIOException, IllegalArgumentException), e:
+                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19311',
+                                                       archive_file.getArchiveFileName(), e.getLocalizedMessage(),
+                                                       error=e)
+                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
     def get_archive_entries(self):
         """
         Get the entries from all the archives.
@@ -438,6 +460,46 @@ class ArchiveHelper(object):
         if archive is not None:
             return archive.getManifest(source_path)
         return None
+
+    def copy_archives_to_target_directory(self, target_directory):
+        """
+        Makes a copy of the specified archive file(s) to the target directory.
+        :param target_directory: the directory to which the archive file(s) will be copied
+        :return: new ArchiveHelper for the new archive file(s)
+        :raises: BundleAwareException of the appropriate type: if an error occurred while copying the file
+        """
+        _method_name = 'copy_archives_to_target_directory'
+        self.__logger.entering(target_directory, class_name=self.__class_name, method_name=_method_name)
+
+        file_names = self.__archive_files_text.split(CommandLineArgUtil.ARCHIVE_FILES_SEPARATOR)
+        new_file_names = []
+        for file_name in file_names:
+            new_file_name = self._copy_file(file_name, target_directory)
+            new_file_names.append(new_file_name)
+        new_archive_file_text = CommandLineArgUtil.ARCHIVE_FILES_SEPARATOR.join(new_file_names)
+        return ArchiveHelper(new_archive_file_text, self.__domain_home, self.__logger, self.__exception_type)
+
+    def _copy_file(self, source_file_name, target_directory):
+        """
+        Make a copy of the source file to the target directory
+        :param source_file_name: source file name
+        :param target_directory: target directory name
+        :return: file name of the new file in the target directory
+        :raises: BundleAwareException of the appropriate type: if an error occurred while copying the file
+        """
+        _method_name = '_copy_file'
+
+        self.__logger.entering(source_file_name, target_directory, class_name=self.__class_name, method_name=_method_name)
+        base_name = os.path.basename(source_file_name)
+        target_file_name = os.path.join(target_directory, base_name)
+        try:
+            shutil.copyfile(source_file_name, target_file_name)
+        except Exception, e:
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19312', source_file_name,
+                                                   target_file_name, e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        return target_file_name
 
     def _find_archive_for_path(self, path, required=False):
         """

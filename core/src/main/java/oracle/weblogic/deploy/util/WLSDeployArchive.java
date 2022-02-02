@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -854,6 +854,15 @@ public class WLSDeployArchive {
         extractFileFromZip(archivePath, ARCHIVE_DOM_BIN_TARGET_DIR, "", extractToLocation);
         LOGGER.exiting(CLASS, METHOD);
     }
+
+    public void removeDomainBinScripts() throws WLSDeployArchiveIOException {
+        final String METHOD = "removeDomainBinScripts";
+
+        LOGGER.entering(CLASS, METHOD);
+        getZipFile().removeZipEntries(ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP);
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
     /**
      * This method adds a classpath library to the archive.  If a library with the same name already exists, this
      * method assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding

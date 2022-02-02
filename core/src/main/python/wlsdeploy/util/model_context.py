@@ -13,6 +13,7 @@ import java.net.URI as URI
 from oracle.weblogic.deploy.util import XPathUtil
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -644,8 +645,7 @@ class ModelContext(object):
             if self._target:
                 target_configuration_file = self.get_target_configuration_file()
                 if os.path.exists(target_configuration_file):
-                    file_handle = open(target_configuration_file)
-                    configuration_dict = eval(file_handle.read())
+                    configuration_dict = JsonToPython(target_configuration_file).parse()
 
             self._target_configuration = TargetConfiguration(configuration_dict)
 

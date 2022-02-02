@@ -71,6 +71,7 @@ from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
+from wlsdeploy.aliases.model_constants import WEB_SERVICE_SECURITY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.exception import exception_helper
@@ -699,6 +700,9 @@ class DomainCreator(Creator):
         self.__create_xml_registry(location)
         topology_folder_list.remove(XML_REGISTRY)
 
+        self.__create_ws_security(location)
+        topology_folder_list.remove(WEB_SERVICE_SECURITY)
+
     def __create_security_folder(self):
         """
         Create the the security objects if any. The security information
@@ -777,6 +781,20 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
+    def __create_ws_security(self, location):
+        """
+        Create the WebserviceSecurity objects, if any.
+        :param location: the current location
+        """
+        _method_name = '__create_ws_security'
+        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        ws_security = dictionary_utils.get_dictionary_element(self._topology, WEB_SERVICE_SECURITY)
+
+        if len(ws_security) > 0:
+            self._create_named_mbeans(WEB_SERVICE_SECURITY, ws_security, location, log_created=True)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
     def __create_machines(self, location):
         """
         Create the /Machine and /UnixMachine folder objects, if any.
@@ -847,7 +865,7 @@ class DomainCreator(Creator):
         # Listen Port for 7001 in order to show up in the config.xml
         if len(server_template_nodes) > 0:
             for template in server_template_nodes:
-                listen_port = dictionary_utils.get_dictionary_element(self._topology[SERVER_TEMPLATE][template], LISTEN_PORT)
+                listen_port = dictionary_utils.get_element(self._topology[SERVER_TEMPLATE][template], LISTEN_PORT)
                 if listen_port is not None:
                     temp_loc = LocationContext()
                     temp_loc.append_location(SERVER_TEMPLATE)

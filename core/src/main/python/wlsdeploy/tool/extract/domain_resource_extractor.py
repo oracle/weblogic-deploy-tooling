@@ -6,6 +6,7 @@ import re
 
 from java.io import File
 from oracle.weblogic.deploy.util import PyOrderedDict
+from oracle.weblogic.deploy.util import PyRealBoolean
 
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
@@ -18,7 +19,6 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.extract import wko_schema_helper
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util.boolean_value import BooleanValue
 from wlsdeploy.util.model_translator import PythonToFile
 
 API_VERSION = 'apiVersion'
@@ -299,7 +299,7 @@ def _get_target_value(model_value, type_name):
     if type_name == 'boolean':
         # the model values can be true, false, 1, 0, etc.
         # target boolean values must be 'true' or 'false'
-        return BooleanValue(model_value)
+        return PyRealBoolean(alias_utils.convert_boolean(model_value))
 
     if type_name == 'array':
         # the model values can be 'abc,123'.

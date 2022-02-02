@@ -1,0 +1,139 @@
+{
+    "copyright": "Copyright (c) 2022, Oracle Corporation and/or its affiliates.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "WebserviceSecurit${y:ies}",
+    "child_folders_type": "multiple",
+    "short_name": "WSSecurity",
+    "folders": {
+         "WebserviceCredentialProvider" : {
+             "wlst_type": "WebserviceCredentialProvider${:s}",
+             "version": "[10,)",
+             "child_folders_type": "multiple",
+             "folders": {
+                "ConfigurationProperty" : {
+                   "wlst_type": "ConfigurationPropert${y:ies}",
+                   "version": "[10,)",
+                   "child_folders_type": "multiple",
+                   "folders": {},
+                   "attributes": {
+                             "EncryptValueRequired":                [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptValueRequired",               "wlst_path": "WP001", "default_value": null, "wlst_type": "boolean"           } ],
+                             "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": null, "wlst_type": "password",        "get_method": "GET"          } ],
+                             "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+                             "Value":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Value",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ]
+                   },
+                   "wlst_attributes_path": "WP001",
+                       "wlst_paths": {
+                           "WP001": "/WebserviceSecurit${y:ies}/%WEBSERVICE%/WebserviceCredentialProvider${:s}/%WSCREDENTIAL%/ConfigurationPropert${y:ies}/%PROPERTY%"
+                       }
+                   }
+                },
+                "attributes": {
+                    "ClassName":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClassName",                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+                    "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+                    "TokenType":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "TokenType",                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ]
+                },
+                "wlst_attributes_path": "WP001",
+                "wlst_paths": {
+                    "WP001": "/WebserviceSecurit${y:ies}/%WEBSERVICE%/WebserviceCredentialProvider${:s}/%WSCREDENTIAL%"
+                }
+            },
+      "WebserviceSecurityToken" : {
+        "wlst_type": "WebserviceSecurityToken${:s}",
+        "version": "[10,)",
+        "child_folders_type": "multiple",
+        "folders": {
+          "ConfigurationProperty" :
+          {
+            "wlst_type": "ConfigurationPropert${y:ies}",
+            "version": "[10,)",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+              "EncryptValueRequired":                [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptValueRequired",               "wlst_path": "WP001", "default_value": null, "wlst_type": "boolean"          } ],
+              "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": false, "wlst_type": "password",        "get_method": "GET"          } ],
+              "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+              "Value":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Value",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ]
+
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+              "WP001": "/WebserviceSecurit${y:ies}/%WEBSERVICE%/WebserviceSecurityToken${:s}/%WSTOKEN%/ConfigurationPropert${y:ies}/%PROPERTY%"
+            }
+          }
+        },
+        "attributes": {
+          "ClassName":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClassName",                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+          "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+          "TokenType":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "TokenType",                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ]
+        },
+        "wlst_attributes_path": "WP001",
+        "wlst_paths": {
+          "WP001": "/WebserviceSecurit${y:ies}/%WEBSERVICE%/WebserviceSecurityToken${:s}/%WSTOKEN%"
+        }
+      },
+      "WebserviceTimestamp" : {
+        "wlst_type": "WebserviceTimestamp",
+        "version": "[10,)",
+        "default_name_value": "${NO_NAME_0:%WEBSERVICE%}",
+        "folders": {},
+        "attributes": {
+          "ClockSkew":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClockSkew",                          "wlst_path": "WP001", "default_value": 60000, "wlst_type": "integer"           } ],
+          "ClockSynchronized":                   [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClockSynchronized",                  "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean"           } ],
+          "MaxProcessingDelay":                  [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MaxProcessingDelay",                 "wlst_path": "WP001", "default_value": -1,    "wlst_type": "integer"           } ],
+          "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null,  "wlst_type": "string"            } ],
+          "ValidityPeriod":                      [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ValidityPeriod",                     "wlst_path": "WP001", "default_value": 60,    "wlst_type": "integer"           } ]
+        },
+        "wlst_attributes_path": "WP001",
+        "wlst_paths": {
+          "WP001": "/WebserviceSecurit${y:ies}/%WEBSERVICE%/WebserviceTimestamp/%WEBSERVICETIMESTAMP%"
+        }
+      },
+      "WebserviceTokenHandler" : {
+        "wlst_type": "WebserviceTokenHandler${:s}",
+        "version": "[10,)",
+        "child_folders_type": "multiple",
+        "folders": {
+          "ConfigurationProperty" :
+          {
+            "wlst_type": "ConfigurationPropert${y:ies}",
+            "version": "[10,)",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+              "EncryptValueRequired":                [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptValueRequired",               "wlst_path": "WP001", "default_value": null,  "wlst_type": "boolean"           } ],
+              "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": false, "wlst_type": "password",        "get_method": "GET"          } ],
+              "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null,  "wlst_type": "string"            } ],
+              "Value":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Value",                              "wlst_path": "WP001", "default_value": null,  "wlst_type": "string"            } ]
+
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+              "WP001": "/WebserviceSecurit${y:ies}/%WEBSERVICE%/WebserviceTokenHandler${:s}/%WSTOKENHANDLER%/ConfigurationPropert${y:ies}/%PROPERTY%"
+            }
+          }
+        },
+        "attributes": {
+          "ClassName":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClassName",                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+          "HandlingOrder":                       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "HandlingOrder",                      "wlst_path": "WP001", "default_value": 0,    "wlst_type": "integer"           } ],
+          "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+          "TokenType":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "TokenType",                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ]
+        },
+        "wlst_attributes_path": "WP001",
+        "wlst_paths": {
+          "WP001": "/WebserviceSecurit${y:ies}/%WEBSERVICE%/WebserviceTokenHandler${:s}/%WSTOKENHANDLER%"
+        }
+      }
+    },
+    "attributes": {
+                "CompatibilityOrderingPreference":     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "CompatibilityOrderingPreference",    "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+                "CompatibilityPreference":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "CompatibilityPreference",            "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+                "DefaultCredentialProviderSTSURI":     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "DefaultCredentialProviderSTSURI",    "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+                "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+                "PolicySelectionPreference":           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "PolicySelectionPreference",          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/WebserviceSecurit${y:ies}/%WEBSERVICE%"
+    }
+
+}
