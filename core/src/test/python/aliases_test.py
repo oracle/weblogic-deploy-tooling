@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from org.python.modules import jarray
@@ -12,6 +12,7 @@ from java.util import Properties
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.aliases import TypeUtils
 
+from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 import wlsdeploy.aliases.model_constants as FOLDERS
@@ -307,12 +308,12 @@ class AliasesTestCase(unittest.TestCase):
             self.aliases.get_model_attribute_name_and_value(location, wlst_attribute_name, wlst_attribute_value)
         self.assertEqual(model_attribute_value, string_value[1])
 
-        string_value = [1, 'true']
+        string_value = [1, True]
         wlst_attribute_name = 'RowPrefetch'
         wlst_attribute_value = string_value[0]
         model_attribute_name, model_attribute_value = \
             self.aliases.get_model_attribute_name_and_value(location, wlst_attribute_name, wlst_attribute_value)
-        self.assertEqual(model_attribute_value, string_value[1])
+        self.assertEqual(alias_utils.convert_boolean(model_attribute_value), string_value[1])
         return
 
     def testConvertToTypeJarray(self):

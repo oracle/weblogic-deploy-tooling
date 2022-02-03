@@ -127,9 +127,9 @@ class Discoverer(object):
         # Find the attributes that are not in the LSA wlst map but are in the alias definitions with GET access
         get_attributes = [get_param for get_param in wlst_get_params if not get_param in wlst_did_get]
         for get_attribute in get_attributes:
-            success, wlst_value = self._get_attribute_value_with_get(wlst_extra_param, wlst_path)
+            success, wlst_value = self._get_attribute_value_with_get(get_attribute, wlst_path)
             if success:
-                self._add_to_dictionary(dictionary, location, wlst_extra_param, wlst_value, wlst_path)
+                self._add_to_dictionary(dictionary, location, get_attribute, wlst_value, wlst_path)
 
     def _get_attribute_value_with_get(self, wlst_get_param, wlst_path):
         _method_name = '_get_attribute_value_with_get'

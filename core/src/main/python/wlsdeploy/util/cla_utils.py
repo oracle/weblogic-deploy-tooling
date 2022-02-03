@@ -18,6 +18,7 @@ import oracle.weblogic.deploy.aliases.VersionUtils as JVersionUtils
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import validate_configuration
@@ -1157,8 +1158,9 @@ class CommandLineArgUtil(object):
         else:
             try:
                 # verify the file is in proper format
-                file_handle = open(target_configuration_file)
-                config_dictionary = eval(file_handle.read())
+                # file_handle = open(target_configuration_file)
+                # config_dictionary = eval(file_handle.read())
+                config_dictionary = JsonToPython(target_configuration_file).parse()
                 target_configuration = TargetConfiguration(config_dictionary)
                 validation_method = target_configuration.get_validation_method()
                 if (validation_method is not None) and \

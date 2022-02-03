@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -12,6 +12,7 @@ from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
+from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
@@ -109,6 +110,9 @@ class TopologyDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
         model_folder_name, folder_result = self._get_xml_registries()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
+        model_folder_name, folder_result = self._get_ws_securities()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -549,6 +553,32 @@ class TopologyDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
 
+    def _get_ws_securities(self):
+        """
+        Discover the Webservice Security configuration for the domain
+        :return: model name for the folder: dictionary containing the discovered webservice security
+        """
+        _method_name = '_get_ws_securities'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.WEB_SERVICE_SECURITY
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        wssecurities = self._find_names_in_folder(location)
+        if wssecurities is not None:
+            _logger.info('WLSDPLY-06649', len(wssecurities), class_name=_class_name, method_name=_method_name)
+            name_token = self._aliases.get_name_token(location)
+            for wssecurity in wssecurities:
+                _logger.info('WLSDPLY-06650', wssecurity, class_name=_class_name, method_name=_method_name)
+                location.add_name_token(name_token, wssecurity)
+                result[wssecurity] = OrderedDict()
+                self._populate_model_parameters(result[wssecurity], location)
+                self._discover_subfolders(result[wssecurity], location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
     def _massage_security_credential(self, result, location):
         _method_name = 'massage_security_credential'
         # Determine if the SecurityConfiguration/CredentialEncrypted can be removed
@@ -559,8 +589,9 @@ class TopologyDiscoverer(Discoverer):
             short_name = self._credential_injector.get_folder_short_name(location)
         if model_constants.SECURITY_CONFIGURATION_PASSWORD in result:
             # default is false
-            if model_constants.SECURITY_CONFIGURATION_CD_ENABLED not in result or \
-                    Boolean.valueOf(result[model_constants.SECURITY_CONFIGURATION_CD_ENABLED]) == Boolean.FALSE:
+            cd_enabled_raw = dictionary_utils.get_element(result, model_constants.SECURITY_CONFIGURATION_CD_ENABLED)
+            cd_enabled = alias_utils.convert_boolean(cd_enabled_raw)
+            if not cd_enabled:
                 # Hard code it here or hard code it later. The target code will bypass tokenize of variable
                 cache_name = short_name + VARIABLE_SEP + model_constants.SECURITY_CONFIGURATION_PASSWORD
                 if cache_name in pass_cache:
