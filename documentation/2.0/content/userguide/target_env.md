@@ -86,7 +86,7 @@ WDT_MODEL_SECRETS_NAME_DIR_PAIRS=__weblogic-credentials__=/etc/my-secrets
 ```
 For more details about using the `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` environment variable, see [Model Tokens]({{< relref "/concepts/model#model-tokens" >}}) .
 
-In WebLogic Kubernetes Operator "Model in Image" environments, the environment variable `DOMAIN_UID` is automatically set from the value in the domain resource file. The variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is automatically set to the directory containing WebLogic admin credentials.
+In WebLogic Kubernetes Operator [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/) environments, the environment variable `DOMAIN_UID` is automatically set from the value in the domain resource file. The variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is automatically set to the directory containing WebLogic admin credentials.
 
 #### The create secrets script
 
