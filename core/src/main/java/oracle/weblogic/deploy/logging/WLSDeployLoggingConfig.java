@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -290,14 +290,12 @@ public class WLSDeployLoggingConfig {
 
     private static void configureStdoutConsoleHandler(Properties logProps) {
         String consoleHandler = getStdoutHandler();
-
         String debugToStdoutString = System.getProperty(WLSDEPLOY_DEBUG_TO_STDOUT_PROP, DEFAULT_DEBUG_TO_STDOUT);
         if (Boolean.parseBoolean(debugToStdoutString)) {
             logProps.setProperty(consoleHandler + HANDLER_LEVEL_PROP, Level.ALL.toString());
         } else {
             logProps.setProperty(consoleHandler + HANDLER_LEVEL_PROP, DEFAULT_CONSOLE_HANDLER_LEVEL);
         }
-
         logProps.setProperty(consoleHandler + HANDLER_FORMATTER_PROP, DEFAULT_CONSOLE_FORMATTER_PROP);
         logProps.setProperty(consoleHandler + HANDLER_FILTER_PROP, DEFAULT_STDOUT_FILTER_PROP);
     }
