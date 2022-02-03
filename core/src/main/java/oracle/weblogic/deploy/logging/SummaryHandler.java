@@ -276,7 +276,6 @@ public class SummaryHandler extends Handler implements WLSDeployLogEndHandler {
     private Handler getConsoleHandler() {
         Handler handler = LoggingUtils.getHandlerInstance(WLSDeployLoggingConfig.getStdoutHandler());
         handler.setFilter(null);
-        handler.setLevel(Level.INFO);
         return handler;
     }
 
