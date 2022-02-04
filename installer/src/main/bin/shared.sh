@@ -160,8 +160,7 @@ variableSetup() {
 
     # set up logger configuration, see WLSDeployLoggingConfig.java
 
-    LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
-    WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
+    LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
 
     if [ -z "${WLSDEPLOY_LOG_PROPERTIES}" ]; then
         WLSDEPLOY_LOG_PROPERTIES="${WLSDEPLOY_HOME}/etc/logging.properties"; export WLSDEPLOY_LOG_PROPERTIES
@@ -169,10 +168,6 @@ variableSetup() {
 
     if [ -z "${WLSDEPLOY_LOG_DIRECTORY}" ]; then
         WLSDEPLOY_LOG_DIRECTORY="${WLSDEPLOY_HOME}/logs"; export WLSDEPLOY_LOG_DIRECTORY
-    fi
-
-    if [ -z "${WLSDEPLOY_LOG_HANDLERS}" ]; then
-        WLSDEPLOY_LOG_HANDLERS=${WLSDEPLOY_LOG_HANDLER}; export WLSDEPLOY_LOG_HANDLERS
     fi
 }
 

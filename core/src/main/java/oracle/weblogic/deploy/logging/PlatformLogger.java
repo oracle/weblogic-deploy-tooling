@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -341,6 +341,7 @@ public class PlatformLogger {
      *
      * @return whether or not the INFO level is enabled
      */
+    @SuppressWarnings("unused")
     public boolean isInfoEnabled() {
         return logger.isLoggable(Level.INFO);
     }
@@ -369,6 +370,7 @@ public class PlatformLogger {
      *
      * @return whether or not the WARNING level is enabled
      */
+    @SuppressWarnings("unused")
     public boolean isWarningEnabled() {
         return logger.isLoggable(Level.WARNING);
     }
@@ -535,6 +537,7 @@ public class PlatformLogger {
      *
      * @return List of Logger from the Log Manager
      */
+    @SuppressWarnings("unused")
     public static List<Logger> getLoggers() {
         LogManager manager = LogManager.getLogManager();
         Enumeration<String> e = manager.getLoggerNames();
@@ -577,18 +580,18 @@ public class PlatformLogger {
     }
 
     private LogRecord getLogRecord(Level level, CallerDetails details, String msg, Throwable error, Object... params) {
-        LogRecord record = new LogRecord(level, msg);
-        record.setLoggerName(this.getName());
-        record.setMillis(System.currentTimeMillis());
+        LogRecord logRecord = new LogRecord(level, msg);
+        logRecord.setLoggerName(this.getName());
+        logRecord.setMillis(System.currentTimeMillis());
         if (params != null && params.length != 0) {
-            record.setParameters(params);
+            logRecord.setParameters(params);
         }
-        record.setResourceBundle(logger.getResourceBundle());
-        record.setSourceClassName(details.clazz);
-        record.setSourceMethodName(details.method);
-        record.setThreadID((int)Thread.currentThread().getId());
-        record.setThrown(error);
-        return record;
+        logRecord.setResourceBundle(logger.getResourceBundle());
+        logRecord.setSourceClassName(details.clazz);
+        logRecord.setSourceMethodName(details.method);
+        logRecord.setThreadID((int)Thread.currentThread().getId());
+        logRecord.setThrown(error);
+        return logRecord;
     }
 
     /**
