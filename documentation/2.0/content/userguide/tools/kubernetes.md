@@ -45,7 +45,7 @@ spec:
         replicas: 4
 ```
 
-In this example, the value for `domainHome` was set as an input parameter to the extractDomainResource script from the command line. The `kind` and `name` were set to the domain name derived from the topology section of the model, or the default `base_domain`. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.
+In this example, the value for `domainHome` was set as an input parameter to the `extractDomainResource` script from the command line. The `kind` and `name` were set to the domain name derived from the topology section of the model, or the default `base_domain`. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.
 
 The user is expected to fill in the image and secrets information identified by `--FIX ME--` in the domain resource output.
 
@@ -124,12 +124,12 @@ The [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) can be us
 
 The content in the `kubernetes` section is not generated when a model is discovered by the Discover Domain Tool.  
 
-### Parameter table for extractResources
+### Parameter table for `extractResources`
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
-| `-archive_file` | The path to the archive file.  If the -model_file argument is not specified, the model file in this archive will be used.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list. |    |
+| `-archive_file` | The path to the archive file.  If the `-model_file` argument is not specified, the model file in this archive will be used.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list. |    |
 | `-domain_home` | (Required) The domain home directory. |    |
 | `-domain_resource_file` | (Required) The location of the extracted domain resource file. |    |
 | `-model_file` | The location of the model file.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
-| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set. |    |
+| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
 | `-variable_file` | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |    |

@@ -127,11 +127,11 @@ resources:
                 'SubDeployment-1':
 ```
 
-### Parameter table for model_help
+### Parameter table for `model_help`
 | Parameter | Definition | Default |
-| ---- | ---- | ---- | 
+| ---- | ---- | ---- |
 | `-attributes_only` | List only the attributes for the specified model path. |    |
 | `-folders_only` | List only the folders for the specified model path. |    |
-| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set. |    |
+| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
 | `-recursive` | List only the folders for the specified model path, and recursively include the folders below that path. |    |
 | `<model_path>` | The path to the model element to be examined. The format is [^<section^>:][/^<folder^>]... |    |
