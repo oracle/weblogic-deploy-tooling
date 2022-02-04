@@ -7,7 +7,7 @@ import copy
 
 from java.util.logging import Level
 
-from oracle.weblogic.deploy.logging import SummaryHandler
+from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import VariableException
 
@@ -131,13 +131,16 @@ class Validator(object):
         self.__validate_model_file(cloned_model_dict, variable_map, archive_file_name)
 
         status = Validator.ValidationStatus.VALID
-        summary_handler = SummaryHandler.findInstance()
+        summary_handler = WLSDeployLogEndHandler.getSummaryHandler()
         if summary_handler is not None:
             summary_level = summary_handler.getMaximumMessageLevel()
             if summary_level == Level.SEVERE:
                 status = Validator.ValidationStatus.INVALID
             elif summary_level == Level.WARNING:
                 status = Validator.ValidationStatus.WARNINGS_INVALID
+        else:
+            # TODO - Should really report/throw an error here if the summary logger was not found!
+            pass
 
         if status == Validator.ValidationStatus.VALID or status == Validator.ValidationStatus.INFOS_VALID \
                 or status == Validator.ValidationStatus.WARNINGS_INVALID:
@@ -181,13 +184,16 @@ class Validator(object):
 
         status = Validator.ValidationStatus.VALID
 
-        summary_handler = SummaryHandler.findInstance()
+        summary_handler = WLSDeployLogEndHandler.getSummaryHandler()
         if summary_handler is not None:
             summary_level = summary_handler.getMaximumMessageLevel()
             if summary_level == Level.SEVERE:
                 status = Validator.ValidationStatus.INVALID
             elif summary_level == Level.WARNING:
                 status = Validator.ValidationStatus.WARNINGS_INVALID
+        else:
+            # TODO - Should really report/throw an error here if the summary logger was not found!
+            pass
 
         if status == Validator.ValidationStatus.VALID or status == Validator.ValidationStatus.INFOS_VALID \
                 or status == Validator.ValidationStatus.WARNINGS_INVALID:

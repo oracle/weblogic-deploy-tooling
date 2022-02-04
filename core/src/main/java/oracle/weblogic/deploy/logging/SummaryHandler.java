@@ -14,41 +14,37 @@ import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.MemoryHandler;
 
+import oracle.weblogic.deploy.util.StringUtils;
 import oracle.weblogic.deploy.util.WLSDeployContext;
-import oracle.weblogic.deploy.util.WLSDeployExit;
 import oracle.weblogic.deploy.util.WebLogicDeployToolingVersion;
 
+import static oracle.weblogic.deploy.logging.WLSDeployLoggingConfig.WLSDEPLOY_SUMMARY_STDOUT_HANDLER;
 
 /**
  * This class save the log records logged by the tool at Info level or greater. The WLSDeployExit exit method will
  * call this Handler to publish the messages, along with the total of the log records, by Level category.
  *
- * The WLSDeployCustomizeLoggingConfig adds the properties from this class' getHandlerProperties() to the
- * log manager logger properties and adds the handler to the root WLSDEPLOY Logger. See the class for information
- * on how to inject this handler into the wlsdeploy root logger.
- *
- * Before the tool exit, if specified by the caller, an activity summary of the saved logs is displayed to the console.
+ * <p>Before the tool exit, if specified by the caller, an activity summary of the saved logs is displayed to the console.
  * A final total of the records logged by the tool for the Level categories indicated above is displayed to the console.
  *
- * @see WLSDeployCustomizeLoggingConfig
  * @see oracle.weblogic.deploy.util.WLSDeployExit
  */
 public class SummaryHandler extends WLSDeployLogEndHandler {
     private static final String CLASS = SummaryHandler.class.getName();
-    private static final String WLSDEPLOY_SUMMARY_STDOUT_HANDLER =
-        "oracle.weblogic.deploy.logging.WLSDeploySummaryStdoutHandler";
-    private static final String LEVEL_PROPERTY = "level";
-    private static final String TARGET_PROPERTY = "target";
-    private static final String FORMATTER_PROPERTY = "formatter";
-    private static final String SIZE_PROPERTY = "size";
-    private static final int DEFAULT_SIZE = 3000;
 
-    private PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.exit");
-    private int bufferSize;
+    private static final String LEVEL_PROPERTY = ".level";
+    private static final String TARGET_PROPERTY = ".target";
+    private static final String SIZE_PROPERTY = ".size";
+    private static final int DEFAULT_MEMORY_BUFFER_SIZE = 3000;
+    private static final String DEFAULT_SIZE_PROPERTY_VALUE = Integer.toString(DEFAULT_MEMORY_BUFFER_SIZE);
+
+    private final int bufferSize;
     private WLSDeployContext context;
+    private boolean suppressOutput = false;
 
-    private Handler topTarget;
-    private List<LevelHandler> handlers = new ArrayList<>();
+    private final PlatformLogger LOGGER;
+    private final Handler outputTargetHandler;
+    private final List<LevelHandler> handlers = new ArrayList<>();
     private boolean closed = false;
 
     /**
@@ -56,38 +52,65 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
      */
     public SummaryHandler() {
         super();
-        configure();
+        LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.exit");
+        this.outputTargetHandler = getOutputTargetHandler();
 
-        LOGGER.setLevel(Level.INFO);
+        this.bufferSize = getMemoryBufferSize(CLASS + SIZE_PROPERTY);
+
         addLevelHandler(Level.WARNING);
         addLevelHandler(Level.SEVERE);
+    }
+
+    /**
+     * The WLSDeployLoggingConfig will call this method to add the SummaryHandler properties to the logging.properties
+     * files. If the logging.properties already contains the property, the property in this list will be ignored.
+     *
+     * @return properties to set in logging.properties
+     */
+    static void addHandlerProperties(Properties logProps) {
+        if (!logProps.containsKey(CLASS + LEVEL_PROPERTY)) {
+            logProps.setProperty(CLASS + LEVEL_PROPERTY, Level.INFO.getName());
+        }
+        logProps.setProperty(CLASS + TARGET_PROPERTY, WLSDEPLOY_SUMMARY_STDOUT_HANDLER);
+
+        // If the user has overridden the size property, don't reset it.
+        //
+        if (!logProps.containsKey(CLASS + SIZE_PROPERTY)) {
+            logProps.setProperty(CLASS + SIZE_PROPERTY, DEFAULT_SIZE_PROPERTY_VALUE);
+        }
     }
 
     /**
      * Tally and save the log record if it matches one of the category Level handlers. Once the summary has completed,
      * all further log records will be ignored.
      *
-     * @param record to tally and save in handler with matching Level category
+     * @param logRecord to tally and save in handler with matching Level category
      */
     @Override
-    public synchronized void publish(LogRecord record) {
+    public synchronized void publish(LogRecord logRecord) {
         // after close, take yourself out of the mix. The stored up log messages are going to go to the
         // console handler anyway
         if (!closed) {
             for (Handler handler : handlers) {
-                handler.publish(record);
+                handler.publish(logRecord);
             }
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void flush() {
-        topTarget.flush();
+        outputTargetHandler.flush();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() throws SecurityException {
-        topTarget.close();
+        outputTargetHandler.close();
     }
 
     /**
@@ -100,38 +123,15 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
     @Override
     public synchronized void logEnd(WLSDeployContext modelContext) {
         closed = true;
-        String METHOD = "push";
+        final String METHOD = "logEnd";
         LOGGER.entering(modelContext, CLASS, METHOD);
         this.context = modelContext;
-        summaryHead(topTarget);
+        summaryHead(outputTargetHandler);
         for (LevelHandler handler : handlers) {
             handler.push();
         }
-        summaryTail(topTarget);
+        summaryTail(outputTargetHandler);
         LOGGER.exiting(CLASS, METHOD);
-    }
-
-    /**
-     * The WLSDeployLoggingConfig will call this method to add the SummaryHandler properties to the logging.properties
-     * files. If the logging.properties already contains the property, the property in this list will be ignored.
-     *
-     * @return properties to set in logging.properties
-     */
-    public static Properties getHandlerProperties() {
-        Properties properties = new Properties();
-        properties.setProperty(LEVEL_PROPERTY, Level.INFO.getName());
-        properties.setProperty(TARGET_PROPERTY, WLSDeployLoggingConfig.getStdoutHandler());
-        properties.setProperty(FORMATTER_PROPERTY, WLSDeployConsoleFormatter.class.getName());
-        return properties;
-    }
-
-    /**
-     * Find the summary handler instance in the logging setup.
-     * If not found, return null.
-     * @return the summary handler instance, or null if not found.
-     */
-    public static SummaryHandler findInstance() {
-        return (SummaryHandler) WLSDeployExit.findHandler(SummaryHandler.class);
     }
 
     /**
@@ -166,23 +166,56 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
         return 0;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                             Private helper methods                                        //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     private void addLevelHandler(Level level) {
-        LevelHandler handler;
-        Handler levelTarget = getConsoleHandler();
-        levelTarget.setFormatter(new SummaryFormatter(level));
-        handler = new LevelHandler(levelTarget, bufferSize, level);
-        handler.setLevel(level);
-        handler.setFilter(getFilter());
-        handlers.add(handler);
+        Handler levelTargetHandler = getLevelHandlerOutputTargetHandler(level);
+
+        LevelHandler levelHandler = new LevelHandler(levelTargetHandler, bufferSize, level);
+        levelHandler.setFilter(null);
+        levelHandler.setLevel(level);
+        handlers.add(levelHandler);
     }
 
-    void summaryHead(Handler handler) {
+    private Handler getOutputTargetHandler() {
+        Handler summaryStdoutHandler = new WLSDeploySummaryStdoutHandler();
+        summaryStdoutHandler.setFormatter(new TotalFormatter());
+        summaryStdoutHandler.setFilter(null);
+
+        // If the user turns off the SummaryHandler, turn off the SummaryStdoutHandler instead
+        //
+        LogManager manager = LogManager.getLogManager();
+        String levelProperty = manager.getProperty(CLASS + LEVEL_PROPERTY);
+        if (Level.OFF.toString().equals(levelProperty)) {
+            suppressOutput = true;
+            summaryStdoutHandler.setLevel(Level.OFF);
+        } else {
+            summaryStdoutHandler.setLevel(Level.INFO);
+        }
+        return summaryStdoutHandler;
+    }
+
+    private Handler getLevelHandlerOutputTargetHandler(Level level) {
+        Handler handler = new WLSDeploySummaryStdoutHandler();
+        handler.setFormatter(new SummaryFormatter(level));
+        handler.setFilter(null);
+        if (suppressOutput) {
+            handler.setLevel(Level.OFF);
+        } else {
+            handler.setLevel(level);
+        }
+        return handler;
+    }
+
+    private void summaryHead(Handler handler) {
         handler.publish(getLogRecord("WLSDPLY-21003", context.getProgramName(),
                 WebLogicDeployToolingVersion.getVersion(), context.getVersion(), context.getWlstMode()));
     }
 
-    void summaryTail(Handler handler) {
-        StringBuffer buffer = new StringBuffer();
+    private void summaryTail(Handler handler) {
+        StringBuilder buffer = new StringBuilder();
         java.util.Formatter fmt = new java.util.Formatter(buffer);
         for (LevelHandler levelHandler : handlers) {
             if (levelHandler.getTotalRecords() >= 0) {
@@ -192,17 +225,44 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
         handler.publish(getLogRecord("WLSDPLY-21002", buffer));
     }
 
-    private class TotalFormatter extends Formatter {
+    private int getMemoryBufferSize(String sizePropertyName) {
+        String sizePropertyValue = LogManager.getLogManager().getProperty(sizePropertyName);
 
-        @Override
-        public synchronized String format(LogRecord record) {
-            return System.lineSeparator() + formatMessage(record) + System.lineSeparator();
+        int size = DEFAULT_MEMORY_BUFFER_SIZE;
+        if (!StringUtils.isEmpty(sizePropertyValue)) {
+            try {
+                size = Integer.parseInt(sizePropertyValue);
+            } catch (NumberFormatException nfe) {
+                // Best effort only...
+            }
         }
+        return size;
+    }
 
+    private LogRecord getLogRecord(String msg, Object... params) {
+        LogRecord logRecord = new LogRecord(Level.INFO, msg);
+        logRecord.setLoggerName(LOGGER.getName());
+        if (params != null && params.length != 0) {
+            logRecord.setParameters(params);
+        }
+        logRecord.setSourceClassName(CLASS);
+        logRecord.setSourceMethodName("");
+        logRecord.setResourceBundle(LOGGER.getUnderlyingLogger().getResourceBundle());
+        return logRecord;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                             Private helper classes                                        //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    private class TotalFormatter extends Formatter {
+        @Override
+        public synchronized String format(LogRecord logRecord) {
+            return System.lineSeparator() + formatMessage(logRecord) + System.lineSeparator();
+        }
     }
 
     private class SummaryFormatter extends Formatter {
-
         private final String MSG_FORMAT = "    %1$5d. %2$s: %3$s" + System.lineSeparator();
         private final String INTERNAL = System.lineSeparator() + "%s" + System.lineSeparator() + System.lineSeparator();
         private int sequence = 0;
@@ -213,13 +273,13 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
         }
 
         @Override
-        public synchronized String format(LogRecord record) {
+        public synchronized String format(LogRecord logRecord) {
             String message = "";
-            String msgId = record.getMessage();
+            String msgId = logRecord.getMessage();
             if (msgId.indexOf('{') >= 0) {
                 msgId = null;
             }
-            String formatted = formatMessage(record);
+            String formatted = formatMessage(logRecord);
             if (msgId != null && !msgId.equals(formatted)) {
                 // this has a msg id. don't post any that don't have msg id.
                 message = String.format(MSG_FORMAT, ++sequence, msgId, formatted);
@@ -234,7 +294,6 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
     }
 
     private class LevelHandler extends MemoryHandler {
-
         private int totalRecords;
 
         LevelHandler(Handler handler, int size, Level level) {
@@ -243,59 +302,15 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
         }
 
         @Override
-        public synchronized void publish(LogRecord record) {
-            if (record.getLevel().intValue() == getLevel().intValue()) {
+        public synchronized void publish(LogRecord logRecord) {
+            if (logRecord.getLevel().equals(getLevel())) {
                 ++totalRecords;
-                super.publish(record);
+                super.publish(logRecord);
             }
         }
-        public synchronized void push() {
-            super.push();
-        }
+
         int getTotalRecords() {
             return totalRecords;
         }
-
     }
-
-    private void configure() {
-        LogManager manager = LogManager.getLogManager();
-        topTarget = getConsoleHandler();
-        topTarget.setFormatter(new TotalFormatter());
-        topTarget.setLevel(Level.INFO);
-        bufferSize = getSize(manager.getProperty(getClass().getName() + "." + SIZE_PROPERTY));
-    }
-
-    private int getSize(String propSize) {
-        Integer handlerSize;
-        try {
-            handlerSize = Integer.valueOf(propSize);
-        } catch (NumberFormatException nfe) {
-            handlerSize = DEFAULT_SIZE;
-        }
-        return handlerSize;
-    }
-
-    private Handler getConsoleHandler() {
-        Handler handler = LoggingUtils.getHandlerInstance(getStdoutHandler());
-        handler.setFilter(null);
-        return handler;
-    }
-
-    private LogRecord getLogRecord(String msg, Object... params) {
-        LogRecord record = new LogRecord(Level.INFO, msg);
-        record.setLoggerName(LOGGER.getName());
-        if (params != null && params.length != 0) {
-            record.setParameters(params);
-        }
-        record.setSourceClassName(CLASS);
-        record.setSourceMethodName("");
-        record.setResourceBundle(LOGGER.getUnderlyingLogger().getResourceBundle());
-        return record;
-    }
-
-    private String getStdoutHandler() {
-        return WLSDEPLOY_SUMMARY_STDOUT_HANDLER;
-    }
-
 }

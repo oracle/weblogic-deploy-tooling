@@ -1,64 +1,39 @@
 /*
- * Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
 
-import java.text.MessageFormat;
 import java.util.Properties;
-import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
-import static oracle.weblogic.deploy.logging.WLSDeployLoggingConfig.ERROR_EXIT_CODE;
-
+/**
+ * Utility class with methods used by the logging framework.
+ */
 public class LoggingUtils {
 
-    public static <T extends Handler> Class<T> getHandlerClass(String handlerName) {
-        Class<T> handler = null;
-        try {
-            Class<?> checkClass = Class.forName(handlerName);
-            @SuppressWarnings("unchecked")
-            Class<T> castHandler = (Class<T>)checkClass.asSubclass(Class.forName(handlerName));
-            handler = castHandler;
-        } catch(ClassNotFoundException | ClassCastException cnf) {
-            exitWithError(
-                    MessageFormat.format("Unable to find handler class {0} so skipping logging configuration",
-                    handlerName));
-        }
-        return handler;
+    private LoggingUtils() {
+        // hide the constructor
     }
 
-    public static <T extends Handler> T getHandlerInstance(Class<T> handlerClass) {
-        T handler = null;
-        try {
-            handler =  handlerClass.newInstance();
-         } catch (InstantiationException | IllegalAccessException e){
-            exitWithError(MessageFormat.format("Unable to instantiate Handler for Class {0}", handlerClass));
-        }
-        return handler;
-    }
+    /**
+     * Make a copy of a log record without the exception.
+     *
+     * @param logRecord the log record to copy
+     * @return the cloned log record without the exception
+     */
+    public static LogRecord cloneRecordWithoutException(LogRecord logRecord) {
+        LogRecord newRecord = new LogRecord(logRecord.getLevel(), logRecord.getMessage());
 
-    public static <T extends Handler> T getHandlerInstance(String handlerClassName) {
-        return getHandlerInstance(LoggingUtils.<T>getHandlerClass(handlerClassName));
-    }
-
-    public static void exitWithError(String message) {
-        System.err.println(message);
-        System.exit(ERROR_EXIT_CODE);
-    }
-
-    public static LogRecord cloneRecordWithoutException(LogRecord record) {
-        LogRecord newRecord = new LogRecord(record.getLevel(), record.getMessage());
-
-        newRecord.setLoggerName(record.getLoggerName());
-        newRecord.setMillis(record.getMillis());
-        newRecord.setParameters(record.getParameters());
-        newRecord.setResourceBundle(record.getResourceBundle());
-        newRecord.setResourceBundleName(record.getResourceBundleName());
-        newRecord.setSequenceNumber(record.getSequenceNumber());
-        newRecord.setSourceClassName(record.getSourceClassName());
-        newRecord.setSourceMethodName(record.getSourceMethodName());
-        newRecord.setThreadID(record.getThreadID());
+        newRecord.setLoggerName(logRecord.getLoggerName());
+        newRecord.setMillis(logRecord.getMillis());
+        newRecord.setParameters(logRecord.getParameters());
+        newRecord.setResourceBundle(logRecord.getResourceBundle());
+        newRecord.setResourceBundleName(logRecord.getResourceBundleName());
+        newRecord.setSequenceNumber(logRecord.getSequenceNumber());
+        newRecord.setSourceClassName(logRecord.getSourceClassName());
+        newRecord.setSourceMethodName(logRecord.getSourceMethodName());
+        newRecord.setThreadID(logRecord.getThreadID());
         // Skip thrown
         return newRecord;
     }
@@ -70,5 +45,4 @@ public class LoggingUtils {
             }
         }
     }
-
 }

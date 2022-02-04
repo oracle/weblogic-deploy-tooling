@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -13,7 +13,7 @@ import java.util.logging.LogRecord;
  * format the LogRecord into a localized String. To select a different formatter, inject
  * that instance into the set formatter of this Instance.
  */
-public class WLSDeployConsoleFormatter extends Formatter {
+public class ConsoleFormatter extends Formatter {
 
     // Default Formatter if another is not injected
     private Formatter formatter = new WLSDeployLogFormatter();
@@ -23,10 +23,10 @@ public class WLSDeployConsoleFormatter extends Formatter {
         return formatter.format(cloned);
     }
 
+    @SuppressWarnings("unused")
     public void setFormatter(Formatter formatter) {
         if (formatter != null) {
             this.formatter = formatter;
         }
     }
-
 }

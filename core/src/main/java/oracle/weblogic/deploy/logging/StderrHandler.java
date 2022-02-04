@@ -10,16 +10,17 @@ import java.util.logging.StreamHandler;
 /**
  * This Class extends the StreamHandler to write log records to STDERR.
  */
-public class WLSDeployLoggingStderrHandler extends StreamHandler {
+@SuppressWarnings("unused")
+public class StderrHandler extends StreamHandler {
 
-    public WLSDeployLoggingStderrHandler() {
+    public StderrHandler() {
         super();
         setOutputStream(System.err);
     }
 
     @Override
-    public void publish(LogRecord record) {
-        super.publish(record);
+    public synchronized void publish(LogRecord logRecord) {
+        super.publish(logRecord);
         flush();
     }
 
@@ -29,8 +30,7 @@ public class WLSDeployLoggingStderrHandler extends StreamHandler {
      * close <tt>System.err</tt>.
      */
     @Override
-    public void close() {
+    public synchronized void close() {
         flush();
     }
-
 }

@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Handler;
-import java.util.logging.Logger;
-import java.util.Stack;
 
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogEndHandler;
-import oracle.weblogic.deploy.logging.WLSDeployLoggingConfig;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 
 /**
@@ -21,9 +15,12 @@ import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
  * to exit instead of System.exit.
  */
 public class WLSDeployExit {
-
     private static final String CLASS = WLSDeployExit.class.getName();
-    private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.util");
+    private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.exit");
+
+    private WLSDeployExit() {
+        // hide the constructor
+    }
 
     /**
      * Perform any last methods for the tools and exit the JVM.
@@ -49,87 +46,13 @@ public class WLSDeployExit {
         System.exit(error_code);
     }
 
-    /**
-     * Returns the first handler that is assignment-compatible with the specified class.
-     * @param handlerClass the class to check for compatibility
-     * @return the first matching handler, or null if none is found
-     */
-    public static Handler findHandler(Class handlerClass) {
-        Stack<Handler> handlers = reduceList(traverseHandlers(getTopLogList(), new LinkedList<Handler>()));
-        while (handlers.size() > 0) {
-            Handler handler = handlers.pop();
-            if(handlerClass.isInstance(handler)) {
-                return handler;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Call any WLSDeployLogEnd Logger handlers so the handlers can perform end actions.
-     *
-     * @param context that contains contextual information about the tool that is currently running
-     */
-    public static void logCleanup(WLSDeployContext context) {
-        String METHOD = "logCleanup";
+    private static void logCleanup(WLSDeployContext context) {
+        final String METHOD = "logCleanup";
         LOGGER.entering(CLASS, METHOD, context);
-        Stack<Handler> handlers = reduceList(traverseHandlers(getTopLogList(), new LinkedList<Handler>()));
-        while (handlers.size() > 0) {
-            logEnd(context, (WLSDeployLogEndHandler)handlers.pop());
+        List<WLSDeployLogEndHandler> endHandlers = WLSDeployLogEndHandler.getEndHandlers();
+        for (WLSDeployLogEndHandler endHandler : endHandlers) {
+            endHandler.logEnd(context);
         }
         LOGGER.exiting(CLASS, METHOD);
     }
-
-    private static List<Logger> getTopLogList() {
-        List<Logger> loggerList = new ArrayList<>();
-        for (Logger logger : PlatformLogger.getLoggers()) {
-            if (logger.getName().startsWith(WLSDeployLoggingConfig.WLSDEPLOY_LOGGER_NAME)) {
-                loggerList.add(logger);
-            }
-        }
-        return loggerList;
-    }
-
-    private static synchronized void logEnd(WLSDeployContext context, WLSDeployLogEndHandler handler) {
-        handler.logEnd(context);
-    }
-
-    private static LinkedList<Handler> traverseHandlers(List<Logger> loggers, LinkedList<Handler> handlerList) {
-        List<Logger> parents = new ArrayList<>();
-        if (loggers.size() > 0) {
-            for (Logger logger : loggers) {
-                LOGGER.info("Logger = {0}", logger.getName());
-                if (logger.getUseParentHandlers()) {
-                    LOGGER.info("Logger getUseParentHandler() == true");
-                    for (Handler handler : logger.getHandlers()) {
-                        LOGGER.info("Logger {0} handler = ", handler.getClass().getName());
-                        if (WLSDeployLogEndHandler.class.isAssignableFrom(handler.getClass())) {
-                            LOGGER.info("Adding handler to list");
-                            handlerList.add(handler);
-                        }
-                        Logger parent = logger.getParent();
-                        if (parent != null) {
-                            LOGGER.info("Adding parent logger {0} to parent list", parent.getName());
-                            parents.add(parent);
-                        }
-                    }
-                }
-            }
-            handlerList = traverseHandlers(parents, handlerList);
-        }
-        LOGGER.info("exiting traverseHandlers with a list with that has {0} handlers", handlerList.size());
-        return handlerList;
-    }
-
-    private static Stack<Handler> reduceList(LinkedList<Handler> handlers) {
-        Stack<Handler> reducedList = new Stack<>();
-        while (handlers.size() > 0 ){
-            Handler bottom = handlers.removeLast();
-            if (!reducedList.contains(bottom)) {
-                reducedList.add(bottom);
-            }
-        }
-        return reducedList;
-    }
-
 }

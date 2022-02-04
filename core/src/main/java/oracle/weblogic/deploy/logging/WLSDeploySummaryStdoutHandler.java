@@ -18,8 +18,8 @@ public class WLSDeploySummaryStdoutHandler extends StreamHandler {
     }
 
     @Override
-    public void publish(LogRecord record) {
-        super.publish(record);
+    public synchronized void publish(LogRecord logRecord) {
+        super.publish(logRecord);
         flush();
     }
 
@@ -29,7 +29,7 @@ public class WLSDeploySummaryStdoutHandler extends StreamHandler {
      * close <tt>System.out</tt>.
      */
     @Override
-    public void close() {
+    public synchronized void close() {
         flush();
     }
 }

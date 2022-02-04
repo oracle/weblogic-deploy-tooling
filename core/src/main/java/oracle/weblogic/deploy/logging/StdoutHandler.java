@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -10,16 +10,17 @@ import java.util.logging.StreamHandler;
 /**
  * This Class extends the StreamHandler to write log records to STDOUT.
  */
-public class WLSDeployLoggingStdoutHandler extends StreamHandler {
+@SuppressWarnings("unused")
+public class StdoutHandler extends StreamHandler {
 
-    public WLSDeployLoggingStdoutHandler() {
+    public StdoutHandler() {
         super();
         setOutputStream(System.out);
     }
 
     @Override
-    public void publish(LogRecord record) {
-        super.publish(record);
+    public synchronized void publish(LogRecord logRecord) {
+        super.publish(logRecord);
         flush();
     }
 
@@ -29,7 +30,7 @@ public class WLSDeployLoggingStdoutHandler extends StreamHandler {
      * close <tt>System.out</tt>.
      */
     @Override
-    public void close() {
+    public synchronized void close() {
         flush();
     }
 }
