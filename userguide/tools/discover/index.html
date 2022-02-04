@@ -12,20 +12,20 @@
     <title>Discover Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644013983" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644013983"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644005024"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644005024"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644013983"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644013983"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644005024"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644013983"></script>
 
     
   </div>
@@ -1172,7 +1172,7 @@
       <ul>
         <li><a href="#environmental-variables">Environmental variables</a></li>
         <li><a href="#opening-an-issue-against-discover-domain">Opening an issue against Discover Domain</a></li>
-        <li><a href="#parameter-table-for-discoverdomain">Parameter table for discoverDomain</a></li>
+        <li><a href="#parameter-table-for-discoverdomain">Parameter table for <code>discoverDomain</code></a></li>
       </ul>
     </li>
   </ul>
@@ -1211,10 +1211,10 @@
 <li>You can you run the discover tool without generating an archive file if you wish to inspect the model file. A create or update domain requires a valid archive file for any binaries, scripts or directories that will be installed into the domain.</li>
 </ol>
 <p>You can customize what is generated in the model for password attributes by providing a variable file location and name. This file is a text properties file which will contain a key=value for each password found in the model. The key is a unique token name for a password attribute, and the value is the replacement value; in this case, an empty string. The attribute in the model is injected with the token name and property field notation. For example, <code>@@PROP:AdminUserName@@</code> or <code>@@PROP:JDBCSystemResource.&lt;Name&gt;.JdbcResource.JDBCDriverParams.PasswordEncrypted@@</code>.</p>
-<p>A command line example containing the variable file name:</p>
+<p>A command-line example containing the variable file name:</p>
 <pre><code>$ weblogic-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.json -variable_file DiscoverDemoDomain.properties
 </code></pre>
-<p>To discover the domain using online WLST, simply include the admin user name and admin URL on the command line. The tool will prompt for a password to be entered into STDIN. To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command line option -admin_pass_env. Store the password value in a file. Provide the file name with command line option -admin_pass_file.</p>
+<p>To discover the domain using online WLST, simply include the admin user name and admin URL on the command line. The tool will prompt for a password to be entered into STDIN. To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command-line option <code>-admin_pass_env</code>. Store the password value in a file. Provide the file name with command-line option <code>-admin_pass_file</code>.</p>
 <p>An example of running in online WLST mode:</p>
 <pre><code>$ weblogic-deploy/bin/discoverDomain.sh -oracle_home /u01/oracle -domain_home /u01/oracle/domains/DemoDomain -archive_file ./DiscoveredDemoDomain.zip -model_file ./DiscoveredDemoDomain.yaml -admin_user weblogic -admin_url t3://localhost:7001
 </code></pre>
@@ -1249,7 +1249,7 @@ from the location of the <code>discoverDomain</code> script.</li>
 </ul>
 <h3 id="opening-an-issue-against-discover-domain">Opening an issue against Discover Domain</h3>
 <p>Please provide the <code>STDOUT</code> and <code>STDERR</code> log streams in the GitHub Issue. If the summary is not listed (unhandled exception stack trace occurs), be sure and include the Oracle and WDT install versions and whether the tool was run in online or offline WLST mode. If possible, provide the model, variable and archive files, and the log file, <code>discoverDomain.log</code>, from location <code>&lt;install home&gt;\weblogic-deploy\log</code>.</p>
-<h3 id="parameter-table-for-discoverdomain">Parameter table for discoverDomain</h3>
+<h3 id="parameter-table-for-discoverdomain">Parameter table for <code>discoverDomain</code></h3>
 <table>
 <thead>
 <tr>
@@ -1266,7 +1266,7 @@ from the location of the <code>discoverDomain</code> script.</li>
 </tr>
 <tr>
 <td><code>-admin_pass_env</code></td>
-<td>An alternative to entering the admin password at a prompt. The value is a ENVIRONMENT VARIABLE name that WDT will use to retrieve the password.</td>
+<td>An alternative to entering the admin password at a prompt. The value is a environment variable name that WDT will use to retrieve the password.</td>
 <td></td>
 </tr>
 <tr>
@@ -1291,12 +1291,12 @@ from the location of the <code>discoverDomain</code> script.</li>
 </tr>
 <tr>
 <td><code>-domain_type</code></td>
-<td>The type of domain.  (for example, WLS, JRF)</td>
-<td>WLS</td>
+<td>The type of domain.  (for example, <code>WLS</code>, <code>JRF</code>)</td>
+<td><code>WLS</code></td>
 </tr>
 <tr>
 <td><code>-java_home</code></td>
-<td>Overrides the JAVA_HOME value when discovering domain values to be replaced with the java home global token.</td>
+<td>Overrides the <code>JAVA_HOME</code>  value when discovering domain values to be replaced with the Java home global token.</td>
 <td></td>
 </tr>
 <tr>
@@ -1306,22 +1306,22 @@ from the location of the <code>discoverDomain</code> script.</li>
 </tr>
 <tr>
 <td><code>-oracle_home</code></td>
-<td>Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set.</td>
+<td>Home directory of the Oracle WebLogic installation. Required if the <code>ORACLE_HOME</code> environment variable is not set.</td>
 <td></td>
 </tr>
 <tr>
 <td><code>-output_dir</code></td>
-<td>Output directory required for -target.</td>
+<td>Output directory required for <code>-target</code>.</td>
 <td></td>
 </tr>
 <tr>
 <td><code>-skip_archive</code></td>
-<td>Do not generate an archive file. The archive_file option will be ignored.</td>
+<td>Do not generate an archive file. The <code>-archive_file</code> option will be ignored.</td>
 <td></td>
 </tr>
 <tr>
 <td><code>-target</code></td>
-<td>Targeting platform - k8s, wko, vz.</td>
+<td>Targeting platform - <code>k8s</code>, <code>wko</code>, <code>vz</code>.</td>
 <td></td>
 </tr>
 <tr>
@@ -2106,19 +2106,19 @@ from the location of the <code>discoverDomain</code> script.</li>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644013983"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644013983"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644005024"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644013983"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

@@ -12,20 +12,20 @@
     <title>Extract Domain Resource Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1644005024" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1644013983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644013983" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644013983"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644005024"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644005024"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644013983"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644013983"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644005024"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644013983"></script>
 
     
   </div>
@@ -1171,7 +1171,7 @@
     <li>
       <ul>
         <li></li>
-        <li><a href="#parameter-table-for-extractresources">Parameter table for extractResources</a></li>
+        <li><a href="#parameter-table-for-extractresources">Parameter table for <code>extractResources</code></a></li>
       </ul>
     </li>
   </ul>
@@ -1227,7 +1227,7 @@
         <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">2</span>
     -   <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">mycluster3</span>
         <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">4</span>
-</code></pre></div><p>In this example, the value for <code>domainHome</code> was set as an input parameter to the extractDomainResource script from the command line. The <code>kind</code> and <code>name</code> were set to the domain name derived from the topology section of the model, or the default <code>base_domain</code>. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.</p>
+</code></pre></div><p>In this example, the value for <code>domainHome</code> was set as an input parameter to the <code>extractDomainResource</code> script from the command line. The <code>kind</code> and <code>name</code> were set to the domain name derived from the topology section of the model, or the default <code>base_domain</code>. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.</p>
 <p>The user is expected to fill in the image and secrets information identified by <code>--FIX ME--</code> in the domain resource output.</p>
 <p>For more advanced configurations, including pre-populating the <code>--FIX ME--</code> values, the user can populate the <code>kubernetes</code> section of the WDT model, and those values will appear in the resulting domain resources file. This model section overrides and adds some values to the result.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">kubernetes</span>:
@@ -1290,7 +1290,7 @@
 <p>The <a href="/weblogic-deploy-tooling/userguide/tools/model_help/">Model Help Tool</a> can be used to determine the folders and attributes that can be used in the <code>kubernetes</code> section of the model. For example, this command will list the folders and attributes in the <code>spec</code> folder:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">&lt;wls-deploy-home&gt;/bin/modelHelp.sh -oracle_home /tmp/oracle kubernetes:/spec</span>
 </code></pre></div><p>The content in the <code>kubernetes</code> section is not generated when a model is discovered by the Discover Domain Tool.</p>
-<h3 id="parameter-table-for-extractresources">Parameter table for extractResources</h3>
+<h3 id="parameter-table-for-extractresources">Parameter table for <code>extractResources</code></h3>
 <table>
 <thead>
 <tr>
@@ -1302,7 +1302,7 @@
 <tbody>
 <tr>
 <td><code>-archive_file</code></td>
-<td>The path to the archive file.  If the -model_file argument is not specified, the model file in this archive will be used.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list.</td>
+<td>The path to the archive file.  If the <code>-model_file</code> argument is not specified, the model file in this archive will be used.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list.</td>
 <td></td>
 </tr>
 <tr>
@@ -1322,7 +1322,7 @@
 </tr>
 <tr>
 <td><code>-oracle_home</code></td>
-<td>Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set.</td>
+<td>Home directory of the Oracle WebLogic installation. Required if the <code>ORACLE_HOME</code> environment variable is not set.</td>
 <td></td>
 </tr>
 <tr>
@@ -2107,19 +2107,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644013983"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1644005024"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1644013983"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644013983"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644005024"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644013983"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
