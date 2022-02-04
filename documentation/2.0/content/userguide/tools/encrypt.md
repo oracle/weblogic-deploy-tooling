@@ -90,7 +90,7 @@ To run the encryption tool on the model, run the following command:
 
     $ weblogic-deploy\bin\encryptModel.cmd -oracle_home c:\wls12213 -model_file UnencryptedDemoDomain.yaml
 
-The tool will prompt for the encryption passphrase twice and then encrypt any passwords it finds in the model, skipping any password fields that have variable values, to produce a result that looks like the following model. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command line option -passphrase_env. Another option is to create a file containing the passphrase value. Pass this filename using the command line option -passphrase_file
+The tool will prompt for the encryption passphrase twice and then encrypt any passwords it finds in the model, skipping any password fields that have variable values, to produce a result that looks like the following model. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command-line option `-passphrase_env`. Another option is to create a file containing the passphrase value. Pass this filename using the command-line option `-passphrase_file`.
 
 ```yaml
 domainInfo:
@@ -220,12 +220,12 @@ The variable file will now look something like the following:
     db.password={AES}czFXMkNFWNG9jNTNYd0hRL2R1anBnb0hDUlp4K1liQWFBdVM4UTlvMnE0NU1aMUZ5UVhiK25oaWFBc2lIQ20\=
     mymailsession.password={AES}RW9nRnUzcE41WGNMdnEzNDdRQVVNWm1LMGhidkFBVXg6OUN3aXcyci82cmh3cnpNQTpmY2UycUp5YWl4UT0\=
 
-### Parameter table for encrypt tool
+### Parameter table for `encryptModel`
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
 | `-manual` | Run without a model and get an encrypted value for a single password. |    |
 | `-model_file` | The location of the model file or a set of model files. |    |
-| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set. |    |
-| `-passphrase_env` | An alternative to entering the encryption passphrase at a prompt. The value is a ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase. |    |
+| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
+| `-passphrase_env` | An alternative to entering the encryption passphrase at a prompt. The value is a environment variable name that WDT will use to retrieve the passphrase. |    |
 | `-passphrase_file` | An alternative to entering the encryption passphrase at a prompt. The value is a the name of a file with a string value which WDT will read to retrieve the passphrase. |    |
 | `-variable_file` | The location and name of the property file containing the variable values for all variables used in the model(s). |    |

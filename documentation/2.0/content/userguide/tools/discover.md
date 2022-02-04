@@ -23,11 +23,11 @@ When creating the archive, the tool will try to gather all binaries, scripts, an
 
 You can customize what is generated in the model for password attributes by providing a variable file location and name. This file is a text properties file which will contain a key=value for each password found in the model. The key is a unique token name for a password attribute, and the value is the replacement value; in this case, an empty string. The attribute in the model is injected with the token name and property field notation. For example, `@@PROP:AdminUserName@@` or `@@PROP:JDBCSystemResource.<Name>.JdbcResource.JDBCDriverParams.PasswordEncrypted@@`.
 
-A command line example containing the variable file name:
+A command-line example containing the variable file name:
 
     $ weblogic-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.json -variable_file DiscoverDemoDomain.properties
 
-To discover the domain using online WLST, simply include the admin user name and admin URL on the command line. The tool will prompt for a password to be entered into STDIN. To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command line option -admin_pass_env. Store the password value in a file. Provide the file name with command line option -admin_pass_file.
+To discover the domain using online WLST, simply include the admin user name and admin URL on the command line. The tool will prompt for a password to be entered into STDIN. To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command-line option `-admin_pass_env`. Store the password value in a file. Provide the file name with command-line option `-admin_pass_file`.
 
 An example of running in online WLST mode:
 
@@ -77,21 +77,20 @@ The following environment variables may be set.
 
 Please provide the `STDOUT` and `STDERR` log streams in the GitHub Issue. If the summary is not listed (unhandled exception stack trace occurs), be sure and include the Oracle and WDT install versions and whether the tool was run in online or offline WLST mode. If possible, provide the model, variable and archive files, and the log file, `discoverDomain.log`, from location `<install home>\weblogic-deploy\log`.
 
-### Parameter table for discoverDomain
+### Parameter table for `discoverDomain`
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
 | `-archive_file` | The path to the archive file. |    |
-| `-admin_pass_env` | An alternative to entering the admin password at a prompt. The value is a ENVIRONMENT VARIABLE name that WDT will use to retrieve the password. |    |
+| `-admin_pass_env` | An alternative to entering the admin password at a prompt. The value is a environment variable name that WDT will use to retrieve the password. |    |
 | `-admin_pass_file` | An alternative to entering the admin password at a prompt. The value is a the name of a file that contains a password string that the tool will read to retrieve the password. |    |
 | `-admin_url` | The admin server URL used for online discovery. |    |
 | `-admin_user` | The admin user used for online discovery. |    |
 | `-domain_home` | (Required). The location of the existing domain home. |    |
-| `-domain_type` | The type of domain.  (for example, WLS, JRF) | WLS |
-| `-java_home` | Overrides the JAVA_HOME value when discovering domain values to be replaced with the java home global token. |    |
+| `-domain_type` | The type of domain.  (for example, `WLS`, `JRF`) | `WLS` |
+| `-java_home` | Overrides the `JAVA_HOME`  value when discovering domain values to be replaced with the Java home global token. |    |
 | `-model_file` | The path to the model file. If not present, model file will be stored in archive file. |    |
-| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set. |    |
-| `-output_dir` | Output directory required for -target. |    |
-| `-skip_archive` | Do not generate an archive file. The archive_file option will be ignored. |    |
-| `-target` | Targeting platform - k8s, wko, vz. |    |
+| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
+| `-output_dir` | Output directory required for `-target`. |    |
+| `-skip_archive` | Do not generate an archive file. The `-archive_file` option will be ignored. |    |
+| `-target` | Targeting platform - `k8s`, `wko`, `vz`. |    |
 | `-variable_file` | The location to write properties for attributes that have been replaced with tokens by the variable injector. If this is included, all credentials will automatically be replaced by tokens and the property written to this file. |    |
-

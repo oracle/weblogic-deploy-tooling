@@ -88,8 +88,8 @@ Server.soa_server2.ListenPort=8001
 Server.soa_server2.SSL.ListenPort=8002
 ```
 
-To specify the name and location of the variable properties file for the Discover Domain Tool, use the argument `-variable_properties_file` on the command line. Usage of the `variable_properties_file` argument without the presence of the model variable injector file in the `<WLSDEPLOY>/lib` directory will cause an error condition and the tool will exit. If the model variable injector file exists in the directory, but the command-line argument is not used, the variable properties file is created with the following defaults:
-* If the `model_file` command-line argument is used on the Discover Domain Tool run, the properties file name and location will be the same as the model file, with the file extension `.properties`.
+To specify the name and location of the variable properties file for the Discover Domain Tool, use the argument `-variable_properties_file` on the command line. Usage of the `-variable_properties_file` argument without the presence of the model variable injector file in the `<WLSDEPLOY>/lib` directory will cause an error condition and the tool will exit. If the model variable injector file exists in the directory, but the command-line argument is not used, the variable properties file is created with the following defaults:
+* If the `-model_file` command-line argument is used on the Discover Domain Tool run, the properties file name and location will be the same as the model file, with the file extension `.properties`.
 * If only the archive file argument is present, the archive file name and location will be used.
 
 As with the archive and model file, each run of the Discover Domain Tool will overwrite the contents of an existing variable property file with the values from the current run.
@@ -215,11 +215,11 @@ A custom injector for the Administration Server SSL listen port is:
 
 A sample of a `model_variable_injector.json` file and a custom injector JSON file are installed in the `WLSDEPLOY/samples` directory.
 
-### Parameter table for injectVariables
+### Parameter table for `injectVariables`
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
-| `-archive_file` | The path to the archive file that contains a model in which the variables will be injected. If the -model_file argument is used, this argument will be ignored. |    |
-| `-model_file` | The location of the model file in which variables will be injected. If not specified, the tool will look for the model in the archive file. Either the model_file or the archive_file argument must be provided. |    |
-| `-oracle_home` | Home directory for the Oracle WebLogic installation. This is required unless the ORACLE_HOME environment variable is set. |    |
-| `-variable_injector_file` | The location of the variable injector file which contains the variable injector keywords for this model injection run. If this argument is not provided, the `model_variable_injector.json` file must exist in the lib directory in the WLSDEPLOY_HOME location. |    |
+| `-archive_file` | The path to the archive file that contains a model in which the variables will be injected. If the `-model_file` argument is used, this argument will be ignored. |    |
+| `-model_file` | The location of the model file in which variables will be injected. If not specified, the tool will look for the model in the archive file. Either the `-model_file` or the `-archive_file` argument must be provided. |    |
+| `-oracle_home` | Home directory for the Oracle WebLogic installation. This is required unless the `ORACLE_HOME` environment variable is set. |    |
+| `-variable_injector_file` | The location of the variable injector file which contains the variable injector keywords for this model injection run. If this argument is not provided, the `model_variable_injector.json` file must exist in the `lib` directory in the `WLSDEPLOY_HOME` location. |    |
 | `-variable_properties_file` | The location of the property file in which to store any variable names injected into the model. If this command-line argument is not specified, the variable will be located and named based on the model file or archive file name and location. If the file exists, the file will be updated with new variable values. |    |
