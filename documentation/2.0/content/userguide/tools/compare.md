@@ -285,10 +285,17 @@ Comparing the new and old models:
 
  To compare the two model files and generate the output to files, run the tool as follows:
 
-    $ weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 -output_dir c:\cm-output ew_model.yaml old_model.yaml
+    $ weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 -output_dir c:\cm-output new_model.yaml old_model.yaml
 
     The following files will be written to the directory:
 
     diffed_model.json
     diffed_model.yaml
     compare_model_stdout
+
+### Parameter table for compareModel
+| Parameter | Definition | Default |
+| --- | --- | --- |
+| `-oracle_home` | Home directory of the Oracle installation. Required if ORACLE_HOME environment variable is not set. |    |
+| `-output_dir` | (Required) Directory in which to store the output. |    |
+| `-variable_file` | Variable file used for token substitution. |    |
