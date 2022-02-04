@@ -14,12 +14,13 @@ import java.lang.Integer as JInteger
 import java.lang.Long as JLong
 import java.lang.String as JString
 import java.util.ArrayList as JArrayList
-import java.util.LinkedHashMap as JLinkedHashMap
 
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 import oracle.weblogic.deploy.yaml.YamlStreamTranslator as JYamlStreamTranslator
 import oracle.weblogic.deploy.yaml.YamlTranslator as JYamlTranslator
+from oracle.weblogic.deploy.util import OrderedMap
 from oracle.weblogic.deploy.util import PyRealBoolean
+from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -122,7 +123,10 @@ class PythonToJava(object):
             raise yaml_ex
 
     def convert_dict_to_java_map(self, dictionary):
-        result = JLinkedHashMap()
+        result = OrderedMap()
+        if isinstance(dictionary, PyOrderedDict):
+            result.setCommentMap(dictionary.getCommentMap())
+
         for key, value in dictionary.iteritems():
             java_key = JString(key)
             if isinstance(value, dict):
