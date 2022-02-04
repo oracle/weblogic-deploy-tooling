@@ -68,6 +68,7 @@ from wlsdeploy.aliases.model_constants import SET_OPTION_SERVER_START_MODE
 from wlsdeploy.aliases.model_constants import UNIX_MACHINE
 from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.aliases.model_constants import USER
+from wlsdeploy.aliases.model_constants import USE_SAMPLE_DATABASE
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
@@ -672,6 +673,10 @@ class DomainCreator(Creator):
         if SERVER_START_MODE in self._domain_info:
             server_start_mode = self._domain_info[SERVER_START_MODE]
             self.wlst_helper.set_option_if_needed(SET_OPTION_SERVER_START_MODE, server_start_mode)
+
+        if USE_SAMPLE_DATABASE in self._domain_info:
+            use_sample_db = self._domain_info[USE_SAMPLE_DATABASE]
+            self.wlst_helper.set_option_if_needed(USE_SAMPLE_DATABASE, use_sample_db)
 
         self.__set_domain_name()
         self.__set_admin_password()
