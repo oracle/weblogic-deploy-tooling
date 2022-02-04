@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 # This model is altered by wko_filter to be suitable for deployment with WebLogic Kubernetes Operator.
@@ -39,6 +39,10 @@ topology:
             Cluster: staticCluster
             # this should cause a warning message
             ListenPort: 5002
+    Machine:
+        machine-1:
+    VirtualTarget:
+        target-2:
 
     # confirm that model traversal deals with artificial type folders correctly
     SecurityConfiguration:
@@ -56,6 +60,12 @@ topology:
                         'com.custom.CustomIdentityAsserter':
                             ControlFlag: SUFFICIENT
                             UseDefaultUserNameMapper: true
+
+resources:
+    Partition:
+        my-partition:
+    ResourceGroup:
+        my-resource-group:
 
 appDeployments:
     Application:
