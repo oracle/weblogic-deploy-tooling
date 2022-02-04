@@ -18,9 +18,16 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 TARGET_CONFIG_TOKEN = '@@TARGET_CONFIG_DIR@@'
 
 __id_filter_map = {
+    # groups that execute multiple filters
     'k8s_filter': wko_filter.filter_model,
-    'vz_filter': wko_filter.filter_model,
-    'wko_filter': wko_filter.filter_model
+    'vz_filter': wko_filter.filter_model_for_vz,
+    'wko_filter': wko_filter.filter_model_for_wko,
+
+    # individual filters for custom target environments
+    'online_attributes_filter': wko_filter.filter_online_attributes,
+    'resources_filter': wko_filter.filter_resources,
+    'topology_filter': wko_filter.filter_topology,
+    'server_ports_filter': wko_filter.check_clustered_server_ports
 }
 
 
