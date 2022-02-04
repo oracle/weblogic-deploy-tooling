@@ -33,16 +33,16 @@ Configuring OHS typically involves adding two top-level folders to the `resource
 ```yaml
 resources:
     SystemComponent:
-        'my-ohs':
+        my-ohs:
             ComponentType: 'OHS'
             Machine: 'my-machine'
     OHS:
-        'my-ohs':
-            AdminHost: '127.0.0.1'
-            AdminPort: '9324'
-            ListenAddress: '127.0.0.1'
-            ListenPort: '7323'
-            SSLListenPort: '4323'
+        my-ohs:
+            AdminHost: 127.0.0.1
+            AdminPort: 9324
+            ListenAddress: 127.0.0.1
+            ListenPort: 7323
+            SSLListenPort: 4323
             ServerName: 'http://localhost:7323'
 ```
 Each name under the `OHS` folder must match a name under the `SystemComponent` folder in the model, or the name of a `SystemComponent` element that has been previously created. In this example, the name `my-ohs` is in both places.

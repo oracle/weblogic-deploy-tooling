@@ -25,7 +25,7 @@ appDeployments:
     Application:
         simpleear :
             SourcePath: wlsdeploy/applications/simpleear.ear
-            Target: 'my-cluster'
+            Target: my-cluster
             ModuleType: ear
 ```
 

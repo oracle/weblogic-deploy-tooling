@@ -24,7 +24,7 @@ description: "Configure the Administration Server using a domain model."
          AdminServer:
              ListenPort: 9071
              RestartDelaySeconds: 10
-             ListenAddress: 'my-host-1'
+             ListenAddress: my-host-1
              Log:
                  FileCount: 9
                  LogFileSeverity: Info
@@ -44,12 +44,12 @@ description: "Configure the Administration Server using a domain model."
 
  ```yaml
  topology:
-     AdminServerName: 'my-admin-server'
+     AdminServerName: my-admin-server
      Server:
          'my-admin-server':
              ListenPort: 9071
              RestartDelaySeconds: 10
-             ListenAddress: 'my-host-1'
+             ListenAddress: my-host-1
              Log:
                  FileCount: 9
                  LogFileSeverity: Info
