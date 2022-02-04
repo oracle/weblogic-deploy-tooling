@@ -162,7 +162,7 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
             if(handlerLevel.equals(level)) {
                 return levelHandler.getTotalRecords();
             }
-         }
+        }
         return 0;
     }
 
@@ -211,7 +211,7 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
 
     private void summaryHead(Handler handler) {
         handler.publish(getLogRecord("WLSDPLY-21003", context.getProgramName(),
-                WebLogicDeployToolingVersion.getVersion(), context.getVersion(), context.getWlstMode()));
+            WebLogicDeployToolingVersion.getVersion(), context.getVersion(), context.getWlstMode()));
     }
 
     private void summaryTail(Handler handler) {
