@@ -12,20 +12,20 @@
     <title>Variable Injector Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644005024" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644005024"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643935370"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643935370"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644005024"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644005024"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643935370"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644005024"></script>
 
     
   </div>
@@ -1172,6 +1172,7 @@
       <ul>
         <li><a href="#custom-variable-injector">Custom variable injector</a></li>
         <li><a href="#variable-injector-sample">Variable injector sample</a></li>
+        <li><a href="#parameter-table-for-injectvariables">Parameter table for injectVariables</a></li>
       </ul>
     </li>
   </ul>
@@ -1355,6 +1356,43 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
 }
 </code></pre></div><h3 id="variable-injector-sample">Variable injector sample</h3>
 <p>A sample of a <code>model_variable_injector.json</code> file and a custom injector JSON file are installed in the <code>WLSDEPLOY/samples</code> directory.</p>
+<h3 id="parameter-table-for-injectvariables">Parameter table for injectVariables</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Definition</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-archive_file</code></td>
+<td>The path to the archive file that contains a model in which the variables will be injected. If the -model_file argument is used, this argument will be ignored.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-model_file</code></td>
+<td>The location of the model file in which variables will be injected. If not specified, the tool will look for the model in the archive file. Either the model_file or the archive_file argument must be provided.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-oracle_home</code></td>
+<td>Home directory for the Oracle WebLogic installation. This is required unless the ORACLE_HOME environment variable is set.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-variable_injector_file</code></td>
+<td>The location of the variable injector file which contains the variable injector keywords for this model injection run. If this argument is not provided, the <code>model_variable_injector.json</code> file must exist in the lib directory in the WLSDEPLOY_HOME location.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-variable_properties_file</code></td>
+<td>The location of the property file in which to store any variable names injected into the model. If this command-line argument is not specified, the variable will be located and named based on the model file or archive file name and location. If the file exists, the file will be updated with new variable values.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 
 
 <footer class="footline">
@@ -2130,19 +2168,19 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644005024"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644005024"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643935370"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644005024"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

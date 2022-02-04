@@ -12,20 +12,20 @@
     <title>Create Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644005024" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644005024"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643935370"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643935370"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644005024"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644005024"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643935370"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644005024"></script>
 
     
   </div>
@@ -1173,6 +1173,7 @@
         <li><a href="#using-an-encrypted-model">Using an encrypted model</a></li>
         <li><a href="#using-multiple-models">Using multiple models</a></li>
         <li><a href="#development-domain-and-bootproperties">Development domain and <code>boot.properties</code></a></li>
+        <li><a href="#parameter-table-for-createdomain">Parameter table for createDomain</a></li>
       </ul>
     </li>
   </ul>
@@ -1229,7 +1230,104 @@
     <span style="color:#f92672">Name</span>: <span style="color:#e6db74">&#34;my-domain&#34;</span>
     <span style="color:#f92672">AdminServerName</span>: <span style="color:#e6db74">&#34;admin-server&#34;</span>
     <span style="color:#f92672">ProductionModeEnabled</span>: <span style="color:#66d9ef">false</span>
-</code></pre></div>
+</code></pre></div><h3 id="parameter-table-for-createdomain">Parameter table for createDomain</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Definition</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-archive_file</code></td>
+<td>The path to the archive file to use.  If the -model_file argument is not specified, the model file in this archive will be used.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-domain_home</code></td>
+<td>Required if -domain_parent is not used. The full directory and name where the domain should be created.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-domain_parent</code></td>
+<td>Required if -domain_home is not used. The parent directory where the domain should be created. The name is the domain name in the model.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-domain_type</code></td>
+<td>The type of domain (for example, WLS, JRF).</td>
+<td>WLS</td>
+</tr>
+<tr>
+<td><code>-java_home</code></td>
+<td>The Java Home to use for the new domain. If not specified, it defaults to the value of the JAVA_HOME environment variable.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-model_file</code></td>
+<td>The location of the model file.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-oracle_home</code></td>
+<td>Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-opss_wallet_passphrase_env</code></td>
+<td>An alternative to entering the OPSS wallet passphrase at a prompt. The value is an ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-opss_wallet_passphrase_file</code></td>
+<td>An alternative to entering the OPSS wallet passphrase at a prompt. The value is the name of a file with a string value which WDT will read to retrieve the passphrase.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-passphrase_env</code></td>
+<td>An alternative to entering the encryption passphrase at a prompt. The value is an ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-passphrase_file</code></td>
+<td>An alternative to entering the encryption passphrase at a prompt. The value is the name of a file with a string value which WDT will read to retrieve the passphrase.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-rcu_database</code></td>
+<td>The RCU database connect string.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-rcu_prefix</code></td>
+<td>The RCU prefix to use.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-rcu_db_user</code></td>
+<td>The RCU dbUser to use.</td>
+<td>sys</td>
+</tr>
+<tr>
+<td><code>-run_rcu</code></td>
+<td>Run RCU to create the database schemas specified by the domain type using the specified RCU prefix. Running RCU will drop any existing schemas with the same RCU prefix if they exist prior to trying to create them.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-use_encryption</code></td>
+<td>One or more of the passwords in the model or variables file(s) are encrypted and must be decrypted. Java 8 or later required for this feature.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-variable_file</code></td>
+<td>The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 
 <footer class="footline">
 	
@@ -2001,19 +2099,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644005024"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644005024"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643935370"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644005024"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

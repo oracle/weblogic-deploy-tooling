@@ -12,20 +12,20 @@
     <title>Prepare Model Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1643935370" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1644005024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644005024" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644005024"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643935370"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643935370"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644005024"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644005024"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643935370"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644005024"></script>
 
     
   </div>
@@ -1166,7 +1166,15 @@
                 
                     <div class="progress">
     <div class="wrapper">
-<nav id="TableOfContents"></nav>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#parameter-table-for-preparemodel">Parameter table for prepareModel</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
@@ -1210,6 +1218,43 @@ create_k8s_secrets.sh
 wko-domain.yaml
 </code></pre><p>You can then customize the <code>wko_variable.properties</code> and <code>create_k8s_secrets.sh</code> to provide environment-specific values.</p>
 <p>For more information about additional target environments and options, see <a href="/weblogic-deploy-tooling/userguide/target_env/">Target environments</a>.</p>
+<h3 id="parameter-table-for-preparemodel">Parameter table for prepareModel</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Definition</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-model_file</code></td>
+<td>(Required). Location of the model file. This can also be specified as a comma-separated list of models, where each successive model layers on top of the previous ones.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-oracle_home</code></td>
+<td>Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-output_dir</code></td>
+<td>(Required) Location where to write the output files.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-target</code></td>
+<td>(Required) Name of the target configuration such as wko, vz, k8s.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-variable_file</code></td>
+<td>The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 
 
 <footer class="footline">
@@ -1985,19 +2030,19 @@ wko-domain.yaml
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644005024"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1643935370"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1644005024"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644005024"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643935370"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644005024"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
