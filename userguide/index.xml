@@ -24,8 +24,8 @@ Binary distributions of the weblogic-deploy.zip installer can be downloaded from
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/target_env/</guid>
-      <description>The Discover Domain and Prepare Model Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
- Using model tokens for some attributes in the model. See Model tokens. Using Kubernetes secrets for credentials in the model. Applying filters to the model. See Model filters. Creating additional configuration files for the target system.  Specifying a target environment Each tool specifies a target environment using the command-line argument -target &amp;lt;target-name&amp;gt;, where &amp;lt;target-name&amp;gt; refers to a pre-configured target environment, or a user-defined environment.</description>
+      <description>Contents  Overview Specifying a target environment Pre-configured target environments Using secret credentials in the model Target configuration files  Overview The Discover Domain and Prepare Model Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:
+ Using model tokens for some attributes in the model. For more details, see Model tokens. Using Kubernetes secrets for credentials in the model.</description>
     </item>
     
   </channel>

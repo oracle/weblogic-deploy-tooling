@@ -12,20 +12,20 @@
     <title>Target environments :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643666472" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643666472" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643666472" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643666472" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643666472" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643666472" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643666472" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1643666472" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1643666472" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643666472" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1643935370" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1643935370" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643666472"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1643935370"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643666472"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643666472"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1643935370"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1643935370"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643666472"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1643935370"></script>
 
     
   </div>
@@ -1164,9 +1164,12 @@
   <ul>
     <li>
       <ul>
+        <li><a href="#contents">Contents</a></li>
+        <li><a href="#overview">Overview</a></li>
         <li><a href="#specifying-a-target-environment">Specifying a target environment</a></li>
-        <li><a href="#the-target-configuration-file">The target configuration file</a></li>
         <li><a href="#pre-configured-target-environments">Pre-configured target environments</a></li>
+        <li><a href="#using-secret-credentials-in-the-model">Using secret credentials in the model</a></li>
+        <li><a href="#target-environment-configuration-files">Target environment configuration files</a></li>
       </ul>
     </li>
   </ul>
@@ -1193,20 +1196,75 @@
         
 
 
+<h3 id="contents">Contents</h3>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#specifying-a-target-environment">Specifying a target environment</a></li>
+<li><a href="#pre-configured-target-environments">Pre-configured target environments</a></li>
+<li><a href="#using-secret-credentials-in-the-model">Using secret credentials in the model</a></li>
+<li><a href="#target-environment-configuration-files">Target configuration files</a></li>
+</ul>
+<h3 id="overview">Overview</h3>
 <p>The <a href="/weblogic-deploy-tooling/userguide/tools/discover/">Discover Domain</a> and <a href="/weblogic-deploy-tooling/userguide/tools/prepare/">Prepare Model</a> Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:</p>
 <ul>
-<li>Using model tokens for some attributes in the model. See <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model tokens</a>.</li>
-<li>Using Kubernetes secrets for credentials in the model.</li>
-<li>Applying filters to the model. See <a href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/">Model filters</a>.</li>
+<li>Using model tokens for some attributes in the model. For more details, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model tokens</a>.</li>
+<li>Using Kubernetes secrets for credentials in the model. For more details, see <a href="#using-secret-credentials-in-the-model">Using secret credentials in the model</a>.</li>
+<li>Applying filters to the model. For more details, see <a href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/">Model filters</a>.</li>
 <li>Creating additional configuration files for the target system.</li>
 </ul>
 <h3 id="specifying-a-target-environment">Specifying a target environment</h3>
 <p>Each tool specifies a target environment using the command-line argument <code>-target &lt;target-name&gt;</code>, where <code>&lt;target-name&gt;</code> refers to a pre-configured target environment, or a user-defined environment. In addition, the <code>-output_dir &lt;output-directory&gt;</code> argument specifies where the files for the target environment will be stored.</p>
-<p>This command line shows how these arguments can be used with the Discover Domain Tool:</p>
+<p>This command line shows how you can use these arguments with the Discover Domain Tool:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"> <span style="color:#ae81ff">$ $WLSDEPLOY_HOME/bin/discoverDomain.sh ... -target k8s -output_dir /etc/files</span>
 </code></pre></div><p>This example would apply the <code>k8s</code> target type to the discovery result, and place those files in <code>/etc/files</code>.</p>
 <p>If a variable file is specified on the tool&rsquo;s command line using the <code>-variable_file</code> argument, any injected variables will be added to that file. If no variable file is specified, injected variables will be written to the file <code>&lt;output-directory&gt;/&lt;target_name&gt;_variable.properties</code>.</p>
-<h3 id="the-target-configuration-file">The target configuration file</h3>
+<h3 id="pre-configured-target-environments">Pre-configured target environments</h3>
+<p>These target environment configurations are included in the WebLogic Deploy Tooling installation.</p>
+<h4 id="the-weblogic-kubernetes-operator-target">The WebLogic Kubernetes Operator target</h4>
+<p>You can apply this target environment by providing the command-line argument <code>-target wko</code>. It will provide this additional processing:</p>
+<ul>
+<li>The <code>wko_operator_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
+<li>Variables will be injected into the model for port, host, and URL attributes</li>
+<li><code>lax</code> validation will be applied for the resulting model</li>
+<li>Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced</li>
+<li>An additional Kubernetes resource file, <code>wko-domain.yaml</code>, will be produced, with cluster and naming information derived from the model</li>
+</ul>
+<h4 id="the-verrazzano-target">The Verrazzano target</h4>
+<p>You can apply this target environment by providing the command-line argument <code>-target vz</code>. It will provide this additional processing:</p>
+<ul>
+<li>The <code>vz_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
+<li>Variables will be injected into the model for port, host, and URL attributes</li>
+<li><code>lax</code> validation will be applied for the resulting model</li>
+<li>Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced</li>
+<li>One additional Kubernetes resource file, <code>vz-application.yaml</code>, will be produced, with cluster and data source information derived from the model</li>
+</ul>
+<h4 id="generic-kubernetes-target">Generic Kubernetes target</h4>
+<p>You can apply this target environment by providing the command-line argument <code>-target k8s</code>. It will provide this additional processing:</p>
+<ul>
+<li>The <code>k8s_operator_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
+<li>Variables will be injected into the model for port, host, and URL attributes</li>
+<li><code>lax</code> validation will be applied for the resulting model</li>
+<li>Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced</li>
+</ul>
+<h3 id="using-secret-credentials-in-the-model">Using secret credentials in the model</h3>
+<p>If a target environment is configured to use Kubernetes secrets for credential attribute values, each of those values is replaced with a token using the format <code>@@SECRET:@@ENV:DOMAIN_UID@@&lt;secret-suffix&gt;:&lt;key&gt;</code>. For example:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">PasswordEncrypted</span>: <span style="color:#e6db74">&#39;@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-generic1:password@@&#39;</span>
+</code></pre></div><p>When a domain is created or updated using a model with these tokens, the environment variable <code>DOMAIN_UID</code> should be set to the domain&rsquo;s UID, and secrets with corresponding names should have been created. For more details about using secret tokens, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model Tokens</a>.</p>
+<p>For some target environments, the WebLogic admin credentials use a variation of this token format. For example:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">AdminUserName</span>: <span style="color:#e6db74">&#39;@@SECRET:__weblogic-credentials__:username@@&#39;</span>
+    <span style="color:#f92672">AdminPassword</span>: <span style="color:#e6db74">&#39;@@SECRET:__weblogic-credentials__:password@@&#39;</span>
+</code></pre></div><p>In this case, the token <code>__weblogic-credentials__</code> allows these attributes to reference secrets in a specific location. The <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> environment variable should be set to associate <code>__weblogic-credentials__</code> to this location. For example:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">WDT_MODEL_SECRETS_NAME_DIR_PAIRS<span style="color:#f92672">=</span>__weblogic-credentials__<span style="color:#f92672">=</span>/etc/my-secrets
+</code></pre></div><p>For more details about using the <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> environment variable, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model Tokens</a> .</p>
+<p>In WebLogic Kubernetes Operator <a href="https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/">Model in Image</a> environments, the environment variable <code>DOMAIN_UID</code> is automatically set from the value in the domain resource file. The variable <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> is automatically set to the directory containing WebLogic admin credentials.</p>
+<h4 id="the-create-secrets-script">The create secrets script</h4>
+<p>For target environments that use Kubernetes secret tokens, a shell script is created to generate the required secrets. The script is named <code>create_k8s_secrets.sh</code>, and is created in the target output directory. The script has commands to create each secret, for example:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># Update &lt;user&gt; and &lt;password&gt; for weblogic-credentials</span>
+create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
+</code></pre></div><p>The script should be updated with correct <code>&lt;user&gt;</code> and <code>&lt;password&gt;</code> values as required. It may be necessary to change the <code>NAMESPACE</code> and <code>DOMAIN_UID</code> variables at the top of the script if they are different in the target environment.</p>
+<p>The script performs a check to determine if any generated secret names are more than 63 characters in length, because that will prevent them from being mounted correctly in the Kubernetes environment. If any secret names exceed this limit, they will need to be shortened in this script, in the model files, and in the domain resource file. Each shortened name should be distinct from other secret names.</p>
+<h3 id="target-environment-configuration-files">Target environment configuration files</h3>
 <p>A target environment is configured in a JSON file at this location:</p>
 <pre><code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;/target.json
 </code></pre><p>The <code>&lt;target-name&gt;</code> value corresponds to the value of the <code>-target</code> argument on the tool&rsquo;s command line. The WLS installation includes three pre-defined targets:</p>
@@ -1216,6 +1274,7 @@
 <li><a href="#generic-kubernetes-target">Kubernetes</a> (named <code>k8s</code>)</li>
 </ul>
 <p>You can define a new or extended target environment with a new <code>target-name</code> in the above location, or using a <a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">Custom configuration</a> directory, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;my-target-name&gt;/target.json</code>.</p>
+<p>You can customize existing template files for specific environments. The recommended method is to copy the original template to a custom configuration directory as described above, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;target-name&gt;/model.yaml</code>. The copied file can then be edited as needed, while maintaining the original for reference.</p>
 <p>Here is an example of a target environment file:</p>
 <pre><code>{
     &quot;model_filters&quot; : {
@@ -1233,14 +1292,14 @@
     &quot;additional_secrets&quot;: &quot;runtime-encryption-secret&quot;,
     &quot;additional_output&quot; : &quot;vz-application.yaml&quot;
 }
-</code></pre><p>Each of the fields in this example is optional, and can be customized.</p>
+</code></pre><p>Each of the fields in this example is optional, and you can customize them.</p>
 <h4 id="model_filters"><code>model_filters</code></h4>
 <p>This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the <a href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/">Model filters</a> configuration. The <code>discover</code> type should always be used here.</p>
-<p>The <code>@@TARGET_CONFIG_DIR@@</code> token can be used to indicate that the specified filter is in the same directory as the target configuration file.</p>
+<p>You can use the <code>@@TARGET_CONFIG_DIR@@</code> token to indicate that the specified filter is in the same directory as the target configuration file.</p>
 <h4 id="variable_injectors"><code>variable_injectors</code></h4>
 <p>This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the <a href="/weblogic-deploy-tooling/userguide/tools/variable_injection/">Variable injectors</a> configuration.</p>
 <h4 id="validation_method"><code>validation_method</code></h4>
-<p>This field can be used to set the validation level for the resulting model. Only the value <code>lax</code>is currently supported. With <code>lax</code> validation, variables and Kubernetes secrets referenced in the resulting model do not need to be available when the model is created.</p>
+<p>You can use this field to set the validation level for the resulting model. Only the value <code>lax</code>is currently supported. With <code>lax</code> validation, variables and Kubernetes secrets referenced in the resulting model do not need to be available when the model is created.</p>
 <h4 id="credentials_method"><code>credentials_method</code></h4>
 <p>This field specifies how credentials in the model should be handled. There are two values available:</p>
 <ul>
@@ -1253,36 +1312,7 @@
 <h4 id="wls_credentials_name"><code>wls_credentials_name</code></h4>
 <p>This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the <code>&lt;directory&gt;/&lt;name&gt;/&lt;key&gt;</code> convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model tokens</a>.</p>
 <h4 id="additional_output"><code>additional_output</code></h4>
-<p>This field can be used to create additional output for use in the target environment. The value is a comma-separated list of template files in the <code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;</code> directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.</p>
-<p>Template files can be customized for specific environments. The recommended method is to copy the original template to a custom configuration directory as described above, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;target-name&gt;/model.yaml</code>. The copied file can then be edited as needed, while maintaining the original for reference.</p>
-<h3 id="pre-configured-target-environments">Pre-configured target environments</h3>
-<p>These target environment configurations are included in the WebLogic Deploy Tooling installation.</p>
-<h4 id="the-weblogic-kubernetes-operator-target">The WebLogic Kubernetes Operator target</h4>
-<p>This target environment can be applied by providing the command-line argument <code>-target wko</code>. It will provide this additional processing:</p>
-<ul>
-<li>The <code>wko_operator_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
-<li>Variables will be injected into the model for port, host, and URL attributes</li>
-<li><code>lax</code> validation will be applied for the resulting model</li>
-<li>Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced</li>
-<li>An additional Kubernetes resource file, <code>wko-domain.yaml</code>, will be produced, with cluster and naming information derived from the model</li>
-</ul>
-<h4 id="the-verrazzano-target">The Verrazzano target</h4>
-<p>This target environment can be applied by providing the command-line argument <code>-target vz</code>. It will provide this additional processing:</p>
-<ul>
-<li>The <code>vz_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
-<li>Variables will be injected into the model for port, host, and URL attributes</li>
-<li><code>lax</code> validation will be applied for the resulting model</li>
-<li>Credentials in the model will be replaced with placeholder values, and a script to create corresponding secrets will be produced</li>
-<li>One additional Kubernetes resource file, <code>vz-application.yaml</code>, will be produced, with cluster and data source information derived from the model</li>
-</ul>
-<h4 id="generic-kubernetes-target">Generic Kubernetes target</h4>
-<p>This target environment can be applied by providing the command-line argument <code>-target k8s</code>. It will provide this additional processing:</p>
-<ul>
-<li>The <code>k8s_operator_filter.py</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment</li>
-<li>Variables will be injected into the model for port, host, and URL attributes</li>
-<li><code>lax</code> validation will be applied for the resulting model</li>
-<li>Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced</li>
-</ul>
+<p>You can use this field to create additional output for use in the target environment. The value is a comma-separated list of template files in the <code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;</code> directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.</p>
 
 
 <footer class="footline">
@@ -2054,19 +2084,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643666472"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643666472"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643666472"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643666472"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643666472"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643666472"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1643935370"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643666472"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1643666472"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643666472"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1643935370"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1643935370"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643666472"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1643935370"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
