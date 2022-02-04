@@ -37,3 +37,23 @@ If the model or variables file contains passwords encrypted with the WDT Encrypt
 ### Using multiple models
 
 The Update Domain Tool supports the use of multiple models, as described in [Using multiple models]({{< relref "/concepts/model#using-multiple-models" >}}).
+
+### Parameter table for updateDomain
+| Parameter | Definition | Default |
+| ---- | ---- | ---- |
+| `-admin_pass_env` | An alternative to entering the admin password at a prompt. The value is a ENVIRONMENT VARIABLE name that WDT will use to retrieve the password. |    |
+| `-admin_pass_file` | An alternative to entering the admin password at a prompt. The value is a the name of a file that contains a password string that the tool will read to retrieve the password. |    |
+| `-admin_url` | The admin server URL for online update. |    |
+| `-admin_user` | The admin username for online update. |    |
+| `-archive_file` | The path to the archive file to use. If the -model_file argument is not specified, the model file in this archive will be used. This can also be specified as a comma-separated list of archive files. The overlapping contents in each archive take precedence over previous archives in the list. |    |
+| `-cancel_changes_if_restart_required` | Cancel the changes if the update requires domain restart. |   |
+| `-discard_current_edit` | Discard all existing domain edits before the update. |    |
+| `-domain_home` | (Required) The location of the existing domain home. |    |
+| `-domain_type` | The type of domain.  (for example, WLS, JRF) | WLS |
+| `-model_file` | The location of the model file. This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
+| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if ORACLE_HOME environment variable is not set. |    |
+| `-passphrase_env` | An alternative to entering the encryption passphrase at a prompt. The value is a ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase. |    |
+| `-passphrase_file` | An alternative to entering the encryption passphrase at a prompt. The value is a the name of a file with a string value which WDT will read to retrieve the passphrase. |    |
+| `-update_dir` | If present, write restart information to this directory as restart.file, or if cancel_changes_if_restart_required used, write non dynamic changes information to non_dynamic_changes file. |    |
+| `-use_encryption` | One or more of the passwords in the model or variables file(s) are encrypted and must be decrypted. Java 8 or later required for this feature. |    |
+| `-variable_home` | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |    |
