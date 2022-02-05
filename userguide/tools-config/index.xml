@@ -38,6 +38,16 @@ To use a separate configuration directory, set the WDT_CUSTOM_CONFIG environment
     </item>
     
     <item>
+      <title>Logging</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/logging/</link>
+      <pubDate>Fri, 04 Feb 2022 17:18:00 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/logging/</guid>
+      <description>The WebLogic Deploy Tooling has a built-in logging framework based on java.util.logging. Its logging configuration is specified in $WDT_HOME/etc/logging.properties. By default, the logging framework writes to both the console and a log file.
+Log file By default, WDT tools write their log files to the $WDT_HOME/logs directory and the log file name reflects the name of the tool. For example, if you run the validateModel tool then the log file will be $WDT_HOME/logs/validateModel.</description>
+    </item>
+    
+    <item>
       <title>Tool property file</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/tool_prop/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>

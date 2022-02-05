@@ -6,7 +6,7 @@
     <description>Recent content on WebLogic Deploy Tooling</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 01 Nov 2021 10:19:24 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 04 Feb 2022 17:18:00 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Create Domain Tool</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/</link>
@@ -173,6 +173,16 @@ To use a separate configuration directory, set the WDT_CUSTOM_CONFIG environment
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/jdbc-model/</guid>
       <description>This WDT domain model sample section has a typical configuration for a JDBC data source, including targeting information, connection pool parameters, and other details.
 resources: JDBCSystemResource: &amp;#39;datasource-1&amp;#39;: Target: &amp;#39;AdminServer,cluster-1&amp;#39; JdbcResource: DatasourceType: GENERIC JDBCConnectionPoolParams: ConnectionReserveTimeoutSeconds: 10 InitialCapacity: 0 MaxCapacity: 5 MinCapacity: 0 TestConnectionsOnReserve: true TestTableName: SQL ISVALID JDBCDriverParams: DriverName: oracle.jdbc.OracleDriver PasswordEncrypted: &amp;#39;@@PROP:jdbc.password@@&amp;#39; URL: &amp;#39;jdbc:oracle:thin:@//localhost:1521/myDB&amp;#39; Properties: user: Value: scott There are additional sub-folders and attributes available for more configuration options. These can be determined using the Model Help Tool.</description>
+    </item>
+    
+    <item>
+      <title>Logging</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/logging/</link>
+      <pubDate>Fri, 04 Feb 2022 17:18:00 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/logging/</guid>
+      <description>The WebLogic Deploy Tooling has a built-in logging framework based on java.util.logging. Its logging configuration is specified in $WDT_HOME/etc/logging.properties. By default, the logging framework writes to both the console and a log file.
+Log file By default, WDT tools write their log files to the $WDT_HOME/logs directory and the log file name reflects the name of the tool. For example, if you run the validateModel tool then the log file will be $WDT_HOME/logs/validateModel.</description>
     </item>
     
     <item>
