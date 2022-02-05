@@ -5,14 +5,14 @@ draft: false
 weight: 4
 ---
 
-The WebLogic Deploy Tooling bas a built-in logging framework based on `java.util.logging`.  Its logging configuration
+The WebLogic Deploy Tooling has a built-in logging framework based on `java.util.logging`.  Its logging configuration
 is specified in `$WDT_HOME/etc/logging.properties`.  By default, the logging framework writes to both the console and
 a log file.
 
-#### Log File
+#### Log file
 By default, WDT tools write their log files to the `$WDT_HOME/logs` directory and the log file name reflects the name of the tool.
 For example, if you run the `validateModel` tool then the log file will be `$WDT_HOME/logs/validateModel.log`.  These
-log files are overwritten each time you run a particular tool so the file only contains the logs from the last tool
+log files are overwritten each time you run a particular tool so the file contains only the logs from the last tool
 invocation.
 
 If the `$WDT_HOME/logs` directory is not writable by the user running the tool, the logging framework will search for
@@ -25,9 +25,9 @@ The search order is as follows:
 
 If none of these locations are writable, the logging framework prints an error message to `stderr` and exits.
 
-#### Console Output
+#### Console output
 WDT tools output logging information to `stdout` and `stderr`, as appropriate.  By default, only `INFO` level messages
-are sent to `stdout`.  All `WARNING` and `SEVERE` messages are set to `stderr`.  In addition to normal log messages
+are sent to `stdout`.  All `WARNING` and `SEVERE` messages are set to `stderr`.  In addition to regular log messages
 generated as the tool runs, the tools will produce a summary at the end of tool execution that gives the user an
 overview of the tool execution status.  For example, the `validateModel` tool execution with no warnings or errors will
 produce output that looks similar to this:
@@ -38,14 +38,14 @@ Issue Log for validateModel version 2.0.0 running WebLogic version 12.2.1.4.0.21
 Total:       WARNING :     0    SEVERE :     0
 ```
 
-#### Logging Levels
+#### Logging levels
 As mentioned previously, WDT's logging framework is based on `java.util.logging` so all logging levels defined in
 the `java.utiul.logging.Level` class apply to WDT loggers.  For a quick review of those levels, see the
 [javadoc](https://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html).
 
-WDT uses hierarchical loggers that align with what parts of the code is executing.  The root logger is named `wlsdeploy`.
+WDT uses hierarchical loggers that align with the purpose of the code being executed.  The root logger is named `wlsdeploy`.
 Many loggers exist underneath the root logger; for example, `wlsdeploy.create`, `wlsdeploy.discover`, and `wlsdeploy.util`.
-By default, the WDT `logging.properties` file sets the logging level of the root and several important loggers.  If
+By default, the WDT `logging.properties` file sets the logging level of the root and several important loggers.  If the
 level for a particular logger is not set, that logger will use the level of its parent logger.  This delegation to the
 parent logger is recursive up the hierarchy until it finds a level to use. 
 
@@ -61,7 +61,7 @@ export WLSDEPLOY_PROPERTIES=-Dwlsdeploy.debugToStdout=true
 weblogic-deploy/bin/prepareModel.sh ...
 ```
 
-#### Log Handlers
+#### Log handlers
 WDT uses several log handlers to handle logging output of data to various sources.
 
  | Log Handler | Output Destination | Description                                                                      |
@@ -83,7 +83,7 @@ configurability of these handlers.  Only the following `logging.properties` file
  | `oracle.weblogic.deploy.logging.SummaryHandler.level` | `OFF`                            | No tool execution summary output will be written to the console.                                                     |
  | `oracle.weblogic.deploy.logging.SummaryHandler.size` | Any number                       | Limits the number of memory-buffered `WARNING` and `ERROR` log records (default is 3000).                            |
 
-Use the `WLSDEPLOY_LOG_HANDLERS` environment variable ss an alternative to specifying the list of handlers in the
+Use the `WLSDEPLOY_LOG_HANDLERS` environment variable as an alternative to specifying the list of handlers in the
 `logging.properties` file's `handlers` property.
 
 Any attempts to set other configuration for these log handlers will simply be discarded by the WDT logging framework at startup.
