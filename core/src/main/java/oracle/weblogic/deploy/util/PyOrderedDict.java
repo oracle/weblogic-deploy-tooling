@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -36,6 +36,8 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.util");
 
     private final LinkedHashMap<PyObject, PyObject> linkedHashMap;
+
+    private final CommentMap commentMap = new CommentMap();
 
     /**
      * The no-args constructor.
@@ -477,6 +479,14 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         return new PyList(v.toArray(new PyObject[0]));
     }
 
+    public CommentMap getCommentMap() {
+        return commentMap;
+    }
+
+    public void addComment(String key, String comment) {
+        commentMap.addComment(key, comment);
+    }
+
     // private methods
 
     private static PyObject dictFromKeys(PyType type, PyObject keys, PyObject value) {
@@ -521,6 +531,8 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
             case "NoneType":
             case "str":
             case "unicode":
+            case "PyRealBoolean":
+            case "oracle.weblogic.deploy.util.PyRealBoolean":
                 result = orig;
                 break;
 

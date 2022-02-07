@@ -1,9 +1,8 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
-import re
 
 import java.io.File as JFile
 
@@ -15,28 +14,6 @@ CUSTOM_CONFIG_VARIABLE = 'WDT_CUSTOM_CONFIG'
 
 __logger = PlatformLogger('wlsdeploy.util')
 _class_name = 'path_utils'
-
-
-def split_classpath(classpath):
-    """
-    Split the classpath string into a list of classpath directories. The classpath string will be split around
-        the environment specific file separator token.
-    :param classpath: string of token separated directories and files representing the classpath
-    :return: list of classpath nodes
-    """
-    classpath_is_windows = False
-    # This is not a definitive test but it tests the cases we care about...
-    if '\\' in classpath or ';' in classpath or re.match('^[a-zA-Z][:]', classpath):
-        classpath_is_windows = True
-
-    if classpath_is_windows:
-        my_classpath = fixup_path(classpath)
-        separator = ';'
-    else:
-        my_classpath = classpath
-        separator = ':'
-
-    return my_classpath.split(separator), separator
 
 
 def fixup_path(path):

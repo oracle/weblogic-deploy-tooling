@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -22,9 +22,9 @@ public class WLSDeployLogFormatter extends Formatter {
     private static final String DATE_FORMAT_STRING = "####<{0,date} {0,time}>";
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
-    private Object[] args;
-    private MessageFormat formatter;
-    private Date date;
+    private final Object[] args;
+    private final MessageFormat formatter;
+    private final Date date;
 
     /**
      * The constructor.
@@ -38,14 +38,14 @@ public class WLSDeployLogFormatter extends Formatter {
     /**
      * Formats the log record.
      *
-     * @param record the log record
+     * @param logRecord the log record
      * @return the formatted log record
      */
     @Override
-    public synchronized String format(LogRecord record) {
+    public synchronized String format(LogRecord logRecord) {
         StringBuilder sb = new StringBuilder();
 
-        date.setTime(record.getMillis());
+        date.setTime(logRecord.getMillis());
         args[0] = date;
 
         StringBuffer text = new StringBuffer();
@@ -54,28 +54,28 @@ public class WLSDeployLogFormatter extends Formatter {
 
         // Level
         sb.append(" <");
-        sb.append(record.getLevel().getLocalizedName());
+        sb.append(logRecord.getLevel().getLocalizedName());
         sb.append('>');
 
         // Class name
         sb.append(" <");
-        String source = record.getSourceClassName();
+        String source = logRecord.getSourceClassName();
         if (source != null) {
             sb.append(source.substring(source.lastIndexOf('.') + 1));
         } else {
-            sb.append(record.getLoggerName());
+            sb.append(logRecord.getLoggerName());
         }
         sb.append('>');
 
         // Method name
         sb.append(" <");
-        if (record.getSourceMethodName() != null) {
-            sb.append(record.getSourceMethodName());
+        if (logRecord.getSourceMethodName() != null) {
+            sb.append(logRecord.getSourceMethodName());
         }
         sb.append('>');
 
-        String messageKey = record.getMessage();
-        String message = formatMessage(record);
+        String messageKey = logRecord.getMessage();
+        String message = formatMessage(logRecord);
 
         if (messageKey != null) {
             sb.append(" <");
@@ -86,10 +86,10 @@ public class WLSDeployLogFormatter extends Formatter {
         }
         sb.append(" <");
         sb.append(message);
-        if (record.getThrown() != null) {
+        if (logRecord.getThrown() != null) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
-            record.getThrown().printStackTrace(pw);
+            logRecord.getThrown().printStackTrace(pw);
             pw.close();
             sb.append(LINE_SEPARATOR);
             sb.append(sw);

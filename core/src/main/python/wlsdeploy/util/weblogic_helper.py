@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.lang.Exception as JException
@@ -117,13 +117,31 @@ class WebLogicHelper(object):
         """
         return self.is_weblogic_version_or_above('12.2.1.4')
 
+    def is_topology_profile_supported(self):
+        """
+        Is topology profile supported in domain extension templates?
+        :return: true if version is within the range supporting topology profiles, false otherwise
+        """
+        return self.is_weblogic_version_or_above('12.2.1')
+
     def get_jdbc_url_from_rcu_connect_string(self, rcu_connect_string):
         """
         Get the JDBC URL from the RCU connect string.
         :param rcu_connect_string: the RCU connect string
         :return: the JDBC URL
         """
-        return 'jdbc:oracle:thin:@' + rcu_connect_string
+        jdbc_url = rcu_connect_string
+        if not rcu_connect_string.startswith('jdbc:oracle:'):
+            if rcu_connect_string.startswith('('):
+                # Long format
+                jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
+            elif rcu_connect_string.rfind('/') != -1:
+                # host:port/service format
+                jdbc_url = 'jdbc:oracle:thin:@//' + rcu_connect_string
+            else:
+                # host:port:sid format
+                jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
+        return jdbc_url
 
     def get_stb_data_source_jdbc_driver_name(self):
         """
@@ -217,7 +235,7 @@ class WebLogicHelper(object):
                     wl_home = oracle_home + '/' + dirs[0]
                 else:
                     wl_home = None
-                
+
         return wl_home
 
     def is_weblogic_version_or_above(self, str_version, use_actual_version=False):
@@ -298,13 +316,13 @@ class WebLogicHelper(object):
 
         system_ini = SerializedSystemIni.getEncryptionService(domain_home)
         if system_ini is None:
-            ex = exception_helper.create_encryption_exception('WLSDPLY-01740')
+            ex = exception_helper.create_encryption_exception('WLSDPLY-01840')
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
         encryption_service = ClearOrEncryptedService(system_ini)
         if encryption_service is None:
-            ex = exception_helper.create_encryption_exception('WLSDPLY-01741')
+            ex = exception_helper.create_encryption_exception('WLSDPLY-01841')
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
         return encryption_service

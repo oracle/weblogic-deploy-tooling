@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 This model provider translation classes that convert between JSON and Python Dictionaries.
@@ -20,8 +20,6 @@ import oracle.weblogic.deploy.json.JsonTranslator as JJsonTranslator
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.exception.exception_helper as exception_helper
 
-# Unlike with yaml files, JSON files do not allow comments. remove from file
-COMMENT_MATCH = '# - '
 
 class JsonToPython(object):
     """
@@ -170,18 +168,15 @@ class PythonToJson(object):
 
         indent += self._indent_unit
         for key, value in dictionary.iteritems():
-            if isinstance(key, basestring) and key.startswith(COMMENT_MATCH):
-                self._logger.finer('WLSDPLY-01714', key, class_name=self._class_name, method_name=_method_name)
+            writer.println(end_line)
+            end_line = ','
+            writer.write(indent + '"' + _escape_text(key) + '" : ')
+            if isinstance(value, dict):
+                self._write_dictionary_to_json_file(value, writer, indent)
+            elif isinstance(value, list):
+                self._write_list_to_json_file(value, writer, indent)
             else:
-                writer.println(end_line)
-                end_line = ','
-                writer.write(indent + '"' + _escape_text(key) + '" : ')
-                if isinstance(value, dict):
-                    self._write_dictionary_to_json_file(value, writer, indent)
-                elif isinstance(value, list):
-                    self._write_list_to_json_file(value, writer, indent)
-                else:
-                    writer.write(_format_json_value(value))
+                writer.write(_format_json_value(value))
         writer.println()
         writer.write(end_indent + _end_dict)
 
@@ -202,7 +197,7 @@ class PythonToJson(object):
             writer.println()
             if isinstance(value, dict):
                 writer.write(list_indent)
-                self._write_dictionary_to_json_file(value, writer, indent)
+                self._write_dictionary_to_json_file(value, writer, list_indent)
             else:
                 writer.write(list_indent)
                 writer.write(_format_json_value(value))
@@ -254,20 +249,20 @@ def _escape_text(text):
     """
     result = text
     if isinstance(text, types.StringTypes):
-        if '\\' in text:
-            result = text.replace('\\', '\\\\')
-        if '"' in text:
-            result = text.replace('"', '\\"')
-        if '\n' in text:
-            result = text.replace("\n", "\\\\n")
-        if '\b' in text:
-            result = text.replace("\b", "\\\\b")
-        if '\f' in text:
-            result = text.replace("\f", "\\\\f")
-        if '\r' in text:
-            result = text.replace("\r", "\\\\r")
-        if '\t' in text:
-            result = text.replace("\t", "\\\\t")
-        if '\/' in text:
-            result = text.replace("\/", "\\\\/")
+        if '\\' in result:
+            result = result.replace('\\', '\\\\')
+        if '"' in result:
+            result = result.replace('"', '\\"')
+        if '\n' in result:
+            result = result.replace("\n", "\\\\n")
+        if '\b' in result:
+            result = result.replace("\b", "\\\\b")
+        if '\f' in result:
+            result = result.replace("\f", "\\\\f")
+        if '\r' in result:
+            result = result.replace("\r", "\\\\r")
+        if '\t' in result:
+            result = result.replace("\t", "\\\\t")
+        if '\/' in result:
+            result = result.replace("\/", "\\\\/")
     return result

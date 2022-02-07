@@ -1,0 +1,65 @@
+# Copyright (c) 2021, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+# This model is altered by wko_filter to be suitable for deployment with WebLogic Kubernetes Operator.
+# see wko_filter_test.py
+
+domainInfo:
+    AdminUserName: weblogic
+    AdminPassword: 'welcome1'
+topology:
+    Name: DemoDomain
+    Cluster:
+        staticCluster:
+            CoherenceClusterSystemResource: DataGridConfig
+            JTACluster:
+                # remove, attribute is online only
+                DeterminerCandidateResourceInfoList: []
+                Notes: not here
+        dynamicCluster:
+            DynamicServers:
+                # add CalculatedListenPorts set to false
+                MaxDynamicClusterSize: 4
+                DynamicClusterSize: 3
+        dynamicCluster2:
+            DynamicServers:
+                MaxDynamicClusterSize: 4
+                # change CalculatedListenPorts to false
+                CalculatedListenPorts: true
+                DynamicClusterSize: 3
+    Server:
+        m1:
+            Cluster: staticCluster
+            ListenPort: 5001
+        m2:
+            Cluster: staticCluster
+            # string value should match numeric value
+            ListenPort: "5001"
+        m3:
+            Cluster: staticCluster
+            # this should cause a warning message
+            ListenPort: 5002
+
+    # confirm that model traversal deals with artificial type folders correctly
+    SecurityConfiguration:
+        Realm:
+            yourRealm:
+                AuthenticationProvider:
+                    DefaultAuthenticator:
+                        DefaultAuthenticator:
+                            ControlFlag: OPTIONAL
+                            # remove, attribute is online only
+                            ProviderClassName: 'com.defaultClass'
+                    'My custom IdentityAsserter':
+                        # confirm that model traversal allows unrecognized provider type,
+                        # such as this custom provider
+                        'com.custom.CustomIdentityAsserter':
+                            ControlFlag: SUFFICIENT
+                            UseDefaultUserNameMapper: true
+
+appDeployments:
+    Application:
+        myApp:
+            SourcePath: 'wlsdeploy/applications/sample-app.war'
+            # remove, attribute is online only
+            MultiVersionApp: false

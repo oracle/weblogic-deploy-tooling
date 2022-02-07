@@ -19,7 +19,7 @@ javaSetup() {
     minJdkVersion=$1
 
     if [ -z "${JAVA_HOME}" ]; then
-      echo "Please set the JAVA_HOME environment variable to point to a Java $minJdkVersion installation" >&2
+      echo "Please set the JAVA_HOME environment variable to point to a Java $minJdkVersion (or higher) installation" >&2
       exit 2
     elif [ ! -d "${JAVA_HOME}" ]; then
       echo "Your JAVA_HOME environment variable to points to a non-existent directory: ${JAVA_HOME}" >&2
@@ -160,8 +160,7 @@ variableSetup() {
 
     # set up logger configuration, see WLSDeployLoggingConfig.java
 
-    LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployCustomizeLoggingConfig
-    WLSDEPLOY_LOG_HANDLER=oracle.weblogic.deploy.logging.SummaryHandler
+    LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
 
     if [ -z "${WLSDEPLOY_LOG_PROPERTIES}" ]; then
         WLSDEPLOY_LOG_PROPERTIES="${WLSDEPLOY_HOME}/etc/logging.properties"; export WLSDEPLOY_LOG_PROPERTIES
@@ -169,10 +168,6 @@ variableSetup() {
 
     if [ -z "${WLSDEPLOY_LOG_DIRECTORY}" ]; then
         WLSDEPLOY_LOG_DIRECTORY="${WLSDEPLOY_HOME}/logs"; export WLSDEPLOY_LOG_DIRECTORY
-    fi
-
-    if [ -z "${WLSDEPLOY_LOG_HANDLERS}" ]; then
-        WLSDEPLOY_LOG_HANDLERS=${WLSDEPLOY_LOG_HANDLER}; export WLSDEPLOY_LOG_HANDLERS
     fi
 }
 

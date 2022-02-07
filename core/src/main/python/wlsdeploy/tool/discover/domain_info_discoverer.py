@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import glob
@@ -109,31 +109,35 @@ class DomainInfoDiscoverer(Discoverer):
     def get_user_env_scripts(self):
         """
         Look for the user overrides scripts run in setDomainEnv in the domain bin directory
+        If discover is running with the -target <type> do not collect the domainBin scripts
         :raise: DiscoverException: an unexpected exception occurred writing a jar file to the archive file
         """
         _method_name = 'get_user_env_scripts'
         _logger.entering(class_name=_class_name, method_name=_method_name)
-        archive_file = self._model_context.get_archive_file()
-        domain_bin = self._convert_path('bin')
         entries = []
-        if os.path.isdir(domain_bin):
-            search_directory = FileUtils.fixupFileSeparatorsForJython(os.path.join(domain_bin, "setUserOverrides*.*"))
-            _logger.finer('WLSDPLY-06425', search_directory, class_name=_class_name, method_name=_method_name)
-            file_list = glob.glob(search_directory)
-            if file_list:
-                _logger.finer('WLSDPLY-06423', domain_bin, class_name=_class_name, method_name=_method_name)
-                for entry in file_list:
-                    try:
-                        updated_name = archive_file.addDomainBinScript(File(entry))
-                    except WLSDeployArchiveIOException, wioe:
-                        de = exception_helper.create_discover_exception('WLSDPLY-06426', entry,
-                                                                        wioe.getLocalizedMessage())
-                        _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-                        raise de
+        if self._model_context.get_target_configuration().exclude_domain_bin_contents():
+            _logger.fine('WLSDPLY-06427', class_name=_class_name, method_name=_method_name)
+        else:
+            archive_file = self._model_context.get_archive_file()
+            domain_bin = self._convert_path('bin')
+            if os.path.isdir(domain_bin):
+                search_directory = FileUtils.fixupFileSeparatorsForJython(os.path.join(domain_bin, "setUserOverrides*.*"))
+                _logger.finer('WLSDPLY-06425', search_directory, class_name=_class_name, method_name=_method_name)
+                file_list = glob.glob(search_directory)
+                if file_list:
+                    _logger.finer('WLSDPLY-06423', domain_bin, class_name=_class_name, method_name=_method_name)
+                    for entry in file_list:
+                        try:
+                            updated_name = archive_file.addDomainBinScript(File(entry))
+                        except WLSDeployArchiveIOException, wioe:
+                            de = exception_helper.create_discover_exception('WLSDPLY-06426', entry,
+                                                                            wioe.getLocalizedMessage())
+                            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                            raise de
 
-                    entries.append(updated_name)
-                    _logger.finer('WLSDPLY-06424', entry, updated_name, class_name=_class_name,
-                                  method_name=_method_name)
+                        entries.append(updated_name)
+                        _logger.finer('WLSDPLY-06424', entry, updated_name, class_name=_class_name,
+                                      method_name=_method_name)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=entries)
         return model_constants.DOMAIN_SCRIPTS, entries

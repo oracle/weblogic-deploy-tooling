@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+ * Copyright (c) 2017, 2022, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.json;
@@ -12,6 +12,7 @@ import java.util.Deque;
 import oracle.weblogic.deploy.exception.ExceptionHelper;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.util.PyOrderedDict;
+import oracle.weblogic.deploy.util.PyRealBoolean;
 import oracle.weblogic.deploy.util.StringUtils;
 
 import org.antlr.v4.runtime.CharStream;
@@ -240,7 +241,7 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
      */
     @Override
     public void enterJsonTrue(JSONParser.JsonTrueContext ctx) {
-        currentScalarValue = new PyString("true");
+        currentScalarValue = new PyRealBoolean(true);
         currentValueType.push(ValueType.SCALAR);
     }
 
@@ -257,7 +258,7 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
      */
     @Override
     public void enterJsonFalse(JSONParser.JsonFalseContext ctx) {
-        currentScalarValue = new PyString("false");
+        currentScalarValue = new PyRealBoolean(false);
         currentValueType.push(ValueType.SCALAR);
     }
 

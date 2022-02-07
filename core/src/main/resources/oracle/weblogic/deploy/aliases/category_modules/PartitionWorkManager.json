@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "PartitionWorkManager${:s}",
     "version": "[12.2.1,14.1.1)",
@@ -7,12 +7,12 @@
     "short_name": "PartWM",
     "folders": {},
     "attributes": {
-        "FairShare":                     [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "FairShare",                     "wlst_path": "WP001", "value": { "default": 50      }, "wlst_type": "integer"} ],
-        "MaxThreadsConstraint":          [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MaxThreadsConstraint",          "wlst_path": "WP001", "value": { "default": -1      }, "wlst_type": "integer"} ],
-        "MaxThreadsConstraintQueueSize": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MaxThreadsConstraintQueueSize", "wlst_path": "WP001", "value": { "default": 8192    }, "wlst_type": "integer"} ],
-        "MinThreadsConstraintCap":       [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MinThreadsConstraintCap",       "wlst_path": "WP001", "value": { "default": 0       }, "wlst_type": "integer"} ],
-        "Notes":                         [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",                         "wlst_path": "WP001", "value": { "default": "None"  }, "wlst_type": "string"} ],
-        "SharedCapacityPercent":         [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "SharedCapacityPercent",         "wlst_path": "WP001", "value": { "default": 100     }, "wlst_type": "integer"} ]
+        "FairShare":                     [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "FairShare",                     "wlst_path": "WP001", "default_value": 50,       "wlst_type": "integer"} ],
+        "MaxThreadsConstraint":          [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MaxThreadsConstraint",          "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"} ],
+        "MaxThreadsConstraintQueueSize": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MaxThreadsConstraintQueueSize", "wlst_path": "WP001", "default_value": 8192,     "wlst_type": "integer"} ],
+        "MinThreadsConstraintCap":       [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MinThreadsConstraintCap",       "wlst_path": "WP001", "default_value": 0,        "wlst_type": "integer"} ],
+        "Notes":                         [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",                         "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"} ],
+        "SharedCapacityPercent":         [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "SharedCapacityPercent",         "wlst_path": "WP001", "default_value": 100,      "wlst_type": "integer"} ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {

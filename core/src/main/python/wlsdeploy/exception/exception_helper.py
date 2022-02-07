@@ -40,6 +40,7 @@ _EXCEPTION_TYPE_MAP = {
     ExceptionType.DISCOVER:              'create_discover_exception',
     ExceptionType.ENCRYPTION:            'create_encryption_exception',
     ExceptionType.JSON:                  'create_json_exception',
+    ExceptionType.PREPARE:               'create_prepare_exception',
     ExceptionType.PY_WLST:               'create_pywlst_exception',
     ExceptionType.TRANSLATE:             'create_translate_exception',
     ExceptionType.VALIDATE:              'create_validate_exception',

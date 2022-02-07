@@ -1,13 +1,15 @@
 {
     "model_filters" : {
         "discover": [
-            { "name": "vz_prep", "path": "@@TARGET_CONFIG_DIR@@/vz_filter.py" }
+            { "name": "vz_prep", "path": "@@TARGET_CONFIG_DIR@@/vz_filter.py" },
+            { "id": "vz_filter" }
         ]
     },
     "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
     "validation_method" : "lax",
     "credentials_method" : "secrets",
     "credentials_output_method" : "script",
+    "exclude_domain_bin_contents": true,
     "wls_credentials_name" : "__weblogic-credentials__",
     "additional_secrets": "runtime-encryption-secret",
     "additional_output" : "vz-application.yaml"

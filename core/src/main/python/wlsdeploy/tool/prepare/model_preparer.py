@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 import os
@@ -13,11 +13,13 @@ import wlsdeploy.util.variables as variables
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import DOMAIN_SCRIPTS
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
+from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.credential_injector import CredentialInjector
 from wlsdeploy.tool.util.variable_injector import VARIABLE_FILE_UPDATE
 from wlsdeploy.tool.util.variable_injector import VariableInjector
@@ -199,8 +201,8 @@ class ModelPreparer:
         credential_caches = self.credential_injector.get_variable_cache()
         for key in credential_caches:
             if variables.is_variable_string(credential_caches[key]):
-                credential_caches[key] = variables._substitute(credential_caches[key],
-                                                               original_variables, self.model_context)
+                credential_caches[key] = variables.substitute_value(credential_caches[key],
+                                                                    original_variables, self.model_context)
 
     def _apply_filter_and_inject_variable(self, model_dict, model_context):
         """
@@ -220,6 +222,10 @@ class ModelPreparer:
             credential_properties = {}
         else:
             credential_properties = self.credential_injector.get_variable_cache()
+
+        if target_config.exclude_domain_bin_contents() and DOMAIN_INFO in model_dict \
+                and DOMAIN_SCRIPTS in model_dict[DOMAIN_INFO]:
+            del model_dict[DOMAIN_INFO][DOMAIN_SCRIPTS]
 
         variable_injector = VariableInjector(_program_name, model_dict, model_context,
                                              WebLogicHelper(self._logger).get_actual_weblogic_version(),
@@ -279,6 +285,23 @@ class ModelPreparer:
                     self._logger.warning('WLSDPLY-05803', e.getLocalizedMessage(),
                                          class_name=_class_name, method_name=_method_name)
 
+    def _clean_archive_files(self):
+        """
+        Remove any content necessary from the archive file.
+        """
+        _method_name = '_clean_archive_files'
+
+        archive_file_name = self.model_context.get_archive_file_name()
+        if archive_file_name is None:
+            return
+
+        # If the archive file(s) exist, always make a copy even if we aren't filtering them
+        archive_helper = ArchiveHelper(archive_file_name, None, self._logger, exception_helper.ExceptionType.PREPARE)
+        archive_helper = archive_helper.copy_archives_to_target_directory(self.model_context.get_output_dir())
+
+        if self.model_context.get_target_configuration().exclude_domain_bin_contents():
+            archive_helper.remove_domain_scripts()
+
     def prepare_models(self):
         """
         Replace password attributes in each model file with secret tokens, and write each model.
@@ -327,9 +350,10 @@ class ModelPreparer:
                 if variable_file is not None and not os.path.exists(variable_file):
                     variable_file = None
 
+                archive_file_name = self.model_context.get_archive_file_name()
                 return_code = validator.validate_in_tool_mode(model_dictionary,
                                                               variables_file_name=variable_file,
-                                                              archive_file_name=None)
+                                                              archive_file_name=archive_file_name)
 
                 if return_code == Validator.ReturnCode.STOP:
                     ex = exception_helper.create_prepare_exception('WLSDPLY-05804', model_file_name)
@@ -359,6 +383,7 @@ class ModelPreparer:
             filter_helper.apply_filters(merged_model_dictionary, "discover", self.model_context)
             self.credential_injector.filter_unused_credentials(merged_model_dictionary)
             self._clean_variable_files(merged_model_dictionary)
+            self._clean_archive_files()
 
             # use a merged, substituted, filtered model to get domain name and create additional target output.
             full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._aliases,

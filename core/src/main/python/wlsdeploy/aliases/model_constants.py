@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -41,6 +41,7 @@ ATP_ADMIN_USER = 'atp.admin.user'
 AUDITOR = 'Auditor'
 AUTHENTICATION_PROVIDER = 'AuthenticationProvider'
 AUTHORIZER = 'Authorizer'
+CALCULATED_LISTEN_PORTS = 'CalculatedListenPorts'
 CAPACITY = 'Capacity'
 CDI_CONTAINER = 'CdiContainer'
 CERT_PATH_PROVIDER = 'CertPathProvider'
@@ -294,8 +295,12 @@ TRIGGER = 'Trigger'
 UNIFORM_DISTRIBUTED_QUEUE = 'UniformDistributedQueue'
 UNIFORM_DISTRIBUTED_TOPIC = 'UniformDistributedTopic'
 UNIX_MACHINE = 'UnixMachine'
+UNIX_MACHINE_ATTRIBUTE = 'PostBindGID'
 UPDATE_MODE = 'UpdateMode'
 USER = 'User'
+USER_ATTRIBUTES = 'UserAttribute'
+USE_SAMPLE_DATABASE = 'UseSampleDatabase'
+VIRTUAL_HOST = 'VirtualHost'
 VIRTUAL_TARGET = 'VirtualTarget'
 VIRTUAL_USER_AUTHENTICATOR = 'VirtualUserAuthenticator'
 WATCH = 'Watch'
@@ -310,6 +315,7 @@ WEB_SERVICE_PERSISTENCE = 'WebServicePersistence'
 WEB_SERVICE_PHYSICAL_STORE = 'WebServicePhysicalStore'
 WEB_SERVICE_REQUEST_BUFFERING_QUEUE = 'WebServiceRequestBufferingQueue'
 WEB_SERVICE_RESPONSE_BUFFERING_QUEUE = 'WebServiceResponseBufferingQueue'
+WEB_SERVICE_SECURITY = 'WebserviceSecurity'
 WEBLOGIC_CERT_PATH_PROVIDER = 'WebLogicCertPathProvider'
 WORK_MANAGER = "WorkManager"
 WLDF_INSTRUMENTATION_MONITOR = "WLDFInstrumentationMonitor"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+    Copyright (c) 2017, 2022, Oracle and/or its affiliates.
     Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -12,29 +12,29 @@
     <parent>
         <artifactId>weblogic-deploy</artifactId>
         <groupId>com.oracle.weblogic.lifecycle</groupId>
-        <version>1.9.19-SNAPSHOT</version>
+        <version>2.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <properties>
         <mw_home>${env.ORACLE_HOME}</mw_home>
+        <db.use.container.network>false</db.use.container.network>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <artifactId>weblogic-deploy-core</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
             <scope>test</scope>
         </dependency>
          <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.7</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -72,14 +72,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M3</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <failIfNoTests>false</failIfNoTests>
-                    <skipITs>${skip-system-test-execution}</skipITs>
                     <argLine>
-                        -Xmx1024m -XX:MaxPermSize=256m
+                        -Xmx1024m
                     </argLine>
+                    <groups>gate</groups>
                     <systemProperties>
                         <property>
                             <name>wdtversion</name>
@@ -88,6 +87,10 @@
                         <property>
                             <name>MW_HOME</name>
                             <value>${mw_home}</value>
+                        </property>
+                        <property>
+                            <name>db.use.container.network</name>
+                            <value>${db.use.container.network}</value>
                         </property>
                     </systemProperties>
                 </configuration>
@@ -101,7 +104,7 @@
                         <phase>integration-test</phase>
                         <configuration>
                             <systemPropertyVariables>
-                                <java.util.logging.SimpleFormatter.format>%1$tm-%1$td-%1$tY %1$tH:%1$tM:%1$tS %4$-6s %2$s %5$s%6$s%n</java.util.logging.SimpleFormatter.format>
+                                <java.util.logging.SimpleFormatter.format>&lt;%1$tm-%1$td-%1$tY %1$tH:%1$tM:%1$tS&gt; &lt;%4$s&gt; %5$s%6$s%n</java.util.logging.SimpleFormatter.format>
                             </systemPropertyVariables>
                             <trimStackTrace>false</trimStackTrace>
                         </configuration>
@@ -118,7 +121,7 @@
                             <goal>enforce</goal>
                         </goals>
                         <configuration>
-                            <skip>${skip-system-test-execution}</skip>
+                            <skip>${skipITs}</skip>
                             <rules>
                                 <requireProperty>
                                     <property>mw_home</property>

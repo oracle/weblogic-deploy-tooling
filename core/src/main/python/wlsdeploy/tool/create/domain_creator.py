@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -68,10 +68,11 @@ from wlsdeploy.aliases.model_constants import SET_OPTION_SERVER_START_MODE
 from wlsdeploy.aliases.model_constants import UNIX_MACHINE
 from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.aliases.model_constants import USER
+from wlsdeploy.aliases.model_constants import USE_SAMPLE_DATABASE
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
-from wlsdeploy.aliases.model_constants import WLS_DEFAULT_AUTHENTICATION
 from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
+from wlsdeploy.aliases.model_constants import WEB_SERVICE_SECURITY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.exception import exception_helper
@@ -90,6 +91,7 @@ from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.targeting_types import TargetingType
+from wlsdeploy.tool.util.topology_profiles import TopologyProfile
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
@@ -508,6 +510,12 @@ class DomainCreator(Creator):
         _method_name = '__create_base_domain_with_select_template'
 
         self.logger.entering(domain_home, class_name=self.__class_name, method_name=_method_name)
+
+        topology_profile = self._domain_typedef.get_topology_profile()
+        if topology_profile in TopologyProfile:
+            self.logger.info('WLSDPLY-12569', topology_profile, class_name=self.__class_name, method_name=_method_name)
+            self.wlst_helper.set_topology_profile(topology_profile)
+
         base_template = self._domain_typedef.get_base_template()
         self.logger.info('WLSDPLY-12210', base_template,
                          class_name=self.__class_name, method_name=_method_name)
@@ -633,8 +641,9 @@ class DomainCreator(Creator):
         self.__create_reliable_delivery_policy(location)
         topology_folder_list.remove(WS_RELIABLE_DELIVERY_POLICY)
 
-        # these deletions were intentionally skipped when these elements are first created.
-        self.topology_helper.remove_deleted_clusters_and_servers(location, self._topology)
+        # this second pass will re-establish any attributes that were changed by templates,
+        # and process deletes and re-adds of named elements in the model order.
+        self.__create_machines_clusters_and_servers()
         topology_folder_list.remove(MACHINE)
         topology_folder_list.remove(UNIX_MACHINE)
         topology_folder_list.remove(CLUSTER)
@@ -665,6 +674,10 @@ class DomainCreator(Creator):
             server_start_mode = self._domain_info[SERVER_START_MODE]
             self.wlst_helper.set_option_if_needed(SET_OPTION_SERVER_START_MODE, server_start_mode)
 
+        if USE_SAMPLE_DATABASE in self._domain_info:
+            use_sample_db = self._domain_info[USE_SAMPLE_DATABASE]
+            self.wlst_helper.set_option_if_needed(USE_SAMPLE_DATABASE, use_sample_db)
+
         self.__set_domain_name()
         self.__set_admin_password()
         self.__set_admin_server_name()
@@ -691,6 +704,9 @@ class DomainCreator(Creator):
         topology_folder_list.remove(XML_ENTITY_CACHE)
         self.__create_xml_registry(location)
         topology_folder_list.remove(XML_REGISTRY)
+
+        self.__create_ws_security(location)
+        topology_folder_list.remove(WEB_SERVICE_SECURITY)
 
     def __create_security_folder(self):
         """
@@ -770,6 +786,20 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
+    def __create_ws_security(self, location):
+        """
+        Create the WebserviceSecurity objects, if any.
+        :param location: the current location
+        """
+        _method_name = '__create_ws_security'
+        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        ws_security = dictionary_utils.get_dictionary_element(self._topology, WEB_SERVICE_SECURITY)
+
+        if len(ws_security) > 0:
+            self._create_named_mbeans(WEB_SERVICE_SECURITY, ws_security, location, log_created=True)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
     def __create_machines(self, location):
         """
         Create the /Machine and /UnixMachine folder objects, if any.
@@ -840,7 +870,7 @@ class DomainCreator(Creator):
         # Listen Port for 7001 in order to show up in the config.xml
         if len(server_template_nodes) > 0:
             for template in server_template_nodes:
-                listen_port = dictionary_utils.get_dictionary_element(self._topology[SERVER_TEMPLATE][template], LISTEN_PORT)
+                listen_port = dictionary_utils.get_element(self._topology[SERVER_TEMPLATE][template], LISTEN_PORT)
                 if listen_port is not None:
                     temp_loc = LocationContext()
                     temp_loc.append_location(SERVER_TEMPLATE)
@@ -943,13 +973,8 @@ class DomainCreator(Creator):
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-        rcu_database = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
+        rcu_database, error = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
                                                          rcu_db_info.get_atp_entry())
-
-        if rcu_database is None:
-            ex = exception_helper.create_create_exception('WLSDPLY-12563', rcu_db_info.get_atp_entry())
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
 
         keystore_pwd = rcu_db_info.get_keystore_password()
         truststore_pwd = rcu_db_info.get_truststore_password()

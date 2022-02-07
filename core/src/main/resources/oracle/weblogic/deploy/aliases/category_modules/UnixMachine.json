@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "UnixMachine${:s}",
     "child_folders_type": "multiple",
@@ -10,24 +10,24 @@
             "default_name_value": "%MACHINE%",
             "folders" : {},
             "attributes": {
-                "Adapter":                       [ {"version": "[10.3.4,12.2.1)",   "wlst_mode": "both",    "wlst_name": "Adapter",                       "wlst_path": "WP001",  "value": {"default": "${None:null_null}"}, "wlst_type": "string"             } ,
-                                                   {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "Adapter",                       "wlst_path": "WP001",  "value": {"default": "None"             }, "wlst_type": "string"             } ],
-                "AdapterName":                   [ {"version": "[10.3.4,)",         "wlst_mode": "both",    "wlst_name": "AdapterName",                   "wlst_path": "WP001",  "value": {"default": "None"             }, "wlst_type": "string"             } ],
-                "AdapterVersion":                [ {"version": "[10.3.4,)",         "wlst_mode": "both",    "wlst_name": "AdapterVersion",                "wlst_path": "WP001",  "value": {"default": "None"             }, "wlst_type": "string"             } ],
-                "DebugEnabled":                  [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "DebugEnabled",                  "wlst_path": "WP001",  "value": {"default": "false"            }, "wlst_type": "boolean"            } ],
-                "InstalledVMMAdapter":           [ {"version": "[10.3.4,12.1.2)",   "wlst_mode": "offline", "wlst_name": "InstalledVmmAdapter" ,          "wlst_path": "WP001",  "value": {"default": "[]"               }, "wlst_type": "delimited_string",  "access": "RO", "get_method": "LSA"},
-                                                   {"version": "[12.1.2,12.2.1.1)", "wlst_mode": "offline", "wlst_name": "InstalledVMMAdapter" ,          "wlst_path": "WP001",  "value": {"default": "[]"               }, "wlst_type": "delimited_string",  "access": "RO", "get_method": "LSA"},
-                                                   {"version": "[12.2.1.1,)",       "wlst_mode": "offline", "wlst_name": "InstalledVMMAdapter" ,          "wlst_path": "WP001",  "value": {"default": "[]"               }, "wlst_type": "jarray",            "preferred_model_type": "delimited_string", "access": "RO"},
-                                                   {"version": "[10.3.4,)",         "wlst_mode": "online" , "wlst_name": "InstalledVMMAdapters",          "wlst_path": "WP001",  "value": {"default": "[]"               }, "wlst_type": "jarray",            "preferred_model_type": "delimited_string", "access": "RO"} ],
-                "ListenAddress":                 [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ListenAddress",                 "wlst_path": "WP001",  "value": {"default": "localhost"        }, "wlst_type": "string"             } ],
-                "ListenPort":                    [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ListenPort",                    "wlst_path": "WP001",  "value": {"default": 5556               }, "wlst_type": "integer"            } ],
-                "NMSocketCreateTimeoutInMillis": [ {"version": "[12.2.1.2,)",       "wlst_mode": "both",    "wlst_name": "NMSocketCreateTimeoutInMillis", "wlst_path": "WP001",  "value": {"default": 180000             }, "wlst_type": "integer"            } ],
-                "NMType":                        [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "NMType",                        "wlst_path": "WP001",  "value": {"default": "${None:SSL}"      }, "wlst_type": "string"             } ],
-                "NodeManagerHome":               [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "NodeManagerHome",               "wlst_path": "WP001",  "value": {"default": "None"             }, "wlst_type": "string",            "uses_path_tokens": "true" } ],
-                "Notes":                         [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "Notes",                         "wlst_path": "WP001",  "value": {"default": "None"             }, "wlst_type": "string"             } ],
-                "PasswordEncrypted":             [ {"version": "[10.3.4,)",         "wlst_mode": "both",    "wlst_name": "PasswordEncrypted",             "wlst_path": "WP001",  "value": {"default": "None"             }, "wlst_type": "password",            "get_method": "GET"} ],
-                "ShellCommand":                  [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ShellCommand",                  "wlst_path": "WP001",  "value": {"default": "None"             }, "wlst_type": "string",            "uses_path_tokens": "true" } ],
-                "UserName":                      [ {"version": "[10.3.4,)",         "wlst_mode": "both",    "wlst_name": "UserName",                      "wlst_path": "WP001",  "value": {"default": "None"             }, "wlst_type": "credential"         } ]
+                "Adapter":                       [ {"version": "[10.3.4,12.2.1)",   "wlst_mode": "both",    "wlst_name": "Adapter",                       "wlst_path": "WP001",  "default_value": "${__NULL__:null_null}", "wlst_type": "string"             } ,
+                                                   {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "Adapter",                       "wlst_path": "WP001",  "default_value": null,                "wlst_type": "string"             } ],
+                "AdapterName":                   [ {"version": "[10.3.4,)",         "wlst_mode": "both",    "wlst_name": "AdapterName",                   "wlst_path": "WP001",  "default_value": null,                "wlst_type": "string"             } ],
+                "AdapterVersion":                [ {"version": "[10.3.4,)",         "wlst_mode": "both",    "wlst_name": "AdapterVersion",                "wlst_path": "WP001",  "default_value": null,                "wlst_type": "string"             } ],
+                "DebugEnabled":                  [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "DebugEnabled",                  "wlst_path": "WP001",  "default_value": "false",             "wlst_type": "boolean"            } ],
+                "InstalledVMMAdapter":           [ {"version": "[10.3.4,12.1.2)",   "wlst_mode": "offline", "wlst_name": "InstalledVmmAdapter" ,          "wlst_path": "WP001",  "default_value": "[]",                "wlst_type": "delimited_string",  "access": "RO", "get_method": "LSA"},
+                                                   {"version": "[12.1.2,12.2.1.1)", "wlst_mode": "offline", "wlst_name": "InstalledVMMAdapter" ,          "wlst_path": "WP001",  "default_value": "[]",                "wlst_type": "delimited_string",  "access": "RO", "get_method": "LSA"},
+                                                   {"version": "[12.2.1.1,)",       "wlst_mode": "offline", "wlst_name": "InstalledVMMAdapter" ,          "wlst_path": "WP001",  "default_value": "[]",                "wlst_type": "jarray",            "preferred_model_type": "delimited_string", "access": "RO"},
+                                                   {"version": "[10.3.4,)",         "wlst_mode": "online" , "wlst_name": "InstalledVMMAdapters",          "wlst_path": "WP001",  "default_value": "[]",                "wlst_type": "jarray",            "preferred_model_type": "delimited_string", "access": "RO"} ],
+                "ListenAddress":                 [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ListenAddress",                 "wlst_path": "WP001",  "default_value": "localhost",         "wlst_type": "string"             } ],
+                "ListenPort":                    [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ListenPort",                    "wlst_path": "WP001",  "default_value": 5556,                "wlst_type": "integer"            } ],
+                "NMSocketCreateTimeoutInMillis": [ {"version": "[12.2.1.2,)",       "wlst_mode": "both",    "wlst_name": "NMSocketCreateTimeoutInMillis", "wlst_path": "WP001",  "default_value": 180000,              "wlst_type": "integer"            } ],
+                "NMType":                        [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "NMType",                        "wlst_path": "WP001",  "default_value": "SSL",               "wlst_type": "string"             } ],
+                "NodeManagerHome":               [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "NodeManagerHome",               "wlst_path": "WP001",  "default_value": null,                "wlst_type": "string",            "uses_path_tokens": "true" } ],
+                "Notes":                         [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "Notes",                         "wlst_path": "WP001",  "default_value": null,                "wlst_type": "string"             } ],
+                "PasswordEncrypted":             [ {"version": "[10.3.4,)",         "wlst_mode": "both",    "wlst_name": "PasswordEncrypted",             "wlst_path": "WP001",  "default_value": null,                "wlst_type": "password",            "get_method": "GET"} ],
+                "ShellCommand":                  [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ShellCommand",                  "wlst_path": "WP001",  "default_value": null,                "wlst_type": "string",            "uses_path_tokens": "true" } ],
+                "UserName":                      [ {"version": "[10.3.4,)",         "wlst_mode": "both",    "wlst_name": "UserName",                      "wlst_path": "WP001",  "default_value": null,                "wlst_type": "credential"         } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -36,12 +36,12 @@
         }
     },
     "attributes": {
-        "Address":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Address${:es}",      "wlst_path": "WP001", "value": {"default": "[]"     }, "wlst_type": "delimited_string" } ],
-        "Notes":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",              "wlst_path": "WP001", "value": {"default": "None"   }, "wlst_type": "string"           } ],
-        "PostBindGID":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PostBindGID",        "wlst_path": "WP001", "value": {"default": "nobody" }, "wlst_type": "string"           } ],
-        "PostBindGIDEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PostBindGIDEnabled", "wlst_path": "WP001", "value": {"default": "false"  }, "wlst_type": "boolean"          } ],
-        "PostBindUID":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PostBindUID",        "wlst_path": "WP001", "value": {"default": "nobody" }, "wlst_type": "string"           } ],
-        "PostBindUIDEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PostBindUIDEnabled", "wlst_path": "WP001", "value": {"default": "false"  }, "wlst_type": "boolean"          } ]
+        "Address":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Address${:es}",      "wlst_path": "WP001", "default_value": "[]",      "wlst_type": "delimited_string" } ],
+        "Notes":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",              "wlst_path": "WP001", "default_value": null,      "wlst_type": "string"           } ],
+        "PostBindGID":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PostBindGID",        "wlst_path": "WP001", "default_value": "nobody",  "wlst_type": "string"           } ],
+        "PostBindGIDEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PostBindGIDEnabled", "wlst_path": "WP001", "default_value": "false",   "wlst_type": "boolean"          } ],
+        "PostBindUID":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PostBindUID",        "wlst_path": "WP001", "default_value": "nobody",  "wlst_type": "string"           } ],
+        "PostBindUIDEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PostBindUIDEnabled", "wlst_path": "WP001", "default_value": "false",   "wlst_type": "boolean"          } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module that handles command-line argument parsing and common validation.
@@ -18,17 +18,20 @@ import oracle.weblogic.deploy.aliases.VersionUtils as JVersionUtils
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
+from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.target_configuration import CREDENTIALS_METHOD
 from wlsdeploy.util.target_configuration import CREDENTIALS_METHODS
 from wlsdeploy.util.target_configuration import TargetConfiguration
+from wlsdeploy.util.target_configuration import VALIDATION_METHOD
+from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
 
 # tool type may indicate variations in argument processing
 TOOL_TYPE_CREATE = "create"
 TOOL_TYPE_DEFAULT = "default"
 TOOL_TYPE_EXTRACT = "extract"
-
 
 
 class CommandLineArgUtil(object):
@@ -84,8 +87,6 @@ class CommandLineArgUtil(object):
     TRAILING_ARGS_SWITCH       = '-trailing_arguments'
     ATTRIBUTES_ONLY_SWITCH     = '-attributes_only'
     FOLDERS_ONLY_SWITCH        = '-folders_only'
-    # deprecated
-    MODEL_SAMPLE_SWITCH        = '-model_sample'
     RECURSIVE_SWITCH           = '-recursive'
     UPDATE_RCU_SCHEMA_PASS_SWITCH = '-updateRCUSchemaPassword'
     VALIDATION_METHOD          = '-method'
@@ -105,7 +106,6 @@ class CommandLineArgUtil(object):
         ATTRIBUTES_ONLY_SWITCH,
         ENCRYPT_MANUAL_SWITCH,
         FOLDERS_ONLY_SWITCH,
-        MODEL_SAMPLE_SWITCH,
         SKIP_ARCHIVE_FILE_SWITCH,
         RECURSIVE_SWITCH,
         CANCEL_CHANGES_IF_RESTART_REQ_SWITCH,
@@ -122,10 +122,6 @@ class CommandLineArgUtil(object):
 
     ARCHIVE_FILES_SEPARATOR = ','
     MODEL_FILES_SEPARATOR = ','
-
-    LAX_VALIDATION_METHOD = 'lax'
-    STRICT_VALIDATION_METHOD = 'strict'
-    VALIDATION_METHODS = [LAX_VALIDATION_METHOD, STRICT_VALIDATION_METHOD]
 
     HELP_EXIT_CODE                 = 100
     USAGE_ERROR_EXIT_CODE          = 99
@@ -847,8 +843,8 @@ class CommandLineArgUtil(object):
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
-        elif value not in self.VALIDATION_METHODS:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20030', value, self.VALIDATION_METHODS)
+        elif value not in VALIDATION_METHODS:
+            ex = exception_helper.create_cla_exception('WLSDPLY-20030', value, VALIDATION_METHODS)
             ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
@@ -1162,12 +1158,16 @@ class CommandLineArgUtil(object):
         else:
             try:
                 # verify the file is in proper format
-                file_handle = open(target_configuration_file)
-                config_dictionary = eval(file_handle.read())
+                # file_handle = open(target_configuration_file)
+                # config_dictionary = eval(file_handle.read())
+                config_dictionary = JsonToPython(target_configuration_file).parse()
                 target_configuration = TargetConfiguration(config_dictionary)
                 validation_method = target_configuration.get_validation_method()
-                if (validation_method is not None) and (validation_method not in self.VALIDATION_METHODS):
-                    ex = exception_helper.create_cla_exception('WLSDPLY-01645', target_configuration_file)
+                if (validation_method is not None) and \
+                        (validation_method not in validate_configuration.VALIDATION_METHODS):
+                    ex = exception_helper.create_cla_exception('WLSDPLY-01648', target_configuration_file,
+                                                               validation_method, VALIDATION_METHOD,
+                                                               ', '.join(validate_configuration.VALIDATION_METHODS))
                     ex.setExitCode(self.ARG_VALIDATION_ERROR_EXIT_CODE)
                     self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
                     raise ex

@@ -1,4 +1,4 @@
-# Copyright (c) 2018, 2021, Oracle Corporation and/or its affiliates.
+# Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 domainInfo:
@@ -44,9 +44,9 @@ resources:
                         user:
                             Value: jshum
                         oracle.net.CONNECT_TIMEOUT:
-                            Value: 5000
+                            Value: '5000'
                         oracle.jdbc.ReadTimeout:
-                            Value: 30000
+                            Value: '30000'
                         oracle.net.ssl_version:
                             # this float should convert to string
                             Value: 1.2
@@ -72,9 +72,9 @@ resources:
                         user:
                             Value: jshum
                         oracle.net.CONNECT_TIMEOUT:
-                            Value: 5000
+                            Value: '5000'
                         oracle.jdbc.ReadTimeout:
-                            Value: 30000
+                            Value: '30000'
                         oracle.net.ssl_version:
                             # this float string should convert to string
                             Value: '1.2'

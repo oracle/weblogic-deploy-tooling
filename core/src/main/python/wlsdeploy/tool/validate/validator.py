@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -7,7 +7,7 @@ import copy
 
 from java.util.logging import Level
 
-from oracle.weblogic.deploy.logging import SummaryHandler
+from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import VariableException
 
@@ -18,6 +18,7 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
@@ -40,6 +41,7 @@ from wlsdeploy.aliases.model_constants import WLS_ROLES
 
 _class_name = 'Validator'
 _logger = ValidatorLogger('wlsdeploy.validate')
+_info_logger = PlatformLogger('wlsdeploy.validate')
 _ModelNodeTypes = Enum(['FOLDER_TYPE', 'NAME_TYPE', 'ATTRIBUTE', 'ARTIFICIAL_TYPE'])
 _ValidationModes = Enum(['STANDALONE', 'TOOL'])
 _ROOT_LEVEL_VALIDATION_AREA = validation_utils.format_message('WLSDPLY-05000')
@@ -60,6 +62,7 @@ class Validator(object):
 
     def __init__(self, model_context, aliases=None, logger=None, wlst_mode=None, domain_name='base_domain'):
         self._model_context = model_context
+        self._validate_configuration = model_context.get_validate_configuration()
 
         if logger is None:
             # No logger specified, so use the one declared at the module level
@@ -128,13 +131,16 @@ class Validator(object):
         self.__validate_model_file(cloned_model_dict, variable_map, archive_file_name)
 
         status = Validator.ValidationStatus.VALID
-        summary_handler = SummaryHandler.findInstance()
+        summary_handler = WLSDeployLogEndHandler.getSummaryHandler()
         if summary_handler is not None:
             summary_level = summary_handler.getMaximumMessageLevel()
             if summary_level == Level.SEVERE:
                 status = Validator.ValidationStatus.INVALID
             elif summary_level == Level.WARNING:
                 status = Validator.ValidationStatus.WARNINGS_INVALID
+        else:
+            # TODO - Should really report/throw an error here if the summary logger was not found!
+            pass
 
         if status == Validator.ValidationStatus.VALID or status == Validator.ValidationStatus.INFOS_VALID \
                 or status == Validator.ValidationStatus.WARNINGS_INVALID:
@@ -178,13 +184,16 @@ class Validator(object):
 
         status = Validator.ValidationStatus.VALID
 
-        summary_handler = SummaryHandler.findInstance()
+        summary_handler = WLSDeployLogEndHandler.getSummaryHandler()
         if summary_handler is not None:
             summary_level = summary_handler.getMaximumMessageLevel()
             if summary_level == Level.SEVERE:
                 status = Validator.ValidationStatus.INVALID
             elif summary_level == Level.WARNING:
                 status = Validator.ValidationStatus.WARNINGS_INVALID
+        else:
+            # TODO - Should really report/throw an error here if the summary logger was not found!
+            pass
 
         if status == Validator.ValidationStatus.VALID or status == Validator.ValidationStatus.INFOS_VALID \
                 or status == Validator.ValidationStatus.WARNINGS_INVALID:
@@ -412,8 +421,7 @@ class Validator(object):
                     result, message = self._aliases.is_valid_model_folder_name(validation_location,
                                                                                     section_dict_key)
                     if result == ValidationCodes.VERSION_INVALID:
-                        # key is a VERSION_INVALID folder
-                        self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
+                        self._log_version_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         self._logger.severe('WLSDPLY-05026', section_dict_key, 'folder', model_folder_path,
                                             '%s' % ', '.join(valid_section_folders), class_name=_class_name,
@@ -423,8 +431,7 @@ class Validator(object):
                     result, message = self._aliases.is_valid_model_attribute_name(attribute_location,
                                                                                        section_dict_key)
                     if result == ValidationCodes.VERSION_INVALID:
-                        self._logger.warning('WLSDPLY-05027', message, class_name=_class_name,
-                                             method_name=_method_name)
+                        self._log_version_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         self._logger.severe('WLSDPLY-05029', section_dict_key, model_folder_path,
                                             '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
@@ -440,7 +447,7 @@ class Validator(object):
 
         result, message = self._aliases.is_version_valid_location(validation_location)
         if result == ValidationCodes.VERSION_INVALID:
-            self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
+            self._log_version_invalid(message, _method_name)
             return
         elif result == ValidationCodes.INVALID:
             self._logger.severe('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
@@ -623,8 +630,7 @@ class Validator(object):
                     # See if it's a version invalid folder
                     result, message = self._aliases.is_valid_model_folder_name(validation_location, key)
                     if result == ValidationCodes.VERSION_INVALID:
-                        # key is a VERSION_INVALID folder
-                        self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
+                        self._log_version_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID folder
                         self._logger.severe('WLSDPLY-05026', key, 'folder', model_folder_path,
@@ -638,8 +644,7 @@ class Validator(object):
                     # See if it's a version invalid attribute
                     result, message = self._aliases.is_valid_model_attribute_name(validation_location, key)
                     if result == ValidationCodes.VERSION_INVALID:
-                        # key is a VERSION_INVALID attribute
-                        self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
+                        self._log_version_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID attribute
                         self._logger.severe('WLSDPLY-05029', key, model_folder_path,
@@ -695,7 +700,7 @@ class Validator(object):
         else:
             result, message = self._aliases.is_valid_model_attribute_name(validation_location, attribute_name)
             if result == ValidationCodes.VERSION_INVALID:
-                self._logger.warning('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
+                self._log_version_invalid(message, _method_name)
             elif result == ValidationCodes.INVALID:
                 self._logger.severe('WLSDPLY-05029', attribute_name, model_folder_path,
                                     '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
@@ -763,9 +768,9 @@ class Validator(object):
                     # FIXME(mwooten) - the cla_utils should be fixing all windows paths to use forward slashes already
                     # assuming that the value is not None
 
-                    logger_method = self._logger.info
-                    if self._model_context.get_validation_method() == 'strict':
-                        logger_method = self._logger.warning
+                    logger_method = self._logger.warning
+                    if self._validate_configuration.allow_unresolved_variable_tokens():
+                        logger_method = _info_logger.info
 
                     variables_file_name = self._model_context.get_variable_file()
                     if variables_file_name is None:
@@ -823,23 +828,21 @@ class Validator(object):
         #     token to make that explicit in the model.
         #
         if WLSDeployArchive.isPathIntoArchive(path):
+            # If the validate configuration allows unresolved archive references,
+            # log INFO messages identifying missing entries, and allow validation to succeed.
+            # Otherwise, log SEVERE messages that will cause validation to fail.
+            log_method = self._logger.severe
+            if self._validate_configuration.allow_unresolved_archive_references():
+                log_method = _info_logger.info
+
             if self._archive_helper is not None:
                 archive_has_file = self._archive_helper.contains_file_or_path(path)
                 if not archive_has_file:
-                    self._logger.severe('WLSDPLY-05024', attribute_name, model_folder_path, path,
-                                        self._archive_file_name, class_name=_class_name, method_name=_method_name)
+                    log_method('WLSDPLY-05024', attribute_name, model_folder_path, path,
+                               self._archive_file_name, class_name=_class_name, method_name=_method_name)
             else:
-                # If running in STANDALONE mode, or configured to ignore missing archive entries,
-                # log an INFO message identifying missing entries, and allow validation to succeed.
-                # In TOOL mode, unless the ignore flag is set, log a SEVERE message that will cause
-                # validation to fail.
-                ignore_missing_entries = self._model_context.get_ignore_missing_archive_entries()
-                if self._validation_mode == _ValidationModes.STANDALONE or ignore_missing_entries:
-                    self._logger.info('WLSDPLY-05025', attribute_name, model_folder_path, path,
-                                      class_name=_class_name, method_name=_method_name)
-                elif self._validation_mode == _ValidationModes.TOOL:
-                    self._logger.severe('WLSDPLY-05025', attribute_name, model_folder_path, path,
-                                        class_name=_class_name, method_name=_method_name)
+                log_method('WLSDPLY-05025', attribute_name, model_folder_path, path,
+                           class_name=_class_name, method_name=_method_name)
         else:
             tokens = validation_utils.extract_path_tokens(path)
             self._logger.finest('tokens={0}', str(tokens), class_name=_class_name, method_name=_method_name)
@@ -935,3 +938,13 @@ class Validator(object):
         for token in tokens:
             self._logger.severe('WLSDPLY-05030', model_folder_path, token,
                                 class_name=_class_name, method_name=_method_name)
+
+    def _log_version_invalid(self, message, method_name):
+        """
+        Log a message indicating that an attribute is not valid for the current WLS version and WLST mode.
+        Log INFO or WARNING, depending on validation mode.
+        """
+        log_method = self._logger.warning
+        if self._validate_configuration.allow_version_invalid_attributes():
+            log_method = _info_logger.info
+        log_method('WLSDPLY-05027', message, class_name=_class_name, method_name=method_name)

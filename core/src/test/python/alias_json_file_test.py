@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -12,6 +12,7 @@ import unittest
 from oracle.weblogic.deploy.json import JsonStreamTranslator
 from oracle.weblogic.deploy.util import FileUtils
 
+from oracle.weblogic.deploy.util import PyRealBoolean
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.alias_constants import PATH_TOKEN
 from wlsdeploy.aliases.alias_constants import SINGLE
@@ -23,8 +24,8 @@ from wlsdeploy.aliases.alias_constants import ALIAS_DATA_TYPES
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.alias_constants import CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import CONTAINS
-from wlsdeploy.aliases.alias_constants import DEFAULT
 from wlsdeploy.aliases.alias_constants import DEFAULT_NAME_VALUE
+from wlsdeploy.aliases.alias_constants import DEFAULT_VALUE
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
 from wlsdeploy.aliases.alias_constants import FOLDER_ORDER
 from wlsdeploy.aliases.alias_constants import FOLDER_PARAMS
@@ -42,7 +43,6 @@ from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import SHORT_NAME
 from wlsdeploy.aliases.alias_constants import USES_PATH_TOKENS
-from wlsdeploy.aliases.alias_constants import VALUE
 from wlsdeploy.aliases.alias_constants import VERSION
 from wlsdeploy.aliases.alias_constants import WLST_ATTRIBUTES_PATH
 from wlsdeploy.aliases.alias_constants import WLST_CREATE_PATH
@@ -96,7 +96,7 @@ class ListTestCase(unittest.TestCase):
     ]
 
     _required_attribute_keys = [
-        VALUE,
+        DEFAULT_VALUE,
         VERSION,
         WLST_MODE,
         WLST_NAME,
@@ -585,18 +585,9 @@ class ListTestCase(unittest.TestCase):
     def _verify_attribute_uses_path_tokens_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
         return self._verify_boolean_value(folder_name, attribute_name, USES_PATH_TOKENS, alias_attribute_value)
 
-    def _verify_attribute_value_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
-        result = []
-        if type(alias_attribute_value) is not dict:
-            message = self._get_invalid_attribute_dictionary_type_message(folder_name, attribute_name,
-                                                                          VALUE, alias_attribute_value)
-            result.append(message)
-        elif DEFAULT not in alias_attribute_value:
-            new_folder_name = folder_name + '/' + ATTRIBUTES + '/' + attribute_name
-            message = self._get_missing_required_attribute_key_message(new_folder_name, VALUE, DEFAULT)
-            result.append(message)
-
-        return result
+    def _verify_attribute_default_value_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
+        # nothing to verify - default_value can be any type or null
+        return []
 
     def _verify_attribute_version_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
         result = []
@@ -676,6 +667,8 @@ class ListTestCase(unittest.TestCase):
             else:
                 pass
         elif type(alias_attribute_value) is bool:
+            pass
+        elif isinstance(alias_attribute_value, PyRealBoolean):
             pass
         else:
             result.append(self._get_invalid_attribute_boolean_type_message(folder_name, attribute_name,

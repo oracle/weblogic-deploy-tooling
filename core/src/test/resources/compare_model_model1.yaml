@@ -41,11 +41,11 @@ appDeployments:
             SourcePath: '@@WL_HOME@@/common/deployable-libraries/jax-rs-2.0.war'
             ModuleType: war
             Target: 'cluster-1'
-     Application:
-         myear:
-             SourcePath: /home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app.ear
-             ModuleType: ear
-             Target: ['cluster-1']
+    Application:
+        myear:
+            SourcePath: /home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app.ear
+            ModuleType: ear
+            Target: ['cluster-1']
 resources:
     WebAppContainer:
         WAPEnabled: '@@PROP:WAPENABLED@@'

@@ -31,9 +31,7 @@ __required_arguments = [
 __optional_arguments = [
     CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH,
     CommandLineArgUtil.FOLDERS_ONLY_SWITCH,
-    CommandLineArgUtil.RECURSIVE_SWITCH,
-    # deprecated
-    CommandLineArgUtil.MODEL_SAMPLE_SWITCH
+    CommandLineArgUtil.RECURSIVE_SWITCH
 ]
 
 __output_types = [
@@ -65,10 +63,6 @@ def __process_args(args):
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
             found = True
-
-    if CommandLineArgUtil.MODEL_SAMPLE_SWITCH in argument_map:
-        __logger.warning('WLSDPLY-10106', CommandLineArgUtil.MODEL_SAMPLE_SWITCH,
-                         class_name=_class_name, method_name=_method_name)
 
     return model_context_helper.create_context(_program_name, argument_map)
 

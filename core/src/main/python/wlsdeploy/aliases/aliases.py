@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import String
@@ -16,7 +16,7 @@ from wlsdeploy.aliases.alias_constants import ALIAS_LIST_TYPES
 from wlsdeploy.aliases.alias_constants import ALIAS_MAP_TYPES
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
-from wlsdeploy.aliases.alias_constants import DEFAULT
+from wlsdeploy.aliases.alias_constants import DEFAULT_VALUE
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
 from wlsdeploy.aliases.alias_constants import FOLDERS
 from wlsdeploy.aliases.alias_constants import GET
@@ -38,7 +38,6 @@ from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import STRING
 from wlsdeploy.aliases.alias_constants import USES_PATH_TOKENS
-from wlsdeploy.aliases.alias_constants import VALUE
 from wlsdeploy.aliases.alias_constants import WLST_NAME
 from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
@@ -74,9 +73,7 @@ class Aliases(object):
         self._logger = PlatformLogger('wlsdeploy.aliases')
 
         if wls_version is None:
-            from wlsdeploy.util.weblogic_helper import WebLogicHelper
-            self._wls_helper = WebLogicHelper(self._logger)
-            self._wls_version = self._wls_helper.wl_version_actual
+            self._wls_version = self._model_context.get_target_wls_version()
         else:
             self._wls_version = wls_version
 
@@ -478,10 +475,8 @@ class Aliases(object):
 
             if attribute_info and not self.__is_wlst_attribute_read_only(location, attribute_info):
                 wlst_attribute_name = attribute_info[WLST_NAME]
-
-                if self._model_context and USES_PATH_TOKENS in attribute_info and \
-                        string_utils.to_boolean(attribute_info[USES_PATH_TOKENS]):
-                    model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
+                uses_path_tokens = USES_PATH_TOKENS in attribute_info and \
+                    string_utils.to_boolean(attribute_info[USES_PATH_TOKENS])
 
                 data_type = attribute_info[WLST_TYPE]
                 if data_type == 'password':
@@ -516,6 +511,11 @@ class Aliases(object):
                             model_val = alias_utils.convert_to_type(LIST, model_attribute_value,
                                                                     delimiter=MODEL_LIST_DELIMITER)
 
+                            if uses_path_tokens and model_val is not None:
+                                for index, item in enumerate(model_val):
+                                    item_value = self._model_context.replace_token_string(str(item))
+                                    model_val[index] = item_value
+
                             _read_type, read_delimiter = \
                                 alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(
                                     attribute_info, existing_wlst_value)
@@ -541,6 +541,9 @@ class Aliases(object):
                             wlst_attribute_value = alias_utils.convert_to_type(data_type, merged_value,
                                                                                delimiter=MODEL_LIST_DELIMITER)
                     else:
+                        if uses_path_tokens:
+                            model_attribute_value = self._model_context.replace_token_string(model_attribute_value)
+
                         wlst_attribute_value = alias_utils.convert_to_type(data_type, model_attribute_value,
                                                                            delimiter=MODEL_LIST_DELIMITER)
 
@@ -765,8 +768,8 @@ class Aliases(object):
 
             for key, value in module_folder[ATTRIBUTES].iteritems():
                 if RESTART_REQUIRED in value:
-                    restart_required_value = value[RESTART_REQUIRED]
-                    if "true" == restart_required_value.lower():
+                    restart_required = alias_utils.convert_boolean(value[RESTART_REQUIRED])
+                    if restart_required:
                         restart_attribute_names.append(key)
 
             return restart_attribute_names
@@ -986,20 +989,21 @@ class Aliases(object):
                                                                     delimiter=delimiter)
 
                 model_attribute_name = attribute_info[MODEL_NAME]
-                default_value = attribute_info[VALUE][DEFAULT]
+                default_value = attribute_info[DEFAULT_VALUE]
 
                 #
                 # The logic below to compare the str() representation of the converted value and the default value
                 # only works for lists/maps if both the converted value and the default value are the same data type...
                 #
                 if (model_type in ALIAS_LIST_TYPES or model_type in ALIAS_MAP_TYPES) \
-                        and not (default_value == '[]' or default_value == 'None'):
+                        and not (default_value == '[]' or default_value is None):
                     # always the model delimiter
                     default_value = alias_utils.convert_to_type(model_type, default_value,
                                                                 delimiter=MODEL_LIST_DELIMITER)
 
                 if attribute_info[WLST_TYPE] == STRING:
-                    default_value = alias_utils.replace_tokens_in_path(location, default_value)
+                    if default_value:
+                        default_value = alias_utils.replace_tokens_in_path(location, default_value)
 
                 if model_type == 'password':
                     if string_utils.is_empty(wlst_attribute_value) or converted_value == default_value:
@@ -1017,7 +1021,7 @@ class Aliases(object):
 
                 elif (model_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES) and \
                         (converted_value is None or len(converted_value) == 0):
-                    if default_value == '[]' or default_value == 'None':
+                    if default_value == '[]' or default_value is None:
                         model_attribute_value = None
 
                 elif self._model_context is not None and USES_PATH_TOKENS in attribute_info:
@@ -1027,6 +1031,10 @@ class Aliases(object):
                         model_attribute_value = self._model_context.tokenize_classpath(converted_value)
                     if model_attribute_value == default_value:
                         model_attribute_value = None
+
+                elif default_value is None:
+                    model_attribute_value = converted_value
+
                 elif str(converted_value) != str(default_value):
                     if _strings_are_empty(converted_value, default_value):
                         model_attribute_value = None
@@ -1195,15 +1203,12 @@ class Aliases(object):
             default_value = None
             attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
             if attribute_info is not None:
-                default_value = attribute_info[VALUE][DEFAULT]
-                if default_value == 'None':
-                    default_value = None
-                else:
-                    data_type, delimiter = \
-                        alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(
-                            attribute_info, default_value)
+                default_value = attribute_info[DEFAULT_VALUE]
+                data_type, delimiter = \
+                    alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(
+                        attribute_info, default_value)
 
-                    default_value = alias_utils.convert_to_type(data_type, default_value, delimiter=delimiter)
+                default_value = alias_utils.convert_to_type(data_type, default_value, delimiter=delimiter)
             self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=default_value)
             return default_value
         except AliasException, ae:
