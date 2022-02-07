@@ -281,7 +281,7 @@ topology:
     Server:
         m1:
             ListenPort: 7000
-            Notes: "Server 1"
+            Notes: Server 1
         m2:
             ListenPort: 9000
 ```
@@ -319,7 +319,7 @@ topology:
     Server:
         m1:
             ListenPort: 7000
-            Notes: "Server 1"
+            Notes: Server 1
         m2:
             ListenPort: 9000
 ```
@@ -335,7 +335,7 @@ topology:
     Server:
         m1:
             ListenPort: 7000
-            Notes: "Server 1"
+            Notes: Server 1
 ```
 
 Similarly, an element without delete notation will completely replace an element with a matching name that has delete notation in a previous model. For example, if Model 1 looks like:
@@ -350,7 +350,7 @@ topology:
     Server:
         m1:
             ListenPort: 7000
-            Notes: "Server 1"
+            Notes: Server 1
 ```
 The resulting model would be:
 ```yaml
@@ -358,5 +358,5 @@ topology:
     Server:
         m1:
             ListenPort: 7000
-            Notes: "Server 1"
+            Notes: Server 1
 ```

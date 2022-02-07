@@ -25,7 +25,7 @@ resources:
                 JDBCDriverParams:
                     DriverName: oracle.jdbc.OracleDriver
                     PasswordEncrypted: '@@PROP:jdbc.password@@'
-                    URL: 'jdbc:oracle:thin:@//localhost:1521/myDB'
+                    URL: jdbc:oracle:thin:@//localhost:1521/myDB
                     Properties:
                         user:
                             Value: scott

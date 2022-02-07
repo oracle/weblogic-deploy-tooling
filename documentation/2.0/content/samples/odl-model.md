@@ -23,7 +23,7 @@ resources:
             Handler:
                 my-handler:
                     Class: com.my.MyHandler
-                    Level: 'TRACE:32'
+                    Level: TRACE:32
                     ErrorManager: com.my.MyErrorManager
                     Filter: com.my.MyFilter
                     Formatter: com.my.MyFormatter
@@ -31,15 +31,15 @@ resources:
                     Properties:
                         path: /home/me/mypath
                 quicktrace-handler:
-                    Filter: 'oracle:dfw:incident:IncidentDetectionLogFilter'
+                    Filter: oracle:dfw:incident:IncidentDetectionLogFilter
                     Properties:
                         path: '${domain.home}/servers/${weblogic.Name}/logs/${weblogic.Name}-myhistory.log'
                         useSourceClassandMethod: true
             Logger:
                 my-logger:
-                    Level: 'NOTIFICATION:1'
+                    Level: NOTIFICATION:1
                     UseParentHandlers: true
-                    Filter: 'oracle:dfw:incident:IncidentDetectionLogFilter'
+                    Filter: oracle:dfw:incident:IncidentDetectionLogFilter
                     Handlers: richard-handler,owsm-message-handler
                 oracle.sysman:
                     Handlers: [

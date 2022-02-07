@@ -43,7 +43,7 @@ topology:
                 Enabled: true
                 ListenPort: 8002
             ServerStart:
-                Arguments: '-Dosgi=true -Dtangosol.coherence.management=all'
+                Arguments: -Dosgi=true -Dtangosol.coherence.management=all
                 ClassPath: /foo/bar,wlsdeploy/classpathLibraries/mylib.jar
 ```
 There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}). For example, this command will list the attributes and sub-folders for the `Server` folder:

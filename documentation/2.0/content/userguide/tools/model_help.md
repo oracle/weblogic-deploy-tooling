@@ -114,15 +114,15 @@ Recursive sub-folders only for resources:/JDBCSystemResource
 
 resources:
     JDBCSystemResource:
-        'JDBC-1':
+        JDBC-1:
             JdbcResource:
                 JDBCConnectionPoolParams:
                 JDBCDataSourceParams:
                 JDBCDriverParams:
                     Properties:
-                        'Properties-1':
+                        Properties-1:
                 JDBCOracleParams:
                 JDBCXAParams:
             SubDeployment:
-                'SubDeployment-1':
+                SubDeployment-1:
 ```
