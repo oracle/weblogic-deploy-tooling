@@ -136,7 +136,7 @@ This key element specifies which method should be used for retrieving the value 
 
 #### `access`
 
-By default, an attribute is read write in both WLST and MODEL. This element is used to set an attribute to read-only. The two read-only attributes are `RO` and `ROD`. The latter indicates that the attribute is read-only and will not be written into the domain. However, it will be discovered by the discover tool into the model.
+By default, an attribute is read write in both WLST and MODEL. This element is used to set an attribute to read-only. The two read-only attributes are `RO` and `ROD`. The latter indicates that the attribute is read-only and will not be written into the domain. However, it will be discovered by the Discover Domain Tool into the model.
 #### `preferred_model_type`
 
 This key element specifies the preferred data type that should be used to put data in the model during discovery. As an example, list values can be represented in the model as comma-separated text, such as `"value1, value2"`, or as a YAML list, such as `["value1", "value2"]`. If the list values can contain commas, it is preferred to use a YAML list.

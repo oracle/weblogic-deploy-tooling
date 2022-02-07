@@ -79,7 +79,7 @@ ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-passphrase_env ^<passphrase_env^>]
 ECHO              [-passphrase_file ^<passphrase_file^>]
 ECHO              [-wlst_path ^<wlst_path^>]
-ECHO              [-canel_changes_if_restart_required]
+ECHO              [-cancel_changes_if_restart_required]
 ECHO              [-discard_current_edit]
 ECHO              [-output_dir]
 ECHO              [-admin_pass_env ^<admin_pass_env^>

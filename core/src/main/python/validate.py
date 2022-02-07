@@ -8,13 +8,12 @@ import copy
 import sys
 from java.util.logging import Level
 
+from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
-
-from oracle.weblogic.deploy.logging import SummaryHandler
 
 # Jython tools don't require sys.path modification
 
@@ -172,7 +171,7 @@ def main(args):
         if model_file_name is not None:
             __perform_model_file_validation(model_file_name, model_context)
 
-            summary_handler = SummaryHandler.findInstance()
+            summary_handler = WLSDeployLogEndHandler.getSummaryHandler()
             if summary_handler is not None:
                 summary_level = summary_handler.getMaximumMessageLevel()
                 if summary_level == Level.SEVERE:

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2021 Oracle and/or its affiliates.
+Copyright (c) 2020, 2022 Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
@@ -10,6 +10,7 @@ import tempfile
 from java.util.logging import Level
 from oracle.weblogic.deploy.compare import CompareException
 from oracle.weblogic.deploy.logging import SummaryHandler
+from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 from oracle.weblogic.deploy.util import PyWLSTException
 
 from compare_model import ModelFileDiffer
@@ -49,11 +50,33 @@ class CompareModelTestCase(unittest.TestCase):
 
         # add summary handler to validate logger to check results
         self._summary_handler = SummaryHandler()
-        PlatformLogger('wlsdeploy.validate').logger.addHandler(self._summary_handler)
+        self._validate_logger = PlatformLogger('wlsdeploy.validate')
+        self._validate_logger.logger.addHandler(self._summary_handler)
 
     def tearDown(self):
         # remove summary handler for next test suite
         PlatformLogger('wlsdeploy.validate').logger.removeHandler(self._summary_handler)
+        WLSDeployLogEndHandler.clearHandlers()
+
+    def testLogHandlerConfiguration(self):
+        _method_name = 'testLogHandlerConfiguration'
+
+        self.assertNotEqual(self._summary_handler, None, 'self._summary_handler was None')
+        handlers = self._validate_logger.logger.getHandlers()
+        self.assertNotEqual(handlers, None, 'getHandlers() returned None')
+        self.assertNotEqual(len(handlers), 0, 'getHandlers() returned an empty list')
+
+        found_summary_handler = False
+        for handler in handlers:
+            if handler.getClass().getName() == "oracle.weblogic.deploy.logging.SummaryHandler":
+                found_summary_handler = True
+                break
+        self.assertEquals(found_summary_handler, True, "Failed to find summary handler")
+
+        handlers = WLSDeployLogEndHandler.getEndHandlers()
+        self.assertNotEqual(handlers, None, 'getEndHandlers() returned None')
+        self.assertNotEqual(len(handlers), 0, 'getEndHandlers() returned an empty list')
+        self.assertEqual(len(handlers), 1, 'getEndHandlers() returned a list with ' + str(len(handlers)) + ' handlers')
 
     def testCompareModelFull(self):
         _method_name = 'testCompareModelFull'
@@ -230,6 +253,7 @@ class CompareModelTestCase(unittest.TestCase):
         if os.path.exists(_temp_dir):
             shutil.rmtree(_temp_dir)
         os.mkdir(_temp_dir)
+
 
         mw_home = os.environ['MW_HOME']
         args_map = {

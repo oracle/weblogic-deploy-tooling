@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
@@ -7,6 +7,7 @@ import os
 from java.util.logging import Level
 
 from oracle.weblogic.deploy.logging import SummaryHandler
+from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -54,6 +55,7 @@ class ValidationTestCase(unittest.TestCase):
     def tearDown(self):
         # remove summary handler for next test suite
         self._logger.logger.removeHandler(self._summary_handler)
+        WLSDeployLogEndHandler.clearHandlers()
 
         # Clean up temporary WDT custom configuration environment variables
         # and model persistence files
@@ -170,7 +172,7 @@ class ValidationTestCase(unittest.TestCase):
         wlsroles_validator = wlsroles_helper.validator(wlsroles_dict, self._logger)
         wlsroles_validator.validate_roles()
 
-        handler = SummaryHandler.findInstance()
+        handler = self._summary_handler
         self.assertNotEqual(handler, None, "Summary handler is not present")
 
         # Verify only warnings resulted

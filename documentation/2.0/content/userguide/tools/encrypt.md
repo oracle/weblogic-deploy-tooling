@@ -10,7 +10,7 @@ description: "Encrypts the passwords in a model (or its variable file) using a u
 {{% notice note %}} To meet Oracle's security standards, the encryption algorithms require JDK 8 to run.
 {{% /notice %}}
 
-Models contain WebLogic Server domain configuration.  Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection.  When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.  Clear-text passwords are not conducive to storing configurations as source, so the Encrypt Model Tool gives the model author the ability to encrypt the passwords in the model and variable file using passphrase-based, reversible encryption.  When using a tool with a model containing encrypted passwords, the encryption passphrase must be provided, so that the tool can decrypt the password in memory to set the necessary WebLogic Server configuration (which supports its own encryption mechanism based on a domain-specific key).  While there is no requirement to use the WebLogic Deploy Tooling encryption mechanism, it is highly recommended because storing clear text passwords on disk is never a good idea.
+Models contain WebLogic Server domain configuration.  Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection.  When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.  Clear-text passwords are not conducive to storing configurations as source, so the Encrypt Model Tool gives the model author the ability to encrypt the passwords in the model and variable file using passphrase-based, reversible encryption.  When using a tool with a model containing encrypted passwords, the encryption passphrase must be provided, so that the tool can decrypt the password in memory to set the necessary WebLogic Server configuration (which supports its own encryption mechanism based on a domain-specific key).  While there is no requirement to use the WebLogic Deploy Tooling encryption mechanism, it is highly recommended because storing clear-text passwords on disk is never a good idea.
 
 The Create, Update and Deploy tools can take a set of models. The Encrypt model will encrypt a set of models. Each model is encrypted using the same passphrase and written back to its original location.
 
@@ -86,11 +86,11 @@ topology:
                 GroupMemberOf: FriscoGroup
 ```
 
-To run the encryption tool on the model, run the following command:
+To run the Encrypt Model Tool on the model, run the following command:
 
     $ weblogic-deploy\bin\encryptModel.cmd -oracle_home c:\wls12213 -model_file UnencryptedDemoDomain.yaml
 
-The tool will prompt for the encryption passphrase twice and then encrypt any passwords it finds in the model, skipping any password fields that have variable values, to produce a result that looks like the following model. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command line option -passphrase_env. Another option is to create a file containing the passphrase value. Pass this filename using the command line option -passphrase_file
+The tool will prompt for the encryption passphrase twice and then encrypt any passwords it finds in the model, skipping any password fields that have variable values, to produce a result that looks like the following model. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command-line option `-passphrase_env`. Another option is to create a file containing the passphrase value. Pass this filename using the command-line option `-passphrase_file`.
 
 ```yaml
 domainInfo:
@@ -207,7 +207,7 @@ resources:
                 mail.smtp.host: smtp.example.com
 ```
 
-Run the encryption tool and pass both the model and variable files, like this:
+Run the Encrypt Model Tool and pass both the model and variable files, like this:
 
     $ weblogic-deploy\bin\encryptModel.cmd -oracle_home c:\wls12213 -model_file UnencryptedDemoDomain.yaml -variable_file UnencryptedDemoDomain.properties
 
@@ -219,3 +219,13 @@ The variable file will now look something like the following:
     db.url=mydb.example.com:1539/PDBORCL
     db.password={AES}czFXMkNFWNG9jNTNYd0hRL2R1anBnb0hDUlp4K1liQWFBdVM4UTlvMnE0NU1aMUZ5UVhiK25oaWFBc2lIQ20\=
     mymailsession.password={AES}RW9nRnUzcE41WGNMdnEzNDdRQVVNWm1LMGhidkFBVXg6OUN3aXcyci82cmh3cnpNQTpmY2UycUp5YWl4UT0\=
+
+### Parameter table for `encryptModel`
+| Parameter | Definition | Default |
+| ---- | ---- | ---- |
+| `-manual` | Run without a model and get an encrypted value for a single password. |    |
+| `-model_file` | The location of the model file or a set of model files. |    |
+| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
+| `-passphrase_env` | An alternative to entering the encryption passphrase at a prompt. The value is an environment variable name that WDT will use to retrieve the passphrase. |    |
+| `-passphrase_file` | An alternative to entering the encryption passphrase at a prompt. The value is a the name of a file with a string value which WDT will read to retrieve the passphrase. |    |
+| `-variable_file` | The location and name of the property file containing the variable values for all variables used in the model(s). |    |
