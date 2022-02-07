@@ -14,7 +14,7 @@
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/install/</guid>
       <description>Download and install the software The WebLogic Deploy Tooling project repository is located at https://github.com/oracle/weblogic-deploy-tooling.
-Binary distributions of the weblogic-deploy.zip installer can be downloaded from the GitHub Releases page.
+You can download binary distributions of the weblogic-deploy.zip installer from the GitHub Releases page.
  To install the software, simply unzip the weblogic-deploy.zip installer on a machine that has the desired versions of WebLogic Server installed. After being unzipped, the software is ready to use, just set the JAVA_HOME environment variable to point to a Java 7 or higher JDK and the shell scripts are ready to run.</description>
     </item>
     

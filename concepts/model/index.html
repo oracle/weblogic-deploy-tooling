@@ -12,20 +12,20 @@
     <title>Metadata Model :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644204027" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644204027" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644204027" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644204027" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644204027" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644204027" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644204027" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1644204027" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1644204027" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644204027" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644249442" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644249442" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644249442" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644249442" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644249442" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644249442" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644249442" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1644249442" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1644249442" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644249442" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644204027"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644249442"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644204027"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644204027"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644249442"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644249442"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644204027"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644249442"></script>
 
     
   </div>
@@ -1293,8 +1293,8 @@
             <span style="color:#f92672">SourcePath</span>: <span style="color:#e6db74">&#39;@@WL_HOME@@/common/deployable-libraries/jsf-2.0.war&#39;</span>
             <span style="color:#f92672">Target</span>: <span style="color:#e6db74">&#39;@@PROP:myjcs.cluster1.name@@&#39;</span>
             <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">war</span>
-</code></pre></div><p>The above example shows two important features of the framework.  First, notice that the <code>URL</code>, <code>PasswordEncrypted</code>, <code>user</code> property <code>Value</code> and all <code>Target</code> fields contain values that have a <code>@@PROP:&lt;name&gt;@@</code> pattern.  This indicates a variable placeholder whose value is specified at runtime using a variables file. See <a href="#model-tokens">Model tokens</a> for more information about this and other token types.</p>
-<p>Second, notice that the <code>jsf#2.0</code> shared library <code>SourcePath</code> attribute value starts with <code>@@WL_HOME@@</code>. This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  See <a href="#model-tokens">Model tokens</a> for more information and a list of available path tokens.</p>
+</code></pre></div><p>The above example shows two important features of the framework.  First, notice that the <code>URL</code>, <code>PasswordEncrypted</code>, <code>user</code> property <code>Value</code> and all <code>Target</code> fields contain values that have a <code>@@PROP:&lt;name&gt;@@</code> pattern.  This indicates a variable placeholder whose value is specified at runtime using a variables file. For more information about this and other token types, see <a href="#model-tokens">Model tokens</a>.</p>
+<p>Second, notice that the <code>jsf#2.0</code> shared library <code>SourcePath</code> attribute value starts with <code>@@WL_HOME@@</code>. This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  For more information and a list of available path tokens, see <a href="#model-tokens">Model tokens</a>.</p>
 <p>The example above shows the attribute <code>SourcePath</code> of the <code>simpleear</code> application with a value of <code>wlsdeploy/applications/simpleear.ear</code>.  The prefix <code>wlsdeploy/</code> indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory within the domain, in this case <code>&lt;domain-home&gt;/wlsdeploy/applications/simpleear.ear</code>. See the <a href="/weblogic-deploy-tooling/concepts/archive/">Archive file</a> for more details about using the archive file.</p>
 <p>Users can create further directory structures underneath the above locations to organize the files and directories as they see fit.  Note that any binary that already exists on the target system need not be included in the archive provided that the model specified the correct location on the target system.</p>
 <p>One final note is that the framework is written in such a way to allow the model to be extended for use by other tools.  Adding other top-level sections to the model is supported and the existing tooling and framework will simply ignore them, if present.  For example, it would be possible to add a <code>soaComposites</code> section to the model where SOA composite applications are described, and a location within the archive file where those binaries can be stored, so that a tool that understands SOA composites and how to deploy them could be run against the same model and archive files.</p>
@@ -1411,7 +1411,7 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">  <span style="color:#f92672">JMSSystemResource</span>:
       <span style="color:#f92672">BPMJMSModule</span>:
           <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">soa_cluster,!AdminServer</span>
-              
+
 </code></pre></div><p>In this example, the BPMJMSModule has the AdminServer target removed from the target list.</p>
 <h3 id="using-multiple-models">Using multiple models</h3>
 <p>The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple models on the command line. For example:</p>
@@ -2262,19 +2262,19 @@ For example, if Model 1 looks like:</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644204027"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644204027"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644204027"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644204027"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644204027"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644204027"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644249442"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644204027"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1644204027"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644204027"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644249442"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644204027"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644249442"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

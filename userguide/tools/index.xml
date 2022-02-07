@@ -24,7 +24,7 @@ $ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/update/</guid>
-      <description>The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode. The update tool will add or re-configure elements from the topology section of the model, and deploy applications and resources from the resources and appDeployments sections, as described in the Deploy Applications Tool.</description>
+      <description>The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode. The Update Domain Tool will add or re-configure elements from the topology section of the model, and deploy applications and resources from the resources and appDeployments sections, as described in the Deploy Applications Tool.</description>
     </item>
     
     <item>
@@ -33,7 +33,7 @@ $ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/deploy/</guid>
-      <description>The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode. When deploying applications and resources from a model, the deploy tool focuses primarily on the resources and appDeployments sections of the model. There are exceptions for the domainInfo and topology sections, where those configuration elements are deemed to be &amp;ldquo;application-related.&amp;rdquo; For example, the servers&#39; ServerStart folder has an Arguments and a ClassPath attribute that change the server environment (when started by the Node Manager) that applications may rely on to function properly.</description>
+      <description>The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode. When deploying applications and resources from a model, the Deploy Applications Tool focuses primarily on the resources and appDeployments sections of the model. There are exceptions for the domainInfo and topology sections, where those configuration elements are deemed to be &amp;ldquo;application-related.&amp;rdquo; For example, the servers&#39; ServerStart folder has an Arguments and a ClassPath attribute that change the server environment (when started by the Node Manager) that applications may rely on to function properly.</description>
     </item>
     
     <item>

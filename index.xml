@@ -35,7 +35,7 @@ Using the default Administration Server configuration When the Create Domain Too
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/install/</guid>
       <description>Download and install the software The WebLogic Deploy Tooling project repository is located at https://github.com/oracle/weblogic-deploy-tooling.
-Binary distributions of the weblogic-deploy.zip installer can be downloaded from the GitHub Releases page.
+You can download binary distributions of the weblogic-deploy.zip installer from the GitHub Releases page.
  To install the software, simply unzip the weblogic-deploy.zip installer on a machine that has the desired versions of WebLogic Server installed. After being unzipped, the software is ready to use, just set the JAVA_HOME environment variable to point to a Java 7 or higher JDK and the shell scripts are ready to run.</description>
     </item>
     
@@ -123,7 +123,7 @@ topology: Cluster: &amp;#39;cluster-1&amp;#39;: ClientCertProxyEnabled: true Aut
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/update/</guid>
-      <description>The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode. The update tool will add or re-configure elements from the topology section of the model, and deploy applications and resources from the resources and appDeployments sections, as described in the Deploy Applications Tool.</description>
+      <description>The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode. The Update Domain Tool will add or re-configure elements from the topology section of the model, and deploy applications and resources from the resources and appDeployments sections, as described in the Deploy Applications Tool.</description>
     </item>
     
     <item>
@@ -162,7 +162,7 @@ To use a separate configuration directory, set the WDT_CUSTOM_CONFIG environment
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/deploy/</guid>
-      <description>The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode. When deploying applications and resources from a model, the deploy tool focuses primarily on the resources and appDeployments sections of the model. There are exceptions for the domainInfo and topology sections, where those configuration elements are deemed to be &amp;ldquo;application-related.&amp;rdquo; For example, the servers&#39; ServerStart folder has an Arguments and a ClassPath attribute that change the server environment (when started by the Node Manager) that applications may rely on to function properly.</description>
+      <description>The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode. When deploying applications and resources from a model, the Deploy Applications Tool focuses primarily on the resources and appDeployments sections of the model. There are exceptions for the domainInfo and topology sections, where those configuration elements are deemed to be &amp;ldquo;application-related.&amp;rdquo; For example, the servers&#39; ServerStart folder has an Arguments and a ClassPath attribute that change the server environment (when started by the Node Manager) that applications may rely on to function properly.</description>
     </item>
     
     <item>
