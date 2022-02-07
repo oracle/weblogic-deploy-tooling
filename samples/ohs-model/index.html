@@ -12,20 +12,20 @@
     <title>Configuring Oracle HTTP Server :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644249442" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644271653" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644271653"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644249442"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644249442"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644271653"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644271653"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644249442"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644271653"></script>
 
     
   </div>
@@ -1226,17 +1226,17 @@
 <p>Configuring OHS typically involves adding two top-level folders to the <code>resources</code> section of the model, <code>SystemComponent</code> and <code>OHS</code>. Here is an example:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">resources</span>:
     <span style="color:#f92672">SystemComponent</span>:
-        <span style="color:#f92672">&#39;my-ohs&#39;</span>:
-            <span style="color:#f92672">ComponentType</span>: <span style="color:#e6db74">&#39;OHS&#39;</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#e6db74">&#39;my-machine&#39;</span>
+        <span style="color:#f92672">my-ohs</span>:
+            <span style="color:#f92672">ComponentType</span>: <span style="color:#ae81ff">OHS</span>
+            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">my-machine</span>
     <span style="color:#f92672">OHS</span>:
-        <span style="color:#f92672">&#39;my-ohs&#39;</span>:
-            <span style="color:#f92672">AdminHost</span>: <span style="color:#e6db74">&#39;127.0.0.1&#39;</span>
-            <span style="color:#f92672">AdminPort</span>: <span style="color:#e6db74">&#39;9324&#39;</span>
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#e6db74">&#39;127.0.0.1&#39;</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#e6db74">&#39;7323&#39;</span>
-            <span style="color:#f92672">SSLListenPort</span>: <span style="color:#e6db74">&#39;4323&#39;</span>
-            <span style="color:#f92672">ServerName</span>: <span style="color:#e6db74">&#39;http://localhost:7323&#39;</span>
+        <span style="color:#f92672">my-ohs</span>:
+            <span style="color:#f92672">AdminHost</span>: <span style="color:#ae81ff">127.0.0.1</span>
+            <span style="color:#f92672">AdminPort</span>: <span style="color:#ae81ff">9324</span>
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">127.0.0.1</span>
+            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7323</span>
+            <span style="color:#f92672">SSLListenPort</span>: <span style="color:#ae81ff">4323</span>
+            <span style="color:#f92672">ServerName</span>: <span style="color:#ae81ff">http://localhost:7323</span>
 </code></pre></div><p>Each name under the <code>OHS</code> folder must match a name under the <code>SystemComponent</code> folder in the model, or the name of a <code>SystemComponent</code> element that has been previously created. In this example, the name <code>my-ohs</code> is in both places.</p>
 <p>The <code>ComponentType</code> field of the <code>SystemComponent</code> element must be set to <code>OHS</code> in order to allow configuration of the corresponding <code>OHS</code> folders.</p>
 <p>You can use the <a href="/weblogic-deploy-tooling/userguide/tools/model_help/">Model Help Tool</a> to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the <code>OHS</code> folder:</p>
@@ -2028,19 +2028,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644271653"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644271653"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644249442"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644271653"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

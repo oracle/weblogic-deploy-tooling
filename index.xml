@@ -104,7 +104,7 @@ Creator and Deployer class hierarchies The creation of individual folders and at
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/cluster-model/</guid>
       <description>This WDT domain model sample has a typical configuration for a configured cluster with a single managed server, including connection information, logging setup, and other details.
-topology: Cluster: &amp;#39;cluster-1&amp;#39;: ClientCertProxyEnabled: true AutoMigrationTableName: MIGRATION_1 DataSourceForAutomaticMigration: &amp;#39;jdbc-1&amp;#39; ClusterMessagingMode: unicast FrontendHost: frontend.com FrontendHTTPPort: 9001 FrontendHTTPSPort: 9002 MigrationBasis: database NumberOfServersInClusterAddress: 5 WeblogicPluginEnabled: true Server: &amp;#39;server-1&amp;#39;: Cluster: &amp;#39;cluster-1&amp;#39; # this server belongs to cluster-1 ListenAddress: 127.0.0.1 ListenPort: 8001 Machine: &amp;#39;machine-1&amp;#39; Log: DomainLogBroadcastSeverity: Error FileCount: 7 FileMinSize: 5000 FileName: &amp;#39;logs/AdminServer.</description>
+topology: Cluster: cluster-1: ClientCertProxyEnabled: true AutoMigrationTableName: MIGRATION_1 DataSourceForAutomaticMigration: jdbc-1 ClusterMessagingMode: unicast FrontendHost: frontend.com FrontendHTTPPort: 9001 FrontendHTTPSPort: 9002 MigrationBasis: database NumberOfServersInClusterAddress: 5 WeblogicPluginEnabled: true Server: server-1: Cluster: cluster-1  # this server belongs to cluster-1 ListenAddress: 127.0.0.1 ListenPort: 8001 Machine: machine-1 Log: DomainLogBroadcastSeverity: Error FileCount: 7 FileMinSize: 5000 FileName: logs/AdminServer.</description>
     </item>
     
     <item>
@@ -133,7 +133,7 @@ topology: Cluster: &amp;#39;cluster-1&amp;#39;: ClientCertProxyEnabled: true Aut
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/wtc-model/</guid>
       <description>This sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) for both importing services from Tuxedo and exporting EJB methods to Tuxedo as services.
-resources: # A logical WLS server name for the WLS configuration found on the console under interoperability WTCServer: myWTCServer: Target: admin # Exported EJB services to be consumed by Tuxedo services. WTCExport: &amp;#39;WTCExportedService-1&amp;#39;: # The remote name of this service. ResourceName: QaWls2Conv2 # The name used to identify an exported service RemoteName: QaWls2Conv2 EJBName: tuxedo.</description>
+resources: # A logical WLS server name for the WLS configuration found on the console under interoperability WTCServer: myWTCServer: Target: admin # Exported EJB services to be consumed by Tuxedo services. WTCExport: WTCExportedService-1: # The remote name of this service. ResourceName: QaWls2Conv2 # The name used to identify an exported service RemoteName: QaWls2Conv2 EJBName: tuxedo.</description>
     </item>
     
     <item>
@@ -172,7 +172,7 @@ To use a separate configuration directory, set the WDT_CUSTOM_CONFIG environment
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/jdbc-model/</guid>
       <description>This WDT domain model sample section has a typical configuration for a JDBC data source, including targeting information, connection pool parameters, and other details.
-resources: JDBCSystemResource: &amp;#39;datasource-1&amp;#39;: Target: &amp;#39;AdminServer,cluster-1&amp;#39; JdbcResource: DatasourceType: GENERIC JDBCConnectionPoolParams: ConnectionReserveTimeoutSeconds: 10 InitialCapacity: 0 MaxCapacity: 5 MinCapacity: 0 TestConnectionsOnReserve: true TestTableName: SQL ISVALID JDBCDriverParams: DriverName: oracle.jdbc.OracleDriver PasswordEncrypted: &amp;#39;@@PROP:jdbc.password@@&amp;#39; URL: &amp;#39;jdbc:oracle:thin:@//localhost:1521/myDB&amp;#39; Properties: user: Value: scott There are additional sub-folders and attributes available for more configuration options. These can be determined using the Model Help Tool.</description>
+resources: JDBCSystemResource: datasource-1: Target: AdminServer,cluster-1 JdbcResource: DatasourceType: GENERIC JDBCConnectionPoolParams: ConnectionReserveTimeoutSeconds: 10 InitialCapacity: 0 MaxCapacity: 5 MinCapacity: 0 TestConnectionsOnReserve: true TestTableName: SQL ISVALID JDBCDriverParams: DriverName: oracle.jdbc.OracleDriver PasswordEncrypted: &amp;#39;@@PROP:jdbc.password@@&amp;#39; URL: jdbc:oracle:thin:@//localhost:1521/myDB Properties: user: Value: scott There are additional sub-folders and attributes available for more configuration options. These can be determined using the Model Help Tool.</description>
     </item>
     
     <item>
@@ -213,7 +213,7 @@ The WLST directory can be specified in one of two ways:
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/workmanager-model/</guid>
       <description>This WDT domain model sample section has typical configurations for a Work Manager and its related request classes and constraints. These elements are configured in the SelfTuning folder in the resources section of the model.
-resources: SelfTuning: Capacity: capacity40: Target: &amp;#39;cluster-1&amp;#39; Count: 40 MaxThreadsConstraint: threeMax: Target: &amp;#39;cluster-1&amp;#39; Count: 3 MinThreadsConstraint: twoMin: Target: &amp;#39;cluster-1&amp;#39; Count: 2 FairShareRequestClass: appFairShare: Target: &amp;#39;cluster-1&amp;#39; FairShare: 50 highFairshare: Target: &amp;#39;cluster-1&amp;#39; FairShare: 80 lowFairshare: Target: &amp;#39;cluster-1&amp;#39; FairShare: 20 ResponseTimeRequestClass: fiveSecondResponse: Target: &amp;#39;cluster-1&amp;#39; GoalMs: 5000 ContextRequestClass: appContextRequest: Target: &amp;#39;cluster-1&amp;#39; ContextCase: Case1: GroupName: Administrators RequestClassName: highFairshare Target: &amp;#39;cluster-1&amp;#39; Case2: UserName: weblogic RequestClassName: lowFairshare Target: &amp;#39;cluster-1&amp;#39; WorkManager: myWorkManager: Capacity: capacity40 ContextRequestClass: appContextRequest # FairShareRequestClass: appFairShare IgnoreStuckThreads: true MaxThreadsConstraint: threeMax MinThreadsConstraint: twoMin # ResponseTimeRequestClass: fiveSecondResponse Target: &amp;#39;cluster-1&amp;#39; In this sample, assignments for FairShareRequestClass and ResponseTimeRequestClass are included as comments under myWorkManager.</description>
+resources: SelfTuning: Capacity: capacity40: Target: cluster-1 Count: 40 MaxThreadsConstraint: threeMax: Target: cluster-1 Count: 3 MinThreadsConstraint: twoMin: Target: cluster-1 Count: 2 FairShareRequestClass: appFairShare: Target: cluster-1 FairShare: 50 highFairshare: Target: cluster-1 FairShare: 80 lowFairshare: Target: cluster-1 FairShare: 20 ResponseTimeRequestClass: fiveSecondResponse: Target: cluster-1 GoalMs: 5000 ContextRequestClass: appContextRequest: Target: cluster-1 ContextCase: Case1: GroupName: Administrators RequestClassName: highFairshare Target: cluster-1 Case2: UserName: weblogic RequestClassName: lowFairshare Target: cluster-1 WorkManager: myWorkManager: Capacity: capacity40 ContextRequestClass: appContextRequest # FairShareRequestClass: appFairShare IgnoreStuckThreads: true MaxThreadsConstraint: threeMax MinThreadsConstraint: twoMin # ResponseTimeRequestClass: fiveSecondResponse Target: cluster-1 In this sample, assignments for FairShareRequestClass and ResponseTimeRequestClass are included as comments under myWorkManager.</description>
     </item>
     
     <item>
@@ -313,7 +313,7 @@ domainInfo: WLSUserPasswordCredentialMappings: CrossDomain: map1: RemoteDomain: 
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/odl-model/</guid>
       <description>Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tools, starting with WDT release 1.5.2. ODL configuration is supported only for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool. This example shows how some common configuration elements can be represented in the model.
-resources: ODLConfiguration: config1: Servers: &amp;#34;m1, m2&amp;#34; AddJvmNumber: true HandlerDefaults: abc: r123 xyz: k890 Handler: &amp;#39;my-handler&amp;#39;: Class: &amp;#39;com.</description>
+resources: ODLConfiguration: config1: Servers: m1, m2 AddJvmNumber: true HandlerDefaults: abc: r123 xyz: k890 Handler: my-handler: Class: com.</description>
     </item>
     
     <item>

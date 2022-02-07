@@ -12,20 +12,20 @@
     <title>Customizing the Administration Server :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1644249442" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644249442" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1644271653" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644271653" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644271653"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644249442"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644249442"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644271653"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644271653"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644249442"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644271653"></script>
 
     
   </div>
@@ -1223,7 +1223,7 @@
         <span style="color:#f92672">AdminServer</span>:
             <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9071</span>
             <span style="color:#f92672">RestartDelaySeconds</span>: <span style="color:#ae81ff">10</span>
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#e6db74">&#39;my-host-1&#39;</span>
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">my-host-1</span>
             <span style="color:#f92672">Log</span>:
                 <span style="color:#f92672">FileCount</span>: <span style="color:#ae81ff">9</span>
                 <span style="color:#f92672">LogFileSeverity</span>: <span style="color:#ae81ff">Info</span>
@@ -1237,12 +1237,12 @@
 <h4 id="configuring-the-administration-server-with-a-different-name">Configuring the Administration Server with a different name</h4>
 <p>If you want the Administration Server to have a name other than the default <code>AdminServer</code>, you will need to specify that name in the <code>AdminServerName</code> attribute, and use that name in the <code>Server</code> section. This example uses the name <code>my-admin-server</code>:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#e6db74">&#39;my-admin-server&#39;</span>
+    <span style="color:#f92672">AdminServerName</span>: <span style="color:#ae81ff">my-admin-server</span>
     <span style="color:#f92672">Server</span>:
         <span style="color:#f92672">&#39;my-admin-server&#39;</span>:
             <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9071</span>
             <span style="color:#f92672">RestartDelaySeconds</span>: <span style="color:#ae81ff">10</span>
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#e6db74">&#39;my-host-1&#39;</span>
+            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">my-host-1</span>
             <span style="color:#f92672">Log</span>:
                 <span style="color:#f92672">FileCount</span>: <span style="color:#ae81ff">9</span>
                 <span style="color:#f92672">LogFileSeverity</span>: <span style="color:#ae81ff">Info</span>
@@ -2038,19 +2038,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644271653"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1644249442"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644249442"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1644271653"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644271653"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644249442"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644271653"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
