@@ -39,14 +39,14 @@ domainInfo:
         rcu_schema_password : <rcu schema password, will be prompted if not specified>
         rcu_admin_password : <database admin password is required only when you specify -run_rcu flag, will be prompted
          if not specified>
-        rcu_db_conn_string : 'dbhost:1521/pdborcl'
+        rcu_db_conn_string : dbhost:1521/pdborcl
 ```        
 RCU `-variables` option of the repository creation utility can now be included in the `RCUDbInfo` section with the key `rcu_variables`:
 
 ```yaml
 domainInfo:
     RCUDbInfo:
-        rcu_variables : 'xxxx'
+        rcu_variables : xxxx
 ```    
 
 **Note: Prior to release 0.23, the `useATP` flag only accepts values of 0, 1, 'true' or 'false'.**
@@ -60,6 +60,6 @@ Include your XML files in your archive file using location `wlsdeploy/rcu/config
 ```yaml
 domainInfo:
     RCUDbInfo:
-        compInfoXMLLocation: 'wlsdeploy/rcu/config/MyComponentInfo.xml'
-        storageXMLLocation: 'wlsdeploy/rcu/config/MyStorage.xml'
+        compInfoXMLLocation: wlsdeploy/rcu/config/MyComponentInfo.xml
+        storageXMLLocation: wlsdeploy/rcu/config/MyStorage.xml
 ```

@@ -28,21 +28,21 @@ topology:
                 Enabled: true
                 ListenPort: 7002
             ServerStart:
-                ClassPath: 'c:\foo\bar'
+                ClassPath: c:\foo\bar
         m1:
             ListenAddress: 192.168.1.50
             ListenPort: 8001
             Cluster: mycluster
             Machine: machine1
             ServerStart:
-                ClassPath: 'c:\foo\bar'
+                ClassPath: c:\foo\bar
         m2:
             ListenAddress: 192.168.1.51
             ListenPort: 8001
             Cluster: mycluster
             Machine: machine2
             ServerStart:
-                ClassPath: 'c:\foo\bar'
+                ClassPath: c:\foo\bar
     Machine:
         machine1:
             NodeManager:

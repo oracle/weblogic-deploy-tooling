@@ -66,7 +66,7 @@ resources:
                     JNDIName: jdbc/generic1
                 JDBCDriverParams:
                     DriverName: oracle.jdbc.OracleDriver
-                    URL: 'jdbc:oracle:thin:@//@@PROP:dbcs1.url@@'
+                    URL: jdbc:oracle:thin:@//@@PROP:dbcs1.url@@
                     PasswordEncrypted: '@@PROP:dbcs1.password@@'
                     Properties:
                         user:
@@ -195,10 +195,10 @@ When modeling configuration attributes that can have multiple values, the WebLog
 resources:
     JDBCSystemResource:
         MyStringDataSource:
-            Target: 'AdminServer,mycluster'
+            Target: AdminServer,mycluster
             JdbcResource:
                 JDBCDataSourceParams:
-                    JNDIName: 'jdbc/generic1, jdbc/special1'
+                    JNDIName: jdbc/generic1, jdbc/special1
                 ...
         MyListDataSource:
             Target: [ AdminServer, mycluster ]
@@ -231,21 +231,15 @@ With WebLogic Deploy Tooling, you can specify named items in the model to be del
 
 In this example, the managed server ```obsoleteServer``` will be deleted, and ```newServer``` will be created:
 
+Note that the exclamation point, along with the name, should be inside quotation marks:
+
 ```yaml
     Server:
-        !obsoleteServer:
+        '!obsoleteServer':
         newServer:
             ListenAddress: 127.0.0.1
             ListenPort: 9005
 ```
-
-If the name of the item requires quotation marks, the exclamation point should be inside the quotation marks:
-
-```yaml
-    Server:
-        '!obsolete-server':
-```
-
 This feature can also remove items that were created by WebLogic Server templates. For example, the base template creates a default security realm called ```myrealm```.  If a user chooses to declare a custom realm, ```myrealm``` is no longer needed.  In this example, ```myrealm``` will be deleted, and the custom realm ```newrealm``` will be created, and declared as the default realm:
 
 ```yaml
@@ -269,8 +263,8 @@ In addition to deleting named mbeans, you can remove items from a list. Most pra
 ```yaml
   JMSSystemResource:
       BPMJMSModule:
-          Target: soa_cluster,!AdminServer
-
+          Target: soa_cluster,'!AdminServer'
+              
 ```
 In this example, the BPMJMSModule has the AdminServer target removed from the target list.
 
@@ -287,7 +281,7 @@ topology:
     Server:
         m1:
             ListenPort: 7000
-            Notes: "Server 1"
+            Notes: Server 1
         m2:
             ListenPort: 9000
 ```
@@ -325,7 +319,7 @@ topology:
     Server:
         m1:
             ListenPort: 7000
-            Notes: "Server 1"
+            Notes: Server 1
         m2:
             ListenPort: 9000
 ```
@@ -341,7 +335,7 @@ topology:
     Server:
         m1:
             ListenPort: 7000
-            Notes: "Server 1"
+            Notes: Server 1
 ```
 
 Similarly, an element without delete notation will completely replace an element with a matching name that has delete notation in a previous model. For example, if Model 1 looks like:
@@ -356,7 +350,7 @@ topology:
     Server:
         m1:
             ListenPort: 7000
-            Notes: "Server 1"
+            Notes: Server 1
 ```
 The resulting model would be:
 ```yaml
@@ -364,5 +358,5 @@ topology:
     Server:
         m1:
             ListenPort: 7000
-            Notes: "Server 1"
+            Notes: Server 1
 ```

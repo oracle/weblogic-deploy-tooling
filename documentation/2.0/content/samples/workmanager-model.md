@@ -13,42 +13,42 @@ resources:
     SelfTuning:
         Capacity:
             capacity40:
-                Target: 'cluster-1'
+                Target: cluster-1
                 Count: 40
         MaxThreadsConstraint:
             threeMax:
-                Target: 'cluster-1'
+                Target: cluster-1
                 Count: 3
         MinThreadsConstraint:
             twoMin:
-                Target: 'cluster-1'
+                Target: cluster-1
                 Count: 2
         FairShareRequestClass:
             appFairShare:
-                Target: 'cluster-1'
+                Target: cluster-1
                 FairShare: 50
             highFairshare:
-                Target: 'cluster-1'
+                Target: cluster-1
                 FairShare: 80
             lowFairshare:
-                Target: 'cluster-1'
+                Target: cluster-1
                 FairShare: 20
         ResponseTimeRequestClass:
             fiveSecondResponse:
-                Target: 'cluster-1'
+                Target: cluster-1
                 GoalMs: 5000
         ContextRequestClass:
             appContextRequest:
-                Target: 'cluster-1'
+                Target: cluster-1
                 ContextCase:
                     Case1:
                         GroupName: Administrators
                         RequestClassName: highFairshare
-                        Target: 'cluster-1'
+                        Target: cluster-1
                     Case2:
                         UserName: weblogic
                         RequestClassName: lowFairshare
-                        Target: 'cluster-1'
+                        Target: cluster-1
         WorkManager:
             myWorkManager:
                 Capacity: capacity40
@@ -58,7 +58,7 @@ resources:
                 MaxThreadsConstraint: threeMax
                 MinThreadsConstraint: twoMin
                 # ResponseTimeRequestClass: fiveSecondResponse
-                Target: 'cluster-1'
+                Target: cluster-1
 ```
 In this sample, assignments for `FairShareRequestClass` and `ResponseTimeRequestClass` are included as comments under `myWorkManager`. A Work Manager can only specify one request class type.
 

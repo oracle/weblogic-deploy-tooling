@@ -11,8 +11,8 @@ This WDT domain model sample section has a typical configuration for a JDBC data
 ```yaml
 resources:
     JDBCSystemResource:
-        'datasource-1':
-            Target: 'AdminServer,cluster-1'
+        datasource-1:
+            Target: AdminServer,cluster-1
             JdbcResource:
                 DatasourceType: GENERIC
                 JDBCConnectionPoolParams:
@@ -25,7 +25,7 @@ resources:
                 JDBCDriverParams:
                     DriverName: oracle.jdbc.OracleDriver
                     PasswordEncrypted: '@@PROP:jdbc.password@@'
-                    URL: 'jdbc:oracle:thin:@//localhost:1521/myDB'
+                    URL: jdbc:oracle:thin:@//localhost:1521/myDB
                     Properties:
                         user:
                             Value: scott

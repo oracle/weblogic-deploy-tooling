@@ -190,7 +190,7 @@ resources:
         MyMailSession:
             JNDIName: mail/MyMailSession
             Target: mycluster
-            SessionUsername: 'john.smith@example.com'
+            SessionUsername: john.smith@example.com
             SessionPasswordEncrypted: '@@PROP:mymailsession.password@@'
             Properties:
                 mail.store.protocol: imap

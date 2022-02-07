@@ -15,41 +15,41 @@ This example shows how some common configuration elements can be represented in 
 resources:
     ODLConfiguration:
         config1:
-            Servers: "m1, m2"
+            Servers: m1, m2
             AddJvmNumber: true
             HandlerDefaults:
                 abc: r123
                 xyz: k890
             Handler:
-                'my-handler':
-                    Class: 'com.my.MyHandler'
-                    Level: 'TRACE:32'
-                    ErrorManager: 'com.my.MyErrorManager'
-                    Filter: 'com.my.MyFilter'
-                    Formatter: 'com.my.MyFormatter'
-                    Encoding: 'UTF-8'
+                my-handler:
+                    Class: com.my.MyHandler
+                    Level: TRACE:32
+                    ErrorManager: com.my.MyErrorManager
+                    Filter: com.my.MyFilter
+                    Formatter: com.my.MyFormatter
+                    Encoding: UTF-8
                     Properties:
-                        'path': '/home/me/mypath"
-                'quicktrace-handler':
-                    Filter: 'oracle:dfw:incident:IncidentDetectionLogFilter'
+                        path: /home/me/mypath
+                quicktrace-handler:
+                    Filter: oracle:dfw:incident:IncidentDetectionLogFilter
                     Properties:
                         path: '${domain.home}/servers/${weblogic.Name}/logs/${weblogic.Name}-myhistory.log'
-                        useSourceClassandMethod: 'true'
+                        useSourceClassandMethod: true
             Logger:
-                'my-logger':
-                    Level: 'NOTIFICATION:1'
+                my-logger:
+                    Level: NOTIFICATION:1
                     UseParentHandlers: true
-                    Filter: 'oracle:dfw:incident:IncidentDetectionLogFilter'
-                    Handlers: 'richard-handler,owsm-message-handler'
-                'oracle.sysman':
+                    Filter: oracle:dfw:incident:IncidentDetectionLogFilter
+                    Handlers: richard-handler,owsm-message-handler
+                oracle.sysman:
                     Handlers: [
-                        'my-handler',
-                        'owsm-message-handler'
+                        my-handler,
+                        owsm-message-handler
                     ]
         config2:
-            Servers: 'AdminServer'
+            Servers: AdminServer
             HandlerDefaults:
-                path: '/home/me/otherpath'
+                path: /home/me/otherpath
                 maxFileSize: 5242880
 ```
 

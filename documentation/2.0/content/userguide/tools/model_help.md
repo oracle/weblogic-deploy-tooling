@@ -120,7 +120,7 @@ resources:
                 JDBCDataSourceParams:
                 JDBCDriverParams:
                     Properties:
-                        'Properties-1'
+                        'Properties-1':
                 JDBCOracleParams:
                 JDBCXAParams:
             SubDeployment:
