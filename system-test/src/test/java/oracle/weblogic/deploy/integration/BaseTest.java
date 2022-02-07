@@ -48,13 +48,13 @@ public class BaseTest {
     private static final String DB_CONTAINER_NAME = generateDatabaseContainerName();
 
     private static String generateDatabaseContainerName() {
-        String buildNum = System.getenv("BUILD_NUMBER");
-        if (buildNum == null || buildNum.isEmpty()) {
+        String branchName = System.getenv("BRANCH_NAME");
+        if (branchName == null || branchName.isEmpty()) {
             // This should only occur for non-Jenkins runs (developer laptop builds)
-            buildNum = "0";
+            branchName = "LOCAL";
         }
         int randomNum = new Random().nextInt(1000);
-        return String.format("WDT-IT-database-%s-%s", buildNum, randomNum);
+        return String.format("WDT-IT-database-%s-%s", branchName, randomNum);
     }
 
     protected static void initialize() {
