@@ -69,7 +69,7 @@ The root directory under which JARs/directories used for server classpaths are s
 The root directory under which empty directories must exist for Coherence persistent stores.
 
 #### `wlsdeploy/custom`
-This is the root directory where your custom files can be stored in and extracted from the archive. These files are not collected by the Discover tool. Every file resource under this directory is extracted.
+This is the root directory where your custom files can be stored in and extracted from the archive. These files are not collected by the Discover Domain Tool. Every file resource under this directory is extracted.
 
 #### `wlsdeploy/domainBin`
 The root directory under which `$DOMAIN_HOME/bin` scripts are stored. Only scripts referenced in the `domainInfo/domainBin` section of the model are extracted.

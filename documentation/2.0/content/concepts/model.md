@@ -88,9 +88,9 @@ appDeployments:
             ModuleType: war
 ```
 
-The above example shows two important features of the framework.  First, notice that the `URL`, `PasswordEncrypted`, `user` property `Value` and all `Target` fields contain values that have a `@@PROP:<name>@@` pattern.  This indicates a variable placeholder whose value is specified at runtime using a variables file. See [Model tokens](#model-tokens) for more information about this and other token types.
+The above example shows two important features of the framework.  First, notice that the `URL`, `PasswordEncrypted`, `user` property `Value` and all `Target` fields contain values that have a `@@PROP:<name>@@` pattern.  This indicates a variable placeholder whose value is specified at runtime using a variables file. For more information about this and other token types, see [Model tokens](#model-tokens).
 
-Second, notice that the `jsf#2.0` shared library `SourcePath` attribute value starts with `@@WL_HOME@@`. This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  See [Model tokens](#model-tokens) for more information and a list of available path tokens.
+Second, notice that the `jsf#2.0` shared library `SourcePath` attribute value starts with `@@WL_HOME@@`. This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  For more information and a list of available path tokens, see [Model tokens](#model-tokens).
 
 The example above shows the attribute `SourcePath` of the `simpleear` application with a value of `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory within the domain, in this case `<domain-home>/wlsdeploy/applications/simpleear.ear`. See the [Archive file]({{< relref "/concepts/archive.md" >}}) for more details about using the archive file.
 
@@ -270,7 +270,7 @@ In addition to deleting named mbeans, you can remove items from a list. Most pra
   JMSSystemResource:
       BPMJMSModule:
           Target: soa_cluster,!AdminServer
-              
+
 ```
 In this example, the BPMJMSModule has the AdminServer target removed from the target list.
 
