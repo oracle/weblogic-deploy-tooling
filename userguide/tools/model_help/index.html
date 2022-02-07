@@ -12,20 +12,20 @@
     <title>Model Help Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644271715" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644271715" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644271715" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644271715" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644271715" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644271715" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644271715" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1644271715" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1644271715" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644271715" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644274909" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644274909" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644274909" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644274909" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644274909" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644274909" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644274909" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1644274909" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1644274909" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644274909" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644271715"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644274909"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644271715"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644271715"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644274909"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644274909"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644271715"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644274909"></script>
 
     
   </div>
@@ -1255,16 +1255,16 @@ The <code>-model_sample</code> argument is deprecated starting with WebLogic Dep
 </code></pre></div><p>You can use the information above to construct this model section:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">resources</span>:
     <span style="color:#f92672">JDBCSystemResource</span>:
-        <span style="color:#f92672">CompatibilityName</span>: <span style="color:#e6db74">&#39;myName&#39;</span>
-        <span style="color:#f92672">DeploymentOrder</span>: <span style="color:#ae81ff">5</span>
-        <span style="color:#f92672">Target</span>: <span style="color:#e6db74">&#39;ms1,ms2&#39;</span>
-        <span style="color:#f92672">&#39;JDBC-1&#39;</span>:
-            <span style="color:#75715e"># JdbcSystemResource attributes and folders</span>
-        <span style="color:#f92672">SubDeployment</span>:
-            <span style="color:#f92672">deployment1</span>:
-                <span style="color:#75715e"># SubDeployment attributes and folders</span>
-            <span style="color:#f92672">deployment2</span>:
-                <span style="color:#75715e"># SubDeployment attributes and folders</span>
+        <span style="color:#f92672">JDBC-1</span>:
+            <span style="color:#75715e"># JDBCSystemResource attributes and folders</span>
+            <span style="color:#f92672">CompatibilityName</span>: <span style="color:#ae81ff">myName</span>
+            <span style="color:#f92672">DeploymentOrder</span>: <span style="color:#ae81ff">5</span>
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">ms1,ms2</span>
+            <span style="color:#f92672">SubDeployment</span>:
+                <span style="color:#f92672">deployment1</span>:
+                    <span style="color:#75715e"># SubDeployment attributes and folders</span>
+                <span style="color:#f92672">deployment2</span>:
+                    <span style="color:#75715e"># SubDeployment attributes and folders</span>
 </code></pre></div><p>If you are copying elements from the sample model to create a full domain model, you should exclude any attributes or sub-folders that you do not intend to declare or override.</p>
 <h4 id="path-patterns">Path patterns</h4>
 <p>There are a number of ways to specify model location in the path argument. Here are some examples:</p>
@@ -2134,19 +2134,19 @@ The <code>-model_sample</code> argument is deprecated starting with WebLogic Dep
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644271715"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644271715"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644271715"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644271715"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644271715"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644271715"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644274909"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644274909"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644274909"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644274909"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644274909"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644274909"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644271715"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1644271715"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644271715"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644274909"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1644274909"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644274909"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644271715"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644274909"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
