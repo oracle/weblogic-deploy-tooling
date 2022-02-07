@@ -52,11 +52,11 @@ You can use the information above to construct this model section:
 ```yaml
 resources:
     JDBCSystemResource:
-        'JDBC-1':
+        JDBC-1:
             # JDBCSystemResource attributes and folders
-            CompatibilityName: 'myName'
+            CompatibilityName: myName
             DeploymentOrder: 5
-            Target: 'ms1,ms2'
+            Target: ms1,ms2
             SubDeployment:
                 deployment1:
                     # SubDeployment attributes and folders
