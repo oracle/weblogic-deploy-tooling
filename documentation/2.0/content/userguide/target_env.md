@@ -37,31 +37,45 @@ If a variable file is specified on the tool's command line using the `-variable_
 
 These target environment configurations are included in the WebLogic Deploy Tooling installation.
 
-#### The WebLogic Kubernetes Operator target
+#### The WebLogic Kubernetes Operator targets
 
-You can apply this target environment by providing the command-line argument `-target wko`. It will provide this additional processing:
+You can use these targets to customize the model and create a domain resource file for use with WebLogic Kubernetes Operator. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/):
 
-- The `wko_operator_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
+- `wko` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/) deployments
+- `wko-dii` for Domain in Image deployments
+- `wko-pv` for Domain in PV deployments
+
+Each of these targets provides this additional processing:
+
+- The `wko_filter` filter will be applied to remove model elements that are not compatible with the Kubernetes environment, and adjust some attribute values
 - Variables will be injected into the model for port, host, and URL attributes
 - `lax` validation will be applied for the resulting model
-- Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
 - An additional Kubernetes resource file, `wko-domain.yaml`, will be produced, with cluster and naming information derived from the model
 
-#### The Verrazzano target
+In addition, the `wko` target will replace credentials in the model with references to Kubernetes secrets, and produce a script to create those secrets. The `wko-dii` and `wko-pv` targets will replace credentials in the model with variable references.
 
-You can apply this target environment by providing the command-line argument `-target vz`. It will provide this additional processing:
+#### The Verrazzano targets
 
-- The `vz_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
+You can use these targets to customize the model and create a domain resource file for use with Verrazzano. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/):
+
+- `vz` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/) deployments
+- `vz-dii` for Domain in Image deployments
+- `vz-pv` for Domain in PV deployments
+
+Each of these targets provides this additional processing:
+
+- The `vz_filter` filter will be applied to remove model elements that are not compatible with the Kubernetes environment, and adjust some attribute values
 - Variables will be injected into the model for port, host, and URL attributes
 - `lax` validation will be applied for the resulting model
-- Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
-- One additional Kubernetes resource file, `vz-application.yaml`, will be produced, with cluster and data source information derived from the model
+- An additional Kubernetes resource file, `vz-application.yaml`, will be produced, with cluster and data source information derived from the model
+
+In addition, the `vz` target will replace credentials in the model with references to Kubernetes secrets, and produce a script to create those secrets. The `vz-dii` and `vz-pv` targets will replace credentials in the model with variable references.
 
 #### Generic Kubernetes target
 
 You can apply this target environment by providing the command-line argument `-target k8s`. It will provide this additional processing:
 
-- The `k8s_operator_filter.py` filter will be applied to remove model elements that are not compatible with the Kubernetes environment
+- The `k8s_filter` filter will be applied to remove model elements that are not compatible with the Kubernetes environment, and adjust some attribute values
 - Variables will be injected into the model for port, host, and URL attributes
 - `lax` validation will be applied for the resulting model
 - Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced
@@ -105,10 +119,10 @@ A target environment is configured in a JSON file at this location:
 ```
 $WLSDEPLOY_HOME/lib/target/<target-name>/target.json
 ```
-The `<target-name>` value corresponds to the value of the `-target` argument on the tool's command line. The WLS installation includes three pre-defined targets:
- - [WebLogic Kubernetes Operator](#the-weblogic-kubernetes-operator-target) (named `wko`)
- - [Verrazzano](#the-verrazzano-target) (named `vz`)
- - [Kubernetes](#generic-kubernetes-target) (named `k8s`)
+The `<target-name>` value corresponds to the value of the `-target` argument on the tool's command line. The WLS installation includes pre-defined targets for these environments:
+ - [WebLogic Kubernetes Operator](#the-weblogic-kubernetes-operator-targets)
+ - [Verrazzano](#the-verrazzano-targets)
+ - [Kubernetes](#generic-kubernetes-target)
 
 You can define a new or extended target environment with a new `target-name` in the above location, or using a [Custom configuration]({{< relref "/userguide/tools-config/custom_config.md" >}}) directory, such as `$WDT_CUSTOM_CONFIG/target/<my-target-name>/target.json`.
 
