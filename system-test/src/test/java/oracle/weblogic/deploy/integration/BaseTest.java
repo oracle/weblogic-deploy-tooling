@@ -49,12 +49,16 @@ public class BaseTest {
 
     private static String generateDatabaseContainerName() {
         String branchName = System.getenv("BRANCH_NAME");
+
         if (branchName == null || branchName.isEmpty()) {
             // This should only occur for non-Jenkins runs (developer laptop builds)
             branchName = "LOCAL";
+        } else {
+            // characters not allowed in container names are replaced with an underscore
+            branchName = branchName.replaceAll("[^a-zA-Z0-9_.-]", "_");
         }
         int randomNum = new Random().nextInt(1000);
-        return String.format("WDT-IT-database-%s-%s", branchName, randomNum);
+        return String.format("WDT-IT-%s-%s", branchName, randomNum);
     }
 
     protected static void initialize() {
