@@ -39,7 +39,7 @@ These target environment configurations are included in the WebLogic Deploy Tool
 
 #### The WebLogic Kubernetes Operator targets
 
-You can use these targets to customize the model and create a domain resource file for use with WebLogic Kubernetes Operator. There are three targets for specific domain home source types:
+You can use these targets to customize the model and create a domain resource file for use with WebLogic Kubernetes Operator. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/):
 
 - `wko` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/) deployments
 - `wko-dii` for Domain in Image deployments
@@ -56,7 +56,7 @@ In addition, the `wko` target will replace credentials in the model with referen
 
 #### The Verrazzano targets
 
-You can use these targets to customize the model and create a domain resource file for use with Verrazzano. There are three targets for specific domain home source types:
+You can use these targets to customize the model and create a domain resource file for use with Verrazzano. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/):
 
 - `vz` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/) deployments
 - `vz-dii` for Domain in Image deployments
