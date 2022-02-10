@@ -12,6 +12,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class SecurityProviderCreator(Creator):
@@ -52,6 +53,7 @@ class SecurityProviderCreator(Creator):
 
         self._topology = self.model.get_model_topology()
         self._domain_typedef = self.model_context.get_domain_typedef()
+        self._wls_helper = WebLogicHelper(self.logger)
 
         return
 
@@ -276,6 +278,12 @@ class SecurityProviderCreator(Creator):
         :return: True if the provider type should be updated, False if it should be skipped
         """
         _method_name = '_check_provider_type'
+        # there are problems re-configuring adjudicators, don't update them
+        if type_name == self.__adjudicator_type and not self.is_adjudicator_changeable():
+            if not self._is_default_adjudicator_configuration(model_nodes):
+                self.logger.warning('WLSDPLY-12137', class_name=self.__class_name, method_name=_method_name)
+
+            return False
 
         return True
 
@@ -313,3 +321,6 @@ class SecurityProviderCreator(Creator):
             return False
 
         return True
+
+    def is_adjudicator_changeable(self):
+        return self._wls_helper.is_weblogic_version_or_above('12.2.1.4')
