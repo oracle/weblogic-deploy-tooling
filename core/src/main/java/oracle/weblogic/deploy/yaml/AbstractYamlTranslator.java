@@ -79,7 +79,9 @@ public abstract class AbstractYamlTranslator {
     protected PyList parseInternal(InputStream inputStream) throws YamlException {
         final String METHOD = "parseInternal";
 
-        PyList result = new PyList();
+        // there are problems using PyList.add(),
+        // so build a java.util.List and construct PyList(javaList).
+        List<PyObject> result = new ArrayList<>();
         if (inputStream != null) {
             Yaml parser = new Yaml(this.getDefaultLoaderOptions());
 
@@ -94,7 +96,7 @@ public abstract class AbstractYamlTranslator {
                 throw pex;
             }
         }
-        return result;
+        return new PyList(result.toArray(new PyObject[0]));
     }
 
     public void dump(Map<String, Object> data) throws YamlException {
