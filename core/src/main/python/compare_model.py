@@ -209,7 +209,7 @@ class ModelFileDiffer:
             print format_message('WLSDPLY-05707')
             print BLANK_LINE
             pty = PythonToYaml(change_model)
-            pty._write_dictionary_to_yaml_file(change_model, System.out)
+            pty.write_to_stream(System.out)
 
         return 0
 
