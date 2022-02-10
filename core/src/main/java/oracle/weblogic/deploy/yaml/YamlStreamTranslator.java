@@ -7,12 +7,12 @@ package oracle.weblogic.deploy.yaml;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.util.Map;
+import java.util.List;
 
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 
-import org.python.core.PyDictionary;
+import org.python.core.PyList;
 
 /**
  * An implementation of the YAML parser/translator that reads the YAML input from an input stream.
@@ -63,18 +63,18 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
     }
 
     /**
-     * This method triggers parsing of the YAML and conversion into the Python dictionary.  Note that is closes
-     * the input stream when it is finished, making the instance no longer viable.
+     * Read a list of documents as Python dictionaries from the YAML input stream.
+     * Note that the input stream is closed when it is finished, making the instance no longer viable.
      *
-     * @return the python dictionary corresponding to the YAML input
+     * @return a list of Python dictionaries corresponding to the YAML input
      * @throws YamlException if an error occurs while reading the input
      */
     @Override
-    public PyDictionary parse() throws YamlException {
-        final String METHOD = "parse";
+    public PyList parseDocuments() throws YamlException {
+        final String METHOD = "parseDocuments";
 
         LOGGER.entering(CLASS, METHOD);
-        PyDictionary result = null;
+        PyList result = null;
         if (yamlStream != null) {
             try {
                 result = parseInternal(yamlStream);
@@ -91,8 +91,8 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
         return result;
     }
 
-    public void dump(Map<String, Object> data) throws YamlException {
-        final String METHOD = "dump";
+    public void dumpDocuments(List<?> data) throws YamlException {
+        final String METHOD = "dumpDocuments";
 
         LOGGER.entering(CLASS, METHOD);
         if (yamlOutputWriter != null) {
