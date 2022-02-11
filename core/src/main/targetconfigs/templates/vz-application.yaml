@@ -109,6 +109,7 @@ spec:
                 value: "-Dweblogic.StdoutDebugEnabled=false"
               - name: USER_MEM_ARGS
                 value: "-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m "
+{{#usePersistentVolume}}
 
             # volume information for persistent volume
             volumes:
@@ -118,6 +119,7 @@ spec:
             volumeMounts:
               - mountPath: /shared
                 name: weblogic-domain-storage-volume
+{{/usePersistentVolume}}
 ---
 apiVersion: core.oam.dev/v1alpha2
 kind: Component
