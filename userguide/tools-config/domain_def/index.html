@@ -12,20 +12,20 @@
     <title>Domain type definitions :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644351093" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644351093" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644351093" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644351093" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644351093" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644351093" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644351093" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1644351093" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1644351093" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644351093" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644612532" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644612532" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644612532" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644612532" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644612532" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644612532" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644612532" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1644612532" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1644612532" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644612532" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644351093"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644612532"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644351093"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644351093"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644612532"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644612532"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644351093"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644612532"></script>
 
     
   </div>
@@ -1368,8 +1368,155 @@
         }
     }
 }
-</code></pre></div><p>The <code>targeting</code> attribute is not valid for WebLogic Server versions 12.2.1 and up.</p>
-
+</code></pre></div><p>The <code>targeting</code> attribute is not valid for WebLogic Server versions 12.2.1 and later.</p>
+<h4 id="using-the-typedef-file-to-exclude-template-installed-resources-from-the-model-and-archive">Using the typedef file to exclude template installed resources from the model and archive</h4>
+<p>The Discover Domain Tool attempts to provide a sparse model by employing strategies such as not including attributes that are default values. It is important to not install template resources through the model. First, the templates will install the same resources in the target domain. Second, if you install resources from a on-premises domain into a target domain that is a later WebLogic version, it could cause conflicts.
+The <code>system-elements</code> section of the typedef file is used to assist the Discover Domain Tool. The <code>system-elements</code> section comprises a list that tells the tool what to exclude from the model and archive files.</p>
+<p>The list contains an entry for the type of resource to exclude along with a name or a regexp and name.</p>
+<p>The different types of resources are as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Resource name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps</code></td>
+</tr>
+<tr>
+<td><code>coherence-clusters</code></td>
+</tr>
+<tr>
+<td><code>datasources</code></td>
+</tr>
+<tr>
+<td><code>file-stores</code></td>
+</tr>
+<tr>
+<td><code>jms</code></td>
+</tr>
+<tr>
+<td><code>jms-servers</code></td>
+</tr>
+<tr>
+<td><code>shared-libraries</code></td>
+</tr>
+<tr>
+<td><code>startup-classes</code></td>
+</tr>
+<tr>
+<td><code>wldf</code></td>
+</tr>
+</tbody>
+</table>
+<p>The following example is the <code>system-elements</code> list in the <code>JRF.json</code> typedef file.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">   <span style="color:#e6db74">&#34;system-elements&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> {
+        <span style="color:#f92672">&#34;apps&#34;</span>: [
+            <span style="color:#e6db74">&#34;^coherence-transaction-rar$&#34;</span>,
+            <span style="color:#e6db74">&#34;^DMS Application.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^em$&#34;</span>,
+            <span style="color:#e6db74">&#34;^FMW Welcome Page Application.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^opss-rest$&#34;</span>,
+            <span style="color:#e6db74">&#34;^state-management-provider-memory-rar.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^wsil-wls.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^wsm-pm$&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;coherence-clusters&#34;</span>: [
+            <span style="color:#e6db74">&#34;^defaultCoherenceCluster$&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;datasources&#34;</span>: [
+            <span style="color:#e6db74">&#34;.*LocalSvcTblDataSource$&#34;</span>,
+            <span style="color:#e6db74">&#34;.*mds-owsm$&#34;</span>,
+            <span style="color:#e6db74">&#34;.*opss-audit-DBDS$&#34;</span>,
+            <span style="color:#e6db74">&#34;.*opss-audit-viewDS$&#34;</span>,
+            <span style="color:#e6db74">&#34;.*opss-data-source$&#34;</span>,
+            <span style="color:#e6db74">&#34;.*opss-ds$&#34;</span>,
+            <span style="color:#e6db74">&#34;.*WLSSchemaDataSource$&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;file-stores&#34;</span>: [
+            <span style="color:#e6db74">&#34;^JRFWSAsyncFileStore$&#34;</span>,
+            <span style="color:#e6db74">&#34;^mds-owsm$&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;jms&#34;</span>: [
+            <span style="color:#e6db74">&#34;^JRFWSAsyncJmsModule$&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;jms-servers&#34;</span>: [
+            <span style="color:#e6db74">&#34;^JRFWSAsyncJmsServer$&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;shared-libraries&#34;</span>: [
+            <span style="color:#e6db74">&#34;^adf\\.oracle\\.businesseditor.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^adf\\.oracle\\.domain.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^adf\\.oracle\\.domain\\.webapp.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^em_common.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^em_core_ppc_pojo_jar$&#34;</span>,
+            <span style="color:#e6db74">&#34;^em_error.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^em_sdkcore_ppc_public_pojo_jar$&#34;</span>,
+            <span style="color:#e6db74">&#34;^emagentsdk_jar.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^emagentsdkimpl_jar.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^emagentsdkimplpriv_jar.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^emas$&#34;</span>,
+            <span style="color:#e6db74">&#34;^emcore$&#34;</span>,
+            <span style="color:#e6db74">&#34;^emcore_jar$&#34;</span>,
+            <span style="color:#e6db74">&#34;^emcoreclient_jar$&#34;</span>,
+            <span style="color:#e6db74">&#34;^emcorecommon_jar$&#34;</span>,
+            <span style="color:#e6db74">&#34;^emcoreconsole_jar$&#34;</span>,
+            <span style="color:#e6db74">&#34;^emcoreintsdk_jar.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^emcorepbs_jar$&#34;</span>,
+            <span style="color:#e6db74">&#34;^emcoresdk_jar.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^emcoresdkimpl_jar.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^jsf.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^jstl.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^log4j_jar.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^odl\\.clickhistory.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^odl\\.clickhistory\\.webapp.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^ohw-rcf.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^ohw-uix.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.adf\\.dconfigbeans.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.adf\\.desktopintegration.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.adf\\.desktopintegration\\.model.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.adf\\.management.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.bi\\.adf\\.model\\.slib.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.bi\\.adf\\.view\\.slib.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.bi\\.adf\\.webcenter\\.slib.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.bi\\.composer.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.bi\\.jbips.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.dconfig-infra.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.jrf\\.system\\.filter$&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.jsp\\.next.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.pwdgen.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.sdp\\.client.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.sdp\\.messaging.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.webcenter\\.composer.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.webcenter\\.skin.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.wsm\\.console.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.wsm\\.idmrest.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^oracle\\.wsm\\.seedpolicies.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^orai18n-adf.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^owasp\\.esapi.*&#34;</span>,
+            <span style="color:#e6db74">&#34;^UIX.*&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;shutdown-classes&#34;</span>: [
+            <span style="color:#e6db74">&#34;^DMSShutdown$&#34;</span>,
+            <span style="color:#e6db74">&#34;^JOC-Shutdown$&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;startup-classes&#34;</span>: [
+            <span style="color:#e6db74">&#34;^JMX Framework Startup Class$&#34;</span>,
+            <span style="color:#e6db74">&#34;^JOC-Startup$&#34;</span>,
+            <span style="color:#e6db74">&#34;^JPS Startup Class$&#34;</span>,
+            <span style="color:#e6db74">&#34;^JPS Startup Post-Activation Class$&#34;</span>,
+            <span style="color:#e6db74">&#34;^WSM Startup Class$&#34;</span>,
+            <span style="color:#e6db74">&#34;^Web Services Startup Class$&#34;</span>,
+            <span style="color:#e6db74">&#34;^JRF Startup Class$&#34;</span>,
+            <span style="color:#e6db74">&#34;^ODL-Startup$&#34;</span>,
+            <span style="color:#e6db74">&#34;^DMS-Startup$&#34;</span>,
+            <span style="color:#e6db74">&#34;^AWT Application Context Startup Class$&#34;</span>
+        ],
+        <span style="color:#f92672">&#34;wldf&#34;</span>: [
+            <span style="color:#e6db74">&#34;^Module-FMWDFW$&#34;</span>
+        ]
+    }
+</code></pre></div>
 
 <footer class="footline">
 	
@@ -2160,19 +2307,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644351093"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644351093"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644351093"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644351093"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644351093"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644351093"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644612532"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644612532"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644612532"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644612532"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644612532"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644612532"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644351093"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1644351093"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644351093"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644612532"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1644612532"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644612532"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644351093"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644612532"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
