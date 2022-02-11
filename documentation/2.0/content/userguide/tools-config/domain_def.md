@@ -183,13 +183,13 @@ weight: 2
      }
  }
  ```
+ The `targeting` attribute is not valid for WebLogic Server versions 12.2.1 and later.
 
- The `targeting` attribute is not valid for WebLogic Server versions 12.2.1 and up.
 
 #### Using the typedef file to exclude template installed resources from the model and archive
 
- The Discover tool attempts to provide a sparse model by doing such things as not including attributes that are default values. It is important to not install template resources through the model. First, the templates will install the same resources in the target domain . Second, if you install resources from a on-premise domain into a target domain that is a later WebLogic version, it could cause conflicts.
- The `system-elements` section of the typedef file is used to assist the Discover tool. The `system-elements` section is a list that tells discover what to exclude from the model and archive files.
+ The Discover Domain Tool attempts to provide a sparse model by employing strategies such as not including attributes that are default values. It is important to not install template resources through the model. First, the templates will install the same resources in the target domain. Second, if you install resources from a on-premises domain into a target domain that is a later WebLogic version, it could cause conflicts.
+ The `system-elements` section of the typedef file is used to assist the Discover Domain Tool. The `system-elements` section comprises a list that tells the tool what to exclude from the model and archive files.
 
  The list contains an entry for the type of resource to exclude along with a name or a regexp and name.
 
@@ -207,7 +207,7 @@ weight: 2
 | `startup-classes` |
 | `wldf` |
 
-The following example is the `system-elements` list in the JRF.json typedef file.
+The following example is the `system-elements` list in the `JRF.json` typedef file.
 
 ```json
    "system-elements": {
