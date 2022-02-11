@@ -8,6 +8,5 @@
   "validation_method" : "lax",
   "credentials_output_method" : "script",
   "exclude_domain_bin_contents": true,
-  "additional_secrets": "runtime-encryption-secret",
   "additional_output" : "wko-domain.yaml"
 }

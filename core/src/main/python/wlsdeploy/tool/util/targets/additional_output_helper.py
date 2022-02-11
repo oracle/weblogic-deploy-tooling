@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Methods for creating Kubernetes resource configuration files for Verrazzano.
@@ -130,9 +130,11 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
 
     # runtime encryption secret
 
-    runtime_secret = domain_uid + target_configuration_helper.RUNTIME_ENCRYPTION_SECRET_SUFFIX
-    declared_secrets.append(runtime_secret)
-    template_hash[RUNTIME_ENCRYPTION_SECRET] = runtime_secret
+    additional_secrets = model_context.get_target_configuration().get_additional_secrets()
+    if target_configuration_helper.RUNTIME_ENCRYPTION_SECRET_NAME in additional_secrets:
+        runtime_secret = domain_uid + target_configuration_helper.RUNTIME_ENCRYPTION_SECRET_SUFFIX
+        declared_secrets.append(runtime_secret)
+        template_hash[RUNTIME_ENCRYPTION_SECRET] = runtime_secret
 
     # configuration / model
     template_hash[DOMAIN_TYPE] = model_context.get_domain_type()

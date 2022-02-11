@@ -68,10 +68,12 @@ spec:
 
               # WebLogic Image Tool provides modelHome
               modelHome: {{{modelHome}}}
+{{#runtimeEncryptionSecret}}
 
               # encryption for the WDT model and the SystemSerializedIni.data file.
               # used only for model-in-image deployment, can be removed for other types.
               runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
+{{/runtimeEncryptionSecret}}
 {{#hasAdditionalSecrets}}
 
             secrets:

@@ -1,4 +1,4 @@
-# Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+# Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 apiVersion: "weblogic.oracle/v8"
@@ -71,10 +71,12 @@ spec:
 
       # WebLogic Image Tool provides modelHome
       modelHome: {{{modelHome}}}
+{{#runtimeEncryptionSecret}}
 
       # encryption for the WDT model and the SystemSerializedIni.data file.
       # used only for model-in-image deployment, can be removed for other types.
       runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
+{{/runtimeEncryptionSecret}}
 {{#hasAdditionalSecrets}}
 
     # Secrets that are referenced by model yaml macros
