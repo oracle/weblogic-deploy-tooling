@@ -74,7 +74,7 @@ class YamlToPython(object):
 
         self._logger.entering(class_name=self._class_name, method_name=_method_name)
         # throws YamlException with details, nothing we can really add here...
-        result_dict = self._translator.parseDocuments()
+        result_dict = self._translator.parseDocuments(True)
 
         # don't log the model on exit, it may contain passwords
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)

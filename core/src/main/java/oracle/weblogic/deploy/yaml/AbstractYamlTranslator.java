@@ -41,7 +41,7 @@ public abstract class AbstractYamlTranslator {
     protected abstract String getClassName();
 
     // override to return a list of documents as Python dictionaries from the YAML
-    public abstract PyList parseDocuments() throws YamlException;
+    public abstract PyList parseDocuments(boolean allowMultiple) throws YamlException;
 
     // override to write a list of documents as Python dictionaries to the YAML
     public abstract void dumpDocuments(List<?> documents) throws YamlException;
@@ -62,21 +62,17 @@ public abstract class AbstractYamlTranslator {
     public PyDictionary parse() throws YamlException {
         final String METHOD = "parse";
         PyDictionary result;
-        PyList dictionaries = parseDocuments();
+        PyList dictionaries = parseDocuments(false);
         if (dictionaries.isEmpty()) {
             result = getNewDictionary();
-        } else if (dictionaries.size() == 1) {
-            result = (PyDictionary) dictionaries.get(0);
         } else {
-            YamlException pex = new YamlException("WLSDPLY-18101", this.fileName, dictionaries.size());
-            getLogger().throwing(getClassName(), METHOD, pex);
-            throw pex;
+            result = (PyDictionary) dictionaries.get(0);
         }
         return result;
     }
 
     @SuppressWarnings("WeakerAccess")
-    protected PyList parseInternal(InputStream inputStream) throws YamlException {
+    protected PyList parseInternal(InputStream inputStream, boolean allowMultiple) throws YamlException {
         final String METHOD = "parseInternal";
 
         // there are problems using PyList.add(),
@@ -87,9 +83,23 @@ public abstract class AbstractYamlTranslator {
 
             try {
                 Iterable<Object> docsIterable = parser.loadAll(inputStream);
+                List<Object> documents = new ArrayList<>();
                 for (Object document : docsIterable) {
+                    documents.add(document);
+                }
+
+                // don't continue with conversion if multiple documents check fails
+                if(!allowMultiple && documents.size() > 1) {
+                    YamlException pex = new YamlException("WLSDPLY-18101", this.fileName, documents.size());
+                    getLogger().throwing(getClassName(), METHOD, pex);
+                    throw pex;
+                }
+
+                for (Object document : documents) {
                     result.add(convertJavaDataStructureToPython(document));
                 }
+            } catch (YamlException yex) {
+                throw yex;
             } catch (Exception ex) {
                 YamlException pex = new YamlException("WLSDPLY-18100", ex, this.fileName, ex.getLocalizedMessage());
                 getLogger().throwing(getClassName(), METHOD, pex);

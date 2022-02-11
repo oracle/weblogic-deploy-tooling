@@ -70,14 +70,14 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
      * @throws YamlException if an error occurs while reading the input
      */
     @Override
-    public PyList parseDocuments() throws YamlException {
+    public PyList parseDocuments(boolean allowMultiple) throws YamlException {
         final String METHOD = "parseDocuments";
 
         LOGGER.entering(CLASS, METHOD);
         PyList result = null;
         if (yamlStream != null) {
             try {
-                result = parseInternal(yamlStream);
+                result = parseInternal(yamlStream, allowMultiple);
             } finally {
                 try {
                     yamlStream.close();

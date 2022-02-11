@@ -54,13 +54,13 @@ public class YamlTranslator extends AbstractYamlTranslator {
      * @throws YamlException if an error occurs while reading the input
      */
     @Override
-    public PyList parseDocuments() throws YamlException {
+    public PyList parseDocuments(boolean allowMultiple) throws YamlException {
         final String METHOD = "parseDocuments";
 
         LOGGER.entering(CLASS, METHOD);
         PyList result;
         try (FileInputStream fis = new FileInputStream(yamlFile)) {
-            result = parseInternal(fis);
+            result = parseInternal(fis, allowMultiple);
         } catch (IOException ioe) {
             YamlException ex = new YamlException("WLSDPLY-18108", ioe, yamlFile.getPath(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ex);

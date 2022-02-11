@@ -5,6 +5,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import os
 
 from base_test import BaseTestCase
+from oracle.weblogic.deploy.yaml import YamlException
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 from wlsdeploy.yaml.yaml_translator import YamlToPython
 
@@ -39,3 +40,17 @@ class YamlTranslatorTest(BaseTestCase):
         reader = YamlToPython(output_file, True)
         result = reader.parse_documents()
         self._match_values("Re-read document count", len(result), 3)
+
+    def testParseMultipleDocuments(self):
+        """
+        Test that YAML with multiple documents can not be read
+        with the YamlToPython parse() method.
+        """
+        try:
+            model_file = os.path.join(self.MODELS_DIR, 'multiple-docs.yaml')
+            reader = YamlToPython(model_file, True)
+            reader.parse()
+            self.fail("Should not parse multiple-document YAML with parse()")
+        except YamlException:
+            pass
+
