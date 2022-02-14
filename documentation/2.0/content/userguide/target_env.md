@@ -182,7 +182,7 @@ This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS en
 
 #### `use_persistent_volume`
 
-This field specifies that the domain will be created for the Domain in PV [domain home source type](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/). This will add volume information to the Kubernetes resource file that is generated.
+This field specifies if the domain is to be created for the Domain in PV [domain home source type](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/). If set to `true`, volume information will be added to the Kubernetes resource file that is generated.
 
 #### `additional_secrets`
 
