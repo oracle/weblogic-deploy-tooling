@@ -1100,6 +1100,7 @@ class WlstHelper(object):
         except self.__load_global('WLSTException'), e:
             if sostream:
                 redeploy_error = sostream.get_string()
+            self.silence()
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00060', application_name,
                                                     args, kwargs, _format_exception(e), redeploy_error, error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
