@@ -187,7 +187,7 @@ This field specifies that the domain will be created for the Domain in PV [domai
 #### `additional_secrets`
 
 This field specifies a comma-separated list of secret types that are to be included in the Kubernetes resource file and the create secrets script. There is one secret type available:
-- `runtime-encryption-secret` - this will add a `runtimeEncryptionSecret` attribute to be added to the Kubernetes resource file with the value `<DOMAIN_UID>-runtime-encryption-secret`, and that secret name will be added to the [create secrets script](#the-create-secrets-script).
+- `runtime-encryption-secret` - this will add a `runtimeEncryptionSecret` attribute to the Kubernetes resource file with the value `<DOMAIN_UID>-runtime-encryption-secret`, and that secret name will be added to the [create secrets script](#the-create-secrets-script).
 
 #### `additional_output`
 
