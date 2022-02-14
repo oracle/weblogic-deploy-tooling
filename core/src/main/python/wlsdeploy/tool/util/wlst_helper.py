@@ -5,12 +5,16 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 import types
 
+from java.io import PrintStream
+from java.lang import System
+
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
 import oracle.weblogic.deploy.util.StringUtils as StringUtils
 import weblogic.management.mbeanservers.edit.ValidationException as ValidationException
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 
 wlst_functions = None
 
@@ -1044,14 +1048,23 @@ class WlstHelper(object):
         """
         _method_name = 'undeploy_application'
         self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
-
+        undeploy_error = None
+        sostream = None
         try:
+            self.enable_stdout()
+            sostream = StringOutputStream()
+            System.setOut(PrintStream(sostream))
             result = self.__load_global('undeploy')(application_name, *args, **kwargs)
+            self.silence()
         except self.__load_global('WLSTException'), e:
+            if sostream:
+              undeploy_error = sostream.get_string()
+            self.silence()
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00059', application_name,
-                                                    args, kwargs, _format_exception(e), error=e)
+                                                    args, kwargs, _format_exception(e), undeploy_error, error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
+
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
