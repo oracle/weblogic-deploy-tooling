@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Methods for creating Kubernetes resource configuration files for Verrazzano.
@@ -49,6 +49,7 @@ HAS_DATASOURCES = 'hasDatasources'
 NAMESPACE = 'namespace'
 REPLICAS = 'replicas'
 RUNTIME_ENCRYPTION_SECRET = "runtimeEncryptionSecret"
+USE_PERSISTENT_VOLUME = "usePersistentVolume"
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 
 
@@ -85,7 +86,7 @@ def _create_file(template_name, template_hash, model_context, output_dir, except
     _method_name = '_create_file'
 
     target_key = model_context.get_target()
-    template_subdir = "targets/" + target_key + "/" + template_name
+    template_subdir = "targets/templates/" + template_name
     template_path = path_utils.find_config_path(template_subdir)
     output_file = File(output_dir, template_name)
 
@@ -104,6 +105,7 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
     :return: the hash dictionary
     """
     template_hash = dict()
+    target_configuration = model_context.get_target_configuration()
 
     # actual domain name
 
@@ -130,9 +132,15 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
 
     # runtime encryption secret
 
-    runtime_secret = domain_uid + target_configuration_helper.RUNTIME_ENCRYPTION_SECRET_SUFFIX
-    declared_secrets.append(runtime_secret)
-    template_hash[RUNTIME_ENCRYPTION_SECRET] = runtime_secret
+    additional_secrets = target_configuration.get_additional_secrets()
+    if target_configuration_helper.RUNTIME_ENCRYPTION_SECRET_NAME in additional_secrets:
+        runtime_secret = domain_uid + target_configuration_helper.RUNTIME_ENCRYPTION_SECRET_SUFFIX
+        declared_secrets.append(runtime_secret)
+        template_hash[RUNTIME_ENCRYPTION_SECRET] = runtime_secret
+
+    # use persistent_volume
+
+    template_hash[USE_PERSISTENT_VOLUME] = target_configuration.use_persistent_volume()
 
     # configuration / model
     template_hash[DOMAIN_TYPE] = model_context.get_domain_type()
@@ -212,11 +220,13 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
 
     # combine user/password properties to get a single list
     secrets = []
-    for property_name in credential_injector.get_variable_cache():
-        halves = property_name.split(':', 1)
-        name = halves[0]
-        if name not in secrets:
-            secrets.append(name)
+
+    if target_configuration.uses_credential_secrets():
+        for property_name in credential_injector.get_variable_cache():
+            halves = property_name.split(':', 1)
+            name = halves[0]
+            if name not in secrets:
+                secrets.append(name)
 
     for secret in secrets:
         secrets_hash = dict()
