@@ -1,4 +1,4 @@
-# Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+# Copyright (c) 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 apiVersion: core.oam.dev/v1alpha2
@@ -68,10 +68,12 @@ spec:
 
               # WebLogic Image Tool provides modelHome
               modelHome: {{{modelHome}}}
+{{#runtimeEncryptionSecret}}
 
               # encryption for the WDT model and the SystemSerializedIni.data file.
               # used only for model-in-image deployment, can be removed for other types.
               runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
+{{/runtimeEncryptionSecret}}
 {{#hasAdditionalSecrets}}
 
             secrets:
@@ -107,6 +109,17 @@ spec:
                 value: "-Dweblogic.StdoutDebugEnabled=false"
               - name: USER_MEM_ARGS
                 value: "-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m "
+{{#usePersistentVolume}}
+
+            # volume information for persistent volume
+            volumes:
+              - name: weblogic-domain-storage-volume
+                persistentVolumeClaim:
+                  claimName: '--FIX ME--'
+            volumeMounts:
+              - mountPath: /shared
+                name: weblogic-domain-storage-volume
+{{/usePersistentVolume}}
 ---
 apiVersion: core.oam.dev/v1alpha2
 kind: Component

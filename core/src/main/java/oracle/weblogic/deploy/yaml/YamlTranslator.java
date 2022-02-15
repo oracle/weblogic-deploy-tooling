@@ -8,13 +8,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.util.FileUtils;
 
-import org.python.core.PyDictionary;
+import org.python.core.PyList;
 
 /**
  * An implementation of the YAML parser/translator that reads the YAML input from an input stream.
@@ -46,20 +46,21 @@ public class YamlTranslator extends AbstractYamlTranslator {
         super(fileName, useOrderedDict);
         this.yamlFile = FileUtils.validateExistingFile(fileName);
     }
+
     /**
-     * This method triggers parsing of the file and conversion into the Python dictionary.
+     * Read a list of documents as Python dictionaries from the YAML file.
      *
-     * @return the python dictionary corresponding to the YAML input file
-     * @throws YamlException if an error occurs while reading the input file
+     * @return a list of documents corresponding to the YAML input
+     * @throws YamlException if an error occurs while reading the input
      */
     @Override
-    public PyDictionary parse() throws YamlException {
-        final String METHOD = "parse";
+    public PyList parseDocuments(boolean allowMultiple) throws YamlException {
+        final String METHOD = "parseDocuments";
 
         LOGGER.entering(CLASS, METHOD);
-        PyDictionary result;
+        PyList result;
         try (FileInputStream fis = new FileInputStream(yamlFile)) {
-            result = parseInternal(fis);
+            result = parseInternal(fis, allowMultiple);
         } catch (IOException ioe) {
             YamlException ex = new YamlException("WLSDPLY-18108", ioe, yamlFile.getPath(), ioe.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ex);
@@ -71,8 +72,8 @@ public class YamlTranslator extends AbstractYamlTranslator {
         return result;
     }
 
-    public void dump(Map<String, Object> data) throws YamlException {
-        final String METHOD = "dump";
+    public void dumpDocuments(List<?> data) throws YamlException {
+        final String METHOD = "dumpDocuments";
 
         // Don't log the data since it is big and could contain credentials.
         LOGGER.entering(CLASS, METHOD);

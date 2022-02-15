@@ -8,6 +8,6 @@
     "validation_method" : "lax",
     "credentials_output_method" : "script",
     "exclude_domain_bin_contents": true,
-    "additional_secrets": "runtime-encryption-secret",
+    "use_persistent_volume" : true,
     "additional_output" : "vz-application.yaml"
 }

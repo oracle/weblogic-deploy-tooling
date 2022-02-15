@@ -85,6 +85,8 @@ public class XPathUtil {
         }
         return descrip.substring(idx, endIdx+1);
     }
+
+
     /**
      * Locate the patch files in the Oracle home
      * @return list of patch file names.
