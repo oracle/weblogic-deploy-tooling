@@ -37,6 +37,11 @@ public class XPathUtil {
         this.oracle_home = oracle_home;
         patches_home = Paths.get(oracle_home, "inventory", "patches").toString();
     }
+
+    public XPathUtil() {
+        // for testing only
+    }
+
     private static XPathFactory factory = null;
 
     private static synchronized XPathFactory factory() {
@@ -63,9 +68,8 @@ public class XPathUtil {
             String descrip = description(doc, "//@description");
             LOGGER.fine("Description {0}", descrip);
             if (descrip != null && descrip.startsWith("WLS PATCH SET UPDATE")) {
-                int idx = descrip.lastIndexOf('.');
-                String psu = descrip.substring(idx+1);
-                 list.add(psu);
+                String psu = extractPsu(descrip);
+                list.add(psu);
                 Collections.sort(list);
                 return list.get(list.size() -1);
             }
@@ -73,6 +77,14 @@ public class XPathUtil {
         return null;
     }
 
+    public String extractPsu(String descrip) {
+        int idx = descrip.lastIndexOf('.') + 1;
+        int endIdx = descrip.length() - 1;
+        if (descrip.charAt(endIdx) == ')') {
+            endIdx--;
+        }
+        return descrip.substring(idx, endIdx+1);
+    }
     /**
      * Locate the patch files in the Oracle home
      * @return list of patch file names.
