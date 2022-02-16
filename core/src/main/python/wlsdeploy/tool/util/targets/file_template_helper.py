@@ -134,6 +134,10 @@ def _process_block(block_key, template_lines, template_hash, file_writer):
         nested_block_key = None
         nested_block_lines = []
 
+        nested_hash = dict(template_hash)
+        if isinstance(list_element, dict):
+            nested_hash.update(list_element)
+
         for line in template_lines:
             block_start_key = _get_block_start_key(line)
 
@@ -142,9 +146,6 @@ def _process_block(block_key, template_lines, template_hash, file_writer):
             if nested_block_key is not None:
                 block_end_key = _get_block_end_key(line)
                 if block_end_key == nested_block_key:
-                    nested_hash = dict(template_hash)
-                    if isinstance(list_element, dict):
-                        nested_hash.update(list_element)
                     _process_block(nested_block_key, nested_block_lines, nested_hash, file_writer)
                     nested_block_key = None
                 else:
@@ -157,8 +158,7 @@ def _process_block(block_key, template_lines, template_hash, file_writer):
 
             # otherwise, substitute and write the line
             else:
-                if isinstance(list_element, dict):
-                    line = _substitute_line(line, list_element)
+                line = _substitute_line(line, nested_hash)
                 file_writer.write(line + "\n")
 
 
