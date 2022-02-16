@@ -71,7 +71,7 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     template_hash = _build_template_hash(model, model_context, aliases, credential_injector)
     template_names = model_context.get_target_configuration().get_additional_output_types()
     for template_name in template_names:
-        _create_file(template_name, template_hash, model_context, output_dir, exception_type)
+        _create_file(template_name, template_hash, output_dir, exception_type)
         resource_file_helper.update_from_model(output_dir, template_name, model)
 
 
