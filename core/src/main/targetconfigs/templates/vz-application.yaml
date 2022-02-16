@@ -51,9 +51,9 @@ spec:
           domainUID: {{{domainUid}}}
 
           # WebLogic Image Tool provides domainHome, domainHomeSourceType, and imageName
-          domainHome: {{{domainHome}}}
-          domainHomeSourceType: {{{domainHomeSourceType}}}
-          image: {{{imageName}}}
+          domainHome: '{{{domainHome}}}'
+          domainHomeSourceType: '{{{domainHomeSourceType}}}'
+          image: '{{{imageName}}}'
 
           imagePullSecrets:
             - name: {{{domainPrefix}}}-registry-credentials
@@ -67,7 +67,7 @@ spec:
               domainType: {{{domainType}}}
 
               # WebLogic Image Tool provides modelHome
-              modelHome: {{{modelHome}}}
+              modelHome: '{{{modelHome}}}'
 {{#runtimeEncryptionSecret}}
 
               # encryption for the WDT model and the SystemSerializedIni.data file.
