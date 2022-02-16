@@ -11,6 +11,7 @@ from oracle.weblogic.deploy.yaml import YamlException
 from oracle.weblogic.deploy.util import PyOrderedDict
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.extract import wko_schema_helper
 from wlsdeploy.tool.extract.domain_resource_extractor import COMPONENT
 from wlsdeploy.tool.extract.domain_resource_extractor import DEFAULT_KIND
 from wlsdeploy.tool.extract.domain_resource_extractor import KIND
@@ -77,7 +78,7 @@ def _update_documents(documents, kubernetes_content, resource_file_path):
 
             # is this a standard WKO document?
             if kind == DEFAULT_KIND:
-                _update_operator_section(document, kubernetes_content, resource_file_path)
+                _update_dictionary(document, kubernetes_content, None, resource_file_path)
                 found = True
 
             # is this a Verrazzano WebLogic workload document?
@@ -88,14 +89,46 @@ def _update_documents(documents, kubernetes_content, resource_file_path):
                 if component_kind == VERRAZZANO_WEBLOGIC_WORKLOAD:
                     component_spec = _get_or_create_dictionary(workload, SPEC)
                     component_template = _get_or_create_dictionary(component_spec, TEMPLATE)
-                    _update_operator_section(component_template, kubernetes_content, resource_file_path)
+                    _update_dictionary(component_template, kubernetes_content, None, resource_file_path)
                     found = True
 
     if not found:
-        __logger.severe('WLSDPLY-01676', resource_file_path, class_name=__class_name, method_name=_method_name)
+        __logger.warning('WLSDPLY-01676', resource_file_path, class_name=__class_name, method_name=_method_name)
 
 
-def _update_operator_section(dictionary, kubernetes_content, resource_file_path):
+def _update_dictionary(output_dictionary, model_content, element_path, resource_file_path):
+    _method_name = '_update_list'
+    if not isinstance(output_dictionary, dict):
+        __logger.warning('WLSDPLY-01677', element_path, resource_file_path, class_name=__class_name,
+                         method_name=_method_name)
+        return
+
+    for key, value in model_content.items():
+        if key not in output_dictionary:
+            output_dictionary[key] = value
+        elif isinstance(value, dict):
+            element_path = wko_schema_helper.append_path(element_path, key)
+            _update_dictionary(output_dictionary[key], value, element_path, resource_file_path)
+        elif isinstance(value, list):
+            if not value:
+                # if the model has an empty list, override output value
+                output_dictionary[key] = value
+            else:
+                element_path = wko_schema_helper.append_path(element_path, key)
+                _update_list(output_dictionary[key], value, element_path, resource_file_path)
+        else:
+            output_dictionary[key] = value
+    pass
+
+
+def _update_list(output_list, model_list, element_path, resource_file_path):
+    _method_name = '_update_list'
+    if not isinstance(output_list, list):
+        __logger.warning('WLSDPLY-01678', element_path, resource_file_path, class_name=__class_name,
+                         method_name=_method_name)
+        return
+
+    output_list.extend(model_list)
     pass
 
 
