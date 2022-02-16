@@ -50,6 +50,12 @@ DEFAULT_IMAGE = PASSWORD_TOKEN
 DEFAULT_IMAGE_PULL_SECRETS = PASSWORD_TOKEN
 DEFAULT_SOURCE_TYPE = 'Image'
 
+# specific to Verrazzano
+COMPONENT = 'Component'
+TEMPLATE = 'template'
+VERRAZZANO_WEBLOGIC_WORKLOAD = 'VerrazzanoWebLogicWorkload'
+WORKLOAD = 'workload'
+
 # deprecated - used for "named object list" format
 OBJECT_NAME_ATTRIBUTES = {
     'spec/adminServer/adminService/channels': 'channelName',

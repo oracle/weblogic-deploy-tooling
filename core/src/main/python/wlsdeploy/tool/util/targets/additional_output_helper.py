@@ -18,6 +18,7 @@ from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util.targets import file_template_helper
+from wlsdeploy.tool.util.targets import resource_file_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import target_configuration_helper
@@ -71,21 +72,20 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     template_names = model_context.get_target_configuration().get_additional_output_types()
     for template_name in template_names:
         _create_file(template_name, template_hash, model_context, output_dir, exception_type)
+        resource_file_helper.update_from_model(output_dir, template_name, model)
 
 
-def _create_file(template_name, template_hash, model_context, output_dir, exception_type):
+def _create_file(template_name, template_hash, output_dir, exception_type):
     """
     Read the template from the resource stream, perform any substitutions,
     and write it to a file with the same name in the output directory.
     :param template_name: the name of the template file, and the output file
     :param template_hash: a dictionary of substitution values
-    :param model_context: used to determine location and content for the output
     :param output_dir: the directory to write the output file
     :param exception_type: the type of exception to throw if needed
     """
     _method_name = '_create_file'
 
-    target_key = model_context.get_target()
     template_subdir = "targets/templates/" + template_name
     template_path = path_utils.find_config_path(template_subdir)
     output_file = File(output_dir, template_name)
