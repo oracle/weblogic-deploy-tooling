@@ -1,0 +1,30 @@
+# Copyright (c) 2022, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+apiVersion: weblogic.oracle/v8
+kind: Domain
+metadata:
+    name: demodomain
+spec:
+    domainHome: --FIX ME--
+
+    # a list of objects
+    clusters:
+        - clusterName: cluster1
+          replicas: 1
+        - clusterName: cluster2
+          replicas: 2
+
+    configuration:
+        # a simple list
+        secrets:
+            - secret-one
+            - secret-two
+
+    serverPod:
+        # a list of objects
+        env:
+            - name: JAVA_OPTIONS
+              value: "-Dweblogic.StdoutDebugEnabled=false"
+            - name: USER_MEM_ARGS
+              value: '-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m '
